@@ -1,0 +1,592 @@
+{
+    "total-repositories": 38,
+    "total-commits": 50,
+    "results": [
+        {
+            "repo": "busmaster",
+            "URL": "https://github.com/rbei-etas/busmaster.git",
+            "commits": [
+                {
+                    "hash": "d9c3b219ad2af3be43bfde3993280b09bde48048",
+                    "author": "Tobias Lorenz",
+                    "message": "Fix an issue with Extended IDs > INT_MAX.\n\nSigned-off-by: Tobias Lorenz <tobias.lorenz@etas.com>",
+                    "category": "Message ID Bug",
+                    "note":""
+                },
+                {
+                    "hash": "9d683c716434869116de6cfa0e52a728e3ac929c",
+                    "author": "Arunkumar Karri",
+                    "message": "Introduced check to have no data for RTR frames. Fix for issue: 189.",
+                    "category": "Usage Error",
+                    "note": "Printing data packet for RTR frame"
+                },
+                {
+                    "hash": "726a0e5b4bc738cb42fae276d12e647473cc455b",
+                    "author": "Arunkumar Karri",
+                    "message": "Update Sources/CAN_Vector_XL/CAN_Vector_XL.cpp\n\nUpdated helper funcion bClassifyMsgType(..) to copy only valid DLC data. Fix for Git issue: 202.",
+                    "category": "Data Bug",
+                    "note": "Buffer error:copying outside DLC buffer"
+                },
+                {
+                    "hash": "558e89b9e3525d349901ba92f802c5a355e4a407",
+                    "author": "Tobias Lorenz",
+                    "message": "Bug fix for sending CAN FD frames will DLC>8.\n\nSigned-off-by: Tobias Lorenz <tobias.lorenz@etas.com>",
+                    "category": "Data Bug",
+                    "note": "Buffer error - losing bytes in CAN FD after 8th byte wehn max is 64 bytes"
+                }
+            ]
+        },
+        {
+            "repo": "can2040",
+            "URL": "https://github.com/KevinOConnor/can2040.git",
+            "commits": [
+                {
+                    "hash": "6486d4be488212860bf596c85ce947c7dbe4a546",
+                    "author": "Kevin O'Connor",
+                    "message": "can2040: Fix extended frame bit ordering of id\n\nSigned-off-by: Kevin O'Connor <kevin@koconnor.net>",
+                    "category": "Message ID Bug",
+                    "note": ""
+                }
+            ]
+        },
+        {
+            "repo": "odroid-c1plus",
+            "URL": "https://github.com/sergiy-nazarenko/odroid-c1plus.git",
+            "commits": [
+                {
+                    "hash": "936818ea5c4f447e035cae838f938b2852be69a2",
+                    "author": "snazarenko",
+                    "message": "fixed filters",
+                    "category": "Usage Error",
+                    "note": "Incorrect filters set"
+                }
+            ]
+        },
+        {
+            "repo": "NMEA2000_mcp",
+            "URL": "https://github.com/ttlappalainen/NMEA2000_mcp.git",
+            "commits": [
+                {
+                    "hash": "9478687614e03f9bee869f80659c283367000191",
+                    "author": "ttlappalainen",
+                    "message": "Fix for frame buffer sizing.",
+                    "category": "Data Bug",
+                    "note": "receive buffer frame size issue"
+                }
+            ]
+        },
+        {
+            "repo": "cangaroo",
+            "URL": "https://github.com/HubertD/cangaroo.git",
+            "commits": [
+                {
+                    "hash": "9cf87717f1a2b851507576befcded0637b4fd621",
+                    "author": "Hubert Denkmair",
+                    "message": "fixed bigendian can signals, for real",
+                    "category": "Data Bug",
+                    "note": "Issue reading signials due to big endianness"
+                }
+            ]
+        },
+        {
+            "repo": "ng_can",
+            "URL": "https://github.com/johnnyhh/ng_can.git",
+            "commits": [
+                {
+                    "hash": "83aa3e64079c3caa4b545f85f7679e6c23344d2c",
+                    "author": "johnnyhh",
+                    "message": "fix read buffer overflow",
+                    "category": "Data Bug",
+                    "note": "Buffer overflow issue"
+                }
+            ]
+        },
+        {
+            "repo": "CAN_BUS_Shield",
+            "URL": "https://github.com/yexiaobo-seeedstudio/CAN_BUS_Shield.git",
+            "commits": [
+                {
+                    "hash": "5601f6b37f69335f66897b26dab89f3666140352",
+                    "author": "Nick Johnson",
+                    "message": "Fix incorrect settings for 125k can bus speed",
+                    "category": "Baudrate Bug",
+                    "note": ""
+                }
+            ]
+        },
+        {
+            "repo": "can_bus",
+            "URL": "https://github.com/AlSaqr-platform/can_bus.git",
+            "commits": [
+                {
+                    "hash": "96e9d52ece492b33045a332d350b80eee041b2c4",
+                    "author": "Pavel Pisa",
+                    "message": "driver: fix frame data order on big-endian systems.\n\nTested on big-endian MIPS Malta system emulated by QEMU\nwith CTU CAN FD device model.\n\nSigned-off-by: Pavel Pisa <pisa@cmp.felk.cvut.cz>",
+                    "category": "Data Bug",
+                    "note": "Receiving frame data bytes in wrong order"
+                }
+            ]
+        },
+        {
+            "repo": "an-usb-to-can-adaptor-mcxn947",
+            "URL": "https://github.com/nxp-appcodehub/an-usb-to-can-adaptor-mcxn947.git",
+            "commits": [
+                {
+                    "hash": "befae96ae2b4a3bb378cb85ef7447ea2f780c24b",
+                    "author": "Daniel Martinez",
+                    "message": "Fix to modify the arbitration baudrate when demo is disconnected from Terminal",
+                    "category": "Baudrate Bug",
+                    "note": ""
+                }
+            ]
+        },
+        {
+            "repo": "can2040-mod",
+            "URL": "https://gitlab.com/jtmaston/can2040-mod.git",
+            "commits": [
+                {
+                    "hash": "6486d4be488212860bf596c85ce947c7dbe4a546",
+                    "author": "Kevin O'Connor",
+                    "message": "can2040: Fix extended frame bit ordering of id\n\nSigned-off-by: Kevin O'Connor <kevin@koconnor.net>",
+                    "category": "Message ID Bug",
+                    "note": "*ADD SECOND BUG* - data bug, issue packing extended headers in message"
+                }
+            ]
+        },
+        {
+            "repo": "I2C_CAN_Firmware",
+            "URL": "https://github.com/Longan-Labs/I2C_CAN_Firmware.git",
+            "commits": [
+                {
+                    "hash": "5b47bca56df81e7b3c7ffb7f97f7b0989db3caf1",
+                    "author": "stephen1874",
+                    "message": "fix bug when id larger than 0xff while sending",
+                    "category": "UNKOWN",
+                    "note": "Think the issue has something to do with changes in .ino file, not sure though"
+                }
+            ]
+        },
+        {
+            "repo": "CAN-on-DSP-TMS320F28335",
+            "URL": "https://github.com/zhanglongqi/CAN-on-DSP-TMS320F28335.git",
+            "commits": [
+                {
+                    "hash": "079ab91f54993f08a274a66130f5b025fc87d8cd",
+                    "author": "longqi",
+                    "message": "fix the bug of message id",
+                    "category": "Message ID Bug",
+                    "note": "Wrong IDs assigned to mailboxes"
+                }
+            ]
+        },
+        {
+            "repo": "can_bus",
+            "URL": "https://github.com/AlSaqr-platform/can_bus.git",
+            "commits": [
+                {
+                    "hash": "ae757ccf76817b078c8cab7431ac7cb341d9a0a0",
+                    "author": "Martin Jerabek",
+                    "message": "driver: fix priority rotation, frame defs endianity, data endianity (tmp sw fix)",
+                    "category": "Data Bug",
+                    "note": "Receive frame endianness bug (ctu_can_fd_hw.c, line 745) {aslo has other bugs, split into multiple}"
+                }
+            ]
+        },
+        {
+            "repo": "CANmon",
+            "URL": "https://github.com/UVicFormulaMotorsport/CANmon.git",
+            "commits": [
+                {
+                    "hash": "e7b8aef2fd2f6405d001c4ebc6e773796e17f583",
+                    "author": "Darryl Ring",
+                    "message": "Fix silly UART read byte handling error\n\nCheck for E_UART_RX_BUF_EMPTY instead of byte being equal to 0. byte\ncould be 0 at any time and this does not imply nothing was read from the\nUART.",
+                    "category": "Data Bug",
+                    "note": "Faulty check for empty packets"
+                }
+            ]
+        },
+        {
+            "repo": "lib_can_bus_sniffer",
+            "URL": "https://github.com/KaiserEngineering/lib_can_bus_sniffer.git",
+            "commits": [
+                {
+                    "hash": "9ba0bd7afb31b655c80b9c9ac0b02454cdd70cf2",
+                    "author": "Matt Kaiser",
+                    "message": "Fix bug causing only a single CAN filter to activate",
+                    "category": "Usage Error",
+                    "note": "Incorrect Filter handling"
+                }
+            ]
+        },
+        {
+            "repo": "tincan",
+            "URL": "https://github.com/mwkpe/tincan.git",
+            "commits": [
+                {
+                    "hash": "a72b24bf951ce63db78c7d37205d1561daebfb27",
+                    "author": "mwkpe",
+                    "message": "Refactor, fix bug where raw instead of masked ID was used",
+                    "category": "Data Bug",
+                    "note": "Sends wrong frame ID when message is received (Ignored mask)"
+                }
+            ]
+        },
+        {
+            "repo": "can4linux",
+            "URL": "https://gitlab.com/littleback/can4linux.git",
+            "commits": [
+                {
+                    "hash": "03ca091af8d390a082409e56f4a6d532510daed7",
+                    "author": "Heinz-J\u00fcrgen Oertel",
+                    "message": "- Register the fixed CAN clock for CPC_PCI and CPC_PCI2",
+                    "category": "Baudrate Bug",
+                    "note": ""
+                }
+            ]
+        },
+        {
+            "repo": "BlueGenieBMW",
+            "URL": "https://github.com/dzid26/BlueGenieBMW.git",
+            "commits": [
+                {
+                    "hash": "bf8c45334aad2d17654f0c43709957199cb3588b",
+                    "author": "dzid_",
+                    "message": "Housekeeping. Added compiler switches to differentiate from old hardware and a bench.\nFixed CAN messages mask.",
+                    "category": "Usage Error",
+                    "note": "Wrong mask set"
+                }
+            ]
+        },
+        {
+            "repo": "AVR-CAN",
+            "URL": "https://github.com/OlinREVO/AVR-CAN.git",
+            "commits": [
+                {
+                    "hash": "a67afc389955cc45241bfd777e8f45e52437b7be",
+                    "author": "Derek Redfern",
+                    "message": "Fixed ID frame truncation bug",
+                    "category": "Message ID Bug",
+                    "note": ""
+                }
+            ]
+        },
+        {
+            "repo": "obd2-data-logger",
+            "URL": "https://github.com/tkim338/obd2-data-logger.git",
+            "commits": [
+                {
+                    "hash": "5159ee33f33bac3a376e19e2613d047385c3ef46",
+                    "author": "Thomas Kim",
+                    "message": "fixed buffer overwrite issue",
+                    "category": "Usage Error",
+                    "note": "Fixed overflow bug when sending RTR messages"
+                }
+            ]
+        },
+        {
+            "repo": "rp2040-can-mcp2515",
+            "URL": "https://github.com/trnila/rp2040-can-mcp2515.git",
+            "commits": [
+                {
+                    "hash": "8ff1d89e47f7cea6c1b002db98c996c2c24a76dd",
+                    "author": "Daniel Trnka",
+                    "message": "fixed addressing in READ RX BUFFER command",
+                    "category": "Data Bug",
+                    "note": "Receive bug"
+                }
+            ]
+        },
+        {
+            "repo": "A0RET",
+            "URL": "https://gitlab.com/audiserg/A0RET.git",
+            "commits": [
+                {
+                    "hash": "f3ebb206da19dafbac5a74c2442777b02db4aa25",
+                    "author": "Collin Kidder",
+                    "message": "Fix stupid bug where CAN pins weren't being set properly,\nfix WiFi problem where it won't connect every other time it is reset.",
+                    "category": "Usage Error",
+                    "note": "Incorrect GPIO usage "
+                }
+            ]
+        },
+        {
+            "repo": "socketcan-wio",
+            "URL": "https://github.com/waterloop/socketcan-wio.git",
+            "commits": [
+                {
+                    "hash": "03c8125797a2aa6f3d687504bb067479ed6d88b9",
+                    "author": "jackyliao123",
+                    "message": "Fixed id checking",
+                    "category": "Mask/Filter Bug",
+                    "note": ""
+                }
+            ]
+        },
+        {
+            "repo": "SLSS-CANAnalyser",
+            "URL": "https://github.com/SeppHansen/SLSS-CANAnalyser.git",
+            "commits": [
+                {
+                    "hash": "99ea7011edb0e16db1e1d883e648a021be4b4a04",
+                    "author": "Sebastian Langer",
+                    "message": "BUGFIX: Fix last missing byte for CAN send function in \u00b5C-Code",
+                    "category": "Usage Error",
+                    "note": "Losing last byte in message data frame due to improper for loop with extended frames"
+                }
+            ]
+        },
+        {
+            "repo": "Chrysler CANBUS RES Radio Interface",
+            "URL": "https://gitlab.com/bradleycit-public/Chrysler-CANBUS-RES-Radio-Interface.git",
+            "commits": [
+                {
+                    "hash": "7a81909db27b82f53d20d3ee32a9d7f7bfec6110",
+                    "author": "BiggRanger",
+                    "message": "Update CANBUS-ChryslerRadio.ino\n\nFix up CAN module settings",
+                    "category": "Usage Error",
+                    "note": "Incorrect GPIO usage"
+                }
+            ]
+        },
+        {
+            "repo": "kolejka-sw-can-node",
+            "URL": "https://gitlab.com/osinski/kolejka-sw-can-node.git",
+            "commits": [
+                {
+                    "hash": "be225be805b9c4311efbacb20adeb9acf3e27a1b",
+                    "author": "Marcin Osi\u0144ski",
+                    "message": "mscan filtering fix (both filters have the same config)",
+                    "category": "Mask/Filter Bug",
+                    "note": ""
+                },
+                {
+                    "hash": "33f3b940627d2d64b812548acc51d40d9a5b7870",
+                    "author": "Marcin Osi\u0144ski",
+                    "message": "fix can filter generation for node_invalid",
+                    "category": "Mask/Filter Bug",
+                    "note": ""
+                }
+            ]
+        },
+        {
+            "repo": "CAN_Logger",
+            "URL": "https://github.com/akpc806a/CAN_Logger.git",
+            "commits": [
+                {
+                    "hash": "d2f9ac5ea9c20ae183e1f71b473849bfbb87052f",
+                    "author": "Alex",
+                    "message": "extended ID fix\n\nalso full header line",
+                    "category": "Message ID Bug",
+                    "note": ""
+                }
+            ]
+        },
+        {
+            "repo": "J1939-Framework",
+            "URL": "https://github.com/famez/J1939-Framework.git",
+            "commits": [
+                {
+                    "hash": "66ff3ba9ea3a05c6b899b2a7478f497adefc6706",
+                    "author": "famez",
+                    "message": "Fixed wrong check of conditions to discard a frame\n\nRemoved filter functions from PeakCanReceiver as they do not adjust to\nthe needed implementation\n\nAdded default implementation to manage frame filtering.",
+                    "category": "Mask/Filter Bug",
+                    "note": ""
+                },
+                {
+                    "hash": "90f5494f5ac14f6e1c39c9e653bb35e7f1214278",
+                    "author": "famez",
+                    "message": "Fixed error when no setting filters when using PeakCan Backend",
+                    "category": "Mask/Filter Bug",
+                    "note": ""
+                }
+            ]
+        },
+        {
+            "repo": "oresat-linux-manager",
+            "URL": "https://github.com/oresat/oresat-linux-manager.git",
+            "commits": [
+                {
+                    "hash": "bb4dbe020fcf1e79ef966d129226b4052ed31a48",
+                    "author": "ryanpdx",
+                    "message": "fixed canopencomm buffer size",
+                    "category": "Data Bug",
+                    "note": "Buffer size bug"
+                }
+            ]
+        },
+        {
+            "repo": "CAN-Monitor-qt",
+            "URL": "https://github.com/tixiv/CAN-Monitor-qt.git",
+            "commits": [
+                {
+                    "hash": "c3e78ecaa58b99cb9d5445bca3ffbb5ce5b39871",
+                    "author": "Peter",
+                    "message": "fixed signednes bug with ids",
+                    "category": "Message ID Bug",
+                    "note": ""
+                }
+            ]
+        },
+        {
+            "repo": "novobusanalyzer",
+            "URL": "https://github.com/reymor/novobusanalyzer.git",
+            "commits": [
+                {
+                    "hash": "558e89b9e3525d349901ba92f802c5a355e4a407",
+                    "author": "Tobias Lorenz",
+                    "message": "Bug fix for sending CAN FD frames will DLC>8.\n\nSigned-off-by: Tobias Lorenz <tobias.lorenz@etas.com>",
+                    "category": "Data Bug",
+                    "note": "Transmitting FD with non-standard DLC"
+                }
+            ]
+        },
+        {
+            "repo": "heat_can",
+            "URL": "https://github.com/flyingflo/heat_can.git",
+            "commits": [
+                {
+                    "hash": "a6b23f8fc9d6093bd8a255ce1a3d2df220b26a70",
+                    "author": "Florian Achleitner",
+                    "message": "Fix CAN send! Was zero length always :(",
+                    "category": "Data Bug",
+                    "note": "Failed to add data frame to packet"
+                }
+            ]
+        },
+        {
+            "repo": "cardroid",
+            "URL": "https://github.com/rampage128/cardroid.git",
+            "commits": [
+                {
+                    "hash": "134d787e824431c317e5efad832f47d807e71e45",
+                    "author": "rampage128",
+                    "message": "Fix can listeners not being unregistered correctly",
+                    "category": "Mask/Filter Bug",
+                    "note": "Fix for listenrs on controller, regardless of mask or filter being set"
+                }
+            ]
+        },
+        {
+            "repo": "dev-can-linux",
+            "URL": "https://github.com/Deniz-Eren/dev-can-linux.git",
+            "commits": [
+                {
+                    "hash": "71e22d95bbc8ccf73b8817e599e5e1cc195842be",
+                    "author": "Deniz Eren",
+                    "message": "Fix for bug https://github.com/Deniz-Eren/dev-can-linux/issues/56\n\nNo specific or hardcoded limits of 65536 or 2^16 exist in the code base.\n\nInitial suspicion was that open/close results in a client session being created and destroyed. Client sessions have with them an RX thread per connection client (via open) to deliver the received messages. The QNX OS limit of maximum number of threads per process is known to be 32767, so we investigated whether the threads were not being cleaned up properly. This wasn't the case however, and all the threads created are detached and cleanly shutdown.\n\nTo further test this theory an experiment was done. Driver dev-can-linux was started and while monitoring the number of threads active using command \"pidin -p pid\" messages were sent using command \"cansend -u0,tx0 -m0x1234,1,0xABCD\". No increase in the number of threads noted.\n\nNext to replicate the example code given in https://github.com/Deniz-Eren/dev-can-linux/issues/57, i.e. \"void *fctThreadCan3( void *arg )\", we wrote a new unit test SingleSendReceiveAfterManyOpenClose in tests/driver/io/driver-io-tests.cpp to perform the same test as test SingleSendReceive but only after opening and closing the file descriptors 100,000 times.\n\nExact problem described in https://github.com/Deniz-Eren/dev-can-linux/issues/56 was successfully replicated by test SingleSendReceiveAfterManyOpenClose. After running the test the command \"candump -u0,rx0\" no longer recieves messages from command \"cansend -u0,tx0 -m0x1234,1,0xABCD\".\n\nThe error message \"rx_loop exit: Unable to attach to channel.\" was noted during the test produced from https://github.com/Deniz-Eren/dev-can-linux/blob/1bb3cfede13e847c98a309da3b5fbc415c4694ce/src/resmgr.c#L656\n\nThe problem was identified to be in rx_loop whereby the message_connect() was never being disconnected. After adding the correct disconnection the problem is shown to be fixed.\n\nFurther improvements added by making the rx_loop thread non-detached so that on close we can pthread_join() to clean-up smoother.",
+                    "category": "Data Bug",
+                    "note": "Transmit error (not threadsafe transmitting)"
+                },
+                {
+                    "hash": "8930e40377cdf3dbec6beee3df65eff8cdcfa575",
+                    "author": "Deniz Eren",
+                    "message": "Fixed incorrect handling of standard MID messages.\n- Message IDs or MIDs are slightly different on QNX compared to Linux. The form of the ID depends on whether or not the driver is using extended MIDs.\n  * In standard 11-bit MIDs, bits 18\u201328 define the MID.\n  * In extended 29-bit MIDs, bits 0\u201328 define the MID.\n- Fixed minor variable naming in cansend tool.",
+                    "category": "Message ID Bug",
+                    "note": ""
+                }
+            ]
+        },
+        {
+            "repo": "canbus-binding",
+            "URL": "https://github.com/redpesk-common/canbus-binding.git",
+            "commits": [
+                {
+                    "hash": "4780c23547407f6bafb7e14fb70aaeeca0a1257d",
+                    "author": "Scott Murray",
+                    "message": "Fix filter bitmask generation\n\nFix filter bitmask generation in encoder_t::encode_data; the mask\nbits need to be left-aligned in each byte, not right-aligned.\n\nBug-AGL: SPEC-3013\n\nSigned-off-by: Scott Murray <scott.murray@konsulko.com>\nChange-Id: Ie084f81e3d8c06e69b5bb7562055187395099ac7",
+                    "category": "Mask/Filter Bug",
+                    "note": ""
+                }
+            ]
+        },
+        {
+            "repo": "AgIsoStack-plus-plus",
+            "URL": "https://gitlab.com/Eric-Bwr/AgIsoStack-plus-plus.git",
+            "commits": [
+                {
+                    "hash": "f9925716863bfe1bec86971ee36166fdb8d3e390",
+                    "author": "Adrian Del Grosso",
+                    "message": "[Core]: Fixed an issue with the socket CAN interface not processing Tx messages at full speed\n\nThere was an issue when transmitting out of the CAN message transmit queue where we would only pull the first item out of the queue every iteration.\nThis was causing us to under-utilize the bus, and take longer to send TP messages than needed.",
+                    "category": "Data Bug",
+                    "note": "Transmit Bug - only pulling one message out of Tx queue per iteration, causing underutilization"
+                },
+                {
+                    "hash": "dd145a8029e2387e5237aef07496213d05a14d05",
+                    "author": "Adrian Del Grosso",
+                    "message": "[Core]: Fix a crash that can occur if a hardware channel is nullptr\n\nThis fixes a crash that might manifest if your CAN hardware is invalid and you call `Start` on the hardware interface.",
+                    "category": "UNKOWN",
+                    "note": "Has to do with hardware, but managed by software causing crash"
+                }
+            ]
+        },
+        {
+            "repo": "esp32-can-iot",
+            "URL": "https://github.com/NewTec-GmbH/esp32-can-iot.git",
+            "commits": [
+                {
+                    "hash": "53e918b2a82d84672daab2b30c3cbc42642144f8",
+                    "author": "Reyes Gabryel",
+                    "message": "Fixed constructor of Frame.\nBefore the Data Buffer was created depending on the DLC.\nNow all frames have 8 Data positions initialized to 0.\nSending/receiving depends on the DLC",
+                    "category": "Data Bug",
+                    "note": "Fixed incorrect data frame by setting all frames to 8 byte DLC"
+                }
+            ]
+        },
+        {
+            "repo": "CAN",
+            "URL": "https://github.com/feistjo/CAN.git",
+            "commits": [
+                {
+                    "hash": "25572ad9a4db92ad5a176e8baf02291c8ccfdfc6",
+                    "author": "Joshua Feist",
+                    "message": "Added macros for making CAN signals of any endianness, fixed issues with big endian CAN signal positions and masks (#35)\n\n* Added macros for making CAN signals of any endianness\r\n\r\n* Fixed big endian positioning, renamed generate mask constexpr function\r\n\r\n* Fixed some incompatibilities with CPP11 for constexpr functions\r\n\r\n* Replaced CHAR_BIT with 8 to fix teensy compatibility",
+                    "category": "Mask/Filter Bug",
+                    "note": ""
+                }
+            ]
+        },
+        {
+            "repo": "qtserialbus",
+            "URL": "https://github.com/qt/qtserialbus.git",
+            "commits": [
+                {
+                    "hash": "cfdeb7419e4696790795dfd6fece642d884a268e",
+                    "author": "Alex Blasche",
+                    "message": "Linux/SocketCan: Fix writing of simple and extended can frames\n\nWrite CANFD frame if payload is beyond 8 bytes otherwise\nwrite CAN frame.\n\nTask-number: QTBUG-49675\nChange-Id: I2c2826477cd290005fb24590d4d42ab7c8b5a19b\nReviewed-by: Rolf Eike Beer <eb@emlix.com>\nReviewed-by: Alex Blasche <alexander.blasche@theqtcompany.com>",
+                    "category": "Data Bug",
+                    "note": "Transmit bug, errors when determining whether to send simple or extended CAN messages"
+                },
+                {
+                    "hash": "fc4fd4634e8ed6a027658b687de8a9047f9aaab6",
+                    "author": "Andre Hartmann",
+                    "message": "SocketCAN: Fix frame write error handling\n\nPart I\n\nIf ConfigurationParameter::CanFdKey is not set,\nthe SocketCAN driver is not forced to CAN FD mode.\nTherefore, writing CAN FD frames fails, even if the\nbus (virtual or real) is CAN FD capable.\n\nThe existing error handling code already checked this,\nbut only if the CAN FD frame payload was longer than\neight data bytes.\n\nNow the error message also appears when trying to write\nCAN FD frames with payload size 0...8.\n\nPart II\n\nIn line 348, QCanBusFrame::isValid() is called. This\nfunction returns false if the payload size exceeds\nthe frame's maximum payload length. The function\nSocketCanBackend::writeFrame then early returns\nwith false.\n\nThe maximum size error handling code is therefore\nno longer reached and can be removed.\n\nChange-Id: I9962a90fabd0678fe9040166b7c19946fbf6fd78\nReviewed-by: Denis Shienkov <denis.shienkov@gmail.com>\nReviewed-by: Alex Blasche <alexander.blasche@qt.io>\nReviewed-by: Rolf Eike Beer <eb@emlix.com>",
+                    "category": "Data Bug",
+                    "note": "CAN FD frames less than 9 bytes long fail to send on FD capable bus when config parameter is not properly set"
+                },
+                {
+                    "hash": "8af6a16d217a5e77448b8d9df7b06242c236b51c",
+                    "author": "Stefan Steinwasser",
+                    "message": "VectorCAN: Fix extended frame flag on receiving CAN-FD frame\n\nUse the correct bit mask to check for extended frame.\n\nChange-Id: Ieb19534bbf2ab1b2e3d06ad56cb68caed10b7861\nReviewed-by: Andr\u00e9 Hartmann <aha_1980@gmx.de>",
+                    "category": "Message Type Bug",
+                    "note": ""
+                },
+                {
+                    "hash": "d4227f56e45a47165e9d6be3767fbbe672e71eb0",
+                    "author": "Karsten Heimrich",
+                    "message": "Fix CRC checks in RTU slave and master\n\nThe previous check always succeeded as the crc check function\nresult was not negated. In addition, the crc must be run over\nthe entire ADU without the trailing 2 byte CRC.\n\ncheckCRC() was renamed to improve readability of code and to\navoid accidental inversion of CRC logic.\n\nChange-Id: Id9cb1a008152d60f49a3514c90f10f981613945a\nReviewed-by: Karsten Heimrich <karsten.heimrich@theqtcompany.com>\nReviewed-by: Alex Blasche <alexander.blasche@theqtcompany.com>",
+                    "category": "Data Bug",
+                    "note": "CRC was not being checked for messages"
+                },
+                {
+                    "hash": "8eaa91e1edd7a2b5849a18487a08c440b2b7a27a",
+                    "author": "Andre Hartmann",
+                    "message": "CAN: Fix overreading QByteArray buffer\n\nThe old code did not take the size of the payload\nQByteArray into account, so that for small payloads\nread accesses outside the QByteArray data field\noccurred.\n\nWhile this should be no big problem in reality,\nmemory checkers like Address Sanitizer will report\nsuch issues.\n\nWe now only copy the bytes the payload QByteArray\nreally provides. We can do this, as every derived\nQCanBusDevice::writeFrame() method already does a\nQCanBusFrame::isValid() check before enqueuing the\noutgoing frames, so that the maximum length of the\npayload field is always guaranteed, for CAN 2.0\nas well as CAN FD.\n\n[ChangeLog][CAN] Fixed potential read buffer\noverflows when sending CAN frames in diverse CAN\nbackends which were detected by Address Sanitizer.\n\nPick-to: 6.2\nFixes: QTBUG-94695\nChange-Id: I2e45f6c14ae0fe88ba83f52dd5db4ffe24dada58\nReviewed-by: Alex Blasche <alexander.blasche@qt.io>",
+                    "category": "Data Bug",
+                    "note": "Receive Buffer didn't check DLC and would read bytes outside of payload "
+                }
+            ]
+        }
+    ],
+    "proj-index": 9,
+    "commit-index": 0
+}

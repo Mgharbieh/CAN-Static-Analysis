@@ -1,0 +1,3629 @@
+{
+    "repos": [
+        {
+            "platform": "stm32",
+            "name": "STM32-PLC",
+            "URL": "https://github.com/DanielMartensson/STM32-PLC.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32_CAN",
+            "URL": "https://github.com/pazi88/STM32_CAN.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "can-prog",
+            "URL": "https://github.com/marcinbor85/can-prog.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32-can-bootloader",
+            "URL": "https://github.com/madprogrammer/stm32-can-bootloader.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32-car",
+            "URL": "https://github.com/jsphuebner/stm32-car.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32-CAN-bus-example-HAL-API",
+            "URL": "https://github.com/timsonater/stm32-CAN-bus-example-HAL-API.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32-CAN-bus-example-rx-tx",
+            "URL": "https://github.com/DailyDuino/STM32-CAN-bus-example-rx-tx.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "GoobySoft",
+            "URL": "https://github.com/DanielMartensson/GoobySoft.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "SimpleCanLib",
+            "URL": "https://github.com/Igitigit2/SimpleCanLib.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32_can_sim",
+            "URL": "https://github.com/EtoTen/stm32_can_sim.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CAN-BUS-TO-USB-UART-STM32F042-",
+            "URL": "https://github.com/mocona05/CAN-BUS-TO-USB-UART-STM32F042-.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32F103_CAN_Project",
+            "URL": "https://github.com/embeddedalpha/STM32F103_CAN_Project.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "SDCard-Interface-STM32",
+            "URL": "https://github.com/crsz20/SDCard-Interface-STM32.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CBBL",
+            "URL": "https://github.com/CBBL/CBBL.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "st-can-flash",
+            "URL": "https://github.com/Hoernchen20/st-can-flash.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CANnuccia",
+            "URL": "https://github.com/UberLambda/CANnuccia.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "E12_CAN_gauges",
+            "URL": "https://github.com/pazi88/E12_CAN_gauges.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32",
+            "URL": "https://github.com/TVAROBOT/STM32.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CAN-Bus-Arduino_Core_STM32",
+            "URL": "https://github.com/seeers/CAN-Bus-Arduino_Core_STM32.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32CAN",
+            "URL": "https://github.com/MahdaSystem/STM32CAN.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "SLAM-Robot-DriverBoard",
+            "URL": "https://github.com/ShieldQiQi/SLAM-Robot-DriverBoard.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32-Ethernet-Camera",
+            "URL": "https://github.com/DanielMartensson/STM32-Ethernet-Camera.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32_can_bus",
+            "URL": "https://github.com/gavinliu2github/stm32_can_bus.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32_arduino_van_bus",
+            "URL": "https://github.com/morcibacsi/stm32_arduino_van_bus.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32-CAN-Busadapter",
+            "URL": "https://github.com/IvanDev2018/STM32-CAN-Busadapter.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CBBL_ymodem",
+            "URL": "https://github.com/CBBL/CBBL_ymodem.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32_CAN_gateway",
+            "URL": "https://github.com/minoseigenheer/STM32_CAN_gateway.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "IMU-Visual-Tool",
+            "URL": "https://github.com/ShieldQiQi/IMU-Visual-Tool.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32_CAN-Arduino",
+            "URL": "https://github.com/ptiszai/STM32_CAN-Arduino.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32CANFlasher",
+            "URL": "https://github.com/zycet/STM32CANFlasher.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "RMD-motor-can-bus-lib",
+            "URL": "https://github.com/PolyU-Robocon/RMD-motor-can-bus-lib.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CSP-CAN-FreeRTOS",
+            "URL": "https://github.com/Caxaho/CSP-CAN-FreeRTOS.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CAN-BUS-TX-RX-ILI9486-8-BIT-ILI9341-SPI-STM32-STM32F103",
+            "URL": "https://github.com/offpic/CAN-BUS-TX-RX-ILI9486-8-BIT-ILI9341-SPI-STM32-STM32F103.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "Car-Dashboard-using-CAN-with-Anti-Theft-System-",
+            "URL": "https://github.com/CAR-DASHBOARD-WITH-CAN-PROTOCOL/Car-Dashboard-using-CAN-with-Anti-Theft-System-.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "Graduation_Project-FOTA-",
+            "URL": "https://github.com/ahmednasr31/Graduation_Project-FOTA-.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32_can_bootloader",
+            "URL": "https://github.com/mkonnov/stm32_can_bootloader.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "olimexino_can",
+            "URL": "https://github.com/onesk/olimexino_can.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "EL01-PowerDistributionBoard",
+            "URL": "https://github.com/marsinstituteSC/EL01-PowerDistributionBoard.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "WheelBaseSensorSystem",
+            "URL": "https://github.com/DallasFormulaRacing/WheelBaseSensorSystem.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "mmr_can",
+            "URL": "https://github.com/mmr-driverless/mmr_can.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32-F429-CAN-EXAMPLES",
+            "URL": "https://github.com/MustafaOrhon/STM32-F429-CAN-EXAMPLES.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "can-uds-bootloader",
+            "URL": "https://github.com/iglooom/can-uds-bootloader.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32H743_CAN_bootloader",
+            "URL": "https://github.com/AndrHar/STM32H743_CAN_bootloader.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "SimpleFOC_CAN_STM32",
+            "URL": "https://github.com/MatthewReed303/SimpleFOC_CAN_STM32.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32F4_CanBus_Communicator",
+            "URL": "https://github.com/bonhl09/STM32F4_CanBus_Communicator.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "Blue-Pill-CAN-Test",
+            "URL": "https://github.com/mikec-w/Blue-Pill-CAN-Test.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32canProto",
+            "URL": "https://github.com/COLVERTYETY/stm32canProto.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32-frequencies2canbus",
+            "URL": "https://github.com/teschi/stm32-frequencies2canbus.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32F407_SimpleCanBus",
+            "URL": "https://github.com/SalihSalurr/STM32F407_SimpleCanBus.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32F103-with-rak3172-and-CAN-bus",
+            "URL": "https://github.com/icarofcb/STM32F103-with-rak3172-and-CAN-bus.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CanBus_Nucleo_F446RE",
+            "URL": "https://github.com/davideronchini/CanBus_Nucleo_F446RE.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "gag-box-stm32",
+            "URL": "https://github.com/SimonBachmaier/gag-box-stm32.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "IR-Transmitter_Car_Control_Using_Can-Bus",
+            "URL": "https://github.com/Mehmett38/IR-Transmitter_Car_Control_Using_Can-Bus.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32-canbus",
+            "URL": "https://github.com/cdbbnnyCode/stm32-canbus.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CAN_PROTOCOL_STM32",
+            "URL": "https://github.com/talented-adverb/CAN_PROTOCOL_STM32.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CAN-Bus-STM32",
+            "URL": "https://github.com/hela45/CAN-Bus-STM32.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "carme-can",
+            "URL": "https://github.com/id101010/carme-can.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32L4_CanBus_Analyzer",
+            "URL": "https://github.com/alihan0742/STM32L4_CanBus_Analyzer.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "Can_Bus_with_STM32_",
+            "URL": "https://github.com/arzucs/Can_Bus_with_STM32_.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32-CAN-Bus-board",
+            "URL": "https://github.com/caipiblack/STM32-CAN-Bus-board.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CANBUS_Receive_Transmit_STM32F103C8-",
+            "URL": "https://github.com/SenaEkici/CANBUS_Receive_Transmit_STM32F103C8-.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32F446-CAN_BUS",
+            "URL": "https://github.com/SimonMaghiar/STM32F446-CAN_BUS.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32F103-Can-Bus",
+            "URL": "https://github.com/SalihSalurr/STM32F103-Can-Bus.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "canfd_bus_demo_node_2_g431kb",
+            "URL": "https://github.com/ufnalski/canfd_bus_demo_node_2_g431kb.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "canfd_bus_demo_node_1_g431kb",
+            "URL": "https://github.com/ufnalski/canfd_bus_demo_node_1_g431kb.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CAN_Bus_STM32F4Discovery",
+            "URL": "https://github.com/nazzak/CAN_Bus_STM32F4Discovery.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "can_bus_demo_node_1_l432kc",
+            "URL": "https://github.com/ufnalski/can_bus_demo_node_1_l432kc.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "can_bus_demo_node_2_l432kc",
+            "URL": "https://github.com/ufnalski/can_bus_demo_node_2_l432kc.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "canbus_library_stm32",
+            "URL": "https://github.com/putrafurqan/canbus_library_stm32.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32bldc-motor-controller-with-CAN-bus",
+            "URL": "https://github.com/Jebumon/stm32bldc-motor-controller-with-CAN-bus.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CAN-Bus-ECU-reading-with-STM32F429-STM32Fxxx-",
+            "URL": "https://github.com/VooDooHeRo/CAN-Bus-ECU-reading-with-STM32F429-STM32Fxxx-.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "Aeronautical_Instruments",
+            "URL": "https://github.com/Ahmad-Rahal/Aeronautical_Instruments.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CAN-Bus-Based-Sensor-Data-Acquisition-Analysis",
+            "URL": "https://github.com/FurkanTahaSaranda/CAN-Bus-Based-Sensor-Data-Acquisition-Analysis.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "Bus_Adaptor-PCB",
+            "URL": "https://github.com/OuyangJunyuan/Bus_Adaptor-PCB.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "vhrd-module-template",
+            "URL": "https://github.com/vhrdtech/vhrd-module-template.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "example-stm32-free-rtos-can-to-uart-queue-to-task",
+            "URL": "https://github.com/tahir11shaikh/example-stm32-free-rtos-can-to-uart-queue-to-task.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "Realization-of-a-CAN-library-for-remote-diagnostics-through-OBDII.",
+            "URL": "https://github.com/abdessattar/Realization-of-a-CAN-library-for-remote-diagnostics-through-OBDII..git"
+        },
+        {
+            "platform": "stm32",
+            "name": "Instructions-of-CAN-bus-for-STM32F105x-porting-program-to-APM32E103xCxE-V1.2",
+            "URL": "https://github.com/Geehy-Blake/Instructions-of-CAN-bus-for-STM32F105x-porting-program-to-APM32E103xCxE-V1.2.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32-Sensor-SD-GPS",
+            "URL": "https://github.com/peterg0313210/STM32-Sensor-SD-GPS.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "Dian_kaixian_project",
+            "URL": "https://github.com/kaixqu/Dian_kaixian_project.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32_CAN_BUS_Pentesting_Tool",
+            "URL": "https://github.com/BoB13-YesICan/STM32_CAN_BUS_Pentesting_Tool.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32-CAN",
+            "URL": "https://github.com/ludy51/STM32-CAN.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32_CAN",
+            "URL": "https://github.com/federicox/STM32_CAN.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CAN_demo",
+            "URL": "https://github.com/LS1030/CAN_demo.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32-can-bus",
+            "URL": "https://github.com/leandroconsentinoferreira/stm32-can-bus.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32_CAN",
+            "URL": "https://github.com/RobertMasiuk/STM32_CAN.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32_can2serial",
+            "URL": "https://github.com/hoolheart/stm32_can2serial.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32_CAN",
+            "URL": "https://github.com/miekush/STM32_CAN.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "can-test-rig",
+            "URL": "https://github.com/sufst/can-test-rig.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CAN_Reader_Stm32",
+            "URL": "https://github.com/Sauravrp67/CAN_Reader_Stm32.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32f302can",
+            "URL": "https://github.com/omarandlorraine/stm32f302can.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32_CAN_BUS",
+            "URL": "https://github.com/YOGESHCHAUHANRAJESHBHAI/STM32_CAN_BUS.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32Nucleo_CAN_Bus",
+            "URL": "https://github.com/JonathanKuntz/STM32Nucleo_CAN_Bus.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "BrsCanFlasher",
+            "URL": "https://github.com/ReiseKato/BrsCanFlasher.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "can_node_stm32f107",
+            "URL": "https://github.com/tstellanova/can_node_stm32f107.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32_CAN_BUS",
+            "URL": "https://github.com/nikhil06052001/STM32_CAN_BUS.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32_CAN_Bus",
+            "URL": "https://github.com/nsisong/STM32_CAN_Bus.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "Can-bus_stm32",
+            "URL": "https://github.com/lehuuquan0412/Can-bus_stm32.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CAN-Bus-STM32G431xx",
+            "URL": "https://github.com/UiS-Subsea/CAN-Bus-STM32G431xx.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32-CAN-BUS-",
+            "URL": "https://github.com/arthurwailer/STM32-CAN-BUS-.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "FD-CAN",
+            "URL": "https://github.com/noblesse3/FD-CAN.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32_CAN_COMMUNICATION",
+            "URL": "https://github.com/vuonganh1802/STM32_CAN_COMMUNICATION.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "Can_communication_stm32",
+            "URL": "https://github.com/Ahmedwagdymohy/Can_communication_stm32.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "riverdi-stm32-canfd-demo",
+            "URL": "https://github.com/riverdi/riverdi-stm32-canfd-demo.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "BusCan",
+            "URL": "https://github.com/Khalid10Z/BusCan.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "SW-MCU-STM32-CanBus-031",
+            "URL": "https://github.com/republicofmakers/SW-MCU-STM32-CanBus-031.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32-CAN-bus-example",
+            "URL": "https://github.com/geeksloth/STM32-CAN-bus-example.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "ETC-MDB",
+            "URL": "https://github.com/alessandro-micla/ETC-MDB.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32F429ZIT6",
+            "URL": "https://github.com/gslm/STM32F429ZIT6.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32-discovery-can-bus",
+            "URL": "https://github.com/BiancaNobelia/stm32-discovery-can-bus.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32-with-CAN_Bus",
+            "URL": "https://github.com/tclin168/STM32-with-CAN_Bus.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "BusCAN",
+            "URL": "https://github.com/omarabedk/BusCAN.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "can_data_synchronizer_stm32",
+            "URL": "https://github.com/VictorSCamargo/can_data_synchronizer_stm32.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32CANInterface",
+            "URL": "https://github.com/AlisonLuan/STM32CANInterface.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32duino-CAN-BUS-Library",
+            "URL": "https://github.com/yukuyuku4123/STM32duino-CAN-BUS-Library.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32WB_CAN_Sense",
+            "URL": "https://github.com/AndreasCnaus/STM32WB_CAN_Sense.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CAN-BUS-for-STM32-FOR-ALTIUM-MCP2551-I_SN",
+            "URL": "https://github.com/3mehdi/CAN-BUS-for-STM32-FOR-ALTIUM-MCP2551-I_SN.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32F407_Disc_CAN_Bus",
+            "URL": "https://github.com/vpreethamkashyap/STM32F407_Disc_CAN_Bus.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32_wss_emu",
+            "URL": "https://github.com/idopshik/stm32_wss_emu.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32-DEVKIT",
+            "URL": "https://github.com/ahsenshafique/STM32-DEVKIT.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32_MCP2551",
+            "URL": "https://github.com/czagaadam/STM32_MCP2551.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32_CAN",
+            "URL": "https://github.com/hamzaamri/STM32_CAN.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "Serial2CAN",
+            "URL": "https://github.com/najirod02/Serial2CAN.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32F3-CAN-Bus-to-USB",
+            "URL": "https://github.com/jfilaa/STM32F3-CAN-Bus-to-USB.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32-CAN-Bus-Bootloader-ChaiLib-VS",
+            "URL": "https://github.com/demianzenkov/STM32-CAN-Bus-Bootloader-ChaiLib-VS.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CAN-Bus-ECU-reading-with-STM32F429-STM32Fxxx-",
+            "URL": "https://github.com/JAMmechatronics/CAN-Bus-ECU-reading-with-STM32F429-STM32Fxxx-.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "can-telemetry",
+            "URL": "https://github.com/mister-grumbler/can-telemetry.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "cm",
+            "URL": "https://github.com/rays14/cm.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "Dual_arm_embedded",
+            "URL": "https://github.com/xxxkhakhaxxx/Dual_arm_embedded.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32F303_NUCLEO_64_CAN-Bus_LoopBack",
+            "URL": "https://github.com/DoggeBoi/STM32F303_NUCLEO_64_CAN-Bus_LoopBack.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32F303_NUCLEO_64_CAN-Bus_Normal_Arduino",
+            "URL": "https://github.com/DoggeBoi/STM32F303_NUCLEO_64_CAN-Bus_Normal_Arduino.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "RPiCAN",
+            "URL": "https://github.com/Zouhirs/RPiCAN.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "remote-firmware-flashing-for-STM32-boards-via-CAN-bus",
+            "URL": "https://github.com/adamvalt/remote-firmware-flashing-for-STM32-boards-via-CAN-bus.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32f103-can-send-receive-demo",
+            "URL": "https://github.com/MateusPantoja/stm32f103-can-send-receive-demo.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CAN-Bootaloder-STM32F303RE-Slave",
+            "URL": "https://github.com/mhd-munzer/CAN-Bootaloder-STM32F303RE-Slave.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32f103-master-node-based-canfestival",
+            "URL": "https://github.com/pedrosTang/stm32f103-master-node-based-canfestival.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32-mastering_mcu2",
+            "URL": "https://github.com/rbrglez/stm32-mastering_mcu2.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32F070",
+            "URL": "https://github.com/JaimeVC27/STM32F070.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CAN_Project",
+            "URL": "https://github.com/dogukanuykun/CAN_Project.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32nativeBL_host",
+            "URL": "https://github.com/shivsfw/stm32nativeBL_host.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "PCB-design-STM32F407-STM32F103-Ethernet-USB-CAN-Bus-UARTs-I2S-",
+            "URL": "https://github.com/AbdullahJ4n/PCB-design-STM32F407-STM32F103-Ethernet-USB-CAN-Bus-UARTs-I2S-.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32_BASICS",
+            "URL": "https://github.com/AdityaShahu26/STM32_BASICS.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "example-stm32-free-rtos-can-to-usb-cdc-queue-to-task",
+            "URL": "https://github.com/tahir11shaikh/example-stm32-free-rtos-can-to-usb-cdc-queue-to-task.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CTN-HexGauge",
+            "URL": "https://github.com/s-grundner/CTN-HexGauge.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "robomaster-a-can-pwm",
+            "URL": "https://github.com/kimkiihoo/robomaster-a-can-pwm.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "stm32-embedded-projects",
+            "URL": "https://github.com/PrayushU/stm32-embedded-projects.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "Instructions-of-CAN-bus-for-STM32F105x-porting-program-to-APM32E103xCxE-",
+            "URL": "https://github.com/GeehySemi/Instructions-of-CAN-bus-for-STM32F105x-porting-program-to-APM32E103xCxE-.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "Desktop6DOF",
+            "URL": "https://github.com/brianperiku/Desktop6DOF.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "TX2-vehicleOpenLoopControlWithSTM32",
+            "URL": "https://github.com/kimkiihoo/TX2-vehicleOpenLoopControlWithSTM32.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Seeed_Arduino_CAN",
+            "URL": "https://github.com/Seeed-Studio/Seeed_Arduino_CAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-CAN",
+            "URL": "https://github.com/sandeepmistry/arduino-CAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Open-SAE-J1939",
+            "URL": "https://github.com/DanielMartensson/Open-SAE-J1939.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-OBD2",
+            "URL": "https://github.com/sandeepmistry/arduino-OBD2.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "ESP32-Arduino-CAN",
+            "URL": "https://github.com/miwagner/ESP32-Arduino-CAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-canbus-monitor",
+            "URL": "https://github.com/latonita/arduino-canbus-monitor.git"
+        },
+        {
+            "platform": "arduino",
+            "name": ".config",
+            "URL": "https://github.com/zszszszsz/.config.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "SparkFun_CAN-Bus_Arduino_Library",
+            "URL": "https://github.com/sparkfun/SparkFun_CAN-Bus_Arduino_Library.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-psa-diag",
+            "URL": "https://github.com/ludwig-v/arduino-psa-diag.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino_CAN_BUS_MCP2515",
+            "URL": "https://github.com/Longan-Labs/Arduino_CAN_BUS_MCP2515.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "slcanuino",
+            "URL": "https://github.com/kahiroka/slcanuino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "RaceChronoDiyBleDevice",
+            "URL": "https://github.com/timurrrr/RaceChronoDiyBleDevice.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "esp32-slcan",
+            "URL": "https://github.com/mintynet/esp32-slcan.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-peugeot-can",
+            "URL": "https://github.com/alexandreblin/arduino-peugeot-can.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "STM32_CAN",
+            "URL": "https://github.com/pazi88/STM32_CAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-can-reader",
+            "URL": "https://github.com/alexandreblin/arduino-can-reader.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "DAP-Cat-Programmer",
+            "URL": "https://github.com/ElectronicCats/DAP-Cat-Programmer.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "nano-can",
+            "URL": "https://github.com/mintynet/nano-can.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Bus_Shield",
+            "URL": "https://github.com/sparkfun/CAN-Bus_Shield.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-psa-comfort-can-adapter",
+            "URL": "https://github.com/ludwig-v/arduino-psa-comfort-can-adapter.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino_CAN-Bus_ECU_reader",
+            "URL": "https://github.com/skpang/Arduino_CAN-Bus_ECU_reader.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "BMW-GS-CAN-Sniffer",
+            "URL": "https://github.com/4G-Gregg/BMW-GS-CAN-Sniffer.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "VolvoCan",
+            "URL": "https://github.com/olegel/VolvoCan.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "NodeMCU-BlackBox",
+            "URL": "https://github.com/Metaln00b/NodeMCU-BlackBox.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "VW-Instrument-Cluster-Controller",
+            "URL": "https://github.com/an-ven/VW-Instrument-Cluster-Controller.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Bus-Arduino-Tool",
+            "URL": "https://github.com/HackingThings/CAN-Bus-Arduino-Tool.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Sniffer",
+            "URL": "https://github.com/KruFFT/CAN-Sniffer.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "vesc_can_bus_arduino",
+            "URL": "https://github.com/craigg96/vesc_can_bus_arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "esp32_rmt_van_rx",
+            "URL": "https://github.com/morcibacsi/esp32_rmt_van_rx.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "E46ClusterDriver",
+            "URL": "https://github.com/tsharp42/E46ClusterDriver.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "jeep-canbus",
+            "URL": "https://github.com/latonita/jeep-canbus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CANdiy-Shield",
+            "URL": "https://github.com/watterott/CANdiy-Shield.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "meCAN",
+            "URL": "https://github.com/mackelec/meCAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-CAN-bus-SD-logger",
+            "URL": "https://github.com/DieselDuz42/Arduino-CAN-bus-SD-logger.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "SuSoDevs",
+            "URL": "https://github.com/Xmanu12/SuSoDevs.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "toyota-can-bus-multitool",
+            "URL": "https://github.com/cydia2020/toyota-can-bus-multitool.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "NMEA2000_mcp",
+            "URL": "https://github.com/ttlappalainen/NMEA2000_mcp.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "VolvoP2_CAN",
+            "URL": "https://github.com/martonn98/VolvoP2_CAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "scangauge",
+            "URL": "https://github.com/neiman3/scangauge.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "r4850g2_arduino",
+            "URL": "https://github.com/haklein/r4850g2_arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "VAGFISWriter",
+            "URL": "https://github.com/tomaskovacik/VAGFISWriter.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "SLSS-CANAnalyser",
+            "URL": "https://github.com/SeppHansen/SLSS-CANAnalyser.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "TWAIMessager",
+            "URL": "https://github.com/halfroad/TWAIMessager.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "cantt",
+            "URL": "https://github.com/ganehag/cantt.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "I2C_CAN_Arduino",
+            "URL": "https://github.com/Longan-Labs/I2C_CAN_Arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "subduino",
+            "URL": "https://github.com/matprophet/subduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arducross",
+            "URL": "https://github.com/McNeight/arducross.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "DeCANder",
+            "URL": "https://github.com/posmanet/DeCANder.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "onyx-m2-firmware",
+            "URL": "https://github.com/onyx-m2/onyx-m2-firmware.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Bus-Arduino_Core_STM32",
+            "URL": "https://github.com/seeers/CAN-Bus-Arduino_Core_STM32.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "SimpleCAN",
+            "URL": "https://github.com/owennewo/SimpleCAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Can-to-Eth",
+            "URL": "https://github.com/farshid616/Can-to-Eth.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "TWAI_S3_LISEN",
+            "URL": "https://github.com/Sheimy/TWAI_S3_LISEN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "ford-gps-module",
+            "URL": "https://github.com/schoolpost/ford-gps-module.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Nextion-Dash",
+            "URL": "https://github.com/DefinitiveDiagnosis-hub/CAN-Nextion-Dash.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "e46-cluster-simhub",
+            "URL": "https://github.com/TeksuSiK/e46-cluster-simhub.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "can-usb",
+            "URL": "https://github.com/TheRo0T/can-usb.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "tiny-can",
+            "URL": "https://github.com/mintynet/tiny-can.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "stm32_arduino_van_bus",
+            "URL": "https://github.com/morcibacsi/stm32_arduino_van_bus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "jeep-can-dash",
+            "URL": "https://github.com/xerootg/jeep-can-dash.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Adafruit_CAN",
+            "URL": "https://github.com/adafruit/Adafruit_CAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "canBuster",
+            "URL": "https://github.com/kanj/canBuster.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "teensy-slcan",
+            "URL": "https://github.com/mintynet/teensy-slcan.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Soldered-CAN-Bus-Breakout-MCP2518-Arduino-Library",
+            "URL": "https://github.com/SolderedElectronics/Soldered-CAN-Bus-Breakout-MCP2518-Arduino-Library.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-CAN-ISO-TP",
+            "URL": "https://github.com/MLeganes/arduino-CAN-ISO-TP.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino_can_bus",
+            "URL": "https://github.com/dcgibbons/arduino_can_bus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "nmea2000",
+            "URL": "https://github.com/ieb/nmea2000.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Simple_OBD2_for_AlfaRomeoGiulia",
+            "URL": "https://github.com/ClaudeMarais/Simple_OBD2_for_AlfaRomeoGiulia.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "mergCanBus",
+            "URL": "https://github.com/amaurial/mergCanBus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduinomini-can-bus",
+            "URL": "https://github.com/robinolejnik/arduinomini-can-bus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "AEMnet_AVR_CanBusTranslator",
+            "URL": "https://github.com/analoghan/AEMnet_AVR_CanBusTranslator.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "jetta-can",
+            "URL": "https://github.com/fweiss/jetta-can.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-BlackBox",
+            "URL": "https://github.com/Metaln00b/Arduino-BlackBox.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-BUS-emulator_arduino",
+            "URL": "https://github.com/and-89/CAN-BUS-emulator_arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "MCP2515-CANBUS",
+            "URL": "https://github.com/XVERON911/MCP2515-CANBUS.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "GM6020_controller_by_RP2040",
+            "URL": "https://github.com/KRproject-tech/GM6020_controller_by_RP2040.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "bbn-nmea200-m5atom",
+            "URL": "https://github.com/bareboat-necessities/bbn-nmea200-m5atom.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Driver-drowsiness-detection-",
+            "URL": "https://github.com/guptankit6252/Driver-drowsiness-detection-.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "STM32_CAN-Arduino",
+            "URL": "https://github.com/ptiszai/STM32_CAN-Arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino_CAN",
+            "URL": "https://github.com/II43/arduino_CAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "vipec_can_display",
+            "URL": "https://github.com/jannekotka/vipec_can_display.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "997can-lib",
+            "URL": "https://github.com/zweistein22/997can-lib.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "esp8266_n2k_gateway",
+            "URL": "https://github.com/andreasberg/esp8266_n2k_gateway.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "WiFi-termostat",
+            "URL": "https://github.com/martinius96/WiFi-termostat.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Bus-Arduino-compatible",
+            "URL": "https://github.com/rainierez/CAN-Bus-Arduino-compatible.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "NewCanbus",
+            "URL": "https://github.com/jasonporritt/NewCanbus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "SeeedStudio_CAN_BUS_Shield_David",
+            "URL": "https://github.com/davidalain/SeeedStudio_CAN_BUS_Shield_David.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "ElithionBMSCanBus",
+            "URL": "https://github.com/corbinstreehouse/ElithionBMSCanBus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "WisperChipCli",
+            "URL": "https://github.com/martinville/WisperChipCli.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CANBusHello",
+            "URL": "https://github.com/dcgibbons/CANBusHello.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Adafruit-Feather-M4-CAN-Express-Link-ECU-Generic-Dash",
+            "URL": "https://github.com/jasongaunt/Adafruit-Feather-M4-CAN-Express-Link-ECU-Generic-Dash.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "audi-can-bus",
+            "URL": "https://github.com/alphaw1n/audi-can-bus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "smart-parking",
+            "URL": "https://github.com/rahup97/smart-parking.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Bus-Data-Logger",
+            "URL": "https://github.com/ImperialRacingGreen/CAN-Bus-Data-Logger.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "tablero",
+            "URL": "https://github.com/fereste/tablero.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "i2c-sniffer-100kBaud-Arduino-Mega",
+            "URL": "https://github.com/samtim/i2c-sniffer-100kBaud-Arduino-Mega.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CANBed_M4_Arduino_Lib",
+            "URL": "https://github.com/Longan-Labs/CANBed_M4_Arduino_Lib.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "MegaCAN",
+            "URL": "https://github.com/hankedan000/MegaCAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Commanders",
+            "URL": "https://github.com/Locoduino/Commanders.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Mechanic-OBDII-Can",
+            "URL": "https://github.com/BlackBrix/Mechanic-OBDII-Can.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-logger",
+            "URL": "https://github.com/s-u/CAN-logger.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CanBusData-arduino",
+            "URL": "https://github.com/asukiaaa/CanBusData-arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Electron-CAN-viewer",
+            "URL": "https://github.com/ste2425/Electron-CAN-viewer.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CANBusImitation",
+            "URL": "https://github.com/Tompnyx/CANBusImitation.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "AD7280a_SPICommunication",
+            "URL": "https://github.com/prashantvpanchal/AD7280a_SPICommunication.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "modellbahnArduinos",
+            "URL": "https://github.com/Jotschi89/modellbahnArduinos.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "mgos-canbus-port",
+            "URL": "https://github.com/meticulousCraftman/mgos-canbus-port.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "ECU-CAN-Bus-Simulator-for-OBD-II",
+            "URL": "https://github.com/tahawey/ECU-CAN-Bus-Simulator-for-OBD-II.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Can4Python",
+            "URL": "https://github.com/dstuemk/Can4Python.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "obd2-data-logger",
+            "URL": "https://github.com/tkim338/obd2-data-logger.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "RVC-RO_Controller",
+            "URL": "https://github.com/linuxkidd/RVC-RO_Controller.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "2016-FRS-CANBUS-STEERING-",
+            "URL": "https://github.com/omowanai/2016-FRS-CANBUS-STEERING-.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "V70_autolock",
+            "URL": "https://github.com/AcollaMolla/V70_autolock.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Steering-Angle-Reader-VW-Passat",
+            "URL": "https://github.com/RayenHML/CAN-Steering-Angle-Reader-VW-Passat.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "esp32_ulp_van_tx",
+            "URL": "https://github.com/morcibacsi/esp32_ulp_van_tx.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "FSAE-Dashboard",
+            "URL": "https://github.com/Luisd07/FSAE-Dashboard.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "LINMOD",
+            "URL": "https://github.com/SuperHouse/LINMOD.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "ArduinoCanny",
+            "URL": "https://github.com/rynbrd/ArduinoCanny.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "sCANner",
+            "URL": "https://github.com/drewsteinacher/sCANner.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-can-bus-mirroring",
+            "URL": "https://github.com/absolut-pi/arduino-can-bus-mirroring.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Bus-Shield",
+            "URL": "https://github.com/ibiscp/CAN-Bus-Shield.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-can-bus-examples",
+            "URL": "https://github.com/isramos/arduino-can-bus-examples.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino---CAN-BUS-Shield",
+            "URL": "https://github.com/KaizoIncc/Arduino---CAN-BUS-Shield.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "vcds-arduino-canbus-monitor",
+            "URL": "https://github.com/dsl400/vcds-arduino-canbus-monitor.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-Busmaster",
+            "URL": "https://github.com/carm87/Arduino-Busmaster.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Corsa_CAN",
+            "URL": "https://github.com/J4m3sC95/Corsa_CAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CANdemo",
+            "URL": "https://github.com/michaelsikora/CANdemo.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-mcp2515-canbus-example",
+            "URL": "https://github.com/furkankayam/arduino-mcp2515-canbus-example.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "rmd_arduino",
+            "URL": "https://github.com/palwanishan/rmd_arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "VESC_CAN_bus_native_esp32",
+            "URL": "https://github.com/astra404/VESC_CAN_bus_native_esp32.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-strainGauge",
+            "URL": "https://github.com/sivansha/Arduino-strainGauge.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "ElithionBMSDisplay",
+            "URL": "https://github.com/corbinstreehouse/ElithionBMSDisplay.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CanToSerialDebug",
+            "URL": "https://github.com/sadegh-taghavi/CanToSerialDebug.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Firmware-Utilities",
+            "URL": "https://github.com/BinghamtonRover/Firmware-Utilities.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "BIC-2200-XX-CAN",
+            "URL": "https://github.com/e1g3n/BIC-2200-XX-CAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-System-with-gateway-on-Arduino",
+            "URL": "https://github.com/viktorcwb/CAN-System-with-gateway-on-Arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "IOTOBD2",
+            "URL": "https://github.com/3rang/IOTOBD2.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "racechrono-diy-esp32",
+            "URL": "https://github.com/kevenduchesneau/racechrono-diy-esp32.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "ARDUINO",
+            "URL": "https://github.com/UCDFS/ARDUINO.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "GPS_IMU",
+            "URL": "https://github.com/siec2020/GPS_IMU.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "j1939bridge",
+            "URL": "https://github.com/torriem/j1939bridge.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "iBus-Joystick",
+            "URL": "https://github.com/tomxposed/iBus-Joystick.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "FS_SOC_DISPLAY",
+            "URL": "https://github.com/J4m3sC95/FS_SOC_DISPLAY.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "InstrumentClusterEV",
+            "URL": "https://github.com/RawadHaidar/InstrumentClusterEV.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Serial_CAN_Arduino",
+            "URL": "https://github.com/Chrischi-/Serial_CAN_Arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-ArduinoLib",
+            "URL": "https://github.com/makerplane/CAN-ArduinoLib.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Dual-PWM-Controller",
+            "URL": "https://github.com/RalphBacon/Dual-PWM-Controller.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino_can",
+            "URL": "https://github.com/t-kamimura/arduino_can.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "can-logger",
+            "URL": "https://github.com/truher/can-logger.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-CAN-bus-",
+            "URL": "https://github.com/Prebuss/Arduino-CAN-bus-.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CannyFlash",
+            "URL": "https://github.com/gueei/CannyFlash.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "can-bus",
+            "URL": "https://github.com/Yamakaky/can-bus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "can-sender",
+            "URL": "https://github.com/p1ne/can-sender.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Can-Bus-Shield",
+            "URL": "https://github.com/rabbittrix/Can-Bus-Shield.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-can-bus-logger",
+            "URL": "https://github.com/ddinuzzo/arduino-can-bus-logger.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-CAN-Bus-Reader",
+            "URL": "https://github.com/yamaan93/Arduino-CAN-Bus-Reader.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "NanoCan",
+            "URL": "https://github.com/JoeliPikkarainen/NanoCan.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "ArduinoNano-CanBus-P10ledDisplay",
+            "URL": "https://github.com/Andrjazz/ArduinoNano-CanBus-P10ledDisplay.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "odrive_can_control",
+            "URL": "https://github.com/hdh7485/odrive_can_control.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "redboard_can_bus",
+            "URL": "https://github.com/sceaj/redboard_can_bus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Soldered-CAN-Bus-Arduino-Library",
+            "URL": "https://github.com/SolderedElectronics/Soldered-CAN-Bus-Arduino-Library.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CanBusChangeHighlighter-Hardware",
+            "URL": "https://github.com/fligneul/CanBusChangeHighlighter-Hardware.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CANBed---Arduino-CAN-Bus-Development-Kit",
+            "URL": "https://github.com/SeeedDocument/CANBed---Arduino-CAN-Bus-Development-Kit.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Carf",
+            "URL": "https://github.com/mccnsc/Carf.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN_BUS_with_Arduino",
+            "URL": "https://github.com/leonelfoknob/CAN_BUS_with_Arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "vesc_can_bus_arduino",
+            "URL": "https://github.com/vassdel/vesc_can_bus_arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "j1939sniff",
+            "URL": "https://github.com/torriem/j1939sniff.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "rpm_sensor",
+            "URL": "https://github.com/kianwasabi/rpm_sensor.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CANBus",
+            "URL": "https://github.com/mesco106/CANBus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CANBusMessageEchoer",
+            "URL": "https://github.com/Tompnyx/CANBusMessageEchoer.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "pcd_sensor",
+            "URL": "https://github.com/kianwasabi/pcd_sensor.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "HPUH-can",
+            "URL": "https://github.com/davided12/HPUH-can.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "canbusdaemon",
+            "URL": "https://github.com/DuongTyler/canbusdaemon.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "glr-2024e-datalogger",
+            "URL": "https://github.com/green-lion-racing/glr-2024e-datalogger.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN_ARDUINO_MCP2515_EXAMPLES",
+            "URL": "https://github.com/shivaprasad2207/CAN_ARDUINO_MCP2515_EXAMPLES.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "ArduCAN-HS",
+            "URL": "https://github.com/macorchero/ArduCAN-HS.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "meCANbuffer",
+            "URL": "https://github.com/mackelec/meCANbuffer.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "nanoCAN",
+            "URL": "https://github.com/pkarthikbit/nanoCAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CanBus_reader_menu",
+            "URL": "https://github.com/SalverioValrosso/CanBus_reader_menu.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "can-controller",
+            "URL": "https://github.com/BenBergman/can-controller.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "canshield",
+            "URL": "https://github.com/BenBergman/canshield.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CanBus_13WRX",
+            "URL": "https://github.com/marvinb16/CanBus_13WRX.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "MKS-SERVO42D-CAN-arduino-example",
+            "URL": "https://github.com/nbaddorf/MKS-SERVO42D-CAN-arduino-example.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-auto-detection-of-can-bus-baud-rate",
+            "URL": "https://github.com/ElwardyElmehdy/Arduino-auto-detection-of-can-bus-baud-rate.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Bus-Data-Monitor",
+            "URL": "https://github.com/DanielTongAwesome/CAN-Bus-Data-Monitor.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CANBus_Monitor",
+            "URL": "https://github.com/jwschmo/CANBus_Monitor.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "rmd_x8_control",
+            "URL": "https://github.com/hdh7485/rmd_x8_control.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "HolleySniperCANBus",
+            "URL": "https://github.com/MilesAway1980/HolleySniperCANBus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "canyon",
+            "URL": "https://github.com/andrewgreenwood/canyon.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CANScript",
+            "URL": "https://github.com/pmendell/CANScript.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CANio-18",
+            "URL": "https://github.com/mackelec/CANio-18.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino_Pro_Mini33_SSD1283A_CAN_MultiScreen",
+            "URL": "https://github.com/gitcnd/Arduino_Pro_Mini33_SSD1283A_CAN_MultiScreen.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "RPM_LED",
+            "URL": "https://github.com/caseybrown-dev/RPM_LED.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Conveyor-Belt-Speed-Control-Through-CAN-BUS-in-CoppeliaSim-using-Arduino-Mega2560",
+            "URL": "https://github.com/sudipchakraborty/Conveyor-Belt-Speed-Control-Through-CAN-BUS-in-CoppeliaSim-using-Arduino-Mega2560.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "FP2-Controller",
+            "URL": "https://github.com/vpatoka/FP2-Controller.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Outdoor-Illumination-For-Smart-Building",
+            "URL": "https://github.com/m9ciek/Outdoor-Illumination-For-Smart-Building.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Projet-WIMB",
+            "URL": "https://github.com/Hugo1380/Projet-WIMB.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "bmwTemperatureDisplay",
+            "URL": "https://github.com/alma359/bmwTemperatureDisplay.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Home-Automation-Button-Group",
+            "URL": "https://github.com/KSumwalt/Home-Automation-Button-Group.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-PC-CS2-interface",
+            "URL": "https://github.com/BertHav/arduino-PC-CS2-interface.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Mercedes-W140-Cluster",
+            "URL": "https://github.com/VintageCollector/Mercedes-W140-Cluster.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "BusTracking",
+            "URL": "https://github.com/jagannathsrs/BusTracking.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino_I2C-TWI-RTL-Master_Slave_Project",
+            "URL": "https://github.com/ChecheSwap/Arduino_I2C-TWI-RTL-Master_Slave_Project.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CasAyalur",
+            "URL": "https://github.com/Geetronics/CasAyalur.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-OBD2",
+            "URL": "https://github.com/koson/arduino-OBD2.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-CAN-Bus-temperature-sensor",
+            "URL": "https://github.com/theHeathLee/Arduino-CAN-Bus-temperature-sensor.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "can_bus_communicator",
+            "URL": "https://github.com/x0-zz/can_bus_communicator.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "mcp2515-wio",
+            "URL": "https://github.com/waterloop/mcp2515-wio.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "OBD-project",
+            "URL": "https://github.com/matthiasds/OBD-project.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN_Arduino",
+            "URL": "https://github.com/ramsBertels/CAN_Arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino_can",
+            "URL": "https://github.com/gurellia53/arduino_can.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arlinked-can",
+            "URL": "https://github.com/arlinked/arlinked-can.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "miniCAN",
+            "URL": "https://github.com/brun100gr/miniCAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-can-controller",
+            "URL": "https://github.com/thujer/arduino-can-controller.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Can-BusArduino",
+            "URL": "https://github.com/psimoesSsimoes/Can-BusArduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "ArduinoCanBUSWIP",
+            "URL": "https://github.com/ste2425/ArduinoCanBUSWIP.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "canbus-arduino-due-can-bus",
+            "URL": "https://github.com/ersin90/canbus-arduino-due-can-bus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-BUS",
+            "URL": "https://github.com/nagyyalexandru/CAN-BUS.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-CAN",
+            "URL": "https://github.com/danattia1099/arduino-CAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "ArduinoCAN_Testing",
+            "URL": "https://github.com/adrygp/ArduinoCAN_Testing.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "can-bus",
+            "URL": "https://github.com/dahardy/can-bus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-BUS-Test",
+            "URL": "https://github.com/kwijikh/CAN-BUS-Test.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Network",
+            "URL": "https://github.com/pierceeric/CAN-Network.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN_bus",
+            "URL": "https://github.com/akiftasci/CAN_bus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino",
+            "URL": "https://github.com/tim050421/arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino_CAN-project",
+            "URL": "https://github.com/Omisha3301/Arduino_CAN-project.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-CAN-BUS",
+            "URL": "https://github.com/alaingerardduperche/Arduino-CAN-BUS.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CanBus_project",
+            "URL": "https://github.com/walio123/CanBus_project.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN_Cluster",
+            "URL": "https://github.com/Adam-Sidor/CAN_Cluster.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN_BUS_Arduino",
+            "URL": "https://github.com/msayed812/CAN_BUS_Arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-Can-Bus",
+            "URL": "https://github.com/gurcemal/Arduino-Can-Bus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN_bus_Arduino",
+            "URL": "https://github.com/Biel-013/CAN_bus_Arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-CAN-Bus",
+            "URL": "https://github.com/ashraf-amgad/Arduino-CAN-Bus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-BUS-Arduino",
+            "URL": "https://github.com/SamTitoB1/CAN-BUS-Arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "MATLAB-ARDUINO-ROBOT-ARM-CANBUS",
+            "URL": "https://github.com/ozgur-kurt/MATLAB-ARDUINO-ROBOT-ARM-CANBUS.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-CANBus-Comm",
+            "URL": "https://github.com/eeyribas/Arduino-CANBus-Comm.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Bus-Communication",
+            "URL": "https://github.com/RikiZalkarnain/CAN-Bus-Communication.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Protocole_SimpleCan_Arduino",
+            "URL": "https://github.com/surpriserom/Protocole_SimpleCan_Arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino_due_canbus",
+            "URL": "https://github.com/bhallier/arduino_due_canbus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino_UNO_Mega_canbus-shield",
+            "URL": "https://github.com/PolyU-Robocon/Arduino_UNO_Mega_canbus-shield.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "canbus-shield",
+            "URL": "https://github.com/gpgreen/canbus-shield.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino_CAN_Transceiver",
+            "URL": "https://github.com/smdvrt/Arduino_CAN_Transceiver.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-can-tester",
+            "URL": "https://github.com/ulf-westermann/arduino-can-tester.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN_BUS-Using-Arduino",
+            "URL": "https://github.com/msayed812/CAN_BUS-Using-Arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "storm-can-node",
+            "URL": "https://github.com/smart-storm/storm-can-node.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-obd2-canbus-uart",
+            "URL": "https://github.com/automotive-hub/arduino-obd2-canbus-uart.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino_CAN-BUS_Shield",
+            "URL": "https://github.com/OpticalWrench/arduino_CAN-BUS_Shield.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CanBusMCP2515-arduino-old",
+            "URL": "https://github.com/asukiaaa/CanBusMCP2515-arduino-old.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-BUS-Arduino-interceptor",
+            "URL": "https://github.com/Boubix88/CAN-BUS-Arduino-interceptor.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-CAN-Bus-docs",
+            "URL": "https://github.com/Hannes7eicher/Arduino-CAN-Bus-docs.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-bus-with-Arduino",
+            "URL": "https://github.com/MrAutoteknolog/CAN-bus-with-Arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "SaabBusCanToArduino",
+            "URL": "https://github.com/Ottawh/SaabBusCanToArduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Dyness-BMS-CAN",
+            "URL": "https://github.com/sdikiy/Dyness-BMS-CAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "UNOR4CAN",
+            "URL": "https://github.com/obdevel/UNOR4CAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CANView",
+            "URL": "https://github.com/Gnaddl/CANView.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-canbus-mcp2515",
+            "URL": "https://github.com/maxxxbond/arduino-canbus-mcp2515.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "can_bus_receiver",
+            "URL": "https://github.com/gstangel/can_bus_receiver.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "can-hub",
+            "URL": "https://github.com/srenner/can-hub.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "bending-lights",
+            "URL": "https://github.com/baziliolg/bending-lights.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "can_bus_monitor",
+            "URL": "https://github.com/hkymstr/can_bus_monitor.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "ino-CanBUS_LinkedList",
+            "URL": "https://github.com/vicfer89/ino-CanBUS_LinkedList.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "blinCAN",
+            "URL": "https://github.com/metalhead777/blinCAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN_BUS_Driver_TMOTOR",
+            "URL": "https://github.com/isradguez158/CAN_BUS_Driver_TMOTOR.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "abh3_CAN-Bus_Arduino",
+            "URL": "https://github.com/wacogiken/abh3_CAN-Bus_Arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "LKMTechCanBusDriver-Arduino",
+            "URL": "https://github.com/Cobular/LKMTechCanBusDriver-Arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "FD-CAN",
+            "URL": "https://github.com/noblesse3/FD-CAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino_MCP2515_CAN_BUS",
+            "URL": "https://github.com/RobertMasiuk/Arduino_MCP2515_CAN_BUS.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "rocket-can",
+            "URL": "https://github.com/fifth-element-electronics/rocket-can.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN_BUS_Driver_MyActuator",
+            "URL": "https://github.com/isradguez158/CAN_BUS_Driver_MyActuator.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-Sistema-Control-Nivel-CAN-Bus",
+            "URL": "https://github.com/CarlosDar/Arduino-Sistema-Control-Nivel-CAN-Bus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "SCD-41_Arduino_CAN_Bus_Code",
+            "URL": "https://github.com/Didi-Wheat/SCD-41_Arduino_CAN_Bus_Code.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Bus-Arduino-Monitor-Control-Library",
+            "URL": "https://github.com/BorjaPH/CAN-Bus-Arduino-Monitor-Control-Library.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-NANO-CAN-Bus-Expansion-Board",
+            "URL": "https://github.com/UGEelectronics/Arduino-NANO-CAN-Bus-Expansion-Board.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN_BUS_sniff_Arduino_MCP2515",
+            "URL": "https://github.com/weversonbarbieri/CAN_BUS_sniff_Arduino_MCP2515.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-vw-steering-can-adapter",
+            "URL": "https://github.com/stasth/arduino-vw-steering-can-adapter.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "UMDLOOP_Arduino_CAN_Bus_SCD-41",
+            "URL": "https://github.com/Didi-Wheat/UMDLOOP_Arduino_CAN_Bus_SCD-41.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino_CAN_UNO_MEGA_ESP32",
+            "URL": "https://github.com/JesseMueller/arduino_CAN_UNO_MEGA_ESP32.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "avr-can-tinkerous",
+            "URL": "https://github.com/m3zercat/avr-can-tinkerous.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "nanoCANReplay",
+            "URL": "https://github.com/brun100gr/nanoCANReplay.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "can-invader-protection",
+            "URL": "https://github.com/Nana-Kusa/can-invader-protection.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino_ADC_CANBUS_MASTER_SLAVE_APP",
+            "URL": "https://github.com/Attis98/arduino_ADC_CANBUS_MASTER_SLAVE_APP.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CANBUSProtocol",
+            "URL": "https://github.com/stefanooliveira/CANBUSProtocol.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "slcanuino",
+            "URL": "https://github.com/BrandonTech/slcanuino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "haltech_canbus_sender",
+            "URL": "https://github.com/lukeandmiller/haltech_canbus_sender.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-USB",
+            "URL": "https://github.com/ParadaH/CAN-USB.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Bus-Visualization",
+            "URL": "https://github.com/SanchoLorenzo/CAN-Bus-Visualization.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-CAN-Shield-Test",
+            "URL": "https://github.com/allanliyang/Arduino-CAN-Shield-Test.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "can-dumper-eeprom",
+            "URL": "https://github.com/p1ne/can-dumper-eeprom.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "MobaBus",
+            "URL": "https://github.com/Maggge/MobaBus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Bus-DataCentre-MonitorEMS",
+            "URL": "https://github.com/khalid3134/CAN-Bus-DataCentre-MonitorEMS.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "IndyCAN-BUS",
+            "URL": "https://github.com/odd13/IndyCAN-BUS.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Bus-with-FreeRTOS-between-Arduinos",
+            "URL": "https://github.com/ahmet-oz/CAN-Bus-with-FreeRTOS-between-Arduinos.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-bus-with-OLED",
+            "URL": "https://github.com/Columbuz/CAN-bus-with-OLED.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Uno-MCP2515-CANBUS-Shield",
+            "URL": "https://github.com/CastellatedDreams/Uno-MCP2515-CANBUS-Shield.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Can-Bus_BAJA_UFCar",
+            "URL": "https://github.com/AndreSimao-alms/Can-Bus_BAJA_UFCar.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "1-wire-temperature-sensor-via-CAN-bus-on-ARDUINO-NANO",
+            "URL": "https://github.com/DimitriiVM/1-wire-temperature-sensor-via-CAN-bus-on-ARDUINO-NANO.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-BUS_Shield_capture",
+            "URL": "https://github.com/jerkey/CAN-BUS_Shield_capture.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "ev-gauge",
+            "URL": "https://github.com/dhiltgen/ev-gauge.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Transmit.R4",
+            "URL": "https://github.com/gherrer212/Transmit.R4.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "evolocity",
+            "URL": "https://github.com/mikeframpo/evolocity.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "-MCP2515-CAN-Bus-Module-with-Arduino-Examples",
+            "URL": "https://github.com/DIYPROJECTSLAB/-MCP2515-CAN-Bus-Module-with-Arduino-Examples.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "can-headunit-rpi",
+            "URL": "https://github.com/alexkramer98/can-headunit-rpi.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-BUS-Stepper-Gauge",
+            "URL": "https://github.com/genisweenis/CAN-BUS-Stepper-Gauge.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino_Nano_SSD1283A_CAN_e_Paramotor_Display",
+            "URL": "https://github.com/gitcnd/Arduino_Nano_SSD1283A_CAN_e_Paramotor_Display.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Bus.Knowledge",
+            "URL": "https://github.com/Open-Circuits/CAN-Bus.Knowledge.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-Uno-CAN-Bus-Communication-with-MCP2515-Module",
+            "URL": "https://github.com/guti10x/Arduino-Uno-CAN-Bus-Communication-with-MCP2515-Module.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "smart_home_with_can_bus",
+            "URL": "https://github.com/lowag/smart_home_with_can_bus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "SLEG",
+            "URL": "https://github.com/FireInstallations/SLEG.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "mcp_motorMeasurement_v2",
+            "URL": "https://github.com/MRixen/mcp_motorMeasurement_v2.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "monitor-eolian-Arduino",
+            "URL": "https://github.com/bryanbizarro/monitor-eolian-Arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "STM32F303_NUCLEO_64_CAN-Bus_Normal_Arduino",
+            "URL": "https://github.com/DoggeBoi/STM32F303_NUCLEO_64_CAN-Bus_Normal_Arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "OpenPilotUart2CanBus",
+            "URL": "https://github.com/reddn/OpenPilotUart2CanBus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino_obd2_data_reader",
+            "URL": "https://github.com/MonsieurCo/arduino_obd2_data_reader.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Pilotage-automatique-d-un-voilier-via-un-bus-CAN-Arduino",
+            "URL": "https://github.com/surpriserom/Pilotage-automatique-d-un-voilier-via-un-bus-CAN-Arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Control-RMD-X8-using-Arduino-and-CAN-Bus_-_Simple-",
+            "URL": "https://github.com/scharfet/Control-RMD-X8-using-Arduino-and-CAN-Bus_-_Simple-.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "prototype_code_arduino",
+            "URL": "https://github.com/BYU-Baja/prototype_code_arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "DM01-DiggingMechanism",
+            "URL": "https://github.com/marsinstituteSC/DM01-DiggingMechanism.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "saab-cdc-emu",
+            "URL": "https://github.com/ozgunawesome/saab-cdc-emu.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "drive",
+            "URL": "https://github.com/wschon/drive.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-BUS-Prototype",
+            "URL": "https://github.com/ShanKs3056/CAN-BUS-Prototype.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "ESP32_MCP2515_CAN",
+            "URL": "https://github.com/ramonGon/ESP32_MCP2515_CAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "can-bus_sd-card_simulator",
+            "URL": "https://github.com/sudarevitsh/can-bus_sd-card_simulator.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "VL53L0X_CANBUS_SENSOR",
+            "URL": "https://github.com/JohnSRobertson/VL53L0X_CANBUS_SENSOR.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CanUtils",
+            "URL": "https://github.com/Mastercol01/CanUtils.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-SimHubF01",
+            "URL": "https://github.com/Metaln00b/Arduino-SimHubF01.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Traction-control-locker",
+            "URL": "https://github.com/nixonsardjono/Traction-control-locker.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "torqueMachine",
+            "URL": "https://github.com/yhe21/torqueMachine.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "School-Bus-Monitoring-using-Arduino-Uno",
+            "URL": "https://github.com/abirsinghsharma/School-Bus-Monitoring-using-Arduino-Uno.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "hkur_arduino_stuff",
+            "URL": "https://github.com/Ch1ckenMax/hkur_arduino_stuff.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-BUS-C-library",
+            "URL": "https://github.com/iker-pc/CAN-BUS-C-library.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Porsche_Panamera_970-CAN-Bus-ID",
+            "URL": "https://github.com/VintageCollector/Porsche_Panamera_970-CAN-Bus-ID.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "AKmotor_arduino",
+            "URL": "https://github.com/rodegl/AKmotor_arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-H-bridge-Window-Controller",
+            "URL": "https://github.com/Mbmatthews/CAN-H-bridge-Window-Controller.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "BusinessCard",
+            "URL": "https://github.com/BustosJorge/BusinessCard.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CANTestSend",
+            "URL": "https://github.com/mehediemran/CANTestSend.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "MCP2515_CAN_EnviarNumero",
+            "URL": "https://github.com/moytech/MCP2515_CAN_EnviarNumero.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-BUS-transmitter-receiver-communication-between-Arduino-and-shield-MCP2515-TJA1050-",
+            "URL": "https://github.com/Chiheb-glitch/CAN-BUS-transmitter-receiver-communication-between-Arduino-and-shield-MCP2515-TJA1050-.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "h9uno",
+            "URL": "https://github.com/c3h9dx/h9uno.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino_gauges",
+            "URL": "https://github.com/TCEngineering/Arduino_gauges.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Wired-Strain-Gauge-Amp-CAN",
+            "URL": "https://github.com/UCONNFSAE/Wired-Strain-Gauge-Amp-CAN.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Testing",
+            "URL": "https://github.com/TristanMcGinnis/CAN-Testing.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "esp-idf-canbus",
+            "URL": "https://github.com/AcollaMolla/esp-idf-canbus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "abs-signal-toEGS51-overCANBUS-for772-6",
+            "URL": "https://github.com/Szu605/abs-signal-toEGS51-overCANBUS-for772-6.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Communication",
+            "URL": "https://github.com/MrCipher691/CAN-Communication.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CANbusDelayTest",
+            "URL": "https://github.com/mehediemran/CANbusDelayTest.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Steering-Interface",
+            "URL": "https://github.com/sgang007/Steering-Interface.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "MotorControlECU",
+            "URL": "https://github.com/Katsie011/MotorControlECU.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "LPG-Gas-Detection-and-Alert-System-Network-using-Arduino-UNO-and-MCP2515-CAN-Bus",
+            "URL": "https://github.com/Aswith2301/LPG-Gas-Detection-and-Alert-System-Network-using-Arduino-UNO-and-MCP2515-CAN-Bus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "ttlappalainenq",
+            "URL": "https://github.com/inyiri5/ttlappalainenq.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "DieselDuz42",
+            "URL": "https://github.com/a9623324305/DieselDuz42.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "AK10_9",
+            "URL": "https://github.com/leohasher/AK10_9.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "MCP2515_CAN_EncenderLed",
+            "URL": "https://github.com/moytech/MCP2515_CAN_EncenderLed.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "MCP2515_CAN_EnviarTemperatura",
+            "URL": "https://github.com/moytech/MCP2515_CAN_EnviarTemperatura.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "MCP2515_CAN_Temperatura2Sensores",
+            "URL": "https://github.com/moytech/MCP2515_CAN_Temperatura2Sensores.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-MIT-Actuator-Control",
+            "URL": "https://github.com/didriksandanger/Arduino-MIT-Actuator-Control.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CAN-Troubleshooter",
+            "URL": "https://github.com/Mohamed1628/CAN-Troubleshooter.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Telemetry_ODB_AA02",
+            "URL": "https://github.com/Vehicle-Tracking-Capstone-2021-Ryerson/Telemetry_ODB_AA02.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "SensorCANBusMotorsport",
+            "URL": "https://github.com/YanDieg/SensorCANBusMotorsport.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Embedded-Systems-W-Arduino",
+            "URL": "https://github.com/Fawazie/Embedded-Systems-W-Arduino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "trucky10",
+            "URL": "https://github.com/ekke/trucky10.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "chain",
+            "URL": "https://github.com/Turux/chain.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "MCP2515_CAN_EnviarHumedad",
+            "URL": "https://github.com/moytech/MCP2515_CAN_EnviarHumedad.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "MCP2515-Arduino-Library",
+            "URL": "https://github.com/Psi-Cooper/MCP2515-Arduino-Library.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "BUS-GO",
+            "URL": "https://github.com/sudhanshu4441/BUS-GO.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "SpeedMeasurement",
+            "URL": "https://github.com/BadrKC/SpeedMeasurement.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "distance-control-system",
+            "URL": "https://github.com/damlanuryilmaz/distance-control-system.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-I2C-device-list",
+            "URL": "https://github.com/Gioeledeo/Arduino-I2C-device-list.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "I2CHUB02",
+            "URL": "https://github.com/mlab-modules/I2CHUB02.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CTAArduinoProject",
+            "URL": "https://github.com/seandenison26/CTAArduinoProject.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "RainDetection-MotorControl-CANbus",
+            "URL": "https://github.com/aliek0/RainDetection-MotorControl-CANbus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "VWalf",
+            "URL": "https://github.com/cmFodWx5YWRhdjEyMTA5/VWalf.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "digital_cluster",
+            "URL": "https://github.com/jimmychiuSV/digital_cluster.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "AUTOMATED-BUS-MANAGEMENT-SYSTEM",
+            "URL": "https://github.com/kruthik9880/AUTOMATED-BUS-MANAGEMENT-SYSTEM.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "rocs",
+            "URL": "https://github.com/BinghamtonRover/rocs.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "GPS-and-GSM-based-School-bus-tracking-system",
+            "URL": "https://github.com/TanmayPandit/GPS-and-GSM-based-School-bus-tracking-system.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Multiplexer-Display-7-Segments-Arduino-PCF8574-Remote-8-Bit-I-O-Expander-for-I2C-Bus",
+            "URL": "https://github.com/FerMarcos2/Multiplexer-Display-7-Segments-Arduino-PCF8574-Remote-8-Bit-I-O-Expander-for-I2C-Bus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-DS18x20-DS28x-Temperature-Sensor-EX",
+            "URL": "https://github.com/pasce/Arduino-DS18x20-DS28x-Temperature-Sensor-EX.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "AutoScan-OBD2",
+            "URL": "https://github.com/MaterialiSolari/AutoScan-OBD2.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "People_Counter_Bar",
+            "URL": "https://github.com/Karosuo/People_Counter_Bar.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "in-car-tech",
+            "URL": "https://github.com/sensemakersamsterdam/in-car-tech.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "Teensy_CAN-Bus_ECU_reader",
+            "URL": "https://github.com/skpang/Teensy_CAN-Bus_ECU_reader.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "teensy_VESC_CANBUS",
+            "URL": "https://github.com/skipper762/teensy_VESC_CANBUS.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "teensy-slcan",
+            "URL": "https://github.com/mintynet/teensy-slcan.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "teensy4-CAN-gateway",
+            "URL": "https://github.com/phoenixs3/teensy4-CAN-gateway.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "CAN-Bus-Teensy-Testing",
+            "URL": "https://github.com/XRobots/CAN-Bus-Teensy-Testing.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "Teensy-CAN-bus-controller-in-EV",
+            "URL": "https://github.com/jomytec/Teensy-CAN-bus-controller-in-EV.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "vag-logger-teensy",
+            "URL": "https://github.com/p1ne/vag-logger-teensy.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "Teensy-3.6-Dual-CAN-Bus-Breakout-Board",
+            "URL": "https://github.com/skpang/Teensy-3.6-Dual-CAN-Bus-Breakout-Board.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "Teensy4.1scanTony-s-pcbCan",
+            "URL": "https://github.com/buched/Teensy4.1scanTony-s-pcbCan.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "Teensy32_CAN-Bus_BME280_temperature_and_humidity",
+            "URL": "https://github.com/skpang/Teensy32_CAN-Bus_BME280_temperature_and_humidity.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "EGT_CAN_Module",
+            "URL": "https://github.com/motthomasn/EGT_CAN_Module.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "teensyGauge",
+            "URL": "https://github.com/teelur/teensyGauge.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "Teensy_CAN-Bus_monitor",
+            "URL": "https://github.com/skpang/Teensy_CAN-Bus_monitor.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "Teensy_CAN-Bus_traffic_generator",
+            "URL": "https://github.com/skpang/Teensy_CAN-Bus_traffic_generator.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "Teensy-CAN-Bus-breakout-demo",
+            "URL": "https://github.com/skpang/Teensy-CAN-Bus-breakout-demo.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "Teensy-CAN-Bus-Colour-OLED-128x128-demo",
+            "URL": "https://github.com/skpang/Teensy-CAN-Bus-Colour-OLED-128x128-demo.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "CAN_Controller_Koso_Dash",
+            "URL": "https://github.com/motthomasn/CAN_Controller_Koso_Dash.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "GPS-IMU_CAN_Module",
+            "URL": "https://github.com/motthomasn/GPS-IMU_CAN_Module.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "j1939bridge",
+            "URL": "https://github.com/torriem/j1939bridge.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "can-logger",
+            "URL": "https://github.com/truher/can-logger.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "VESCandCAN",
+            "URL": "https://github.com/akrv/VESCandCAN.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "teensyTach",
+            "URL": "https://github.com/zainahm3d/teensyTach.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "teensy-can-s54",
+            "URL": "https://github.com/brianbushree/teensy-can-s54.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "j1939sniff",
+            "URL": "https://github.com/torriem/j1939sniff.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "Teensy40_CAN_FD_LIN-bus_NCV7430_RGB_demo",
+            "URL": "https://github.com/skpang/Teensy40_CAN_FD_LIN-bus_NCV7430_RGB_demo.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "teensygrid-com",
+            "URL": "https://github.com/weygoldt/teensygrid-com.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "MKS-SERVO42D-CAN-arduino-example",
+            "URL": "https://github.com/nbaddorf/MKS-SERVO42D-CAN-arduino-example.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "model3mon",
+            "URL": "https://github.com/ibmthinkpad/model3mon.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "Teensy-Dual-CAN-Adapter",
+            "URL": "https://github.com/MattKai45/Teensy-Dual-CAN-Adapter.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "canboose_bridge",
+            "URL": "https://github.com/petermota/canboose_bridge.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "overkill_interceptor",
+            "URL": "https://github.com/ryleymcc/overkill_interceptor.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "Teensy-4.1-CAN-Bus",
+            "URL": "https://github.com/DaylenFeist/Teensy-4.1-CAN-Bus.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "cantest_rx",
+            "URL": "https://github.com/Ibuprofen/cantest_rx.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "cantest_tx",
+            "URL": "https://github.com/Ibuprofen/cantest_tx.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "CANSMC",
+            "URL": "https://github.com/jdios89/CANSMC.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "CAN_Datalogger_Module",
+            "URL": "https://github.com/motthomasn/CAN_Datalogger_Module.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "CAN-Testing",
+            "URL": "https://github.com/TristanMcGinnis/CAN-Testing.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "dsp-controller",
+            "URL": "https://github.com/benpugh/dsp-controller.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "MY_17_Black_Box",
+            "URL": "https://github.com/MITMotorsports/MY_17_Black_Box.git"
+        },
+        {
+            "platform": "teensy",
+            "name": "BFB-Temperature-Module",
+            "URL": "https://github.com/kevhjensen/BFB-Temperature-Module.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32-Arduino-CAN",
+            "URL": "https://github.com/miwagner/ESP32-Arduino-CAN.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "esp32-slcan",
+            "URL": "https://github.com/mintynet/esp32-slcan.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "Volve",
+            "URL": "https://github.com/LuukEsselbrugge/Volve.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "VanBus",
+            "URL": "https://github.com/0xCAFEDECAF/VanBus.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "esp32-can-iot",
+            "URL": "https://github.com/NewTec-GmbH/esp32-can-iot.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "M5Stack-NMEA-2000-Display-CAN-BUS",
+            "URL": "https://github.com/AK-Homberger/M5Stack-NMEA-2000-Display-CAN-BUS.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "esp32_rmt_van_rx",
+            "URL": "https://github.com/morcibacsi/esp32_rmt_van_rx.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "SimpleCanLib",
+            "URL": "https://github.com/Igitigit2/SimpleCanLib.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32-CAN",
+            "URL": "https://github.com/mkaiser/ESP32-CAN.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "can_wizard",
+            "URL": "https://github.com/okhsunrog/can_wizard.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "NMEA2000-VoyageDataRecorder",
+            "URL": "https://github.com/AK-Homberger/NMEA2000-VoyageDataRecorder.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "CANopen-ESP32-nodes",
+            "URL": "https://github.com/nathanRamaNoodles/CANopen-ESP32-nodes.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "CAN-BUS-control-R4875G1-with-ESPHome-and-MQTT",
+            "URL": "https://github.com/mjpalmowski/CAN-BUS-control-R4875G1-with-ESPHome-and-MQTT.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "SuSoDevs",
+            "URL": "https://github.com/Xmanu12/SuSoDevs.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32_CAN-Bus_demo",
+            "URL": "https://github.com/skpang/ESP32_CAN-Bus_demo.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "CAN-Logger",
+            "URL": "https://github.com/ubx/CAN-Logger.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32-CAN-X2",
+            "URL": "https://github.com/autosportlabs/ESP32-CAN-X2.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32_RET_SD",
+            "URL": "https://github.com/MotorvateDIY/ESP32_RET_SD.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "TWAIMessager",
+            "URL": "https://github.com/halfroad/TWAIMessager.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "TWAI_S3_LISEN",
+            "URL": "https://github.com/Sheimy/TWAI_S3_LISEN.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ford-gps-module",
+            "URL": "https://github.com/schoolpost/ford-gps-module.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "bmw-e87-e90-can-bt",
+            "URL": "https://github.com/llilakoblock/bmw-e87-e90-can-bt.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32-DASH",
+            "URL": "https://github.com/jamiejones85/ESP32-DASH.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ARM-TM4C123-Safe-Project",
+            "URL": "https://github.com/mostafaaboseif/ARM-TM4C123-Safe-Project.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "RemoteESP32-Board",
+            "URL": "https://github.com/Pete9008/RemoteESP32-Board.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32CAN",
+            "URL": "https://github.com/lincomatic/ESP32CAN.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32-with-SN65HVD230-AUDI-A6-C7-Engine_RPM",
+            "URL": "https://github.com/Matejz90/ESP32-with-SN65HVD230-AUDI-A6-C7-Engine_RPM.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "eVCU",
+            "URL": "https://github.com/marlinarnz/eVCU.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "Simple_OBD2_for_AlfaRomeoGiulia",
+            "URL": "https://github.com/ClaudeMarais/Simple_OBD2_for_AlfaRomeoGiulia.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "WiCAN",
+            "URL": "https://github.com/josephborromeo/WiCAN.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32VWMITM",
+            "URL": "https://github.com/jamiejones85/ESP32VWMITM.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32_CarCAN",
+            "URL": "https://github.com/FlexHaufen/ESP32_CarCAN.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "MCP2515-CANBUS",
+            "URL": "https://github.com/XVERON911/MCP2515-CANBUS.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "bbn-nmea200-m5atom",
+            "URL": "https://github.com/bareboat-necessities/bbn-nmea200-m5atom.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "WiFi-termostat",
+            "URL": "https://github.com/martinius96/WiFi-termostat.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "SmartED-to-MQTT-with-ESP32",
+            "URL": "https://github.com/eokgnah/SmartED-to-MQTT-with-ESP32.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "FreeRTOS-CAN-Bus-ESP32",
+            "URL": "https://github.com/emanalva/FreeRTOS-CAN-Bus-ESP32.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "stiebel_can_bus_extension",
+            "URL": "https://github.com/robot300795/stiebel_can_bus_extension.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "Infinity-Logger",
+            "URL": "https://github.com/wavrx/Infinity-Logger.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "iRemote",
+            "URL": "https://github.com/wavrx/iRemote.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32CanGauge",
+            "URL": "https://github.com/jamiejones85/ESP32CanGauge.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "remeha-canbus",
+            "URL": "https://github.com/aequitas/remeha-canbus.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "CAN-Reactive-LEDS",
+            "URL": "https://github.com/earlynerd/CAN-Reactive-LEDS.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "mgos-canbus-port",
+            "URL": "https://github.com/meticulousCraftman/mgos-canbus-port.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "digital-dashboard",
+            "URL": "https://github.com/Sneupi/digital-dashboard.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "esp32_ulp_van_tx",
+            "URL": "https://github.com/morcibacsi/esp32_ulp_van_tx.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "vag_can_spotify_control",
+            "URL": "https://github.com/NewXtSI/vag_can_spotify_control.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "huawei-r4850g2-esphome",
+            "URL": "https://github.com/sker65/huawei-r4850g2-esphome.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "robomaster_s1_esp32",
+            "URL": "https://github.com/HayBudden/robomaster_s1_esp32.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "VESC_CAN_bus_native_esp32",
+            "URL": "https://github.com/astra404/VESC_CAN_bus_native_esp32.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "CANdemo",
+            "URL": "https://github.com/michaelsikora/CANdemo.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "tesla-can-hacks",
+            "URL": "https://github.com/adrianjagielak/tesla-can-hacks.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "msgpscan",
+            "URL": "https://github.com/rguliyev/msgpscan.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "esp32c3-mpu6050",
+            "URL": "https://github.com/dumtux/esp32c3-mpu6050.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "CANBusMessagesDisplay",
+            "URL": "https://github.com/St3bz/CANBusMessagesDisplay.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "racechrono-diy-esp32",
+            "URL": "https://github.com/kevenduchesneau/racechrono-diy-esp32.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32-OBD-Gateway",
+            "URL": "https://github.com/LukaChassaing/ESP32-OBD-Gateway.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "RaceChronoBleDevice",
+            "URL": "https://github.com/pudelkoM/RaceChronoBleDevice.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "esp32-tach-gfx",
+            "URL": "https://github.com/mattinglyas/esp32-tach-gfx.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32-S3-CAN-SNIFFER",
+            "URL": "https://github.com/AlexVakhnin/ESP32-S3-CAN-SNIFFER.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32_CAN_DBG",
+            "URL": "https://github.com/CrispyPointer/ESP32_CAN_DBG.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32CanBusModule",
+            "URL": "https://github.com/ntrambitas12/ESP32CanBusModule.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "canwifi",
+            "URL": "https://github.com/HikerPan/canwifi.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "esp32_canbus_simplefoc",
+            "URL": "https://github.com/manuelbaum/esp32_canbus_simplefoc.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "TEST_DUAL_CAN_HW-184",
+            "URL": "https://github.com/bionicbone/TEST_DUAL_CAN_HW-184.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32-Valve-Controller-with-CAN-Support",
+            "URL": "https://github.com/kamiladas/ESP32-Valve-Controller-with-CAN-Support.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32-C3_Bionx_Motor",
+            "URL": "https://github.com/KaiZwoDrei/ESP32-C3_Bionx_Motor.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "SmartED-to-BLYNK-with-ESP32",
+            "URL": "https://github.com/eokgnah/SmartED-to-BLYNK-with-ESP32.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "esp32_ulp_lp_core_van_tx",
+            "URL": "https://github.com/morcibacsi/esp32_ulp_lp_core_van_tx.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "MCP2515-ESP32",
+            "URL": "https://github.com/zzulfanrr/MCP2515-ESP32.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "CAN-TJA1050-with-ESP32-and-DHT11",
+            "URL": "https://github.com/Bamamou/CAN-TJA1050-with-ESP32-and-DHT11.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "UniPaste-High-Precision-Paste-Dispenser",
+            "URL": "https://github.com/marcow1601/UniPaste-High-Precision-Paste-Dispenser.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "TJA1050",
+            "URL": "https://github.com/Ms3pro/TJA1050.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "Autonomous-Vehicle-Collision-Avoidance-System",
+            "URL": "https://github.com/FurkanTahaSaranda/Autonomous-Vehicle-Collision-Avoidance-System.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "integration-engineer-practice",
+            "URL": "https://github.com/ZeevGrimblat/integration-engineer-practice.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "CanMagSens",
+            "URL": "https://github.com/iltis42/CanMagSens.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "esp32-can-interface",
+            "URL": "https://github.com/deustodmt/esp32-can-interface.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32-CAN-bus",
+            "URL": "https://github.com/AntonioMartinezFernandez/ESP32-CAN-bus.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "CANalog",
+            "URL": "https://github.com/RndmNmbr/CANalog.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "Esp32_CAN_bus",
+            "URL": "https://github.com/fernandoeqc/Esp32_CAN_bus.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32_CAN_BUS",
+            "URL": "https://github.com/kv2000in/ESP32_CAN_BUS.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "mgos-jsar-can",
+            "URL": "https://github.com/AppliedRobotics/mgos-jsar-can.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32TeslaShuntCan",
+            "URL": "https://github.com/jamiejones85/ESP32TeslaShuntCan.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "esp32-can-bus-board",
+            "URL": "https://github.com/DarkG-Online/esp32-can-bus-board.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "can_bus_esp32c6",
+            "URL": "https://github.com/afonsomagmota/can_bus_esp32c6.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32-CAN-Sender",
+            "URL": "https://github.com/yamaan93/ESP32-CAN-Sender.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "esp32_can_ws2815",
+            "URL": "https://github.com/dong-higenis/esp32_can_ws2815.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "CANBusSniffer-Analyzer_ESP32-ESP-IDF",
+            "URL": "https://github.com/parthbhat13/CANBusSniffer-Analyzer_ESP32-ESP-IDF.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32_CAN_BUS",
+            "URL": "https://github.com/baframirez/ESP32_CAN_BUS.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "CAN-Bus-ESP32",
+            "URL": "https://github.com/13221032/CAN-Bus-ESP32.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "esp32-can-bus-display",
+            "URL": "https://github.com/rahalnanayakkara/esp32-can-bus-display.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "simcte",
+            "URL": "https://github.com/Phaseowner/simcte.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32EasyCan",
+            "URL": "https://github.com/Matthewklop/ESP32EasyCan.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "Initial-ESP32-CAN-Bus",
+            "URL": "https://github.com/caspertyson/Initial-ESP32-CAN-Bus.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32-EVB_CAN_Bus",
+            "URL": "https://github.com/GuarXzee/ESP32-EVB_CAN_Bus.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "U_BMS_ESP32_CAN",
+            "URL": "https://github.com/cheezemanrich/U_BMS_ESP32_CAN.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "HondaCAN",
+            "URL": "https://github.com/Ldalvik/HondaCAN.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32-Proto-MotecCAN",
+            "URL": "https://github.com/KazanNinja/ESP32-Proto-MotecCAN.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "STKEV-ESP32-CAN-BUS-Protocal",
+            "URL": "https://github.com/auyjaniiz14/STKEV-ESP32-CAN-BUS-Protocal.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "Parsing-Data-Can-BUS-ESP32",
+            "URL": "https://github.com/Avcalligraphy/Parsing-Data-Can-BUS-ESP32.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "candle",
+            "URL": "https://github.com/djh20/candle.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "Projet-de-base-Bus-CAN-ESP32",
+            "URL": "https://github.com/anasdtp/Projet-de-base-Bus-CAN-ESP32.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "arduino_CAN_UNO_MEGA_ESP32",
+            "URL": "https://github.com/JesseMueller/arduino_CAN_UNO_MEGA_ESP32.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "esp32-can-monitor",
+            "URL": "https://github.com/deustodmt/esp32-can-monitor.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32_MCP2515_CAN",
+            "URL": "https://github.com/ramonGon/ESP32_MCP2515_CAN.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "john-deere-canbus-monitor",
+            "URL": "https://github.com/givanildo/john-deere-canbus-monitor.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "CANmsg",
+            "URL": "https://github.com/joaogabrielsantosD/CANmsg.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "esp32-gps-imu-env-can",
+            "URL": "https://github.com/deustodmt/esp32-gps-imu-env-can.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "CAN-BUS-COMMUNCATION-PROTOCOL-USING-ESP32",
+            "URL": "https://github.com/PrachetSaul-151/CAN-BUS-COMMUNCATION-PROTOCOL-USING-ESP32.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "FP2_LCD",
+            "URL": "https://github.com/dddist/FP2_LCD.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "CAN2BTH",
+            "URL": "https://github.com/scch2502/CAN2BTH.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "CAN-Bus.Knowledge",
+            "URL": "https://github.com/Open-Circuits/CAN-Bus.Knowledge.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "Servo_CAN_controller",
+            "URL": "https://github.com/ViridiTech/Servo_CAN_controller.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "CAN-read-LoRa-send-and-receive-ESP32",
+            "URL": "https://github.com/Rubbaducky95/CAN-read-LoRa-send-and-receive-ESP32.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "esp-flatcharge",
+            "URL": "https://github.com/skrubis/esp-flatcharge.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "jd_monitor",
+            "URL": "https://github.com/givanildo/jd_monitor.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "jd-bus-server",
+            "URL": "https://github.com/givanildo/jd-bus-server.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "can-daq",
+            "URL": "https://github.com/eccentricOrange/can-daq.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "jd-isobus",
+            "URL": "https://github.com/givanildo/jd-isobus.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "kartail",
+            "URL": "https://github.com/leopnt/kartail.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "Robust-Anti-Theft-System-for-vehicles-to-counteract-CAN-Bus-Vulnerabilities",
+            "URL": "https://github.com/Isuru-rana/Robust-Anti-Theft-System-for-vehicles-to-counteract-CAN-Bus-Vulnerabilities.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "2-DOF-Robot-Using-BLDC---PD-Control",
+            "URL": "https://github.com/LilSun-11/2-DOF-Robot-Using-BLDC---PD-Control.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ESP32-IO-module",
+            "URL": "https://github.com/makeuris/ESP32-IO-module.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "Capstone_OBD2_CAN_Tool",
+            "URL": "https://github.com/simantkhadka/Capstone_OBD2_CAN_Tool.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "dropbear_firmware",
+            "URL": "https://github.com/Hyperspawn/dropbear_firmware.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "android_app_bus",
+            "URL": "https://github.com/ArkadiuszSowa/android_app_bus.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "CAN2BT",
+            "URL": "https://github.com/leandrobalta/CAN2BT.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "Astra-H-Camera-source-selector",
+            "URL": "https://github.com/zalexzperez/Astra-H-Camera-source-selector.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "ECN",
+            "URL": "https://github.com/tayfurcnr/ECN.git"
+        },
+        {
+            "platform": "esp32",
+            "name": "obd2-wifi-extender",
+            "URL": "https://github.com/elianbgr/obd2-wifi-extender.git"
+        },
+        {
+            "platform": "tiva",
+            "name": "tiva-can-bus",
+            "URL": "https://github.com/jreimers/tiva-can-bus.git"
+        },
+        {
+            "platform": "tiva",
+            "name": "ARM-TM4C123-Safe-Project",
+            "URL": "https://github.com/mostafaaboseif/ARM-TM4C123-Safe-Project.git"
+        },
+        {
+            "platform": "tiva",
+            "name": "instructables_Tiva-c_Receive_from_Nodemcu",
+            "URL": "https://github.com/Abdulrahman-Yasser/instructables_Tiva-c_Receive_from_Nodemcu.git"
+        },
+        {
+            "platform": "tiva",
+            "name": "AUTOSAR-Software-Design-based-on-ARM-for-CAN-Bus-Networking-System",
+            "URL": "https://github.com/essaam61/AUTOSAR-Software-Design-based-on-ARM-for-CAN-Bus-Networking-System.git"
+        },
+        {
+            "platform": "tiva",
+            "name": "CANComms",
+            "URL": "https://github.com/UMD-FSAE-Combustion/CANComms.git"
+        },
+        {
+            "platform": "tiva",
+            "name": "TIVA_CAN_Bus_Project",
+            "URL": "https://github.com/carrbm/TIVA_CAN_Bus_Project.git"
+        },
+        {
+            "platform": "tiva",
+            "name": "TIVA-C-CAN-BUS-communication-with-Sensor-HUB",
+            "URL": "https://github.com/Electro-master/TIVA-C-CAN-BUS-communication-with-Sensor-HUB.git"
+        },
+        {
+            "platform": "tiva",
+            "name": "ECE-4721-5721-CAN-Project",
+            "URL": "https://github.com/chomayouni/ECE-4721-5721-CAN-Project.git"
+        },
+        {
+            "platform": "tiva",
+            "name": "AUTOSAR-Software-Design-based-on-ARM-for-CAN-Bus-Networking-System",
+            "URL": "https://github.com/rayyue2022/AUTOSAR-Software-Design-based-on-ARM-for-CAN-Bus-Networking-System.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CanSee",
+            "URL": "https://gitlab.com/juergenveidt/cansee.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Seeed_Arduino_CAN_STM32Duino",
+            "URL": "https://gitlab.com/sdmines-open/Seeed_Arduino_CAN_STM32Duino.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino_Can-Bus",
+            "URL": "https://gitlab.com/fatihbahce/Arduino_Can-Bus.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino-canbus-monitor",
+            "URL": "https://gitlab.com/can-bus/arduino-canbus-monitor.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "corsa-d-swc",
+            "URL": "https://gitlab.com/ajwilson/corsa-d-swc.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "arduino_rvc",
+            "URL": "https://gitlab.com/wt0f/arduino_rvc.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino-strainGauge",
+            "URL": "https://gitlab.com/sivshani/arduino-straingauge.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "CanSee-MQTT",
+            "URL": "https://gitlab.com/Stef-Sijben/cansee.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "avr_can",
+            "URL": "https://gitlab.com/mmuzila/avr_can.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "i2cfinder",
+            "URL": "https://gitlab.com/hreese/i2cfinder.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "i2c-discover",
+            "URL": "https://gitlab.com/noodled/i2c-discover.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "cantt",
+            "URL": "https://gitlab.com/ganehag/cantt.git"
+        },
+        {
+            "platform": "arduino",
+            "name": "Arduino_CAN_BUS_GUI",
+            "URL": "https://gitlab.com/greatonion/Arduino_CAN_BUS_GUI.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "STM32-CAN-bus-example-rx-tx",
+            "URL": "https://gitlab.com/nguyennhutninh/stm32-can-bus-example-rx-tx.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "CAN bootloader STM32F1",
+            "URL": "https://gitlab.com/michaluznanski/can-bootloader-stm32f1.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "Control Box HAT",
+            "URL": "https://gitlab.com/librespacefoundation/cronos-rocket/avionics/ground-station/control-box/control-box-HAT.git"
+        },
+        {
+            "platform": "stm32",
+            "name": "nonamecon-canbus-sniffer",
+            "URL": "https://gitlab.com/noodled/nonamecon-canbus-sniffer.git"
+        }
+    ]
+}

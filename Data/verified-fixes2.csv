@@ -1,0 +1,206 @@
+GitHub,busmaster,Tobias Lorenz,"Fix an issue with Extended IDs > INT_MAX.
+
+Signed-off-by: Tobias Lorenz <tobias.lorenz@etas.com>",https://github.com/rbei-etas/busmaster/commit/d9c3b219ad2af3be43bfde3993280b09bde48048,Message ID Bug,
+GitHub,busmaster,Arunkumar Karri,Introduced check to have no data for RTR frames. Fix for issue: 189.,https://github.com/rbei-etas/busmaster/commit/9d683c716434869116de6cfa0e52a728e3ac929c,Usage Error,Printing data packet for RTR frame
+GitHub,busmaster,Arunkumar Karri,"Update Sources/CAN_Vector_XL/CAN_Vector_XL.cpp
+
+Updated helper funcion bClassifyMsgType(..) to copy only valid DLC data. Fix for Git issue: 202.",https://github.com/rbei-etas/busmaster/commit/726a0e5b4bc738cb42fae276d12e647473cc455b,Data Bug,Buffer error:copying outside DLC buffer
+GitHub,busmaster,Tobias Lorenz,"Bug fix for sending CAN FD frames will DLC>8.
+
+Signed-off-by: Tobias Lorenz <tobias.lorenz@etas.com>",https://github.com/rbei-etas/busmaster/commit/558e89b9e3525d349901ba92f802c5a355e4a407,Data Bug,Buffer error - losing bytes in CAN FD after 8th byte wehn max is 64 bytes
+GitHub,can2040,Kevin O'Connor,"can2040: Fix extended frame bit ordering of id
+
+Signed-off-by: Kevin O'Connor <kevin@koconnor.net>",https://github.com/KevinOConnor/can2040/commit/6486d4be488212860bf596c85ce947c7dbe4a546,Message ID Bug,
+GitHub,odroid-c1plus,snazarenko,fixed filters,https://github.com/sergiy-nazarenko/odroid-c1plus/commit/936818ea5c4f447e035cae838f938b2852be69a2,Usage Error,Incorrect filters set
+GitHub,NMEA2000_mcp,ttlappalainen,Fix for frame buffer sizing.,https://github.com/ttlappalainen/NMEA2000_mcp/commit/9478687614e03f9bee869f80659c283367000191,Data Bug,receive buffer frame size issue
+GitHub,cangaroo,Hubert Denkmair,"fixed bigendian can signals, for real",https://github.com/HubertD/cangaroo/commit/9cf87717f1a2b851507576befcded0637b4fd621,Data Bug,Issue reading signials due to big endianness
+GitHub,ng_can,johnnyhh,fix read buffer overflow,https://github.com/johnnyhh/ng_can/commit/83aa3e64079c3caa4b545f85f7679e6c23344d2c,Data Bug,Buffer overflow issue
+GitHub,CAN_BUS_Shield,Nick Johnson,Fix incorrect settings for 125k can bus speed,https://github.com/yexiaobo-seeedstudio/CAN_BUS_Shield/commit/5601f6b37f69335f66897b26dab89f3666140352,Baudrate Bug,
+GitHub,can_bus,Pavel Pisa,"driver: fix frame data order on big-endian systems.
+
+Tested on big-endian MIPS Malta system emulated by QEMU
+with CTU CAN FD device model.
+
+Signed-off-by: Pavel Pisa <pisa@cmp.felk.cvut.cz>",https://github.com/AlSaqr-platform/can_bus/commit/96e9d52ece492b33045a332d350b80eee041b2c4,Data Bug,Receiving frame data bytes in wrong order
+GitHub,an-usb-to-can-adaptor-mcxn947,Daniel Martinez,Fix to modify the arbitration baudrate when demo is disconnected from Terminal,https://github.com/nxp-appcodehub/an-usb-to-can-adaptor-mcxn947/commit/befae96ae2b4a3bb378cb85ef7447ea2f780c24b,Baudrate Bug,
+GitLab,can2040-mod,Kevin O'Connor,"can2040: Fix extended frame bit ordering of id
+
+Signed-off-by: Kevin O'Connor <kevin@koconnor.net>",https://gitlab.com/jtmaston/can2040-mod/commit/6486d4be488212860bf596c85ce947c7dbe4a546,Message ID Bug,"*ADD SECOND BUG* - data bug, issue packing extended headers in message"
+GitHub,I2C_CAN_Firmware,stephen1874,fix bug when id larger than 0xff while sending,https://github.com/Longan-Labs/I2C_CAN_Firmware/commit/5b47bca56df81e7b3c7ffb7f97f7b0989db3caf1,UNKOWN,"Think the issue has something to do with changes in .ino file, not sure though"
+GitHub,CAN-on-DSP-TMS320F28335,longqi,fix the bug of message id,https://github.com/zhanglongqi/CAN-on-DSP-TMS320F28335/commit/079ab91f54993f08a274a66130f5b025fc87d8cd,Message ID Bug,Wrong IDs assigned to mailboxes
+GitHub,can_bus,Martin Jerabek,"driver: fix priority rotation, frame defs endianity, data endianity (tmp sw fix)",https://github.com/AlSaqr-platform/can_bus/commit/ae757ccf76817b078c8cab7431ac7cb341d9a0a0,Data Bug,"Receive frame endianness bug (ctu_can_fd_hw.c, line 745) {aslo has other bugs, split into multiple}"
+GitHub,CANmon,Darryl Ring,"Fix silly UART read byte handling error
+
+Check for E_UART_RX_BUF_EMPTY instead of byte being equal to 0. byte
+could be 0 at any time and this does not imply nothing was read from the
+UART.",https://github.com/UVicFormulaMotorsport/CANmon/commit/e7b8aef2fd2f6405d001c4ebc6e773796e17f583,Data Bug,Faulty check for empty packets
+GitHub,lib_can_bus_sniffer,Matt Kaiser,Fix bug causing only a single CAN filter to activate,https://github.com/KaiserEngineering/lib_can_bus_sniffer/commit/9ba0bd7afb31b655c80b9c9ac0b02454cdd70cf2,Usage Error,Incorrect Filter handling
+GitHub,tincan,mwkpe,"Refactor, fix bug where raw instead of masked ID was used",https://github.com/mwkpe/tincan/commit/a72b24bf951ce63db78c7d37205d1561daebfb27,Data Bug,Sends wrong frame ID when message is received (Ignored mask)
+GitLab,can4linux,Heinz-Jürgen Oertel,- Register the fixed CAN clock for CPC_PCI and CPC_PCI2,https://gitlab.com/littleback/can4linux/commit/03ca091af8d390a082409e56f4a6d532510daed7,Baudrate Bug,
+GitHub,BlueGenieBMW,dzid_,"Housekeeping. Added compiler switches to differentiate from old hardware and a bench.
+Fixed CAN messages mask.",https://github.com/dzid26/BlueGenieBMW/commit/bf8c45334aad2d17654f0c43709957199cb3588b,Usage Error,Wrong mask set
+GitHub,AVR-CAN,Derek Redfern,Fixed ID frame truncation bug,https://github.com/OlinREVO/AVR-CAN/commit/a67afc389955cc45241bfd777e8f45e52437b7be,Message ID Bug,
+GitHub,obd2-data-logger,Thomas Kim,fixed buffer overwrite issue,https://github.com/tkim338/obd2-data-logger/commit/5159ee33f33bac3a376e19e2613d047385c3ef46,Usage Error,Fixed overflow bug when sending RTR messages
+GitHub,rp2040-can-mcp2515,Daniel Trnka,fixed addressing in READ RX BUFFER command,https://github.com/trnila/rp2040-can-mcp2515/commit/8ff1d89e47f7cea6c1b002db98c996c2c24a76dd,Data Bug,Receive bug
+GitLab,A0RET,Collin Kidder,"Fix stupid bug where CAN pins weren't being set properly,
+fix WiFi problem where it won't connect every other time it is reset.",https://gitlab.com/audiserg/A0RET/commit/f3ebb206da19dafbac5a74c2442777b02db4aa25,Usage Error,Incorrect GPIO usage 
+GitHub,socketcan-wio,jackyliao123,Fixed id checking,https://github.com/waterloop/socketcan-wio/commit/03c8125797a2aa6f3d687504bb067479ed6d88b9,Mask/Filter Bug,
+GitHub,SLSS-CANAnalyser,Sebastian Langer,BUGFIX: Fix last missing byte for CAN send function in µC-Code,https://github.com/SeppHansen/SLSS-CANAnalyser/commit/99ea7011edb0e16db1e1d883e648a021be4b4a04,Usage Error,Losing last byte in message data frame due to improper for loop with extended frames
+GitLab,Chrysler CANBUS RES Radio Interface,BiggRanger,"Update CANBUS-ChryslerRadio.ino
+
+Fix up CAN module settings",https://gitlab.com/bradleycit-public/Chrysler-CANBUS-RES-Radio-Interface/commit/7a81909db27b82f53d20d3ee32a9d7f7bfec6110,Usage Error,Incorrect GPIO usage
+GitLab,kolejka-sw-can-node,Marcin Osiński,mscan filtering fix (both filters have the same config),https://gitlab.com/osinski/kolejka-sw-can-node/commit/be225be805b9c4311efbacb20adeb9acf3e27a1b,Mask/Filter Bug,
+GitLab,kolejka-sw-can-node,Marcin Osiński,fix can filter generation for node_invalid,https://gitlab.com/osinski/kolejka-sw-can-node/commit/33f3b940627d2d64b812548acc51d40d9a5b7870,Mask/Filter Bug,
+GitHub,CAN_Logger,Alex,"extended ID fix
+
+also full header line",https://github.com/akpc806a/CAN_Logger/commit/d2f9ac5ea9c20ae183e1f71b473849bfbb87052f,Message ID Bug,
+GitHub,J1939-Framework,famez,"Fixed wrong check of conditions to discard a frame
+
+Removed filter functions from PeakCanReceiver as they do not adjust to
+the needed implementation
+
+Added default implementation to manage frame filtering.",https://github.com/famez/J1939-Framework/commit/66ff3ba9ea3a05c6b899b2a7478f497adefc6706,Mask/Filter Bug,
+GitHub,J1939-Framework,famez,Fixed error when no setting filters when using PeakCan Backend,https://github.com/famez/J1939-Framework/commit/90f5494f5ac14f6e1c39c9e653bb35e7f1214278,Mask/Filter Bug,
+GitHub,oresat-linux-manager,ryanpdx,fixed canopencomm buffer size,https://github.com/oresat/oresat-linux-manager/commit/bb4dbe020fcf1e79ef966d129226b4052ed31a48,Data Bug,Buffer size bug
+GitHub,CAN-Monitor-qt,Peter,fixed signednes bug with ids,https://github.com/tixiv/CAN-Monitor-qt/commit/c3e78ecaa58b99cb9d5445bca3ffbb5ce5b39871,Message ID Bug,
+GitHub,novobusanalyzer,Tobias Lorenz,"Bug fix for sending CAN FD frames will DLC>8.
+
+Signed-off-by: Tobias Lorenz <tobias.lorenz@etas.com>",https://github.com/reymor/novobusanalyzer/commit/558e89b9e3525d349901ba92f802c5a355e4a407,Data Bug,Transmitting FD with non-standard DLC
+GitHub,heat_can,Florian Achleitner,Fix CAN send! Was zero length always :(,https://github.com/flyingflo/heat_can/commit/a6b23f8fc9d6093bd8a255ce1a3d2df220b26a70,Data Bug,Failed to add data frame to packet
+GitHub,cardroid,rampage128,Fix can listeners not being unregistered correctly,https://github.com/rampage128/cardroid/commit/134d787e824431c317e5efad832f47d807e71e45,Mask/Filter Bug,"Fix for listenrs on controller, regardless of mask or filter being set"
+GitHub,dev-can-linux,Deniz Eren,"Fix for bug https://github.com/Deniz-Eren/dev-can-linux/issues/56
+
+No specific or hardcoded limits of 65536 or 2^16 exist in the code base.
+
+Initial suspicion was that open/close results in a client session being created and destroyed. Client sessions have with them an RX thread per connection client (via open) to deliver the received messages. The QNX OS limit of maximum number of threads per process is known to be 32767, so we investigated whether the threads were not being cleaned up properly. This wasn't the case however, and all the threads created are detached and cleanly shutdown.
+
+To further test this theory an experiment was done. Driver dev-can-linux was started and while monitoring the number of threads active using command ""pidin -p pid"" messages were sent using command ""cansend -u0,tx0 -m0x1234,1,0xABCD"". No increase in the number of threads noted.
+
+Next to replicate the example code given in https://github.com/Deniz-Eren/dev-can-linux/issues/57, i.e. ""void *fctThreadCan3( void *arg )"", we wrote a new unit test SingleSendReceiveAfterManyOpenClose in tests/driver/io/driver-io-tests.cpp to perform the same test as test SingleSendReceive but only after opening and closing the file descriptors 100,000 times.
+
+Exact problem described in https://github.com/Deniz-Eren/dev-can-linux/issues/56 was successfully replicated by test SingleSendReceiveAfterManyOpenClose. After running the test the command ""candump -u0,rx0"" no longer recieves messages from command ""cansend -u0,tx0 -m0x1234,1,0xABCD"".
+
+The error message ""rx_loop exit: Unable to attach to channel."" was noted during the test produced from https://github.com/Deniz-Eren/dev-can-linux/blob/1bb3cfede13e847c98a309da3b5fbc415c4694ce/src/resmgr.c#L656
+
+The problem was identified to be in rx_loop whereby the message_connect() was never being disconnected. After adding the correct disconnection the problem is shown to be fixed.
+
+Further improvements added by making the rx_loop thread non-detached so that on close we can pthread_join() to clean-up smoother.",https://github.com/Deniz-Eren/dev-can-linux/commit/71e22d95bbc8ccf73b8817e599e5e1cc195842be,Data Bug,Transmit error (not threadsafe transmitting)
+GitHub,dev-can-linux,Deniz Eren,"Fixed incorrect handling of standard MID messages.
+- Message IDs or MIDs are slightly different on QNX compared to Linux. The form of the ID depends on whether or not the driver is using extended MIDs.
+  * In standard 11-bit MIDs, bits 18–28 define the MID.
+  * In extended 29-bit MIDs, bits 0–28 define the MID.
+- Fixed minor variable naming in cansend tool.",https://github.com/Deniz-Eren/dev-can-linux/commit/8930e40377cdf3dbec6beee3df65eff8cdcfa575,Message ID Bug,
+GitHub,canbus-binding,Scott Murray,"Fix filter bitmask generation
+
+Fix filter bitmask generation in encoder_t::encode_data; the mask
+bits need to be left-aligned in each byte, not right-aligned.
+
+Bug-AGL: SPEC-3013
+
+Signed-off-by: Scott Murray <scott.murray@konsulko.com>
+Change-Id: Ie084f81e3d8c06e69b5bb7562055187395099ac7",https://github.com/redpesk-common/canbus-binding/commit/4780c23547407f6bafb7e14fb70aaeeca0a1257d,Mask/Filter Bug,
+GitLab,AgIsoStack-plus-plus,Adrian Del Grosso,"[Core]: Fixed an issue with the socket CAN interface not processing Tx messages at full speed
+
+There was an issue when transmitting out of the CAN message transmit queue where we would only pull the first item out of the queue every iteration.
+This was causing us to under-utilize the bus, and take longer to send TP messages than needed.",https://gitlab.com/Eric-Bwr/AgIsoStack-plus-plus/commit/f9925716863bfe1bec86971ee36166fdb8d3e390,Data Bug,"Transmit Bug - only pulling one message out of Tx queue per iteration, causing underutilization"
+GitLab,AgIsoStack-plus-plus,Adrian Del Grosso,"[Core]: Fix a crash that can occur if a hardware channel is nullptr
+
+This fixes a crash that might manifest if your CAN hardware is invalid and you call `Start` on the hardware interface.",https://gitlab.com/Eric-Bwr/AgIsoStack-plus-plus/commit/dd145a8029e2387e5237aef07496213d05a14d05,UNKOWN,"Has to do with hardware, but managed by software causing crash"
+GitHub,esp32-can-iot,Reyes Gabryel,"Fixed constructor of Frame.
+Before the Data Buffer was created depending on the DLC.
+Now all frames have 8 Data positions initialized to 0.
+Sending/receiving depends on the DLC",https://github.com/NewTec-GmbH/esp32-can-iot/commit/53e918b2a82d84672daab2b30c3cbc42642144f8,Data Bug,Fixed incorrect data frame by setting all frames to 8 byte DLC
+GitHub,CAN,Joshua Feist,"Added macros for making CAN signals of any endianness, fixed issues with big endian CAN signal positions and masks (#35)
+
+* Added macros for making CAN signals of any endianness
+
+* Fixed big endian positioning, renamed generate mask constexpr function
+
+* Fixed some incompatibilities with CPP11 for constexpr functions
+
+* Replaced CHAR_BIT with 8 to fix teensy compatibility",https://github.com/feistjo/CAN/commit/25572ad9a4db92ad5a176e8baf02291c8ccfdfc6,Mask/Filter Bug,
+GitHub,qtserialbus,Alex Blasche,"Linux/SocketCan: Fix writing of simple and extended can frames
+
+Write CANFD frame if payload is beyond 8 bytes otherwise
+write CAN frame.
+
+Task-number: QTBUG-49675
+Change-Id: I2c2826477cd290005fb24590d4d42ab7c8b5a19b
+Reviewed-by: Rolf Eike Beer <eb@emlix.com>
+Reviewed-by: Alex Blasche <alexander.blasche@theqtcompany.com>",https://github.com/qt/qtserialbus/commit/cfdeb7419e4696790795dfd6fece642d884a268e,Data Bug,"Transmit bug, errors when determining whether to send simple or extended CAN messages"
+GitHub,qtserialbus,Andre Hartmann,"SocketCAN: Fix frame write error handling
+
+Part I
+
+If ConfigurationParameter::CanFdKey is not set,
+the SocketCAN driver is not forced to CAN FD mode.
+Therefore, writing CAN FD frames fails, even if the
+bus (virtual or real) is CAN FD capable.
+
+The existing error handling code already checked this,
+but only if the CAN FD frame payload was longer than
+eight data bytes.
+
+Now the error message also appears when trying to write
+CAN FD frames with payload size 0...8.
+
+Part II
+
+In line 348, QCanBusFrame::isValid() is called. This
+function returns false if the payload size exceeds
+the frame's maximum payload length. The function
+SocketCanBackend::writeFrame then early returns
+with false.
+
+The maximum size error handling code is therefore
+no longer reached and can be removed.
+
+Change-Id: I9962a90fabd0678fe9040166b7c19946fbf6fd78
+Reviewed-by: Denis Shienkov <denis.shienkov@gmail.com>
+Reviewed-by: Alex Blasche <alexander.blasche@qt.io>
+Reviewed-by: Rolf Eike Beer <eb@emlix.com>",https://github.com/qt/qtserialbus/commit/fc4fd4634e8ed6a027658b687de8a9047f9aaab6,Data Bug,CAN FD frames less than 9 bytes long fail to send on FD capable bus when config parameter is not properly set
+GitHub,qtserialbus,Stefan Steinwasser,"VectorCAN: Fix extended frame flag on receiving CAN-FD frame
+
+Use the correct bit mask to check for extended frame.
+
+Change-Id: Ieb19534bbf2ab1b2e3d06ad56cb68caed10b7861
+Reviewed-by: André Hartmann <aha_1980@gmx.de>",https://github.com/qt/qtserialbus/commit/8af6a16d217a5e77448b8d9df7b06242c236b51c,Message Type Bug,
+GitHub,qtserialbus,Karsten Heimrich,"Fix CRC checks in RTU slave and master
+
+The previous check always succeeded as the crc check function
+result was not negated. In addition, the crc must be run over
+the entire ADU without the trailing 2 byte CRC.
+
+checkCRC() was renamed to improve readability of code and to
+avoid accidental inversion of CRC logic.
+
+Change-Id: Id9cb1a008152d60f49a3514c90f10f981613945a
+Reviewed-by: Karsten Heimrich <karsten.heimrich@theqtcompany.com>
+Reviewed-by: Alex Blasche <alexander.blasche@theqtcompany.com>",https://github.com/qt/qtserialbus/commit/d4227f56e45a47165e9d6be3767fbbe672e71eb0,Data Bug,CRC was not being checked for messages
+GitHub,qtserialbus,Andre Hartmann,"CAN: Fix overreading QByteArray buffer
+
+The old code did not take the size of the payload
+QByteArray into account, so that for small payloads
+read accesses outside the QByteArray data field
+occurred.
+
+While this should be no big problem in reality,
+memory checkers like Address Sanitizer will report
+such issues.
+
+We now only copy the bytes the payload QByteArray
+really provides. We can do this, as every derived
+QCanBusDevice::writeFrame() method already does a
+QCanBusFrame::isValid() check before enqueuing the
+outgoing frames, so that the maximum length of the
+payload field is always guaranteed, for CAN 2.0
+as well as CAN FD.
+
+[ChangeLog][CAN] Fixed potential read buffer
+overflows when sending CAN frames in diverse CAN
+backends which were detected by Address Sanitizer.
+
+Pick-to: 6.2
+Fixes: QTBUG-94695
+Change-Id: I2e45f6c14ae0fe88ba83f52dd5db4ffe24dada58
+Reviewed-by: Alex Blasche <alexander.blasche@qt.io>",https://github.com/qt/qtserialbus/commit/8eaa91e1edd7a2b5849a18487a08c440b2b7a27a,Data Bug,Receive Buffer didn't check DLC and would read bytes outside of payload 
