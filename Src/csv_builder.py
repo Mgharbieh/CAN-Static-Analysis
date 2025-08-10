@@ -1,7 +1,8 @@
 import csv
 import json
+from sys import argv
 
-FILE_PATH = "//100.83.44.15/shared/Michael/UMich/Research/Static_Analysis_Research/Data/"
+FILE_PATH = argv[1]
 HEADER_ROW = ["Project", "Commit Author", "Commit Message", "Commit Link"]
 
 def jsonToCSV(inputFile, outputFile):

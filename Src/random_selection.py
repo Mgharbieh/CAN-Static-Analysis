@@ -1,7 +1,8 @@
 import json
 import random
+from sys import argv
 
-FILE_PATH = "//100.83.44.15/shared/Michael/UMich/Research/Static_Analysis_Research/Data/"
+FILE_PATH = argv[1]
 
 def randomSelect(inputFile, outputFile):
     

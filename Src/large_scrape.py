@@ -3,15 +3,16 @@
 #   "can bus"
 ##
 
+import os
 import requests
 import json
 import time
+from sys import argv
 
-import os
+
 print(os.getcwd())
 
-FILE_PATH = "//100.83.44.15/shared/Michael/UMich/Research/Static_Analysis_Research/Data/"
-
+FILE_PATH = argv[1]
 jsonDict = {}
 
 def search_github_gitlab_repos():
