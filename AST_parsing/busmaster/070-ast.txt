@@ -1,0 +1,15 @@
+busmaster-Sources\CommonClass\GUI_FormatMsgCAN.cpp
+
+|CursorKind.TRANSLATION_UNIT: Sources\CommonClass\GUI_FormatMsgCAN.cpp (Line: 0, Col: 0)
+|—CursorKind.STRUCT_DECL: sERRORMSGINFO (Line: 31, Col: 8)
+|——CursorKind.FIELD_DECL: m_usErrorCode (Line: 33, Col: 20)
+|——CursorKind.FIELD_DECL: m_ptcErorMsg (Line: 34, Col: 11)
+|—CursorKind.TYPEDEF_DECL: SERRORMSGINFO (Line: 36, Col: 23)
+|——CursorKind.TYPE_REF: struct sERRORMSGINFO (Line: 36, Col: 9)
+|—CursorKind.TYPEDEF_DECL: PERRORMSGINFO (Line: 37, Col: 24)
+|——CursorKind.TYPE_REF: struct sERRORMSGINFO (Line: 37, Col: 9)
+|—CursorKind.VAR_DECL: ERRORS_DEFINED (Line: 38, Col: 11)
+|——CursorKind.INTEGER_LITERAL:  (Line: 38, Col: 28)
+|—CursorKind.VAR_DECL: sg_asErrorEntry (Line: 41, Col: 22)
+|——CursorKind.TYPE_REF: SERRORMSGINFO (Line: 41, Col: 8)
+|——CursorKind.DECL_REF_EXPR: ERRORS_DEFINED (Line: 41, Col: 38)

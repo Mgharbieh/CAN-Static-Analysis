@@ -1,0 +1,3 @@
+qtserialbus-src\serialbus\qmodbusrtuserialslave_p.h
+
+|CursorKind.TRANSLATION_UNIT: src\serialbus\qmodbusrtuserialslave_p.h (Line: 0, Col: 0)
