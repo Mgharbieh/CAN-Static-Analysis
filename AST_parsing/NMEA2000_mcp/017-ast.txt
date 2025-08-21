@@ -1,5 +1,0 @@
-NMEA2000_mcp-NMEA2000_mcp.h
-
-|CursorKind.TRANSLATION_UNIT: NMEA2000_mcp.h (Line: 0, Col: 0)
-|—CursorKind.VAR_DECL: tNMEA2000_mcp (Line: 42, Col: 7)
-|—CursorKind.VAR_DECL: tNMEA2000 (Line: 42, Col: 30)

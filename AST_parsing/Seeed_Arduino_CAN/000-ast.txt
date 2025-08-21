@@ -1,4 +1,0 @@
-Seeed_Arduino_CAN-mcp_can.cpp
-
-|CursorKind.TRANSLATION_UNIT: mcp_can.cpp (Line: 0, Col: 0)
-|—CursorKind.VAR_DECL: CAN (Line: 28, Col: 9)

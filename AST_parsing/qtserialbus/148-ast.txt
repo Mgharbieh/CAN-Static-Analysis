@@ -1,3 +1,0 @@
-qtserialbus-src\serialbus\qmodbusrtuserialmaster_p.h
-
-|CursorKind.TRANSLATION_UNIT: src\serialbus\qmodbusrtuserialmaster_p.h (Line: 0, Col: 0)

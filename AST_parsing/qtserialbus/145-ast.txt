@@ -1,3 +1,0 @@
-qtserialbus-src\plugins\canbus\socketcan\socketcanbackend.cpp
-
-|CursorKind.TRANSLATION_UNIT: src\plugins\canbus\socketcan\socketcanbackend.cpp (Line: 0, Col: 0)

@@ -1,4 +1,0 @@
-A0RET-wifi.h
-
-|CursorKind.TRANSLATION_UNIT: wifi.h (Line: 0, Col: 0)
-|—CursorKind.VAR_DECL: WiFiManager (Line: 7, Col: 7)

@@ -1,4 +1,0 @@
-arduino-CAN-src\MCP2515.cpp
-
-|CursorKind.TRANSLATION_UNIT: src\MCP2515.cpp (Line: 0, Col: 0)
-|—CursorKind.VAR_DECL: CAN (Line: 493, Col: 14)

@@ -1,4 +1,0 @@
-esp32-can-iot-Coding\fw\lib\Lawicel\Lawicel.cpp
-
-|CursorKind.TRANSLATION_UNIT: Coding\fw\lib\Lawicel\Lawicel.cpp (Line: 0, Col: 0)
-|—CursorKind.LINKAGE_SPEC:  (Line: 18, Col: 8)

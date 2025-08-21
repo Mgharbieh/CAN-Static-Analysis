@@ -1,3 +1,0 @@
-can4linux-can4linux\ems_pci.c
-
-|CursorKind.TRANSLATION_UNIT: can4linux\ems_pci.c (Line: 0, Col: 0)

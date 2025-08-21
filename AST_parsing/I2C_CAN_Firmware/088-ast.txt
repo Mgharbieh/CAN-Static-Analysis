@@ -1,3 +1,0 @@
-I2C_CAN_Firmware-I2C_CAN_dfs.h
-
-|CursorKind.TRANSLATION_UNIT: I2C_CAN_dfs.h (Line: 0, Col: 0)

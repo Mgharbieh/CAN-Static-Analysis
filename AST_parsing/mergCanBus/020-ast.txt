@@ -1,4 +1,0 @@
-mergCanBus-MergCBUSThrottle.h
-
-|CursorKind.TRANSLATION_UNIT: MergCBUSThrottle.h (Line: 0, Col: 0)
-|—CursorKind.VAR_DECL: MergCBUSThrottle (Line: 11, Col: 7)

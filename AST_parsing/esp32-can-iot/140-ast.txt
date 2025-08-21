@@ -1,4 +1,0 @@
-esp32-can-iot-Coding\fw\lib\Lawicel\CANInterface.h
-
-|CursorKind.TRANSLATION_UNIT: Coding\fw\lib\Lawicel\CANInterface.h (Line: 0, Col: 0)
-|—CursorKind.VAR_DECL: CANInterface (Line: 26, Col: 7)

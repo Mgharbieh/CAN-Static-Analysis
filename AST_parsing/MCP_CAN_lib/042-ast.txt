@@ -1,3 +1,0 @@
-MCP_CAN_lib-mcp_can.cpp
-
-|CursorKind.TRANSLATION_UNIT: mcp_can.cpp (Line: 0, Col: 0)

@@ -1,4 +1,0 @@
-acan2515-src\ACAN2515.h
-
-|CursorKind.TRANSLATION_UNIT: src\ACAN2515.h (Line: 0, Col: 0)
-|—CursorKind.VAR_DECL: ACAN2515 (Line: 18, Col: 7)

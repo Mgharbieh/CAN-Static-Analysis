@@ -1,3 +1,0 @@
-busmaster-Sources\TOOLS_EXTERNAL\EXT_DBC_2_DBF\Message.cpp
-
-|CursorKind.TRANSLATION_UNIT: Sources\TOOLS_EXTERNAL\EXT_DBC_2_DBF\Message.cpp (Line: 0, Col: 0)

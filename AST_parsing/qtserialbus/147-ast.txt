@@ -1,4 +1,0 @@
-qtserialbus-src\serialbus\qmodbusdevice_p.h
-
-|CursorKind.TRANSLATION_UNIT: src\serialbus\qmodbusdevice_p.h (Line: 0, Col: 0)
-|—CursorKind.VAR_DECL: class (Line: 56, Col: 1)
