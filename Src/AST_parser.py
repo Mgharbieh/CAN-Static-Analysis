@@ -7,21 +7,17 @@ from clang import cindex
 import os
 import stat
 
-# READ EXEL, START WITH INDEXED LIST
-#   (Make sure to verify names so as to not read duplicates of entire project)
-#
-# FIND A WAY TO HAVE PYDRILLER PARSE OVER EVERY FILE IN COMMIT AND READ C++ SOURCE CODE
-# USE CLANG TO BUILD THE AST AND FIGURE OUT HOW TO STORE IT
-
-FILE_PATH = argv[1] 
+##############################################################################
+# FILE_PATH = "{GIT_CLONE_PATH}/AST_Parsing/"  
+# EXEL_FILE = "{GIT_CLONE_PATH}/Data/verified-fixes-final.xlsx"
+# GIT_PATH = "{GIT_CLONE_PATH}/AST_Parsing/_git"
+##############################################################################
+FILE_PATH = argv[1]
 EXEL_FILE = argv[2]
-GIT_PATH = argv[3] 
+GIT_PATH = argv[3]
 FILE_TYPES = [".c", ".cpp", ".h", ".hpp"]
 
 dfs = pd.ExcelFile(EXEL_FILE).parse("verified-fixes-fixed")
-
-#parse data like this to get commit per row in sheet
-#print(dfs.iloc[2]["Commit Link"])
 
 indexParser = cindex.Index.create()
 def rmtree(top): # Windows sucks 
@@ -41,15 +37,7 @@ def visit_node(node, level=0):
     strList.append(f"|{indent}{node.kind}: {node.displayname} (Line: {node.location.line}, Col: {node.location.column})\n")
     for child in node.get_children():
         visit_node(child, level + 1)
-    
-    '''
-        # Process the current cursor (e.g., print its kind and display name)
-        print("  " * level + f"Kind: {node.kind}, Display Name: {node.displayname},  Location: {node.location}")
 
-        # Recursively visit children
-        for child in node.get_children():
-        visit_node(child, level + 1)
-    '''
 old_cloned_repo = ""
 completed = []
 ino_files = []
@@ -62,9 +50,8 @@ while(row_idx < 95): #95
     modifiers = commitLink[19:].split('/')
 
     gitLink = baseLink + "/" + modifiers[0] + "/" + modifiers[1] + ".git"
-    
-    if(old_cloned_repo != GIT_PATH):
-
+    if(old_cloned_repo != gitLink):
+        old_cloned_repo = gitLink
         while(os.listdir(GIT_PATH)):
             for object in os.listdir(GIT_PATH):
                 filePath = os.path.join(GIT_PATH, object)
@@ -74,14 +61,10 @@ while(row_idx < 95): #95
                     rmtree(filePath)
 
         try:
-            # Construct the git clone command
-            # Using a list of arguments is generally safer than shell=True
             command = ["git", "clone", gitLink]
             if GIT_PATH:
                 command.append(GIT_PATH)
 
-            # Execute the command
-            # check_call raises an exception if the command returns a non-zero exit code
             subprocess.check_call(command)
 
             print(f"Repository cloned successfully to: {GIT_PATH or 'current directory'}")
@@ -110,19 +93,23 @@ while(row_idx < 95): #95
                 completed.append(nameStr)
                 sourceCode = file.source_code
                 
-                if(file.new_path.endswith(".h")):
+                if(file.new_path.endswith(".h")): # pyright: ignore[reportOptionalMemberAccess]
                     #tu = indexParser.parse(None, args=[includeFlag, '-ast-dump', file.new_path], unsaved_files=[(file.new_path, sourceCode)])
                     print(file.new_path, " is a C-style header")
-                elif(file.new_path.endswith(".hpp")):
+                    version = "gnu17"
+                elif(file.new_path.endswith(".hpp")): # pyright: ignore[reportOptionalMemberAccess]
                     #tu = indexParser.parse(None, args=[includeFlag, '-ast-dump', file.new_path], unsaved_files=[(file.new_path, sourceCode)])
                     print(file.new_path, " is a C++-style header")
-                elif(file.new_path.endswith(".c")):
+                    version = "gnu++17"
+                elif(file.new_path.endswith(".c")): # pyright: ignore[reportOptionalMemberAccess]
                     #tu = indexParser.parse(None, args=[includeFlag, '-ast-dump', file.new_path], unsaved_files=[(file.new_path, sourceCode)])
                     print(file.new_path, " is a C source file")
-                elif(file.new_path.endswith(".cpp")):
+                    version = "gnu17"
+                elif(file.new_path.endswith(".cpp")): # pyright: ignore[reportOptionalMemberAccess]
                     #tu = indexParser.parse(None, args=[includeFlag, '-ast-dump', file.new_path], unsaved_files=[(file.new_path, sourceCode)])
                     print(file.new_path, " is a C++ source file")
-                elif(file.new_path.endswith(".ino")):
+                    version = "gnu++17"
+                elif(file.new_path.endswith(".ino")): # pyright: ignore[reportOptionalMemberAccess]
                     ino_files.append(nameStr)
                     print(f"Skipping {file.new_path}... (.ino files are not supported)")
                     continue
@@ -130,8 +117,9 @@ while(row_idx < 95): #95
                     print(f"Skipping {file.new_path}... (unsupported file type)")
                     continue
                 
-                print()
-                visit_node(indexParser.parse(None, args=[includeFlag, '-ast-dump', file.new_path], unsaved_files=[(file.new_path, sourceCode)]).cursor)
+                print()                                 #C++/GNU 11, 17, 23
+                tu = indexParser.parse(None, args=[includeFlag, version, '-ast-dump', file.new_path], unsaved_files=[(file.new_path, sourceCode)])
+                visit_node(tu.cursor)
                 with(open(inFile_Name, 'w') as inFile):
                     inFile.write(nameStr)
                     inFile.write('\n\n')
@@ -146,8 +134,3 @@ while(row_idx < 95): #95
             print("—" * 100)
 
     row_idx += 1
-
-
-print(ino_files)
-with(open((FILE_PATH + "_inoFiles"), 'w') as inFile):
-    inFile.write(ino_files)
