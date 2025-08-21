@@ -1,0 +1,4 @@
+Arduino_CAN_BUS_MCP2515-mcp_can.cpp
+
+|CursorKind.TRANSLATION_UNIT: mcp_can.cpp (Line: 0, Col: 0)
+|—CursorKind.VAR_DECL: CAN (Line: 27, Col: 9)

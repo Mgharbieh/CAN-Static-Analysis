@@ -1,0 +1,9 @@
+kolejka-sw-can-node-src\app\shell\git_version.hpp
+
+|CursorKind.TRANSLATION_UNIT: src\app\shell\git_version.hpp (Line: 0, Col: 0)
+|—CursorKind.VAR_DECL: GIT_CommitHash (Line: 11, Col: 20)
+|——CursorKind.UNEXPOSED_EXPR:  (Line: 11, Col: 37)
+|———CursorKind.STRING_LITERAL: "59dcdfb" (Line: 11, Col: 37)
+|—CursorKind.VAR_DECL: GIT_CommitDate (Line: 12, Col: 20)
+|——CursorKind.UNEXPOSED_EXPR:  (Line: 12, Col: 37)
+|———CursorKind.STRING_LITERAL: "2024-08-15" (Line: 12, Col: 37)

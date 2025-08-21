@@ -1,0 +1,3 @@
+canbus-binding-low-can-binding\can\can-encoder.cpp
+
+|CursorKind.TRANSLATION_UNIT: low-can-binding\can\can-encoder.cpp (Line: 0, Col: 0)

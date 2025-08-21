@@ -1,0 +1,4 @@
+acan2515-src\ACAN2515_Buffer16.h
+
+|CursorKind.TRANSLATION_UNIT: src\ACAN2515_Buffer16.h (Line: 0, Col: 0)
+|—CursorKind.VAR_DECL: ACAN2515_Buffer16 (Line: 11, Col: 7)
