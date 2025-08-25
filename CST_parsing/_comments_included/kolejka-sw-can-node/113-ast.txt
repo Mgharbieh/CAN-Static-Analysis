@@ -1,0 +1,1371 @@
+kolejka-sw-can-node-src\app\can_comm.cpp
+
+|Node:translation_unit
+|—Node:comment Text: /*
+ * can_comm.cpp
+ * Copyright (C) 2023 Marcin Osiński <osinski.marcin.r@gmail.com>
+ *
+ * Distributed under terms of the MIT license.
+ */
+|—Node:preproc_include Text: #include <cstdint>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <cstdint>
+|—Node:preproc_include Text: #include "can_comm.hpp"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "can_comm.hpp"
+|———Node:" Text: "
+|———Node:string_content Text: can_comm.hpp
+|———Node:" Text: "
+|—Node:function_definition Text: void
+CAN_Comm::MessageID::parseRaw(uint16_t id)
+{
+    this->rawValue = id;
+
+    uint32_t masked = (id & static_cast<uint32_t>(CAN_Comm::MessageType::MASK)) >>
+                      static_cast<uint32_t>(CAN_Comm::MessageType::POS_SHIFT);
+    if (masked >= static_cast<uint32_t>(CAN_Comm::MessageType::Type::INVALID)) {
+        this->type = CAN_Comm::MessageType::Type::INVALID;
+    } else {
+        this->type = static_cast<CAN_Comm::MessageType::Type>(masked);
+    }
+
+    masked = (id & static_cast<uint32_t>(CAN_Comm::NodeAddress::MASK)) >>
+             static_cast<uint32_t>(CAN_Comm::NodeAddress::POS_SHIFT);
+    if (masked >= static_cast<uint32_t>(CAN_Comm::NodeAddress::Address::INVALID)) {
+        this->nodeAddress = CAN_Comm::NodeAddress::Address::INVALID;
+    } else {
+        this->nodeAddress = static_cast<CAN_Comm::NodeAddress::Address>(masked);
+    }
+
+    masked = (id & static_cast<uint32_t>(CAN_Comm::MessageSubtype::MASK)) >>
+             static_cast<uint32_t>(CAN_Comm::MessageSubtype::POS_SHIFT);
+    if (this->type == CAN_Comm::MessageType::Type::STATUS) {
+        if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Status::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Status::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Status>(masked);
+        }
+    } else if (this->type == CAN_Comm::MessageType::Type::IO_CONFIGURE) {
+        if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Config::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Config::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Config>(masked);
+        }
+    } else if (this->type == CAN_Comm::MessageType::Type::INPUTS_REPORT ||
+               this->type == CAN_Comm::MessageType::Type::OUTPUTS_SET) {
+        if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Data::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Data::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Data>(masked);
+        }
+    } else {
+        this->subtype = CAN_Comm::MessageSubtype::Status::INVALID;
+    }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CAN_Comm::MessageID::parseRaw(uint16_t id)
+|———Node:qualified_identifier Text: CAN_Comm::MessageID::parseRaw
+|————Node:namespace_identifier Text: CAN_Comm
+|————Node::: Text: ::
+|————Node:qualified_identifier Text: MessageID::parseRaw
+|—————Node:namespace_identifier Text: MessageID
+|—————Node::: Text: ::
+|—————Node:identifier Text: parseRaw
+|———Node:parameter_list Text: (uint16_t id)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint16_t id
+|—————Node:primitive_type Text: uint16_t
+|—————Node:identifier Text: id
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    this->rawValue = id;
+
+    uint32_t masked = (id & static_cast<uint32_t>(CAN_Comm::MessageType::MASK)) >>
+                      static_cast<uint32_t>(CAN_Comm::MessageType::POS_SHIFT);
+    if (masked >= static_cast<uint32_t>(CAN_Comm::MessageType::Type::INVALID)) {
+        this->type = CAN_Comm::MessageType::Type::INVALID;
+    } else {
+        this->type = static_cast<CAN_Comm::MessageType::Type>(masked);
+    }
+
+    masked = (id & static_cast<uint32_t>(CAN_Comm::NodeAddress::MASK)) >>
+             static_cast<uint32_t>(CAN_Comm::NodeAddress::POS_SHIFT);
+    if (masked >= static_cast<uint32_t>(CAN_Comm::NodeAddress::Address::INVALID)) {
+        this->nodeAddress = CAN_Comm::NodeAddress::Address::INVALID;
+    } else {
+        this->nodeAddress = static_cast<CAN_Comm::NodeAddress::Address>(masked);
+    }
+
+    masked = (id & static_cast<uint32_t>(CAN_Comm::MessageSubtype::MASK)) >>
+             static_cast<uint32_t>(CAN_Comm::MessageSubtype::POS_SHIFT);
+    if (this->type == CAN_Comm::MessageType::Type::STATUS) {
+        if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Status::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Status::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Status>(masked);
+        }
+    } else if (this->type == CAN_Comm::MessageType::Type::IO_CONFIGURE) {
+        if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Config::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Config::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Config>(masked);
+        }
+    } else if (this->type == CAN_Comm::MessageType::Type::INPUTS_REPORT ||
+               this->type == CAN_Comm::MessageType::Type::OUTPUTS_SET) {
+        if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Data::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Data::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Data>(masked);
+        }
+    } else {
+        this->subtype = CAN_Comm::MessageSubtype::Status::INVALID;
+    }
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: this->rawValue = id;
+|————Node:assignment_expression Text: this->rawValue = id
+|—————Node:field_expression Text: this->rawValue
+|——————Node:this Text: this
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: rawValue
+|—————Node:= Text: =
+|—————Node:identifier Text: id
+|————Node:; Text: ;
+|———Node:declaration Text: uint32_t masked = (id & static_cast<uint32_t>(CAN_Comm::MessageType::MASK)) >>
+                      static_cast<uint32_t>(CAN_Comm::MessageType::POS_SHIFT);
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: masked = (id & static_cast<uint32_t>(CAN_Comm::MessageType::MASK)) >>
+                      static_cast<uint32_t>(CAN_Comm::MessageType::POS_SHIFT)
+|—————Node:identifier Text: masked
+|—————Node:= Text: =
+|—————Node:binary_expression Text: (id & static_cast<uint32_t>(CAN_Comm::MessageType::MASK)) >>
+                      static_cast<uint32_t>(CAN_Comm::MessageType::POS_SHIFT)
+|——————Node:parenthesized_expression Text: (id & static_cast<uint32_t>(CAN_Comm::MessageType::MASK))
+|———————Node:( Text: (
+|———————Node:binary_expression Text: id & static_cast<uint32_t>(CAN_Comm::MessageType::MASK)
+|————————Node:identifier Text: id
+|————————Node:& Text: &
+|————————Node:call_expression Text: static_cast<uint32_t>(CAN_Comm::MessageType::MASK)
+|—————————Node:template_function Text: static_cast<uint32_t>
+|——————————Node:identifier Text: static_cast
+|——————————Node:template_argument_list Text: <uint32_t>
+|———————————Node:< Text: <
+|———————————Node:type_descriptor Text: uint32_t
+|————————————Node:primitive_type Text: uint32_t
+|———————————Node:> Text: >
+|—————————Node:argument_list Text: (CAN_Comm::MessageType::MASK)
+|——————————Node:( Text: (
+|——————————Node:qualified_identifier Text: CAN_Comm::MessageType::MASK
+|———————————Node:namespace_identifier Text: CAN_Comm
+|———————————Node::: Text: ::
+|———————————Node:qualified_identifier Text: MessageType::MASK
+|————————————Node:namespace_identifier Text: MessageType
+|————————————Node::: Text: ::
+|————————————Node:identifier Text: MASK
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:>> Text: >>
+|——————Node:call_expression Text: static_cast<uint32_t>(CAN_Comm::MessageType::POS_SHIFT)
+|———————Node:template_function Text: static_cast<uint32_t>
+|————————Node:identifier Text: static_cast
+|————————Node:template_argument_list Text: <uint32_t>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: uint32_t
+|——————————Node:primitive_type Text: uint32_t
+|—————————Node:> Text: >
+|———————Node:argument_list Text: (CAN_Comm::MessageType::POS_SHIFT)
+|————————Node:( Text: (
+|————————Node:qualified_identifier Text: CAN_Comm::MessageType::POS_SHIFT
+|—————————Node:namespace_identifier Text: CAN_Comm
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: MessageType::POS_SHIFT
+|——————————Node:namespace_identifier Text: MessageType
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: POS_SHIFT
+|————————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (masked >= static_cast<uint32_t>(CAN_Comm::MessageType::Type::INVALID)) {
+        this->type = CAN_Comm::MessageType::Type::INVALID;
+    } else {
+        this->type = static_cast<CAN_Comm::MessageType::Type>(masked);
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (masked >= static_cast<uint32_t>(CAN_Comm::MessageType::Type::INVALID))
+|—————Node:( Text: (
+|—————Node:binary_expression Text: masked >= static_cast<uint32_t>(CAN_Comm::MessageType::Type::INVALID)
+|——————Node:identifier Text: masked
+|——————Node:>= Text: >=
+|——————Node:call_expression Text: static_cast<uint32_t>(CAN_Comm::MessageType::Type::INVALID)
+|———————Node:template_function Text: static_cast<uint32_t>
+|————————Node:identifier Text: static_cast
+|————————Node:template_argument_list Text: <uint32_t>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: uint32_t
+|——————————Node:primitive_type Text: uint32_t
+|—————————Node:> Text: >
+|———————Node:argument_list Text: (CAN_Comm::MessageType::Type::INVALID)
+|————————Node:( Text: (
+|————————Node:qualified_identifier Text: CAN_Comm::MessageType::Type::INVALID
+|—————————Node:namespace_identifier Text: CAN_Comm
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: MessageType::Type::INVALID
+|——————————Node:namespace_identifier Text: MessageType
+|——————————Node::: Text: ::
+|——————————Node:qualified_identifier Text: Type::INVALID
+|———————————Node:namespace_identifier Text: Type
+|———————————Node::: Text: ::
+|———————————Node:identifier Text: INVALID
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        this->type = CAN_Comm::MessageType::Type::INVALID;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: this->type = CAN_Comm::MessageType::Type::INVALID;
+|——————Node:assignment_expression Text: this->type = CAN_Comm::MessageType::Type::INVALID
+|———————Node:field_expression Text: this->type
+|————————Node:this Text: this
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: type
+|———————Node:= Text: =
+|———————Node:qualified_identifier Text: CAN_Comm::MessageType::Type::INVALID
+|————————Node:namespace_identifier Text: CAN_Comm
+|————————Node::: Text: ::
+|————————Node:qualified_identifier Text: MessageType::Type::INVALID
+|—————————Node:namespace_identifier Text: MessageType
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: Type::INVALID
+|——————————Node:namespace_identifier Text: Type
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: INVALID
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else {
+        this->type = static_cast<CAN_Comm::MessageType::Type>(masked);
+    }
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+        this->type = static_cast<CAN_Comm::MessageType::Type>(masked);
+    }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: this->type = static_cast<CAN_Comm::MessageType::Type>(masked);
+|———————Node:assignment_expression Text: this->type = static_cast<CAN_Comm::MessageType::Type>(masked)
+|————————Node:field_expression Text: this->type
+|—————————Node:this Text: this
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: type
+|————————Node:= Text: =
+|————————Node:call_expression Text: static_cast<CAN_Comm::MessageType::Type>(masked)
+|—————————Node:template_function Text: static_cast<CAN_Comm::MessageType::Type>
+|——————————Node:identifier Text: static_cast
+|——————————Node:template_argument_list Text: <CAN_Comm::MessageType::Type>
+|———————————Node:< Text: <
+|———————————Node:type_descriptor Text: CAN_Comm::MessageType::Type
+|————————————Node:qualified_identifier Text: CAN_Comm::MessageType::Type
+|—————————————Node:namespace_identifier Text: CAN_Comm
+|—————————————Node::: Text: ::
+|—————————————Node:qualified_identifier Text: MessageType::Type
+|——————————————Node:namespace_identifier Text: MessageType
+|——————————————Node::: Text: ::
+|——————————————Node:type_identifier Text: Type
+|———————————Node:> Text: >
+|—————————Node:argument_list Text: (masked)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: masked
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:expression_statement Text: masked = (id & static_cast<uint32_t>(CAN_Comm::NodeAddress::MASK)) >>
+             static_cast<uint32_t>(CAN_Comm::NodeAddress::POS_SHIFT);
+|————Node:assignment_expression Text: masked = (id & static_cast<uint32_t>(CAN_Comm::NodeAddress::MASK)) >>
+             static_cast<uint32_t>(CAN_Comm::NodeAddress::POS_SHIFT)
+|—————Node:identifier Text: masked
+|—————Node:= Text: =
+|—————Node:binary_expression Text: (id & static_cast<uint32_t>(CAN_Comm::NodeAddress::MASK)) >>
+             static_cast<uint32_t>(CAN_Comm::NodeAddress::POS_SHIFT)
+|——————Node:parenthesized_expression Text: (id & static_cast<uint32_t>(CAN_Comm::NodeAddress::MASK))
+|———————Node:( Text: (
+|———————Node:binary_expression Text: id & static_cast<uint32_t>(CAN_Comm::NodeAddress::MASK)
+|————————Node:identifier Text: id
+|————————Node:& Text: &
+|————————Node:call_expression Text: static_cast<uint32_t>(CAN_Comm::NodeAddress::MASK)
+|—————————Node:template_function Text: static_cast<uint32_t>
+|——————————Node:identifier Text: static_cast
+|——————————Node:template_argument_list Text: <uint32_t>
+|———————————Node:< Text: <
+|———————————Node:type_descriptor Text: uint32_t
+|————————————Node:primitive_type Text: uint32_t
+|———————————Node:> Text: >
+|—————————Node:argument_list Text: (CAN_Comm::NodeAddress::MASK)
+|——————————Node:( Text: (
+|——————————Node:qualified_identifier Text: CAN_Comm::NodeAddress::MASK
+|———————————Node:namespace_identifier Text: CAN_Comm
+|———————————Node::: Text: ::
+|———————————Node:qualified_identifier Text: NodeAddress::MASK
+|————————————Node:namespace_identifier Text: NodeAddress
+|————————————Node::: Text: ::
+|————————————Node:identifier Text: MASK
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:>> Text: >>
+|——————Node:call_expression Text: static_cast<uint32_t>(CAN_Comm::NodeAddress::POS_SHIFT)
+|———————Node:template_function Text: static_cast<uint32_t>
+|————————Node:identifier Text: static_cast
+|————————Node:template_argument_list Text: <uint32_t>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: uint32_t
+|——————————Node:primitive_type Text: uint32_t
+|—————————Node:> Text: >
+|———————Node:argument_list Text: (CAN_Comm::NodeAddress::POS_SHIFT)
+|————————Node:( Text: (
+|————————Node:qualified_identifier Text: CAN_Comm::NodeAddress::POS_SHIFT
+|—————————Node:namespace_identifier Text: CAN_Comm
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: NodeAddress::POS_SHIFT
+|——————————Node:namespace_identifier Text: NodeAddress
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: POS_SHIFT
+|————————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (masked >= static_cast<uint32_t>(CAN_Comm::NodeAddress::Address::INVALID)) {
+        this->nodeAddress = CAN_Comm::NodeAddress::Address::INVALID;
+    } else {
+        this->nodeAddress = static_cast<CAN_Comm::NodeAddress::Address>(masked);
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (masked >= static_cast<uint32_t>(CAN_Comm::NodeAddress::Address::INVALID))
+|—————Node:( Text: (
+|—————Node:binary_expression Text: masked >= static_cast<uint32_t>(CAN_Comm::NodeAddress::Address::INVALID)
+|——————Node:identifier Text: masked
+|——————Node:>= Text: >=
+|——————Node:call_expression Text: static_cast<uint32_t>(CAN_Comm::NodeAddress::Address::INVALID)
+|———————Node:template_function Text: static_cast<uint32_t>
+|————————Node:identifier Text: static_cast
+|————————Node:template_argument_list Text: <uint32_t>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: uint32_t
+|——————————Node:primitive_type Text: uint32_t
+|—————————Node:> Text: >
+|———————Node:argument_list Text: (CAN_Comm::NodeAddress::Address::INVALID)
+|————————Node:( Text: (
+|————————Node:qualified_identifier Text: CAN_Comm::NodeAddress::Address::INVALID
+|—————————Node:namespace_identifier Text: CAN_Comm
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: NodeAddress::Address::INVALID
+|——————————Node:namespace_identifier Text: NodeAddress
+|——————————Node::: Text: ::
+|——————————Node:qualified_identifier Text: Address::INVALID
+|———————————Node:namespace_identifier Text: Address
+|———————————Node::: Text: ::
+|———————————Node:identifier Text: INVALID
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        this->nodeAddress = CAN_Comm::NodeAddress::Address::INVALID;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: this->nodeAddress = CAN_Comm::NodeAddress::Address::INVALID;
+|——————Node:assignment_expression Text: this->nodeAddress = CAN_Comm::NodeAddress::Address::INVALID
+|———————Node:field_expression Text: this->nodeAddress
+|————————Node:this Text: this
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: nodeAddress
+|———————Node:= Text: =
+|———————Node:qualified_identifier Text: CAN_Comm::NodeAddress::Address::INVALID
+|————————Node:namespace_identifier Text: CAN_Comm
+|————————Node::: Text: ::
+|————————Node:qualified_identifier Text: NodeAddress::Address::INVALID
+|—————————Node:namespace_identifier Text: NodeAddress
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: Address::INVALID
+|——————————Node:namespace_identifier Text: Address
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: INVALID
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else {
+        this->nodeAddress = static_cast<CAN_Comm::NodeAddress::Address>(masked);
+    }
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+        this->nodeAddress = static_cast<CAN_Comm::NodeAddress::Address>(masked);
+    }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: this->nodeAddress = static_cast<CAN_Comm::NodeAddress::Address>(masked);
+|———————Node:assignment_expression Text: this->nodeAddress = static_cast<CAN_Comm::NodeAddress::Address>(masked)
+|————————Node:field_expression Text: this->nodeAddress
+|—————————Node:this Text: this
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: nodeAddress
+|————————Node:= Text: =
+|————————Node:call_expression Text: static_cast<CAN_Comm::NodeAddress::Address>(masked)
+|—————————Node:template_function Text: static_cast<CAN_Comm::NodeAddress::Address>
+|——————————Node:identifier Text: static_cast
+|——————————Node:template_argument_list Text: <CAN_Comm::NodeAddress::Address>
+|———————————Node:< Text: <
+|———————————Node:type_descriptor Text: CAN_Comm::NodeAddress::Address
+|————————————Node:qualified_identifier Text: CAN_Comm::NodeAddress::Address
+|—————————————Node:namespace_identifier Text: CAN_Comm
+|—————————————Node::: Text: ::
+|—————————————Node:qualified_identifier Text: NodeAddress::Address
+|——————————————Node:namespace_identifier Text: NodeAddress
+|——————————————Node::: Text: ::
+|——————————————Node:type_identifier Text: Address
+|———————————Node:> Text: >
+|—————————Node:argument_list Text: (masked)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: masked
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:expression_statement Text: masked = (id & static_cast<uint32_t>(CAN_Comm::MessageSubtype::MASK)) >>
+             static_cast<uint32_t>(CAN_Comm::MessageSubtype::POS_SHIFT);
+|————Node:assignment_expression Text: masked = (id & static_cast<uint32_t>(CAN_Comm::MessageSubtype::MASK)) >>
+             static_cast<uint32_t>(CAN_Comm::MessageSubtype::POS_SHIFT)
+|—————Node:identifier Text: masked
+|—————Node:= Text: =
+|—————Node:binary_expression Text: (id & static_cast<uint32_t>(CAN_Comm::MessageSubtype::MASK)) >>
+             static_cast<uint32_t>(CAN_Comm::MessageSubtype::POS_SHIFT)
+|——————Node:parenthesized_expression Text: (id & static_cast<uint32_t>(CAN_Comm::MessageSubtype::MASK))
+|———————Node:( Text: (
+|———————Node:binary_expression Text: id & static_cast<uint32_t>(CAN_Comm::MessageSubtype::MASK)
+|————————Node:identifier Text: id
+|————————Node:& Text: &
+|————————Node:call_expression Text: static_cast<uint32_t>(CAN_Comm::MessageSubtype::MASK)
+|—————————Node:template_function Text: static_cast<uint32_t>
+|——————————Node:identifier Text: static_cast
+|——————————Node:template_argument_list Text: <uint32_t>
+|———————————Node:< Text: <
+|———————————Node:type_descriptor Text: uint32_t
+|————————————Node:primitive_type Text: uint32_t
+|———————————Node:> Text: >
+|—————————Node:argument_list Text: (CAN_Comm::MessageSubtype::MASK)
+|——————————Node:( Text: (
+|——————————Node:qualified_identifier Text: CAN_Comm::MessageSubtype::MASK
+|———————————Node:namespace_identifier Text: CAN_Comm
+|———————————Node::: Text: ::
+|———————————Node:qualified_identifier Text: MessageSubtype::MASK
+|————————————Node:namespace_identifier Text: MessageSubtype
+|————————————Node::: Text: ::
+|————————————Node:identifier Text: MASK
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:>> Text: >>
+|——————Node:call_expression Text: static_cast<uint32_t>(CAN_Comm::MessageSubtype::POS_SHIFT)
+|———————Node:template_function Text: static_cast<uint32_t>
+|————————Node:identifier Text: static_cast
+|————————Node:template_argument_list Text: <uint32_t>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: uint32_t
+|——————————Node:primitive_type Text: uint32_t
+|—————————Node:> Text: >
+|———————Node:argument_list Text: (CAN_Comm::MessageSubtype::POS_SHIFT)
+|————————Node:( Text: (
+|————————Node:qualified_identifier Text: CAN_Comm::MessageSubtype::POS_SHIFT
+|—————————Node:namespace_identifier Text: CAN_Comm
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: MessageSubtype::POS_SHIFT
+|——————————Node:namespace_identifier Text: MessageSubtype
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: POS_SHIFT
+|————————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (this->type == CAN_Comm::MessageType::Type::STATUS) {
+        if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Status::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Status::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Status>(masked);
+        }
+    } else if (this->type == CAN_Comm::MessageType::Type::IO_CONFIGURE) {
+        if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Config::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Config::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Config>(masked);
+        }
+    } else if (this->type == CAN_Comm::MessageType::Type::INPUTS_REPORT ||
+               this->type == CAN_Comm::MessageType::Type::OUTPUTS_SET) {
+        if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Data::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Data::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Data>(masked);
+        }
+    } else {
+        this->subtype = CAN_Comm::MessageSubtype::Status::INVALID;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (this->type == CAN_Comm::MessageType::Type::STATUS)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: this->type == CAN_Comm::MessageType::Type::STATUS
+|——————Node:field_expression Text: this->type
+|———————Node:this Text: this
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: type
+|——————Node:== Text: ==
+|——————Node:qualified_identifier Text: CAN_Comm::MessageType::Type::STATUS
+|———————Node:namespace_identifier Text: CAN_Comm
+|———————Node::: Text: ::
+|———————Node:qualified_identifier Text: MessageType::Type::STATUS
+|————————Node:namespace_identifier Text: MessageType
+|————————Node::: Text: ::
+|————————Node:qualified_identifier Text: Type::STATUS
+|—————————Node:namespace_identifier Text: Type
+|—————————Node::: Text: ::
+|—————————Node:identifier Text: STATUS
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Status::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Status::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Status>(masked);
+        }
+    }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Status::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Status::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Status>(masked);
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Status::INVALID))
+|———————Node:( Text: (
+|———————Node:binary_expression Text: masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Status::INVALID)
+|————————Node:identifier Text: masked
+|————————Node:>= Text: >=
+|————————Node:call_expression Text: static_cast<uint32_t>(CAN_Comm::MessageSubtype::Status::INVALID)
+|—————————Node:template_function Text: static_cast<uint32_t>
+|——————————Node:identifier Text: static_cast
+|——————————Node:template_argument_list Text: <uint32_t>
+|———————————Node:< Text: <
+|———————————Node:type_descriptor Text: uint32_t
+|————————————Node:primitive_type Text: uint32_t
+|———————————Node:> Text: >
+|—————————Node:argument_list Text: (CAN_Comm::MessageSubtype::Status::INVALID)
+|——————————Node:( Text: (
+|——————————Node:qualified_identifier Text: CAN_Comm::MessageSubtype::Status::INVALID
+|———————————Node:namespace_identifier Text: CAN_Comm
+|———————————Node::: Text: ::
+|———————————Node:qualified_identifier Text: MessageSubtype::Status::INVALID
+|————————————Node:namespace_identifier Text: MessageSubtype
+|————————————Node::: Text: ::
+|————————————Node:qualified_identifier Text: Status::INVALID
+|—————————————Node:namespace_identifier Text: Status
+|—————————————Node::: Text: ::
+|—————————————Node:identifier Text: INVALID
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            this->subtype = CAN_Comm::MessageSubtype::Status::INVALID;
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: this->subtype = CAN_Comm::MessageSubtype::Status::INVALID;
+|————————Node:assignment_expression Text: this->subtype = CAN_Comm::MessageSubtype::Status::INVALID
+|—————————Node:field_expression Text: this->subtype
+|——————————Node:this Text: this
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: subtype
+|—————————Node:= Text: =
+|—————————Node:qualified_identifier Text: CAN_Comm::MessageSubtype::Status::INVALID
+|——————————Node:namespace_identifier Text: CAN_Comm
+|——————————Node::: Text: ::
+|——————————Node:qualified_identifier Text: MessageSubtype::Status::INVALID
+|———————————Node:namespace_identifier Text: MessageSubtype
+|———————————Node::: Text: ::
+|———————————Node:qualified_identifier Text: Status::INVALID
+|————————————Node:namespace_identifier Text: Status
+|————————————Node::: Text: ::
+|————————————Node:identifier Text: INVALID
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|——————Node:else_clause Text: else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Status>(masked);
+        }
+|———————Node:else Text: else
+|———————Node:compound_statement Text: {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Status>(masked);
+        }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: this->subtype = static_cast<CAN_Comm::MessageSubtype::Status>(masked);
+|—————————Node:assignment_expression Text: this->subtype = static_cast<CAN_Comm::MessageSubtype::Status>(masked)
+|——————————Node:field_expression Text: this->subtype
+|———————————Node:this Text: this
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: subtype
+|——————————Node:= Text: =
+|——————————Node:call_expression Text: static_cast<CAN_Comm::MessageSubtype::Status>(masked)
+|———————————Node:template_function Text: static_cast<CAN_Comm::MessageSubtype::Status>
+|————————————Node:identifier Text: static_cast
+|————————————Node:template_argument_list Text: <CAN_Comm::MessageSubtype::Status>
+|—————————————Node:< Text: <
+|—————————————Node:type_descriptor Text: CAN_Comm::MessageSubtype::Status
+|——————————————Node:qualified_identifier Text: CAN_Comm::MessageSubtype::Status
+|———————————————Node:namespace_identifier Text: CAN_Comm
+|———————————————Node::: Text: ::
+|———————————————Node:qualified_identifier Text: MessageSubtype::Status
+|————————————————Node:namespace_identifier Text: MessageSubtype
+|————————————————Node::: Text: ::
+|————————————————Node:type_identifier Text: Status
+|—————————————Node:> Text: >
+|———————————Node:argument_list Text: (masked)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: masked
+|————————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|—————Node:} Text: }
+|————Node:else_clause Text: else if (this->type == CAN_Comm::MessageType::Type::IO_CONFIGURE) {
+        if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Config::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Config::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Config>(masked);
+        }
+    } else if (this->type == CAN_Comm::MessageType::Type::INPUTS_REPORT ||
+               this->type == CAN_Comm::MessageType::Type::OUTPUTS_SET) {
+        if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Data::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Data::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Data>(masked);
+        }
+    } else {
+        this->subtype = CAN_Comm::MessageSubtype::Status::INVALID;
+    }
+|—————Node:else Text: else
+|—————Node:if_statement Text: if (this->type == CAN_Comm::MessageType::Type::IO_CONFIGURE) {
+        if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Config::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Config::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Config>(masked);
+        }
+    } else if (this->type == CAN_Comm::MessageType::Type::INPUTS_REPORT ||
+               this->type == CAN_Comm::MessageType::Type::OUTPUTS_SET) {
+        if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Data::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Data::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Data>(masked);
+        }
+    } else {
+        this->subtype = CAN_Comm::MessageSubtype::Status::INVALID;
+    }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (this->type == CAN_Comm::MessageType::Type::IO_CONFIGURE)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: this->type == CAN_Comm::MessageType::Type::IO_CONFIGURE
+|————————Node:field_expression Text: this->type
+|—————————Node:this Text: this
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: type
+|————————Node:== Text: ==
+|————————Node:qualified_identifier Text: CAN_Comm::MessageType::Type::IO_CONFIGURE
+|—————————Node:namespace_identifier Text: CAN_Comm
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: MessageType::Type::IO_CONFIGURE
+|——————————Node:namespace_identifier Text: MessageType
+|——————————Node::: Text: ::
+|——————————Node:qualified_identifier Text: Type::IO_CONFIGURE
+|———————————Node:namespace_identifier Text: Type
+|———————————Node::: Text: ::
+|———————————Node:identifier Text: IO_CONFIGURE
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+        if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Config::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Config::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Config>(masked);
+        }
+    }
+|———————Node:{ Text: {
+|———————Node:if_statement Text: if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Config::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Config::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Config>(masked);
+        }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Config::INVALID))
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Config::INVALID)
+|——————————Node:identifier Text: masked
+|——————————Node:>= Text: >=
+|——————————Node:call_expression Text: static_cast<uint32_t>(CAN_Comm::MessageSubtype::Config::INVALID)
+|———————————Node:template_function Text: static_cast<uint32_t>
+|————————————Node:identifier Text: static_cast
+|————————————Node:template_argument_list Text: <uint32_t>
+|—————————————Node:< Text: <
+|—————————————Node:type_descriptor Text: uint32_t
+|——————————————Node:primitive_type Text: uint32_t
+|—————————————Node:> Text: >
+|———————————Node:argument_list Text: (CAN_Comm::MessageSubtype::Config::INVALID)
+|————————————Node:( Text: (
+|————————————Node:qualified_identifier Text: CAN_Comm::MessageSubtype::Config::INVALID
+|—————————————Node:namespace_identifier Text: CAN_Comm
+|—————————————Node::: Text: ::
+|—————————————Node:qualified_identifier Text: MessageSubtype::Config::INVALID
+|——————————————Node:namespace_identifier Text: MessageSubtype
+|——————————————Node::: Text: ::
+|——————————————Node:qualified_identifier Text: Config::INVALID
+|———————————————Node:namespace_identifier Text: Config
+|———————————————Node::: Text: ::
+|———————————————Node:identifier Text: INVALID
+|————————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+            this->subtype = CAN_Comm::MessageSubtype::Config::INVALID;
+        }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: this->subtype = CAN_Comm::MessageSubtype::Config::INVALID;
+|——————————Node:assignment_expression Text: this->subtype = CAN_Comm::MessageSubtype::Config::INVALID
+|———————————Node:field_expression Text: this->subtype
+|————————————Node:this Text: this
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: subtype
+|———————————Node:= Text: =
+|———————————Node:qualified_identifier Text: CAN_Comm::MessageSubtype::Config::INVALID
+|————————————Node:namespace_identifier Text: CAN_Comm
+|————————————Node::: Text: ::
+|————————————Node:qualified_identifier Text: MessageSubtype::Config::INVALID
+|—————————————Node:namespace_identifier Text: MessageSubtype
+|—————————————Node::: Text: ::
+|—————————————Node:qualified_identifier Text: Config::INVALID
+|——————————————Node:namespace_identifier Text: Config
+|——————————————Node::: Text: ::
+|——————————————Node:identifier Text: INVALID
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|————————Node:else_clause Text: else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Config>(masked);
+        }
+|—————————Node:else Text: else
+|—————————Node:compound_statement Text: {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Config>(masked);
+        }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: this->subtype = static_cast<CAN_Comm::MessageSubtype::Config>(masked);
+|———————————Node:assignment_expression Text: this->subtype = static_cast<CAN_Comm::MessageSubtype::Config>(masked)
+|————————————Node:field_expression Text: this->subtype
+|—————————————Node:this Text: this
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: subtype
+|————————————Node:= Text: =
+|————————————Node:call_expression Text: static_cast<CAN_Comm::MessageSubtype::Config>(masked)
+|—————————————Node:template_function Text: static_cast<CAN_Comm::MessageSubtype::Config>
+|——————————————Node:identifier Text: static_cast
+|——————————————Node:template_argument_list Text: <CAN_Comm::MessageSubtype::Config>
+|———————————————Node:< Text: <
+|———————————————Node:type_descriptor Text: CAN_Comm::MessageSubtype::Config
+|————————————————Node:qualified_identifier Text: CAN_Comm::MessageSubtype::Config
+|—————————————————Node:namespace_identifier Text: CAN_Comm
+|—————————————————Node::: Text: ::
+|—————————————————Node:qualified_identifier Text: MessageSubtype::Config
+|——————————————————Node:namespace_identifier Text: MessageSubtype
+|——————————————————Node::: Text: ::
+|——————————————————Node:type_identifier Text: Config
+|———————————————Node:> Text: >
+|—————————————Node:argument_list Text: (masked)
+|——————————————Node:( Text: (
+|——————————————Node:identifier Text: masked
+|——————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|———————Node:} Text: }
+|——————Node:else_clause Text: else if (this->type == CAN_Comm::MessageType::Type::INPUTS_REPORT ||
+               this->type == CAN_Comm::MessageType::Type::OUTPUTS_SET) {
+        if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Data::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Data::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Data>(masked);
+        }
+    } else {
+        this->subtype = CAN_Comm::MessageSubtype::Status::INVALID;
+    }
+|———————Node:else Text: else
+|———————Node:if_statement Text: if (this->type == CAN_Comm::MessageType::Type::INPUTS_REPORT ||
+               this->type == CAN_Comm::MessageType::Type::OUTPUTS_SET) {
+        if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Data::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Data::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Data>(masked);
+        }
+    } else {
+        this->subtype = CAN_Comm::MessageSubtype::Status::INVALID;
+    }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (this->type == CAN_Comm::MessageType::Type::INPUTS_REPORT ||
+               this->type == CAN_Comm::MessageType::Type::OUTPUTS_SET)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: this->type == CAN_Comm::MessageType::Type::INPUTS_REPORT ||
+               this->type == CAN_Comm::MessageType::Type::OUTPUTS_SET
+|——————————Node:binary_expression Text: this->type == CAN_Comm::MessageType::Type::INPUTS_REPORT
+|———————————Node:field_expression Text: this->type
+|————————————Node:this Text: this
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: type
+|———————————Node:== Text: ==
+|———————————Node:qualified_identifier Text: CAN_Comm::MessageType::Type::INPUTS_REPORT
+|————————————Node:namespace_identifier Text: CAN_Comm
+|————————————Node::: Text: ::
+|————————————Node:qualified_identifier Text: MessageType::Type::INPUTS_REPORT
+|—————————————Node:namespace_identifier Text: MessageType
+|—————————————Node::: Text: ::
+|—————————————Node:qualified_identifier Text: Type::INPUTS_REPORT
+|——————————————Node:namespace_identifier Text: Type
+|——————————————Node::: Text: ::
+|——————————————Node:identifier Text: INPUTS_REPORT
+|——————————Node:|| Text: ||
+|——————————Node:binary_expression Text: this->type == CAN_Comm::MessageType::Type::OUTPUTS_SET
+|———————————Node:field_expression Text: this->type
+|————————————Node:this Text: this
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: type
+|———————————Node:== Text: ==
+|———————————Node:qualified_identifier Text: CAN_Comm::MessageType::Type::OUTPUTS_SET
+|————————————Node:namespace_identifier Text: CAN_Comm
+|————————————Node::: Text: ::
+|————————————Node:qualified_identifier Text: MessageType::Type::OUTPUTS_SET
+|—————————————Node:namespace_identifier Text: MessageType
+|—————————————Node::: Text: ::
+|—————————————Node:qualified_identifier Text: Type::OUTPUTS_SET
+|——————————————Node:namespace_identifier Text: Type
+|——————————————Node::: Text: ::
+|——————————————Node:identifier Text: OUTPUTS_SET
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+        if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Data::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Data::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Data>(masked);
+        }
+    }
+|—————————Node:{ Text: {
+|—————————Node:if_statement Text: if (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Data::INVALID)) {
+            this->subtype = CAN_Comm::MessageSubtype::Data::INVALID;
+        } else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Data>(masked);
+        }
+|——————————Node:if Text: if
+|——————————Node:condition_clause Text: (masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Data::INVALID))
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: masked >= static_cast<uint32_t>(CAN_Comm::MessageSubtype::Data::INVALID)
+|————————————Node:identifier Text: masked
+|————————————Node:>= Text: >=
+|————————————Node:call_expression Text: static_cast<uint32_t>(CAN_Comm::MessageSubtype::Data::INVALID)
+|—————————————Node:template_function Text: static_cast<uint32_t>
+|——————————————Node:identifier Text: static_cast
+|——————————————Node:template_argument_list Text: <uint32_t>
+|———————————————Node:< Text: <
+|———————————————Node:type_descriptor Text: uint32_t
+|————————————————Node:primitive_type Text: uint32_t
+|———————————————Node:> Text: >
+|—————————————Node:argument_list Text: (CAN_Comm::MessageSubtype::Data::INVALID)
+|——————————————Node:( Text: (
+|——————————————Node:qualified_identifier Text: CAN_Comm::MessageSubtype::Data::INVALID
+|———————————————Node:namespace_identifier Text: CAN_Comm
+|———————————————Node::: Text: ::
+|———————————————Node:qualified_identifier Text: MessageSubtype::Data::INVALID
+|————————————————Node:namespace_identifier Text: MessageSubtype
+|————————————————Node::: Text: ::
+|————————————————Node:qualified_identifier Text: Data::INVALID
+|—————————————————Node:namespace_identifier Text: Data
+|—————————————————Node::: Text: ::
+|—————————————————Node:identifier Text: INVALID
+|——————————————Node:) Text: )
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+            this->subtype = CAN_Comm::MessageSubtype::Data::INVALID;
+        }
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: this->subtype = CAN_Comm::MessageSubtype::Data::INVALID;
+|————————————Node:assignment_expression Text: this->subtype = CAN_Comm::MessageSubtype::Data::INVALID
+|—————————————Node:field_expression Text: this->subtype
+|——————————————Node:this Text: this
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: subtype
+|—————————————Node:= Text: =
+|—————————————Node:qualified_identifier Text: CAN_Comm::MessageSubtype::Data::INVALID
+|——————————————Node:namespace_identifier Text: CAN_Comm
+|——————————————Node::: Text: ::
+|——————————————Node:qualified_identifier Text: MessageSubtype::Data::INVALID
+|———————————————Node:namespace_identifier Text: MessageSubtype
+|———————————————Node::: Text: ::
+|———————————————Node:qualified_identifier Text: Data::INVALID
+|————————————————Node:namespace_identifier Text: Data
+|————————————————Node::: Text: ::
+|————————————————Node:identifier Text: INVALID
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|——————————Node:else_clause Text: else {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Data>(masked);
+        }
+|———————————Node:else Text: else
+|———————————Node:compound_statement Text: {
+            this->subtype = static_cast<CAN_Comm::MessageSubtype::Data>(masked);
+        }
+|————————————Node:{ Text: {
+|————————————Node:expression_statement Text: this->subtype = static_cast<CAN_Comm::MessageSubtype::Data>(masked);
+|—————————————Node:assignment_expression Text: this->subtype = static_cast<CAN_Comm::MessageSubtype::Data>(masked)
+|——————————————Node:field_expression Text: this->subtype
+|———————————————Node:this Text: this
+|———————————————Node:-> Text: ->
+|———————————————Node:field_identifier Text: subtype
+|——————————————Node:= Text: =
+|——————————————Node:call_expression Text: static_cast<CAN_Comm::MessageSubtype::Data>(masked)
+|———————————————Node:template_function Text: static_cast<CAN_Comm::MessageSubtype::Data>
+|————————————————Node:identifier Text: static_cast
+|————————————————Node:template_argument_list Text: <CAN_Comm::MessageSubtype::Data>
+|—————————————————Node:< Text: <
+|—————————————————Node:type_descriptor Text: CAN_Comm::MessageSubtype::Data
+|——————————————————Node:qualified_identifier Text: CAN_Comm::MessageSubtype::Data
+|———————————————————Node:namespace_identifier Text: CAN_Comm
+|———————————————————Node::: Text: ::
+|———————————————————Node:qualified_identifier Text: MessageSubtype::Data
+|————————————————————Node:namespace_identifier Text: MessageSubtype
+|————————————————————Node::: Text: ::
+|————————————————————Node:type_identifier Text: Data
+|—————————————————Node:> Text: >
+|———————————————Node:argument_list Text: (masked)
+|————————————————Node:( Text: (
+|————————————————Node:identifier Text: masked
+|————————————————Node:) Text: )
+|—————————————Node:; Text: ;
+|————————————Node:} Text: }
+|—————————Node:} Text: }
+|————————Node:else_clause Text: else {
+        this->subtype = CAN_Comm::MessageSubtype::Status::INVALID;
+    }
+|—————————Node:else Text: else
+|—————————Node:compound_statement Text: {
+        this->subtype = CAN_Comm::MessageSubtype::Status::INVALID;
+    }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: this->subtype = CAN_Comm::MessageSubtype::Status::INVALID;
+|———————————Node:assignment_expression Text: this->subtype = CAN_Comm::MessageSubtype::Status::INVALID
+|————————————Node:field_expression Text: this->subtype
+|—————————————Node:this Text: this
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: subtype
+|————————————Node:= Text: =
+|————————————Node:qualified_identifier Text: CAN_Comm::MessageSubtype::Status::INVALID
+|—————————————Node:namespace_identifier Text: CAN_Comm
+|—————————————Node::: Text: ::
+|—————————————Node:qualified_identifier Text: MessageSubtype::Status::INVALID
+|——————————————Node:namespace_identifier Text: MessageSubtype
+|——————————————Node::: Text: ::
+|——————————————Node:qualified_identifier Text: Status::INVALID
+|———————————————Node:namespace_identifier Text: Status
+|———————————————Node::: Text: ::
+|———————————————Node:identifier Text: INVALID
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|———Node:} Text: }
+|—Node:function_definition Text: [[nodiscard]] BSP::CAN_Ctrl::Filter
+CAN_Comm::generateFilter(CAN_Comm::NodeAddress::Address nodeAddr)
+{
+    // Acceptance Mask Bits - '0' means "match corresponding acceptance code"
+    //                      - '1' means "ignore corresponding acceptance code"
+
+    BSP::CAN_Ctrl::Filter filter{};
+
+    // NOTE: in MSCAN with standard 11-bit IDs, the values have to be left-aligned on 32-bit
+    // TODO/PORTABILITY: make it more generic than just for KE06 MSCAN
+    static constexpr uint32_t filterBitWidth = 32;
+    static constexpr uint32_t usedIDBitWidth = 11;
+    static constexpr uint32_t offset = filterBitWidth - usedIDBitWidth;
+
+    filter.acceptanceValue = static_cast<uint32_t>(nodeAddr) << offset;
+    filter.maskValue = ~(CAN_Comm::NodeAddress::MASK << offset);
+
+    return filter;
+}
+|——Node:attribute_declaration Text: [[nodiscard]]
+|———Node:[[ Text: [[
+|———Node:attribute Text: nodiscard
+|————Node:identifier Text: nodiscard
+|———Node:]] Text: ]]
+|——Node:qualified_identifier Text: BSP::CAN_Ctrl::Filter
+|———Node:namespace_identifier Text: BSP
+|———Node::: Text: ::
+|———Node:qualified_identifier Text: CAN_Ctrl::Filter
+|————Node:namespace_identifier Text: CAN_Ctrl
+|————Node::: Text: ::
+|————Node:type_identifier Text: Filter
+|——Node:function_declarator Text: CAN_Comm::generateFilter(CAN_Comm::NodeAddress::Address nodeAddr)
+|———Node:qualified_identifier Text: CAN_Comm::generateFilter
+|————Node:namespace_identifier Text: CAN_Comm
+|————Node::: Text: ::
+|————Node:identifier Text: generateFilter
+|———Node:parameter_list Text: (CAN_Comm::NodeAddress::Address nodeAddr)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: CAN_Comm::NodeAddress::Address nodeAddr
+|—————Node:qualified_identifier Text: CAN_Comm::NodeAddress::Address
+|——————Node:namespace_identifier Text: CAN_Comm
+|——————Node::: Text: ::
+|——————Node:qualified_identifier Text: NodeAddress::Address
+|———————Node:namespace_identifier Text: NodeAddress
+|———————Node::: Text: ::
+|———————Node:type_identifier Text: Address
+|—————Node:identifier Text: nodeAddr
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    // Acceptance Mask Bits - '0' means "match corresponding acceptance code"
+    //                      - '1' means "ignore corresponding acceptance code"
+
+    BSP::CAN_Ctrl::Filter filter{};
+
+    // NOTE: in MSCAN with standard 11-bit IDs, the values have to be left-aligned on 32-bit
+    // TODO/PORTABILITY: make it more generic than just for KE06 MSCAN
+    static constexpr uint32_t filterBitWidth = 32;
+    static constexpr uint32_t usedIDBitWidth = 11;
+    static constexpr uint32_t offset = filterBitWidth - usedIDBitWidth;
+
+    filter.acceptanceValue = static_cast<uint32_t>(nodeAddr) << offset;
+    filter.maskValue = ~(CAN_Comm::NodeAddress::MASK << offset);
+
+    return filter;
+}
+|———Node:{ Text: {
+|———Node:comment Text: // Acceptance Mask Bits - '0' means "match corresponding acceptance code"
+|———Node:comment Text: //                      - '1' means "ignore corresponding acceptance code"
+|———Node:declaration Text: BSP::CAN_Ctrl::Filter filter{};
+|————Node:qualified_identifier Text: BSP::CAN_Ctrl::Filter
+|—————Node:namespace_identifier Text: BSP
+|—————Node::: Text: ::
+|—————Node:qualified_identifier Text: CAN_Ctrl::Filter
+|——————Node:namespace_identifier Text: CAN_Ctrl
+|——————Node::: Text: ::
+|——————Node:type_identifier Text: Filter
+|————Node:init_declarator Text: filter{}
+|—————Node:identifier Text: filter
+|—————Node:initializer_list Text: {}
+|——————Node:{ Text: {
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:comment Text: // NOTE: in MSCAN with standard 11-bit IDs, the values have to be left-aligned on 32-bit
+|———Node:comment Text: // TODO/PORTABILITY: make it more generic than just for KE06 MSCAN
+|———Node:declaration Text: static constexpr uint32_t filterBitWidth = 32;
+|————Node:storage_class_specifier Text: static
+|—————Node:static Text: static
+|————Node:type_qualifier Text: constexpr
+|—————Node:constexpr Text: constexpr
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: filterBitWidth = 32
+|—————Node:identifier Text: filterBitWidth
+|—————Node:= Text: =
+|—————Node:number_literal Text: 32
+|————Node:; Text: ;
+|———Node:declaration Text: static constexpr uint32_t usedIDBitWidth = 11;
+|————Node:storage_class_specifier Text: static
+|—————Node:static Text: static
+|————Node:type_qualifier Text: constexpr
+|—————Node:constexpr Text: constexpr
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: usedIDBitWidth = 11
+|—————Node:identifier Text: usedIDBitWidth
+|—————Node:= Text: =
+|—————Node:number_literal Text: 11
+|————Node:; Text: ;
+|———Node:declaration Text: static constexpr uint32_t offset = filterBitWidth - usedIDBitWidth;
+|————Node:storage_class_specifier Text: static
+|—————Node:static Text: static
+|————Node:type_qualifier Text: constexpr
+|—————Node:constexpr Text: constexpr
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: offset = filterBitWidth - usedIDBitWidth
+|—————Node:identifier Text: offset
+|—————Node:= Text: =
+|—————Node:binary_expression Text: filterBitWidth - usedIDBitWidth
+|——————Node:identifier Text: filterBitWidth
+|——————Node:- Text: -
+|——————Node:identifier Text: usedIDBitWidth
+|————Node:; Text: ;
+|———Node:expression_statement Text: filter.acceptanceValue = static_cast<uint32_t>(nodeAddr) << offset;
+|————Node:assignment_expression Text: filter.acceptanceValue = static_cast<uint32_t>(nodeAddr) << offset
+|—————Node:field_expression Text: filter.acceptanceValue
+|——————Node:identifier Text: filter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: acceptanceValue
+|—————Node:= Text: =
+|—————Node:binary_expression Text: static_cast<uint32_t>(nodeAddr) << offset
+|——————Node:call_expression Text: static_cast<uint32_t>(nodeAddr)
+|———————Node:template_function Text: static_cast<uint32_t>
+|————————Node:identifier Text: static_cast
+|————————Node:template_argument_list Text: <uint32_t>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: uint32_t
+|——————————Node:primitive_type Text: uint32_t
+|—————————Node:> Text: >
+|———————Node:argument_list Text: (nodeAddr)
+|————————Node:( Text: (
+|————————Node:identifier Text: nodeAddr
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:identifier Text: offset
+|————Node:; Text: ;
+|———Node:expression_statement Text: filter.maskValue = ~(CAN_Comm::NodeAddress::MASK << offset);
+|————Node:assignment_expression Text: filter.maskValue = ~(CAN_Comm::NodeAddress::MASK << offset)
+|—————Node:field_expression Text: filter.maskValue
+|——————Node:identifier Text: filter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: maskValue
+|—————Node:= Text: =
+|—————Node:unary_expression Text: ~(CAN_Comm::NodeAddress::MASK << offset)
+|——————Node:~ Text: ~
+|——————Node:parenthesized_expression Text: (CAN_Comm::NodeAddress::MASK << offset)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: CAN_Comm::NodeAddress::MASK << offset
+|————————Node:qualified_identifier Text: CAN_Comm::NodeAddress::MASK
+|—————————Node:namespace_identifier Text: CAN_Comm
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: NodeAddress::MASK
+|——————————Node:namespace_identifier Text: NodeAddress
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: MASK
+|————————Node:<< Text: <<
+|————————Node:identifier Text: offset
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return filter;
+|————Node:return Text: return
+|————Node:identifier Text: filter
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void
+CAN_Comm::scheduleToSend(CAN_Comm::Frame frame)
+{
+    const BSP::CAN_Ctrl::Frame translatedFrame{
+        .id = frame.id.rawValue,
+        .data = frame.payload,
+    };
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CAN_Comm::scheduleToSend(CAN_Comm::Frame frame)
+|———Node:qualified_identifier Text: CAN_Comm::scheduleToSend
+|————Node:namespace_identifier Text: CAN_Comm
+|————Node::: Text: ::
+|————Node:identifier Text: scheduleToSend
+|———Node:parameter_list Text: (CAN_Comm::Frame frame)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: CAN_Comm::Frame frame
+|—————Node:qualified_identifier Text: CAN_Comm::Frame
+|——————Node:namespace_identifier Text: CAN_Comm
+|——————Node::: Text: ::
+|——————Node:type_identifier Text: Frame
+|—————Node:identifier Text: frame
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    const BSP::CAN_Ctrl::Frame translatedFrame{
+        .id = frame.id.rawValue,
+        .data = frame.payload,
+    };
+}
+|———Node:{ Text: {
+|———Node:declaration Text: const BSP::CAN_Ctrl::Frame translatedFrame{
+        .id = frame.id.rawValue,
+        .data = frame.payload,
+    };
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:qualified_identifier Text: BSP::CAN_Ctrl::Frame
+|—————Node:namespace_identifier Text: BSP
+|—————Node::: Text: ::
+|—————Node:qualified_identifier Text: CAN_Ctrl::Frame
+|——————Node:namespace_identifier Text: CAN_Ctrl
+|——————Node::: Text: ::
+|——————Node:type_identifier Text: Frame
+|————Node:init_declarator Text: translatedFrame{
+        .id = frame.id.rawValue,
+        .data = frame.payload,
+    }
+|—————Node:identifier Text: translatedFrame
+|—————Node:initializer_list Text: {
+        .id = frame.id.rawValue,
+        .data = frame.payload,
+    }
+|——————Node:{ Text: {
+|——————Node:initializer_pair Text: .id = frame.id.rawValue
+|———————Node:field_designator Text: .id
+|————————Node:. Text: .
+|————————Node:field_identifier Text: id
+|———————Node:= Text: =
+|———————Node:field_expression Text: frame.id.rawValue
+|————————Node:field_expression Text: frame.id
+|—————————Node:identifier Text: frame
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: id
+|————————Node:. Text: .
+|————————Node:field_identifier Text: rawValue
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .data = frame.payload
+|———————Node:field_designator Text: .data
+|————————Node:. Text: .
+|————————Node:field_identifier Text: data
+|———————Node:= Text: =
+|———————Node:field_expression Text: frame.payload
+|————————Node:identifier Text: frame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: payload
+|——————Node:, Text: ,
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: [[nodiscard]] CAN_Comm::Frame
+CAN_Comm::getReceivedFrame()
+{
+    auto& canqueue = System::getQueueCanFrames();
+    const auto frame = canqueue.front();
+    canqueue.pop();
+
+    CAN_Comm::Frame processedFrame{};
+
+    processedFrame.id.parseRaw(frame.id);
+    processedFrame.payload = frame.data;
+
+    return processedFrame;
+}
+|——Node:attribute_declaration Text: [[nodiscard]]
+|———Node:[[ Text: [[
+|———Node:attribute Text: nodiscard
+|————Node:identifier Text: nodiscard
+|———Node:]] Text: ]]
+|——Node:qualified_identifier Text: CAN_Comm::Frame
+|———Node:namespace_identifier Text: CAN_Comm
+|———Node::: Text: ::
+|———Node:type_identifier Text: Frame
+|——Node:function_declarator Text: CAN_Comm::getReceivedFrame()
+|———Node:qualified_identifier Text: CAN_Comm::getReceivedFrame
+|————Node:namespace_identifier Text: CAN_Comm
+|————Node::: Text: ::
+|————Node:identifier Text: getReceivedFrame
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    auto& canqueue = System::getQueueCanFrames();
+    const auto frame = canqueue.front();
+    canqueue.pop();
+
+    CAN_Comm::Frame processedFrame{};
+
+    processedFrame.id.parseRaw(frame.id);
+    processedFrame.payload = frame.data;
+
+    return processedFrame;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: auto& canqueue = System::getQueueCanFrames();
+|————Node:placeholder_type_specifier Text: auto
+|—————Node:auto Text: auto
+|————Node:init_declarator Text: & canqueue = System::getQueueCanFrames()
+|—————Node:reference_declarator Text: & canqueue
+|——————Node:& Text: &
+|——————Node:identifier Text: canqueue
+|—————Node:= Text: =
+|—————Node:call_expression Text: System::getQueueCanFrames()
+|——————Node:qualified_identifier Text: System::getQueueCanFrames
+|———————Node:namespace_identifier Text: System
+|———————Node::: Text: ::
+|———————Node:identifier Text: getQueueCanFrames
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: const auto frame = canqueue.front();
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:placeholder_type_specifier Text: auto
+|—————Node:auto Text: auto
+|————Node:init_declarator Text: frame = canqueue.front()
+|—————Node:identifier Text: frame
+|—————Node:= Text: =
+|—————Node:call_expression Text: canqueue.front()
+|——————Node:field_expression Text: canqueue.front
+|———————Node:identifier Text: canqueue
+|———————Node:. Text: .
+|———————Node:field_identifier Text: front
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: canqueue.pop();
+|————Node:call_expression Text: canqueue.pop()
+|—————Node:field_expression Text: canqueue.pop
+|——————Node:identifier Text: canqueue
+|——————Node:. Text: .
+|——————Node:field_identifier Text: pop
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: CAN_Comm::Frame processedFrame{};
+|————Node:qualified_identifier Text: CAN_Comm::Frame
+|—————Node:namespace_identifier Text: CAN_Comm
+|—————Node::: Text: ::
+|—————Node:type_identifier Text: Frame
+|————Node:init_declarator Text: processedFrame{}
+|—————Node:identifier Text: processedFrame
+|—————Node:initializer_list Text: {}
+|——————Node:{ Text: {
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:expression_statement Text: processedFrame.id.parseRaw(frame.id);
+|————Node:call_expression Text: processedFrame.id.parseRaw(frame.id)
+|—————Node:field_expression Text: processedFrame.id.parseRaw
+|——————Node:field_expression Text: processedFrame.id
+|———————Node:identifier Text: processedFrame
+|———————Node:. Text: .
+|———————Node:field_identifier Text: id
+|——————Node:. Text: .
+|——————Node:field_identifier Text: parseRaw
+|—————Node:argument_list Text: (frame.id)
+|——————Node:( Text: (
+|——————Node:field_expression Text: frame.id
+|———————Node:identifier Text: frame
+|———————Node:. Text: .
+|———————Node:field_identifier Text: id
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: processedFrame.payload = frame.data;
+|————Node:assignment_expression Text: processedFrame.payload = frame.data
+|—————Node:field_expression Text: processedFrame.payload
+|——————Node:identifier Text: processedFrame
+|——————Node:. Text: .
+|——————Node:field_identifier Text: payload
+|—————Node:= Text: =
+|—————Node:field_expression Text: frame.data
+|——————Node:identifier Text: frame
+|——————Node:. Text: .
+|——————Node:field_identifier Text: data
+|————Node:; Text: ;
+|———Node:return_statement Text: return processedFrame;
+|————Node:return Text: return
+|————Node:identifier Text: processedFrame
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: [[nodiscard]] bool
+CAN_Comm::sendStatus()
+{
+
+    return true;
+}
+|——Node:attribute_declaration Text: [[nodiscard]]
+|———Node:[[ Text: [[
+|———Node:attribute Text: nodiscard
+|————Node:identifier Text: nodiscard
+|———Node:]] Text: ]]
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: CAN_Comm::sendStatus()
+|———Node:qualified_identifier Text: CAN_Comm::sendStatus
+|————Node:namespace_identifier Text: CAN_Comm
+|————Node::: Text: ::
+|————Node:identifier Text: sendStatus
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+
+    return true;
+}
+|———Node:{ Text: {
+|———Node:return_statement Text: return true;
+|————Node:return Text: return
+|————Node:true Text: true
+|————Node:; Text: ;
+|———Node:} Text: }

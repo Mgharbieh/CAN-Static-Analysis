@@ -1,0 +1,3171 @@
+qtserialbus-tests\auto\qmodbusdevice\tst_qmodbusdevice.cpp
+
+|Node:translation_unit
+|—Node:comment Text: /****************************************************************************
+**
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
+**
+** This file is part of the QtSerialBus module of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:LGPL3$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl.html.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or later as published by the Free
+** Software Foundation and appearing in the file LICENSE.GPL included in
+** the packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 2.0 requirements will be
+** met: http://www.gnu.org/licenses/gpl-2.0.html.
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+|—Node:preproc_include Text: #include <QtTest/QtTest>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <QtTest/QtTest>
+|—Node:preproc_include Text: #include <QtSerialBus/qmodbusdevice.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <QtSerialBus/qmodbusdevice.h>
+|—Node:preproc_include Text: #include <QtSerialBus/private/qmodbusdevice_p.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <QtSerialBus/private/qmodbusdevice_p.h>
+|—Node:class_specifier Text: class DummyDevicePrivate : public QModbusDevicePrivate {}
+|——Node:class Text: class
+|——Node:type_identifier Text: DummyDevicePrivate
+|——Node:base_class_clause Text: : public QModbusDevicePrivate
+|———Node:: Text: :
+|———Node:access_specifier Text: public
+|————Node:public Text: public
+|———Node:type_identifier Text: QModbusDevicePrivate
+|——Node:field_declaration_list Text: {}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:; Text: ;
+|—Node:class_specifier Text: class DummyDevice : public QModbusDevice
+{
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(DummyDevice)
+    friend class tst_QModbusDevice;
+
+public:
+    DummyDevice(QObject *parent = Q_NULLPTR)
+        : QModbusDevice(*new DummyDevicePrivate, parent)
+    {
+        qRegisterMetaType<QModbusDevice::ModbusDeviceState>("QModbusDevice::ModbusDeviceState");
+    }
+
+protected:
+    bool open() Q_DECL_OVERRIDE { return openState; }
+    void close() Q_DECL_OVERRIDE {}
+
+    bool openState = false;
+}
+|——Node:class Text: class
+|——Node:type_identifier Text: DummyDevice
+|——Node:base_class_clause Text: : public QModbusDevice
+|———Node:: Text: :
+|———Node:access_specifier Text: public
+|————Node:public Text: public
+|———Node:type_identifier Text: QModbusDevice
+|——Node:field_declaration_list Text: {
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(DummyDevice)
+    friend class tst_QModbusDevice;
+
+public:
+    DummyDevice(QObject *parent = Q_NULLPTR)
+        : QModbusDevice(*new DummyDevicePrivate, parent)
+    {
+        qRegisterMetaType<QModbusDevice::ModbusDeviceState>("QModbusDevice::ModbusDeviceState");
+    }
+
+protected:
+    bool open() Q_DECL_OVERRIDE { return openState; }
+    void close() Q_DECL_OVERRIDE {}
+
+    bool openState = false;
+}
+|———Node:{ Text: {
+|———Node:field_declaration Text: Q_OBJECT
+    Q_DECLARE_PRIVATE(DummyDevice)
+|————Node:type_identifier Text: Q_OBJECT
+|————Node:function_declarator Text: Q_DECLARE_PRIVATE(DummyDevice)
+|—————Node:field_identifier Text: Q_DECLARE_PRIVATE
+|—————Node:parameter_list Text: (DummyDevice)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: DummyDevice
+|———————Node:type_identifier Text: DummyDevice
+|——————Node:) Text: )
+|————Node:; Text: 
+|———Node:friend_declaration Text: friend class tst_QModbusDevice;
+|————Node:friend Text: friend
+|————Node:class Text: class
+|————Node:type_identifier Text: tst_QModbusDevice
+|————Node:; Text: ;
+|———Node:access_specifier Text: public
+|————Node:public Text: public
+|———Node:: Text: :
+|———Node:function_definition Text: DummyDevice(QObject *parent = Q_NULLPTR)
+        : QModbusDevice(*new DummyDevicePrivate, parent)
+    {
+        qRegisterMetaType<QModbusDevice::ModbusDeviceState>("QModbusDevice::ModbusDeviceState");
+    }
+|————Node:function_declarator Text: DummyDevice(QObject *parent = Q_NULLPTR)
+|—————Node:identifier Text: DummyDevice
+|—————Node:parameter_list Text: (QObject *parent = Q_NULLPTR)
+|——————Node:( Text: (
+|——————Node:optional_parameter_declaration Text: QObject *parent = Q_NULLPTR
+|———————Node:type_identifier Text: QObject
+|———————Node:pointer_declarator Text: *parent
+|————————Node:* Text: *
+|————————Node:identifier Text: parent
+|———————Node:= Text: =
+|———————Node:identifier Text: Q_NULLPTR
+|——————Node:) Text: )
+|————Node:field_initializer_list Text: : QModbusDevice(*new DummyDevicePrivate, parent)
+|—————Node:: Text: :
+|—————Node:field_initializer Text: QModbusDevice(*new DummyDevicePrivate, parent)
+|——————Node:field_identifier Text: QModbusDevice
+|——————Node:argument_list Text: (*new DummyDevicePrivate, parent)
+|———————Node:( Text: (
+|———————Node:pointer_expression Text: *new DummyDevicePrivate
+|————————Node:* Text: *
+|————————Node:new_expression Text: new DummyDevicePrivate
+|—————————Node:new Text: new
+|—————————Node:type_identifier Text: DummyDevicePrivate
+|———————Node:, Text: ,
+|———————Node:identifier Text: parent
+|———————Node:) Text: )
+|————Node:compound_statement Text: {
+        qRegisterMetaType<QModbusDevice::ModbusDeviceState>("QModbusDevice::ModbusDeviceState");
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: qRegisterMetaType<QModbusDevice::ModbusDeviceState>("QModbusDevice::ModbusDeviceState");
+|——————Node:call_expression Text: qRegisterMetaType<QModbusDevice::ModbusDeviceState>("QModbusDevice::ModbusDeviceState")
+|———————Node:template_function Text: qRegisterMetaType<QModbusDevice::ModbusDeviceState>
+|————————Node:identifier Text: qRegisterMetaType
+|————————Node:template_argument_list Text: <QModbusDevice::ModbusDeviceState>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: QModbusDevice::ModbusDeviceState
+|——————————Node:qualified_identifier Text: QModbusDevice::ModbusDeviceState
+|———————————Node:namespace_identifier Text: QModbusDevice
+|———————————Node::: Text: ::
+|———————————Node:type_identifier Text: ModbusDeviceState
+|—————————Node:> Text: >
+|———————Node:argument_list Text: ("QModbusDevice::ModbusDeviceState")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "QModbusDevice::ModbusDeviceState"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: QModbusDevice::ModbusDeviceState
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:access_specifier Text: protected
+|————Node:protected Text: protected
+|———Node:: Text: :
+|———Node:function_definition Text: bool open() Q_DECL_OVERRIDE { return openState; }
+|————Node:primitive_type Text: bool
+|————Node:ERROR Text: open()
+|—————Node:function_declarator Text: open()
+|——————Node:field_identifier Text: open
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:field_identifier Text: Q_DECL_OVERRIDE
+|————Node:compound_statement Text: { return openState; }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return openState;
+|——————Node:return Text: return
+|——————Node:identifier Text: openState
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:function_definition Text: void close() Q_DECL_OVERRIDE {}
+|————Node:primitive_type Text: void
+|————Node:ERROR Text: close()
+|—————Node:function_declarator Text: close()
+|——————Node:field_identifier Text: close
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:field_identifier Text: Q_DECL_OVERRIDE
+|————Node:compound_statement Text: {}
+|—————Node:{ Text: {
+|—————Node:} Text: }
+|———Node:field_declaration Text: bool openState = false;
+|————Node:primitive_type Text: bool
+|————Node:field_identifier Text: openState
+|————Node:= Text: =
+|————Node:false Text: false
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:; Text: ;
+|—Node:class_specifier Text: class tst_QModbusDevice : public QObject
+{
+    Q_OBJECT
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+
+    void connectDevice();
+    void state();
+    void error();
+
+    void testChecksumLRC_data();
+    void testChecksumLRC();
+
+    void testChecksumCRC_data();
+    void testChecksumCRC();
+
+private:
+    QModbusDevicePrivate *dp;
+    DummyDevice *device;
+}
+|——Node:class Text: class
+|——Node:type_identifier Text: tst_QModbusDevice
+|——Node:base_class_clause Text: : public QObject
+|———Node:: Text: :
+|———Node:access_specifier Text: public
+|————Node:public Text: public
+|———Node:type_identifier Text: QObject
+|——Node:field_declaration_list Text: {
+    Q_OBJECT
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+
+    void connectDevice();
+    void state();
+    void error();
+
+    void testChecksumLRC_data();
+    void testChecksumLRC();
+
+    void testChecksumCRC_data();
+    void testChecksumCRC();
+
+private:
+    QModbusDevicePrivate *dp;
+    DummyDevice *device;
+}
+|———Node:{ Text: {
+|———Node:field_declaration Text: Q_OBJECT
+private slots:
+    void initTestCase();
+|————Node:type_identifier Text: Q_OBJECT
+|————Node:field_identifier Text: private
+|————Node:ERROR Text: slots
+|—————Node:identifier Text: slots
+|————Node:bitfield_clause Text: :
+    void initTestCase()
+|—————Node:: Text: :
+|—————Node:ERROR Text: void
+|——————Node:primitive_type Text: void
+|—————Node:call_expression Text: initTestCase()
+|——————Node:identifier Text: initTestCase
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:field_declaration Text: void cleanupTestCase();
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: cleanupTestCase()
+|—————Node:field_identifier Text: cleanupTestCase
+|—————Node:parameter_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:field_declaration Text: void connectDevice();
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: connectDevice()
+|—————Node:field_identifier Text: connectDevice
+|—————Node:parameter_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:field_declaration Text: void state();
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: state()
+|—————Node:field_identifier Text: state
+|—————Node:parameter_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:field_declaration Text: void error();
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: error()
+|—————Node:field_identifier Text: error
+|—————Node:parameter_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:field_declaration Text: void testChecksumLRC_data();
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: testChecksumLRC_data()
+|—————Node:field_identifier Text: testChecksumLRC_data
+|—————Node:parameter_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:field_declaration Text: void testChecksumLRC();
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: testChecksumLRC()
+|—————Node:field_identifier Text: testChecksumLRC
+|—————Node:parameter_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:field_declaration Text: void testChecksumCRC_data();
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: testChecksumCRC_data()
+|—————Node:field_identifier Text: testChecksumCRC_data
+|—————Node:parameter_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:field_declaration Text: void testChecksumCRC();
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: testChecksumCRC()
+|—————Node:field_identifier Text: testChecksumCRC
+|—————Node:parameter_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:access_specifier Text: private
+|————Node:private Text: private
+|———Node:: Text: :
+|———Node:field_declaration Text: QModbusDevicePrivate *dp;
+|————Node:type_identifier Text: QModbusDevicePrivate
+|————Node:pointer_declarator Text: *dp
+|—————Node:* Text: *
+|—————Node:field_identifier Text: dp
+|————Node:; Text: ;
+|———Node:field_declaration Text: DummyDevice *device;
+|————Node:type_identifier Text: DummyDevice
+|————Node:pointer_declarator Text: *device
+|—————Node:* Text: *
+|—————Node:field_identifier Text: device
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:; Text: ;
+|—Node:function_definition Text: void tst_QModbusDevice::initTestCase()
+{
+    device = new DummyDevice();
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: tst_QModbusDevice::initTestCase()
+|———Node:qualified_identifier Text: tst_QModbusDevice::initTestCase
+|————Node:namespace_identifier Text: tst_QModbusDevice
+|————Node::: Text: ::
+|————Node:identifier Text: initTestCase
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    device = new DummyDevice();
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: device = new DummyDevice();
+|————Node:assignment_expression Text: device = new DummyDevice()
+|—————Node:identifier Text: device
+|—————Node:= Text: =
+|—————Node:new_expression Text: new DummyDevice()
+|——————Node:new Text: new
+|——————Node:type_identifier Text: DummyDevice
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void tst_QModbusDevice::cleanupTestCase()
+{
+    delete device;
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: tst_QModbusDevice::cleanupTestCase()
+|———Node:qualified_identifier Text: tst_QModbusDevice::cleanupTestCase
+|————Node:namespace_identifier Text: tst_QModbusDevice
+|————Node::: Text: ::
+|————Node:identifier Text: cleanupTestCase
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    delete device;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: delete device;
+|————Node:delete_expression Text: delete device
+|—————Node:delete Text: delete
+|—————Node:identifier Text: device
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void tst_QModbusDevice::connectDevice()
+{
+    device->openState = false;
+    QVERIFY(!device->connectDevice());
+    QCOMPARE(device->state(), QModbusDevice::UnconnectedState);
+
+    device->openState = true;
+    QVERIFY(device->connectDevice());
+    QCOMPARE(device->state(), QModbusDevice::ConnectingState);
+
+    device->disconnectDevice();
+    QCOMPARE(device->state(), QModbusDevice::ClosingState);
+
+    device->setState(QModbusDevice::ClosingState);
+    QVERIFY(!device->connectDevice());
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: tst_QModbusDevice::connectDevice()
+|———Node:qualified_identifier Text: tst_QModbusDevice::connectDevice
+|————Node:namespace_identifier Text: tst_QModbusDevice
+|————Node::: Text: ::
+|————Node:identifier Text: connectDevice
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    device->openState = false;
+    QVERIFY(!device->connectDevice());
+    QCOMPARE(device->state(), QModbusDevice::UnconnectedState);
+
+    device->openState = true;
+    QVERIFY(device->connectDevice());
+    QCOMPARE(device->state(), QModbusDevice::ConnectingState);
+
+    device->disconnectDevice();
+    QCOMPARE(device->state(), QModbusDevice::ClosingState);
+
+    device->setState(QModbusDevice::ClosingState);
+    QVERIFY(!device->connectDevice());
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: device->openState = false;
+|————Node:assignment_expression Text: device->openState = false
+|—————Node:field_expression Text: device->openState
+|——————Node:identifier Text: device
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: openState
+|—————Node:= Text: =
+|—————Node:false Text: false
+|————Node:; Text: ;
+|———Node:expression_statement Text: QVERIFY(!device->connectDevice());
+|————Node:call_expression Text: QVERIFY(!device->connectDevice())
+|—————Node:identifier Text: QVERIFY
+|—————Node:argument_list Text: (!device->connectDevice())
+|——————Node:( Text: (
+|——————Node:unary_expression Text: !device->connectDevice()
+|———————Node:! Text: !
+|———————Node:call_expression Text: device->connectDevice()
+|————————Node:field_expression Text: device->connectDevice
+|—————————Node:identifier Text: device
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: connectDevice
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QCOMPARE(device->state(), QModbusDevice::UnconnectedState);
+|————Node:call_expression Text: QCOMPARE(device->state(), QModbusDevice::UnconnectedState)
+|—————Node:identifier Text: QCOMPARE
+|—————Node:argument_list Text: (device->state(), QModbusDevice::UnconnectedState)
+|——————Node:( Text: (
+|——————Node:call_expression Text: device->state()
+|———————Node:field_expression Text: device->state
+|————————Node:identifier Text: device
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: state
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:qualified_identifier Text: QModbusDevice::UnconnectedState
+|———————Node:namespace_identifier Text: QModbusDevice
+|———————Node::: Text: ::
+|———————Node:identifier Text: UnconnectedState
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: device->openState = true;
+|————Node:assignment_expression Text: device->openState = true
+|—————Node:field_expression Text: device->openState
+|——————Node:identifier Text: device
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: openState
+|—————Node:= Text: =
+|—————Node:true Text: true
+|————Node:; Text: ;
+|———Node:expression_statement Text: QVERIFY(device->connectDevice());
+|————Node:call_expression Text: QVERIFY(device->connectDevice())
+|—————Node:identifier Text: QVERIFY
+|—————Node:argument_list Text: (device->connectDevice())
+|——————Node:( Text: (
+|——————Node:call_expression Text: device->connectDevice()
+|———————Node:field_expression Text: device->connectDevice
+|————————Node:identifier Text: device
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: connectDevice
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QCOMPARE(device->state(), QModbusDevice::ConnectingState);
+|————Node:call_expression Text: QCOMPARE(device->state(), QModbusDevice::ConnectingState)
+|—————Node:identifier Text: QCOMPARE
+|—————Node:argument_list Text: (device->state(), QModbusDevice::ConnectingState)
+|——————Node:( Text: (
+|——————Node:call_expression Text: device->state()
+|———————Node:field_expression Text: device->state
+|————————Node:identifier Text: device
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: state
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:qualified_identifier Text: QModbusDevice::ConnectingState
+|———————Node:namespace_identifier Text: QModbusDevice
+|———————Node::: Text: ::
+|———————Node:identifier Text: ConnectingState
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: device->disconnectDevice();
+|————Node:call_expression Text: device->disconnectDevice()
+|—————Node:field_expression Text: device->disconnectDevice
+|——————Node:identifier Text: device
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: disconnectDevice
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QCOMPARE(device->state(), QModbusDevice::ClosingState);
+|————Node:call_expression Text: QCOMPARE(device->state(), QModbusDevice::ClosingState)
+|—————Node:identifier Text: QCOMPARE
+|—————Node:argument_list Text: (device->state(), QModbusDevice::ClosingState)
+|——————Node:( Text: (
+|——————Node:call_expression Text: device->state()
+|———————Node:field_expression Text: device->state
+|————————Node:identifier Text: device
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: state
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:qualified_identifier Text: QModbusDevice::ClosingState
+|———————Node:namespace_identifier Text: QModbusDevice
+|———————Node::: Text: ::
+|———————Node:identifier Text: ClosingState
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: device->setState(QModbusDevice::ClosingState);
+|————Node:call_expression Text: device->setState(QModbusDevice::ClosingState)
+|—————Node:field_expression Text: device->setState
+|——————Node:identifier Text: device
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: setState
+|—————Node:argument_list Text: (QModbusDevice::ClosingState)
+|——————Node:( Text: (
+|——————Node:qualified_identifier Text: QModbusDevice::ClosingState
+|———————Node:namespace_identifier Text: QModbusDevice
+|———————Node::: Text: ::
+|———————Node:identifier Text: ClosingState
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QVERIFY(!device->connectDevice());
+|————Node:call_expression Text: QVERIFY(!device->connectDevice())
+|—————Node:identifier Text: QVERIFY
+|—————Node:argument_list Text: (!device->connectDevice())
+|——————Node:( Text: (
+|——————Node:unary_expression Text: !device->connectDevice()
+|———————Node:! Text: !
+|———————Node:call_expression Text: device->connectDevice()
+|————————Node:field_expression Text: device->connectDevice
+|—————————Node:identifier Text: device
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: connectDevice
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void tst_QModbusDevice::state()
+{
+    device->setState(QModbusDevice::ConnectedState);
+    QCOMPARE(device->state(), QModbusDevice::ConnectedState);
+    QSignalSpy spy(device, SIGNAL(stateChanged(QModbusDevice::ModbusDeviceState)));
+    device->setState(QModbusDevice::UnconnectedState);
+    QCOMPARE(device->state(), QModbusDevice::UnconnectedState);
+    device->setState(QModbusDevice::UnconnectedState);
+    QCOMPARE(device->state(), QModbusDevice::UnconnectedState);
+
+    QCOMPARE(spy.count(), 1);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: tst_QModbusDevice::state()
+|———Node:qualified_identifier Text: tst_QModbusDevice::state
+|————Node:namespace_identifier Text: tst_QModbusDevice
+|————Node::: Text: ::
+|————Node:identifier Text: state
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    device->setState(QModbusDevice::ConnectedState);
+    QCOMPARE(device->state(), QModbusDevice::ConnectedState);
+    QSignalSpy spy(device, SIGNAL(stateChanged(QModbusDevice::ModbusDeviceState)));
+    device->setState(QModbusDevice::UnconnectedState);
+    QCOMPARE(device->state(), QModbusDevice::UnconnectedState);
+    device->setState(QModbusDevice::UnconnectedState);
+    QCOMPARE(device->state(), QModbusDevice::UnconnectedState);
+
+    QCOMPARE(spy.count(), 1);
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: device->setState(QModbusDevice::ConnectedState);
+|————Node:call_expression Text: device->setState(QModbusDevice::ConnectedState)
+|—————Node:field_expression Text: device->setState
+|——————Node:identifier Text: device
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: setState
+|—————Node:argument_list Text: (QModbusDevice::ConnectedState)
+|——————Node:( Text: (
+|——————Node:qualified_identifier Text: QModbusDevice::ConnectedState
+|———————Node:namespace_identifier Text: QModbusDevice
+|———————Node::: Text: ::
+|———————Node:identifier Text: ConnectedState
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QCOMPARE(device->state(), QModbusDevice::ConnectedState);
+|————Node:call_expression Text: QCOMPARE(device->state(), QModbusDevice::ConnectedState)
+|—————Node:identifier Text: QCOMPARE
+|—————Node:argument_list Text: (device->state(), QModbusDevice::ConnectedState)
+|——————Node:( Text: (
+|——————Node:call_expression Text: device->state()
+|———————Node:field_expression Text: device->state
+|————————Node:identifier Text: device
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: state
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:qualified_identifier Text: QModbusDevice::ConnectedState
+|———————Node:namespace_identifier Text: QModbusDevice
+|———————Node::: Text: ::
+|———————Node:identifier Text: ConnectedState
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: QSignalSpy spy(device, SIGNAL(stateChanged(QModbusDevice::ModbusDeviceState)));
+|————Node:type_identifier Text: QSignalSpy
+|————Node:function_declarator Text: spy(device, SIGNAL(stateChanged(QModbusDevice::ModbusDeviceState)))
+|—————Node:identifier Text: spy
+|—————Node:parameter_list Text: (device, SIGNAL(stateChanged(QModbusDevice::ModbusDeviceState)))
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: device
+|———————Node:type_identifier Text: device
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: SIGNAL(stateChanged(QModbusDevice::ModbusDeviceState))
+|———————Node:type_identifier Text: SIGNAL
+|———————Node:abstract_function_declarator Text: (stateChanged(QModbusDevice::ModbusDeviceState))
+|————————Node:parameter_list Text: (stateChanged(QModbusDevice::ModbusDeviceState))
+|—————————Node:( Text: (
+|—————————Node:parameter_declaration Text: stateChanged(QModbusDevice::ModbusDeviceState)
+|——————————Node:type_identifier Text: stateChanged
+|——————————Node:abstract_function_declarator Text: (QModbusDevice::ModbusDeviceState)
+|———————————Node:parameter_list Text: (QModbusDevice::ModbusDeviceState)
+|————————————Node:( Text: (
+|————————————Node:parameter_declaration Text: QModbusDevice::ModbusDeviceState
+|—————————————Node:qualified_identifier Text: QModbusDevice::ModbusDeviceState
+|——————————————Node:namespace_identifier Text: QModbusDevice
+|——————————————Node::: Text: ::
+|——————————————Node:type_identifier Text: ModbusDeviceState
+|————————————Node:) Text: )
+|—————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: device->setState(QModbusDevice::UnconnectedState);
+|————Node:call_expression Text: device->setState(QModbusDevice::UnconnectedState)
+|—————Node:field_expression Text: device->setState
+|——————Node:identifier Text: device
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: setState
+|—————Node:argument_list Text: (QModbusDevice::UnconnectedState)
+|——————Node:( Text: (
+|——————Node:qualified_identifier Text: QModbusDevice::UnconnectedState
+|———————Node:namespace_identifier Text: QModbusDevice
+|———————Node::: Text: ::
+|———————Node:identifier Text: UnconnectedState
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QCOMPARE(device->state(), QModbusDevice::UnconnectedState);
+|————Node:call_expression Text: QCOMPARE(device->state(), QModbusDevice::UnconnectedState)
+|—————Node:identifier Text: QCOMPARE
+|—————Node:argument_list Text: (device->state(), QModbusDevice::UnconnectedState)
+|——————Node:( Text: (
+|——————Node:call_expression Text: device->state()
+|———————Node:field_expression Text: device->state
+|————————Node:identifier Text: device
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: state
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:qualified_identifier Text: QModbusDevice::UnconnectedState
+|———————Node:namespace_identifier Text: QModbusDevice
+|———————Node::: Text: ::
+|———————Node:identifier Text: UnconnectedState
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: device->setState(QModbusDevice::UnconnectedState);
+|————Node:call_expression Text: device->setState(QModbusDevice::UnconnectedState)
+|—————Node:field_expression Text: device->setState
+|——————Node:identifier Text: device
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: setState
+|—————Node:argument_list Text: (QModbusDevice::UnconnectedState)
+|——————Node:( Text: (
+|——————Node:qualified_identifier Text: QModbusDevice::UnconnectedState
+|———————Node:namespace_identifier Text: QModbusDevice
+|———————Node::: Text: ::
+|———————Node:identifier Text: UnconnectedState
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QCOMPARE(device->state(), QModbusDevice::UnconnectedState);
+|————Node:call_expression Text: QCOMPARE(device->state(), QModbusDevice::UnconnectedState)
+|—————Node:identifier Text: QCOMPARE
+|—————Node:argument_list Text: (device->state(), QModbusDevice::UnconnectedState)
+|——————Node:( Text: (
+|——————Node:call_expression Text: device->state()
+|———————Node:field_expression Text: device->state
+|————————Node:identifier Text: device
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: state
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:qualified_identifier Text: QModbusDevice::UnconnectedState
+|———————Node:namespace_identifier Text: QModbusDevice
+|———————Node::: Text: ::
+|———————Node:identifier Text: UnconnectedState
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QCOMPARE(spy.count(), 1);
+|————Node:call_expression Text: QCOMPARE(spy.count(), 1)
+|—————Node:identifier Text: QCOMPARE
+|—————Node:argument_list Text: (spy.count(), 1)
+|——————Node:( Text: (
+|——————Node:call_expression Text: spy.count()
+|———————Node:field_expression Text: spy.count
+|————————Node:identifier Text: spy
+|————————Node:. Text: .
+|————————Node:field_identifier Text: count
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 1
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void tst_QModbusDevice::error()
+{
+    QCOMPARE(device->error(), QModbusDevice::NoError);
+    QVERIFY(device->errorString().isEmpty());
+
+    QString errorString("error string");
+    device->setError(errorString, QModbusDevice::ConnectionError);
+
+    QCOMPARE(device->error(), QModbusDevice::ConnectionError);
+    QCOMPARE(device->errorString(), errorString);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: tst_QModbusDevice::error()
+|———Node:qualified_identifier Text: tst_QModbusDevice::error
+|————Node:namespace_identifier Text: tst_QModbusDevice
+|————Node::: Text: ::
+|————Node:identifier Text: error
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    QCOMPARE(device->error(), QModbusDevice::NoError);
+    QVERIFY(device->errorString().isEmpty());
+
+    QString errorString("error string");
+    device->setError(errorString, QModbusDevice::ConnectionError);
+
+    QCOMPARE(device->error(), QModbusDevice::ConnectionError);
+    QCOMPARE(device->errorString(), errorString);
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: QCOMPARE(device->error(), QModbusDevice::NoError);
+|————Node:call_expression Text: QCOMPARE(device->error(), QModbusDevice::NoError)
+|—————Node:identifier Text: QCOMPARE
+|—————Node:argument_list Text: (device->error(), QModbusDevice::NoError)
+|——————Node:( Text: (
+|——————Node:call_expression Text: device->error()
+|———————Node:field_expression Text: device->error
+|————————Node:identifier Text: device
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: error
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:qualified_identifier Text: QModbusDevice::NoError
+|———————Node:namespace_identifier Text: QModbusDevice
+|———————Node::: Text: ::
+|———————Node:identifier Text: NoError
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QVERIFY(device->errorString().isEmpty());
+|————Node:call_expression Text: QVERIFY(device->errorString().isEmpty())
+|—————Node:identifier Text: QVERIFY
+|—————Node:argument_list Text: (device->errorString().isEmpty())
+|——————Node:( Text: (
+|——————Node:call_expression Text: device->errorString().isEmpty()
+|———————Node:field_expression Text: device->errorString().isEmpty
+|————————Node:call_expression Text: device->errorString()
+|—————————Node:field_expression Text: device->errorString
+|——————————Node:identifier Text: device
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: errorString
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:. Text: .
+|————————Node:field_identifier Text: isEmpty
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: QString errorString("error string");
+|————Node:type_identifier Text: QString
+|————Node:init_declarator Text: errorString("error string")
+|—————Node:identifier Text: errorString
+|—————Node:argument_list Text: ("error string")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "error string"
+|———————Node:" Text: "
+|———————Node:string_content Text: error string
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: device->setError(errorString, QModbusDevice::ConnectionError);
+|————Node:call_expression Text: device->setError(errorString, QModbusDevice::ConnectionError)
+|—————Node:field_expression Text: device->setError
+|——————Node:identifier Text: device
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: setError
+|—————Node:argument_list Text: (errorString, QModbusDevice::ConnectionError)
+|——————Node:( Text: (
+|——————Node:identifier Text: errorString
+|——————Node:, Text: ,
+|——————Node:qualified_identifier Text: QModbusDevice::ConnectionError
+|———————Node:namespace_identifier Text: QModbusDevice
+|———————Node::: Text: ::
+|———————Node:identifier Text: ConnectionError
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QCOMPARE(device->error(), QModbusDevice::ConnectionError);
+|————Node:call_expression Text: QCOMPARE(device->error(), QModbusDevice::ConnectionError)
+|—————Node:identifier Text: QCOMPARE
+|—————Node:argument_list Text: (device->error(), QModbusDevice::ConnectionError)
+|——————Node:( Text: (
+|——————Node:call_expression Text: device->error()
+|———————Node:field_expression Text: device->error
+|————————Node:identifier Text: device
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: error
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:qualified_identifier Text: QModbusDevice::ConnectionError
+|———————Node:namespace_identifier Text: QModbusDevice
+|———————Node::: Text: ::
+|———————Node:identifier Text: ConnectionError
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QCOMPARE(device->errorString(), errorString);
+|————Node:call_expression Text: QCOMPARE(device->errorString(), errorString)
+|—————Node:identifier Text: QCOMPARE
+|—————Node:argument_list Text: (device->errorString(), errorString)
+|——————Node:( Text: (
+|——————Node:call_expression Text: device->errorString()
+|———————Node:field_expression Text: device->errorString
+|————————Node:identifier Text: device
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: errorString
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:identifier Text: errorString
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void tst_QModbusDevice::testChecksumLRC_data()
+{
+    // Modbus ASCII Messages generated with pymodbus message-generator.py
+
+    QTest::addColumn<QByteArray>("pdu");
+    QTest::addColumn<quint8>("lrc");
+
+    QTest::newRow(":0107F8")
+        << QByteArray::fromHex("0107")
+        << quint8(0xF8);
+    QTest::newRow(":010BF4")
+        << QByteArray::fromHex("010B")
+        << quint8(0xF4);
+    QTest::newRow(":010CF3")
+        << QByteArray::fromHex("010C")
+        << quint8(0xF3);
+    QTest::newRow(":0111EE")
+        << QByteArray::fromHex("0111")
+        << quint8(0xEE);
+    QTest::newRow(":011400EB")
+        << QByteArray::fromHex("011400")
+        << quint8(0xEB);
+    QTest::newRow(":011500EA")
+        << QByteArray::fromHex("011500")
+        << quint8(0xEA);
+    QTest::newRow(":1103006B00037E")
+        << QByteArray::fromHex("1103006B0003")
+        << quint8(0x7E);
+    QTest::newRow(":01160012FFFF0000D9")
+        << QByteArray::fromHex("01160012FFFF0000")
+        << quint8(0xD9);
+    QTest::newRow(":0110001200081000010001000100010001000100010001BD")
+        << QByteArray::fromHex("0110001200081000010001000100010001000100010001")
+        << quint8(0xBD);
+    QTest::newRow(":011700120008000000081000010001000100010001000100010001AE")
+        << QByteArray::fromHex("011700120008000000081000010001000100010001000100010001")
+        << quint8(0xAE);
+
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: tst_QModbusDevice::testChecksumLRC_data()
+|———Node:qualified_identifier Text: tst_QModbusDevice::testChecksumLRC_data
+|————Node:namespace_identifier Text: tst_QModbusDevice
+|————Node::: Text: ::
+|————Node:identifier Text: testChecksumLRC_data
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    // Modbus ASCII Messages generated with pymodbus message-generator.py
+
+    QTest::addColumn<QByteArray>("pdu");
+    QTest::addColumn<quint8>("lrc");
+
+    QTest::newRow(":0107F8")
+        << QByteArray::fromHex("0107")
+        << quint8(0xF8);
+    QTest::newRow(":010BF4")
+        << QByteArray::fromHex("010B")
+        << quint8(0xF4);
+    QTest::newRow(":010CF3")
+        << QByteArray::fromHex("010C")
+        << quint8(0xF3);
+    QTest::newRow(":0111EE")
+        << QByteArray::fromHex("0111")
+        << quint8(0xEE);
+    QTest::newRow(":011400EB")
+        << QByteArray::fromHex("011400")
+        << quint8(0xEB);
+    QTest::newRow(":011500EA")
+        << QByteArray::fromHex("011500")
+        << quint8(0xEA);
+    QTest::newRow(":1103006B00037E")
+        << QByteArray::fromHex("1103006B0003")
+        << quint8(0x7E);
+    QTest::newRow(":01160012FFFF0000D9")
+        << QByteArray::fromHex("01160012FFFF0000")
+        << quint8(0xD9);
+    QTest::newRow(":0110001200081000010001000100010001000100010001BD")
+        << QByteArray::fromHex("0110001200081000010001000100010001000100010001")
+        << quint8(0xBD);
+    QTest::newRow(":011700120008000000081000010001000100010001000100010001AE")
+        << QByteArray::fromHex("011700120008000000081000010001000100010001000100010001")
+        << quint8(0xAE);
+
+}
+|———Node:{ Text: {
+|———Node:comment Text: // Modbus ASCII Messages generated with pymodbus message-generator.py
+|———Node:expression_statement Text: QTest::addColumn<QByteArray>("pdu");
+|————Node:call_expression Text: QTest::addColumn<QByteArray>("pdu")
+|—————Node:qualified_identifier Text: QTest::addColumn<QByteArray>
+|——————Node:namespace_identifier Text: QTest
+|——————Node::: Text: ::
+|——————Node:template_function Text: addColumn<QByteArray>
+|———————Node:identifier Text: addColumn
+|———————Node:template_argument_list Text: <QByteArray>
+|————————Node:< Text: <
+|————————Node:type_descriptor Text: QByteArray
+|—————————Node:type_identifier Text: QByteArray
+|————————Node:> Text: >
+|—————Node:argument_list Text: ("pdu")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "pdu"
+|———————Node:" Text: "
+|———————Node:string_content Text: pdu
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::addColumn<quint8>("lrc");
+|————Node:call_expression Text: QTest::addColumn<quint8>("lrc")
+|—————Node:qualified_identifier Text: QTest::addColumn<quint8>
+|——————Node:namespace_identifier Text: QTest
+|——————Node::: Text: ::
+|——————Node:template_function Text: addColumn<quint8>
+|———————Node:identifier Text: addColumn
+|———————Node:template_argument_list Text: <quint8>
+|————————Node:< Text: <
+|————————Node:type_descriptor Text: quint8
+|—————————Node:type_identifier Text: quint8
+|————————Node:> Text: >
+|—————Node:argument_list Text: ("lrc")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "lrc"
+|———————Node:" Text: "
+|———————Node:string_content Text: lrc
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow(":0107F8")
+        << QByteArray::fromHex("0107")
+        << quint8(0xF8);
+|————Node:binary_expression Text: QTest::newRow(":0107F8")
+        << QByteArray::fromHex("0107")
+        << quint8(0xF8)
+|—————Node:binary_expression Text: QTest::newRow(":0107F8")
+        << QByteArray::fromHex("0107")
+|——————Node:call_expression Text: QTest::newRow(":0107F8")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: (":0107F8")
+|————————Node:( Text: (
+|————————Node:string_literal Text: ":0107F8"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: :0107F8
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("0107")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("0107")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0107"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0107
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint8(0xF8)
+|——————Node:identifier Text: quint8
+|——————Node:argument_list Text: (0xF8)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xF8
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow(":010BF4")
+        << QByteArray::fromHex("010B")
+        << quint8(0xF4);
+|————Node:binary_expression Text: QTest::newRow(":010BF4")
+        << QByteArray::fromHex("010B")
+        << quint8(0xF4)
+|—————Node:binary_expression Text: QTest::newRow(":010BF4")
+        << QByteArray::fromHex("010B")
+|——————Node:call_expression Text: QTest::newRow(":010BF4")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: (":010BF4")
+|————————Node:( Text: (
+|————————Node:string_literal Text: ":010BF4"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: :010BF4
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010B")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010B")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010B"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010B
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint8(0xF4)
+|——————Node:identifier Text: quint8
+|——————Node:argument_list Text: (0xF4)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xF4
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow(":010CF3")
+        << QByteArray::fromHex("010C")
+        << quint8(0xF3);
+|————Node:binary_expression Text: QTest::newRow(":010CF3")
+        << QByteArray::fromHex("010C")
+        << quint8(0xF3)
+|—————Node:binary_expression Text: QTest::newRow(":010CF3")
+        << QByteArray::fromHex("010C")
+|——————Node:call_expression Text: QTest::newRow(":010CF3")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: (":010CF3")
+|————————Node:( Text: (
+|————————Node:string_literal Text: ":010CF3"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: :010CF3
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010C")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010C")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010C"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010C
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint8(0xF3)
+|——————Node:identifier Text: quint8
+|——————Node:argument_list Text: (0xF3)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xF3
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow(":0111EE")
+        << QByteArray::fromHex("0111")
+        << quint8(0xEE);
+|————Node:binary_expression Text: QTest::newRow(":0111EE")
+        << QByteArray::fromHex("0111")
+        << quint8(0xEE)
+|—————Node:binary_expression Text: QTest::newRow(":0111EE")
+        << QByteArray::fromHex("0111")
+|——————Node:call_expression Text: QTest::newRow(":0111EE")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: (":0111EE")
+|————————Node:( Text: (
+|————————Node:string_literal Text: ":0111EE"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: :0111EE
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("0111")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("0111")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0111"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0111
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint8(0xEE)
+|——————Node:identifier Text: quint8
+|——————Node:argument_list Text: (0xEE)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xEE
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow(":011400EB")
+        << QByteArray::fromHex("011400")
+        << quint8(0xEB);
+|————Node:binary_expression Text: QTest::newRow(":011400EB")
+        << QByteArray::fromHex("011400")
+        << quint8(0xEB)
+|—————Node:binary_expression Text: QTest::newRow(":011400EB")
+        << QByteArray::fromHex("011400")
+|——————Node:call_expression Text: QTest::newRow(":011400EB")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: (":011400EB")
+|————————Node:( Text: (
+|————————Node:string_literal Text: ":011400EB"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: :011400EB
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("011400")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("011400")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "011400"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 011400
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint8(0xEB)
+|——————Node:identifier Text: quint8
+|——————Node:argument_list Text: (0xEB)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xEB
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow(":011500EA")
+        << QByteArray::fromHex("011500")
+        << quint8(0xEA);
+|————Node:binary_expression Text: QTest::newRow(":011500EA")
+        << QByteArray::fromHex("011500")
+        << quint8(0xEA)
+|—————Node:binary_expression Text: QTest::newRow(":011500EA")
+        << QByteArray::fromHex("011500")
+|——————Node:call_expression Text: QTest::newRow(":011500EA")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: (":011500EA")
+|————————Node:( Text: (
+|————————Node:string_literal Text: ":011500EA"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: :011500EA
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("011500")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("011500")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "011500"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 011500
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint8(0xEA)
+|——————Node:identifier Text: quint8
+|——————Node:argument_list Text: (0xEA)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xEA
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow(":1103006B00037E")
+        << QByteArray::fromHex("1103006B0003")
+        << quint8(0x7E);
+|————Node:binary_expression Text: QTest::newRow(":1103006B00037E")
+        << QByteArray::fromHex("1103006B0003")
+        << quint8(0x7E)
+|—————Node:binary_expression Text: QTest::newRow(":1103006B00037E")
+        << QByteArray::fromHex("1103006B0003")
+|——————Node:call_expression Text: QTest::newRow(":1103006B00037E")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: (":1103006B00037E")
+|————————Node:( Text: (
+|————————Node:string_literal Text: ":1103006B00037E"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: :1103006B00037E
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("1103006B0003")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("1103006B0003")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "1103006B0003"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 1103006B0003
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint8(0x7E)
+|——————Node:identifier Text: quint8
+|——————Node:argument_list Text: (0x7E)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x7E
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow(":01160012FFFF0000D9")
+        << QByteArray::fromHex("01160012FFFF0000")
+        << quint8(0xD9);
+|————Node:binary_expression Text: QTest::newRow(":01160012FFFF0000D9")
+        << QByteArray::fromHex("01160012FFFF0000")
+        << quint8(0xD9)
+|—————Node:binary_expression Text: QTest::newRow(":01160012FFFF0000D9")
+        << QByteArray::fromHex("01160012FFFF0000")
+|——————Node:call_expression Text: QTest::newRow(":01160012FFFF0000D9")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: (":01160012FFFF0000D9")
+|————————Node:( Text: (
+|————————Node:string_literal Text: ":01160012FFFF0000D9"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: :01160012FFFF0000D9
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("01160012FFFF0000")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("01160012FFFF0000")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "01160012FFFF0000"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 01160012FFFF0000
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint8(0xD9)
+|——————Node:identifier Text: quint8
+|——————Node:argument_list Text: (0xD9)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xD9
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow(":0110001200081000010001000100010001000100010001BD")
+        << QByteArray::fromHex("0110001200081000010001000100010001000100010001")
+        << quint8(0xBD);
+|————Node:binary_expression Text: QTest::newRow(":0110001200081000010001000100010001000100010001BD")
+        << QByteArray::fromHex("0110001200081000010001000100010001000100010001")
+        << quint8(0xBD)
+|—————Node:binary_expression Text: QTest::newRow(":0110001200081000010001000100010001000100010001BD")
+        << QByteArray::fromHex("0110001200081000010001000100010001000100010001")
+|——————Node:call_expression Text: QTest::newRow(":0110001200081000010001000100010001000100010001BD")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: (":0110001200081000010001000100010001000100010001BD")
+|————————Node:( Text: (
+|————————Node:string_literal Text: ":0110001200081000010001000100010001000100010001BD"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: :0110001200081000010001000100010001000100010001BD
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("0110001200081000010001000100010001000100010001")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("0110001200081000010001000100010001000100010001")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0110001200081000010001000100010001000100010001"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0110001200081000010001000100010001000100010001
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint8(0xBD)
+|——————Node:identifier Text: quint8
+|——————Node:argument_list Text: (0xBD)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xBD
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow(":011700120008000000081000010001000100010001000100010001AE")
+        << QByteArray::fromHex("011700120008000000081000010001000100010001000100010001")
+        << quint8(0xAE);
+|————Node:binary_expression Text: QTest::newRow(":011700120008000000081000010001000100010001000100010001AE")
+        << QByteArray::fromHex("011700120008000000081000010001000100010001000100010001")
+        << quint8(0xAE)
+|—————Node:binary_expression Text: QTest::newRow(":011700120008000000081000010001000100010001000100010001AE")
+        << QByteArray::fromHex("011700120008000000081000010001000100010001000100010001")
+|——————Node:call_expression Text: QTest::newRow(":011700120008000000081000010001000100010001000100010001AE")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: (":011700120008000000081000010001000100010001000100010001AE")
+|————————Node:( Text: (
+|————————Node:string_literal Text: ":011700120008000000081000010001000100010001000100010001AE"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: :011700120008000000081000010001000100010001000100010001AE
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("011700120008000000081000010001000100010001000100010001")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("011700120008000000081000010001000100010001000100010001")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "011700120008000000081000010001000100010001000100010001"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 011700120008000000081000010001000100010001000100010001
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint8(0xAE)
+|——————Node:identifier Text: quint8
+|——————Node:argument_list Text: (0xAE)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xAE
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void tst_QModbusDevice::testChecksumLRC()
+{
+    QFETCH(QByteArray, pdu);
+    QFETCH(quint8, lrc);
+
+    QCOMPARE(device->d_func()->calculateLRC(pdu.constData(), pdu.size()), lrc);
+    QCOMPARE(device->d_func()->checkLRC(pdu.constData(), pdu.size(), lrc), true);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: tst_QModbusDevice::testChecksumLRC()
+|———Node:qualified_identifier Text: tst_QModbusDevice::testChecksumLRC
+|————Node:namespace_identifier Text: tst_QModbusDevice
+|————Node::: Text: ::
+|————Node:identifier Text: testChecksumLRC
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    QFETCH(QByteArray, pdu);
+    QFETCH(quint8, lrc);
+
+    QCOMPARE(device->d_func()->calculateLRC(pdu.constData(), pdu.size()), lrc);
+    QCOMPARE(device->d_func()->checkLRC(pdu.constData(), pdu.size(), lrc), true);
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: QFETCH(QByteArray, pdu);
+|————Node:call_expression Text: QFETCH(QByteArray, pdu)
+|—————Node:identifier Text: QFETCH
+|—————Node:argument_list Text: (QByteArray, pdu)
+|——————Node:( Text: (
+|——————Node:identifier Text: QByteArray
+|——————Node:, Text: ,
+|——————Node:identifier Text: pdu
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QFETCH(quint8, lrc);
+|————Node:call_expression Text: QFETCH(quint8, lrc)
+|—————Node:identifier Text: QFETCH
+|—————Node:argument_list Text: (quint8, lrc)
+|——————Node:( Text: (
+|——————Node:identifier Text: quint8
+|——————Node:, Text: ,
+|——————Node:identifier Text: lrc
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QCOMPARE(device->d_func()->calculateLRC(pdu.constData(), pdu.size()), lrc);
+|————Node:call_expression Text: QCOMPARE(device->d_func()->calculateLRC(pdu.constData(), pdu.size()), lrc)
+|—————Node:identifier Text: QCOMPARE
+|—————Node:argument_list Text: (device->d_func()->calculateLRC(pdu.constData(), pdu.size()), lrc)
+|——————Node:( Text: (
+|——————Node:call_expression Text: device->d_func()->calculateLRC(pdu.constData(), pdu.size())
+|———————Node:field_expression Text: device->d_func()->calculateLRC
+|————————Node:call_expression Text: device->d_func()
+|—————————Node:field_expression Text: device->d_func
+|——————————Node:identifier Text: device
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: d_func
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: calculateLRC
+|———————Node:argument_list Text: (pdu.constData(), pdu.size())
+|————————Node:( Text: (
+|————————Node:call_expression Text: pdu.constData()
+|—————————Node:field_expression Text: pdu.constData
+|——————————Node:identifier Text: pdu
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: constData
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:, Text: ,
+|————————Node:call_expression Text: pdu.size()
+|—————————Node:field_expression Text: pdu.size
+|——————————Node:identifier Text: pdu
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: size
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:identifier Text: lrc
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QCOMPARE(device->d_func()->checkLRC(pdu.constData(), pdu.size(), lrc), true);
+|————Node:call_expression Text: QCOMPARE(device->d_func()->checkLRC(pdu.constData(), pdu.size(), lrc), true)
+|—————Node:identifier Text: QCOMPARE
+|—————Node:argument_list Text: (device->d_func()->checkLRC(pdu.constData(), pdu.size(), lrc), true)
+|——————Node:( Text: (
+|——————Node:call_expression Text: device->d_func()->checkLRC(pdu.constData(), pdu.size(), lrc)
+|———————Node:field_expression Text: device->d_func()->checkLRC
+|————————Node:call_expression Text: device->d_func()
+|—————————Node:field_expression Text: device->d_func
+|——————————Node:identifier Text: device
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: d_func
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: checkLRC
+|———————Node:argument_list Text: (pdu.constData(), pdu.size(), lrc)
+|————————Node:( Text: (
+|————————Node:call_expression Text: pdu.constData()
+|—————————Node:field_expression Text: pdu.constData
+|——————————Node:identifier Text: pdu
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: constData
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:, Text: ,
+|————————Node:call_expression Text: pdu.size()
+|—————————Node:field_expression Text: pdu.size
+|——————————Node:identifier Text: pdu
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: size
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:, Text: ,
+|————————Node:identifier Text: lrc
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:true Text: true
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void tst_QModbusDevice::testChecksumCRC_data()
+{
+    // Modbus RTU Messages generated with pymodbus message-generator.py
+
+    QTest::addColumn<QByteArray>("pdu");
+    QTest::addColumn<quint16>("crc");
+
+    QTest::newRow("010300120008e409") << QByteArray::fromHex("010300120008") << quint16(0xe409);
+    QTest::newRow("010200120008d9c9") << QByteArray::fromHex("010200120008") << quint16(0xd9c9);
+    QTest::newRow("01040012000851c9") << QByteArray::fromHex("010400120008") << quint16(0x51c9);
+    QTest::newRow("0101001200089dc9") << QByteArray::fromHex("010100120008") << quint16(0x9dc9);
+    QTest::newRow("010f0012000801ff06d6") << QByteArray::fromHex("010f0012000801ff")
+        << quint16(0x06d6);
+    QTest::newRow("0110001200081000010001000100010001000100010001d551")
+        << QByteArray::fromHex("0110001200081000010001000100010001000100010001")
+        << quint16(0xd551);
+    QTest::newRow("010600120001e80f") << QByteArray::fromHex("010600120001") << quint16(0xe80f);
+    QTest::newRow("01050012ff002c3f") << QByteArray::fromHex("01050012ff00") << quint16(0x2c3f);
+    QTest::newRow("011700120008000000081000010001000100010001000100010001e6f8")
+        << QByteArray::fromHex("011700120008000000081000010001000100010001000100010001")
+        << quint16(0xe6f8);
+    QTest::newRow("010741e2") << QByteArray::fromHex("0107") << quint16(0x41e2);
+    QTest::newRow("010b41e7") << QByteArray::fromHex("010b") << quint16(0x41e7);
+    QTest::newRow("010c0025") << QByteArray::fromHex("010c") << quint16(0x0025);
+    QTest::newRow("0111c02c") << QByteArray::fromHex("0111") << quint16(0xc02c);
+    QTest::newRow("0114002f00") << QByteArray::fromHex("011400") << quint16(0x2f00);
+    QTest::newRow("0115002e90") << QByteArray::fromHex("011500") << quint16(0x2e90);
+    QTest::newRow("01160012ffff00004e21") << QByteArray::fromHex("01160012ffff0000")
+        << quint16(0x4e21);
+    QTest::newRow("0118001201d2") << QByteArray::fromHex("01180012") << quint16(0x01d2);
+    QTest::newRow("012b0e01007077") << QByteArray::fromHex("012b0e0100") << quint16(0x7077);
+    QTest::newRow("010800000000e00b") << QByteArray::fromHex("010800000000") << quint16(0xe00b);
+    QTest::newRow("010800010000b1cb") << QByteArray::fromHex("010800010000") << quint16(0xb1cb);
+    QTest::newRow("01080002000041cb") << QByteArray::fromHex("010800020000") << quint16(0x41cb);
+    QTest::newRow("010800030000100b") << QByteArray::fromHex("010800030000") << quint16(0x100b);
+    QTest::newRow("010800040000a1ca") << QByteArray::fromHex("010800040000") << quint16(0xa1ca);
+    QTest::newRow("0108000a0000c009") << QByteArray::fromHex("0108000a0000") << quint16(0xc009);
+    QTest::newRow("0108000b000091c9") << QByteArray::fromHex("0108000b0000") << quint16(0x91c9);
+    QTest::newRow("0108000c00002008") << QByteArray::fromHex("0108000c0000") << quint16(0x2008);
+    QTest::newRow("0108000d000071c8") << QByteArray::fromHex("0108000d0000") << quint16(0x71c8);
+    QTest::newRow("0108000e000081c8") << QByteArray::fromHex("0108000e0000") << quint16(0x81c8);
+    QTest::newRow("0108000f0000d008") << QByteArray::fromHex("0108000f0000") << quint16(0xd008);
+    QTest::newRow("010800100000e1ce") << QByteArray::fromHex("010800100000") << quint16(0xe1ce);
+    QTest::newRow("010800110000b00e") << QByteArray::fromHex("010800110000") << quint16(0xb00e);
+    QTest::newRow("010800120000400e") << QByteArray::fromHex("010800120000") << quint16(0x400e);
+    QTest::newRow("01080013000011ce") << QByteArray::fromHex("010800130000") << quint16(0x11ce);
+    QTest::newRow("010800140000a00f") << QByteArray::fromHex("010800140000") << quint16(0xa00f);
+    QTest::newRow("010800150000f1cf") << QByteArray::fromHex("010800150000") << quint16(0xf1cf);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: tst_QModbusDevice::testChecksumCRC_data()
+|———Node:qualified_identifier Text: tst_QModbusDevice::testChecksumCRC_data
+|————Node:namespace_identifier Text: tst_QModbusDevice
+|————Node::: Text: ::
+|————Node:identifier Text: testChecksumCRC_data
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    // Modbus RTU Messages generated with pymodbus message-generator.py
+
+    QTest::addColumn<QByteArray>("pdu");
+    QTest::addColumn<quint16>("crc");
+
+    QTest::newRow("010300120008e409") << QByteArray::fromHex("010300120008") << quint16(0xe409);
+    QTest::newRow("010200120008d9c9") << QByteArray::fromHex("010200120008") << quint16(0xd9c9);
+    QTest::newRow("01040012000851c9") << QByteArray::fromHex("010400120008") << quint16(0x51c9);
+    QTest::newRow("0101001200089dc9") << QByteArray::fromHex("010100120008") << quint16(0x9dc9);
+    QTest::newRow("010f0012000801ff06d6") << QByteArray::fromHex("010f0012000801ff")
+        << quint16(0x06d6);
+    QTest::newRow("0110001200081000010001000100010001000100010001d551")
+        << QByteArray::fromHex("0110001200081000010001000100010001000100010001")
+        << quint16(0xd551);
+    QTest::newRow("010600120001e80f") << QByteArray::fromHex("010600120001") << quint16(0xe80f);
+    QTest::newRow("01050012ff002c3f") << QByteArray::fromHex("01050012ff00") << quint16(0x2c3f);
+    QTest::newRow("011700120008000000081000010001000100010001000100010001e6f8")
+        << QByteArray::fromHex("011700120008000000081000010001000100010001000100010001")
+        << quint16(0xe6f8);
+    QTest::newRow("010741e2") << QByteArray::fromHex("0107") << quint16(0x41e2);
+    QTest::newRow("010b41e7") << QByteArray::fromHex("010b") << quint16(0x41e7);
+    QTest::newRow("010c0025") << QByteArray::fromHex("010c") << quint16(0x0025);
+    QTest::newRow("0111c02c") << QByteArray::fromHex("0111") << quint16(0xc02c);
+    QTest::newRow("0114002f00") << QByteArray::fromHex("011400") << quint16(0x2f00);
+    QTest::newRow("0115002e90") << QByteArray::fromHex("011500") << quint16(0x2e90);
+    QTest::newRow("01160012ffff00004e21") << QByteArray::fromHex("01160012ffff0000")
+        << quint16(0x4e21);
+    QTest::newRow("0118001201d2") << QByteArray::fromHex("01180012") << quint16(0x01d2);
+    QTest::newRow("012b0e01007077") << QByteArray::fromHex("012b0e0100") << quint16(0x7077);
+    QTest::newRow("010800000000e00b") << QByteArray::fromHex("010800000000") << quint16(0xe00b);
+    QTest::newRow("010800010000b1cb") << QByteArray::fromHex("010800010000") << quint16(0xb1cb);
+    QTest::newRow("01080002000041cb") << QByteArray::fromHex("010800020000") << quint16(0x41cb);
+    QTest::newRow("010800030000100b") << QByteArray::fromHex("010800030000") << quint16(0x100b);
+    QTest::newRow("010800040000a1ca") << QByteArray::fromHex("010800040000") << quint16(0xa1ca);
+    QTest::newRow("0108000a0000c009") << QByteArray::fromHex("0108000a0000") << quint16(0xc009);
+    QTest::newRow("0108000b000091c9") << QByteArray::fromHex("0108000b0000") << quint16(0x91c9);
+    QTest::newRow("0108000c00002008") << QByteArray::fromHex("0108000c0000") << quint16(0x2008);
+    QTest::newRow("0108000d000071c8") << QByteArray::fromHex("0108000d0000") << quint16(0x71c8);
+    QTest::newRow("0108000e000081c8") << QByteArray::fromHex("0108000e0000") << quint16(0x81c8);
+    QTest::newRow("0108000f0000d008") << QByteArray::fromHex("0108000f0000") << quint16(0xd008);
+    QTest::newRow("010800100000e1ce") << QByteArray::fromHex("010800100000") << quint16(0xe1ce);
+    QTest::newRow("010800110000b00e") << QByteArray::fromHex("010800110000") << quint16(0xb00e);
+    QTest::newRow("010800120000400e") << QByteArray::fromHex("010800120000") << quint16(0x400e);
+    QTest::newRow("01080013000011ce") << QByteArray::fromHex("010800130000") << quint16(0x11ce);
+    QTest::newRow("010800140000a00f") << QByteArray::fromHex("010800140000") << quint16(0xa00f);
+    QTest::newRow("010800150000f1cf") << QByteArray::fromHex("010800150000") << quint16(0xf1cf);
+}
+|———Node:{ Text: {
+|———Node:comment Text: // Modbus RTU Messages generated with pymodbus message-generator.py
+|———Node:expression_statement Text: QTest::addColumn<QByteArray>("pdu");
+|————Node:call_expression Text: QTest::addColumn<QByteArray>("pdu")
+|—————Node:qualified_identifier Text: QTest::addColumn<QByteArray>
+|——————Node:namespace_identifier Text: QTest
+|——————Node::: Text: ::
+|——————Node:template_function Text: addColumn<QByteArray>
+|———————Node:identifier Text: addColumn
+|———————Node:template_argument_list Text: <QByteArray>
+|————————Node:< Text: <
+|————————Node:type_descriptor Text: QByteArray
+|—————————Node:type_identifier Text: QByteArray
+|————————Node:> Text: >
+|—————Node:argument_list Text: ("pdu")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "pdu"
+|———————Node:" Text: "
+|———————Node:string_content Text: pdu
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::addColumn<quint16>("crc");
+|————Node:call_expression Text: QTest::addColumn<quint16>("crc")
+|—————Node:qualified_identifier Text: QTest::addColumn<quint16>
+|——————Node:namespace_identifier Text: QTest
+|——————Node::: Text: ::
+|——————Node:template_function Text: addColumn<quint16>
+|———————Node:identifier Text: addColumn
+|———————Node:template_argument_list Text: <quint16>
+|————————Node:< Text: <
+|————————Node:type_descriptor Text: quint16
+|—————————Node:type_identifier Text: quint16
+|————————Node:> Text: >
+|—————Node:argument_list Text: ("crc")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "crc"
+|———————Node:" Text: "
+|———————Node:string_content Text: crc
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("010300120008e409") << QByteArray::fromHex("010300120008") << quint16(0xe409);
+|————Node:binary_expression Text: QTest::newRow("010300120008e409") << QByteArray::fromHex("010300120008") << quint16(0xe409)
+|—————Node:binary_expression Text: QTest::newRow("010300120008e409") << QByteArray::fromHex("010300120008")
+|——————Node:call_expression Text: QTest::newRow("010300120008e409")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("010300120008e409")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010300120008e409"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010300120008e409
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010300120008")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010300120008")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010300120008"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010300120008
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0xe409)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0xe409)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xe409
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("010200120008d9c9") << QByteArray::fromHex("010200120008") << quint16(0xd9c9);
+|————Node:binary_expression Text: QTest::newRow("010200120008d9c9") << QByteArray::fromHex("010200120008") << quint16(0xd9c9)
+|—————Node:binary_expression Text: QTest::newRow("010200120008d9c9") << QByteArray::fromHex("010200120008")
+|——————Node:call_expression Text: QTest::newRow("010200120008d9c9")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("010200120008d9c9")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010200120008d9c9"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010200120008d9c9
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010200120008")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010200120008")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010200120008"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010200120008
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0xd9c9)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0xd9c9)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xd9c9
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("01040012000851c9") << QByteArray::fromHex("010400120008") << quint16(0x51c9);
+|————Node:binary_expression Text: QTest::newRow("01040012000851c9") << QByteArray::fromHex("010400120008") << quint16(0x51c9)
+|—————Node:binary_expression Text: QTest::newRow("01040012000851c9") << QByteArray::fromHex("010400120008")
+|——————Node:call_expression Text: QTest::newRow("01040012000851c9")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("01040012000851c9")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "01040012000851c9"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 01040012000851c9
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010400120008")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010400120008")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010400120008"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010400120008
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x51c9)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x51c9)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x51c9
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("0101001200089dc9") << QByteArray::fromHex("010100120008") << quint16(0x9dc9);
+|————Node:binary_expression Text: QTest::newRow("0101001200089dc9") << QByteArray::fromHex("010100120008") << quint16(0x9dc9)
+|—————Node:binary_expression Text: QTest::newRow("0101001200089dc9") << QByteArray::fromHex("010100120008")
+|——————Node:call_expression Text: QTest::newRow("0101001200089dc9")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("0101001200089dc9")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0101001200089dc9"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0101001200089dc9
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010100120008")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010100120008")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010100120008"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010100120008
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x9dc9)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x9dc9)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x9dc9
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("010f0012000801ff06d6") << QByteArray::fromHex("010f0012000801ff")
+        << quint16(0x06d6);
+|————Node:binary_expression Text: QTest::newRow("010f0012000801ff06d6") << QByteArray::fromHex("010f0012000801ff")
+        << quint16(0x06d6)
+|—————Node:binary_expression Text: QTest::newRow("010f0012000801ff06d6") << QByteArray::fromHex("010f0012000801ff")
+|——————Node:call_expression Text: QTest::newRow("010f0012000801ff06d6")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("010f0012000801ff06d6")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010f0012000801ff06d6"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010f0012000801ff06d6
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010f0012000801ff")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010f0012000801ff")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010f0012000801ff"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010f0012000801ff
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x06d6)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x06d6)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x06d6
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("0110001200081000010001000100010001000100010001d551")
+        << QByteArray::fromHex("0110001200081000010001000100010001000100010001")
+        << quint16(0xd551);
+|————Node:binary_expression Text: QTest::newRow("0110001200081000010001000100010001000100010001d551")
+        << QByteArray::fromHex("0110001200081000010001000100010001000100010001")
+        << quint16(0xd551)
+|—————Node:binary_expression Text: QTest::newRow("0110001200081000010001000100010001000100010001d551")
+        << QByteArray::fromHex("0110001200081000010001000100010001000100010001")
+|——————Node:call_expression Text: QTest::newRow("0110001200081000010001000100010001000100010001d551")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("0110001200081000010001000100010001000100010001d551")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0110001200081000010001000100010001000100010001d551"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0110001200081000010001000100010001000100010001d551
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("0110001200081000010001000100010001000100010001")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("0110001200081000010001000100010001000100010001")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0110001200081000010001000100010001000100010001"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0110001200081000010001000100010001000100010001
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0xd551)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0xd551)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xd551
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("010600120001e80f") << QByteArray::fromHex("010600120001") << quint16(0xe80f);
+|————Node:binary_expression Text: QTest::newRow("010600120001e80f") << QByteArray::fromHex("010600120001") << quint16(0xe80f)
+|—————Node:binary_expression Text: QTest::newRow("010600120001e80f") << QByteArray::fromHex("010600120001")
+|——————Node:call_expression Text: QTest::newRow("010600120001e80f")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("010600120001e80f")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010600120001e80f"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010600120001e80f
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010600120001")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010600120001")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010600120001"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010600120001
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0xe80f)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0xe80f)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xe80f
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("01050012ff002c3f") << QByteArray::fromHex("01050012ff00") << quint16(0x2c3f);
+|————Node:binary_expression Text: QTest::newRow("01050012ff002c3f") << QByteArray::fromHex("01050012ff00") << quint16(0x2c3f)
+|—————Node:binary_expression Text: QTest::newRow("01050012ff002c3f") << QByteArray::fromHex("01050012ff00")
+|——————Node:call_expression Text: QTest::newRow("01050012ff002c3f")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("01050012ff002c3f")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "01050012ff002c3f"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 01050012ff002c3f
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("01050012ff00")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("01050012ff00")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "01050012ff00"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 01050012ff00
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x2c3f)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x2c3f)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x2c3f
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("011700120008000000081000010001000100010001000100010001e6f8")
+        << QByteArray::fromHex("011700120008000000081000010001000100010001000100010001")
+        << quint16(0xe6f8);
+|————Node:binary_expression Text: QTest::newRow("011700120008000000081000010001000100010001000100010001e6f8")
+        << QByteArray::fromHex("011700120008000000081000010001000100010001000100010001")
+        << quint16(0xe6f8)
+|—————Node:binary_expression Text: QTest::newRow("011700120008000000081000010001000100010001000100010001e6f8")
+        << QByteArray::fromHex("011700120008000000081000010001000100010001000100010001")
+|——————Node:call_expression Text: QTest::newRow("011700120008000000081000010001000100010001000100010001e6f8")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("011700120008000000081000010001000100010001000100010001e6f8")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "011700120008000000081000010001000100010001000100010001e6f8"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 011700120008000000081000010001000100010001000100010001e6f8
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("011700120008000000081000010001000100010001000100010001")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("011700120008000000081000010001000100010001000100010001")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "011700120008000000081000010001000100010001000100010001"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 011700120008000000081000010001000100010001000100010001
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0xe6f8)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0xe6f8)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xe6f8
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("010741e2") << QByteArray::fromHex("0107") << quint16(0x41e2);
+|————Node:binary_expression Text: QTest::newRow("010741e2") << QByteArray::fromHex("0107") << quint16(0x41e2)
+|—————Node:binary_expression Text: QTest::newRow("010741e2") << QByteArray::fromHex("0107")
+|——————Node:call_expression Text: QTest::newRow("010741e2")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("010741e2")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010741e2"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010741e2
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("0107")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("0107")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0107"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0107
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x41e2)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x41e2)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x41e2
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("010b41e7") << QByteArray::fromHex("010b") << quint16(0x41e7);
+|————Node:binary_expression Text: QTest::newRow("010b41e7") << QByteArray::fromHex("010b") << quint16(0x41e7)
+|—————Node:binary_expression Text: QTest::newRow("010b41e7") << QByteArray::fromHex("010b")
+|——————Node:call_expression Text: QTest::newRow("010b41e7")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("010b41e7")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010b41e7"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010b41e7
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010b")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010b")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010b"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010b
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x41e7)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x41e7)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x41e7
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("010c0025") << QByteArray::fromHex("010c") << quint16(0x0025);
+|————Node:binary_expression Text: QTest::newRow("010c0025") << QByteArray::fromHex("010c") << quint16(0x0025)
+|—————Node:binary_expression Text: QTest::newRow("010c0025") << QByteArray::fromHex("010c")
+|——————Node:call_expression Text: QTest::newRow("010c0025")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("010c0025")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010c0025"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010c0025
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010c")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010c")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010c"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010c
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x0025)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x0025)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x0025
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("0111c02c") << QByteArray::fromHex("0111") << quint16(0xc02c);
+|————Node:binary_expression Text: QTest::newRow("0111c02c") << QByteArray::fromHex("0111") << quint16(0xc02c)
+|—————Node:binary_expression Text: QTest::newRow("0111c02c") << QByteArray::fromHex("0111")
+|——————Node:call_expression Text: QTest::newRow("0111c02c")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("0111c02c")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0111c02c"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0111c02c
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("0111")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("0111")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0111"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0111
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0xc02c)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0xc02c)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xc02c
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("0114002f00") << QByteArray::fromHex("011400") << quint16(0x2f00);
+|————Node:binary_expression Text: QTest::newRow("0114002f00") << QByteArray::fromHex("011400") << quint16(0x2f00)
+|—————Node:binary_expression Text: QTest::newRow("0114002f00") << QByteArray::fromHex("011400")
+|——————Node:call_expression Text: QTest::newRow("0114002f00")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("0114002f00")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0114002f00"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0114002f00
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("011400")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("011400")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "011400"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 011400
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x2f00)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x2f00)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x2f00
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("0115002e90") << QByteArray::fromHex("011500") << quint16(0x2e90);
+|————Node:binary_expression Text: QTest::newRow("0115002e90") << QByteArray::fromHex("011500") << quint16(0x2e90)
+|—————Node:binary_expression Text: QTest::newRow("0115002e90") << QByteArray::fromHex("011500")
+|——————Node:call_expression Text: QTest::newRow("0115002e90")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("0115002e90")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0115002e90"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0115002e90
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("011500")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("011500")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "011500"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 011500
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x2e90)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x2e90)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x2e90
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("01160012ffff00004e21") << QByteArray::fromHex("01160012ffff0000")
+        << quint16(0x4e21);
+|————Node:binary_expression Text: QTest::newRow("01160012ffff00004e21") << QByteArray::fromHex("01160012ffff0000")
+        << quint16(0x4e21)
+|—————Node:binary_expression Text: QTest::newRow("01160012ffff00004e21") << QByteArray::fromHex("01160012ffff0000")
+|——————Node:call_expression Text: QTest::newRow("01160012ffff00004e21")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("01160012ffff00004e21")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "01160012ffff00004e21"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 01160012ffff00004e21
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("01160012ffff0000")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("01160012ffff0000")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "01160012ffff0000"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 01160012ffff0000
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x4e21)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x4e21)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x4e21
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("0118001201d2") << QByteArray::fromHex("01180012") << quint16(0x01d2);
+|————Node:binary_expression Text: QTest::newRow("0118001201d2") << QByteArray::fromHex("01180012") << quint16(0x01d2)
+|—————Node:binary_expression Text: QTest::newRow("0118001201d2") << QByteArray::fromHex("01180012")
+|——————Node:call_expression Text: QTest::newRow("0118001201d2")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("0118001201d2")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0118001201d2"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0118001201d2
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("01180012")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("01180012")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "01180012"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 01180012
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x01d2)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x01d2)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x01d2
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("012b0e01007077") << QByteArray::fromHex("012b0e0100") << quint16(0x7077);
+|————Node:binary_expression Text: QTest::newRow("012b0e01007077") << QByteArray::fromHex("012b0e0100") << quint16(0x7077)
+|—————Node:binary_expression Text: QTest::newRow("012b0e01007077") << QByteArray::fromHex("012b0e0100")
+|——————Node:call_expression Text: QTest::newRow("012b0e01007077")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("012b0e01007077")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "012b0e01007077"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 012b0e01007077
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("012b0e0100")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("012b0e0100")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "012b0e0100"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 012b0e0100
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x7077)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x7077)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x7077
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("010800000000e00b") << QByteArray::fromHex("010800000000") << quint16(0xe00b);
+|————Node:binary_expression Text: QTest::newRow("010800000000e00b") << QByteArray::fromHex("010800000000") << quint16(0xe00b)
+|—————Node:binary_expression Text: QTest::newRow("010800000000e00b") << QByteArray::fromHex("010800000000")
+|——————Node:call_expression Text: QTest::newRow("010800000000e00b")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("010800000000e00b")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800000000e00b"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800000000e00b
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010800000000")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010800000000")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800000000"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800000000
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0xe00b)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0xe00b)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xe00b
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("010800010000b1cb") << QByteArray::fromHex("010800010000") << quint16(0xb1cb);
+|————Node:binary_expression Text: QTest::newRow("010800010000b1cb") << QByteArray::fromHex("010800010000") << quint16(0xb1cb)
+|—————Node:binary_expression Text: QTest::newRow("010800010000b1cb") << QByteArray::fromHex("010800010000")
+|——————Node:call_expression Text: QTest::newRow("010800010000b1cb")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("010800010000b1cb")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800010000b1cb"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800010000b1cb
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010800010000")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010800010000")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800010000"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800010000
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0xb1cb)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0xb1cb)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xb1cb
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("01080002000041cb") << QByteArray::fromHex("010800020000") << quint16(0x41cb);
+|————Node:binary_expression Text: QTest::newRow("01080002000041cb") << QByteArray::fromHex("010800020000") << quint16(0x41cb)
+|—————Node:binary_expression Text: QTest::newRow("01080002000041cb") << QByteArray::fromHex("010800020000")
+|——————Node:call_expression Text: QTest::newRow("01080002000041cb")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("01080002000041cb")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "01080002000041cb"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 01080002000041cb
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010800020000")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010800020000")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800020000"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800020000
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x41cb)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x41cb)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x41cb
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("010800030000100b") << QByteArray::fromHex("010800030000") << quint16(0x100b);
+|————Node:binary_expression Text: QTest::newRow("010800030000100b") << QByteArray::fromHex("010800030000") << quint16(0x100b)
+|—————Node:binary_expression Text: QTest::newRow("010800030000100b") << QByteArray::fromHex("010800030000")
+|——————Node:call_expression Text: QTest::newRow("010800030000100b")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("010800030000100b")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800030000100b"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800030000100b
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010800030000")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010800030000")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800030000"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800030000
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x100b)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x100b)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x100b
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("010800040000a1ca") << QByteArray::fromHex("010800040000") << quint16(0xa1ca);
+|————Node:binary_expression Text: QTest::newRow("010800040000a1ca") << QByteArray::fromHex("010800040000") << quint16(0xa1ca)
+|—————Node:binary_expression Text: QTest::newRow("010800040000a1ca") << QByteArray::fromHex("010800040000")
+|——————Node:call_expression Text: QTest::newRow("010800040000a1ca")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("010800040000a1ca")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800040000a1ca"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800040000a1ca
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010800040000")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010800040000")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800040000"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800040000
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0xa1ca)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0xa1ca)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xa1ca
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("0108000a0000c009") << QByteArray::fromHex("0108000a0000") << quint16(0xc009);
+|————Node:binary_expression Text: QTest::newRow("0108000a0000c009") << QByteArray::fromHex("0108000a0000") << quint16(0xc009)
+|—————Node:binary_expression Text: QTest::newRow("0108000a0000c009") << QByteArray::fromHex("0108000a0000")
+|——————Node:call_expression Text: QTest::newRow("0108000a0000c009")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("0108000a0000c009")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0108000a0000c009"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0108000a0000c009
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("0108000a0000")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("0108000a0000")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0108000a0000"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0108000a0000
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0xc009)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0xc009)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xc009
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("0108000b000091c9") << QByteArray::fromHex("0108000b0000") << quint16(0x91c9);
+|————Node:binary_expression Text: QTest::newRow("0108000b000091c9") << QByteArray::fromHex("0108000b0000") << quint16(0x91c9)
+|—————Node:binary_expression Text: QTest::newRow("0108000b000091c9") << QByteArray::fromHex("0108000b0000")
+|——————Node:call_expression Text: QTest::newRow("0108000b000091c9")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("0108000b000091c9")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0108000b000091c9"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0108000b000091c9
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("0108000b0000")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("0108000b0000")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0108000b0000"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0108000b0000
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x91c9)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x91c9)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x91c9
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("0108000c00002008") << QByteArray::fromHex("0108000c0000") << quint16(0x2008);
+|————Node:binary_expression Text: QTest::newRow("0108000c00002008") << QByteArray::fromHex("0108000c0000") << quint16(0x2008)
+|—————Node:binary_expression Text: QTest::newRow("0108000c00002008") << QByteArray::fromHex("0108000c0000")
+|——————Node:call_expression Text: QTest::newRow("0108000c00002008")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("0108000c00002008")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0108000c00002008"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0108000c00002008
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("0108000c0000")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("0108000c0000")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0108000c0000"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0108000c0000
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x2008)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x2008)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x2008
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("0108000d000071c8") << QByteArray::fromHex("0108000d0000") << quint16(0x71c8);
+|————Node:binary_expression Text: QTest::newRow("0108000d000071c8") << QByteArray::fromHex("0108000d0000") << quint16(0x71c8)
+|—————Node:binary_expression Text: QTest::newRow("0108000d000071c8") << QByteArray::fromHex("0108000d0000")
+|——————Node:call_expression Text: QTest::newRow("0108000d000071c8")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("0108000d000071c8")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0108000d000071c8"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0108000d000071c8
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("0108000d0000")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("0108000d0000")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0108000d0000"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0108000d0000
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x71c8)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x71c8)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x71c8
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("0108000e000081c8") << QByteArray::fromHex("0108000e0000") << quint16(0x81c8);
+|————Node:binary_expression Text: QTest::newRow("0108000e000081c8") << QByteArray::fromHex("0108000e0000") << quint16(0x81c8)
+|—————Node:binary_expression Text: QTest::newRow("0108000e000081c8") << QByteArray::fromHex("0108000e0000")
+|——————Node:call_expression Text: QTest::newRow("0108000e000081c8")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("0108000e000081c8")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0108000e000081c8"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0108000e000081c8
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("0108000e0000")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("0108000e0000")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0108000e0000"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0108000e0000
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x81c8)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x81c8)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x81c8
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("0108000f0000d008") << QByteArray::fromHex("0108000f0000") << quint16(0xd008);
+|————Node:binary_expression Text: QTest::newRow("0108000f0000d008") << QByteArray::fromHex("0108000f0000") << quint16(0xd008)
+|—————Node:binary_expression Text: QTest::newRow("0108000f0000d008") << QByteArray::fromHex("0108000f0000")
+|——————Node:call_expression Text: QTest::newRow("0108000f0000d008")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("0108000f0000d008")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0108000f0000d008"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0108000f0000d008
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("0108000f0000")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("0108000f0000")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "0108000f0000"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 0108000f0000
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0xd008)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0xd008)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xd008
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("010800100000e1ce") << QByteArray::fromHex("010800100000") << quint16(0xe1ce);
+|————Node:binary_expression Text: QTest::newRow("010800100000e1ce") << QByteArray::fromHex("010800100000") << quint16(0xe1ce)
+|—————Node:binary_expression Text: QTest::newRow("010800100000e1ce") << QByteArray::fromHex("010800100000")
+|——————Node:call_expression Text: QTest::newRow("010800100000e1ce")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("010800100000e1ce")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800100000e1ce"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800100000e1ce
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010800100000")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010800100000")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800100000"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800100000
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0xe1ce)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0xe1ce)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xe1ce
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("010800110000b00e") << QByteArray::fromHex("010800110000") << quint16(0xb00e);
+|————Node:binary_expression Text: QTest::newRow("010800110000b00e") << QByteArray::fromHex("010800110000") << quint16(0xb00e)
+|—————Node:binary_expression Text: QTest::newRow("010800110000b00e") << QByteArray::fromHex("010800110000")
+|——————Node:call_expression Text: QTest::newRow("010800110000b00e")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("010800110000b00e")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800110000b00e"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800110000b00e
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010800110000")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010800110000")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800110000"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800110000
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0xb00e)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0xb00e)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xb00e
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("010800120000400e") << QByteArray::fromHex("010800120000") << quint16(0x400e);
+|————Node:binary_expression Text: QTest::newRow("010800120000400e") << QByteArray::fromHex("010800120000") << quint16(0x400e)
+|—————Node:binary_expression Text: QTest::newRow("010800120000400e") << QByteArray::fromHex("010800120000")
+|——————Node:call_expression Text: QTest::newRow("010800120000400e")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("010800120000400e")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800120000400e"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800120000400e
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010800120000")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010800120000")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800120000"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800120000
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x400e)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x400e)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x400e
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("01080013000011ce") << QByteArray::fromHex("010800130000") << quint16(0x11ce);
+|————Node:binary_expression Text: QTest::newRow("01080013000011ce") << QByteArray::fromHex("010800130000") << quint16(0x11ce)
+|—————Node:binary_expression Text: QTest::newRow("01080013000011ce") << QByteArray::fromHex("010800130000")
+|——————Node:call_expression Text: QTest::newRow("01080013000011ce")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("01080013000011ce")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "01080013000011ce"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 01080013000011ce
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010800130000")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010800130000")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800130000"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800130000
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0x11ce)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0x11ce)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0x11ce
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("010800140000a00f") << QByteArray::fromHex("010800140000") << quint16(0xa00f);
+|————Node:binary_expression Text: QTest::newRow("010800140000a00f") << QByteArray::fromHex("010800140000") << quint16(0xa00f)
+|—————Node:binary_expression Text: QTest::newRow("010800140000a00f") << QByteArray::fromHex("010800140000")
+|——————Node:call_expression Text: QTest::newRow("010800140000a00f")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("010800140000a00f")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800140000a00f"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800140000a00f
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010800140000")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010800140000")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800140000"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800140000
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0xa00f)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0xa00f)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xa00f
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QTest::newRow("010800150000f1cf") << QByteArray::fromHex("010800150000") << quint16(0xf1cf);
+|————Node:binary_expression Text: QTest::newRow("010800150000f1cf") << QByteArray::fromHex("010800150000") << quint16(0xf1cf)
+|—————Node:binary_expression Text: QTest::newRow("010800150000f1cf") << QByteArray::fromHex("010800150000")
+|——————Node:call_expression Text: QTest::newRow("010800150000f1cf")
+|———————Node:qualified_identifier Text: QTest::newRow
+|————————Node:namespace_identifier Text: QTest
+|————————Node::: Text: ::
+|————————Node:identifier Text: newRow
+|———————Node:argument_list Text: ("010800150000f1cf")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800150000f1cf"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800150000f1cf
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:call_expression Text: QByteArray::fromHex("010800150000")
+|———————Node:qualified_identifier Text: QByteArray::fromHex
+|————————Node:namespace_identifier Text: QByteArray
+|————————Node::: Text: ::
+|————————Node:identifier Text: fromHex
+|———————Node:argument_list Text: ("010800150000")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "010800150000"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 010800150000
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|—————Node:<< Text: <<
+|—————Node:call_expression Text: quint16(0xf1cf)
+|——————Node:identifier Text: quint16
+|——————Node:argument_list Text: (0xf1cf)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0xf1cf
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void tst_QModbusDevice::testChecksumCRC()
+{
+    QFETCH(QByteArray, pdu);
+    QFETCH(quint16, crc);
+
+    QCOMPARE(device->d_func()->calculateCRC(pdu.constData(), pdu.size()), crc);
+    QCOMPARE(device->d_func()->matchingCRC(pdu.constData(), pdu.size(), crc), true);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: tst_QModbusDevice::testChecksumCRC()
+|———Node:qualified_identifier Text: tst_QModbusDevice::testChecksumCRC
+|————Node:namespace_identifier Text: tst_QModbusDevice
+|————Node::: Text: ::
+|————Node:identifier Text: testChecksumCRC
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    QFETCH(QByteArray, pdu);
+    QFETCH(quint16, crc);
+
+    QCOMPARE(device->d_func()->calculateCRC(pdu.constData(), pdu.size()), crc);
+    QCOMPARE(device->d_func()->matchingCRC(pdu.constData(), pdu.size(), crc), true);
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: QFETCH(QByteArray, pdu);
+|————Node:call_expression Text: QFETCH(QByteArray, pdu)
+|—————Node:identifier Text: QFETCH
+|—————Node:argument_list Text: (QByteArray, pdu)
+|——————Node:( Text: (
+|——————Node:identifier Text: QByteArray
+|——————Node:, Text: ,
+|——————Node:identifier Text: pdu
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QFETCH(quint16, crc);
+|————Node:call_expression Text: QFETCH(quint16, crc)
+|—————Node:identifier Text: QFETCH
+|—————Node:argument_list Text: (quint16, crc)
+|——————Node:( Text: (
+|——————Node:identifier Text: quint16
+|——————Node:, Text: ,
+|——————Node:identifier Text: crc
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QCOMPARE(device->d_func()->calculateCRC(pdu.constData(), pdu.size()), crc);
+|————Node:call_expression Text: QCOMPARE(device->d_func()->calculateCRC(pdu.constData(), pdu.size()), crc)
+|—————Node:identifier Text: QCOMPARE
+|—————Node:argument_list Text: (device->d_func()->calculateCRC(pdu.constData(), pdu.size()), crc)
+|——————Node:( Text: (
+|——————Node:call_expression Text: device->d_func()->calculateCRC(pdu.constData(), pdu.size())
+|———————Node:field_expression Text: device->d_func()->calculateCRC
+|————————Node:call_expression Text: device->d_func()
+|—————————Node:field_expression Text: device->d_func
+|——————————Node:identifier Text: device
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: d_func
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: calculateCRC
+|———————Node:argument_list Text: (pdu.constData(), pdu.size())
+|————————Node:( Text: (
+|————————Node:call_expression Text: pdu.constData()
+|—————————Node:field_expression Text: pdu.constData
+|——————————Node:identifier Text: pdu
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: constData
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:, Text: ,
+|————————Node:call_expression Text: pdu.size()
+|—————————Node:field_expression Text: pdu.size
+|——————————Node:identifier Text: pdu
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: size
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:identifier Text: crc
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: QCOMPARE(device->d_func()->matchingCRC(pdu.constData(), pdu.size(), crc), true);
+|————Node:call_expression Text: QCOMPARE(device->d_func()->matchingCRC(pdu.constData(), pdu.size(), crc), true)
+|—————Node:identifier Text: QCOMPARE
+|—————Node:argument_list Text: (device->d_func()->matchingCRC(pdu.constData(), pdu.size(), crc), true)
+|——————Node:( Text: (
+|——————Node:call_expression Text: device->d_func()->matchingCRC(pdu.constData(), pdu.size(), crc)
+|———————Node:field_expression Text: device->d_func()->matchingCRC
+|————————Node:call_expression Text: device->d_func()
+|—————————Node:field_expression Text: device->d_func
+|——————————Node:identifier Text: device
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: d_func
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: matchingCRC
+|———————Node:argument_list Text: (pdu.constData(), pdu.size(), crc)
+|————————Node:( Text: (
+|————————Node:call_expression Text: pdu.constData()
+|—————————Node:field_expression Text: pdu.constData
+|——————————Node:identifier Text: pdu
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: constData
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:, Text: ,
+|————————Node:call_expression Text: pdu.size()
+|—————————Node:field_expression Text: pdu.size
+|——————————Node:identifier Text: pdu
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: size
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:, Text: ,
+|————————Node:identifier Text: crc
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:true Text: true
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:expression_statement Text: QTEST_MAIN(tst_QModbusDevice)
+|——Node:call_expression Text: QTEST_MAIN(tst_QModbusDevice)
+|———Node:identifier Text: QTEST_MAIN
+|———Node:argument_list Text: (tst_QModbusDevice)
+|————Node:( Text: (
+|————Node:identifier Text: tst_QModbusDevice
+|————Node:) Text: )
+|——Node:; Text: 
+|—Node:preproc_include Text: #include "tst_qmodbusdevice.moc"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "tst_qmodbusdevice.moc"
+|———Node:" Text: "
+|———Node:string_content Text: tst_qmodbusdevice.moc
+|———Node:" Text: "

@@ -1,0 +1,473 @@
+tincan-src\tincan\canbus.h
+
+|Node:translation_unit
+|—Node:preproc_ifdef Text: #ifndef TIN_CANBUS_H
+#define TIN_CANBUS_H
+
+
+#include <cstdint>
+#include <tuple>
+#include <unordered_map>
+
+#include <boost/circular_buffer.hpp>
+
+#include <QObject>
+
+#include "tincan/canframe.h"
+#include "tincan/canrawframe.h"
+#include "tincan/cansignal.h"
+
+
+namespace tin {
+
+
+struct Can_bus_def;
+
+
+class Can_bus : public QObject
+{
+  Q_OBJECT
+
+public:
+  void set_definition(const Can_bus_def* bus_def) { bus_def_ = bus_def; }
+  void reset_frames() { frames_.clear(); }
+  const tin::Can_frame* frame(std::uint32_t id) const;
+
+signals:
+  void frame_received(std::uint32_t);
+  void data_changed(std::uint32_t);
+
+public slots:
+  void reset();
+  void add_frame(std::uint64_t time, tin::Can_raw_frame raw_frame);
+  void update_frames();
+
+private:
+  const Can_bus_def* bus_def_ = nullptr;
+  std::unordered_map<std::uint32_t, Can_frame> frames_;
+  std::unordered_map<std::uint32_t, std::uint64_t> prev_frame_time_;
+  std::unordered_map<std::uint32_t, boost::circular_buffer<std::int32_t>> cycle_times_;
+};
+
+
+}  // namespace tin
+
+
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: TIN_CANBUS_H
+|——Node:preproc_def Text: #define TIN_CANBUS_H
+
+|———Node:#define Text: #define
+|———Node:identifier Text: TIN_CANBUS_H
+|——Node:preproc_include Text: #include <cstdint>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <cstdint>
+|——Node:preproc_include Text: #include <tuple>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <tuple>
+|——Node:preproc_include Text: #include <unordered_map>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <unordered_map>
+|——Node:preproc_include Text: #include <boost/circular_buffer.hpp>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <boost/circular_buffer.hpp>
+|——Node:preproc_include Text: #include <QObject>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <QObject>
+|——Node:preproc_include Text: #include "tincan/canframe.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "tincan/canframe.h"
+|————Node:" Text: "
+|————Node:string_content Text: tincan/canframe.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "tincan/canrawframe.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "tincan/canrawframe.h"
+|————Node:" Text: "
+|————Node:string_content Text: tincan/canrawframe.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "tincan/cansignal.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "tincan/cansignal.h"
+|————Node:" Text: "
+|————Node:string_content Text: tincan/cansignal.h
+|————Node:" Text: "
+|——Node:function_definition Text: namespace tin {
+
+
+struct Can_bus_def;
+
+
+class Can_bus : public QObject
+{
+  Q_OBJECT
+
+public:
+  void set_definition(const Can_bus_def* bus_def) { bus_def_ = bus_def; }
+  void reset_frames() { frames_.clear(); }
+  const tin::Can_frame* frame(std::uint32_t id) const;
+
+signals:
+  void frame_received(std::uint32_t);
+  void data_changed(std::uint32_t);
+
+public slots:
+  void reset();
+  void add_frame(std::uint64_t time, tin::Can_raw_frame raw_frame);
+  void update_frames();
+
+private:
+  const Can_bus_def* bus_def_ = nullptr;
+  std::unordered_map<std::uint32_t, Can_frame> frames_;
+  std::unordered_map<std::uint32_t, std::uint64_t> prev_frame_time_;
+  std::unordered_map<std::uint32_t, boost::circular_buffer<std::int32_t>> cycle_times_;
+};
+
+
+}
+|———Node:type_identifier Text: namespace
+|———Node:identifier Text: tin
+|———Node:compound_statement Text: {
+
+
+struct Can_bus_def;
+
+
+class Can_bus : public QObject
+{
+  Q_OBJECT
+
+public:
+  void set_definition(const Can_bus_def* bus_def) { bus_def_ = bus_def; }
+  void reset_frames() { frames_.clear(); }
+  const tin::Can_frame* frame(std::uint32_t id) const;
+
+signals:
+  void frame_received(std::uint32_t);
+  void data_changed(std::uint32_t);
+
+public slots:
+  void reset();
+  void add_frame(std::uint64_t time, tin::Can_raw_frame raw_frame);
+  void update_frames();
+
+private:
+  const Can_bus_def* bus_def_ = nullptr;
+  std::unordered_map<std::uint32_t, Can_frame> frames_;
+  std::unordered_map<std::uint32_t, std::uint64_t> prev_frame_time_;
+  std::unordered_map<std::uint32_t, boost::circular_buffer<std::int32_t>> cycle_times_;
+};
+
+
+}
+|————Node:{ Text: {
+|————Node:struct_specifier Text: struct Can_bus_def
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: Can_bus_def
+|————Node:; Text: ;
+|————Node:function_definition Text: class Can_bus : public QObject
+{
+  Q_OBJECT
+
+public:
+  void set_definition(const Can_bus_def* bus_def) { bus_def_ = bus_def; }
+  void reset_frames() { frames_.clear(); }
+  const tin::Can_frame* frame(std::uint32_t id) const;
+
+signals:
+  void frame_received(std::uint32_t);
+  void data_changed(std::uint32_t);
+
+public slots:
+  void reset();
+  void add_frame(std::uint64_t time, tin::Can_raw_frame raw_frame);
+  void update_frames();
+
+private:
+  const Can_bus_def* bus_def_ = nullptr;
+  std::unordered_map<std::uint32_t, Can_frame> frames_;
+  std::unordered_map<std::uint32_t, std::uint64_t> prev_frame_time_;
+  std::unordered_map<std::uint32_t, boost::circular_buffer<std::int32_t>> cycle_times_;
+}
+|—————Node:type_identifier Text: class
+|—————Node:identifier Text: Can_bus
+|—————Node:ERROR Text: : public QObject
+|——————Node:: Text: :
+|——————Node:identifier Text: public
+|——————Node:identifier Text: QObject
+|—————Node:compound_statement Text: {
+  Q_OBJECT
+
+public:
+  void set_definition(const Can_bus_def* bus_def) { bus_def_ = bus_def; }
+  void reset_frames() { frames_.clear(); }
+  const tin::Can_frame* frame(std::uint32_t id) const;
+
+signals:
+  void frame_received(std::uint32_t);
+  void data_changed(std::uint32_t);
+
+public slots:
+  void reset();
+  void add_frame(std::uint64_t time, tin::Can_raw_frame raw_frame);
+  void update_frames();
+
+private:
+  const Can_bus_def* bus_def_ = nullptr;
+  std::unordered_map<std::uint32_t, Can_frame> frames_;
+  std::unordered_map<std::uint32_t, std::uint64_t> prev_frame_time_;
+  std::unordered_map<std::uint32_t, boost::circular_buffer<std::int32_t>> cycle_times_;
+}
+|——————Node:{ Text: {
+|——————Node:function_definition Text: Q_OBJECT
+
+public:
+  void set_definition(const Can_bus_def* bus_def) { bus_def_ = bus_def; }
+|———————Node:type_identifier Text: Q_OBJECT
+|———————Node:ERROR Text: public:
+  void
+|————————Node:identifier Text: public
+|————————Node:: Text: :
+|————————Node:primitive_type Text: void
+|———————Node:function_declarator Text: set_definition(const Can_bus_def* bus_def)
+|————————Node:identifier Text: set_definition
+|————————Node:parameter_list Text: (const Can_bus_def* bus_def)
+|—————————Node:( Text: (
+|—————————Node:parameter_declaration Text: const Can_bus_def* bus_def
+|——————————Node:type_qualifier Text: const
+|———————————Node:const Text: const
+|——————————Node:type_identifier Text: Can_bus_def
+|——————————Node:pointer_declarator Text: * bus_def
+|———————————Node:* Text: *
+|———————————Node:identifier Text: bus_def
+|—————————Node:) Text: )
+|———————Node:compound_statement Text: { bus_def_ = bus_def; }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: bus_def_ = bus_def;
+|—————————Node:assignment_expression Text: bus_def_ = bus_def
+|——————————Node:identifier Text: bus_def_
+|——————————Node:= Text: =
+|——————————Node:identifier Text: bus_def
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:function_definition Text: void reset_frames() { frames_.clear(); }
+|———————Node:primitive_type Text: void
+|———————Node:function_declarator Text: reset_frames()
+|————————Node:identifier Text: reset_frames
+|————————Node:parameter_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:compound_statement Text: { frames_.clear(); }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: frames_.clear();
+|—————————Node:call_expression Text: frames_.clear()
+|——————————Node:field_expression Text: frames_.clear
+|———————————Node:identifier Text: frames_
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: clear
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:declaration Text: const tin::Can_frame* frame(std::uint32_t id) const;
+|———————Node:type_qualifier Text: const
+|————————Node:const Text: const
+|———————Node:type_identifier Text: tin
+|———————Node:ERROR Text: ::Can_frame
+|————————Node:: Text: :
+|————————Node:: Text: :
+|————————Node:identifier Text: Can_frame
+|———————Node:pointer_declarator Text: * frame(std::uint32_t id) const
+|————————Node:* Text: *
+|————————Node:function_declarator Text: frame(std::uint32_t id) const
+|—————————Node:identifier Text: frame
+|—————————Node:parameter_list Text: (std::uint32_t id)
+|——————————Node:( Text: (
+|——————————Node:ERROR Text: std::
+|———————————Node:type_identifier Text: std
+|———————————Node:: Text: :
+|———————————Node:: Text: :
+|——————————Node:parameter_declaration Text: uint32_t id
+|———————————Node:primitive_type Text: uint32_t
+|———————————Node:identifier Text: id
+|——————————Node:) Text: )
+|—————————Node:identifier Text: const
+|———————Node:; Text: ;
+|——————Node:labeled_statement Text: signals:
+  void frame_received(std::uint32_t);
+|———————Node:statement_identifier Text: signals
+|———————Node:: Text: :
+|———————Node:declaration Text: void frame_received(std::uint32_t);
+|————————Node:primitive_type Text: void
+|————————Node:function_declarator Text: frame_received(std::uint32_t)
+|—————————Node:identifier Text: frame_received
+|—————————Node:parameter_list Text: (std::uint32_t)
+|——————————Node:( Text: (
+|——————————Node:ERROR Text: std::
+|———————————Node:type_identifier Text: std
+|———————————Node:: Text: :
+|———————————Node:: Text: :
+|——————————Node:parameter_declaration Text: uint32_t
+|———————————Node:primitive_type Text: uint32_t
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|——————Node:declaration Text: void data_changed(std::uint32_t);
+|———————Node:primitive_type Text: void
+|———————Node:function_declarator Text: data_changed(std::uint32_t)
+|————————Node:identifier Text: data_changed
+|————————Node:parameter_list Text: (std::uint32_t)
+|—————————Node:( Text: (
+|—————————Node:ERROR Text: std::
+|——————————Node:identifier Text: std
+|——————————Node:: Text: :
+|——————————Node:: Text: :
+|—————————Node:parameter_declaration Text: uint32_t
+|——————————Node:primitive_type Text: uint32_t
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:ERROR Text: public slots:
+|———————Node:type_identifier Text: public
+|———————Node:identifier Text: slots
+|———————Node:: Text: :
+|——————Node:declaration Text: void reset();
+|———————Node:primitive_type Text: void
+|———————Node:function_declarator Text: reset()
+|————————Node:identifier Text: reset
+|————————Node:parameter_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:declaration Text: void add_frame(std::uint64_t time, tin::Can_raw_frame raw_frame);
+|———————Node:primitive_type Text: void
+|———————Node:function_declarator Text: add_frame(std::uint64_t time, tin::Can_raw_frame raw_frame)
+|————————Node:identifier Text: add_frame
+|————————Node:parameter_list Text: (std::uint64_t time, tin::Can_raw_frame raw_frame)
+|—————————Node:( Text: (
+|—————————Node:ERROR Text: std::
+|——————————Node:identifier Text: std
+|——————————Node:: Text: :
+|——————————Node:: Text: :
+|—————————Node:parameter_declaration Text: uint64_t time
+|——————————Node:primitive_type Text: uint64_t
+|——————————Node:identifier Text: time
+|—————————Node:, Text: ,
+|—————————Node:parameter_declaration Text: tin::Can_raw_frame raw_frame
+|——————————Node:type_identifier Text: tin
+|——————————Node:ERROR Text: ::Can_raw_frame
+|———————————Node:: Text: :
+|———————————Node:: Text: :
+|———————————Node:identifier Text: Can_raw_frame
+|——————————Node:identifier Text: raw_frame
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:declaration Text: void update_frames();
+|———————Node:primitive_type Text: void
+|———————Node:function_declarator Text: update_frames()
+|————————Node:identifier Text: update_frames
+|————————Node:parameter_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:labeled_statement Text: private:
+  const Can_bus_def* bus_def_ = nullptr;
+|———————Node:statement_identifier Text: private
+|———————Node:: Text: :
+|———————Node:declaration Text: const Can_bus_def* bus_def_ = nullptr;
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: Can_bus_def
+|————————Node:init_declarator Text: * bus_def_ = nullptr
+|—————————Node:pointer_declarator Text: * bus_def_
+|——————————Node:* Text: *
+|——————————Node:identifier Text: bus_def_
+|—————————Node:= Text: =
+|—————————Node:null Text: nullptr
+|——————————Node:nullptr Text: nullptr
+|————————Node:; Text: ;
+|——————Node:expression_statement Text: std::unordered_map<std::uint32_t, Can_frame> frames_;
+|———————Node:comma_expression Text: std::unordered_map<std::uint32_t, Can_frame> frames_
+|————————Node:identifier Text: std
+|————————Node:ERROR Text: ::unordered_map<std::uint32_t
+|—————————Node:: Text: :
+|—————————Node:: Text: :
+|—————————Node:binary_expression Text: unordered_map<std
+|——————————Node:identifier Text: unordered_map
+|——————————Node:< Text: <
+|——————————Node:identifier Text: std
+|—————————Node:: Text: :
+|—————————Node:: Text: :
+|—————————Node:primitive_type Text: uint32_t
+|————————Node:, Text: ,
+|————————Node:binary_expression Text: Can_frame> frames_
+|—————————Node:identifier Text: Can_frame
+|—————————Node:> Text: >
+|—————————Node:identifier Text: frames_
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: std::unordered_map<std::uint32_t, std::uint64_t> prev_frame_time_;
+|———————Node:comma_expression Text: std::unordered_map<std::uint32_t, std
+|————————Node:identifier Text: std
+|————————Node:ERROR Text: ::unordered_map<std::uint32_t
+|—————————Node:: Text: :
+|—————————Node:: Text: :
+|—————————Node:binary_expression Text: unordered_map<std
+|——————————Node:identifier Text: unordered_map
+|——————————Node:< Text: <
+|——————————Node:identifier Text: std
+|—————————Node:: Text: :
+|—————————Node:: Text: :
+|—————————Node:primitive_type Text: uint32_t
+|————————Node:, Text: ,
+|————————Node:identifier Text: std
+|———————Node:ERROR Text: ::uint64_t> prev_frame_time_
+|————————Node:: Text: :
+|————————Node:: Text: :
+|————————Node:primitive_type Text: uint64_t
+|————————Node:> Text: >
+|————————Node:identifier Text: prev_frame_time_
+|———————Node:; Text: ;
+|——————Node:ERROR Text: std::unordered_map<std::uint32_t, boost::circular_buffer<std::
+|———————Node:comma_expression Text: std::unordered_map<std::uint32_t, boost
+|————————Node:identifier Text: std
+|————————Node:ERROR Text: ::unordered_map<std::uint32_t
+|—————————Node:: Text: :
+|—————————Node:: Text: :
+|—————————Node:binary_expression Text: unordered_map<std
+|——————————Node:identifier Text: unordered_map
+|——————————Node:< Text: <
+|——————————Node:identifier Text: std
+|—————————Node:: Text: :
+|—————————Node:: Text: :
+|—————————Node:primitive_type Text: uint32_t
+|————————Node:, Text: ,
+|————————Node:identifier Text: boost
+|———————Node:: Text: :
+|———————Node:: Text: :
+|———————Node:binary_expression Text: circular_buffer<std
+|————————Node:identifier Text: circular_buffer
+|————————Node:< Text: <
+|————————Node:identifier Text: std
+|———————Node:: Text: :
+|———————Node:: Text: :
+|——————Node:declaration Text: int32_t>> cycle_times_;
+|———————Node:primitive_type Text: int32_t
+|———————Node:ERROR Text: >>
+|————————Node:>> Text: >>
+|———————Node:identifier Text: cycle_times_
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:comment
+|——Node:#endif Text: #endif
+|—Node:comment

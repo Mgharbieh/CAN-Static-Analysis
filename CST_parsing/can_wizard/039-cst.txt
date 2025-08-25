@@ -1,0 +1,367 @@
+can_wizard-main\can.h
+
+|Node:translation_unit
+|—Node:preproc_ifdef Text: #ifndef MAIN_CAN_H
+#define MAIN_CAN_H
+
+#include "driver/twai.h"
+#include "hal/twai_types.h"
+#include "sdkconfig.h"
+#include "freertos/semphr.h"
+#include <stdint.h>
+
+typedef struct {
+  char status[30];
+  int tec;
+  int rec;
+  int color;
+  bool extd;
+} can_prompt_t;
+
+typedef enum {
+  CAN_NOT_INSTALLED = 0,
+  CAN_STOPPED = 1,
+  CAN_ERROR_ACTIVE = 2,
+  CAN_ERROR_PASSIVE = 3,
+  CAN_BUF_OFF = 4,
+  CAN_RECOVERING = 5,
+} can_state_e;
+
+typedef struct {
+  can_state_e state;
+  uint32_t msgs_to_tx;            /**< Number of messages queued for transmission or awaiting transmission completion */
+  uint32_t msgs_to_rx;            /**< Number of messages in RX queue waiting to be read */
+  uint32_t tx_error_counter;      /**< Current value of Transmit Error Counter */
+  uint32_t rx_error_counter;      /**< Current value of Receive Error Counter */
+  uint32_t tx_failed_count;       /**< Number of messages that failed transmissions */
+  uint32_t rx_missed_count;       /**< Number of messages that were lost due to a full RX queue (or errata workaround if enabled) */
+  uint32_t rx_overrun_count;      /**< Number of messages that were lost due to a RX FIFO overrun */
+  uint32_t arb_lost_count;        /**< Number of instances arbitration was lost */
+  uint32_t bus_error_count;       /**< Number of instances a bus error has occurred */
+} can_status_t;
+
+extern SemaphoreHandle_t can_mutex;
+extern volatile can_status_t curr_can_state;
+extern bool timestamp_enabled;
+extern bool auto_recovery;
+extern bool is_error_passive;
+
+// functions
+
+void can_task(void* arg);
+void can_msg_to_str(twai_message_t *can_msg, char *start_str, char *out_str);
+
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: MAIN_CAN_H
+|——Node:preproc_def Text: #define MAIN_CAN_H
+
+|———Node:#define Text: #define
+|———Node:identifier Text: MAIN_CAN_H
+|——Node:preproc_include Text: #include "driver/twai.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "driver/twai.h"
+|————Node:" Text: "
+|————Node:string_content Text: driver/twai.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "hal/twai_types.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "hal/twai_types.h"
+|————Node:" Text: "
+|————Node:string_content Text: hal/twai_types.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "sdkconfig.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "sdkconfig.h"
+|————Node:" Text: "
+|————Node:string_content Text: sdkconfig.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "freertos/semphr.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "freertos/semphr.h"
+|————Node:" Text: "
+|————Node:string_content Text: freertos/semphr.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include <stdint.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <stdint.h>
+|——Node:type_definition Text: typedef struct {
+  char status[30];
+  int tec;
+  int rec;
+  int color;
+  bool extd;
+} can_prompt_t;
+|———Node:typedef Text: typedef
+|———Node:struct_specifier Text: struct {
+  char status[30];
+  int tec;
+  int rec;
+  int color;
+  bool extd;
+}
+|————Node:struct Text: struct
+|————Node:field_declaration_list Text: {
+  char status[30];
+  int tec;
+  int rec;
+  int color;
+  bool extd;
+}
+|—————Node:{ Text: {
+|—————Node:field_declaration Text: char status[30];
+|——————Node:primitive_type Text: char
+|——————Node:array_declarator Text: status[30]
+|———————Node:field_identifier Text: status
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 30
+|———————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: int tec;
+|——————Node:primitive_type Text: int
+|——————Node:field_identifier Text: tec
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: int rec;
+|——————Node:primitive_type Text: int
+|——————Node:field_identifier Text: rec
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: int color;
+|——————Node:primitive_type Text: int
+|——————Node:field_identifier Text: color
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: bool extd;
+|——————Node:primitive_type Text: bool
+|——————Node:field_identifier Text: extd
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:type_identifier Text: can_prompt_t
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef enum {
+  CAN_NOT_INSTALLED = 0,
+  CAN_STOPPED = 1,
+  CAN_ERROR_ACTIVE = 2,
+  CAN_ERROR_PASSIVE = 3,
+  CAN_BUF_OFF = 4,
+  CAN_RECOVERING = 5,
+} can_state_e;
+|———Node:typedef Text: typedef
+|———Node:enum_specifier Text: enum {
+  CAN_NOT_INSTALLED = 0,
+  CAN_STOPPED = 1,
+  CAN_ERROR_ACTIVE = 2,
+  CAN_ERROR_PASSIVE = 3,
+  CAN_BUF_OFF = 4,
+  CAN_RECOVERING = 5,
+}
+|————Node:enum Text: enum
+|————Node:enumerator_list Text: {
+  CAN_NOT_INSTALLED = 0,
+  CAN_STOPPED = 1,
+  CAN_ERROR_ACTIVE = 2,
+  CAN_ERROR_PASSIVE = 3,
+  CAN_BUF_OFF = 4,
+  CAN_RECOVERING = 5,
+}
+|—————Node:{ Text: {
+|—————Node:enumerator Text: CAN_NOT_INSTALLED = 0
+|——————Node:identifier Text: CAN_NOT_INSTALLED
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:, Text: ,
+|—————Node:enumerator Text: CAN_STOPPED = 1
+|——————Node:identifier Text: CAN_STOPPED
+|——————Node:= Text: =
+|——————Node:number_literal Text: 1
+|—————Node:, Text: ,
+|—————Node:enumerator Text: CAN_ERROR_ACTIVE = 2
+|——————Node:identifier Text: CAN_ERROR_ACTIVE
+|——————Node:= Text: =
+|——————Node:number_literal Text: 2
+|—————Node:, Text: ,
+|—————Node:enumerator Text: CAN_ERROR_PASSIVE = 3
+|——————Node:identifier Text: CAN_ERROR_PASSIVE
+|——————Node:= Text: =
+|——————Node:number_literal Text: 3
+|—————Node:, Text: ,
+|—————Node:enumerator Text: CAN_BUF_OFF = 4
+|——————Node:identifier Text: CAN_BUF_OFF
+|——————Node:= Text: =
+|——————Node:number_literal Text: 4
+|—————Node:, Text: ,
+|—————Node:enumerator Text: CAN_RECOVERING = 5
+|——————Node:identifier Text: CAN_RECOVERING
+|——————Node:= Text: =
+|——————Node:number_literal Text: 5
+|—————Node:, Text: ,
+|—————Node:} Text: }
+|———Node:type_identifier Text: can_state_e
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef struct {
+  can_state_e state;
+  uint32_t msgs_to_tx;            /**< Number of messages queued for transmission or awaiting transmission completion */
+  uint32_t msgs_to_rx;            /**< Number of messages in RX queue waiting to be read */
+  uint32_t tx_error_counter;      /**< Current value of Transmit Error Counter */
+  uint32_t rx_error_counter;      /**< Current value of Receive Error Counter */
+  uint32_t tx_failed_count;       /**< Number of messages that failed transmissions */
+  uint32_t rx_missed_count;       /**< Number of messages that were lost due to a full RX queue (or errata workaround if enabled) */
+  uint32_t rx_overrun_count;      /**< Number of messages that were lost due to a RX FIFO overrun */
+  uint32_t arb_lost_count;        /**< Number of instances arbitration was lost */
+  uint32_t bus_error_count;       /**< Number of instances a bus error has occurred */
+} can_status_t;
+|———Node:typedef Text: typedef
+|———Node:struct_specifier Text: struct {
+  can_state_e state;
+  uint32_t msgs_to_tx;            /**< Number of messages queued for transmission or awaiting transmission completion */
+  uint32_t msgs_to_rx;            /**< Number of messages in RX queue waiting to be read */
+  uint32_t tx_error_counter;      /**< Current value of Transmit Error Counter */
+  uint32_t rx_error_counter;      /**< Current value of Receive Error Counter */
+  uint32_t tx_failed_count;       /**< Number of messages that failed transmissions */
+  uint32_t rx_missed_count;       /**< Number of messages that were lost due to a full RX queue (or errata workaround if enabled) */
+  uint32_t rx_overrun_count;      /**< Number of messages that were lost due to a RX FIFO overrun */
+  uint32_t arb_lost_count;        /**< Number of instances arbitration was lost */
+  uint32_t bus_error_count;       /**< Number of instances a bus error has occurred */
+}
+|————Node:struct Text: struct
+|————Node:field_declaration_list Text: {
+  can_state_e state;
+  uint32_t msgs_to_tx;            /**< Number of messages queued for transmission or awaiting transmission completion */
+  uint32_t msgs_to_rx;            /**< Number of messages in RX queue waiting to be read */
+  uint32_t tx_error_counter;      /**< Current value of Transmit Error Counter */
+  uint32_t rx_error_counter;      /**< Current value of Receive Error Counter */
+  uint32_t tx_failed_count;       /**< Number of messages that failed transmissions */
+  uint32_t rx_missed_count;       /**< Number of messages that were lost due to a full RX queue (or errata workaround if enabled) */
+  uint32_t rx_overrun_count;      /**< Number of messages that were lost due to a RX FIFO overrun */
+  uint32_t arb_lost_count;        /**< Number of instances arbitration was lost */
+  uint32_t bus_error_count;       /**< Number of instances a bus error has occurred */
+}
+|—————Node:{ Text: {
+|—————Node:field_declaration Text: can_state_e state;
+|——————Node:type_identifier Text: can_state_e
+|——————Node:field_identifier Text: state
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: uint32_t msgs_to_tx;
+|——————Node:primitive_type Text: uint32_t
+|——————Node:field_identifier Text: msgs_to_tx
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:field_declaration Text: uint32_t msgs_to_rx;
+|——————Node:primitive_type Text: uint32_t
+|——————Node:field_identifier Text: msgs_to_rx
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:field_declaration Text: uint32_t tx_error_counter;
+|——————Node:primitive_type Text: uint32_t
+|——————Node:field_identifier Text: tx_error_counter
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:field_declaration Text: uint32_t rx_error_counter;
+|——————Node:primitive_type Text: uint32_t
+|——————Node:field_identifier Text: rx_error_counter
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:field_declaration Text: uint32_t tx_failed_count;
+|——————Node:primitive_type Text: uint32_t
+|——————Node:field_identifier Text: tx_failed_count
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:field_declaration Text: uint32_t rx_missed_count;
+|——————Node:primitive_type Text: uint32_t
+|——————Node:field_identifier Text: rx_missed_count
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:field_declaration Text: uint32_t rx_overrun_count;
+|——————Node:primitive_type Text: uint32_t
+|——————Node:field_identifier Text: rx_overrun_count
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:field_declaration Text: uint32_t arb_lost_count;
+|——————Node:primitive_type Text: uint32_t
+|——————Node:field_identifier Text: arb_lost_count
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:field_declaration Text: uint32_t bus_error_count;
+|——————Node:primitive_type Text: uint32_t
+|——————Node:field_identifier Text: bus_error_count
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:} Text: }
+|———Node:type_identifier Text: can_status_t
+|———Node:; Text: ;
+|——Node:declaration Text: extern SemaphoreHandle_t can_mutex;
+|———Node:storage_class_specifier Text: extern
+|————Node:extern Text: extern
+|———Node:type_identifier Text: SemaphoreHandle_t
+|———Node:identifier Text: can_mutex
+|———Node:; Text: ;
+|——Node:declaration Text: extern volatile can_status_t curr_can_state;
+|———Node:storage_class_specifier Text: extern
+|————Node:extern Text: extern
+|———Node:type_qualifier Text: volatile
+|————Node:volatile Text: volatile
+|———Node:type_identifier Text: can_status_t
+|———Node:identifier Text: curr_can_state
+|———Node:; Text: ;
+|——Node:declaration Text: extern bool timestamp_enabled;
+|———Node:storage_class_specifier Text: extern
+|————Node:extern Text: extern
+|———Node:primitive_type Text: bool
+|———Node:identifier Text: timestamp_enabled
+|———Node:; Text: ;
+|——Node:declaration Text: extern bool auto_recovery;
+|———Node:storage_class_specifier Text: extern
+|————Node:extern Text: extern
+|———Node:primitive_type Text: bool
+|———Node:identifier Text: auto_recovery
+|———Node:; Text: ;
+|——Node:declaration Text: extern bool is_error_passive;
+|———Node:storage_class_specifier Text: extern
+|————Node:extern Text: extern
+|———Node:primitive_type Text: bool
+|———Node:identifier Text: is_error_passive
+|———Node:; Text: ;
+|——Node:comment
+|——Node:declaration Text: void can_task(void* arg);
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: can_task(void* arg)
+|————Node:identifier Text: can_task
+|————Node:parameter_list Text: (void* arg)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: void* arg
+|——————Node:primitive_type Text: void
+|——————Node:pointer_declarator Text: * arg
+|———————Node:* Text: *
+|———————Node:identifier Text: arg
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: void can_msg_to_str(twai_message_t *can_msg, char *start_str, char *out_str);
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: can_msg_to_str(twai_message_t *can_msg, char *start_str, char *out_str)
+|————Node:identifier Text: can_msg_to_str
+|————Node:parameter_list Text: (twai_message_t *can_msg, char *start_str, char *out_str)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: twai_message_t *can_msg
+|——————Node:type_identifier Text: twai_message_t
+|——————Node:pointer_declarator Text: *can_msg
+|———————Node:* Text: *
+|———————Node:identifier Text: can_msg
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: char *start_str
+|——————Node:primitive_type Text: char
+|——————Node:pointer_declarator Text: *start_str
+|———————Node:* Text: *
+|———————Node:identifier Text: start_str
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: char *out_str
+|——————Node:primitive_type Text: char
+|——————Node:pointer_declarator Text: *out_str
+|———————Node:* Text: *
+|———————Node:identifier Text: out_str
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:#endif Text: #endif
+|—Node:comment

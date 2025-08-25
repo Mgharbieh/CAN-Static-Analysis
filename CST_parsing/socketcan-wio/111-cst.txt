@@ -1,0 +1,1821 @@
+socketcan-wio-src\can.cpp
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include <string.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <string.h>
+|—Node:preproc_include Text: #include <unistd.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <unistd.h>
+|—Node:preproc_include Text: #include <errno.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <errno.h>
+|—Node:preproc_include Text: #include <stdio.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <stdio.h>
+|—Node:preproc_include Text: #include <sys/types.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <sys/types.h>
+|—Node:preproc_include Text: #include <sys/socket.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <sys/socket.h>
+|—Node:preproc_include Text: #include <sys/ioctl.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <sys/ioctl.h>
+|—Node:preproc_include Text: #include <net/if.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <net/if.h>
+|—Node:preproc_include Text: #include <linux/can.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <linux/can.h>
+|—Node:preproc_include Text: #include <linux/can/raw.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <linux/can/raw.h>
+|—Node:preproc_include Text: #include "can.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "can.h"
+|———Node:" Text: "
+|———Node:string_content Text: can.h
+|———Node:" Text: "
+|—Node:using_declaration Text: using namespace wlp;
+|——Node:using Text: using
+|——Node:namespace Text: namespace
+|——Node:identifier Text: wlp
+|——Node:; Text: ;
+|—Node:function_definition Text: canbus::canbus(const char *iface) : ifname(iface), can_sockfd(-1) {}
+|——Node:function_declarator Text: canbus::canbus(const char *iface)
+|———Node:qualified_identifier Text: canbus::canbus
+|————Node:namespace_identifier Text: canbus
+|————Node::: Text: ::
+|————Node:identifier Text: canbus
+|———Node:parameter_list Text: (const char *iface)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: const char *iface
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: *iface
+|——————Node:* Text: *
+|——————Node:identifier Text: iface
+|————Node:) Text: )
+|——Node:field_initializer_list Text: : ifname(iface), can_sockfd(-1)
+|———Node:: Text: :
+|———Node:field_initializer Text: ifname(iface)
+|————Node:field_identifier Text: ifname
+|————Node:argument_list Text: (iface)
+|—————Node:( Text: (
+|—————Node:identifier Text: iface
+|—————Node:) Text: )
+|———Node:, Text: ,
+|———Node:field_initializer Text: can_sockfd(-1)
+|————Node:field_identifier Text: can_sockfd
+|————Node:argument_list Text: (-1)
+|—————Node:( Text: (
+|—————Node:number_literal Text: -1
+|—————Node:) Text: )
+|——Node:compound_statement Text: {}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:function_definition Text: canbus::~canbus() {
+    if(can_sockfd != -1)
+        close(can_sockfd);
+}
+|——Node:function_declarator Text: canbus::~canbus()
+|———Node:qualified_identifier Text: canbus::~canbus
+|————Node:namespace_identifier Text: canbus
+|————Node::: Text: ::
+|————Node:destructor_name Text: ~canbus
+|—————Node:~ Text: ~
+|—————Node:identifier Text: canbus
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if(can_sockfd != -1)
+        close(can_sockfd);
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if(can_sockfd != -1)
+        close(can_sockfd);
+|————Node:if Text: if
+|————Node:condition_clause Text: (can_sockfd != -1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: can_sockfd != -1
+|——————Node:identifier Text: can_sockfd
+|——————Node:!= Text: !=
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:expression_statement Text: close(can_sockfd);
+|—————Node:call_expression Text: close(can_sockfd)
+|——————Node:identifier Text: close
+|——————Node:argument_list Text: (can_sockfd)
+|———————Node:( Text: (
+|———————Node:identifier Text: can_sockfd
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:} Text: }
+|—Node:declaration Text: const char *debug_lvls[] = {"", "ERROR", "WARN", "INFO"};
+|——Node:type_qualifier Text: const
+|———Node:const Text: const
+|——Node:primitive_type Text: char
+|——Node:init_declarator Text: *debug_lvls[] = {"", "ERROR", "WARN", "INFO"}
+|———Node:pointer_declarator Text: *debug_lvls[]
+|————Node:* Text: *
+|————Node:array_declarator Text: debug_lvls[]
+|—————Node:identifier Text: debug_lvls
+|—————Node:[ Text: [
+|—————Node:] Text: ]
+|———Node:= Text: =
+|———Node:initializer_list Text: {"", "ERROR", "WARN", "INFO"}
+|————Node:{ Text: {
+|————Node:string_literal Text: ""
+|—————Node:" Text: "
+|—————Node:" Text: "
+|————Node:, Text: ,
+|————Node:string_literal Text: "ERROR"
+|—————Node:" Text: "
+|—————Node:string_content Text: ERROR
+|—————Node:" Text: "
+|————Node:, Text: ,
+|————Node:string_literal Text: "WARN"
+|—————Node:" Text: "
+|—————Node:string_content Text: WARN
+|—————Node:" Text: "
+|————Node:, Text: ,
+|————Node:string_literal Text: "INFO"
+|—————Node:" Text: "
+|—————Node:string_content Text: INFO
+|—————Node:" Text: "
+|————Node:} Text: }
+|——Node:; Text: ;
+|—Node:template_declaration Text: template<int level>
+void canbus::canbus_log(const char *msg) {
+    if(level >= 1 && level <= 3 && DEBUG_LEVEL >= level) {
+        printf("[canbus] [%s]: %s\n", debug_lvls[level], msg);
+    }
+}
+|——Node:template Text: template
+|——Node:template_parameter_list Text: <int level>
+|———Node:< Text: <
+|———Node:parameter_declaration Text: int level
+|————Node:primitive_type Text: int
+|————Node:identifier Text: level
+|———Node:> Text: >
+|——Node:function_definition Text: void canbus::canbus_log(const char *msg) {
+    if(level >= 1 && level <= 3 && DEBUG_LEVEL >= level) {
+        printf("[canbus] [%s]: %s\n", debug_lvls[level], msg);
+    }
+}
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: canbus::canbus_log(const char *msg)
+|————Node:qualified_identifier Text: canbus::canbus_log
+|—————Node:namespace_identifier Text: canbus
+|—————Node::: Text: ::
+|—————Node:identifier Text: canbus_log
+|————Node:parameter_list Text: (const char *msg)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const char *msg
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: char
+|——————Node:pointer_declarator Text: *msg
+|———————Node:* Text: *
+|———————Node:identifier Text: msg
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+    if(level >= 1 && level <= 3 && DEBUG_LEVEL >= level) {
+        printf("[canbus] [%s]: %s\n", debug_lvls[level], msg);
+    }
+}
+|————Node:{ Text: {
+|————Node:if_statement Text: if(level >= 1 && level <= 3 && DEBUG_LEVEL >= level) {
+        printf("[canbus] [%s]: %s\n", debug_lvls[level], msg);
+    }
+|—————Node:if Text: if
+|—————Node:condition_clause Text: (level >= 1 && level <= 3 && DEBUG_LEVEL >= level)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: level >= 1 && level <= 3 && DEBUG_LEVEL >= level
+|———————Node:binary_expression Text: level >= 1 && level <= 3
+|————————Node:binary_expression Text: level >= 1
+|—————————Node:identifier Text: level
+|—————————Node:>= Text: >=
+|—————————Node:number_literal Text: 1
+|————————Node:&& Text: &&
+|————————Node:binary_expression Text: level <= 3
+|—————————Node:identifier Text: level
+|—————————Node:<= Text: <=
+|—————————Node:number_literal Text: 3
+|———————Node:&& Text: &&
+|———————Node:binary_expression Text: DEBUG_LEVEL >= level
+|————————Node:identifier Text: DEBUG_LEVEL
+|————————Node:>= Text: >=
+|————————Node:identifier Text: level
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+        printf("[canbus] [%s]: %s\n", debug_lvls[level], msg);
+    }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: printf("[canbus] [%s]: %s\n", debug_lvls[level], msg);
+|———————Node:call_expression Text: printf("[canbus] [%s]: %s\n", debug_lvls[level], msg)
+|————————Node:identifier Text: printf
+|————————Node:argument_list Text: ("[canbus] [%s]: %s\n", debug_lvls[level], msg)
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "[canbus] [%s]: %s\n"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: [canbus] [%s]: %s
+|——————————Node:escape_sequence Text: \n
+|——————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:subscript_expression Text: debug_lvls[level]
+|——————————Node:identifier Text: debug_lvls
+|——————————Node:subscript_argument_list Text: [level]
+|———————————Node:[ Text: [
+|———————————Node:identifier Text: level
+|———————————Node:] Text: ]
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: msg
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:} Text: }
+|—Node:function_definition Text: void canbus::canbus_errno(const char *msg) {
+    if(DEBUG_LEVEL >= CANBUS_ERR) {
+        printf("[canbus] [ERROR] [syscall] %s: %s\n", msg, strerror(errno));
+    }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: canbus::canbus_errno(const char *msg)
+|———Node:qualified_identifier Text: canbus::canbus_errno
+|————Node:namespace_identifier Text: canbus
+|————Node::: Text: ::
+|————Node:identifier Text: canbus_errno
+|———Node:parameter_list Text: (const char *msg)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: const char *msg
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: *msg
+|——————Node:* Text: *
+|——————Node:identifier Text: msg
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if(DEBUG_LEVEL >= CANBUS_ERR) {
+        printf("[canbus] [ERROR] [syscall] %s: %s\n", msg, strerror(errno));
+    }
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if(DEBUG_LEVEL >= CANBUS_ERR) {
+        printf("[canbus] [ERROR] [syscall] %s: %s\n", msg, strerror(errno));
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (DEBUG_LEVEL >= CANBUS_ERR)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: DEBUG_LEVEL >= CANBUS_ERR
+|——————Node:identifier Text: DEBUG_LEVEL
+|——————Node:>= Text: >=
+|——————Node:identifier Text: CANBUS_ERR
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        printf("[canbus] [ERROR] [syscall] %s: %s\n", msg, strerror(errno));
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: printf("[canbus] [ERROR] [syscall] %s: %s\n", msg, strerror(errno));
+|——————Node:call_expression Text: printf("[canbus] [ERROR] [syscall] %s: %s\n", msg, strerror(errno))
+|———————Node:identifier Text: printf
+|———————Node:argument_list Text: ("[canbus] [ERROR] [syscall] %s: %s\n", msg, strerror(errno))
+|————————Node:( Text: (
+|————————Node:string_literal Text: "[canbus] [ERROR] [syscall] %s: %s\n"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: [canbus] [ERROR] [syscall] %s: %s
+|—————————Node:escape_sequence Text: \n
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:identifier Text: msg
+|————————Node:, Text: ,
+|————————Node:call_expression Text: strerror(errno)
+|—————————Node:identifier Text: strerror
+|—————————Node:argument_list Text: (errno)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: errno
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:function_definition Text: bool canbus::begin() {
+    struct ifreq ifr = {};
+    struct sockaddr_can addr;
+
+    if((can_sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
+        canbus_errno("socket open failed");
+        return false;
+    }
+
+    strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
+    if(ioctl(can_sockfd, SIOCGIFINDEX, &ifr) < 0) {
+        canbus_errno("ioctl get interface index failed");
+        return false;
+    }
+
+    addr.can_family = AF_CAN;
+    addr.can_ifindex = ifr.ifr_ifindex;
+
+    if(bind(can_sockfd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+        canbus_errno("bind to socket failed");
+        return false;
+    }
+
+    canbus_log<CANBUS_INFO>("socket opened");
+
+    return true;
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: canbus::begin()
+|———Node:qualified_identifier Text: canbus::begin
+|————Node:namespace_identifier Text: canbus
+|————Node::: Text: ::
+|————Node:identifier Text: begin
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    struct ifreq ifr = {};
+    struct sockaddr_can addr;
+
+    if((can_sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
+        canbus_errno("socket open failed");
+        return false;
+    }
+
+    strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
+    if(ioctl(can_sockfd, SIOCGIFINDEX, &ifr) < 0) {
+        canbus_errno("ioctl get interface index failed");
+        return false;
+    }
+
+    addr.can_family = AF_CAN;
+    addr.can_ifindex = ifr.ifr_ifindex;
+
+    if(bind(can_sockfd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+        canbus_errno("bind to socket failed");
+        return false;
+    }
+
+    canbus_log<CANBUS_INFO>("socket opened");
+
+    return true;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: struct ifreq ifr = {};
+|————Node:struct_specifier Text: struct ifreq
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: ifreq
+|————Node:init_declarator Text: ifr = {}
+|—————Node:identifier Text: ifr
+|—————Node:= Text: =
+|—————Node:initializer_list Text: {}
+|——————Node:{ Text: {
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:declaration Text: struct sockaddr_can addr;
+|————Node:struct_specifier Text: struct sockaddr_can
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: sockaddr_can
+|————Node:identifier Text: addr
+|————Node:; Text: ;
+|———Node:if_statement Text: if((can_sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
+        canbus_errno("socket open failed");
+        return false;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: ((can_sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: (can_sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0
+|——————Node:parenthesized_expression Text: (can_sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW))
+|———————Node:( Text: (
+|———————Node:assignment_expression Text: can_sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW)
+|————————Node:identifier Text: can_sockfd
+|————————Node:= Text: =
+|————————Node:call_expression Text: socket(PF_CAN, SOCK_RAW, CAN_RAW)
+|—————————Node:identifier Text: socket
+|—————————Node:argument_list Text: (PF_CAN, SOCK_RAW, CAN_RAW)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: PF_CAN
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: SOCK_RAW
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: CAN_RAW
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:< Text: <
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        canbus_errno("socket open failed");
+        return false;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: canbus_errno("socket open failed");
+|——————Node:call_expression Text: canbus_errno("socket open failed")
+|———————Node:identifier Text: canbus_errno
+|———————Node:argument_list Text: ("socket open failed")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "socket open failed"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: socket open failed
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return false;
+|——————Node:return Text: return
+|——————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
+|————Node:call_expression Text: strncpy(ifr.ifr_name, ifname, IFNAMSIZ)
+|—————Node:identifier Text: strncpy
+|—————Node:argument_list Text: (ifr.ifr_name, ifname, IFNAMSIZ)
+|——————Node:( Text: (
+|——————Node:field_expression Text: ifr.ifr_name
+|———————Node:identifier Text: ifr
+|———————Node:. Text: .
+|———————Node:field_identifier Text: ifr_name
+|——————Node:, Text: ,
+|——————Node:identifier Text: ifname
+|——————Node:, Text: ,
+|——————Node:identifier Text: IFNAMSIZ
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if(ioctl(can_sockfd, SIOCGIFINDEX, &ifr) < 0) {
+        canbus_errno("ioctl get interface index failed");
+        return false;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (ioctl(can_sockfd, SIOCGIFINDEX, &ifr) < 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: ioctl(can_sockfd, SIOCGIFINDEX, &ifr) < 0
+|——————Node:call_expression Text: ioctl(can_sockfd, SIOCGIFINDEX, &ifr)
+|———————Node:identifier Text: ioctl
+|———————Node:argument_list Text: (can_sockfd, SIOCGIFINDEX, &ifr)
+|————————Node:( Text: (
+|————————Node:identifier Text: can_sockfd
+|————————Node:, Text: ,
+|————————Node:identifier Text: SIOCGIFINDEX
+|————————Node:, Text: ,
+|————————Node:pointer_expression Text: &ifr
+|—————————Node:& Text: &
+|—————————Node:identifier Text: ifr
+|————————Node:) Text: )
+|——————Node:< Text: <
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        canbus_errno("ioctl get interface index failed");
+        return false;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: canbus_errno("ioctl get interface index failed");
+|——————Node:call_expression Text: canbus_errno("ioctl get interface index failed")
+|———————Node:identifier Text: canbus_errno
+|———————Node:argument_list Text: ("ioctl get interface index failed")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "ioctl get interface index failed"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: ioctl get interface index failed
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return false;
+|——————Node:return Text: return
+|——————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: addr.can_family = AF_CAN;
+|————Node:assignment_expression Text: addr.can_family = AF_CAN
+|—————Node:field_expression Text: addr.can_family
+|——————Node:identifier Text: addr
+|——————Node:. Text: .
+|——————Node:field_identifier Text: can_family
+|—————Node:= Text: =
+|—————Node:identifier Text: AF_CAN
+|————Node:; Text: ;
+|———Node:expression_statement Text: addr.can_ifindex = ifr.ifr_ifindex;
+|————Node:assignment_expression Text: addr.can_ifindex = ifr.ifr_ifindex
+|—————Node:field_expression Text: addr.can_ifindex
+|——————Node:identifier Text: addr
+|——————Node:. Text: .
+|——————Node:field_identifier Text: can_ifindex
+|—————Node:= Text: =
+|—————Node:field_expression Text: ifr.ifr_ifindex
+|——————Node:identifier Text: ifr
+|——————Node:. Text: .
+|——————Node:field_identifier Text: ifr_ifindex
+|————Node:; Text: ;
+|———Node:if_statement Text: if(bind(can_sockfd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+        canbus_errno("bind to socket failed");
+        return false;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (bind(can_sockfd, (struct sockaddr *) &addr, sizeof(addr)) < 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: bind(can_sockfd, (struct sockaddr *) &addr, sizeof(addr)) < 0
+|——————Node:call_expression Text: bind(can_sockfd, (struct sockaddr *) &addr, sizeof(addr))
+|———————Node:identifier Text: bind
+|———————Node:argument_list Text: (can_sockfd, (struct sockaddr *) &addr, sizeof(addr))
+|————————Node:( Text: (
+|————————Node:identifier Text: can_sockfd
+|————————Node:, Text: ,
+|————————Node:cast_expression Text: (struct sockaddr *) &addr
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: struct sockaddr *
+|——————————Node:struct_specifier Text: struct sockaddr
+|———————————Node:struct Text: struct
+|———————————Node:type_identifier Text: sockaddr
+|——————————Node:abstract_pointer_declarator Text: *
+|———————————Node:* Text: *
+|—————————Node:) Text: )
+|—————————Node:pointer_expression Text: &addr
+|——————————Node:& Text: &
+|——————————Node:identifier Text: addr
+|————————Node:, Text: ,
+|————————Node:sizeof_expression Text: sizeof(addr)
+|—————————Node:sizeof Text: sizeof
+|—————————Node:parenthesized_expression Text: (addr)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: addr
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:< Text: <
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        canbus_errno("bind to socket failed");
+        return false;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: canbus_errno("bind to socket failed");
+|——————Node:call_expression Text: canbus_errno("bind to socket failed")
+|———————Node:identifier Text: canbus_errno
+|———————Node:argument_list Text: ("bind to socket failed")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "bind to socket failed"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: bind to socket failed
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return false;
+|——————Node:return Text: return
+|——————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: canbus_log<CANBUS_INFO>("socket opened");
+|————Node:call_expression Text: canbus_log<CANBUS_INFO>("socket opened")
+|—————Node:template_function Text: canbus_log<CANBUS_INFO>
+|——————Node:identifier Text: canbus_log
+|——————Node:template_argument_list Text: <CANBUS_INFO>
+|———————Node:< Text: <
+|———————Node:type_descriptor Text: CANBUS_INFO
+|————————Node:type_identifier Text: CANBUS_INFO
+|———————Node:> Text: >
+|—————Node:argument_list Text: ("socket opened")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "socket opened"
+|———————Node:" Text: "
+|———————Node:string_content Text: socket opened
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return true;
+|————Node:return Text: return
+|————Node:true Text: true
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: bool canbus::send(uint32_t id, uint8_t *arr, uint8_t len, bool id_ext) {
+    if(len > CAN_MAX_DLEN) {
+        canbus_log<CANBUS_ERR>("length > CAN MTU");
+        return false;
+    }
+    if(!check_id(id, id_ext)) {
+        canbus_log<CANBUS_ERR>("id invalid");
+        return false;
+    }
+
+    can_frame frame = {};
+    frame.can_id = id;
+    if(id_ext) {
+        frame.can_id |= CAN_EFF_FLAG;
+    }
+    frame.can_dlc = len;
+    memcpy(frame.data, arr, len);
+
+    int ret = write(can_sockfd, &frame, sizeof(can_frame));
+    if(ret < 0) {
+        canbus_errno("write failed");
+        return false;
+    }
+    if(ret != sizeof(can_frame)) {
+        canbus_log<CANBUS_ERR>("incomplete write");
+        return false;
+    }
+
+    return true;
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: canbus::send(uint32_t id, uint8_t *arr, uint8_t len, bool id_ext)
+|———Node:qualified_identifier Text: canbus::send
+|————Node:namespace_identifier Text: canbus
+|————Node::: Text: ::
+|————Node:identifier Text: send
+|———Node:parameter_list Text: (uint32_t id, uint8_t *arr, uint8_t len, bool id_ext)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint32_t id
+|—————Node:primitive_type Text: uint32_t
+|—————Node:identifier Text: id
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint8_t *arr
+|—————Node:primitive_type Text: uint8_t
+|—————Node:pointer_declarator Text: *arr
+|——————Node:* Text: *
+|——————Node:identifier Text: arr
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint8_t len
+|—————Node:primitive_type Text: uint8_t
+|—————Node:identifier Text: len
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: bool id_ext
+|—————Node:primitive_type Text: bool
+|—————Node:identifier Text: id_ext
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if(len > CAN_MAX_DLEN) {
+        canbus_log<CANBUS_ERR>("length > CAN MTU");
+        return false;
+    }
+    if(!check_id(id, id_ext)) {
+        canbus_log<CANBUS_ERR>("id invalid");
+        return false;
+    }
+
+    can_frame frame = {};
+    frame.can_id = id;
+    if(id_ext) {
+        frame.can_id |= CAN_EFF_FLAG;
+    }
+    frame.can_dlc = len;
+    memcpy(frame.data, arr, len);
+
+    int ret = write(can_sockfd, &frame, sizeof(can_frame));
+    if(ret < 0) {
+        canbus_errno("write failed");
+        return false;
+    }
+    if(ret != sizeof(can_frame)) {
+        canbus_log<CANBUS_ERR>("incomplete write");
+        return false;
+    }
+
+    return true;
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if(len > CAN_MAX_DLEN) {
+        canbus_log<CANBUS_ERR>("length > CAN MTU");
+        return false;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (len > CAN_MAX_DLEN)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: len > CAN_MAX_DLEN
+|——————Node:identifier Text: len
+|——————Node:> Text: >
+|——————Node:identifier Text: CAN_MAX_DLEN
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        canbus_log<CANBUS_ERR>("length > CAN MTU");
+        return false;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: canbus_log<CANBUS_ERR>("length > CAN MTU");
+|——————Node:call_expression Text: canbus_log<CANBUS_ERR>("length > CAN MTU")
+|———————Node:template_function Text: canbus_log<CANBUS_ERR>
+|————————Node:identifier Text: canbus_log
+|————————Node:template_argument_list Text: <CANBUS_ERR>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: CANBUS_ERR
+|——————————Node:type_identifier Text: CANBUS_ERR
+|—————————Node:> Text: >
+|———————Node:argument_list Text: ("length > CAN MTU")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "length > CAN MTU"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: length > CAN MTU
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return false;
+|——————Node:return Text: return
+|——————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if(!check_id(id, id_ext)) {
+        canbus_log<CANBUS_ERR>("id invalid");
+        return false;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (!check_id(id, id_ext))
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !check_id(id, id_ext)
+|——————Node:! Text: !
+|——————Node:call_expression Text: check_id(id, id_ext)
+|———————Node:identifier Text: check_id
+|———————Node:argument_list Text: (id, id_ext)
+|————————Node:( Text: (
+|————————Node:identifier Text: id
+|————————Node:, Text: ,
+|————————Node:identifier Text: id_ext
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        canbus_log<CANBUS_ERR>("id invalid");
+        return false;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: canbus_log<CANBUS_ERR>("id invalid");
+|——————Node:call_expression Text: canbus_log<CANBUS_ERR>("id invalid")
+|———————Node:template_function Text: canbus_log<CANBUS_ERR>
+|————————Node:identifier Text: canbus_log
+|————————Node:template_argument_list Text: <CANBUS_ERR>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: CANBUS_ERR
+|——————————Node:type_identifier Text: CANBUS_ERR
+|—————————Node:> Text: >
+|———————Node:argument_list Text: ("id invalid")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "id invalid"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: id invalid
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return false;
+|——————Node:return Text: return
+|——————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:declaration Text: can_frame frame = {};
+|————Node:type_identifier Text: can_frame
+|————Node:init_declarator Text: frame = {}
+|—————Node:identifier Text: frame
+|—————Node:= Text: =
+|—————Node:initializer_list Text: {}
+|——————Node:{ Text: {
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:expression_statement Text: frame.can_id = id;
+|————Node:assignment_expression Text: frame.can_id = id
+|—————Node:field_expression Text: frame.can_id
+|——————Node:identifier Text: frame
+|——————Node:. Text: .
+|——————Node:field_identifier Text: can_id
+|—————Node:= Text: =
+|—————Node:identifier Text: id
+|————Node:; Text: ;
+|———Node:if_statement Text: if(id_ext) {
+        frame.can_id |= CAN_EFF_FLAG;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (id_ext)
+|—————Node:( Text: (
+|—————Node:identifier Text: id_ext
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        frame.can_id |= CAN_EFF_FLAG;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: frame.can_id |= CAN_EFF_FLAG;
+|——————Node:assignment_expression Text: frame.can_id |= CAN_EFF_FLAG
+|———————Node:field_expression Text: frame.can_id
+|————————Node:identifier Text: frame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: can_id
+|———————Node:|= Text: |=
+|———————Node:identifier Text: CAN_EFF_FLAG
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: frame.can_dlc = len;
+|————Node:assignment_expression Text: frame.can_dlc = len
+|—————Node:field_expression Text: frame.can_dlc
+|——————Node:identifier Text: frame
+|——————Node:. Text: .
+|——————Node:field_identifier Text: can_dlc
+|—————Node:= Text: =
+|—————Node:identifier Text: len
+|————Node:; Text: ;
+|———Node:expression_statement Text: memcpy(frame.data, arr, len);
+|————Node:call_expression Text: memcpy(frame.data, arr, len)
+|—————Node:identifier Text: memcpy
+|—————Node:argument_list Text: (frame.data, arr, len)
+|——————Node:( Text: (
+|——————Node:field_expression Text: frame.data
+|———————Node:identifier Text: frame
+|———————Node:. Text: .
+|———————Node:field_identifier Text: data
+|——————Node:, Text: ,
+|——————Node:identifier Text: arr
+|——————Node:, Text: ,
+|——————Node:identifier Text: len
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: int ret = write(can_sockfd, &frame, sizeof(can_frame));
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: ret = write(can_sockfd, &frame, sizeof(can_frame))
+|—————Node:identifier Text: ret
+|—————Node:= Text: =
+|—————Node:call_expression Text: write(can_sockfd, &frame, sizeof(can_frame))
+|——————Node:identifier Text: write
+|——————Node:argument_list Text: (can_sockfd, &frame, sizeof(can_frame))
+|———————Node:( Text: (
+|———————Node:identifier Text: can_sockfd
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &frame
+|————————Node:& Text: &
+|————————Node:identifier Text: frame
+|———————Node:, Text: ,
+|———————Node:sizeof_expression Text: sizeof(can_frame)
+|————————Node:sizeof Text: sizeof
+|————————Node:parenthesized_expression Text: (can_frame)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: can_frame
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if(ret < 0) {
+        canbus_errno("write failed");
+        return false;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (ret < 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: ret < 0
+|——————Node:identifier Text: ret
+|——————Node:< Text: <
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        canbus_errno("write failed");
+        return false;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: canbus_errno("write failed");
+|——————Node:call_expression Text: canbus_errno("write failed")
+|———————Node:identifier Text: canbus_errno
+|———————Node:argument_list Text: ("write failed")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "write failed"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: write failed
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return false;
+|——————Node:return Text: return
+|——————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if(ret != sizeof(can_frame)) {
+        canbus_log<CANBUS_ERR>("incomplete write");
+        return false;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (ret != sizeof(can_frame))
+|—————Node:( Text: (
+|—————Node:binary_expression Text: ret != sizeof(can_frame)
+|——————Node:identifier Text: ret
+|——————Node:!= Text: !=
+|——————Node:sizeof_expression Text: sizeof(can_frame)
+|———————Node:sizeof Text: sizeof
+|———————Node:parenthesized_expression Text: (can_frame)
+|————————Node:( Text: (
+|————————Node:identifier Text: can_frame
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        canbus_log<CANBUS_ERR>("incomplete write");
+        return false;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: canbus_log<CANBUS_ERR>("incomplete write");
+|——————Node:call_expression Text: canbus_log<CANBUS_ERR>("incomplete write")
+|———————Node:template_function Text: canbus_log<CANBUS_ERR>
+|————————Node:identifier Text: canbus_log
+|————————Node:template_argument_list Text: <CANBUS_ERR>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: CANBUS_ERR
+|——————————Node:type_identifier Text: CANBUS_ERR
+|—————————Node:> Text: >
+|———————Node:argument_list Text: ("incomplete write")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "incomplete write"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: incomplete write
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return false;
+|——————Node:return Text: return
+|——————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return true;
+|————Node:return Text: return
+|————Node:true Text: true
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: bool canbus::request(uint32_t id, uint8_t len, bool id_ext) {
+    if(len > CAN_MAX_DLEN) {
+        canbus_log<CANBUS_ERR>("length > CAN MTU");
+        return false;
+    }
+
+    if(!check_id(id, id_ext)) {
+        canbus_log<CANBUS_ERR>("id invalid");
+        return false;
+    }
+
+    can_frame frame = {};
+    frame.can_id = id | CAN_RTR_FLAG;
+    if(id_ext) {
+        frame.can_id |= CAN_EFF_FLAG;
+    }
+    frame.can_dlc = len;
+
+    int ret = write(can_sockfd, &frame, sizeof(can_frame));
+    if(ret < 0) {
+        canbus_errno("write failed");
+        return false;
+    }
+    if(ret != sizeof(can_frame)) {
+        canbus_log<CANBUS_ERR>("incomplete write");
+        return false;
+    }
+    return true;
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: canbus::request(uint32_t id, uint8_t len, bool id_ext)
+|———Node:qualified_identifier Text: canbus::request
+|————Node:namespace_identifier Text: canbus
+|————Node::: Text: ::
+|————Node:identifier Text: request
+|———Node:parameter_list Text: (uint32_t id, uint8_t len, bool id_ext)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint32_t id
+|—————Node:primitive_type Text: uint32_t
+|—————Node:identifier Text: id
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint8_t len
+|—————Node:primitive_type Text: uint8_t
+|—————Node:identifier Text: len
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: bool id_ext
+|—————Node:primitive_type Text: bool
+|—————Node:identifier Text: id_ext
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if(len > CAN_MAX_DLEN) {
+        canbus_log<CANBUS_ERR>("length > CAN MTU");
+        return false;
+    }
+
+    if(!check_id(id, id_ext)) {
+        canbus_log<CANBUS_ERR>("id invalid");
+        return false;
+    }
+
+    can_frame frame = {};
+    frame.can_id = id | CAN_RTR_FLAG;
+    if(id_ext) {
+        frame.can_id |= CAN_EFF_FLAG;
+    }
+    frame.can_dlc = len;
+
+    int ret = write(can_sockfd, &frame, sizeof(can_frame));
+    if(ret < 0) {
+        canbus_errno("write failed");
+        return false;
+    }
+    if(ret != sizeof(can_frame)) {
+        canbus_log<CANBUS_ERR>("incomplete write");
+        return false;
+    }
+    return true;
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if(len > CAN_MAX_DLEN) {
+        canbus_log<CANBUS_ERR>("length > CAN MTU");
+        return false;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (len > CAN_MAX_DLEN)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: len > CAN_MAX_DLEN
+|——————Node:identifier Text: len
+|——————Node:> Text: >
+|——————Node:identifier Text: CAN_MAX_DLEN
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        canbus_log<CANBUS_ERR>("length > CAN MTU");
+        return false;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: canbus_log<CANBUS_ERR>("length > CAN MTU");
+|——————Node:call_expression Text: canbus_log<CANBUS_ERR>("length > CAN MTU")
+|———————Node:template_function Text: canbus_log<CANBUS_ERR>
+|————————Node:identifier Text: canbus_log
+|————————Node:template_argument_list Text: <CANBUS_ERR>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: CANBUS_ERR
+|——————————Node:type_identifier Text: CANBUS_ERR
+|—————————Node:> Text: >
+|———————Node:argument_list Text: ("length > CAN MTU")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "length > CAN MTU"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: length > CAN MTU
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return false;
+|——————Node:return Text: return
+|——————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if(!check_id(id, id_ext)) {
+        canbus_log<CANBUS_ERR>("id invalid");
+        return false;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (!check_id(id, id_ext))
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !check_id(id, id_ext)
+|——————Node:! Text: !
+|——————Node:call_expression Text: check_id(id, id_ext)
+|———————Node:identifier Text: check_id
+|———————Node:argument_list Text: (id, id_ext)
+|————————Node:( Text: (
+|————————Node:identifier Text: id
+|————————Node:, Text: ,
+|————————Node:identifier Text: id_ext
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        canbus_log<CANBUS_ERR>("id invalid");
+        return false;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: canbus_log<CANBUS_ERR>("id invalid");
+|——————Node:call_expression Text: canbus_log<CANBUS_ERR>("id invalid")
+|———————Node:template_function Text: canbus_log<CANBUS_ERR>
+|————————Node:identifier Text: canbus_log
+|————————Node:template_argument_list Text: <CANBUS_ERR>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: CANBUS_ERR
+|——————————Node:type_identifier Text: CANBUS_ERR
+|—————————Node:> Text: >
+|———————Node:argument_list Text: ("id invalid")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "id invalid"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: id invalid
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return false;
+|——————Node:return Text: return
+|——————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:declaration Text: can_frame frame = {};
+|————Node:type_identifier Text: can_frame
+|————Node:init_declarator Text: frame = {}
+|—————Node:identifier Text: frame
+|—————Node:= Text: =
+|—————Node:initializer_list Text: {}
+|——————Node:{ Text: {
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:expression_statement Text: frame.can_id = id | CAN_RTR_FLAG;
+|————Node:assignment_expression Text: frame.can_id = id | CAN_RTR_FLAG
+|—————Node:field_expression Text: frame.can_id
+|——————Node:identifier Text: frame
+|——————Node:. Text: .
+|——————Node:field_identifier Text: can_id
+|—————Node:= Text: =
+|—————Node:binary_expression Text: id | CAN_RTR_FLAG
+|——————Node:identifier Text: id
+|——————Node:| Text: |
+|——————Node:identifier Text: CAN_RTR_FLAG
+|————Node:; Text: ;
+|———Node:if_statement Text: if(id_ext) {
+        frame.can_id |= CAN_EFF_FLAG;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (id_ext)
+|—————Node:( Text: (
+|—————Node:identifier Text: id_ext
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        frame.can_id |= CAN_EFF_FLAG;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: frame.can_id |= CAN_EFF_FLAG;
+|——————Node:assignment_expression Text: frame.can_id |= CAN_EFF_FLAG
+|———————Node:field_expression Text: frame.can_id
+|————————Node:identifier Text: frame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: can_id
+|———————Node:|= Text: |=
+|———————Node:identifier Text: CAN_EFF_FLAG
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: frame.can_dlc = len;
+|————Node:assignment_expression Text: frame.can_dlc = len
+|—————Node:field_expression Text: frame.can_dlc
+|——————Node:identifier Text: frame
+|——————Node:. Text: .
+|——————Node:field_identifier Text: can_dlc
+|—————Node:= Text: =
+|—————Node:identifier Text: len
+|————Node:; Text: ;
+|———Node:declaration Text: int ret = write(can_sockfd, &frame, sizeof(can_frame));
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: ret = write(can_sockfd, &frame, sizeof(can_frame))
+|—————Node:identifier Text: ret
+|—————Node:= Text: =
+|—————Node:call_expression Text: write(can_sockfd, &frame, sizeof(can_frame))
+|——————Node:identifier Text: write
+|——————Node:argument_list Text: (can_sockfd, &frame, sizeof(can_frame))
+|———————Node:( Text: (
+|———————Node:identifier Text: can_sockfd
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &frame
+|————————Node:& Text: &
+|————————Node:identifier Text: frame
+|———————Node:, Text: ,
+|———————Node:sizeof_expression Text: sizeof(can_frame)
+|————————Node:sizeof Text: sizeof
+|————————Node:parenthesized_expression Text: (can_frame)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: can_frame
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if(ret < 0) {
+        canbus_errno("write failed");
+        return false;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (ret < 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: ret < 0
+|——————Node:identifier Text: ret
+|——————Node:< Text: <
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        canbus_errno("write failed");
+        return false;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: canbus_errno("write failed");
+|——————Node:call_expression Text: canbus_errno("write failed")
+|———————Node:identifier Text: canbus_errno
+|———————Node:argument_list Text: ("write failed")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "write failed"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: write failed
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return false;
+|——————Node:return Text: return
+|——————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if(ret != sizeof(can_frame)) {
+        canbus_log<CANBUS_ERR>("incomplete write");
+        return false;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (ret != sizeof(can_frame))
+|—————Node:( Text: (
+|—————Node:binary_expression Text: ret != sizeof(can_frame)
+|——————Node:identifier Text: ret
+|——————Node:!= Text: !=
+|——————Node:sizeof_expression Text: sizeof(can_frame)
+|———————Node:sizeof Text: sizeof
+|———————Node:parenthesized_expression Text: (can_frame)
+|————————Node:( Text: (
+|————————Node:identifier Text: can_frame
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        canbus_log<CANBUS_ERR>("incomplete write");
+        return false;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: canbus_log<CANBUS_ERR>("incomplete write");
+|——————Node:call_expression Text: canbus_log<CANBUS_ERR>("incomplete write")
+|———————Node:template_function Text: canbus_log<CANBUS_ERR>
+|————————Node:identifier Text: canbus_log
+|————————Node:template_argument_list Text: <CANBUS_ERR>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: CANBUS_ERR
+|——————————Node:type_identifier Text: CANBUS_ERR
+|—————————Node:> Text: >
+|———————Node:argument_list Text: ("incomplete write")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "incomplete write"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: incomplete write
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return false;
+|——————Node:return Text: return
+|——————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return true;
+|————Node:return Text: return
+|————Node:true Text: true
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: bool canbus::filter(can_filter *filters, size_t nfilters) {
+    if(setsockopt(can_sockfd, SOL_CAN_RAW, CAN_RAW_FILTER, filters, nfilters * sizeof(can_filter)) < 0) {
+        canbus_errno("setsockopt filter failed");
+        return false;
+    }
+
+    canbus_log<CANBUS_INFO>("Filter changed");
+
+    return true;
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: canbus::filter(can_filter *filters, size_t nfilters)
+|———Node:qualified_identifier Text: canbus::filter
+|————Node:namespace_identifier Text: canbus
+|————Node::: Text: ::
+|————Node:identifier Text: filter
+|———Node:parameter_list Text: (can_filter *filters, size_t nfilters)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: can_filter *filters
+|—————Node:type_identifier Text: can_filter
+|—————Node:pointer_declarator Text: *filters
+|——————Node:* Text: *
+|——————Node:identifier Text: filters
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: size_t nfilters
+|—————Node:primitive_type Text: size_t
+|—————Node:identifier Text: nfilters
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if(setsockopt(can_sockfd, SOL_CAN_RAW, CAN_RAW_FILTER, filters, nfilters * sizeof(can_filter)) < 0) {
+        canbus_errno("setsockopt filter failed");
+        return false;
+    }
+
+    canbus_log<CANBUS_INFO>("Filter changed");
+
+    return true;
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if(setsockopt(can_sockfd, SOL_CAN_RAW, CAN_RAW_FILTER, filters, nfilters * sizeof(can_filter)) < 0) {
+        canbus_errno("setsockopt filter failed");
+        return false;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (setsockopt(can_sockfd, SOL_CAN_RAW, CAN_RAW_FILTER, filters, nfilters * sizeof(can_filter)) < 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: setsockopt(can_sockfd, SOL_CAN_RAW, CAN_RAW_FILTER, filters, nfilters * sizeof(can_filter)) < 0
+|——————Node:call_expression Text: setsockopt(can_sockfd, SOL_CAN_RAW, CAN_RAW_FILTER, filters, nfilters * sizeof(can_filter))
+|———————Node:identifier Text: setsockopt
+|———————Node:argument_list Text: (can_sockfd, SOL_CAN_RAW, CAN_RAW_FILTER, filters, nfilters * sizeof(can_filter))
+|————————Node:( Text: (
+|————————Node:identifier Text: can_sockfd
+|————————Node:, Text: ,
+|————————Node:identifier Text: SOL_CAN_RAW
+|————————Node:, Text: ,
+|————————Node:identifier Text: CAN_RAW_FILTER
+|————————Node:, Text: ,
+|————————Node:identifier Text: filters
+|————————Node:, Text: ,
+|————————Node:binary_expression Text: nfilters * sizeof(can_filter)
+|—————————Node:identifier Text: nfilters
+|—————————Node:* Text: *
+|—————————Node:sizeof_expression Text: sizeof(can_filter)
+|——————————Node:sizeof Text: sizeof
+|——————————Node:parenthesized_expression Text: (can_filter)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: can_filter
+|———————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:< Text: <
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        canbus_errno("setsockopt filter failed");
+        return false;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: canbus_errno("setsockopt filter failed");
+|——————Node:call_expression Text: canbus_errno("setsockopt filter failed")
+|———————Node:identifier Text: canbus_errno
+|———————Node:argument_list Text: ("setsockopt filter failed")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "setsockopt filter failed"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: setsockopt filter failed
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return false;
+|——————Node:return Text: return
+|——————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: canbus_log<CANBUS_INFO>("Filter changed");
+|————Node:call_expression Text: canbus_log<CANBUS_INFO>("Filter changed")
+|—————Node:template_function Text: canbus_log<CANBUS_INFO>
+|——————Node:identifier Text: canbus_log
+|——————Node:template_argument_list Text: <CANBUS_INFO>
+|———————Node:< Text: <
+|———————Node:type_descriptor Text: CANBUS_INFO
+|————————Node:type_identifier Text: CANBUS_INFO
+|———————Node:> Text: >
+|—————Node:argument_list Text: ("Filter changed")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "Filter changed"
+|———————Node:" Text: "
+|———————Node:string_content Text: Filter changed
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return true;
+|————Node:return Text: return
+|————Node:true Text: true
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: bool canbus::recv(uint32_t *id, uint8_t *data, uint8_t *len, bool *remote_req, bool *id_ext) {
+    can_frame frame;
+    int ret = read(can_sockfd, &frame, sizeof(can_frame));
+    if(ret < 0) {
+        canbus_errno("read failed");
+        return false;
+    }
+    if(ret != sizeof(can_frame)) {
+        canbus_log<CANBUS_ERR>("incomplete read");
+        return false;
+    }
+
+    bool req = frame.can_id & CAN_RTR_FLAG;
+    bool ext = frame.can_id & CAN_EFF_FLAG;
+
+    if(id != NULL)
+        *id = frame.can_id & CAN_ERR_MASK;
+
+    if(!req && data != NULL)
+        memcpy(data, frame.data, frame.can_dlc);
+
+    if(len != NULL)
+        *len = frame.can_dlc;
+
+    if(remote_req != NULL)
+        *remote_req = req;
+
+    if(id_ext != NULL)
+        *id_ext = ext;
+
+    return true;
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: canbus::recv(uint32_t *id, uint8_t *data, uint8_t *len, bool *remote_req, bool *id_ext)
+|———Node:qualified_identifier Text: canbus::recv
+|————Node:namespace_identifier Text: canbus
+|————Node::: Text: ::
+|————Node:identifier Text: recv
+|———Node:parameter_list Text: (uint32_t *id, uint8_t *data, uint8_t *len, bool *remote_req, bool *id_ext)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint32_t *id
+|—————Node:primitive_type Text: uint32_t
+|—————Node:pointer_declarator Text: *id
+|——————Node:* Text: *
+|——————Node:identifier Text: id
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint8_t *data
+|—————Node:primitive_type Text: uint8_t
+|—————Node:pointer_declarator Text: *data
+|——————Node:* Text: *
+|——————Node:identifier Text: data
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint8_t *len
+|—————Node:primitive_type Text: uint8_t
+|—————Node:pointer_declarator Text: *len
+|——————Node:* Text: *
+|——————Node:identifier Text: len
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: bool *remote_req
+|—————Node:primitive_type Text: bool
+|—————Node:pointer_declarator Text: *remote_req
+|——————Node:* Text: *
+|——————Node:identifier Text: remote_req
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: bool *id_ext
+|—————Node:primitive_type Text: bool
+|—————Node:pointer_declarator Text: *id_ext
+|——————Node:* Text: *
+|——————Node:identifier Text: id_ext
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    can_frame frame;
+    int ret = read(can_sockfd, &frame, sizeof(can_frame));
+    if(ret < 0) {
+        canbus_errno("read failed");
+        return false;
+    }
+    if(ret != sizeof(can_frame)) {
+        canbus_log<CANBUS_ERR>("incomplete read");
+        return false;
+    }
+
+    bool req = frame.can_id & CAN_RTR_FLAG;
+    bool ext = frame.can_id & CAN_EFF_FLAG;
+
+    if(id != NULL)
+        *id = frame.can_id & CAN_ERR_MASK;
+
+    if(!req && data != NULL)
+        memcpy(data, frame.data, frame.can_dlc);
+
+    if(len != NULL)
+        *len = frame.can_dlc;
+
+    if(remote_req != NULL)
+        *remote_req = req;
+
+    if(id_ext != NULL)
+        *id_ext = ext;
+
+    return true;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: can_frame frame;
+|————Node:type_identifier Text: can_frame
+|————Node:identifier Text: frame
+|————Node:; Text: ;
+|———Node:declaration Text: int ret = read(can_sockfd, &frame, sizeof(can_frame));
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: ret = read(can_sockfd, &frame, sizeof(can_frame))
+|—————Node:identifier Text: ret
+|—————Node:= Text: =
+|—————Node:call_expression Text: read(can_sockfd, &frame, sizeof(can_frame))
+|——————Node:identifier Text: read
+|——————Node:argument_list Text: (can_sockfd, &frame, sizeof(can_frame))
+|———————Node:( Text: (
+|———————Node:identifier Text: can_sockfd
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &frame
+|————————Node:& Text: &
+|————————Node:identifier Text: frame
+|———————Node:, Text: ,
+|———————Node:sizeof_expression Text: sizeof(can_frame)
+|————————Node:sizeof Text: sizeof
+|————————Node:parenthesized_expression Text: (can_frame)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: can_frame
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if(ret < 0) {
+        canbus_errno("read failed");
+        return false;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (ret < 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: ret < 0
+|——————Node:identifier Text: ret
+|——————Node:< Text: <
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        canbus_errno("read failed");
+        return false;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: canbus_errno("read failed");
+|——————Node:call_expression Text: canbus_errno("read failed")
+|———————Node:identifier Text: canbus_errno
+|———————Node:argument_list Text: ("read failed")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "read failed"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: read failed
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return false;
+|——————Node:return Text: return
+|——————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if(ret != sizeof(can_frame)) {
+        canbus_log<CANBUS_ERR>("incomplete read");
+        return false;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (ret != sizeof(can_frame))
+|—————Node:( Text: (
+|—————Node:binary_expression Text: ret != sizeof(can_frame)
+|——————Node:identifier Text: ret
+|——————Node:!= Text: !=
+|——————Node:sizeof_expression Text: sizeof(can_frame)
+|———————Node:sizeof Text: sizeof
+|———————Node:parenthesized_expression Text: (can_frame)
+|————————Node:( Text: (
+|————————Node:identifier Text: can_frame
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        canbus_log<CANBUS_ERR>("incomplete read");
+        return false;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: canbus_log<CANBUS_ERR>("incomplete read");
+|——————Node:call_expression Text: canbus_log<CANBUS_ERR>("incomplete read")
+|———————Node:template_function Text: canbus_log<CANBUS_ERR>
+|————————Node:identifier Text: canbus_log
+|————————Node:template_argument_list Text: <CANBUS_ERR>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: CANBUS_ERR
+|——————————Node:type_identifier Text: CANBUS_ERR
+|—————————Node:> Text: >
+|———————Node:argument_list Text: ("incomplete read")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "incomplete read"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: incomplete read
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return false;
+|——————Node:return Text: return
+|——————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:declaration Text: bool req = frame.can_id & CAN_RTR_FLAG;
+|————Node:primitive_type Text: bool
+|————Node:init_declarator Text: req = frame.can_id & CAN_RTR_FLAG
+|—————Node:identifier Text: req
+|—————Node:= Text: =
+|—————Node:binary_expression Text: frame.can_id & CAN_RTR_FLAG
+|——————Node:field_expression Text: frame.can_id
+|———————Node:identifier Text: frame
+|———————Node:. Text: .
+|———————Node:field_identifier Text: can_id
+|——————Node:& Text: &
+|——————Node:identifier Text: CAN_RTR_FLAG
+|————Node:; Text: ;
+|———Node:declaration Text: bool ext = frame.can_id & CAN_EFF_FLAG;
+|————Node:primitive_type Text: bool
+|————Node:init_declarator Text: ext = frame.can_id & CAN_EFF_FLAG
+|—————Node:identifier Text: ext
+|—————Node:= Text: =
+|—————Node:binary_expression Text: frame.can_id & CAN_EFF_FLAG
+|——————Node:field_expression Text: frame.can_id
+|———————Node:identifier Text: frame
+|———————Node:. Text: .
+|———————Node:field_identifier Text: can_id
+|——————Node:& Text: &
+|——————Node:identifier Text: CAN_EFF_FLAG
+|————Node:; Text: ;
+|———Node:if_statement Text: if(id != NULL)
+        *id = frame.can_id & CAN_ERR_MASK;
+|————Node:if Text: if
+|————Node:condition_clause Text: (id != NULL)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: id != NULL
+|——————Node:identifier Text: id
+|——————Node:!= Text: !=
+|——————Node:null Text: NULL
+|———————Node:NULL Text: NULL
+|—————Node:) Text: )
+|————Node:expression_statement Text: *id = frame.can_id & CAN_ERR_MASK;
+|—————Node:assignment_expression Text: *id = frame.can_id & CAN_ERR_MASK
+|——————Node:pointer_expression Text: *id
+|———————Node:* Text: *
+|———————Node:identifier Text: id
+|——————Node:= Text: =
+|——————Node:binary_expression Text: frame.can_id & CAN_ERR_MASK
+|———————Node:field_expression Text: frame.can_id
+|————————Node:identifier Text: frame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: can_id
+|———————Node:& Text: &
+|———————Node:identifier Text: CAN_ERR_MASK
+|—————Node:; Text: ;
+|———Node:if_statement Text: if(!req && data != NULL)
+        memcpy(data, frame.data, frame.can_dlc);
+|————Node:if Text: if
+|————Node:condition_clause Text: (!req && data != NULL)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: !req && data != NULL
+|——————Node:unary_expression Text: !req
+|———————Node:! Text: !
+|———————Node:identifier Text: req
+|——————Node:&& Text: &&
+|——————Node:binary_expression Text: data != NULL
+|———————Node:identifier Text: data
+|———————Node:!= Text: !=
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|—————Node:) Text: )
+|————Node:expression_statement Text: memcpy(data, frame.data, frame.can_dlc);
+|—————Node:call_expression Text: memcpy(data, frame.data, frame.can_dlc)
+|——————Node:identifier Text: memcpy
+|——————Node:argument_list Text: (data, frame.data, frame.can_dlc)
+|———————Node:( Text: (
+|———————Node:identifier Text: data
+|———————Node:, Text: ,
+|———————Node:field_expression Text: frame.data
+|————————Node:identifier Text: frame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: data
+|———————Node:, Text: ,
+|———————Node:field_expression Text: frame.can_dlc
+|————————Node:identifier Text: frame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: can_dlc
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:if_statement Text: if(len != NULL)
+        *len = frame.can_dlc;
+|————Node:if Text: if
+|————Node:condition_clause Text: (len != NULL)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: len != NULL
+|——————Node:identifier Text: len
+|——————Node:!= Text: !=
+|——————Node:null Text: NULL
+|———————Node:NULL Text: NULL
+|—————Node:) Text: )
+|————Node:expression_statement Text: *len = frame.can_dlc;
+|—————Node:assignment_expression Text: *len = frame.can_dlc
+|——————Node:pointer_expression Text: *len
+|———————Node:* Text: *
+|———————Node:identifier Text: len
+|——————Node:= Text: =
+|——————Node:field_expression Text: frame.can_dlc
+|———————Node:identifier Text: frame
+|———————Node:. Text: .
+|———————Node:field_identifier Text: can_dlc
+|—————Node:; Text: ;
+|———Node:if_statement Text: if(remote_req != NULL)
+        *remote_req = req;
+|————Node:if Text: if
+|————Node:condition_clause Text: (remote_req != NULL)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: remote_req != NULL
+|——————Node:identifier Text: remote_req
+|——————Node:!= Text: !=
+|——————Node:null Text: NULL
+|———————Node:NULL Text: NULL
+|—————Node:) Text: )
+|————Node:expression_statement Text: *remote_req = req;
+|—————Node:assignment_expression Text: *remote_req = req
+|——————Node:pointer_expression Text: *remote_req
+|———————Node:* Text: *
+|———————Node:identifier Text: remote_req
+|——————Node:= Text: =
+|——————Node:identifier Text: req
+|—————Node:; Text: ;
+|———Node:if_statement Text: if(id_ext != NULL)
+        *id_ext = ext;
+|————Node:if Text: if
+|————Node:condition_clause Text: (id_ext != NULL)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: id_ext != NULL
+|——————Node:identifier Text: id_ext
+|——————Node:!= Text: !=
+|——————Node:null Text: NULL
+|———————Node:NULL Text: NULL
+|—————Node:) Text: )
+|————Node:expression_statement Text: *id_ext = ext;
+|—————Node:assignment_expression Text: *id_ext = ext
+|——————Node:pointer_expression Text: *id_ext
+|———————Node:* Text: *
+|———————Node:identifier Text: id_ext
+|——————Node:= Text: =
+|——————Node:identifier Text: ext
+|—————Node:; Text: ;
+|———Node:return_statement Text: return true;
+|————Node:return Text: return
+|————Node:true Text: true
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: bool canbus::check_id(uint32_t id, bool id_ext) {
+    if(id_ext) {
+        return !(id & ~CAN_EFF_MASK);
+    } else {
+        return !(id & ~CAN_SFF_MASK);
+    }
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: canbus::check_id(uint32_t id, bool id_ext)
+|———Node:qualified_identifier Text: canbus::check_id
+|————Node:namespace_identifier Text: canbus
+|————Node::: Text: ::
+|————Node:identifier Text: check_id
+|———Node:parameter_list Text: (uint32_t id, bool id_ext)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint32_t id
+|—————Node:primitive_type Text: uint32_t
+|—————Node:identifier Text: id
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: bool id_ext
+|—————Node:primitive_type Text: bool
+|—————Node:identifier Text: id_ext
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if(id_ext) {
+        return !(id & ~CAN_EFF_MASK);
+    } else {
+        return !(id & ~CAN_SFF_MASK);
+    }
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if(id_ext) {
+        return !(id & ~CAN_EFF_MASK);
+    } else {
+        return !(id & ~CAN_SFF_MASK);
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (id_ext)
+|—————Node:( Text: (
+|—————Node:identifier Text: id_ext
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        return !(id & ~CAN_EFF_MASK);
+    }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return !(id & ~CAN_EFF_MASK);
+|——————Node:return Text: return
+|——————Node:unary_expression Text: !(id & ~CAN_EFF_MASK)
+|———————Node:! Text: !
+|———————Node:parenthesized_expression Text: (id & ~CAN_EFF_MASK)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: id & ~CAN_EFF_MASK
+|—————————Node:identifier Text: id
+|—————————Node:& Text: &
+|—————————Node:unary_expression Text: ~CAN_EFF_MASK
+|——————————Node:~ Text: ~
+|——————————Node:identifier Text: CAN_EFF_MASK
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else {
+        return !(id & ~CAN_SFF_MASK);
+    }
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+        return !(id & ~CAN_SFF_MASK);
+    }
+|——————Node:{ Text: {
+|——————Node:return_statement Text: return !(id & ~CAN_SFF_MASK);
+|———————Node:return Text: return
+|———————Node:unary_expression Text: !(id & ~CAN_SFF_MASK)
+|————————Node:! Text: !
+|————————Node:parenthesized_expression Text: (id & ~CAN_SFF_MASK)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: id & ~CAN_SFF_MASK
+|——————————Node:identifier Text: id
+|——————————Node:& Text: &
+|——————————Node:unary_expression Text: ~CAN_SFF_MASK
+|———————————Node:~ Text: ~
+|———————————Node:identifier Text: CAN_SFF_MASK
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:} Text: }

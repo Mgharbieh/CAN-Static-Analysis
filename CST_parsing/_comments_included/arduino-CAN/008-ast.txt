@@ -1,0 +1,4263 @@
+arduino-CAN-src\ESP32SJA1000.cpp
+
+|Node:translation_unit
+|—Node:comment Text: // Copyright (c) Sandeep Mistry. All rights reserved.
+|—Node:comment Text: // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+|—Node:preproc_ifdef Text: #ifdef ARDUINO_ARCH_ESP32
+
+#include "esp_intr.h"
+#include "soc/dport_reg.h"
+#include "driver/gpio.h"
+
+#include "ESP32SJA1000.h"
+
+#define REG_BASE                   0x3ff6b000
+
+#define REG_MOD                    0x00
+#define REG_CMR                    0x01
+#define REG_SR                     0x02
+#define REG_IR                     0x03
+#define REG_IER                    0x04
+
+#define REG_BTR0                   0x06
+#define REG_BTR1                   0x07
+#define REG_OCR                    0x08
+
+#define REG_ALC                    0x0b
+#define REG_ECC                    0x0c
+#define REG_EWLR                   0x0d
+#define REG_RXERR                  0x0e
+#define REG_TXERR                  0x0f
+#define REG_SFF                    0x10
+#define REG_EFF                    0x10
+#define REG_ACRn(n)                (0x10 + n)
+#define REG_AMRn(n)                (0x14 + n)
+
+#define REG_CDR                    0x1F
+
+
+ESP32SJA1000Class::ESP32SJA1000Class() :
+  CANControllerClass(),
+  _rxPin(DEFAULT_CAN_RX_PIN),
+  _txPin(DEFAULT_CAN_TX_PIN),
+  _loopback(false),
+  _intrHandle(NULL)
+{
+}
+
+ESP32SJA1000Class::~ESP32SJA1000Class()
+{
+}
+
+int ESP32SJA1000Class::begin(long baudRate)
+{
+  CANControllerClass::begin(baudRate);
+
+  _loopback = false;
+
+  DPORT_CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_CAN_RST);
+  DPORT_SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_CAN_CLK_EN);
+
+  // RX pin
+  gpio_set_direction(_rxPin, GPIO_MODE_INPUT);
+  gpio_matrix_in(_rxPin, CAN_RX_IDX, 0);
+  gpio_pad_select_gpio(_rxPin);
+
+  // TX pin
+  gpio_set_direction(_txPin, GPIO_MODE_OUTPUT);
+  gpio_matrix_out(_txPin, CAN_TX_IDX, 0, 0);
+  gpio_pad_select_gpio(_txPin);
+
+  modifyRegister(REG_CDR, 0x80, 0x80); // pelican mode
+  modifyRegister(REG_BTR0, 0xc0, 0x40); // SJW = 1
+  modifyRegister(REG_BTR1, 0x70, 0x10); // TSEG2 = 1
+
+  switch (baudRate) {
+    case (long)1000E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x04);
+      modifyRegister(REG_BTR0, 0x3f, 4);
+      break;
+
+    case (long)500E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 4);
+      break;
+
+    case (long)250E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 9);
+      break;
+
+    case (long)200E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 12);
+      break;
+
+    case (long)125E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 19);
+      break;
+
+    case (long)100E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 24);
+      break;
+
+    case (long)80E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 30);
+      break;
+
+    case (long)50E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 49);
+      break;
+
+/*
+   Due to limitations in ESP32 hardware and/or RTOS software, baudrate can't be lower than 50kbps.
+   See https://esp32.com/viewtopic.php?t=2142
+*/
+    default:
+      return 0;
+      break;
+  }
+
+  modifyRegister(REG_BTR1, 0x80, 0x80); // SAM = 1
+  writeRegister(REG_IER, 0xff); // enable all interrupts
+
+  // set filter to allow anything
+  writeRegister(REG_ACRn(0), 0x00);
+  writeRegister(REG_ACRn(1), 0x00);
+  writeRegister(REG_ACRn(2), 0x00);
+  writeRegister(REG_ACRn(3), 0x00);
+  writeRegister(REG_AMRn(0), 0xff);
+  writeRegister(REG_AMRn(1), 0xff);
+  writeRegister(REG_AMRn(2), 0xff);
+  writeRegister(REG_AMRn(3), 0xff);
+
+  modifyRegister(REG_OCR, 0x03, 0x02); // normal output mode
+  // reset error counters
+  writeRegister(REG_TXERR, 0x00);
+  writeRegister(REG_RXERR, 0x00);
+
+  // clear errors and interrupts
+  readRegister(REG_ECC);
+  readRegister(REG_IR);
+
+  // normal mode
+  modifyRegister(REG_MOD, 0x08, 0x08);
+  modifyRegister(REG_MOD, 0x17, 0x00);
+
+  return 1;
+}
+
+void ESP32SJA1000Class::end()
+{
+  if (_intrHandle) {
+    esp_intr_free(_intrHandle);
+    _intrHandle = NULL;
+  }
+
+  DPORT_SET_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_CAN_RST);
+  DPORT_CLEAR_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_CAN_CLK_EN);
+
+  CANControllerClass::end();
+}
+
+int ESP32SJA1000Class::endPacket()
+{
+  if (!CANControllerClass::endPacket()) {
+    return 0;
+  }
+
+  // wait for TX buffer to free
+  while ((readRegister(REG_SR) & 0x04) != 0x04) {
+    yield();
+  }
+
+  int dataReg;
+
+  if (_txExtended) {
+    writeRegister(REG_EFF, 0x80 | (_txRtr ? 0x40 : 0x00) | (0x0f & _txLength));
+    writeRegister(REG_EFF + 1, _txId >> 21);
+    writeRegister(REG_EFF + 2, _txId >> 13);
+    writeRegister(REG_EFF + 3, _txId >> 5);
+    writeRegister(REG_EFF + 4, _txId << 3);
+
+    dataReg = REG_EFF + 5;
+  } else {
+    writeRegister(REG_SFF, (_txRtr ? 0x40 : 0x00) | (0x0f & _txLength));
+    writeRegister(REG_SFF + 1, _txId >> 3);
+    writeRegister(REG_SFF + 2, _txId << 5);
+
+    dataReg = REG_SFF + 3;
+  }
+
+  for (int i = 0; i < _txLength; i++) {
+    writeRegister(dataReg + i, _txData[i]);
+  }
+
+  if ( _loopback) {
+    // self reception request
+    modifyRegister(REG_CMR, 0x1f, 0x10);
+  } else {
+    // transmit request
+    modifyRegister(REG_CMR, 0x1f, 0x01);
+  }
+
+  // wait for TX complete
+  while ((readRegister(REG_SR) & 0x08) != 0x08) {
+    if (readRegister(REG_ECC) == 0xd9) {
+      modifyRegister(REG_CMR, 0x1f, 0x02); // error, abort
+      return 0;
+    }
+    yield();
+  }
+
+  return 1;
+}
+
+int ESP32SJA1000Class::parsePacket()
+{
+  if ((readRegister(REG_SR) & 0x01) != 0x01) {
+    // no packet
+    return 0;
+  }
+
+  _rxExtended = (readRegister(REG_SFF) & 0x80) ? true : false;
+  _rxRtr = (readRegister(REG_SFF) & 0x40) ? true : false;
+  _rxDlc = (readRegister(REG_SFF) & 0x0f);
+  _rxIndex = 0;
+
+  int dataReg;
+
+  if (_rxExtended) {
+    _rxId = (readRegister(REG_EFF + 1) << 21) |
+            (readRegister(REG_EFF + 2) << 13) |
+            (readRegister(REG_EFF + 3) << 5) |
+            (readRegister(REG_EFF + 4) >> 3);
+
+    dataReg = REG_EFF + 5;
+  } else {
+    _rxId = (readRegister(REG_SFF + 1) << 3) | ((readRegister(REG_SFF + 2) >> 5) & 0x07);
+
+    dataReg = REG_SFF + 3;
+  }
+
+  if (_rxRtr) {
+    _rxLength = 0;
+  } else {
+    _rxLength = _rxDlc;
+
+    for (int i = 0; i < _rxLength; i++) {
+      _rxData[i] = readRegister(dataReg + i);
+    }
+  }
+
+  // release RX buffer
+  modifyRegister(REG_CMR, 0x04, 0x04);
+
+  return _rxDlc;
+}
+
+void ESP32SJA1000Class::onReceive(void(*callback)(int))
+{
+  CANControllerClass::onReceive(callback);
+
+  if (_intrHandle) {
+    esp_intr_free(_intrHandle);
+    _intrHandle = NULL;
+  }
+
+  if (callback) {
+    esp_intr_alloc(ETS_CAN_INTR_SOURCE, 0, ESP32SJA1000Class::onInterrupt, this, &_intrHandle);
+  }
+}
+
+int ESP32SJA1000Class::filter(int id, int mask)
+{
+  id &= 0x7ff;
+  mask = ~(mask & 0x7ff);
+
+  modifyRegister(REG_MOD, 0x17, 0x01); // reset
+
+  writeRegister(REG_ACRn(0), id >> 3);
+  writeRegister(REG_ACRn(1), id << 5);
+  writeRegister(REG_ACRn(2), 0x00);
+  writeRegister(REG_ACRn(3), 0x00);
+
+  writeRegister(REG_AMRn(0), mask >> 3);
+  writeRegister(REG_AMRn(1), (mask << 5) | 0x1f);
+  writeRegister(REG_AMRn(2), 0xff);
+  writeRegister(REG_AMRn(3), 0xff);
+
+  modifyRegister(REG_MOD, 0x17, 0x00); // normal
+
+  return 1;
+}
+
+int ESP32SJA1000Class::filterExtended(long id, long mask)
+{
+  id &= 0x1FFFFFFF;
+  mask &= ~(mask & 0x1FFFFFFF);
+
+  modifyRegister(REG_MOD, 0x17, 0x01); // reset
+
+  writeRegister(REG_ACRn(0), id >> 21);
+  writeRegister(REG_ACRn(1), id >> 13);
+  writeRegister(REG_ACRn(2), id >> 5);
+  writeRegister(REG_ACRn(3), id << 3);
+
+  writeRegister(REG_AMRn(0), mask >> 21);
+  writeRegister(REG_AMRn(1), mask >> 13);
+  writeRegister(REG_AMRn(2), mask >> 5);
+  writeRegister(REG_AMRn(3), (mask << 3) | 0x1f);
+
+  modifyRegister(REG_MOD, 0x17, 0x00); // normal
+
+  return 1;
+}
+
+int ESP32SJA1000Class::observe()
+{
+  modifyRegister(REG_MOD, 0x17, 0x01); // reset
+  modifyRegister(REG_MOD, 0x17, 0x02); // observe
+
+  return 1;
+}
+
+int ESP32SJA1000Class::loopback()
+{
+  _loopback = true;
+
+  modifyRegister(REG_MOD, 0x17, 0x01); // reset
+  modifyRegister(REG_MOD, 0x17, 0x04); // self test mode
+
+  return 1;
+}
+
+int ESP32SJA1000Class::sleep()
+{
+  modifyRegister(REG_MOD, 0x1f, 0x10);
+
+  return 1;
+}
+
+int ESP32SJA1000Class::wakeup()
+{
+  modifyRegister(REG_MOD, 0x1f, 0x00);
+
+  return 1;
+}
+
+void ESP32SJA1000Class::setPins(int rx, int tx)
+{
+  _rxPin = (gpio_num_t)rx;
+  _txPin = (gpio_num_t)tx;
+}
+
+void ESP32SJA1000Class::dumpRegisters(Stream& out)
+{
+  for (int i = 0; i < 32; i++) {
+    byte b = readRegister(i);
+
+    out.print("0x");
+    if (i < 16) {
+      out.print('0');
+    }
+    out.print(i, HEX);
+    out.print(": 0x");
+    if (b < 16) {
+      out.print('0');
+    }
+    out.println(b, HEX);
+  }
+}
+
+void ESP32SJA1000Class::handleInterrupt()
+{
+  uint8_t ir = readRegister(REG_IR);
+
+  if (ir & 0x01) {
+    // received packet, parse and call callback
+    parsePacket();
+
+    _onReceive(available());
+  }
+}
+
+uint8_t ESP32SJA1000Class::readRegister(uint8_t address)
+{
+  volatile uint32_t* reg = (volatile uint32_t*)(REG_BASE + address * 4);
+
+  return *reg;
+}
+
+void ESP32SJA1000Class::modifyRegister(uint8_t address, uint8_t mask, uint8_t value)
+{
+  volatile uint32_t* reg = (volatile uint32_t*)(REG_BASE + address * 4);
+
+  *reg = (*reg & ~mask) | value;
+}
+
+void ESP32SJA1000Class::writeRegister(uint8_t address, uint8_t value)
+{
+  volatile uint32_t* reg = (volatile uint32_t*)(REG_BASE + address * 4);
+
+  *reg = value;
+}
+
+void ESP32SJA1000Class::onInterrupt(void* arg)
+{
+  ((ESP32SJA1000Class*)arg)->handleInterrupt();
+}
+
+ESP32SJA1000Class CAN;
+
+#endif
+|——Node:#ifdef Text: #ifdef
+|——Node:identifier Text: ARDUINO_ARCH_ESP32
+|——Node:preproc_include Text: #include "esp_intr.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "esp_intr.h"
+|————Node:" Text: "
+|————Node:string_content Text: esp_intr.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "soc/dport_reg.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "soc/dport_reg.h"
+|————Node:" Text: "
+|————Node:string_content Text: soc/dport_reg.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "driver/gpio.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "driver/gpio.h"
+|————Node:" Text: "
+|————Node:string_content Text: driver/gpio.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "ESP32SJA1000.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "ESP32SJA1000.h"
+|————Node:" Text: "
+|————Node:string_content Text: ESP32SJA1000.h
+|————Node:" Text: "
+|——Node:preproc_def Text: #define REG_BASE                   0x3ff6b000
+
+|———Node:#define Text: #define
+|———Node:identifier Text: REG_BASE
+|———Node:preproc_arg Text: 0x3ff6b000
+|——Node:preproc_def Text: #define REG_MOD                    0x00
+
+|———Node:#define Text: #define
+|———Node:identifier Text: REG_MOD
+|———Node:preproc_arg Text: 0x00
+|——Node:preproc_def Text: #define REG_CMR                    0x01
+
+|———Node:#define Text: #define
+|———Node:identifier Text: REG_CMR
+|———Node:preproc_arg Text: 0x01
+|——Node:preproc_def Text: #define REG_SR                     0x02
+
+|———Node:#define Text: #define
+|———Node:identifier Text: REG_SR
+|———Node:preproc_arg Text: 0x02
+|——Node:preproc_def Text: #define REG_IR                     0x03
+
+|———Node:#define Text: #define
+|———Node:identifier Text: REG_IR
+|———Node:preproc_arg Text: 0x03
+|——Node:preproc_def Text: #define REG_IER                    0x04
+
+|———Node:#define Text: #define
+|———Node:identifier Text: REG_IER
+|———Node:preproc_arg Text: 0x04
+|——Node:preproc_def Text: #define REG_BTR0                   0x06
+
+|———Node:#define Text: #define
+|———Node:identifier Text: REG_BTR0
+|———Node:preproc_arg Text: 0x06
+|——Node:preproc_def Text: #define REG_BTR1                   0x07
+
+|———Node:#define Text: #define
+|———Node:identifier Text: REG_BTR1
+|———Node:preproc_arg Text: 0x07
+|——Node:preproc_def Text: #define REG_OCR                    0x08
+
+|———Node:#define Text: #define
+|———Node:identifier Text: REG_OCR
+|———Node:preproc_arg Text: 0x08
+|——Node:preproc_def Text: #define REG_ALC                    0x0b
+
+|———Node:#define Text: #define
+|———Node:identifier Text: REG_ALC
+|———Node:preproc_arg Text: 0x0b
+|——Node:preproc_def Text: #define REG_ECC                    0x0c
+
+|———Node:#define Text: #define
+|———Node:identifier Text: REG_ECC
+|———Node:preproc_arg Text: 0x0c
+|——Node:preproc_def Text: #define REG_EWLR                   0x0d
+
+|———Node:#define Text: #define
+|———Node:identifier Text: REG_EWLR
+|———Node:preproc_arg Text: 0x0d
+|——Node:preproc_def Text: #define REG_RXERR                  0x0e
+
+|———Node:#define Text: #define
+|———Node:identifier Text: REG_RXERR
+|———Node:preproc_arg Text: 0x0e
+|——Node:preproc_def Text: #define REG_TXERR                  0x0f
+
+|———Node:#define Text: #define
+|———Node:identifier Text: REG_TXERR
+|———Node:preproc_arg Text: 0x0f
+|——Node:preproc_def Text: #define REG_SFF                    0x10
+
+|———Node:#define Text: #define
+|———Node:identifier Text: REG_SFF
+|———Node:preproc_arg Text: 0x10
+|——Node:preproc_def Text: #define REG_EFF                    0x10
+
+|———Node:#define Text: #define
+|———Node:identifier Text: REG_EFF
+|———Node:preproc_arg Text: 0x10
+|——Node:preproc_function_def Text: #define REG_ACRn(n)                (0x10 + n)
+
+|———Node:#define Text: #define
+|———Node:identifier Text: REG_ACRn
+|———Node:preproc_params Text: (n)
+|————Node:( Text: (
+|————Node:identifier Text: n
+|————Node:) Text: )
+|———Node:preproc_arg Text: (0x10 + n)
+|——Node:preproc_function_def Text: #define REG_AMRn(n)                (0x14 + n)
+
+|———Node:#define Text: #define
+|———Node:identifier Text: REG_AMRn
+|———Node:preproc_params Text: (n)
+|————Node:( Text: (
+|————Node:identifier Text: n
+|————Node:) Text: )
+|———Node:preproc_arg Text: (0x14 + n)
+|——Node:preproc_def Text: #define REG_CDR                    0x1F
+
+|———Node:#define Text: #define
+|———Node:identifier Text: REG_CDR
+|———Node:preproc_arg Text: 0x1F
+|——Node:function_definition Text: ESP32SJA1000Class::ESP32SJA1000Class() :
+  CANControllerClass(),
+  _rxPin(DEFAULT_CAN_RX_PIN),
+  _txPin(DEFAULT_CAN_TX_PIN),
+  _loopback(false),
+  _intrHandle(NULL)
+{
+}
+|———Node:function_declarator Text: ESP32SJA1000Class::ESP32SJA1000Class()
+|————Node:qualified_identifier Text: ESP32SJA1000Class::ESP32SJA1000Class
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:identifier Text: ESP32SJA1000Class
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:field_initializer_list Text: :
+  CANControllerClass(),
+  _rxPin(DEFAULT_CAN_RX_PIN),
+  _txPin(DEFAULT_CAN_TX_PIN),
+  _loopback(false),
+  _intrHandle(NULL)
+|————Node:: Text: :
+|————Node:field_initializer Text: CANControllerClass()
+|—————Node:field_identifier Text: CANControllerClass
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:, Text: ,
+|————Node:field_initializer Text: _rxPin(DEFAULT_CAN_RX_PIN)
+|—————Node:field_identifier Text: _rxPin
+|—————Node:argument_list Text: (DEFAULT_CAN_RX_PIN)
+|——————Node:( Text: (
+|——————Node:identifier Text: DEFAULT_CAN_RX_PIN
+|——————Node:) Text: )
+|————Node:, Text: ,
+|————Node:field_initializer Text: _txPin(DEFAULT_CAN_TX_PIN)
+|—————Node:field_identifier Text: _txPin
+|—————Node:argument_list Text: (DEFAULT_CAN_TX_PIN)
+|——————Node:( Text: (
+|——————Node:identifier Text: DEFAULT_CAN_TX_PIN
+|——————Node:) Text: )
+|————Node:, Text: ,
+|————Node:field_initializer Text: _loopback(false)
+|—————Node:field_identifier Text: _loopback
+|—————Node:argument_list Text: (false)
+|——————Node:( Text: (
+|——————Node:false Text: false
+|——————Node:) Text: )
+|————Node:, Text: ,
+|————Node:field_initializer Text: _intrHandle(NULL)
+|—————Node:field_identifier Text: _intrHandle
+|—————Node:argument_list Text: (NULL)
+|——————Node:( Text: (
+|——————Node:null Text: NULL
+|———————Node:NULL Text: NULL
+|——————Node:) Text: )
+|———Node:compound_statement Text: {
+}
+|————Node:{ Text: {
+|————Node:} Text: }
+|——Node:function_definition Text: ESP32SJA1000Class::~ESP32SJA1000Class()
+{
+}
+|———Node:function_declarator Text: ESP32SJA1000Class::~ESP32SJA1000Class()
+|————Node:qualified_identifier Text: ESP32SJA1000Class::~ESP32SJA1000Class
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:destructor_name Text: ~ESP32SJA1000Class
+|——————Node:~ Text: ~
+|——————Node:identifier Text: ESP32SJA1000Class
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+}
+|————Node:{ Text: {
+|————Node:} Text: }
+|——Node:function_definition Text: int ESP32SJA1000Class::begin(long baudRate)
+{
+  CANControllerClass::begin(baudRate);
+
+  _loopback = false;
+
+  DPORT_CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_CAN_RST);
+  DPORT_SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_CAN_CLK_EN);
+
+  // RX pin
+  gpio_set_direction(_rxPin, GPIO_MODE_INPUT);
+  gpio_matrix_in(_rxPin, CAN_RX_IDX, 0);
+  gpio_pad_select_gpio(_rxPin);
+
+  // TX pin
+  gpio_set_direction(_txPin, GPIO_MODE_OUTPUT);
+  gpio_matrix_out(_txPin, CAN_TX_IDX, 0, 0);
+  gpio_pad_select_gpio(_txPin);
+
+  modifyRegister(REG_CDR, 0x80, 0x80); // pelican mode
+  modifyRegister(REG_BTR0, 0xc0, 0x40); // SJW = 1
+  modifyRegister(REG_BTR1, 0x70, 0x10); // TSEG2 = 1
+
+  switch (baudRate) {
+    case (long)1000E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x04);
+      modifyRegister(REG_BTR0, 0x3f, 4);
+      break;
+
+    case (long)500E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 4);
+      break;
+
+    case (long)250E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 9);
+      break;
+
+    case (long)200E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 12);
+      break;
+
+    case (long)125E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 19);
+      break;
+
+    case (long)100E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 24);
+      break;
+
+    case (long)80E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 30);
+      break;
+
+    case (long)50E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 49);
+      break;
+
+/*
+   Due to limitations in ESP32 hardware and/or RTOS software, baudrate can't be lower than 50kbps.
+   See https://esp32.com/viewtopic.php?t=2142
+*/
+    default:
+      return 0;
+      break;
+  }
+
+  modifyRegister(REG_BTR1, 0x80, 0x80); // SAM = 1
+  writeRegister(REG_IER, 0xff); // enable all interrupts
+
+  // set filter to allow anything
+  writeRegister(REG_ACRn(0), 0x00);
+  writeRegister(REG_ACRn(1), 0x00);
+  writeRegister(REG_ACRn(2), 0x00);
+  writeRegister(REG_ACRn(3), 0x00);
+  writeRegister(REG_AMRn(0), 0xff);
+  writeRegister(REG_AMRn(1), 0xff);
+  writeRegister(REG_AMRn(2), 0xff);
+  writeRegister(REG_AMRn(3), 0xff);
+
+  modifyRegister(REG_OCR, 0x03, 0x02); // normal output mode
+  // reset error counters
+  writeRegister(REG_TXERR, 0x00);
+  writeRegister(REG_RXERR, 0x00);
+
+  // clear errors and interrupts
+  readRegister(REG_ECC);
+  readRegister(REG_IR);
+
+  // normal mode
+  modifyRegister(REG_MOD, 0x08, 0x08);
+  modifyRegister(REG_MOD, 0x17, 0x00);
+
+  return 1;
+}
+|———Node:primitive_type Text: int
+|———Node:function_declarator Text: ESP32SJA1000Class::begin(long baudRate)
+|————Node:qualified_identifier Text: ESP32SJA1000Class::begin
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:identifier Text: begin
+|————Node:parameter_list Text: (long baudRate)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: long baudRate
+|——————Node:sized_type_specifier Text: long
+|———————Node:long Text: long
+|——————Node:identifier Text: baudRate
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+  CANControllerClass::begin(baudRate);
+
+  _loopback = false;
+
+  DPORT_CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_CAN_RST);
+  DPORT_SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_CAN_CLK_EN);
+
+  // RX pin
+  gpio_set_direction(_rxPin, GPIO_MODE_INPUT);
+  gpio_matrix_in(_rxPin, CAN_RX_IDX, 0);
+  gpio_pad_select_gpio(_rxPin);
+
+  // TX pin
+  gpio_set_direction(_txPin, GPIO_MODE_OUTPUT);
+  gpio_matrix_out(_txPin, CAN_TX_IDX, 0, 0);
+  gpio_pad_select_gpio(_txPin);
+
+  modifyRegister(REG_CDR, 0x80, 0x80); // pelican mode
+  modifyRegister(REG_BTR0, 0xc0, 0x40); // SJW = 1
+  modifyRegister(REG_BTR1, 0x70, 0x10); // TSEG2 = 1
+
+  switch (baudRate) {
+    case (long)1000E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x04);
+      modifyRegister(REG_BTR0, 0x3f, 4);
+      break;
+
+    case (long)500E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 4);
+      break;
+
+    case (long)250E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 9);
+      break;
+
+    case (long)200E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 12);
+      break;
+
+    case (long)125E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 19);
+      break;
+
+    case (long)100E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 24);
+      break;
+
+    case (long)80E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 30);
+      break;
+
+    case (long)50E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 49);
+      break;
+
+/*
+   Due to limitations in ESP32 hardware and/or RTOS software, baudrate can't be lower than 50kbps.
+   See https://esp32.com/viewtopic.php?t=2142
+*/
+    default:
+      return 0;
+      break;
+  }
+
+  modifyRegister(REG_BTR1, 0x80, 0x80); // SAM = 1
+  writeRegister(REG_IER, 0xff); // enable all interrupts
+
+  // set filter to allow anything
+  writeRegister(REG_ACRn(0), 0x00);
+  writeRegister(REG_ACRn(1), 0x00);
+  writeRegister(REG_ACRn(2), 0x00);
+  writeRegister(REG_ACRn(3), 0x00);
+  writeRegister(REG_AMRn(0), 0xff);
+  writeRegister(REG_AMRn(1), 0xff);
+  writeRegister(REG_AMRn(2), 0xff);
+  writeRegister(REG_AMRn(3), 0xff);
+
+  modifyRegister(REG_OCR, 0x03, 0x02); // normal output mode
+  // reset error counters
+  writeRegister(REG_TXERR, 0x00);
+  writeRegister(REG_RXERR, 0x00);
+
+  // clear errors and interrupts
+  readRegister(REG_ECC);
+  readRegister(REG_IR);
+
+  // normal mode
+  modifyRegister(REG_MOD, 0x08, 0x08);
+  modifyRegister(REG_MOD, 0x17, 0x00);
+
+  return 1;
+}
+|————Node:{ Text: {
+|————Node:expression_statement Text: CANControllerClass::begin(baudRate);
+|—————Node:call_expression Text: CANControllerClass::begin(baudRate)
+|——————Node:qualified_identifier Text: CANControllerClass::begin
+|———————Node:namespace_identifier Text: CANControllerClass
+|———————Node::: Text: ::
+|———————Node:identifier Text: begin
+|——————Node:argument_list Text: (baudRate)
+|———————Node:( Text: (
+|———————Node:identifier Text: baudRate
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: _loopback = false;
+|—————Node:assignment_expression Text: _loopback = false
+|——————Node:identifier Text: _loopback
+|——————Node:= Text: =
+|——————Node:false Text: false
+|—————Node:; Text: ;
+|————Node:expression_statement Text: DPORT_CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_CAN_RST);
+|—————Node:call_expression Text: DPORT_CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_CAN_RST)
+|——————Node:identifier Text: DPORT_CLEAR_PERI_REG_MASK
+|——————Node:argument_list Text: (DPORT_PERIP_RST_EN_REG, DPORT_CAN_RST)
+|———————Node:( Text: (
+|———————Node:identifier Text: DPORT_PERIP_RST_EN_REG
+|———————Node:, Text: ,
+|———————Node:identifier Text: DPORT_CAN_RST
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: DPORT_SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_CAN_CLK_EN);
+|—————Node:call_expression Text: DPORT_SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_CAN_CLK_EN)
+|——————Node:identifier Text: DPORT_SET_PERI_REG_MASK
+|——————Node:argument_list Text: (DPORT_PERIP_CLK_EN_REG, DPORT_CAN_CLK_EN)
+|———————Node:( Text: (
+|———————Node:identifier Text: DPORT_PERIP_CLK_EN_REG
+|———————Node:, Text: ,
+|———————Node:identifier Text: DPORT_CAN_CLK_EN
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: // RX pin
+|————Node:expression_statement Text: gpio_set_direction(_rxPin, GPIO_MODE_INPUT);
+|—————Node:call_expression Text: gpio_set_direction(_rxPin, GPIO_MODE_INPUT)
+|——————Node:identifier Text: gpio_set_direction
+|——————Node:argument_list Text: (_rxPin, GPIO_MODE_INPUT)
+|———————Node:( Text: (
+|———————Node:identifier Text: _rxPin
+|———————Node:, Text: ,
+|———————Node:identifier Text: GPIO_MODE_INPUT
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: gpio_matrix_in(_rxPin, CAN_RX_IDX, 0);
+|—————Node:call_expression Text: gpio_matrix_in(_rxPin, CAN_RX_IDX, 0)
+|——————Node:identifier Text: gpio_matrix_in
+|——————Node:argument_list Text: (_rxPin, CAN_RX_IDX, 0)
+|———————Node:( Text: (
+|———————Node:identifier Text: _rxPin
+|———————Node:, Text: ,
+|———————Node:identifier Text: CAN_RX_IDX
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: gpio_pad_select_gpio(_rxPin);
+|—————Node:call_expression Text: gpio_pad_select_gpio(_rxPin)
+|——————Node:identifier Text: gpio_pad_select_gpio
+|——————Node:argument_list Text: (_rxPin)
+|———————Node:( Text: (
+|———————Node:identifier Text: _rxPin
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: // TX pin
+|————Node:expression_statement Text: gpio_set_direction(_txPin, GPIO_MODE_OUTPUT);
+|—————Node:call_expression Text: gpio_set_direction(_txPin, GPIO_MODE_OUTPUT)
+|——————Node:identifier Text: gpio_set_direction
+|——————Node:argument_list Text: (_txPin, GPIO_MODE_OUTPUT)
+|———————Node:( Text: (
+|———————Node:identifier Text: _txPin
+|———————Node:, Text: ,
+|———————Node:identifier Text: GPIO_MODE_OUTPUT
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: gpio_matrix_out(_txPin, CAN_TX_IDX, 0, 0);
+|—————Node:call_expression Text: gpio_matrix_out(_txPin, CAN_TX_IDX, 0, 0)
+|——————Node:identifier Text: gpio_matrix_out
+|——————Node:argument_list Text: (_txPin, CAN_TX_IDX, 0, 0)
+|———————Node:( Text: (
+|———————Node:identifier Text: _txPin
+|———————Node:, Text: ,
+|———————Node:identifier Text: CAN_TX_IDX
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: gpio_pad_select_gpio(_txPin);
+|—————Node:call_expression Text: gpio_pad_select_gpio(_txPin)
+|——————Node:identifier Text: gpio_pad_select_gpio
+|——————Node:argument_list Text: (_txPin)
+|———————Node:( Text: (
+|———————Node:identifier Text: _txPin
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: modifyRegister(REG_CDR, 0x80, 0x80);
+|—————Node:call_expression Text: modifyRegister(REG_CDR, 0x80, 0x80)
+|——————Node:identifier Text: modifyRegister
+|——————Node:argument_list Text: (REG_CDR, 0x80, 0x80)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_CDR
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x80
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x80
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: // pelican mode
+|————Node:expression_statement Text: modifyRegister(REG_BTR0, 0xc0, 0x40);
+|—————Node:call_expression Text: modifyRegister(REG_BTR0, 0xc0, 0x40)
+|——————Node:identifier Text: modifyRegister
+|——————Node:argument_list Text: (REG_BTR0, 0xc0, 0x40)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_BTR0
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0xc0
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x40
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: // SJW = 1
+|————Node:expression_statement Text: modifyRegister(REG_BTR1, 0x70, 0x10);
+|—————Node:call_expression Text: modifyRegister(REG_BTR1, 0x70, 0x10)
+|——————Node:identifier Text: modifyRegister
+|——————Node:argument_list Text: (REG_BTR1, 0x70, 0x10)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_BTR1
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x70
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x10
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: // TSEG2 = 1
+|————Node:switch_statement Text: switch (baudRate) {
+    case (long)1000E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x04);
+      modifyRegister(REG_BTR0, 0x3f, 4);
+      break;
+
+    case (long)500E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 4);
+      break;
+
+    case (long)250E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 9);
+      break;
+
+    case (long)200E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 12);
+      break;
+
+    case (long)125E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 19);
+      break;
+
+    case (long)100E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 24);
+      break;
+
+    case (long)80E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 30);
+      break;
+
+    case (long)50E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 49);
+      break;
+
+/*
+   Due to limitations in ESP32 hardware and/or RTOS software, baudrate can't be lower than 50kbps.
+   See https://esp32.com/viewtopic.php?t=2142
+*/
+    default:
+      return 0;
+      break;
+  }
+|—————Node:switch Text: switch
+|—————Node:condition_clause Text: (baudRate)
+|——————Node:( Text: (
+|——————Node:identifier Text: baudRate
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+    case (long)1000E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x04);
+      modifyRegister(REG_BTR0, 0x3f, 4);
+      break;
+
+    case (long)500E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 4);
+      break;
+
+    case (long)250E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 9);
+      break;
+
+    case (long)200E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 12);
+      break;
+
+    case (long)125E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 19);
+      break;
+
+    case (long)100E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 24);
+      break;
+
+    case (long)80E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 30);
+      break;
+
+    case (long)50E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 49);
+      break;
+
+/*
+   Due to limitations in ESP32 hardware and/or RTOS software, baudrate can't be lower than 50kbps.
+   See https://esp32.com/viewtopic.php?t=2142
+*/
+    default:
+      return 0;
+      break;
+  }
+|——————Node:{ Text: {
+|——————Node:case_statement Text: case (long)1000E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x04);
+      modifyRegister(REG_BTR0, 0x3f, 4);
+      break;
+|———————Node:case Text: case
+|———————Node:cast_expression Text: (long)1000E3
+|————————Node:( Text: (
+|————————Node:type_descriptor Text: long
+|—————————Node:sized_type_specifier Text: long
+|——————————Node:long Text: long
+|————————Node:) Text: )
+|————————Node:number_literal Text: 1000E3
+|———————Node:: Text: :
+|———————Node:expression_statement Text: modifyRegister(REG_BTR1, 0x0f, 0x04);
+|————————Node:call_expression Text: modifyRegister(REG_BTR1, 0x0f, 0x04)
+|—————————Node:identifier Text: modifyRegister
+|—————————Node:argument_list Text: (REG_BTR1, 0x0f, 0x04)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: REG_BTR1
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x0f
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x04
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: modifyRegister(REG_BTR0, 0x3f, 4);
+|————————Node:call_expression Text: modifyRegister(REG_BTR0, 0x3f, 4)
+|—————————Node:identifier Text: modifyRegister
+|—————————Node:argument_list Text: (REG_BTR0, 0x3f, 4)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: REG_BTR0
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x3f
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 4
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:break_statement Text: break;
+|————————Node:break Text: break
+|————————Node:; Text: ;
+|——————Node:case_statement Text: case (long)500E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 4);
+      break;
+|———————Node:case Text: case
+|———————Node:cast_expression Text: (long)500E3
+|————————Node:( Text: (
+|————————Node:type_descriptor Text: long
+|—————————Node:sized_type_specifier Text: long
+|——————————Node:long Text: long
+|————————Node:) Text: )
+|————————Node:number_literal Text: 500E3
+|———————Node:: Text: :
+|———————Node:expression_statement Text: modifyRegister(REG_BTR1, 0x0f, 0x0c);
+|————————Node:call_expression Text: modifyRegister(REG_BTR1, 0x0f, 0x0c)
+|—————————Node:identifier Text: modifyRegister
+|—————————Node:argument_list Text: (REG_BTR1, 0x0f, 0x0c)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: REG_BTR1
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x0f
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x0c
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: modifyRegister(REG_BTR0, 0x3f, 4);
+|————————Node:call_expression Text: modifyRegister(REG_BTR0, 0x3f, 4)
+|—————————Node:identifier Text: modifyRegister
+|—————————Node:argument_list Text: (REG_BTR0, 0x3f, 4)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: REG_BTR0
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x3f
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 4
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:break_statement Text: break;
+|————————Node:break Text: break
+|————————Node:; Text: ;
+|——————Node:case_statement Text: case (long)250E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 9);
+      break;
+|———————Node:case Text: case
+|———————Node:cast_expression Text: (long)250E3
+|————————Node:( Text: (
+|————————Node:type_descriptor Text: long
+|—————————Node:sized_type_specifier Text: long
+|——————————Node:long Text: long
+|————————Node:) Text: )
+|————————Node:number_literal Text: 250E3
+|———————Node:: Text: :
+|———————Node:expression_statement Text: modifyRegister(REG_BTR1, 0x0f, 0x0c);
+|————————Node:call_expression Text: modifyRegister(REG_BTR1, 0x0f, 0x0c)
+|—————————Node:identifier Text: modifyRegister
+|—————————Node:argument_list Text: (REG_BTR1, 0x0f, 0x0c)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: REG_BTR1
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x0f
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x0c
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: modifyRegister(REG_BTR0, 0x3f, 9);
+|————————Node:call_expression Text: modifyRegister(REG_BTR0, 0x3f, 9)
+|—————————Node:identifier Text: modifyRegister
+|—————————Node:argument_list Text: (REG_BTR0, 0x3f, 9)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: REG_BTR0
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x3f
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 9
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:break_statement Text: break;
+|————————Node:break Text: break
+|————————Node:; Text: ;
+|——————Node:case_statement Text: case (long)200E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 12);
+      break;
+|———————Node:case Text: case
+|———————Node:cast_expression Text: (long)200E3
+|————————Node:( Text: (
+|————————Node:type_descriptor Text: long
+|—————————Node:sized_type_specifier Text: long
+|——————————Node:long Text: long
+|————————Node:) Text: )
+|————————Node:number_literal Text: 200E3
+|———————Node:: Text: :
+|———————Node:expression_statement Text: modifyRegister(REG_BTR1, 0x0f, 0x0c);
+|————————Node:call_expression Text: modifyRegister(REG_BTR1, 0x0f, 0x0c)
+|—————————Node:identifier Text: modifyRegister
+|—————————Node:argument_list Text: (REG_BTR1, 0x0f, 0x0c)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: REG_BTR1
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x0f
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x0c
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: modifyRegister(REG_BTR0, 0x3f, 12);
+|————————Node:call_expression Text: modifyRegister(REG_BTR0, 0x3f, 12)
+|—————————Node:identifier Text: modifyRegister
+|—————————Node:argument_list Text: (REG_BTR0, 0x3f, 12)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: REG_BTR0
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x3f
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 12
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:break_statement Text: break;
+|————————Node:break Text: break
+|————————Node:; Text: ;
+|——————Node:case_statement Text: case (long)125E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 19);
+      break;
+|———————Node:case Text: case
+|———————Node:cast_expression Text: (long)125E3
+|————————Node:( Text: (
+|————————Node:type_descriptor Text: long
+|—————————Node:sized_type_specifier Text: long
+|——————————Node:long Text: long
+|————————Node:) Text: )
+|————————Node:number_literal Text: 125E3
+|———————Node:: Text: :
+|———————Node:expression_statement Text: modifyRegister(REG_BTR1, 0x0f, 0x0c);
+|————————Node:call_expression Text: modifyRegister(REG_BTR1, 0x0f, 0x0c)
+|—————————Node:identifier Text: modifyRegister
+|—————————Node:argument_list Text: (REG_BTR1, 0x0f, 0x0c)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: REG_BTR1
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x0f
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x0c
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: modifyRegister(REG_BTR0, 0x3f, 19);
+|————————Node:call_expression Text: modifyRegister(REG_BTR0, 0x3f, 19)
+|—————————Node:identifier Text: modifyRegister
+|—————————Node:argument_list Text: (REG_BTR0, 0x3f, 19)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: REG_BTR0
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x3f
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 19
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:break_statement Text: break;
+|————————Node:break Text: break
+|————————Node:; Text: ;
+|——————Node:case_statement Text: case (long)100E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 24);
+      break;
+|———————Node:case Text: case
+|———————Node:cast_expression Text: (long)100E3
+|————————Node:( Text: (
+|————————Node:type_descriptor Text: long
+|—————————Node:sized_type_specifier Text: long
+|——————————Node:long Text: long
+|————————Node:) Text: )
+|————————Node:number_literal Text: 100E3
+|———————Node:: Text: :
+|———————Node:expression_statement Text: modifyRegister(REG_BTR1, 0x0f, 0x0c);
+|————————Node:call_expression Text: modifyRegister(REG_BTR1, 0x0f, 0x0c)
+|—————————Node:identifier Text: modifyRegister
+|—————————Node:argument_list Text: (REG_BTR1, 0x0f, 0x0c)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: REG_BTR1
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x0f
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x0c
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: modifyRegister(REG_BTR0, 0x3f, 24);
+|————————Node:call_expression Text: modifyRegister(REG_BTR0, 0x3f, 24)
+|—————————Node:identifier Text: modifyRegister
+|—————————Node:argument_list Text: (REG_BTR0, 0x3f, 24)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: REG_BTR0
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x3f
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 24
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:break_statement Text: break;
+|————————Node:break Text: break
+|————————Node:; Text: ;
+|——————Node:case_statement Text: case (long)80E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 30);
+      break;
+|———————Node:case Text: case
+|———————Node:cast_expression Text: (long)80E3
+|————————Node:( Text: (
+|————————Node:type_descriptor Text: long
+|—————————Node:sized_type_specifier Text: long
+|——————————Node:long Text: long
+|————————Node:) Text: )
+|————————Node:number_literal Text: 80E3
+|———————Node:: Text: :
+|———————Node:expression_statement Text: modifyRegister(REG_BTR1, 0x0f, 0x0c);
+|————————Node:call_expression Text: modifyRegister(REG_BTR1, 0x0f, 0x0c)
+|—————————Node:identifier Text: modifyRegister
+|—————————Node:argument_list Text: (REG_BTR1, 0x0f, 0x0c)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: REG_BTR1
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x0f
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x0c
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: modifyRegister(REG_BTR0, 0x3f, 30);
+|————————Node:call_expression Text: modifyRegister(REG_BTR0, 0x3f, 30)
+|—————————Node:identifier Text: modifyRegister
+|—————————Node:argument_list Text: (REG_BTR0, 0x3f, 30)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: REG_BTR0
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x3f
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 30
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:break_statement Text: break;
+|————————Node:break Text: break
+|————————Node:; Text: ;
+|——————Node:case_statement Text: case (long)50E3:
+      modifyRegister(REG_BTR1, 0x0f, 0x0c);
+      modifyRegister(REG_BTR0, 0x3f, 49);
+      break;
+|———————Node:case Text: case
+|———————Node:cast_expression Text: (long)50E3
+|————————Node:( Text: (
+|————————Node:type_descriptor Text: long
+|—————————Node:sized_type_specifier Text: long
+|——————————Node:long Text: long
+|————————Node:) Text: )
+|————————Node:number_literal Text: 50E3
+|———————Node:: Text: :
+|———————Node:expression_statement Text: modifyRegister(REG_BTR1, 0x0f, 0x0c);
+|————————Node:call_expression Text: modifyRegister(REG_BTR1, 0x0f, 0x0c)
+|—————————Node:identifier Text: modifyRegister
+|—————————Node:argument_list Text: (REG_BTR1, 0x0f, 0x0c)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: REG_BTR1
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x0f
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x0c
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: modifyRegister(REG_BTR0, 0x3f, 49);
+|————————Node:call_expression Text: modifyRegister(REG_BTR0, 0x3f, 49)
+|—————————Node:identifier Text: modifyRegister
+|—————————Node:argument_list Text: (REG_BTR0, 0x3f, 49)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: REG_BTR0
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x3f
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 49
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:break_statement Text: break;
+|————————Node:break Text: break
+|————————Node:; Text: ;
+|——————Node:comment Text: /*
+   Due to limitations in ESP32 hardware and/or RTOS software, baudrate can't be lower than 50kbps.
+   See https://esp32.com/viewtopic.php?t=2142
+*/
+|——————Node:case_statement Text: default:
+      return 0;
+      break;
+|———————Node:default Text: default
+|———————Node:: Text: :
+|———————Node:return_statement Text: return 0;
+|————————Node:return Text: return
+|————————Node:number_literal Text: 0
+|————————Node:; Text: ;
+|———————Node:break_statement Text: break;
+|————————Node:break Text: break
+|————————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: modifyRegister(REG_BTR1, 0x80, 0x80);
+|—————Node:call_expression Text: modifyRegister(REG_BTR1, 0x80, 0x80)
+|——————Node:identifier Text: modifyRegister
+|——————Node:argument_list Text: (REG_BTR1, 0x80, 0x80)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_BTR1
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x80
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x80
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: // SAM = 1
+|————Node:expression_statement Text: writeRegister(REG_IER, 0xff);
+|—————Node:call_expression Text: writeRegister(REG_IER, 0xff)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_IER, 0xff)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_IER
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0xff
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: // enable all interrupts
+|————Node:comment Text: // set filter to allow anything
+|————Node:expression_statement Text: writeRegister(REG_ACRn(0), 0x00);
+|—————Node:call_expression Text: writeRegister(REG_ACRn(0), 0x00)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_ACRn(0), 0x00)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_ACRn(0)
+|————————Node:identifier Text: REG_ACRn
+|————————Node:argument_list Text: (0)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x00
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_ACRn(1), 0x00);
+|—————Node:call_expression Text: writeRegister(REG_ACRn(1), 0x00)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_ACRn(1), 0x00)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_ACRn(1)
+|————————Node:identifier Text: REG_ACRn
+|————————Node:argument_list Text: (1)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 1
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x00
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_ACRn(2), 0x00);
+|—————Node:call_expression Text: writeRegister(REG_ACRn(2), 0x00)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_ACRn(2), 0x00)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_ACRn(2)
+|————————Node:identifier Text: REG_ACRn
+|————————Node:argument_list Text: (2)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 2
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x00
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_ACRn(3), 0x00);
+|—————Node:call_expression Text: writeRegister(REG_ACRn(3), 0x00)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_ACRn(3), 0x00)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_ACRn(3)
+|————————Node:identifier Text: REG_ACRn
+|————————Node:argument_list Text: (3)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 3
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x00
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_AMRn(0), 0xff);
+|—————Node:call_expression Text: writeRegister(REG_AMRn(0), 0xff)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_AMRn(0), 0xff)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_AMRn(0)
+|————————Node:identifier Text: REG_AMRn
+|————————Node:argument_list Text: (0)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0xff
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_AMRn(1), 0xff);
+|—————Node:call_expression Text: writeRegister(REG_AMRn(1), 0xff)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_AMRn(1), 0xff)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_AMRn(1)
+|————————Node:identifier Text: REG_AMRn
+|————————Node:argument_list Text: (1)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 1
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0xff
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_AMRn(2), 0xff);
+|—————Node:call_expression Text: writeRegister(REG_AMRn(2), 0xff)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_AMRn(2), 0xff)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_AMRn(2)
+|————————Node:identifier Text: REG_AMRn
+|————————Node:argument_list Text: (2)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 2
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0xff
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_AMRn(3), 0xff);
+|—————Node:call_expression Text: writeRegister(REG_AMRn(3), 0xff)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_AMRn(3), 0xff)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_AMRn(3)
+|————————Node:identifier Text: REG_AMRn
+|————————Node:argument_list Text: (3)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 3
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0xff
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: modifyRegister(REG_OCR, 0x03, 0x02);
+|—————Node:call_expression Text: modifyRegister(REG_OCR, 0x03, 0x02)
+|——————Node:identifier Text: modifyRegister
+|——————Node:argument_list Text: (REG_OCR, 0x03, 0x02)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_OCR
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x03
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x02
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: // normal output mode
+|————Node:comment Text: // reset error counters
+|————Node:expression_statement Text: writeRegister(REG_TXERR, 0x00);
+|—————Node:call_expression Text: writeRegister(REG_TXERR, 0x00)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_TXERR, 0x00)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_TXERR
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x00
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_RXERR, 0x00);
+|—————Node:call_expression Text: writeRegister(REG_RXERR, 0x00)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_RXERR, 0x00)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_RXERR
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x00
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: // clear errors and interrupts
+|————Node:expression_statement Text: readRegister(REG_ECC);
+|—————Node:call_expression Text: readRegister(REG_ECC)
+|——————Node:identifier Text: readRegister
+|——————Node:argument_list Text: (REG_ECC)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_ECC
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: readRegister(REG_IR);
+|—————Node:call_expression Text: readRegister(REG_IR)
+|——————Node:identifier Text: readRegister
+|——————Node:argument_list Text: (REG_IR)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_IR
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: // normal mode
+|————Node:expression_statement Text: modifyRegister(REG_MOD, 0x08, 0x08);
+|—————Node:call_expression Text: modifyRegister(REG_MOD, 0x08, 0x08)
+|——————Node:identifier Text: modifyRegister
+|——————Node:argument_list Text: (REG_MOD, 0x08, 0x08)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_MOD
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x08
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x08
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: modifyRegister(REG_MOD, 0x17, 0x00);
+|—————Node:call_expression Text: modifyRegister(REG_MOD, 0x17, 0x00)
+|——————Node:identifier Text: modifyRegister
+|——————Node:argument_list Text: (REG_MOD, 0x17, 0x00)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_MOD
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x17
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x00
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:return_statement Text: return 1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: 1
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: void ESP32SJA1000Class::end()
+{
+  if (_intrHandle) {
+    esp_intr_free(_intrHandle);
+    _intrHandle = NULL;
+  }
+
+  DPORT_SET_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_CAN_RST);
+  DPORT_CLEAR_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_CAN_CLK_EN);
+
+  CANControllerClass::end();
+}
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: ESP32SJA1000Class::end()
+|————Node:qualified_identifier Text: ESP32SJA1000Class::end
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:identifier Text: end
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+  if (_intrHandle) {
+    esp_intr_free(_intrHandle);
+    _intrHandle = NULL;
+  }
+
+  DPORT_SET_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_CAN_RST);
+  DPORT_CLEAR_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_CAN_CLK_EN);
+
+  CANControllerClass::end();
+}
+|————Node:{ Text: {
+|————Node:if_statement Text: if (_intrHandle) {
+    esp_intr_free(_intrHandle);
+    _intrHandle = NULL;
+  }
+|—————Node:if Text: if
+|—————Node:condition_clause Text: (_intrHandle)
+|——————Node:( Text: (
+|——————Node:identifier Text: _intrHandle
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+    esp_intr_free(_intrHandle);
+    _intrHandle = NULL;
+  }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: esp_intr_free(_intrHandle);
+|———————Node:call_expression Text: esp_intr_free(_intrHandle)
+|————————Node:identifier Text: esp_intr_free
+|————————Node:argument_list Text: (_intrHandle)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: _intrHandle
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: _intrHandle = NULL;
+|———————Node:assignment_expression Text: _intrHandle = NULL
+|————————Node:identifier Text: _intrHandle
+|————————Node:= Text: =
+|————————Node:null Text: NULL
+|—————————Node:NULL Text: NULL
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: DPORT_SET_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_CAN_RST);
+|—————Node:call_expression Text: DPORT_SET_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_CAN_RST)
+|——————Node:identifier Text: DPORT_SET_PERI_REG_MASK
+|——————Node:argument_list Text: (DPORT_PERIP_RST_EN_REG, DPORT_CAN_RST)
+|———————Node:( Text: (
+|———————Node:identifier Text: DPORT_PERIP_RST_EN_REG
+|———————Node:, Text: ,
+|———————Node:identifier Text: DPORT_CAN_RST
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: DPORT_CLEAR_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_CAN_CLK_EN);
+|—————Node:call_expression Text: DPORT_CLEAR_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_CAN_CLK_EN)
+|——————Node:identifier Text: DPORT_CLEAR_PERI_REG_MASK
+|——————Node:argument_list Text: (DPORT_PERIP_CLK_EN_REG, DPORT_CAN_CLK_EN)
+|———————Node:( Text: (
+|———————Node:identifier Text: DPORT_PERIP_CLK_EN_REG
+|———————Node:, Text: ,
+|———————Node:identifier Text: DPORT_CAN_CLK_EN
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: CANControllerClass::end();
+|—————Node:call_expression Text: CANControllerClass::end()
+|——————Node:qualified_identifier Text: CANControllerClass::end
+|———————Node:namespace_identifier Text: CANControllerClass
+|———————Node::: Text: ::
+|———————Node:identifier Text: end
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: int ESP32SJA1000Class::endPacket()
+{
+  if (!CANControllerClass::endPacket()) {
+    return 0;
+  }
+
+  // wait for TX buffer to free
+  while ((readRegister(REG_SR) & 0x04) != 0x04) {
+    yield();
+  }
+
+  int dataReg;
+
+  if (_txExtended) {
+    writeRegister(REG_EFF, 0x80 | (_txRtr ? 0x40 : 0x00) | (0x0f & _txLength));
+    writeRegister(REG_EFF + 1, _txId >> 21);
+    writeRegister(REG_EFF + 2, _txId >> 13);
+    writeRegister(REG_EFF + 3, _txId >> 5);
+    writeRegister(REG_EFF + 4, _txId << 3);
+
+    dataReg = REG_EFF + 5;
+  } else {
+    writeRegister(REG_SFF, (_txRtr ? 0x40 : 0x00) | (0x0f & _txLength));
+    writeRegister(REG_SFF + 1, _txId >> 3);
+    writeRegister(REG_SFF + 2, _txId << 5);
+
+    dataReg = REG_SFF + 3;
+  }
+
+  for (int i = 0; i < _txLength; i++) {
+    writeRegister(dataReg + i, _txData[i]);
+  }
+
+  if ( _loopback) {
+    // self reception request
+    modifyRegister(REG_CMR, 0x1f, 0x10);
+  } else {
+    // transmit request
+    modifyRegister(REG_CMR, 0x1f, 0x01);
+  }
+
+  // wait for TX complete
+  while ((readRegister(REG_SR) & 0x08) != 0x08) {
+    if (readRegister(REG_ECC) == 0xd9) {
+      modifyRegister(REG_CMR, 0x1f, 0x02); // error, abort
+      return 0;
+    }
+    yield();
+  }
+
+  return 1;
+}
+|———Node:primitive_type Text: int
+|———Node:function_declarator Text: ESP32SJA1000Class::endPacket()
+|————Node:qualified_identifier Text: ESP32SJA1000Class::endPacket
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:identifier Text: endPacket
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+  if (!CANControllerClass::endPacket()) {
+    return 0;
+  }
+
+  // wait for TX buffer to free
+  while ((readRegister(REG_SR) & 0x04) != 0x04) {
+    yield();
+  }
+
+  int dataReg;
+
+  if (_txExtended) {
+    writeRegister(REG_EFF, 0x80 | (_txRtr ? 0x40 : 0x00) | (0x0f & _txLength));
+    writeRegister(REG_EFF + 1, _txId >> 21);
+    writeRegister(REG_EFF + 2, _txId >> 13);
+    writeRegister(REG_EFF + 3, _txId >> 5);
+    writeRegister(REG_EFF + 4, _txId << 3);
+
+    dataReg = REG_EFF + 5;
+  } else {
+    writeRegister(REG_SFF, (_txRtr ? 0x40 : 0x00) | (0x0f & _txLength));
+    writeRegister(REG_SFF + 1, _txId >> 3);
+    writeRegister(REG_SFF + 2, _txId << 5);
+
+    dataReg = REG_SFF + 3;
+  }
+
+  for (int i = 0; i < _txLength; i++) {
+    writeRegister(dataReg + i, _txData[i]);
+  }
+
+  if ( _loopback) {
+    // self reception request
+    modifyRegister(REG_CMR, 0x1f, 0x10);
+  } else {
+    // transmit request
+    modifyRegister(REG_CMR, 0x1f, 0x01);
+  }
+
+  // wait for TX complete
+  while ((readRegister(REG_SR) & 0x08) != 0x08) {
+    if (readRegister(REG_ECC) == 0xd9) {
+      modifyRegister(REG_CMR, 0x1f, 0x02); // error, abort
+      return 0;
+    }
+    yield();
+  }
+
+  return 1;
+}
+|————Node:{ Text: {
+|————Node:if_statement Text: if (!CANControllerClass::endPacket()) {
+    return 0;
+  }
+|—————Node:if Text: if
+|—————Node:condition_clause Text: (!CANControllerClass::endPacket())
+|——————Node:( Text: (
+|——————Node:unary_expression Text: !CANControllerClass::endPacket()
+|———————Node:! Text: !
+|———————Node:call_expression Text: CANControllerClass::endPacket()
+|————————Node:qualified_identifier Text: CANControllerClass::endPacket
+|—————————Node:namespace_identifier Text: CANControllerClass
+|—————————Node::: Text: ::
+|—————————Node:identifier Text: endPacket
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+    return 0;
+  }
+|——————Node:{ Text: {
+|——————Node:return_statement Text: return 0;
+|———————Node:return Text: return
+|———————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:comment Text: // wait for TX buffer to free
+|————Node:while_statement Text: while ((readRegister(REG_SR) & 0x04) != 0x04) {
+    yield();
+  }
+|—————Node:while Text: while
+|—————Node:condition_clause Text: ((readRegister(REG_SR) & 0x04) != 0x04)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: (readRegister(REG_SR) & 0x04) != 0x04
+|———————Node:parenthesized_expression Text: (readRegister(REG_SR) & 0x04)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: readRegister(REG_SR) & 0x04
+|—————————Node:call_expression Text: readRegister(REG_SR)
+|——————————Node:identifier Text: readRegister
+|——————————Node:argument_list Text: (REG_SR)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: REG_SR
+|———————————Node:) Text: )
+|—————————Node:& Text: &
+|—————————Node:number_literal Text: 0x04
+|————————Node:) Text: )
+|———————Node:!= Text: !=
+|———————Node:number_literal Text: 0x04
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+    yield();
+  }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: yield();
+|———————Node:call_expression Text: yield()
+|————————Node:identifier Text: yield
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:declaration Text: int dataReg;
+|—————Node:primitive_type Text: int
+|—————Node:identifier Text: dataReg
+|—————Node:; Text: ;
+|————Node:if_statement Text: if (_txExtended) {
+    writeRegister(REG_EFF, 0x80 | (_txRtr ? 0x40 : 0x00) | (0x0f & _txLength));
+    writeRegister(REG_EFF + 1, _txId >> 21);
+    writeRegister(REG_EFF + 2, _txId >> 13);
+    writeRegister(REG_EFF + 3, _txId >> 5);
+    writeRegister(REG_EFF + 4, _txId << 3);
+
+    dataReg = REG_EFF + 5;
+  } else {
+    writeRegister(REG_SFF, (_txRtr ? 0x40 : 0x00) | (0x0f & _txLength));
+    writeRegister(REG_SFF + 1, _txId >> 3);
+    writeRegister(REG_SFF + 2, _txId << 5);
+
+    dataReg = REG_SFF + 3;
+  }
+|—————Node:if Text: if
+|—————Node:condition_clause Text: (_txExtended)
+|——————Node:( Text: (
+|——————Node:identifier Text: _txExtended
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+    writeRegister(REG_EFF, 0x80 | (_txRtr ? 0x40 : 0x00) | (0x0f & _txLength));
+    writeRegister(REG_EFF + 1, _txId >> 21);
+    writeRegister(REG_EFF + 2, _txId >> 13);
+    writeRegister(REG_EFF + 3, _txId >> 5);
+    writeRegister(REG_EFF + 4, _txId << 3);
+
+    dataReg = REG_EFF + 5;
+  }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: writeRegister(REG_EFF, 0x80 | (_txRtr ? 0x40 : 0x00) | (0x0f & _txLength));
+|———————Node:call_expression Text: writeRegister(REG_EFF, 0x80 | (_txRtr ? 0x40 : 0x00) | (0x0f & _txLength))
+|————————Node:identifier Text: writeRegister
+|————————Node:argument_list Text: (REG_EFF, 0x80 | (_txRtr ? 0x40 : 0x00) | (0x0f & _txLength))
+|—————————Node:( Text: (
+|—————————Node:identifier Text: REG_EFF
+|—————————Node:, Text: ,
+|—————————Node:binary_expression Text: 0x80 | (_txRtr ? 0x40 : 0x00) | (0x0f & _txLength)
+|——————————Node:binary_expression Text: 0x80 | (_txRtr ? 0x40 : 0x00)
+|———————————Node:number_literal Text: 0x80
+|———————————Node:| Text: |
+|———————————Node:parenthesized_expression Text: (_txRtr ? 0x40 : 0x00)
+|————————————Node:( Text: (
+|————————————Node:conditional_expression Text: _txRtr ? 0x40 : 0x00
+|—————————————Node:identifier Text: _txRtr
+|—————————————Node:? Text: ?
+|—————————————Node:number_literal Text: 0x40
+|—————————————Node:: Text: :
+|—————————————Node:number_literal Text: 0x00
+|————————————Node:) Text: )
+|——————————Node:| Text: |
+|——————————Node:parenthesized_expression Text: (0x0f & _txLength)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: 0x0f & _txLength
+|————————————Node:number_literal Text: 0x0f
+|————————————Node:& Text: &
+|————————————Node:identifier Text: _txLength
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: writeRegister(REG_EFF + 1, _txId >> 21);
+|———————Node:call_expression Text: writeRegister(REG_EFF + 1, _txId >> 21)
+|————————Node:identifier Text: writeRegister
+|————————Node:argument_list Text: (REG_EFF + 1, _txId >> 21)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: REG_EFF + 1
+|——————————Node:identifier Text: REG_EFF
+|——————————Node:+ Text: +
+|——————————Node:number_literal Text: 1
+|—————————Node:, Text: ,
+|—————————Node:binary_expression Text: _txId >> 21
+|——————————Node:identifier Text: _txId
+|——————————Node:>> Text: >>
+|——————————Node:number_literal Text: 21
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: writeRegister(REG_EFF + 2, _txId >> 13);
+|———————Node:call_expression Text: writeRegister(REG_EFF + 2, _txId >> 13)
+|————————Node:identifier Text: writeRegister
+|————————Node:argument_list Text: (REG_EFF + 2, _txId >> 13)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: REG_EFF + 2
+|——————————Node:identifier Text: REG_EFF
+|——————————Node:+ Text: +
+|——————————Node:number_literal Text: 2
+|—————————Node:, Text: ,
+|—————————Node:binary_expression Text: _txId >> 13
+|——————————Node:identifier Text: _txId
+|——————————Node:>> Text: >>
+|——————————Node:number_literal Text: 13
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: writeRegister(REG_EFF + 3, _txId >> 5);
+|———————Node:call_expression Text: writeRegister(REG_EFF + 3, _txId >> 5)
+|————————Node:identifier Text: writeRegister
+|————————Node:argument_list Text: (REG_EFF + 3, _txId >> 5)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: REG_EFF + 3
+|——————————Node:identifier Text: REG_EFF
+|——————————Node:+ Text: +
+|——————————Node:number_literal Text: 3
+|—————————Node:, Text: ,
+|—————————Node:binary_expression Text: _txId >> 5
+|——————————Node:identifier Text: _txId
+|——————————Node:>> Text: >>
+|——————————Node:number_literal Text: 5
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: writeRegister(REG_EFF + 4, _txId << 3);
+|———————Node:call_expression Text: writeRegister(REG_EFF + 4, _txId << 3)
+|————————Node:identifier Text: writeRegister
+|————————Node:argument_list Text: (REG_EFF + 4, _txId << 3)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: REG_EFF + 4
+|——————————Node:identifier Text: REG_EFF
+|——————————Node:+ Text: +
+|——————————Node:number_literal Text: 4
+|—————————Node:, Text: ,
+|—————————Node:binary_expression Text: _txId << 3
+|——————————Node:identifier Text: _txId
+|——————————Node:<< Text: <<
+|——————————Node:number_literal Text: 3
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: dataReg = REG_EFF + 5;
+|———————Node:assignment_expression Text: dataReg = REG_EFF + 5
+|————————Node:identifier Text: dataReg
+|————————Node:= Text: =
+|————————Node:binary_expression Text: REG_EFF + 5
+|—————————Node:identifier Text: REG_EFF
+|—————————Node:+ Text: +
+|—————————Node:number_literal Text: 5
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|—————Node:else_clause Text: else {
+    writeRegister(REG_SFF, (_txRtr ? 0x40 : 0x00) | (0x0f & _txLength));
+    writeRegister(REG_SFF + 1, _txId >> 3);
+    writeRegister(REG_SFF + 2, _txId << 5);
+
+    dataReg = REG_SFF + 3;
+  }
+|——————Node:else Text: else
+|——————Node:compound_statement Text: {
+    writeRegister(REG_SFF, (_txRtr ? 0x40 : 0x00) | (0x0f & _txLength));
+    writeRegister(REG_SFF + 1, _txId >> 3);
+    writeRegister(REG_SFF + 2, _txId << 5);
+
+    dataReg = REG_SFF + 3;
+  }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: writeRegister(REG_SFF, (_txRtr ? 0x40 : 0x00) | (0x0f & _txLength));
+|————————Node:call_expression Text: writeRegister(REG_SFF, (_txRtr ? 0x40 : 0x00) | (0x0f & _txLength))
+|—————————Node:identifier Text: writeRegister
+|—————————Node:argument_list Text: (REG_SFF, (_txRtr ? 0x40 : 0x00) | (0x0f & _txLength))
+|——————————Node:( Text: (
+|——————————Node:identifier Text: REG_SFF
+|——————————Node:, Text: ,
+|——————————Node:binary_expression Text: (_txRtr ? 0x40 : 0x00) | (0x0f & _txLength)
+|———————————Node:parenthesized_expression Text: (_txRtr ? 0x40 : 0x00)
+|————————————Node:( Text: (
+|————————————Node:conditional_expression Text: _txRtr ? 0x40 : 0x00
+|—————————————Node:identifier Text: _txRtr
+|—————————————Node:? Text: ?
+|—————————————Node:number_literal Text: 0x40
+|—————————————Node:: Text: :
+|—————————————Node:number_literal Text: 0x00
+|————————————Node:) Text: )
+|———————————Node:| Text: |
+|———————————Node:parenthesized_expression Text: (0x0f & _txLength)
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: 0x0f & _txLength
+|—————————————Node:number_literal Text: 0x0f
+|—————————————Node:& Text: &
+|—————————————Node:identifier Text: _txLength
+|————————————Node:) Text: )
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: writeRegister(REG_SFF + 1, _txId >> 3);
+|————————Node:call_expression Text: writeRegister(REG_SFF + 1, _txId >> 3)
+|—————————Node:identifier Text: writeRegister
+|—————————Node:argument_list Text: (REG_SFF + 1, _txId >> 3)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: REG_SFF + 1
+|———————————Node:identifier Text: REG_SFF
+|———————————Node:+ Text: +
+|———————————Node:number_literal Text: 1
+|——————————Node:, Text: ,
+|——————————Node:binary_expression Text: _txId >> 3
+|———————————Node:identifier Text: _txId
+|———————————Node:>> Text: >>
+|———————————Node:number_literal Text: 3
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: writeRegister(REG_SFF + 2, _txId << 5);
+|————————Node:call_expression Text: writeRegister(REG_SFF + 2, _txId << 5)
+|—————————Node:identifier Text: writeRegister
+|—————————Node:argument_list Text: (REG_SFF + 2, _txId << 5)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: REG_SFF + 2
+|———————————Node:identifier Text: REG_SFF
+|———————————Node:+ Text: +
+|———————————Node:number_literal Text: 2
+|——————————Node:, Text: ,
+|——————————Node:binary_expression Text: _txId << 5
+|———————————Node:identifier Text: _txId
+|———————————Node:<< Text: <<
+|———————————Node:number_literal Text: 5
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: dataReg = REG_SFF + 3;
+|————————Node:assignment_expression Text: dataReg = REG_SFF + 3
+|—————————Node:identifier Text: dataReg
+|—————————Node:= Text: =
+|—————————Node:binary_expression Text: REG_SFF + 3
+|——————————Node:identifier Text: REG_SFF
+|——————————Node:+ Text: +
+|——————————Node:number_literal Text: 3
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|————Node:for_statement Text: for (int i = 0; i < _txLength; i++) {
+    writeRegister(dataReg + i, _txData[i]);
+  }
+|—————Node:for Text: for
+|—————Node:( Text: (
+|—————Node:declaration Text: int i = 0;
+|——————Node:primitive_type Text: int
+|——————Node:init_declarator Text: i = 0
+|———————Node:identifier Text: i
+|———————Node:= Text: =
+|———————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:binary_expression Text: i < _txLength
+|——————Node:identifier Text: i
+|——————Node:< Text: <
+|——————Node:identifier Text: _txLength
+|—————Node:; Text: ;
+|—————Node:update_expression Text: i++
+|——————Node:identifier Text: i
+|——————Node:++ Text: ++
+|—————Node:) Text: )
+|—————Node:compound_statement Text: {
+    writeRegister(dataReg + i, _txData[i]);
+  }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: writeRegister(dataReg + i, _txData[i]);
+|———————Node:call_expression Text: writeRegister(dataReg + i, _txData[i])
+|————————Node:identifier Text: writeRegister
+|————————Node:argument_list Text: (dataReg + i, _txData[i])
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: dataReg + i
+|——————————Node:identifier Text: dataReg
+|——————————Node:+ Text: +
+|——————————Node:identifier Text: i
+|—————————Node:, Text: ,
+|—————————Node:subscript_expression Text: _txData[i]
+|——————————Node:identifier Text: _txData
+|——————————Node:subscript_argument_list Text: [i]
+|———————————Node:[ Text: [
+|———————————Node:identifier Text: i
+|———————————Node:] Text: ]
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:if_statement Text: if ( _loopback) {
+    // self reception request
+    modifyRegister(REG_CMR, 0x1f, 0x10);
+  } else {
+    // transmit request
+    modifyRegister(REG_CMR, 0x1f, 0x01);
+  }
+|—————Node:if Text: if
+|—————Node:condition_clause Text: ( _loopback)
+|——————Node:( Text: (
+|——————Node:identifier Text: _loopback
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+    // self reception request
+    modifyRegister(REG_CMR, 0x1f, 0x10);
+  }
+|——————Node:{ Text: {
+|——————Node:comment Text: // self reception request
+|——————Node:expression_statement Text: modifyRegister(REG_CMR, 0x1f, 0x10);
+|———————Node:call_expression Text: modifyRegister(REG_CMR, 0x1f, 0x10)
+|————————Node:identifier Text: modifyRegister
+|————————Node:argument_list Text: (REG_CMR, 0x1f, 0x10)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: REG_CMR
+|—————————Node:, Text: ,
+|—————————Node:number_literal Text: 0x1f
+|—————————Node:, Text: ,
+|—————————Node:number_literal Text: 0x10
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|—————Node:else_clause Text: else {
+    // transmit request
+    modifyRegister(REG_CMR, 0x1f, 0x01);
+  }
+|——————Node:else Text: else
+|——————Node:compound_statement Text: {
+    // transmit request
+    modifyRegister(REG_CMR, 0x1f, 0x01);
+  }
+|———————Node:{ Text: {
+|———————Node:comment Text: // transmit request
+|———————Node:expression_statement Text: modifyRegister(REG_CMR, 0x1f, 0x01);
+|————————Node:call_expression Text: modifyRegister(REG_CMR, 0x1f, 0x01)
+|—————————Node:identifier Text: modifyRegister
+|—————————Node:argument_list Text: (REG_CMR, 0x1f, 0x01)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: REG_CMR
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x1f
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0x01
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|————Node:comment Text: // wait for TX complete
+|————Node:while_statement Text: while ((readRegister(REG_SR) & 0x08) != 0x08) {
+    if (readRegister(REG_ECC) == 0xd9) {
+      modifyRegister(REG_CMR, 0x1f, 0x02); // error, abort
+      return 0;
+    }
+    yield();
+  }
+|—————Node:while Text: while
+|—————Node:condition_clause Text: ((readRegister(REG_SR) & 0x08) != 0x08)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: (readRegister(REG_SR) & 0x08) != 0x08
+|———————Node:parenthesized_expression Text: (readRegister(REG_SR) & 0x08)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: readRegister(REG_SR) & 0x08
+|—————————Node:call_expression Text: readRegister(REG_SR)
+|——————————Node:identifier Text: readRegister
+|——————————Node:argument_list Text: (REG_SR)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: REG_SR
+|———————————Node:) Text: )
+|—————————Node:& Text: &
+|—————————Node:number_literal Text: 0x08
+|————————Node:) Text: )
+|———————Node:!= Text: !=
+|———————Node:number_literal Text: 0x08
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+    if (readRegister(REG_ECC) == 0xd9) {
+      modifyRegister(REG_CMR, 0x1f, 0x02); // error, abort
+      return 0;
+    }
+    yield();
+  }
+|——————Node:{ Text: {
+|——————Node:if_statement Text: if (readRegister(REG_ECC) == 0xd9) {
+      modifyRegister(REG_CMR, 0x1f, 0x02); // error, abort
+      return 0;
+    }
+|———————Node:if Text: if
+|———————Node:condition_clause Text: (readRegister(REG_ECC) == 0xd9)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: readRegister(REG_ECC) == 0xd9
+|—————————Node:call_expression Text: readRegister(REG_ECC)
+|——————————Node:identifier Text: readRegister
+|——————————Node:argument_list Text: (REG_ECC)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: REG_ECC
+|———————————Node:) Text: )
+|—————————Node:== Text: ==
+|—————————Node:number_literal Text: 0xd9
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+      modifyRegister(REG_CMR, 0x1f, 0x02); // error, abort
+      return 0;
+    }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: modifyRegister(REG_CMR, 0x1f, 0x02);
+|—————————Node:call_expression Text: modifyRegister(REG_CMR, 0x1f, 0x02)
+|——————————Node:identifier Text: modifyRegister
+|——————————Node:argument_list Text: (REG_CMR, 0x1f, 0x02)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: REG_CMR
+|———————————Node:, Text: ,
+|———————————Node:number_literal Text: 0x1f
+|———————————Node:, Text: ,
+|———————————Node:number_literal Text: 0x02
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:comment Text: // error, abort
+|————————Node:return_statement Text: return 0;
+|—————————Node:return Text: return
+|—————————Node:number_literal Text: 0
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:expression_statement Text: yield();
+|———————Node:call_expression Text: yield()
+|————————Node:identifier Text: yield
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:return_statement Text: return 1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: 1
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: int ESP32SJA1000Class::parsePacket()
+{
+  if ((readRegister(REG_SR) & 0x01) != 0x01) {
+    // no packet
+    return 0;
+  }
+
+  _rxExtended = (readRegister(REG_SFF) & 0x80) ? true : false;
+  _rxRtr = (readRegister(REG_SFF) & 0x40) ? true : false;
+  _rxDlc = (readRegister(REG_SFF) & 0x0f);
+  _rxIndex = 0;
+
+  int dataReg;
+
+  if (_rxExtended) {
+    _rxId = (readRegister(REG_EFF + 1) << 21) |
+            (readRegister(REG_EFF + 2) << 13) |
+            (readRegister(REG_EFF + 3) << 5) |
+            (readRegister(REG_EFF + 4) >> 3);
+
+    dataReg = REG_EFF + 5;
+  } else {
+    _rxId = (readRegister(REG_SFF + 1) << 3) | ((readRegister(REG_SFF + 2) >> 5) & 0x07);
+
+    dataReg = REG_SFF + 3;
+  }
+
+  if (_rxRtr) {
+    _rxLength = 0;
+  } else {
+    _rxLength = _rxDlc;
+
+    for (int i = 0; i < _rxLength; i++) {
+      _rxData[i] = readRegister(dataReg + i);
+    }
+  }
+
+  // release RX buffer
+  modifyRegister(REG_CMR, 0x04, 0x04);
+
+  return _rxDlc;
+}
+|———Node:primitive_type Text: int
+|———Node:function_declarator Text: ESP32SJA1000Class::parsePacket()
+|————Node:qualified_identifier Text: ESP32SJA1000Class::parsePacket
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:identifier Text: parsePacket
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+  if ((readRegister(REG_SR) & 0x01) != 0x01) {
+    // no packet
+    return 0;
+  }
+
+  _rxExtended = (readRegister(REG_SFF) & 0x80) ? true : false;
+  _rxRtr = (readRegister(REG_SFF) & 0x40) ? true : false;
+  _rxDlc = (readRegister(REG_SFF) & 0x0f);
+  _rxIndex = 0;
+
+  int dataReg;
+
+  if (_rxExtended) {
+    _rxId = (readRegister(REG_EFF + 1) << 21) |
+            (readRegister(REG_EFF + 2) << 13) |
+            (readRegister(REG_EFF + 3) << 5) |
+            (readRegister(REG_EFF + 4) >> 3);
+
+    dataReg = REG_EFF + 5;
+  } else {
+    _rxId = (readRegister(REG_SFF + 1) << 3) | ((readRegister(REG_SFF + 2) >> 5) & 0x07);
+
+    dataReg = REG_SFF + 3;
+  }
+
+  if (_rxRtr) {
+    _rxLength = 0;
+  } else {
+    _rxLength = _rxDlc;
+
+    for (int i = 0; i < _rxLength; i++) {
+      _rxData[i] = readRegister(dataReg + i);
+    }
+  }
+
+  // release RX buffer
+  modifyRegister(REG_CMR, 0x04, 0x04);
+
+  return _rxDlc;
+}
+|————Node:{ Text: {
+|————Node:if_statement Text: if ((readRegister(REG_SR) & 0x01) != 0x01) {
+    // no packet
+    return 0;
+  }
+|—————Node:if Text: if
+|—————Node:condition_clause Text: ((readRegister(REG_SR) & 0x01) != 0x01)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: (readRegister(REG_SR) & 0x01) != 0x01
+|———————Node:parenthesized_expression Text: (readRegister(REG_SR) & 0x01)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: readRegister(REG_SR) & 0x01
+|—————————Node:call_expression Text: readRegister(REG_SR)
+|——————————Node:identifier Text: readRegister
+|——————————Node:argument_list Text: (REG_SR)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: REG_SR
+|———————————Node:) Text: )
+|—————————Node:& Text: &
+|—————————Node:number_literal Text: 0x01
+|————————Node:) Text: )
+|———————Node:!= Text: !=
+|———————Node:number_literal Text: 0x01
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+    // no packet
+    return 0;
+  }
+|——————Node:{ Text: {
+|——————Node:comment Text: // no packet
+|——————Node:return_statement Text: return 0;
+|———————Node:return Text: return
+|———————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: _rxExtended = (readRegister(REG_SFF) & 0x80) ? true : false;
+|—————Node:assignment_expression Text: _rxExtended = (readRegister(REG_SFF) & 0x80) ? true : false
+|——————Node:identifier Text: _rxExtended
+|——————Node:= Text: =
+|——————Node:conditional_expression Text: (readRegister(REG_SFF) & 0x80) ? true : false
+|———————Node:parenthesized_expression Text: (readRegister(REG_SFF) & 0x80)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: readRegister(REG_SFF) & 0x80
+|—————————Node:call_expression Text: readRegister(REG_SFF)
+|——————————Node:identifier Text: readRegister
+|——————————Node:argument_list Text: (REG_SFF)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: REG_SFF
+|———————————Node:) Text: )
+|—————————Node:& Text: &
+|—————————Node:number_literal Text: 0x80
+|————————Node:) Text: )
+|———————Node:? Text: ?
+|———————Node:true Text: true
+|———————Node:: Text: :
+|———————Node:false Text: false
+|—————Node:; Text: ;
+|————Node:expression_statement Text: _rxRtr = (readRegister(REG_SFF) & 0x40) ? true : false;
+|—————Node:assignment_expression Text: _rxRtr = (readRegister(REG_SFF) & 0x40) ? true : false
+|——————Node:identifier Text: _rxRtr
+|——————Node:= Text: =
+|——————Node:conditional_expression Text: (readRegister(REG_SFF) & 0x40) ? true : false
+|———————Node:parenthesized_expression Text: (readRegister(REG_SFF) & 0x40)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: readRegister(REG_SFF) & 0x40
+|—————————Node:call_expression Text: readRegister(REG_SFF)
+|——————————Node:identifier Text: readRegister
+|——————————Node:argument_list Text: (REG_SFF)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: REG_SFF
+|———————————Node:) Text: )
+|—————————Node:& Text: &
+|—————————Node:number_literal Text: 0x40
+|————————Node:) Text: )
+|———————Node:? Text: ?
+|———————Node:true Text: true
+|———————Node:: Text: :
+|———————Node:false Text: false
+|—————Node:; Text: ;
+|————Node:expression_statement Text: _rxDlc = (readRegister(REG_SFF) & 0x0f);
+|—————Node:assignment_expression Text: _rxDlc = (readRegister(REG_SFF) & 0x0f)
+|——————Node:identifier Text: _rxDlc
+|——————Node:= Text: =
+|——————Node:parenthesized_expression Text: (readRegister(REG_SFF) & 0x0f)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: readRegister(REG_SFF) & 0x0f
+|————————Node:call_expression Text: readRegister(REG_SFF)
+|—————————Node:identifier Text: readRegister
+|—————————Node:argument_list Text: (REG_SFF)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: REG_SFF
+|——————————Node:) Text: )
+|————————Node:& Text: &
+|————————Node:number_literal Text: 0x0f
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: _rxIndex = 0;
+|—————Node:assignment_expression Text: _rxIndex = 0
+|——————Node:identifier Text: _rxIndex
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:declaration Text: int dataReg;
+|—————Node:primitive_type Text: int
+|—————Node:identifier Text: dataReg
+|—————Node:; Text: ;
+|————Node:if_statement Text: if (_rxExtended) {
+    _rxId = (readRegister(REG_EFF + 1) << 21) |
+            (readRegister(REG_EFF + 2) << 13) |
+            (readRegister(REG_EFF + 3) << 5) |
+            (readRegister(REG_EFF + 4) >> 3);
+
+    dataReg = REG_EFF + 5;
+  } else {
+    _rxId = (readRegister(REG_SFF + 1) << 3) | ((readRegister(REG_SFF + 2) >> 5) & 0x07);
+
+    dataReg = REG_SFF + 3;
+  }
+|—————Node:if Text: if
+|—————Node:condition_clause Text: (_rxExtended)
+|——————Node:( Text: (
+|——————Node:identifier Text: _rxExtended
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+    _rxId = (readRegister(REG_EFF + 1) << 21) |
+            (readRegister(REG_EFF + 2) << 13) |
+            (readRegister(REG_EFF + 3) << 5) |
+            (readRegister(REG_EFF + 4) >> 3);
+
+    dataReg = REG_EFF + 5;
+  }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: _rxId = (readRegister(REG_EFF + 1) << 21) |
+            (readRegister(REG_EFF + 2) << 13) |
+            (readRegister(REG_EFF + 3) << 5) |
+            (readRegister(REG_EFF + 4) >> 3);
+|———————Node:assignment_expression Text: _rxId = (readRegister(REG_EFF + 1) << 21) |
+            (readRegister(REG_EFF + 2) << 13) |
+            (readRegister(REG_EFF + 3) << 5) |
+            (readRegister(REG_EFF + 4) >> 3)
+|————————Node:identifier Text: _rxId
+|————————Node:= Text: =
+|————————Node:binary_expression Text: (readRegister(REG_EFF + 1) << 21) |
+            (readRegister(REG_EFF + 2) << 13) |
+            (readRegister(REG_EFF + 3) << 5) |
+            (readRegister(REG_EFF + 4) >> 3)
+|—————————Node:binary_expression Text: (readRegister(REG_EFF + 1) << 21) |
+            (readRegister(REG_EFF + 2) << 13) |
+            (readRegister(REG_EFF + 3) << 5)
+|——————————Node:binary_expression Text: (readRegister(REG_EFF + 1) << 21) |
+            (readRegister(REG_EFF + 2) << 13)
+|———————————Node:parenthesized_expression Text: (readRegister(REG_EFF + 1) << 21)
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: readRegister(REG_EFF + 1) << 21
+|—————————————Node:call_expression Text: readRegister(REG_EFF + 1)
+|——————————————Node:identifier Text: readRegister
+|——————————————Node:argument_list Text: (REG_EFF + 1)
+|———————————————Node:( Text: (
+|———————————————Node:binary_expression Text: REG_EFF + 1
+|————————————————Node:identifier Text: REG_EFF
+|————————————————Node:+ Text: +
+|————————————————Node:number_literal Text: 1
+|———————————————Node:) Text: )
+|—————————————Node:<< Text: <<
+|—————————————Node:number_literal Text: 21
+|————————————Node:) Text: )
+|———————————Node:| Text: |
+|———————————Node:parenthesized_expression Text: (readRegister(REG_EFF + 2) << 13)
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: readRegister(REG_EFF + 2) << 13
+|—————————————Node:call_expression Text: readRegister(REG_EFF + 2)
+|——————————————Node:identifier Text: readRegister
+|——————————————Node:argument_list Text: (REG_EFF + 2)
+|———————————————Node:( Text: (
+|———————————————Node:binary_expression Text: REG_EFF + 2
+|————————————————Node:identifier Text: REG_EFF
+|————————————————Node:+ Text: +
+|————————————————Node:number_literal Text: 2
+|———————————————Node:) Text: )
+|—————————————Node:<< Text: <<
+|—————————————Node:number_literal Text: 13
+|————————————Node:) Text: )
+|——————————Node:| Text: |
+|——————————Node:parenthesized_expression Text: (readRegister(REG_EFF + 3) << 5)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: readRegister(REG_EFF + 3) << 5
+|————————————Node:call_expression Text: readRegister(REG_EFF + 3)
+|—————————————Node:identifier Text: readRegister
+|—————————————Node:argument_list Text: (REG_EFF + 3)
+|——————————————Node:( Text: (
+|——————————————Node:binary_expression Text: REG_EFF + 3
+|———————————————Node:identifier Text: REG_EFF
+|———————————————Node:+ Text: +
+|———————————————Node:number_literal Text: 3
+|——————————————Node:) Text: )
+|————————————Node:<< Text: <<
+|————————————Node:number_literal Text: 5
+|———————————Node:) Text: )
+|—————————Node:| Text: |
+|—————————Node:parenthesized_expression Text: (readRegister(REG_EFF + 4) >> 3)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: readRegister(REG_EFF + 4) >> 3
+|———————————Node:call_expression Text: readRegister(REG_EFF + 4)
+|————————————Node:identifier Text: readRegister
+|————————————Node:argument_list Text: (REG_EFF + 4)
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: REG_EFF + 4
+|——————————————Node:identifier Text: REG_EFF
+|——————————————Node:+ Text: +
+|——————————————Node:number_literal Text: 4
+|—————————————Node:) Text: )
+|———————————Node:>> Text: >>
+|———————————Node:number_literal Text: 3
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: dataReg = REG_EFF + 5;
+|———————Node:assignment_expression Text: dataReg = REG_EFF + 5
+|————————Node:identifier Text: dataReg
+|————————Node:= Text: =
+|————————Node:binary_expression Text: REG_EFF + 5
+|—————————Node:identifier Text: REG_EFF
+|—————————Node:+ Text: +
+|—————————Node:number_literal Text: 5
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|—————Node:else_clause Text: else {
+    _rxId = (readRegister(REG_SFF + 1) << 3) | ((readRegister(REG_SFF + 2) >> 5) & 0x07);
+
+    dataReg = REG_SFF + 3;
+  }
+|——————Node:else Text: else
+|——————Node:compound_statement Text: {
+    _rxId = (readRegister(REG_SFF + 1) << 3) | ((readRegister(REG_SFF + 2) >> 5) & 0x07);
+
+    dataReg = REG_SFF + 3;
+  }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: _rxId = (readRegister(REG_SFF + 1) << 3) | ((readRegister(REG_SFF + 2) >> 5) & 0x07);
+|————————Node:assignment_expression Text: _rxId = (readRegister(REG_SFF + 1) << 3) | ((readRegister(REG_SFF + 2) >> 5) & 0x07)
+|—————————Node:identifier Text: _rxId
+|—————————Node:= Text: =
+|—————————Node:binary_expression Text: (readRegister(REG_SFF + 1) << 3) | ((readRegister(REG_SFF + 2) >> 5) & 0x07)
+|——————————Node:parenthesized_expression Text: (readRegister(REG_SFF + 1) << 3)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: readRegister(REG_SFF + 1) << 3
+|————————————Node:call_expression Text: readRegister(REG_SFF + 1)
+|—————————————Node:identifier Text: readRegister
+|—————————————Node:argument_list Text: (REG_SFF + 1)
+|——————————————Node:( Text: (
+|——————————————Node:binary_expression Text: REG_SFF + 1
+|———————————————Node:identifier Text: REG_SFF
+|———————————————Node:+ Text: +
+|———————————————Node:number_literal Text: 1
+|——————————————Node:) Text: )
+|————————————Node:<< Text: <<
+|————————————Node:number_literal Text: 3
+|———————————Node:) Text: )
+|——————————Node:| Text: |
+|——————————Node:parenthesized_expression Text: ((readRegister(REG_SFF + 2) >> 5) & 0x07)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: (readRegister(REG_SFF + 2) >> 5) & 0x07
+|————————————Node:parenthesized_expression Text: (readRegister(REG_SFF + 2) >> 5)
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: readRegister(REG_SFF + 2) >> 5
+|——————————————Node:call_expression Text: readRegister(REG_SFF + 2)
+|———————————————Node:identifier Text: readRegister
+|———————————————Node:argument_list Text: (REG_SFF + 2)
+|————————————————Node:( Text: (
+|————————————————Node:binary_expression Text: REG_SFF + 2
+|—————————————————Node:identifier Text: REG_SFF
+|—————————————————Node:+ Text: +
+|—————————————————Node:number_literal Text: 2
+|————————————————Node:) Text: )
+|——————————————Node:>> Text: >>
+|——————————————Node:number_literal Text: 5
+|—————————————Node:) Text: )
+|————————————Node:& Text: &
+|————————————Node:number_literal Text: 0x07
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: dataReg = REG_SFF + 3;
+|————————Node:assignment_expression Text: dataReg = REG_SFF + 3
+|—————————Node:identifier Text: dataReg
+|—————————Node:= Text: =
+|—————————Node:binary_expression Text: REG_SFF + 3
+|——————————Node:identifier Text: REG_SFF
+|——————————Node:+ Text: +
+|——————————Node:number_literal Text: 3
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|————Node:if_statement Text: if (_rxRtr) {
+    _rxLength = 0;
+  } else {
+    _rxLength = _rxDlc;
+
+    for (int i = 0; i < _rxLength; i++) {
+      _rxData[i] = readRegister(dataReg + i);
+    }
+  }
+|—————Node:if Text: if
+|—————Node:condition_clause Text: (_rxRtr)
+|——————Node:( Text: (
+|——————Node:identifier Text: _rxRtr
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+    _rxLength = 0;
+  }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: _rxLength = 0;
+|———————Node:assignment_expression Text: _rxLength = 0
+|————————Node:identifier Text: _rxLength
+|————————Node:= Text: =
+|————————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|—————Node:else_clause Text: else {
+    _rxLength = _rxDlc;
+
+    for (int i = 0; i < _rxLength; i++) {
+      _rxData[i] = readRegister(dataReg + i);
+    }
+  }
+|——————Node:else Text: else
+|——————Node:compound_statement Text: {
+    _rxLength = _rxDlc;
+
+    for (int i = 0; i < _rxLength; i++) {
+      _rxData[i] = readRegister(dataReg + i);
+    }
+  }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: _rxLength = _rxDlc;
+|————————Node:assignment_expression Text: _rxLength = _rxDlc
+|—————————Node:identifier Text: _rxLength
+|—————————Node:= Text: =
+|—————————Node:identifier Text: _rxDlc
+|————————Node:; Text: ;
+|———————Node:for_statement Text: for (int i = 0; i < _rxLength; i++) {
+      _rxData[i] = readRegister(dataReg + i);
+    }
+|————————Node:for Text: for
+|————————Node:( Text: (
+|————————Node:declaration Text: int i = 0;
+|—————————Node:primitive_type Text: int
+|—————————Node:init_declarator Text: i = 0
+|——————————Node:identifier Text: i
+|——————————Node:= Text: =
+|——————————Node:number_literal Text: 0
+|—————————Node:; Text: ;
+|————————Node:binary_expression Text: i < _rxLength
+|—————————Node:identifier Text: i
+|—————————Node:< Text: <
+|—————————Node:identifier Text: _rxLength
+|————————Node:; Text: ;
+|————————Node:update_expression Text: i++
+|—————————Node:identifier Text: i
+|—————————Node:++ Text: ++
+|————————Node:) Text: )
+|————————Node:compound_statement Text: {
+      _rxData[i] = readRegister(dataReg + i);
+    }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: _rxData[i] = readRegister(dataReg + i);
+|——————————Node:assignment_expression Text: _rxData[i] = readRegister(dataReg + i)
+|———————————Node:subscript_expression Text: _rxData[i]
+|————————————Node:identifier Text: _rxData
+|————————————Node:subscript_argument_list Text: [i]
+|—————————————Node:[ Text: [
+|—————————————Node:identifier Text: i
+|—————————————Node:] Text: ]
+|———————————Node:= Text: =
+|———————————Node:call_expression Text: readRegister(dataReg + i)
+|————————————Node:identifier Text: readRegister
+|————————————Node:argument_list Text: (dataReg + i)
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: dataReg + i
+|——————————————Node:identifier Text: dataReg
+|——————————————Node:+ Text: +
+|——————————————Node:identifier Text: i
+|—————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|————Node:comment Text: // release RX buffer
+|————Node:expression_statement Text: modifyRegister(REG_CMR, 0x04, 0x04);
+|—————Node:call_expression Text: modifyRegister(REG_CMR, 0x04, 0x04)
+|——————Node:identifier Text: modifyRegister
+|——————Node:argument_list Text: (REG_CMR, 0x04, 0x04)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_CMR
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x04
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x04
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:return_statement Text: return _rxDlc;
+|—————Node:return Text: return
+|—————Node:identifier Text: _rxDlc
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: void ESP32SJA1000Class::onReceive(void(*callback)(int))
+{
+  CANControllerClass::onReceive(callback);
+
+  if (_intrHandle) {
+    esp_intr_free(_intrHandle);
+    _intrHandle = NULL;
+  }
+
+  if (callback) {
+    esp_intr_alloc(ETS_CAN_INTR_SOURCE, 0, ESP32SJA1000Class::onInterrupt, this, &_intrHandle);
+  }
+}
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: ESP32SJA1000Class::onReceive(void(*callback)(int))
+|————Node:qualified_identifier Text: ESP32SJA1000Class::onReceive
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:identifier Text: onReceive
+|————Node:parameter_list Text: (void(*callback)(int))
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: void(*callback)(int)
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: (*callback)(int)
+|———————Node:parenthesized_declarator Text: (*callback)
+|————————Node:( Text: (
+|————————Node:pointer_declarator Text: *callback
+|—————————Node:* Text: *
+|—————————Node:identifier Text: callback
+|————————Node:) Text: )
+|———————Node:parameter_list Text: (int)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: int
+|—————————Node:primitive_type Text: int
+|————————Node:) Text: )
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+  CANControllerClass::onReceive(callback);
+
+  if (_intrHandle) {
+    esp_intr_free(_intrHandle);
+    _intrHandle = NULL;
+  }
+
+  if (callback) {
+    esp_intr_alloc(ETS_CAN_INTR_SOURCE, 0, ESP32SJA1000Class::onInterrupt, this, &_intrHandle);
+  }
+}
+|————Node:{ Text: {
+|————Node:expression_statement Text: CANControllerClass::onReceive(callback);
+|—————Node:call_expression Text: CANControllerClass::onReceive(callback)
+|——————Node:qualified_identifier Text: CANControllerClass::onReceive
+|———————Node:namespace_identifier Text: CANControllerClass
+|———————Node::: Text: ::
+|———————Node:identifier Text: onReceive
+|——————Node:argument_list Text: (callback)
+|———————Node:( Text: (
+|———————Node:identifier Text: callback
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:if_statement Text: if (_intrHandle) {
+    esp_intr_free(_intrHandle);
+    _intrHandle = NULL;
+  }
+|—————Node:if Text: if
+|—————Node:condition_clause Text: (_intrHandle)
+|——————Node:( Text: (
+|——————Node:identifier Text: _intrHandle
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+    esp_intr_free(_intrHandle);
+    _intrHandle = NULL;
+  }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: esp_intr_free(_intrHandle);
+|———————Node:call_expression Text: esp_intr_free(_intrHandle)
+|————————Node:identifier Text: esp_intr_free
+|————————Node:argument_list Text: (_intrHandle)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: _intrHandle
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: _intrHandle = NULL;
+|———————Node:assignment_expression Text: _intrHandle = NULL
+|————————Node:identifier Text: _intrHandle
+|————————Node:= Text: =
+|————————Node:null Text: NULL
+|—————————Node:NULL Text: NULL
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:if_statement Text: if (callback) {
+    esp_intr_alloc(ETS_CAN_INTR_SOURCE, 0, ESP32SJA1000Class::onInterrupt, this, &_intrHandle);
+  }
+|—————Node:if Text: if
+|—————Node:condition_clause Text: (callback)
+|——————Node:( Text: (
+|——————Node:identifier Text: callback
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+    esp_intr_alloc(ETS_CAN_INTR_SOURCE, 0, ESP32SJA1000Class::onInterrupt, this, &_intrHandle);
+  }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: esp_intr_alloc(ETS_CAN_INTR_SOURCE, 0, ESP32SJA1000Class::onInterrupt, this, &_intrHandle);
+|———————Node:call_expression Text: esp_intr_alloc(ETS_CAN_INTR_SOURCE, 0, ESP32SJA1000Class::onInterrupt, this, &_intrHandle)
+|————————Node:identifier Text: esp_intr_alloc
+|————————Node:argument_list Text: (ETS_CAN_INTR_SOURCE, 0, ESP32SJA1000Class::onInterrupt, this, &_intrHandle)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: ETS_CAN_INTR_SOURCE
+|—————————Node:, Text: ,
+|—————————Node:number_literal Text: 0
+|—————————Node:, Text: ,
+|—————————Node:qualified_identifier Text: ESP32SJA1000Class::onInterrupt
+|——————————Node:namespace_identifier Text: ESP32SJA1000Class
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: onInterrupt
+|—————————Node:, Text: ,
+|—————————Node:this Text: this
+|—————————Node:, Text: ,
+|—————————Node:pointer_expression Text: &_intrHandle
+|——————————Node:& Text: &
+|——————————Node:identifier Text: _intrHandle
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:} Text: }
+|——Node:function_definition Text: int ESP32SJA1000Class::filter(int id, int mask)
+{
+  id &= 0x7ff;
+  mask = ~(mask & 0x7ff);
+
+  modifyRegister(REG_MOD, 0x17, 0x01); // reset
+
+  writeRegister(REG_ACRn(0), id >> 3);
+  writeRegister(REG_ACRn(1), id << 5);
+  writeRegister(REG_ACRn(2), 0x00);
+  writeRegister(REG_ACRn(3), 0x00);
+
+  writeRegister(REG_AMRn(0), mask >> 3);
+  writeRegister(REG_AMRn(1), (mask << 5) | 0x1f);
+  writeRegister(REG_AMRn(2), 0xff);
+  writeRegister(REG_AMRn(3), 0xff);
+
+  modifyRegister(REG_MOD, 0x17, 0x00); // normal
+
+  return 1;
+}
+|———Node:primitive_type Text: int
+|———Node:function_declarator Text: ESP32SJA1000Class::filter(int id, int mask)
+|————Node:qualified_identifier Text: ESP32SJA1000Class::filter
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:identifier Text: filter
+|————Node:parameter_list Text: (int id, int mask)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: int id
+|——————Node:primitive_type Text: int
+|——————Node:identifier Text: id
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: int mask
+|——————Node:primitive_type Text: int
+|——————Node:identifier Text: mask
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+  id &= 0x7ff;
+  mask = ~(mask & 0x7ff);
+
+  modifyRegister(REG_MOD, 0x17, 0x01); // reset
+
+  writeRegister(REG_ACRn(0), id >> 3);
+  writeRegister(REG_ACRn(1), id << 5);
+  writeRegister(REG_ACRn(2), 0x00);
+  writeRegister(REG_ACRn(3), 0x00);
+
+  writeRegister(REG_AMRn(0), mask >> 3);
+  writeRegister(REG_AMRn(1), (mask << 5) | 0x1f);
+  writeRegister(REG_AMRn(2), 0xff);
+  writeRegister(REG_AMRn(3), 0xff);
+
+  modifyRegister(REG_MOD, 0x17, 0x00); // normal
+
+  return 1;
+}
+|————Node:{ Text: {
+|————Node:expression_statement Text: id &= 0x7ff;
+|—————Node:assignment_expression Text: id &= 0x7ff
+|——————Node:identifier Text: id
+|——————Node:&= Text: &=
+|——————Node:number_literal Text: 0x7ff
+|—————Node:; Text: ;
+|————Node:expression_statement Text: mask = ~(mask & 0x7ff);
+|—————Node:assignment_expression Text: mask = ~(mask & 0x7ff)
+|——————Node:identifier Text: mask
+|——————Node:= Text: =
+|——————Node:unary_expression Text: ~(mask & 0x7ff)
+|———————Node:~ Text: ~
+|———————Node:parenthesized_expression Text: (mask & 0x7ff)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: mask & 0x7ff
+|—————————Node:identifier Text: mask
+|—————————Node:& Text: &
+|—————————Node:number_literal Text: 0x7ff
+|————————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: modifyRegister(REG_MOD, 0x17, 0x01);
+|—————Node:call_expression Text: modifyRegister(REG_MOD, 0x17, 0x01)
+|——————Node:identifier Text: modifyRegister
+|——————Node:argument_list Text: (REG_MOD, 0x17, 0x01)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_MOD
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x17
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x01
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: // reset
+|————Node:expression_statement Text: writeRegister(REG_ACRn(0), id >> 3);
+|—————Node:call_expression Text: writeRegister(REG_ACRn(0), id >> 3)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_ACRn(0), id >> 3)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_ACRn(0)
+|————————Node:identifier Text: REG_ACRn
+|————————Node:argument_list Text: (0)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:binary_expression Text: id >> 3
+|————————Node:identifier Text: id
+|————————Node:>> Text: >>
+|————————Node:number_literal Text: 3
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_ACRn(1), id << 5);
+|—————Node:call_expression Text: writeRegister(REG_ACRn(1), id << 5)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_ACRn(1), id << 5)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_ACRn(1)
+|————————Node:identifier Text: REG_ACRn
+|————————Node:argument_list Text: (1)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 1
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:binary_expression Text: id << 5
+|————————Node:identifier Text: id
+|————————Node:<< Text: <<
+|————————Node:number_literal Text: 5
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_ACRn(2), 0x00);
+|—————Node:call_expression Text: writeRegister(REG_ACRn(2), 0x00)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_ACRn(2), 0x00)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_ACRn(2)
+|————————Node:identifier Text: REG_ACRn
+|————————Node:argument_list Text: (2)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 2
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x00
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_ACRn(3), 0x00);
+|—————Node:call_expression Text: writeRegister(REG_ACRn(3), 0x00)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_ACRn(3), 0x00)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_ACRn(3)
+|————————Node:identifier Text: REG_ACRn
+|————————Node:argument_list Text: (3)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 3
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x00
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_AMRn(0), mask >> 3);
+|—————Node:call_expression Text: writeRegister(REG_AMRn(0), mask >> 3)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_AMRn(0), mask >> 3)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_AMRn(0)
+|————————Node:identifier Text: REG_AMRn
+|————————Node:argument_list Text: (0)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:binary_expression Text: mask >> 3
+|————————Node:identifier Text: mask
+|————————Node:>> Text: >>
+|————————Node:number_literal Text: 3
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_AMRn(1), (mask << 5) | 0x1f);
+|—————Node:call_expression Text: writeRegister(REG_AMRn(1), (mask << 5) | 0x1f)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_AMRn(1), (mask << 5) | 0x1f)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_AMRn(1)
+|————————Node:identifier Text: REG_AMRn
+|————————Node:argument_list Text: (1)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 1
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:binary_expression Text: (mask << 5) | 0x1f
+|————————Node:parenthesized_expression Text: (mask << 5)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: mask << 5
+|——————————Node:identifier Text: mask
+|——————————Node:<< Text: <<
+|——————————Node:number_literal Text: 5
+|—————————Node:) Text: )
+|————————Node:| Text: |
+|————————Node:number_literal Text: 0x1f
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_AMRn(2), 0xff);
+|—————Node:call_expression Text: writeRegister(REG_AMRn(2), 0xff)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_AMRn(2), 0xff)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_AMRn(2)
+|————————Node:identifier Text: REG_AMRn
+|————————Node:argument_list Text: (2)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 2
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0xff
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_AMRn(3), 0xff);
+|—————Node:call_expression Text: writeRegister(REG_AMRn(3), 0xff)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_AMRn(3), 0xff)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_AMRn(3)
+|————————Node:identifier Text: REG_AMRn
+|————————Node:argument_list Text: (3)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 3
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0xff
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: modifyRegister(REG_MOD, 0x17, 0x00);
+|—————Node:call_expression Text: modifyRegister(REG_MOD, 0x17, 0x00)
+|——————Node:identifier Text: modifyRegister
+|——————Node:argument_list Text: (REG_MOD, 0x17, 0x00)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_MOD
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x17
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x00
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: // normal
+|————Node:return_statement Text: return 1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: 1
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: int ESP32SJA1000Class::filterExtended(long id, long mask)
+{
+  id &= 0x1FFFFFFF;
+  mask &= ~(mask & 0x1FFFFFFF);
+
+  modifyRegister(REG_MOD, 0x17, 0x01); // reset
+
+  writeRegister(REG_ACRn(0), id >> 21);
+  writeRegister(REG_ACRn(1), id >> 13);
+  writeRegister(REG_ACRn(2), id >> 5);
+  writeRegister(REG_ACRn(3), id << 3);
+
+  writeRegister(REG_AMRn(0), mask >> 21);
+  writeRegister(REG_AMRn(1), mask >> 13);
+  writeRegister(REG_AMRn(2), mask >> 5);
+  writeRegister(REG_AMRn(3), (mask << 3) | 0x1f);
+
+  modifyRegister(REG_MOD, 0x17, 0x00); // normal
+
+  return 1;
+}
+|———Node:primitive_type Text: int
+|———Node:function_declarator Text: ESP32SJA1000Class::filterExtended(long id, long mask)
+|————Node:qualified_identifier Text: ESP32SJA1000Class::filterExtended
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:identifier Text: filterExtended
+|————Node:parameter_list Text: (long id, long mask)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: long id
+|——————Node:sized_type_specifier Text: long
+|———————Node:long Text: long
+|——————Node:identifier Text: id
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: long mask
+|——————Node:sized_type_specifier Text: long
+|———————Node:long Text: long
+|——————Node:identifier Text: mask
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+  id &= 0x1FFFFFFF;
+  mask &= ~(mask & 0x1FFFFFFF);
+
+  modifyRegister(REG_MOD, 0x17, 0x01); // reset
+
+  writeRegister(REG_ACRn(0), id >> 21);
+  writeRegister(REG_ACRn(1), id >> 13);
+  writeRegister(REG_ACRn(2), id >> 5);
+  writeRegister(REG_ACRn(3), id << 3);
+
+  writeRegister(REG_AMRn(0), mask >> 21);
+  writeRegister(REG_AMRn(1), mask >> 13);
+  writeRegister(REG_AMRn(2), mask >> 5);
+  writeRegister(REG_AMRn(3), (mask << 3) | 0x1f);
+
+  modifyRegister(REG_MOD, 0x17, 0x00); // normal
+
+  return 1;
+}
+|————Node:{ Text: {
+|————Node:expression_statement Text: id &= 0x1FFFFFFF;
+|—————Node:assignment_expression Text: id &= 0x1FFFFFFF
+|——————Node:identifier Text: id
+|——————Node:&= Text: &=
+|——————Node:number_literal Text: 0x1FFFFFFF
+|—————Node:; Text: ;
+|————Node:expression_statement Text: mask &= ~(mask & 0x1FFFFFFF);
+|—————Node:assignment_expression Text: mask &= ~(mask & 0x1FFFFFFF)
+|——————Node:identifier Text: mask
+|——————Node:&= Text: &=
+|——————Node:unary_expression Text: ~(mask & 0x1FFFFFFF)
+|———————Node:~ Text: ~
+|———————Node:parenthesized_expression Text: (mask & 0x1FFFFFFF)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: mask & 0x1FFFFFFF
+|—————————Node:identifier Text: mask
+|—————————Node:& Text: &
+|—————————Node:number_literal Text: 0x1FFFFFFF
+|————————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: modifyRegister(REG_MOD, 0x17, 0x01);
+|—————Node:call_expression Text: modifyRegister(REG_MOD, 0x17, 0x01)
+|——————Node:identifier Text: modifyRegister
+|——————Node:argument_list Text: (REG_MOD, 0x17, 0x01)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_MOD
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x17
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x01
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: // reset
+|————Node:expression_statement Text: writeRegister(REG_ACRn(0), id >> 21);
+|—————Node:call_expression Text: writeRegister(REG_ACRn(0), id >> 21)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_ACRn(0), id >> 21)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_ACRn(0)
+|————————Node:identifier Text: REG_ACRn
+|————————Node:argument_list Text: (0)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:binary_expression Text: id >> 21
+|————————Node:identifier Text: id
+|————————Node:>> Text: >>
+|————————Node:number_literal Text: 21
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_ACRn(1), id >> 13);
+|—————Node:call_expression Text: writeRegister(REG_ACRn(1), id >> 13)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_ACRn(1), id >> 13)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_ACRn(1)
+|————————Node:identifier Text: REG_ACRn
+|————————Node:argument_list Text: (1)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 1
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:binary_expression Text: id >> 13
+|————————Node:identifier Text: id
+|————————Node:>> Text: >>
+|————————Node:number_literal Text: 13
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_ACRn(2), id >> 5);
+|—————Node:call_expression Text: writeRegister(REG_ACRn(2), id >> 5)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_ACRn(2), id >> 5)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_ACRn(2)
+|————————Node:identifier Text: REG_ACRn
+|————————Node:argument_list Text: (2)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 2
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:binary_expression Text: id >> 5
+|————————Node:identifier Text: id
+|————————Node:>> Text: >>
+|————————Node:number_literal Text: 5
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_ACRn(3), id << 3);
+|—————Node:call_expression Text: writeRegister(REG_ACRn(3), id << 3)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_ACRn(3), id << 3)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_ACRn(3)
+|————————Node:identifier Text: REG_ACRn
+|————————Node:argument_list Text: (3)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 3
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:binary_expression Text: id << 3
+|————————Node:identifier Text: id
+|————————Node:<< Text: <<
+|————————Node:number_literal Text: 3
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_AMRn(0), mask >> 21);
+|—————Node:call_expression Text: writeRegister(REG_AMRn(0), mask >> 21)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_AMRn(0), mask >> 21)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_AMRn(0)
+|————————Node:identifier Text: REG_AMRn
+|————————Node:argument_list Text: (0)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:binary_expression Text: mask >> 21
+|————————Node:identifier Text: mask
+|————————Node:>> Text: >>
+|————————Node:number_literal Text: 21
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_AMRn(1), mask >> 13);
+|—————Node:call_expression Text: writeRegister(REG_AMRn(1), mask >> 13)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_AMRn(1), mask >> 13)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_AMRn(1)
+|————————Node:identifier Text: REG_AMRn
+|————————Node:argument_list Text: (1)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 1
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:binary_expression Text: mask >> 13
+|————————Node:identifier Text: mask
+|————————Node:>> Text: >>
+|————————Node:number_literal Text: 13
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_AMRn(2), mask >> 5);
+|—————Node:call_expression Text: writeRegister(REG_AMRn(2), mask >> 5)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_AMRn(2), mask >> 5)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_AMRn(2)
+|————————Node:identifier Text: REG_AMRn
+|————————Node:argument_list Text: (2)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 2
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:binary_expression Text: mask >> 5
+|————————Node:identifier Text: mask
+|————————Node:>> Text: >>
+|————————Node:number_literal Text: 5
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: writeRegister(REG_AMRn(3), (mask << 3) | 0x1f);
+|—————Node:call_expression Text: writeRegister(REG_AMRn(3), (mask << 3) | 0x1f)
+|——————Node:identifier Text: writeRegister
+|——————Node:argument_list Text: (REG_AMRn(3), (mask << 3) | 0x1f)
+|———————Node:( Text: (
+|———————Node:call_expression Text: REG_AMRn(3)
+|————————Node:identifier Text: REG_AMRn
+|————————Node:argument_list Text: (3)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 3
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:binary_expression Text: (mask << 3) | 0x1f
+|————————Node:parenthesized_expression Text: (mask << 3)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: mask << 3
+|——————————Node:identifier Text: mask
+|——————————Node:<< Text: <<
+|——————————Node:number_literal Text: 3
+|—————————Node:) Text: )
+|————————Node:| Text: |
+|————————Node:number_literal Text: 0x1f
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: modifyRegister(REG_MOD, 0x17, 0x00);
+|—————Node:call_expression Text: modifyRegister(REG_MOD, 0x17, 0x00)
+|——————Node:identifier Text: modifyRegister
+|——————Node:argument_list Text: (REG_MOD, 0x17, 0x00)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_MOD
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x17
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x00
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: // normal
+|————Node:return_statement Text: return 1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: 1
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: int ESP32SJA1000Class::observe()
+{
+  modifyRegister(REG_MOD, 0x17, 0x01); // reset
+  modifyRegister(REG_MOD, 0x17, 0x02); // observe
+
+  return 1;
+}
+|———Node:primitive_type Text: int
+|———Node:function_declarator Text: ESP32SJA1000Class::observe()
+|————Node:qualified_identifier Text: ESP32SJA1000Class::observe
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:identifier Text: observe
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+  modifyRegister(REG_MOD, 0x17, 0x01); // reset
+  modifyRegister(REG_MOD, 0x17, 0x02); // observe
+
+  return 1;
+}
+|————Node:{ Text: {
+|————Node:expression_statement Text: modifyRegister(REG_MOD, 0x17, 0x01);
+|—————Node:call_expression Text: modifyRegister(REG_MOD, 0x17, 0x01)
+|——————Node:identifier Text: modifyRegister
+|——————Node:argument_list Text: (REG_MOD, 0x17, 0x01)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_MOD
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x17
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x01
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: // reset
+|————Node:expression_statement Text: modifyRegister(REG_MOD, 0x17, 0x02);
+|—————Node:call_expression Text: modifyRegister(REG_MOD, 0x17, 0x02)
+|——————Node:identifier Text: modifyRegister
+|——————Node:argument_list Text: (REG_MOD, 0x17, 0x02)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_MOD
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x17
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x02
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: // observe
+|————Node:return_statement Text: return 1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: 1
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: int ESP32SJA1000Class::loopback()
+{
+  _loopback = true;
+
+  modifyRegister(REG_MOD, 0x17, 0x01); // reset
+  modifyRegister(REG_MOD, 0x17, 0x04); // self test mode
+
+  return 1;
+}
+|———Node:primitive_type Text: int
+|———Node:function_declarator Text: ESP32SJA1000Class::loopback()
+|————Node:qualified_identifier Text: ESP32SJA1000Class::loopback
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:identifier Text: loopback
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+  _loopback = true;
+
+  modifyRegister(REG_MOD, 0x17, 0x01); // reset
+  modifyRegister(REG_MOD, 0x17, 0x04); // self test mode
+
+  return 1;
+}
+|————Node:{ Text: {
+|————Node:expression_statement Text: _loopback = true;
+|—————Node:assignment_expression Text: _loopback = true
+|——————Node:identifier Text: _loopback
+|——————Node:= Text: =
+|——————Node:true Text: true
+|—————Node:; Text: ;
+|————Node:expression_statement Text: modifyRegister(REG_MOD, 0x17, 0x01);
+|—————Node:call_expression Text: modifyRegister(REG_MOD, 0x17, 0x01)
+|——————Node:identifier Text: modifyRegister
+|——————Node:argument_list Text: (REG_MOD, 0x17, 0x01)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_MOD
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x17
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x01
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: // reset
+|————Node:expression_statement Text: modifyRegister(REG_MOD, 0x17, 0x04);
+|—————Node:call_expression Text: modifyRegister(REG_MOD, 0x17, 0x04)
+|——————Node:identifier Text: modifyRegister
+|——————Node:argument_list Text: (REG_MOD, 0x17, 0x04)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_MOD
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x17
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x04
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: // self test mode
+|————Node:return_statement Text: return 1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: 1
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: int ESP32SJA1000Class::sleep()
+{
+  modifyRegister(REG_MOD, 0x1f, 0x10);
+
+  return 1;
+}
+|———Node:primitive_type Text: int
+|———Node:function_declarator Text: ESP32SJA1000Class::sleep()
+|————Node:qualified_identifier Text: ESP32SJA1000Class::sleep
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:identifier Text: sleep
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+  modifyRegister(REG_MOD, 0x1f, 0x10);
+
+  return 1;
+}
+|————Node:{ Text: {
+|————Node:expression_statement Text: modifyRegister(REG_MOD, 0x1f, 0x10);
+|—————Node:call_expression Text: modifyRegister(REG_MOD, 0x1f, 0x10)
+|——————Node:identifier Text: modifyRegister
+|——————Node:argument_list Text: (REG_MOD, 0x1f, 0x10)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_MOD
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x1f
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x10
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:return_statement Text: return 1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: 1
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: int ESP32SJA1000Class::wakeup()
+{
+  modifyRegister(REG_MOD, 0x1f, 0x00);
+
+  return 1;
+}
+|———Node:primitive_type Text: int
+|———Node:function_declarator Text: ESP32SJA1000Class::wakeup()
+|————Node:qualified_identifier Text: ESP32SJA1000Class::wakeup
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:identifier Text: wakeup
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+  modifyRegister(REG_MOD, 0x1f, 0x00);
+
+  return 1;
+}
+|————Node:{ Text: {
+|————Node:expression_statement Text: modifyRegister(REG_MOD, 0x1f, 0x00);
+|—————Node:call_expression Text: modifyRegister(REG_MOD, 0x1f, 0x00)
+|——————Node:identifier Text: modifyRegister
+|——————Node:argument_list Text: (REG_MOD, 0x1f, 0x00)
+|———————Node:( Text: (
+|———————Node:identifier Text: REG_MOD
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x1f
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0x00
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:return_statement Text: return 1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: 1
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: void ESP32SJA1000Class::setPins(int rx, int tx)
+{
+  _rxPin = (gpio_num_t)rx;
+  _txPin = (gpio_num_t)tx;
+}
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: ESP32SJA1000Class::setPins(int rx, int tx)
+|————Node:qualified_identifier Text: ESP32SJA1000Class::setPins
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:identifier Text: setPins
+|————Node:parameter_list Text: (int rx, int tx)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: int rx
+|——————Node:primitive_type Text: int
+|——————Node:identifier Text: rx
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: int tx
+|——————Node:primitive_type Text: int
+|——————Node:identifier Text: tx
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+  _rxPin = (gpio_num_t)rx;
+  _txPin = (gpio_num_t)tx;
+}
+|————Node:{ Text: {
+|————Node:expression_statement Text: _rxPin = (gpio_num_t)rx;
+|—————Node:assignment_expression Text: _rxPin = (gpio_num_t)rx
+|——————Node:identifier Text: _rxPin
+|——————Node:= Text: =
+|——————Node:cast_expression Text: (gpio_num_t)rx
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: gpio_num_t
+|————————Node:type_identifier Text: gpio_num_t
+|———————Node:) Text: )
+|———————Node:identifier Text: rx
+|—————Node:; Text: ;
+|————Node:expression_statement Text: _txPin = (gpio_num_t)tx;
+|—————Node:assignment_expression Text: _txPin = (gpio_num_t)tx
+|——————Node:identifier Text: _txPin
+|——————Node:= Text: =
+|——————Node:cast_expression Text: (gpio_num_t)tx
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: gpio_num_t
+|————————Node:type_identifier Text: gpio_num_t
+|———————Node:) Text: )
+|———————Node:identifier Text: tx
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: void ESP32SJA1000Class::dumpRegisters(Stream& out)
+{
+  for (int i = 0; i < 32; i++) {
+    byte b = readRegister(i);
+
+    out.print("0x");
+    if (i < 16) {
+      out.print('0');
+    }
+    out.print(i, HEX);
+    out.print(": 0x");
+    if (b < 16) {
+      out.print('0');
+    }
+    out.println(b, HEX);
+  }
+}
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: ESP32SJA1000Class::dumpRegisters(Stream& out)
+|————Node:qualified_identifier Text: ESP32SJA1000Class::dumpRegisters
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:identifier Text: dumpRegisters
+|————Node:parameter_list Text: (Stream& out)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: Stream& out
+|——————Node:type_identifier Text: Stream
+|——————Node:reference_declarator Text: & out
+|———————Node:& Text: &
+|———————Node:identifier Text: out
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+  for (int i = 0; i < 32; i++) {
+    byte b = readRegister(i);
+
+    out.print("0x");
+    if (i < 16) {
+      out.print('0');
+    }
+    out.print(i, HEX);
+    out.print(": 0x");
+    if (b < 16) {
+      out.print('0');
+    }
+    out.println(b, HEX);
+  }
+}
+|————Node:{ Text: {
+|————Node:for_statement Text: for (int i = 0; i < 32; i++) {
+    byte b = readRegister(i);
+
+    out.print("0x");
+    if (i < 16) {
+      out.print('0');
+    }
+    out.print(i, HEX);
+    out.print(": 0x");
+    if (b < 16) {
+      out.print('0');
+    }
+    out.println(b, HEX);
+  }
+|—————Node:for Text: for
+|—————Node:( Text: (
+|—————Node:declaration Text: int i = 0;
+|——————Node:primitive_type Text: int
+|——————Node:init_declarator Text: i = 0
+|———————Node:identifier Text: i
+|———————Node:= Text: =
+|———————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:binary_expression Text: i < 32
+|——————Node:identifier Text: i
+|——————Node:< Text: <
+|——————Node:number_literal Text: 32
+|—————Node:; Text: ;
+|—————Node:update_expression Text: i++
+|——————Node:identifier Text: i
+|——————Node:++ Text: ++
+|—————Node:) Text: )
+|—————Node:compound_statement Text: {
+    byte b = readRegister(i);
+
+    out.print("0x");
+    if (i < 16) {
+      out.print('0');
+    }
+    out.print(i, HEX);
+    out.print(": 0x");
+    if (b < 16) {
+      out.print('0');
+    }
+    out.println(b, HEX);
+  }
+|——————Node:{ Text: {
+|——————Node:declaration Text: byte b = readRegister(i);
+|———————Node:type_identifier Text: byte
+|———————Node:init_declarator Text: b = readRegister(i)
+|————————Node:identifier Text: b
+|————————Node:= Text: =
+|————————Node:call_expression Text: readRegister(i)
+|—————————Node:identifier Text: readRegister
+|—————————Node:argument_list Text: (i)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: i
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: out.print("0x");
+|———————Node:call_expression Text: out.print("0x")
+|————————Node:field_expression Text: out.print
+|—————————Node:identifier Text: out
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: print
+|————————Node:argument_list Text: ("0x")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "0x"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: 0x
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (i < 16) {
+      out.print('0');
+    }
+|———————Node:if Text: if
+|———————Node:condition_clause Text: (i < 16)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: i < 16
+|—————————Node:identifier Text: i
+|—————————Node:< Text: <
+|—————————Node:number_literal Text: 16
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+      out.print('0');
+    }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: out.print('0');
+|—————————Node:call_expression Text: out.print('0')
+|——————————Node:field_expression Text: out.print
+|———————————Node:identifier Text: out
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: print
+|——————————Node:argument_list Text: ('0')
+|———————————Node:( Text: (
+|———————————Node:char_literal Text: '0'
+|————————————Node:' Text: '
+|————————————Node:character Text: 0
+|————————————Node:' Text: '
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:expression_statement Text: out.print(i, HEX);
+|———————Node:call_expression Text: out.print(i, HEX)
+|————————Node:field_expression Text: out.print
+|—————————Node:identifier Text: out
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: print
+|————————Node:argument_list Text: (i, HEX)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: i
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: HEX
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: out.print(": 0x");
+|———————Node:call_expression Text: out.print(": 0x")
+|————————Node:field_expression Text: out.print
+|—————————Node:identifier Text: out
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: print
+|————————Node:argument_list Text: (": 0x")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: ": 0x"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: : 0x
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (b < 16) {
+      out.print('0');
+    }
+|———————Node:if Text: if
+|———————Node:condition_clause Text: (b < 16)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: b < 16
+|—————————Node:identifier Text: b
+|—————————Node:< Text: <
+|—————————Node:number_literal Text: 16
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+      out.print('0');
+    }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: out.print('0');
+|—————————Node:call_expression Text: out.print('0')
+|——————————Node:field_expression Text: out.print
+|———————————Node:identifier Text: out
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: print
+|——————————Node:argument_list Text: ('0')
+|———————————Node:( Text: (
+|———————————Node:char_literal Text: '0'
+|————————————Node:' Text: '
+|————————————Node:character Text: 0
+|————————————Node:' Text: '
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:expression_statement Text: out.println(b, HEX);
+|———————Node:call_expression Text: out.println(b, HEX)
+|————————Node:field_expression Text: out.println
+|—————————Node:identifier Text: out
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: println
+|————————Node:argument_list Text: (b, HEX)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: b
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: HEX
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:} Text: }
+|——Node:function_definition Text: void ESP32SJA1000Class::handleInterrupt()
+{
+  uint8_t ir = readRegister(REG_IR);
+
+  if (ir & 0x01) {
+    // received packet, parse and call callback
+    parsePacket();
+
+    _onReceive(available());
+  }
+}
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: ESP32SJA1000Class::handleInterrupt()
+|————Node:qualified_identifier Text: ESP32SJA1000Class::handleInterrupt
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:identifier Text: handleInterrupt
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+  uint8_t ir = readRegister(REG_IR);
+
+  if (ir & 0x01) {
+    // received packet, parse and call callback
+    parsePacket();
+
+    _onReceive(available());
+  }
+}
+|————Node:{ Text: {
+|————Node:declaration Text: uint8_t ir = readRegister(REG_IR);
+|—————Node:primitive_type Text: uint8_t
+|—————Node:init_declarator Text: ir = readRegister(REG_IR)
+|——————Node:identifier Text: ir
+|——————Node:= Text: =
+|——————Node:call_expression Text: readRegister(REG_IR)
+|———————Node:identifier Text: readRegister
+|———————Node:argument_list Text: (REG_IR)
+|————————Node:( Text: (
+|————————Node:identifier Text: REG_IR
+|————————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:if_statement Text: if (ir & 0x01) {
+    // received packet, parse and call callback
+    parsePacket();
+
+    _onReceive(available());
+  }
+|—————Node:if Text: if
+|—————Node:condition_clause Text: (ir & 0x01)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: ir & 0x01
+|———————Node:identifier Text: ir
+|———————Node:& Text: &
+|———————Node:number_literal Text: 0x01
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+    // received packet, parse and call callback
+    parsePacket();
+
+    _onReceive(available());
+  }
+|——————Node:{ Text: {
+|——————Node:comment Text: // received packet, parse and call callback
+|——————Node:expression_statement Text: parsePacket();
+|———————Node:call_expression Text: parsePacket()
+|————————Node:identifier Text: parsePacket
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: _onReceive(available());
+|———————Node:call_expression Text: _onReceive(available())
+|————————Node:identifier Text: _onReceive
+|————————Node:argument_list Text: (available())
+|—————————Node:( Text: (
+|—————————Node:call_expression Text: available()
+|——————————Node:identifier Text: available
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:} Text: }
+|——Node:function_definition Text: uint8_t ESP32SJA1000Class::readRegister(uint8_t address)
+{
+  volatile uint32_t* reg = (volatile uint32_t*)(REG_BASE + address * 4);
+
+  return *reg;
+}
+|———Node:primitive_type Text: uint8_t
+|———Node:function_declarator Text: ESP32SJA1000Class::readRegister(uint8_t address)
+|————Node:qualified_identifier Text: ESP32SJA1000Class::readRegister
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:identifier Text: readRegister
+|————Node:parameter_list Text: (uint8_t address)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint8_t address
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: address
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+  volatile uint32_t* reg = (volatile uint32_t*)(REG_BASE + address * 4);
+
+  return *reg;
+}
+|————Node:{ Text: {
+|————Node:declaration Text: volatile uint32_t* reg = (volatile uint32_t*)(REG_BASE + address * 4);
+|—————Node:type_qualifier Text: volatile
+|——————Node:volatile Text: volatile
+|—————Node:primitive_type Text: uint32_t
+|—————Node:init_declarator Text: * reg = (volatile uint32_t*)(REG_BASE + address * 4)
+|——————Node:pointer_declarator Text: * reg
+|———————Node:* Text: *
+|———————Node:identifier Text: reg
+|——————Node:= Text: =
+|——————Node:cast_expression Text: (volatile uint32_t*)(REG_BASE + address * 4)
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: volatile uint32_t*
+|————————Node:type_qualifier Text: volatile
+|—————————Node:volatile Text: volatile
+|————————Node:primitive_type Text: uint32_t
+|————————Node:abstract_pointer_declarator Text: *
+|—————————Node:* Text: *
+|———————Node:) Text: )
+|———————Node:parenthesized_expression Text: (REG_BASE + address * 4)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: REG_BASE + address * 4
+|—————————Node:identifier Text: REG_BASE
+|—————————Node:+ Text: +
+|—————————Node:binary_expression Text: address * 4
+|——————————Node:identifier Text: address
+|——————————Node:* Text: *
+|——————————Node:number_literal Text: 4
+|————————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:return_statement Text: return *reg;
+|—————Node:return Text: return
+|—————Node:pointer_expression Text: *reg
+|——————Node:* Text: *
+|——————Node:identifier Text: reg
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: void ESP32SJA1000Class::modifyRegister(uint8_t address, uint8_t mask, uint8_t value)
+{
+  volatile uint32_t* reg = (volatile uint32_t*)(REG_BASE + address * 4);
+
+  *reg = (*reg & ~mask) | value;
+}
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: ESP32SJA1000Class::modifyRegister(uint8_t address, uint8_t mask, uint8_t value)
+|————Node:qualified_identifier Text: ESP32SJA1000Class::modifyRegister
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:identifier Text: modifyRegister
+|————Node:parameter_list Text: (uint8_t address, uint8_t mask, uint8_t value)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint8_t address
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: address
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint8_t mask
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: mask
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint8_t value
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: value
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+  volatile uint32_t* reg = (volatile uint32_t*)(REG_BASE + address * 4);
+
+  *reg = (*reg & ~mask) | value;
+}
+|————Node:{ Text: {
+|————Node:declaration Text: volatile uint32_t* reg = (volatile uint32_t*)(REG_BASE + address * 4);
+|—————Node:type_qualifier Text: volatile
+|——————Node:volatile Text: volatile
+|—————Node:primitive_type Text: uint32_t
+|—————Node:init_declarator Text: * reg = (volatile uint32_t*)(REG_BASE + address * 4)
+|——————Node:pointer_declarator Text: * reg
+|———————Node:* Text: *
+|———————Node:identifier Text: reg
+|——————Node:= Text: =
+|——————Node:cast_expression Text: (volatile uint32_t*)(REG_BASE + address * 4)
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: volatile uint32_t*
+|————————Node:type_qualifier Text: volatile
+|—————————Node:volatile Text: volatile
+|————————Node:primitive_type Text: uint32_t
+|————————Node:abstract_pointer_declarator Text: *
+|—————————Node:* Text: *
+|———————Node:) Text: )
+|———————Node:parenthesized_expression Text: (REG_BASE + address * 4)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: REG_BASE + address * 4
+|—————————Node:identifier Text: REG_BASE
+|—————————Node:+ Text: +
+|—————————Node:binary_expression Text: address * 4
+|——————————Node:identifier Text: address
+|——————————Node:* Text: *
+|——————————Node:number_literal Text: 4
+|————————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: *reg = (*reg & ~mask) | value;
+|—————Node:assignment_expression Text: *reg = (*reg & ~mask) | value
+|——————Node:pointer_expression Text: *reg
+|———————Node:* Text: *
+|———————Node:identifier Text: reg
+|——————Node:= Text: =
+|——————Node:binary_expression Text: (*reg & ~mask) | value
+|———————Node:parenthesized_expression Text: (*reg & ~mask)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: *reg & ~mask
+|—————————Node:pointer_expression Text: *reg
+|——————————Node:* Text: *
+|——————————Node:identifier Text: reg
+|—————————Node:& Text: &
+|—————————Node:unary_expression Text: ~mask
+|——————————Node:~ Text: ~
+|——————————Node:identifier Text: mask
+|————————Node:) Text: )
+|———————Node:| Text: |
+|———————Node:identifier Text: value
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: void ESP32SJA1000Class::writeRegister(uint8_t address, uint8_t value)
+{
+  volatile uint32_t* reg = (volatile uint32_t*)(REG_BASE + address * 4);
+
+  *reg = value;
+}
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: ESP32SJA1000Class::writeRegister(uint8_t address, uint8_t value)
+|————Node:qualified_identifier Text: ESP32SJA1000Class::writeRegister
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:identifier Text: writeRegister
+|————Node:parameter_list Text: (uint8_t address, uint8_t value)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint8_t address
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: address
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint8_t value
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: value
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+  volatile uint32_t* reg = (volatile uint32_t*)(REG_BASE + address * 4);
+
+  *reg = value;
+}
+|————Node:{ Text: {
+|————Node:declaration Text: volatile uint32_t* reg = (volatile uint32_t*)(REG_BASE + address * 4);
+|—————Node:type_qualifier Text: volatile
+|——————Node:volatile Text: volatile
+|—————Node:primitive_type Text: uint32_t
+|—————Node:init_declarator Text: * reg = (volatile uint32_t*)(REG_BASE + address * 4)
+|——————Node:pointer_declarator Text: * reg
+|———————Node:* Text: *
+|———————Node:identifier Text: reg
+|——————Node:= Text: =
+|——————Node:cast_expression Text: (volatile uint32_t*)(REG_BASE + address * 4)
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: volatile uint32_t*
+|————————Node:type_qualifier Text: volatile
+|—————————Node:volatile Text: volatile
+|————————Node:primitive_type Text: uint32_t
+|————————Node:abstract_pointer_declarator Text: *
+|—————————Node:* Text: *
+|———————Node:) Text: )
+|———————Node:parenthesized_expression Text: (REG_BASE + address * 4)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: REG_BASE + address * 4
+|—————————Node:identifier Text: REG_BASE
+|—————————Node:+ Text: +
+|—————————Node:binary_expression Text: address * 4
+|——————————Node:identifier Text: address
+|——————————Node:* Text: *
+|——————————Node:number_literal Text: 4
+|————————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: *reg = value;
+|—————Node:assignment_expression Text: *reg = value
+|——————Node:pointer_expression Text: *reg
+|———————Node:* Text: *
+|———————Node:identifier Text: reg
+|——————Node:= Text: =
+|——————Node:identifier Text: value
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: void ESP32SJA1000Class::onInterrupt(void* arg)
+{
+  ((ESP32SJA1000Class*)arg)->handleInterrupt();
+}
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: ESP32SJA1000Class::onInterrupt(void* arg)
+|————Node:qualified_identifier Text: ESP32SJA1000Class::onInterrupt
+|—————Node:namespace_identifier Text: ESP32SJA1000Class
+|—————Node::: Text: ::
+|—————Node:identifier Text: onInterrupt
+|————Node:parameter_list Text: (void* arg)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: void* arg
+|——————Node:primitive_type Text: void
+|——————Node:pointer_declarator Text: * arg
+|———————Node:* Text: *
+|———————Node:identifier Text: arg
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+  ((ESP32SJA1000Class*)arg)->handleInterrupt();
+}
+|————Node:{ Text: {
+|————Node:expression_statement Text: ((ESP32SJA1000Class*)arg)->handleInterrupt();
+|—————Node:call_expression Text: ((ESP32SJA1000Class*)arg)->handleInterrupt()
+|——————Node:field_expression Text: ((ESP32SJA1000Class*)arg)->handleInterrupt
+|———————Node:parenthesized_expression Text: ((ESP32SJA1000Class*)arg)
+|————————Node:( Text: (
+|————————Node:cast_expression Text: (ESP32SJA1000Class*)arg
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: ESP32SJA1000Class*
+|——————————Node:type_identifier Text: ESP32SJA1000Class
+|——————————Node:abstract_pointer_declarator Text: *
+|———————————Node:* Text: *
+|—————————Node:) Text: )
+|—————————Node:identifier Text: arg
+|————————Node:) Text: )
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: handleInterrupt
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:declaration Text: ESP32SJA1000Class CAN;
+|———Node:type_identifier Text: ESP32SJA1000Class
+|———Node:identifier Text: CAN
+|———Node:; Text: ;
+|——Node:#endif Text: #endif

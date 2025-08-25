@@ -1,0 +1,5409 @@
+CBBL-src\commands.c
+
+|Node:translation_unit
+|—Node:comment
+|—Node:preproc_include Text: #include "commands.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "commands.h"
+|———Node:" Text: "
+|———Node:string_content Text: commands.h
+|———Node:" Text: "
+|—Node:comment
+|—Node:comment
+|—Node:function_definition Text: int32_t receivecommand(void) {
+	uint8_t p;
+	uint8_t q;
+	cal_READBYTE(p, TIMEOUT_NACK);
+	switch(p) {
+		case STM32_CMD_GET_COMMAND :
+			cal_SENDLOG("-> first byte: get command \r\n");
+			cal_READBYTE(q, TIMEOUT_NACK);
+			uint8_t t = (~(uint8_t)(STM32_CMD_GET_COMMAND));
+			if (q==t) {
+				return command_get();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_ERASE_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_ERASE_FLASH) {
+				return command_erase_memory();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_GET_ID :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_GET_ID) {
+				return command_get_id();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_WRITE_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_WRITE_FLASH) {
+				return command_write_memory();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_WRITE_UNPROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_WRITE_UNPROTECT) {
+				return command_write_unprotect();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_READ_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_READ_FLASH) {
+				return command_read_memory();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_GETVERSION_READPROTECTION :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_GETVERSION_READPROTECTION) {
+				return command_get_versionread();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_GO :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_GO) {
+				return command_go();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_EXTENDED_ERASE_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_EXTENDED_ERASE_FLASH) {
+				return command_exterase_memory();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_WRITE_PROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_WRITE_PROTECT) {
+				return command_write_protect();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_READ_PROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q == (uint8_t)~STM32_CMD_READ_PROTECT) {
+				return command_readout_protect();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_READ_UNPROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q == (uint8_t)~STM32_CMD_READ_UNPROTECT) {
+				return command_readout_unprotect();
+			}
+			else cal_SENDNACK();
+		default :
+			cal_SENDLOG("-> received command failed \r\n");
+			cal_SENDNACK();  //-1 means no command to receive or receive bytes that is not recogonized
+			break;
+	}
+	return 0;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: receivecommand(void)
+|———Node:identifier Text: receivecommand
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	uint8_t p;
+	uint8_t q;
+	cal_READBYTE(p, TIMEOUT_NACK);
+	switch(p) {
+		case STM32_CMD_GET_COMMAND :
+			cal_SENDLOG("-> first byte: get command \r\n");
+			cal_READBYTE(q, TIMEOUT_NACK);
+			uint8_t t = (~(uint8_t)(STM32_CMD_GET_COMMAND));
+			if (q==t) {
+				return command_get();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_ERASE_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_ERASE_FLASH) {
+				return command_erase_memory();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_GET_ID :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_GET_ID) {
+				return command_get_id();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_WRITE_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_WRITE_FLASH) {
+				return command_write_memory();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_WRITE_UNPROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_WRITE_UNPROTECT) {
+				return command_write_unprotect();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_READ_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_READ_FLASH) {
+				return command_read_memory();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_GETVERSION_READPROTECTION :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_GETVERSION_READPROTECTION) {
+				return command_get_versionread();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_GO :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_GO) {
+				return command_go();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_EXTENDED_ERASE_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_EXTENDED_ERASE_FLASH) {
+				return command_exterase_memory();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_WRITE_PROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_WRITE_PROTECT) {
+				return command_write_protect();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_READ_PROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q == (uint8_t)~STM32_CMD_READ_PROTECT) {
+				return command_readout_protect();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_READ_UNPROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q == (uint8_t)~STM32_CMD_READ_UNPROTECT) {
+				return command_readout_unprotect();
+			}
+			else cal_SENDNACK();
+		default :
+			cal_SENDLOG("-> received command failed \r\n");
+			cal_SENDNACK();  //-1 means no command to receive or receive bytes that is not recogonized
+			break;
+	}
+	return 0;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: uint8_t p;
+|————Node:primitive_type Text: uint8_t
+|————Node:identifier Text: p
+|————Node:; Text: ;
+|———Node:declaration Text: uint8_t q;
+|————Node:primitive_type Text: uint8_t
+|————Node:identifier Text: q
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_READBYTE(p, TIMEOUT_NACK);
+|————Node:call_expression Text: cal_READBYTE(p, TIMEOUT_NACK)
+|—————Node:identifier Text: cal_READBYTE
+|—————Node:argument_list Text: (p, TIMEOUT_NACK)
+|——————Node:( Text: (
+|——————Node:identifier Text: p
+|——————Node:, Text: ,
+|——————Node:identifier Text: TIMEOUT_NACK
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:switch_statement Text: switch(p) {
+		case STM32_CMD_GET_COMMAND :
+			cal_SENDLOG("-> first byte: get command \r\n");
+			cal_READBYTE(q, TIMEOUT_NACK);
+			uint8_t t = (~(uint8_t)(STM32_CMD_GET_COMMAND));
+			if (q==t) {
+				return command_get();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_ERASE_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_ERASE_FLASH) {
+				return command_erase_memory();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_GET_ID :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_GET_ID) {
+				return command_get_id();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_WRITE_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_WRITE_FLASH) {
+				return command_write_memory();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_WRITE_UNPROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_WRITE_UNPROTECT) {
+				return command_write_unprotect();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_READ_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_READ_FLASH) {
+				return command_read_memory();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_GETVERSION_READPROTECTION :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_GETVERSION_READPROTECTION) {
+				return command_get_versionread();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_GO :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_GO) {
+				return command_go();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_EXTENDED_ERASE_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_EXTENDED_ERASE_FLASH) {
+				return command_exterase_memory();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_WRITE_PROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_WRITE_PROTECT) {
+				return command_write_protect();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_READ_PROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q == (uint8_t)~STM32_CMD_READ_PROTECT) {
+				return command_readout_protect();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_READ_UNPROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q == (uint8_t)~STM32_CMD_READ_UNPROTECT) {
+				return command_readout_unprotect();
+			}
+			else cal_SENDNACK();
+		default :
+			cal_SENDLOG("-> received command failed \r\n");
+			cal_SENDNACK();  //-1 means no command to receive or receive bytes that is not recogonized
+			break;
+	}
+|————Node:switch Text: switch
+|————Node:parenthesized_expression Text: (p)
+|—————Node:( Text: (
+|—————Node:identifier Text: p
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+		case STM32_CMD_GET_COMMAND :
+			cal_SENDLOG("-> first byte: get command \r\n");
+			cal_READBYTE(q, TIMEOUT_NACK);
+			uint8_t t = (~(uint8_t)(STM32_CMD_GET_COMMAND));
+			if (q==t) {
+				return command_get();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_ERASE_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_ERASE_FLASH) {
+				return command_erase_memory();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_GET_ID :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_GET_ID) {
+				return command_get_id();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_WRITE_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_WRITE_FLASH) {
+				return command_write_memory();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_WRITE_UNPROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_WRITE_UNPROTECT) {
+				return command_write_unprotect();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_READ_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_READ_FLASH) {
+				return command_read_memory();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_GETVERSION_READPROTECTION :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_GETVERSION_READPROTECTION) {
+				return command_get_versionread();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_GO :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_GO) {
+				return command_go();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_EXTENDED_ERASE_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_EXTENDED_ERASE_FLASH) {
+				return command_exterase_memory();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_WRITE_PROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_WRITE_PROTECT) {
+				return command_write_protect();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_READ_PROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q == (uint8_t)~STM32_CMD_READ_PROTECT) {
+				return command_readout_protect();
+			}
+			else cal_SENDNACK();
+		case STM32_CMD_READ_UNPROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q == (uint8_t)~STM32_CMD_READ_UNPROTECT) {
+				return command_readout_unprotect();
+			}
+			else cal_SENDNACK();
+		default :
+			cal_SENDLOG("-> received command failed \r\n");
+			cal_SENDNACK();  //-1 means no command to receive or receive bytes that is not recogonized
+			break;
+	}
+|—————Node:{ Text: {
+|—————Node:case_statement Text: case STM32_CMD_GET_COMMAND :
+			cal_SENDLOG("-> first byte: get command \r\n");
+			cal_READBYTE(q, TIMEOUT_NACK);
+			uint8_t t = (~(uint8_t)(STM32_CMD_GET_COMMAND));
+			if (q==t) {
+				return command_get();
+			}
+			else cal_SENDNACK();
+|——————Node:case Text: case
+|——————Node:identifier Text: STM32_CMD_GET_COMMAND
+|——————Node:: Text: :
+|——————Node:expression_statement Text: cal_SENDLOG("-> first byte: get command \r\n");
+|———————Node:call_expression Text: cal_SENDLOG("-> first byte: get command \r\n")
+|————————Node:identifier Text: cal_SENDLOG
+|————————Node:argument_list Text: ("-> first byte: get command \r\n")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "-> first byte: get command \r\n"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: -> first byte: get command 
+|——————————Node:escape_sequence Text: \r
+|——————————Node:escape_sequence Text: \n
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: cal_READBYTE(q, TIMEOUT_NACK);
+|———————Node:call_expression Text: cal_READBYTE(q, TIMEOUT_NACK)
+|————————Node:identifier Text: cal_READBYTE
+|————————Node:argument_list Text: (q, TIMEOUT_NACK)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: q
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: TIMEOUT_NACK
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:declaration Text: uint8_t t = (~(uint8_t)(STM32_CMD_GET_COMMAND));
+|———————Node:primitive_type Text: uint8_t
+|———————Node:init_declarator Text: t = (~(uint8_t)(STM32_CMD_GET_COMMAND))
+|————————Node:identifier Text: t
+|————————Node:= Text: =
+|————————Node:parenthesized_expression Text: (~(uint8_t)(STM32_CMD_GET_COMMAND))
+|—————————Node:( Text: (
+|—————————Node:unary_expression Text: ~(uint8_t)(STM32_CMD_GET_COMMAND)
+|——————————Node:~ Text: ~
+|——————————Node:cast_expression Text: (uint8_t)(STM32_CMD_GET_COMMAND)
+|———————————Node:( Text: (
+|———————————Node:type_descriptor Text: uint8_t
+|————————————Node:primitive_type Text: uint8_t
+|———————————Node:) Text: )
+|———————————Node:parenthesized_expression Text: (STM32_CMD_GET_COMMAND)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: STM32_CMD_GET_COMMAND
+|————————————Node:) Text: )
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (q==t) {
+				return command_get();
+			}
+			else cal_SENDNACK();
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (q==t)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: q==t
+|—————————Node:identifier Text: q
+|—————————Node:== Text: ==
+|—————————Node:identifier Text: t
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+				return command_get();
+			}
+|————————Node:{ Text: {
+|————————Node:return_statement Text: return command_get();
+|—————————Node:return Text: return
+|—————————Node:call_expression Text: command_get()
+|——————————Node:identifier Text: command_get
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———————Node:else_clause Text: else cal_SENDNACK();
+|————————Node:else Text: else
+|————————Node:expression_statement Text: cal_SENDNACK();
+|—————————Node:call_expression Text: cal_SENDNACK()
+|——————————Node:identifier Text: cal_SENDNACK
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|—————Node:case_statement Text: case STM32_CMD_ERASE_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_ERASE_FLASH) {
+				return command_erase_memory();
+			}
+			else cal_SENDNACK();
+|——————Node:case Text: case
+|——————Node:identifier Text: STM32_CMD_ERASE_FLASH
+|——————Node:: Text: :
+|——————Node:expression_statement Text: cal_READBYTE(q, TIMEOUT_NACK);
+|———————Node:call_expression Text: cal_READBYTE(q, TIMEOUT_NACK)
+|————————Node:identifier Text: cal_READBYTE
+|————————Node:argument_list Text: (q, TIMEOUT_NACK)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: q
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: TIMEOUT_NACK
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (q== (uint8_t)~STM32_CMD_ERASE_FLASH) {
+				return command_erase_memory();
+			}
+			else cal_SENDNACK();
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (q== (uint8_t)~STM32_CMD_ERASE_FLASH)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: q== (uint8_t)~STM32_CMD_ERASE_FLASH
+|—————————Node:identifier Text: q
+|—————————Node:== Text: ==
+|—————————Node:cast_expression Text: (uint8_t)~STM32_CMD_ERASE_FLASH
+|——————————Node:( Text: (
+|——————————Node:type_descriptor Text: uint8_t
+|———————————Node:primitive_type Text: uint8_t
+|——————————Node:) Text: )
+|——————————Node:unary_expression Text: ~STM32_CMD_ERASE_FLASH
+|———————————Node:~ Text: ~
+|———————————Node:identifier Text: STM32_CMD_ERASE_FLASH
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+				return command_erase_memory();
+			}
+|————————Node:{ Text: {
+|————————Node:return_statement Text: return command_erase_memory();
+|—————————Node:return Text: return
+|—————————Node:call_expression Text: command_erase_memory()
+|——————————Node:identifier Text: command_erase_memory
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———————Node:else_clause Text: else cal_SENDNACK();
+|————————Node:else Text: else
+|————————Node:expression_statement Text: cal_SENDNACK();
+|—————————Node:call_expression Text: cal_SENDNACK()
+|——————————Node:identifier Text: cal_SENDNACK
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|—————Node:case_statement Text: case STM32_CMD_GET_ID :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_GET_ID) {
+				return command_get_id();
+			}
+			else cal_SENDNACK();
+|——————Node:case Text: case
+|——————Node:identifier Text: STM32_CMD_GET_ID
+|——————Node:: Text: :
+|——————Node:expression_statement Text: cal_READBYTE(q, TIMEOUT_NACK);
+|———————Node:call_expression Text: cal_READBYTE(q, TIMEOUT_NACK)
+|————————Node:identifier Text: cal_READBYTE
+|————————Node:argument_list Text: (q, TIMEOUT_NACK)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: q
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: TIMEOUT_NACK
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (q== (uint8_t)~STM32_CMD_GET_ID) {
+				return command_get_id();
+			}
+			else cal_SENDNACK();
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (q== (uint8_t)~STM32_CMD_GET_ID)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: q== (uint8_t)~STM32_CMD_GET_ID
+|—————————Node:identifier Text: q
+|—————————Node:== Text: ==
+|—————————Node:cast_expression Text: (uint8_t)~STM32_CMD_GET_ID
+|——————————Node:( Text: (
+|——————————Node:type_descriptor Text: uint8_t
+|———————————Node:primitive_type Text: uint8_t
+|——————————Node:) Text: )
+|——————————Node:unary_expression Text: ~STM32_CMD_GET_ID
+|———————————Node:~ Text: ~
+|———————————Node:identifier Text: STM32_CMD_GET_ID
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+				return command_get_id();
+			}
+|————————Node:{ Text: {
+|————————Node:return_statement Text: return command_get_id();
+|—————————Node:return Text: return
+|—————————Node:call_expression Text: command_get_id()
+|——————————Node:identifier Text: command_get_id
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———————Node:else_clause Text: else cal_SENDNACK();
+|————————Node:else Text: else
+|————————Node:expression_statement Text: cal_SENDNACK();
+|—————————Node:call_expression Text: cal_SENDNACK()
+|——————————Node:identifier Text: cal_SENDNACK
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|—————Node:case_statement Text: case STM32_CMD_WRITE_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_WRITE_FLASH) {
+				return command_write_memory();
+			}
+			else cal_SENDNACK();
+|——————Node:case Text: case
+|——————Node:identifier Text: STM32_CMD_WRITE_FLASH
+|——————Node:: Text: :
+|——————Node:expression_statement Text: cal_READBYTE(q, TIMEOUT_NACK);
+|———————Node:call_expression Text: cal_READBYTE(q, TIMEOUT_NACK)
+|————————Node:identifier Text: cal_READBYTE
+|————————Node:argument_list Text: (q, TIMEOUT_NACK)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: q
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: TIMEOUT_NACK
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (q== (uint8_t)~STM32_CMD_WRITE_FLASH) {
+				return command_write_memory();
+			}
+			else cal_SENDNACK();
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (q== (uint8_t)~STM32_CMD_WRITE_FLASH)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: q== (uint8_t)~STM32_CMD_WRITE_FLASH
+|—————————Node:identifier Text: q
+|—————————Node:== Text: ==
+|—————————Node:cast_expression Text: (uint8_t)~STM32_CMD_WRITE_FLASH
+|——————————Node:( Text: (
+|——————————Node:type_descriptor Text: uint8_t
+|———————————Node:primitive_type Text: uint8_t
+|——————————Node:) Text: )
+|——————————Node:unary_expression Text: ~STM32_CMD_WRITE_FLASH
+|———————————Node:~ Text: ~
+|———————————Node:identifier Text: STM32_CMD_WRITE_FLASH
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+				return command_write_memory();
+			}
+|————————Node:{ Text: {
+|————————Node:return_statement Text: return command_write_memory();
+|—————————Node:return Text: return
+|—————————Node:call_expression Text: command_write_memory()
+|——————————Node:identifier Text: command_write_memory
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———————Node:else_clause Text: else cal_SENDNACK();
+|————————Node:else Text: else
+|————————Node:expression_statement Text: cal_SENDNACK();
+|—————————Node:call_expression Text: cal_SENDNACK()
+|——————————Node:identifier Text: cal_SENDNACK
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|—————Node:case_statement Text: case STM32_CMD_WRITE_UNPROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_WRITE_UNPROTECT) {
+				return command_write_unprotect();
+			}
+			else cal_SENDNACK();
+|——————Node:case Text: case
+|——————Node:identifier Text: STM32_CMD_WRITE_UNPROTECT
+|——————Node:: Text: :
+|——————Node:expression_statement Text: cal_READBYTE(q, TIMEOUT_NACK);
+|———————Node:call_expression Text: cal_READBYTE(q, TIMEOUT_NACK)
+|————————Node:identifier Text: cal_READBYTE
+|————————Node:argument_list Text: (q, TIMEOUT_NACK)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: q
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: TIMEOUT_NACK
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (q== (uint8_t)~STM32_CMD_WRITE_UNPROTECT) {
+				return command_write_unprotect();
+			}
+			else cal_SENDNACK();
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (q== (uint8_t)~STM32_CMD_WRITE_UNPROTECT)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: q== (uint8_t)~STM32_CMD_WRITE_UNPROTECT
+|—————————Node:identifier Text: q
+|—————————Node:== Text: ==
+|—————————Node:cast_expression Text: (uint8_t)~STM32_CMD_WRITE_UNPROTECT
+|——————————Node:( Text: (
+|——————————Node:type_descriptor Text: uint8_t
+|———————————Node:primitive_type Text: uint8_t
+|——————————Node:) Text: )
+|——————————Node:unary_expression Text: ~STM32_CMD_WRITE_UNPROTECT
+|———————————Node:~ Text: ~
+|———————————Node:identifier Text: STM32_CMD_WRITE_UNPROTECT
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+				return command_write_unprotect();
+			}
+|————————Node:{ Text: {
+|————————Node:return_statement Text: return command_write_unprotect();
+|—————————Node:return Text: return
+|—————————Node:call_expression Text: command_write_unprotect()
+|——————————Node:identifier Text: command_write_unprotect
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———————Node:else_clause Text: else cal_SENDNACK();
+|————————Node:else Text: else
+|————————Node:expression_statement Text: cal_SENDNACK();
+|—————————Node:call_expression Text: cal_SENDNACK()
+|——————————Node:identifier Text: cal_SENDNACK
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|—————Node:case_statement Text: case STM32_CMD_READ_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_READ_FLASH) {
+				return command_read_memory();
+			}
+			else cal_SENDNACK();
+|——————Node:case Text: case
+|——————Node:identifier Text: STM32_CMD_READ_FLASH
+|——————Node:: Text: :
+|——————Node:expression_statement Text: cal_READBYTE(q, TIMEOUT_NACK);
+|———————Node:call_expression Text: cal_READBYTE(q, TIMEOUT_NACK)
+|————————Node:identifier Text: cal_READBYTE
+|————————Node:argument_list Text: (q, TIMEOUT_NACK)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: q
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: TIMEOUT_NACK
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (q== (uint8_t)~STM32_CMD_READ_FLASH) {
+				return command_read_memory();
+			}
+			else cal_SENDNACK();
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (q== (uint8_t)~STM32_CMD_READ_FLASH)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: q== (uint8_t)~STM32_CMD_READ_FLASH
+|—————————Node:identifier Text: q
+|—————————Node:== Text: ==
+|—————————Node:cast_expression Text: (uint8_t)~STM32_CMD_READ_FLASH
+|——————————Node:( Text: (
+|——————————Node:type_descriptor Text: uint8_t
+|———————————Node:primitive_type Text: uint8_t
+|——————————Node:) Text: )
+|——————————Node:unary_expression Text: ~STM32_CMD_READ_FLASH
+|———————————Node:~ Text: ~
+|———————————Node:identifier Text: STM32_CMD_READ_FLASH
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+				return command_read_memory();
+			}
+|————————Node:{ Text: {
+|————————Node:return_statement Text: return command_read_memory();
+|—————————Node:return Text: return
+|—————————Node:call_expression Text: command_read_memory()
+|——————————Node:identifier Text: command_read_memory
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———————Node:else_clause Text: else cal_SENDNACK();
+|————————Node:else Text: else
+|————————Node:expression_statement Text: cal_SENDNACK();
+|—————————Node:call_expression Text: cal_SENDNACK()
+|——————————Node:identifier Text: cal_SENDNACK
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|—————Node:case_statement Text: case STM32_CMD_GETVERSION_READPROTECTION :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_GETVERSION_READPROTECTION) {
+				return command_get_versionread();
+			}
+			else cal_SENDNACK();
+|——————Node:case Text: case
+|——————Node:identifier Text: STM32_CMD_GETVERSION_READPROTECTION
+|——————Node:: Text: :
+|——————Node:expression_statement Text: cal_READBYTE(q, TIMEOUT_NACK);
+|———————Node:call_expression Text: cal_READBYTE(q, TIMEOUT_NACK)
+|————————Node:identifier Text: cal_READBYTE
+|————————Node:argument_list Text: (q, TIMEOUT_NACK)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: q
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: TIMEOUT_NACK
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (q== (uint8_t)~STM32_CMD_GETVERSION_READPROTECTION) {
+				return command_get_versionread();
+			}
+			else cal_SENDNACK();
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (q== (uint8_t)~STM32_CMD_GETVERSION_READPROTECTION)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: q== (uint8_t)~STM32_CMD_GETVERSION_READPROTECTION
+|—————————Node:identifier Text: q
+|—————————Node:== Text: ==
+|—————————Node:cast_expression Text: (uint8_t)~STM32_CMD_GETVERSION_READPROTECTION
+|——————————Node:( Text: (
+|——————————Node:type_descriptor Text: uint8_t
+|———————————Node:primitive_type Text: uint8_t
+|——————————Node:) Text: )
+|——————————Node:unary_expression Text: ~STM32_CMD_GETVERSION_READPROTECTION
+|———————————Node:~ Text: ~
+|———————————Node:identifier Text: STM32_CMD_GETVERSION_READPROTECTION
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+				return command_get_versionread();
+			}
+|————————Node:{ Text: {
+|————————Node:return_statement Text: return command_get_versionread();
+|—————————Node:return Text: return
+|—————————Node:call_expression Text: command_get_versionread()
+|——————————Node:identifier Text: command_get_versionread
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———————Node:else_clause Text: else cal_SENDNACK();
+|————————Node:else Text: else
+|————————Node:expression_statement Text: cal_SENDNACK();
+|—————————Node:call_expression Text: cal_SENDNACK()
+|——————————Node:identifier Text: cal_SENDNACK
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|—————Node:case_statement Text: case STM32_CMD_GO :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_GO) {
+				return command_go();
+			}
+			else cal_SENDNACK();
+|——————Node:case Text: case
+|——————Node:identifier Text: STM32_CMD_GO
+|——————Node:: Text: :
+|——————Node:expression_statement Text: cal_READBYTE(q, TIMEOUT_NACK);
+|———————Node:call_expression Text: cal_READBYTE(q, TIMEOUT_NACK)
+|————————Node:identifier Text: cal_READBYTE
+|————————Node:argument_list Text: (q, TIMEOUT_NACK)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: q
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: TIMEOUT_NACK
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (q== (uint8_t)~STM32_CMD_GO) {
+				return command_go();
+			}
+			else cal_SENDNACK();
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (q== (uint8_t)~STM32_CMD_GO)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: q== (uint8_t)~STM32_CMD_GO
+|—————————Node:identifier Text: q
+|—————————Node:== Text: ==
+|—————————Node:cast_expression Text: (uint8_t)~STM32_CMD_GO
+|——————————Node:( Text: (
+|——————————Node:type_descriptor Text: uint8_t
+|———————————Node:primitive_type Text: uint8_t
+|——————————Node:) Text: )
+|——————————Node:unary_expression Text: ~STM32_CMD_GO
+|———————————Node:~ Text: ~
+|———————————Node:identifier Text: STM32_CMD_GO
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+				return command_go();
+			}
+|————————Node:{ Text: {
+|————————Node:return_statement Text: return command_go();
+|—————————Node:return Text: return
+|—————————Node:call_expression Text: command_go()
+|——————————Node:identifier Text: command_go
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———————Node:else_clause Text: else cal_SENDNACK();
+|————————Node:else Text: else
+|————————Node:expression_statement Text: cal_SENDNACK();
+|—————————Node:call_expression Text: cal_SENDNACK()
+|——————————Node:identifier Text: cal_SENDNACK
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|—————Node:case_statement Text: case STM32_CMD_EXTENDED_ERASE_FLASH :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_EXTENDED_ERASE_FLASH) {
+				return command_exterase_memory();
+			}
+			else cal_SENDNACK();
+|——————Node:case Text: case
+|——————Node:identifier Text: STM32_CMD_EXTENDED_ERASE_FLASH
+|——————Node:: Text: :
+|——————Node:expression_statement Text: cal_READBYTE(q, TIMEOUT_NACK);
+|———————Node:call_expression Text: cal_READBYTE(q, TIMEOUT_NACK)
+|————————Node:identifier Text: cal_READBYTE
+|————————Node:argument_list Text: (q, TIMEOUT_NACK)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: q
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: TIMEOUT_NACK
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (q== (uint8_t)~STM32_CMD_EXTENDED_ERASE_FLASH) {
+				return command_exterase_memory();
+			}
+			else cal_SENDNACK();
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (q== (uint8_t)~STM32_CMD_EXTENDED_ERASE_FLASH)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: q== (uint8_t)~STM32_CMD_EXTENDED_ERASE_FLASH
+|—————————Node:identifier Text: q
+|—————————Node:== Text: ==
+|—————————Node:cast_expression Text: (uint8_t)~STM32_CMD_EXTENDED_ERASE_FLASH
+|——————————Node:( Text: (
+|——————————Node:type_descriptor Text: uint8_t
+|———————————Node:primitive_type Text: uint8_t
+|——————————Node:) Text: )
+|——————————Node:unary_expression Text: ~STM32_CMD_EXTENDED_ERASE_FLASH
+|———————————Node:~ Text: ~
+|———————————Node:identifier Text: STM32_CMD_EXTENDED_ERASE_FLASH
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+				return command_exterase_memory();
+			}
+|————————Node:{ Text: {
+|————————Node:return_statement Text: return command_exterase_memory();
+|—————————Node:return Text: return
+|—————————Node:call_expression Text: command_exterase_memory()
+|——————————Node:identifier Text: command_exterase_memory
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———————Node:else_clause Text: else cal_SENDNACK();
+|————————Node:else Text: else
+|————————Node:expression_statement Text: cal_SENDNACK();
+|—————————Node:call_expression Text: cal_SENDNACK()
+|——————————Node:identifier Text: cal_SENDNACK
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|—————Node:case_statement Text: case STM32_CMD_WRITE_PROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q== (uint8_t)~STM32_CMD_WRITE_PROTECT) {
+				return command_write_protect();
+			}
+			else cal_SENDNACK();
+|——————Node:case Text: case
+|——————Node:identifier Text: STM32_CMD_WRITE_PROTECT
+|——————Node:: Text: :
+|——————Node:expression_statement Text: cal_READBYTE(q, TIMEOUT_NACK);
+|———————Node:call_expression Text: cal_READBYTE(q, TIMEOUT_NACK)
+|————————Node:identifier Text: cal_READBYTE
+|————————Node:argument_list Text: (q, TIMEOUT_NACK)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: q
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: TIMEOUT_NACK
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (q== (uint8_t)~STM32_CMD_WRITE_PROTECT) {
+				return command_write_protect();
+			}
+			else cal_SENDNACK();
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (q== (uint8_t)~STM32_CMD_WRITE_PROTECT)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: q== (uint8_t)~STM32_CMD_WRITE_PROTECT
+|—————————Node:identifier Text: q
+|—————————Node:== Text: ==
+|—————————Node:cast_expression Text: (uint8_t)~STM32_CMD_WRITE_PROTECT
+|——————————Node:( Text: (
+|——————————Node:type_descriptor Text: uint8_t
+|———————————Node:primitive_type Text: uint8_t
+|——————————Node:) Text: )
+|——————————Node:unary_expression Text: ~STM32_CMD_WRITE_PROTECT
+|———————————Node:~ Text: ~
+|———————————Node:identifier Text: STM32_CMD_WRITE_PROTECT
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+				return command_write_protect();
+			}
+|————————Node:{ Text: {
+|————————Node:return_statement Text: return command_write_protect();
+|—————————Node:return Text: return
+|—————————Node:call_expression Text: command_write_protect()
+|——————————Node:identifier Text: command_write_protect
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———————Node:else_clause Text: else cal_SENDNACK();
+|————————Node:else Text: else
+|————————Node:expression_statement Text: cal_SENDNACK();
+|—————————Node:call_expression Text: cal_SENDNACK()
+|——————————Node:identifier Text: cal_SENDNACK
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|—————Node:case_statement Text: case STM32_CMD_READ_PROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q == (uint8_t)~STM32_CMD_READ_PROTECT) {
+				return command_readout_protect();
+			}
+			else cal_SENDNACK();
+|——————Node:case Text: case
+|——————Node:identifier Text: STM32_CMD_READ_PROTECT
+|——————Node:: Text: :
+|——————Node:expression_statement Text: cal_READBYTE(q, TIMEOUT_NACK);
+|———————Node:call_expression Text: cal_READBYTE(q, TIMEOUT_NACK)
+|————————Node:identifier Text: cal_READBYTE
+|————————Node:argument_list Text: (q, TIMEOUT_NACK)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: q
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: TIMEOUT_NACK
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (q == (uint8_t)~STM32_CMD_READ_PROTECT) {
+				return command_readout_protect();
+			}
+			else cal_SENDNACK();
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (q == (uint8_t)~STM32_CMD_READ_PROTECT)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: q == (uint8_t)~STM32_CMD_READ_PROTECT
+|—————————Node:identifier Text: q
+|—————————Node:== Text: ==
+|—————————Node:cast_expression Text: (uint8_t)~STM32_CMD_READ_PROTECT
+|——————————Node:( Text: (
+|——————————Node:type_descriptor Text: uint8_t
+|———————————Node:primitive_type Text: uint8_t
+|——————————Node:) Text: )
+|——————————Node:unary_expression Text: ~STM32_CMD_READ_PROTECT
+|———————————Node:~ Text: ~
+|———————————Node:identifier Text: STM32_CMD_READ_PROTECT
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+				return command_readout_protect();
+			}
+|————————Node:{ Text: {
+|————————Node:return_statement Text: return command_readout_protect();
+|—————————Node:return Text: return
+|—————————Node:call_expression Text: command_readout_protect()
+|——————————Node:identifier Text: command_readout_protect
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———————Node:else_clause Text: else cal_SENDNACK();
+|————————Node:else Text: else
+|————————Node:expression_statement Text: cal_SENDNACK();
+|—————————Node:call_expression Text: cal_SENDNACK()
+|——————————Node:identifier Text: cal_SENDNACK
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|—————Node:case_statement Text: case STM32_CMD_READ_UNPROTECT :
+			cal_READBYTE(q, TIMEOUT_NACK);
+			if (q == (uint8_t)~STM32_CMD_READ_UNPROTECT) {
+				return command_readout_unprotect();
+			}
+			else cal_SENDNACK();
+|——————Node:case Text: case
+|——————Node:identifier Text: STM32_CMD_READ_UNPROTECT
+|——————Node:: Text: :
+|——————Node:expression_statement Text: cal_READBYTE(q, TIMEOUT_NACK);
+|———————Node:call_expression Text: cal_READBYTE(q, TIMEOUT_NACK)
+|————————Node:identifier Text: cal_READBYTE
+|————————Node:argument_list Text: (q, TIMEOUT_NACK)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: q
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: TIMEOUT_NACK
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (q == (uint8_t)~STM32_CMD_READ_UNPROTECT) {
+				return command_readout_unprotect();
+			}
+			else cal_SENDNACK();
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (q == (uint8_t)~STM32_CMD_READ_UNPROTECT)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: q == (uint8_t)~STM32_CMD_READ_UNPROTECT
+|—————————Node:identifier Text: q
+|—————————Node:== Text: ==
+|—————————Node:cast_expression Text: (uint8_t)~STM32_CMD_READ_UNPROTECT
+|——————————Node:( Text: (
+|——————————Node:type_descriptor Text: uint8_t
+|———————————Node:primitive_type Text: uint8_t
+|——————————Node:) Text: )
+|——————————Node:unary_expression Text: ~STM32_CMD_READ_UNPROTECT
+|———————————Node:~ Text: ~
+|———————————Node:identifier Text: STM32_CMD_READ_UNPROTECT
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+				return command_readout_unprotect();
+			}
+|————————Node:{ Text: {
+|————————Node:return_statement Text: return command_readout_unprotect();
+|—————————Node:return Text: return
+|—————————Node:call_expression Text: command_readout_unprotect()
+|——————————Node:identifier Text: command_readout_unprotect
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———————Node:else_clause Text: else cal_SENDNACK();
+|————————Node:else Text: else
+|————————Node:expression_statement Text: cal_SENDNACK();
+|—————————Node:call_expression Text: cal_SENDNACK()
+|——————————Node:identifier Text: cal_SENDNACK
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|—————Node:case_statement Text: default :
+			cal_SENDLOG("-> received command failed \r\n");
+			cal_SENDNACK();  //-1 means no command to receive or receive bytes that is not recogonized
+			break;
+|——————Node:default Text: default
+|——————Node:: Text: :
+|——————Node:expression_statement Text: cal_SENDLOG("-> received command failed \r\n");
+|———————Node:call_expression Text: cal_SENDLOG("-> received command failed \r\n")
+|————————Node:identifier Text: cal_SENDLOG
+|————————Node:argument_list Text: ("-> received command failed \r\n")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "-> received command failed \r\n"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: -> received command failed 
+|——————————Node:escape_sequence Text: \r
+|——————————Node:escape_sequence Text: \n
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: cal_SENDNACK();
+|———————Node:call_expression Text: cal_SENDNACK()
+|————————Node:identifier Text: cal_SENDNACK
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int32_t command_receiveinit() {
+	cal_SENDLOG("-> waiting for init byte \r\n");
+	uint8_t p = 0x9;
+	//while (comm_peripheral == CAN) {
+	//cal_SENDBYTE(0x7F);
+	//delay(0xFFFFF);
+	//}
+	cal_READBYTE(p, TIMEOUT_INIT);
+	if(p==STM32_CMD_INIT) {
+		GPIOA->BSRR |= GPIO_BSRR_BS0 | GPIO_BSRR_BR1 | GPIO_BSRR_BR2 | GPIO_BSRR_BR3;
+		cal_SENDACK();
+		cal_SENDLOG("-> init byte received \r\n");
+		cal_baudrate();
+		//NEED TO WRITE UNPROTECT SECTOR 1 (PAGES 0-3) AS THEY ARE AUTOMATICALLY WRITE PROTECTED
+		//START OFF WITH READ PROTECTION ACTIVE BY ERASING OPTION BYTES AS BULK
+		while (1) {
+			receivecommand();
+		}
+	}
+	else {
+		GPIOA->BSRR |= GPIO_BSRR_BS0 | GPIO_BSRR_BS1 | GPIO_BSRR_BR2 | GPIO_BSRR_BR3;
+		cal_SENDLOG("-> receive init fail \r\n");
+		return -1;
+	}
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: command_receiveinit()
+|———Node:identifier Text: command_receiveinit
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	cal_SENDLOG("-> waiting for init byte \r\n");
+	uint8_t p = 0x9;
+	//while (comm_peripheral == CAN) {
+	//cal_SENDBYTE(0x7F);
+	//delay(0xFFFFF);
+	//}
+	cal_READBYTE(p, TIMEOUT_INIT);
+	if(p==STM32_CMD_INIT) {
+		GPIOA->BSRR |= GPIO_BSRR_BS0 | GPIO_BSRR_BR1 | GPIO_BSRR_BR2 | GPIO_BSRR_BR3;
+		cal_SENDACK();
+		cal_SENDLOG("-> init byte received \r\n");
+		cal_baudrate();
+		//NEED TO WRITE UNPROTECT SECTOR 1 (PAGES 0-3) AS THEY ARE AUTOMATICALLY WRITE PROTECTED
+		//START OFF WITH READ PROTECTION ACTIVE BY ERASING OPTION BYTES AS BULK
+		while (1) {
+			receivecommand();
+		}
+	}
+	else {
+		GPIOA->BSRR |= GPIO_BSRR_BS0 | GPIO_BSRR_BS1 | GPIO_BSRR_BR2 | GPIO_BSRR_BR3;
+		cal_SENDLOG("-> receive init fail \r\n");
+		return -1;
+	}
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: cal_SENDLOG("-> waiting for init byte \r\n");
+|————Node:call_expression Text: cal_SENDLOG("-> waiting for init byte \r\n")
+|—————Node:identifier Text: cal_SENDLOG
+|—————Node:argument_list Text: ("-> waiting for init byte \r\n")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "-> waiting for init byte \r\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: -> waiting for init byte 
+|———————Node:escape_sequence Text: \r
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: uint8_t p = 0x9;
+|————Node:primitive_type Text: uint8_t
+|————Node:init_declarator Text: p = 0x9
+|—————Node:identifier Text: p
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: cal_READBYTE(p, TIMEOUT_INIT);
+|————Node:call_expression Text: cal_READBYTE(p, TIMEOUT_INIT)
+|—————Node:identifier Text: cal_READBYTE
+|—————Node:argument_list Text: (p, TIMEOUT_INIT)
+|——————Node:( Text: (
+|——————Node:identifier Text: p
+|——————Node:, Text: ,
+|——————Node:identifier Text: TIMEOUT_INIT
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if(p==STM32_CMD_INIT) {
+		GPIOA->BSRR |= GPIO_BSRR_BS0 | GPIO_BSRR_BR1 | GPIO_BSRR_BR2 | GPIO_BSRR_BR3;
+		cal_SENDACK();
+		cal_SENDLOG("-> init byte received \r\n");
+		cal_baudrate();
+		//NEED TO WRITE UNPROTECT SECTOR 1 (PAGES 0-3) AS THEY ARE AUTOMATICALLY WRITE PROTECTED
+		//START OFF WITH READ PROTECTION ACTIVE BY ERASING OPTION BYTES AS BULK
+		while (1) {
+			receivecommand();
+		}
+	}
+	else {
+		GPIOA->BSRR |= GPIO_BSRR_BS0 | GPIO_BSRR_BS1 | GPIO_BSRR_BR2 | GPIO_BSRR_BR3;
+		cal_SENDLOG("-> receive init fail \r\n");
+		return -1;
+	}
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (p==STM32_CMD_INIT)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: p==STM32_CMD_INIT
+|——————Node:identifier Text: p
+|——————Node:== Text: ==
+|——————Node:identifier Text: STM32_CMD_INIT
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+		GPIOA->BSRR |= GPIO_BSRR_BS0 | GPIO_BSRR_BR1 | GPIO_BSRR_BR2 | GPIO_BSRR_BR3;
+		cal_SENDACK();
+		cal_SENDLOG("-> init byte received \r\n");
+		cal_baudrate();
+		//NEED TO WRITE UNPROTECT SECTOR 1 (PAGES 0-3) AS THEY ARE AUTOMATICALLY WRITE PROTECTED
+		//START OFF WITH READ PROTECTION ACTIVE BY ERASING OPTION BYTES AS BULK
+		while (1) {
+			receivecommand();
+		}
+	}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: GPIOA->BSRR |= GPIO_BSRR_BS0 | GPIO_BSRR_BR1 | GPIO_BSRR_BR2 | GPIO_BSRR_BR3;
+|——————Node:assignment_expression Text: GPIOA->BSRR |= GPIO_BSRR_BS0 | GPIO_BSRR_BR1 | GPIO_BSRR_BR2 | GPIO_BSRR_BR3
+|———————Node:field_expression Text: GPIOA->BSRR
+|————————Node:identifier Text: GPIOA
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: BSRR
+|———————Node:|= Text: |=
+|———————Node:binary_expression Text: GPIO_BSRR_BS0 | GPIO_BSRR_BR1 | GPIO_BSRR_BR2 | GPIO_BSRR_BR3
+|————————Node:binary_expression Text: GPIO_BSRR_BS0 | GPIO_BSRR_BR1 | GPIO_BSRR_BR2
+|—————————Node:binary_expression Text: GPIO_BSRR_BS0 | GPIO_BSRR_BR1
+|——————————Node:identifier Text: GPIO_BSRR_BS0
+|——————————Node:| Text: |
+|——————————Node:identifier Text: GPIO_BSRR_BR1
+|—————————Node:| Text: |
+|—————————Node:identifier Text: GPIO_BSRR_BR2
+|————————Node:| Text: |
+|————————Node:identifier Text: GPIO_BSRR_BR3
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: cal_SENDACK();
+|——————Node:call_expression Text: cal_SENDACK()
+|———————Node:identifier Text: cal_SENDACK
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: cal_SENDLOG("-> init byte received \r\n");
+|——————Node:call_expression Text: cal_SENDLOG("-> init byte received \r\n")
+|———————Node:identifier Text: cal_SENDLOG
+|———————Node:argument_list Text: ("-> init byte received \r\n")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "-> init byte received \r\n"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: -> init byte received 
+|—————————Node:escape_sequence Text: \r
+|—————————Node:escape_sequence Text: \n
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: cal_baudrate();
+|——————Node:call_expression Text: cal_baudrate()
+|———————Node:identifier Text: cal_baudrate
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:comment
+|—————Node:while_statement Text: while (1) {
+			receivecommand();
+		}
+|——————Node:while Text: while
+|——————Node:parenthesized_expression Text: (1)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 1
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+			receivecommand();
+		}
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: receivecommand();
+|————————Node:call_expression Text: receivecommand()
+|—————————Node:identifier Text: receivecommand
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|————Node:else_clause Text: else {
+		GPIOA->BSRR |= GPIO_BSRR_BS0 | GPIO_BSRR_BS1 | GPIO_BSRR_BR2 | GPIO_BSRR_BR3;
+		cal_SENDLOG("-> receive init fail \r\n");
+		return -1;
+	}
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+		GPIOA->BSRR |= GPIO_BSRR_BS0 | GPIO_BSRR_BS1 | GPIO_BSRR_BR2 | GPIO_BSRR_BR3;
+		cal_SENDLOG("-> receive init fail \r\n");
+		return -1;
+	}
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: GPIOA->BSRR |= GPIO_BSRR_BS0 | GPIO_BSRR_BS1 | GPIO_BSRR_BR2 | GPIO_BSRR_BR3;
+|———————Node:assignment_expression Text: GPIOA->BSRR |= GPIO_BSRR_BS0 | GPIO_BSRR_BS1 | GPIO_BSRR_BR2 | GPIO_BSRR_BR3
+|————————Node:field_expression Text: GPIOA->BSRR
+|—————————Node:identifier Text: GPIOA
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: BSRR
+|————————Node:|= Text: |=
+|————————Node:binary_expression Text: GPIO_BSRR_BS0 | GPIO_BSRR_BS1 | GPIO_BSRR_BR2 | GPIO_BSRR_BR3
+|—————————Node:binary_expression Text: GPIO_BSRR_BS0 | GPIO_BSRR_BS1 | GPIO_BSRR_BR2
+|——————————Node:binary_expression Text: GPIO_BSRR_BS0 | GPIO_BSRR_BS1
+|———————————Node:identifier Text: GPIO_BSRR_BS0
+|———————————Node:| Text: |
+|———————————Node:identifier Text: GPIO_BSRR_BS1
+|——————————Node:| Text: |
+|——————————Node:identifier Text: GPIO_BSRR_BR2
+|—————————Node:| Text: |
+|—————————Node:identifier Text: GPIO_BSRR_BR3
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: cal_SENDLOG("-> receive init fail \r\n");
+|———————Node:call_expression Text: cal_SENDLOG("-> receive init fail \r\n")
+|————————Node:identifier Text: cal_SENDLOG
+|————————Node:argument_list Text: ("-> receive init fail \r\n")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "-> receive init fail \r\n"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: -> receive init fail 
+|——————————Node:escape_sequence Text: \r
+|——————————Node:escape_sequence Text: \n
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:return_statement Text: return -1;
+|———————Node:return Text: return
+|———————Node:number_literal Text: -1
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: uint8_t calculatechecksum(uint8_t *data, uint32_t length) {
+	uint8_t checksum = 0;
+	uint32_t i;
+	for( i = 0; i < length; i ++ ) {
+	    checksum ^= *data;
+		data = data + 1;
+	}
+	return checksum;
+}
+|——Node:primitive_type Text: uint8_t
+|——Node:function_declarator Text: calculatechecksum(uint8_t *data, uint32_t length)
+|———Node:identifier Text: calculatechecksum
+|———Node:parameter_list Text: (uint8_t *data, uint32_t length)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint8_t *data
+|—————Node:primitive_type Text: uint8_t
+|—————Node:pointer_declarator Text: *data
+|——————Node:* Text: *
+|——————Node:identifier Text: data
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint32_t length
+|—————Node:primitive_type Text: uint32_t
+|—————Node:identifier Text: length
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	uint8_t checksum = 0;
+	uint32_t i;
+	for( i = 0; i < length; i ++ ) {
+	    checksum ^= *data;
+		data = data + 1;
+	}
+	return checksum;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: uint8_t checksum = 0;
+|————Node:primitive_type Text: uint8_t
+|————Node:init_declarator Text: checksum = 0
+|—————Node:identifier Text: checksum
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: uint32_t i;
+|————Node:primitive_type Text: uint32_t
+|————Node:identifier Text: i
+|————Node:; Text: ;
+|———Node:for_statement Text: for( i = 0; i < length; i ++ ) {
+	    checksum ^= *data;
+		data = data + 1;
+	}
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:assignment_expression Text: i = 0
+|—————Node:identifier Text: i
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|————Node:binary_expression Text: i < length
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:identifier Text: length
+|————Node:; Text: ;
+|————Node:update_expression Text: i ++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+	    checksum ^= *data;
+		data = data + 1;
+	}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: checksum ^= *data;
+|——————Node:assignment_expression Text: checksum ^= *data
+|———————Node:identifier Text: checksum
+|———————Node:^= Text: ^=
+|———————Node:pointer_expression Text: *data
+|————————Node:* Text: *
+|————————Node:identifier Text: data
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: data = data + 1;
+|——————Node:assignment_expression Text: data = data + 1
+|———————Node:identifier Text: data
+|———————Node:= Text: =
+|———————Node:binary_expression Text: data + 1
+|————————Node:identifier Text: data
+|————————Node:+ Text: +
+|————————Node:number_literal Text: 1
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return checksum;
+|————Node:return Text: return
+|————Node:identifier Text: checksum
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int32_t checkchecksumword(uint32_t data, uint8_t length, uint8_t checksum) {
+	uint8_t bytes[4];
+	bytes[0]=(data & 0xFF);
+	bytes[1]=(data & 0xFF00)>>8;
+	bytes[2]=(data & 0xFF0000)>>16;
+	bytes[3]=(data & 0xFF000000)>>24;
+	if(calculatechecksum(bytes,(uint32_t)length)==checksum) {
+		return 0;
+	}
+	else return -1;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: checkchecksumword(uint32_t data, uint8_t length, uint8_t checksum)
+|———Node:identifier Text: checkchecksumword
+|———Node:parameter_list Text: (uint32_t data, uint8_t length, uint8_t checksum)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint32_t data
+|—————Node:primitive_type Text: uint32_t
+|—————Node:identifier Text: data
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint8_t length
+|—————Node:primitive_type Text: uint8_t
+|—————Node:identifier Text: length
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint8_t checksum
+|—————Node:primitive_type Text: uint8_t
+|—————Node:identifier Text: checksum
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	uint8_t bytes[4];
+	bytes[0]=(data & 0xFF);
+	bytes[1]=(data & 0xFF00)>>8;
+	bytes[2]=(data & 0xFF0000)>>16;
+	bytes[3]=(data & 0xFF000000)>>24;
+	if(calculatechecksum(bytes,(uint32_t)length)==checksum) {
+		return 0;
+	}
+	else return -1;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: uint8_t bytes[4];
+|————Node:primitive_type Text: uint8_t
+|————Node:array_declarator Text: bytes[4]
+|—————Node:identifier Text: bytes
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 4
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:expression_statement Text: bytes[0]=(data & 0xFF);
+|————Node:assignment_expression Text: bytes[0]=(data & 0xFF)
+|—————Node:subscript_expression Text: bytes[0]
+|——————Node:identifier Text: bytes
+|——————Node:[ Text: [
+|——————Node:number_literal Text: 0
+|——————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:parenthesized_expression Text: (data & 0xFF)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: data & 0xFF
+|———————Node:identifier Text: data
+|———————Node:& Text: &
+|———————Node:number_literal Text: 0xFF
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: bytes[1]=(data & 0xFF00)>>8;
+|————Node:assignment_expression Text: bytes[1]=(data & 0xFF00)>>8
+|—————Node:subscript_expression Text: bytes[1]
+|——————Node:identifier Text: bytes
+|——————Node:[ Text: [
+|——————Node:number_literal Text: 1
+|——————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:binary_expression Text: (data & 0xFF00)>>8
+|——————Node:parenthesized_expression Text: (data & 0xFF00)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: data & 0xFF00
+|————————Node:identifier Text: data
+|————————Node:& Text: &
+|————————Node:number_literal Text: 0xFF00
+|———————Node:) Text: )
+|——————Node:>> Text: >>
+|——————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: bytes[2]=(data & 0xFF0000)>>16;
+|————Node:assignment_expression Text: bytes[2]=(data & 0xFF0000)>>16
+|—————Node:subscript_expression Text: bytes[2]
+|——————Node:identifier Text: bytes
+|——————Node:[ Text: [
+|——————Node:number_literal Text: 2
+|——————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:binary_expression Text: (data & 0xFF0000)>>16
+|——————Node:parenthesized_expression Text: (data & 0xFF0000)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: data & 0xFF0000
+|————————Node:identifier Text: data
+|————————Node:& Text: &
+|————————Node:number_literal Text: 0xFF0000
+|———————Node:) Text: )
+|——————Node:>> Text: >>
+|——————Node:number_literal Text: 16
+|————Node:; Text: ;
+|———Node:expression_statement Text: bytes[3]=(data & 0xFF000000)>>24;
+|————Node:assignment_expression Text: bytes[3]=(data & 0xFF000000)>>24
+|—————Node:subscript_expression Text: bytes[3]
+|——————Node:identifier Text: bytes
+|——————Node:[ Text: [
+|——————Node:number_literal Text: 3
+|——————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:binary_expression Text: (data & 0xFF000000)>>24
+|——————Node:parenthesized_expression Text: (data & 0xFF000000)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: data & 0xFF000000
+|————————Node:identifier Text: data
+|————————Node:& Text: &
+|————————Node:number_literal Text: 0xFF000000
+|———————Node:) Text: )
+|——————Node:>> Text: >>
+|——————Node:number_literal Text: 24
+|————Node:; Text: ;
+|———Node:if_statement Text: if(calculatechecksum(bytes,(uint32_t)length)==checksum) {
+		return 0;
+	}
+	else return -1;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (calculatechecksum(bytes,(uint32_t)length)==checksum)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: calculatechecksum(bytes,(uint32_t)length)==checksum
+|——————Node:call_expression Text: calculatechecksum(bytes,(uint32_t)length)
+|———————Node:identifier Text: calculatechecksum
+|———————Node:argument_list Text: (bytes,(uint32_t)length)
+|————————Node:( Text: (
+|————————Node:identifier Text: bytes
+|————————Node:, Text: ,
+|————————Node:cast_expression Text: (uint32_t)length
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint32_t
+|——————————Node:primitive_type Text: uint32_t
+|—————————Node:) Text: )
+|—————————Node:identifier Text: length
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:identifier Text: checksum
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+		return 0;
+	}
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return 0;
+|——————Node:return Text: return
+|——————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else return -1;
+|—————Node:else Text: else
+|—————Node:return_statement Text: return -1;
+|——————Node:return Text: return
+|——————Node:number_literal Text: -1
+|——————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: int32_t checkchecksumbytes(uint8_t *data, uint32_t length, uint8_t checksum) {
+	if(calculatechecksum(data,length)==checksum) {
+			return 0;
+		}
+		else return -1;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: checkchecksumbytes(uint8_t *data, uint32_t length, uint8_t checksum)
+|———Node:identifier Text: checkchecksumbytes
+|———Node:parameter_list Text: (uint8_t *data, uint32_t length, uint8_t checksum)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint8_t *data
+|—————Node:primitive_type Text: uint8_t
+|—————Node:pointer_declarator Text: *data
+|——————Node:* Text: *
+|——————Node:identifier Text: data
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint32_t length
+|—————Node:primitive_type Text: uint32_t
+|—————Node:identifier Text: length
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint8_t checksum
+|—————Node:primitive_type Text: uint8_t
+|—————Node:identifier Text: checksum
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	if(calculatechecksum(data,length)==checksum) {
+			return 0;
+		}
+		else return -1;
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if(calculatechecksum(data,length)==checksum) {
+			return 0;
+		}
+		else return -1;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (calculatechecksum(data,length)==checksum)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: calculatechecksum(data,length)==checksum
+|——————Node:call_expression Text: calculatechecksum(data,length)
+|———————Node:identifier Text: calculatechecksum
+|———————Node:argument_list Text: (data,length)
+|————————Node:( Text: (
+|————————Node:identifier Text: data
+|————————Node:, Text: ,
+|————————Node:identifier Text: length
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:identifier Text: checksum
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+			return 0;
+		}
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return 0;
+|——————Node:return Text: return
+|——————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else return -1;
+|—————Node:else Text: else
+|—————Node:return_statement Text: return -1;
+|——————Node:return Text: return
+|——————Node:number_literal Text: -1
+|——————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int32_t jumptoapp(uint32_t addr) {
+	pFunction JumpToApp;
+	uint32_t JumpAddress;
+
+	/* The second entry of the vector table contains the reset_handler function. */
+	JumpAddress = *(uint32_t*) (addr + 4);
+
+	/* Assign the function pointer. */
+	JumpToApp= (pFunction) JumpAddress;
+
+	/* Initialize user application's Stack Pointer. */
+	__set_MSP(*(uint32_t*) addr);
+
+	/* Jump!. */
+	JumpToApp();
+
+	return 0;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: jumptoapp(uint32_t addr)
+|———Node:identifier Text: jumptoapp
+|———Node:parameter_list Text: (uint32_t addr)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint32_t addr
+|—————Node:primitive_type Text: uint32_t
+|—————Node:identifier Text: addr
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	pFunction JumpToApp;
+	uint32_t JumpAddress;
+
+	/* The second entry of the vector table contains the reset_handler function. */
+	JumpAddress = *(uint32_t*) (addr + 4);
+
+	/* Assign the function pointer. */
+	JumpToApp= (pFunction) JumpAddress;
+
+	/* Initialize user application's Stack Pointer. */
+	__set_MSP(*(uint32_t*) addr);
+
+	/* Jump!. */
+	JumpToApp();
+
+	return 0;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: pFunction JumpToApp;
+|————Node:type_identifier Text: pFunction
+|————Node:identifier Text: JumpToApp
+|————Node:; Text: ;
+|———Node:declaration Text: uint32_t JumpAddress;
+|————Node:primitive_type Text: uint32_t
+|————Node:identifier Text: JumpAddress
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: JumpAddress = *(uint32_t*) (addr + 4);
+|————Node:assignment_expression Text: JumpAddress = *(uint32_t*) (addr + 4)
+|—————Node:identifier Text: JumpAddress
+|—————Node:= Text: =
+|—————Node:pointer_expression Text: *(uint32_t*) (addr + 4)
+|——————Node:* Text: *
+|——————Node:cast_expression Text: (uint32_t*) (addr + 4)
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: uint32_t*
+|————————Node:primitive_type Text: uint32_t
+|————————Node:abstract_pointer_declarator Text: *
+|—————————Node:* Text: *
+|———————Node:) Text: )
+|———————Node:parenthesized_expression Text: (addr + 4)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: addr + 4
+|—————————Node:identifier Text: addr
+|—————————Node:+ Text: +
+|—————————Node:number_literal Text: 4
+|————————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: JumpToApp= (pFunction) JumpAddress;
+|————Node:assignment_expression Text: JumpToApp= (pFunction) JumpAddress
+|—————Node:identifier Text: JumpToApp
+|—————Node:= Text: =
+|—————Node:cast_expression Text: (pFunction) JumpAddress
+|——————Node:( Text: (
+|——————Node:type_descriptor Text: pFunction
+|———————Node:type_identifier Text: pFunction
+|——————Node:) Text: )
+|——————Node:identifier Text: JumpAddress
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: __set_MSP(*(uint32_t*) addr);
+|————Node:call_expression Text: __set_MSP(*(uint32_t*) addr)
+|—————Node:identifier Text: __set_MSP
+|—————Node:argument_list Text: (*(uint32_t*) addr)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: *(uint32_t*) addr
+|———————Node:* Text: *
+|———————Node:cast_expression Text: (uint32_t*) addr
+|————————Node:( Text: (
+|————————Node:type_descriptor Text: uint32_t*
+|—————————Node:primitive_type Text: uint32_t
+|—————————Node:abstract_pointer_declarator Text: *
+|——————————Node:* Text: *
+|————————Node:) Text: )
+|————————Node:identifier Text: addr
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: JumpToApp();
+|————Node:call_expression Text: JumpToApp()
+|—————Node:identifier Text: JumpToApp
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:function_definition Text: int32_t command_get() {
+	cal_SENDLOG("-> cmd: get command \r\n");
+	cal_SENDACK();
+	//delay(999);
+	cal_SENDBYTE(0x0B);
+	//delay(999);
+	cal_SENDBYTE(0x10);
+	//delay(999);
+	cal_SENDBYTE(STM32_CMD_GET_COMMAND);
+	//delay(999);
+	cal_SENDBYTE(STM32_CMD_GETVERSION_READPROTECTION);
+	//delay(999);
+	cal_SENDBYTE(STM32_CMD_GET_ID);
+	//delay(999);
+	cal_SENDBYTE(STM32_CMD_READ_FLASH);
+	//delay(999);
+	cal_SENDBYTE(STM32_CMD_GO);
+	//delay(999);
+	cal_SENDBYTE(STM32_CMD_WRITE_FLASH);
+	//delay(99);
+	cal_SENDBYTE(STM32_CMD_ERASE_FLASH);
+	//delay(99);
+	cal_SENDBYTE(STM32_CMD_WRITE_PROTECT);
+	//delay(99);
+	cal_SENDBYTE(STM32_CMD_WRITE_UNPROTECT);
+	//delay(99);
+	cal_SENDBYTE(STM32_CMD_READ_PROTECT);
+	//delay(99);
+	cal_SENDBYTE(STM32_CMD_READ_UNPROTECT);
+	//delay(99);
+	cal_SENDACK();
+	cal_SENDLOG("\r\n-> cmd: get command terminated \r\n");
+	return 0;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: command_get()
+|———Node:identifier Text: command_get
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	cal_SENDLOG("-> cmd: get command \r\n");
+	cal_SENDACK();
+	//delay(999);
+	cal_SENDBYTE(0x0B);
+	//delay(999);
+	cal_SENDBYTE(0x10);
+	//delay(999);
+	cal_SENDBYTE(STM32_CMD_GET_COMMAND);
+	//delay(999);
+	cal_SENDBYTE(STM32_CMD_GETVERSION_READPROTECTION);
+	//delay(999);
+	cal_SENDBYTE(STM32_CMD_GET_ID);
+	//delay(999);
+	cal_SENDBYTE(STM32_CMD_READ_FLASH);
+	//delay(999);
+	cal_SENDBYTE(STM32_CMD_GO);
+	//delay(999);
+	cal_SENDBYTE(STM32_CMD_WRITE_FLASH);
+	//delay(99);
+	cal_SENDBYTE(STM32_CMD_ERASE_FLASH);
+	//delay(99);
+	cal_SENDBYTE(STM32_CMD_WRITE_PROTECT);
+	//delay(99);
+	cal_SENDBYTE(STM32_CMD_WRITE_UNPROTECT);
+	//delay(99);
+	cal_SENDBYTE(STM32_CMD_READ_PROTECT);
+	//delay(99);
+	cal_SENDBYTE(STM32_CMD_READ_UNPROTECT);
+	//delay(99);
+	cal_SENDACK();
+	cal_SENDLOG("\r\n-> cmd: get command terminated \r\n");
+	return 0;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: cal_SENDLOG("-> cmd: get command \r\n");
+|————Node:call_expression Text: cal_SENDLOG("-> cmd: get command \r\n")
+|—————Node:identifier Text: cal_SENDLOG
+|—————Node:argument_list Text: ("-> cmd: get command \r\n")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "-> cmd: get command \r\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: -> cmd: get command 
+|———————Node:escape_sequence Text: \r
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_SENDACK();
+|————Node:call_expression Text: cal_SENDACK()
+|—————Node:identifier Text: cal_SENDACK
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_SENDBYTE(0x0B);
+|————Node:call_expression Text: cal_SENDBYTE(0x0B)
+|—————Node:identifier Text: cal_SENDBYTE
+|—————Node:argument_list Text: (0x0B)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0x0B
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_SENDBYTE(0x10);
+|————Node:call_expression Text: cal_SENDBYTE(0x10)
+|—————Node:identifier Text: cal_SENDBYTE
+|—————Node:argument_list Text: (0x10)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0x10
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_SENDBYTE(STM32_CMD_GET_COMMAND);
+|————Node:call_expression Text: cal_SENDBYTE(STM32_CMD_GET_COMMAND)
+|—————Node:identifier Text: cal_SENDBYTE
+|—————Node:argument_list Text: (STM32_CMD_GET_COMMAND)
+|——————Node:( Text: (
+|——————Node:identifier Text: STM32_CMD_GET_COMMAND
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_SENDBYTE(STM32_CMD_GETVERSION_READPROTECTION);
+|————Node:call_expression Text: cal_SENDBYTE(STM32_CMD_GETVERSION_READPROTECTION)
+|—————Node:identifier Text: cal_SENDBYTE
+|—————Node:argument_list Text: (STM32_CMD_GETVERSION_READPROTECTION)
+|——————Node:( Text: (
+|——————Node:identifier Text: STM32_CMD_GETVERSION_READPROTECTION
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_SENDBYTE(STM32_CMD_GET_ID);
+|————Node:call_expression Text: cal_SENDBYTE(STM32_CMD_GET_ID)
+|—————Node:identifier Text: cal_SENDBYTE
+|—————Node:argument_list Text: (STM32_CMD_GET_ID)
+|——————Node:( Text: (
+|——————Node:identifier Text: STM32_CMD_GET_ID
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_SENDBYTE(STM32_CMD_READ_FLASH);
+|————Node:call_expression Text: cal_SENDBYTE(STM32_CMD_READ_FLASH)
+|—————Node:identifier Text: cal_SENDBYTE
+|—————Node:argument_list Text: (STM32_CMD_READ_FLASH)
+|——————Node:( Text: (
+|——————Node:identifier Text: STM32_CMD_READ_FLASH
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_SENDBYTE(STM32_CMD_GO);
+|————Node:call_expression Text: cal_SENDBYTE(STM32_CMD_GO)
+|—————Node:identifier Text: cal_SENDBYTE
+|—————Node:argument_list Text: (STM32_CMD_GO)
+|——————Node:( Text: (
+|——————Node:identifier Text: STM32_CMD_GO
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_SENDBYTE(STM32_CMD_WRITE_FLASH);
+|————Node:call_expression Text: cal_SENDBYTE(STM32_CMD_WRITE_FLASH)
+|—————Node:identifier Text: cal_SENDBYTE
+|—————Node:argument_list Text: (STM32_CMD_WRITE_FLASH)
+|——————Node:( Text: (
+|——————Node:identifier Text: STM32_CMD_WRITE_FLASH
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_SENDBYTE(STM32_CMD_ERASE_FLASH);
+|————Node:call_expression Text: cal_SENDBYTE(STM32_CMD_ERASE_FLASH)
+|—————Node:identifier Text: cal_SENDBYTE
+|—————Node:argument_list Text: (STM32_CMD_ERASE_FLASH)
+|——————Node:( Text: (
+|——————Node:identifier Text: STM32_CMD_ERASE_FLASH
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_SENDBYTE(STM32_CMD_WRITE_PROTECT);
+|————Node:call_expression Text: cal_SENDBYTE(STM32_CMD_WRITE_PROTECT)
+|—————Node:identifier Text: cal_SENDBYTE
+|—————Node:argument_list Text: (STM32_CMD_WRITE_PROTECT)
+|——————Node:( Text: (
+|——————Node:identifier Text: STM32_CMD_WRITE_PROTECT
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_SENDBYTE(STM32_CMD_WRITE_UNPROTECT);
+|————Node:call_expression Text: cal_SENDBYTE(STM32_CMD_WRITE_UNPROTECT)
+|—————Node:identifier Text: cal_SENDBYTE
+|—————Node:argument_list Text: (STM32_CMD_WRITE_UNPROTECT)
+|——————Node:( Text: (
+|——————Node:identifier Text: STM32_CMD_WRITE_UNPROTECT
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_SENDBYTE(STM32_CMD_READ_PROTECT);
+|————Node:call_expression Text: cal_SENDBYTE(STM32_CMD_READ_PROTECT)
+|—————Node:identifier Text: cal_SENDBYTE
+|—————Node:argument_list Text: (STM32_CMD_READ_PROTECT)
+|——————Node:( Text: (
+|——————Node:identifier Text: STM32_CMD_READ_PROTECT
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_SENDBYTE(STM32_CMD_READ_UNPROTECT);
+|————Node:call_expression Text: cal_SENDBYTE(STM32_CMD_READ_UNPROTECT)
+|—————Node:identifier Text: cal_SENDBYTE
+|—————Node:argument_list Text: (STM32_CMD_READ_UNPROTECT)
+|——————Node:( Text: (
+|——————Node:identifier Text: STM32_CMD_READ_UNPROTECT
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_SENDACK();
+|————Node:call_expression Text: cal_SENDACK()
+|—————Node:identifier Text: cal_SENDACK
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_SENDLOG("\r\n-> cmd: get command terminated \r\n");
+|————Node:call_expression Text: cal_SENDLOG("\r\n-> cmd: get command terminated \r\n")
+|—————Node:identifier Text: cal_SENDLOG
+|—————Node:argument_list Text: ("\r\n-> cmd: get command terminated \r\n")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "\r\n-> cmd: get command terminated \r\n"
+|———————Node:" Text: "
+|———————Node:escape_sequence Text: \r
+|———————Node:escape_sequence Text: \n
+|———————Node:string_content Text: -> cmd: get command terminated 
+|———————Node:escape_sequence Text: \r
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int32_t command_get_versionread() {
+	cal_SENDLOG("-> cmd: get version \r\n");
+	cal_SENDACK();
+	cal_SENDBYTE(BLVERSION);
+	cal_SENDBYTE(0x00);
+	cal_SENDBYTE(0x00);
+	cal_SENDACK();
+	cal_SENDLOG("-> cmd: get version terminated\r\n");
+	return 0;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: command_get_versionread()
+|———Node:identifier Text: command_get_versionread
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	cal_SENDLOG("-> cmd: get version \r\n");
+	cal_SENDACK();
+	cal_SENDBYTE(BLVERSION);
+	cal_SENDBYTE(0x00);
+	cal_SENDBYTE(0x00);
+	cal_SENDACK();
+	cal_SENDLOG("-> cmd: get version terminated\r\n");
+	return 0;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: cal_SENDLOG("-> cmd: get version \r\n");
+|————Node:call_expression Text: cal_SENDLOG("-> cmd: get version \r\n")
+|—————Node:identifier Text: cal_SENDLOG
+|—————Node:argument_list Text: ("-> cmd: get version \r\n")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "-> cmd: get version \r\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: -> cmd: get version 
+|———————Node:escape_sequence Text: \r
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_SENDACK();
+|————Node:call_expression Text: cal_SENDACK()
+|—————Node:identifier Text: cal_SENDACK
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_SENDBYTE(BLVERSION);
+|————Node:call_expression Text: cal_SENDBYTE(BLVERSION)
+|—————Node:identifier Text: cal_SENDBYTE
+|—————Node:argument_list Text: (BLVERSION)
+|——————Node:( Text: (
+|——————Node:identifier Text: BLVERSION
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_SENDBYTE(0x00);
+|————Node:call_expression Text: cal_SENDBYTE(0x00)
+|—————Node:identifier Text: cal_SENDBYTE
+|—————Node:argument_list Text: (0x00)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0x00
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_SENDBYTE(0x00);
+|————Node:call_expression Text: cal_SENDBYTE(0x00)
+|—————Node:identifier Text: cal_SENDBYTE
+|—————Node:argument_list Text: (0x00)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0x00
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_SENDACK();
+|————Node:call_expression Text: cal_SENDACK()
+|—————Node:identifier Text: cal_SENDACK
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_SENDLOG("-> cmd: get version terminated\r\n");
+|————Node:call_expression Text: cal_SENDLOG("-> cmd: get version terminated\r\n")
+|—————Node:identifier Text: cal_SENDLOG
+|—————Node:argument_list Text: ("-> cmd: get version terminated\r\n")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "-> cmd: get version terminated\r\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: -> cmd: get version terminated
+|———————Node:escape_sequence Text: \r
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int32_t command_get_id() {
+	cal_SENDLOG("-> cmd: get ID \r\n");
+	cal_SENDACK();
+	cal_SENDBYTE(0x01);
+	cal_SENDBYTE(0x04);
+	cal_SENDBYTE(hil_getidbyte2());
+	cal_SENDACK();
+	cal_SENDLOG("-> cmd: get ID terminated\r\n");
+	return 0;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: command_get_id()
+|———Node:identifier Text: command_get_id
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	cal_SENDLOG("-> cmd: get ID \r\n");
+	cal_SENDACK();
+	cal_SENDBYTE(0x01);
+	cal_SENDBYTE(0x04);
+	cal_SENDBYTE(hil_getidbyte2());
+	cal_SENDACK();
+	cal_SENDLOG("-> cmd: get ID terminated\r\n");
+	return 0;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: cal_SENDLOG("-> cmd: get ID \r\n");
+|————Node:call_expression Text: cal_SENDLOG("-> cmd: get ID \r\n")
+|—————Node:identifier Text: cal_SENDLOG
+|—————Node:argument_list Text: ("-> cmd: get ID \r\n")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "-> cmd: get ID \r\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: -> cmd: get ID 
+|———————Node:escape_sequence Text: \r
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_SENDACK();
+|————Node:call_expression Text: cal_SENDACK()
+|—————Node:identifier Text: cal_SENDACK
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_SENDBYTE(0x01);
+|————Node:call_expression Text: cal_SENDBYTE(0x01)
+|—————Node:identifier Text: cal_SENDBYTE
+|—————Node:argument_list Text: (0x01)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0x01
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_SENDBYTE(0x04);
+|————Node:call_expression Text: cal_SENDBYTE(0x04)
+|—————Node:identifier Text: cal_SENDBYTE
+|—————Node:argument_list Text: (0x04)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0x04
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_SENDBYTE(hil_getidbyte2());
+|————Node:call_expression Text: cal_SENDBYTE(hil_getidbyte2())
+|—————Node:identifier Text: cal_SENDBYTE
+|—————Node:argument_list Text: (hil_getidbyte2())
+|——————Node:( Text: (
+|——————Node:call_expression Text: hil_getidbyte2()
+|———————Node:identifier Text: hil_getidbyte2
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_SENDACK();
+|————Node:call_expression Text: cal_SENDACK()
+|—————Node:identifier Text: cal_SENDACK
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_SENDLOG("-> cmd: get ID terminated\r\n");
+|————Node:call_expression Text: cal_SENDLOG("-> cmd: get ID terminated\r\n")
+|—————Node:identifier Text: cal_SENDLOG
+|—————Node:argument_list Text: ("-> cmd: get ID terminated\r\n")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "-> cmd: get ID terminated\r\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: -> cmd: get ID terminated
+|———————Node:escape_sequence Text: \r
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int32_t command_read_memory() {
+	cal_SENDLOG("-> cmd: read memory \r\n");
+	uint8_t checksum, number;
+	uint32_t addr, i, temp;
+
+	/* Check ROP. */
+	//if (hil_ropactive())  {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	cal_SENDACK();
+
+	/* Receive and validate address. */
+	if(cal_receiveword((uint32_t *)&addr, TIMEOUT_NACK) == -1) return -1;  //data,address
+	if(cal_receivebyte((uint8_t *)&checksum, TIMEOUT_NACK) == -1) return -1;  //checksum
+	if(!hil_validateaddr(addr) == 1) {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	if(checkchecksumword(addr,4,checksum) == -1) {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	cal_SENDACK();
+
+	/* Receive number of bytes to read. */
+	if(cal_receivebyte((uint8_t *)&number, TIMEOUT_NACK) == -1) return -1;
+	if(cal_receivebyte((uint8_t *)&checksum, TIMEOUT_NACK) == -1) return -1;
+	if(checkchecksumbytes(&number,1,checksum) == -1) {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	cal_SENDACK();
+
+    /* Send Data. */
+	/* Word-by-word as the returned value by hil_readFLASH */
+	for (i = 0;i < (number+1);i=i+4) {
+		temp = hil_readFLASH(addr+i);
+		cal_SENDBYTE(temp & 0xFF);
+		cal_SENDBYTE((temp>>8) & 0xFF);
+		cal_SENDBYTE((temp>>16) & 0xFF);
+		cal_SENDBYTE(temp>>24);
+    }
+	cal_SENDLOG("-> cmd: read memory terminated \r\n");
+	return 0;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: command_read_memory()
+|———Node:identifier Text: command_read_memory
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	cal_SENDLOG("-> cmd: read memory \r\n");
+	uint8_t checksum, number;
+	uint32_t addr, i, temp;
+
+	/* Check ROP. */
+	//if (hil_ropactive())  {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	cal_SENDACK();
+
+	/* Receive and validate address. */
+	if(cal_receiveword((uint32_t *)&addr, TIMEOUT_NACK) == -1) return -1;  //data,address
+	if(cal_receivebyte((uint8_t *)&checksum, TIMEOUT_NACK) == -1) return -1;  //checksum
+	if(!hil_validateaddr(addr) == 1) {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	if(checkchecksumword(addr,4,checksum) == -1) {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	cal_SENDACK();
+
+	/* Receive number of bytes to read. */
+	if(cal_receivebyte((uint8_t *)&number, TIMEOUT_NACK) == -1) return -1;
+	if(cal_receivebyte((uint8_t *)&checksum, TIMEOUT_NACK) == -1) return -1;
+	if(checkchecksumbytes(&number,1,checksum) == -1) {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	cal_SENDACK();
+
+    /* Send Data. */
+	/* Word-by-word as the returned value by hil_readFLASH */
+	for (i = 0;i < (number+1);i=i+4) {
+		temp = hil_readFLASH(addr+i);
+		cal_SENDBYTE(temp & 0xFF);
+		cal_SENDBYTE((temp>>8) & 0xFF);
+		cal_SENDBYTE((temp>>16) & 0xFF);
+		cal_SENDBYTE(temp>>24);
+    }
+	cal_SENDLOG("-> cmd: read memory terminated \r\n");
+	return 0;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: cal_SENDLOG("-> cmd: read memory \r\n");
+|————Node:call_expression Text: cal_SENDLOG("-> cmd: read memory \r\n")
+|—————Node:identifier Text: cal_SENDLOG
+|—————Node:argument_list Text: ("-> cmd: read memory \r\n")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "-> cmd: read memory \r\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: -> cmd: read memory 
+|———————Node:escape_sequence Text: \r
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: uint8_t checksum, number;
+|————Node:primitive_type Text: uint8_t
+|————Node:identifier Text: checksum
+|————Node:, Text: ,
+|————Node:identifier Text: number
+|————Node:; Text: ;
+|———Node:declaration Text: uint32_t addr, i, temp;
+|————Node:primitive_type Text: uint32_t
+|————Node:identifier Text: addr
+|————Node:, Text: ,
+|————Node:identifier Text: i
+|————Node:, Text: ,
+|————Node:identifier Text: temp
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: cal_SENDACK();
+|————Node:call_expression Text: cal_SENDACK()
+|—————Node:identifier Text: cal_SENDACK
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:if_statement Text: if(cal_receiveword((uint32_t *)&addr, TIMEOUT_NACK) == -1) return -1;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (cal_receiveword((uint32_t *)&addr, TIMEOUT_NACK) == -1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: cal_receiveword((uint32_t *)&addr, TIMEOUT_NACK) == -1
+|——————Node:call_expression Text: cal_receiveword((uint32_t *)&addr, TIMEOUT_NACK)
+|———————Node:identifier Text: cal_receiveword
+|———————Node:argument_list Text: ((uint32_t *)&addr, TIMEOUT_NACK)
+|————————Node:( Text: (
+|————————Node:cast_expression Text: (uint32_t *)&addr
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint32_t *
+|——————————Node:primitive_type Text: uint32_t
+|——————————Node:abstract_pointer_declarator Text: *
+|———————————Node:* Text: *
+|—————————Node:) Text: )
+|—————————Node:pointer_expression Text: &addr
+|——————————Node:& Text: &
+|——————————Node:identifier Text: addr
+|————————Node:, Text: ,
+|————————Node:identifier Text: TIMEOUT_NACK
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:return_statement Text: return -1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: -1
+|—————Node:; Text: ;
+|———Node:comment
+|———Node:if_statement Text: if(cal_receivebyte((uint8_t *)&checksum, TIMEOUT_NACK) == -1) return -1;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (cal_receivebyte((uint8_t *)&checksum, TIMEOUT_NACK) == -1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: cal_receivebyte((uint8_t *)&checksum, TIMEOUT_NACK) == -1
+|——————Node:call_expression Text: cal_receivebyte((uint8_t *)&checksum, TIMEOUT_NACK)
+|———————Node:identifier Text: cal_receivebyte
+|———————Node:argument_list Text: ((uint8_t *)&checksum, TIMEOUT_NACK)
+|————————Node:( Text: (
+|————————Node:cast_expression Text: (uint8_t *)&checksum
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint8_t *
+|——————————Node:primitive_type Text: uint8_t
+|——————————Node:abstract_pointer_declarator Text: *
+|———————————Node:* Text: *
+|—————————Node:) Text: )
+|—————————Node:pointer_expression Text: &checksum
+|——————————Node:& Text: &
+|——————————Node:identifier Text: checksum
+|————————Node:, Text: ,
+|————————Node:identifier Text: TIMEOUT_NACK
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:return_statement Text: return -1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: -1
+|—————Node:; Text: ;
+|———Node:comment
+|———Node:if_statement Text: if(!hil_validateaddr(addr) == 1) {cal_sendbyte(STM32_COMM_NACK); return -1;}
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (!hil_validateaddr(addr) == 1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: !hil_validateaddr(addr) == 1
+|——————Node:unary_expression Text: !hil_validateaddr(addr)
+|———————Node:! Text: !
+|———————Node:call_expression Text: hil_validateaddr(addr)
+|————————Node:identifier Text: hil_validateaddr
+|————————Node:argument_list Text: (addr)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: addr
+|—————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: 1
+|—————Node:) Text: )
+|————Node:compound_statement Text: {cal_sendbyte(STM32_COMM_NACK); return -1;}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: cal_sendbyte(STM32_COMM_NACK);
+|——————Node:call_expression Text: cal_sendbyte(STM32_COMM_NACK)
+|———————Node:identifier Text: cal_sendbyte
+|———————Node:argument_list Text: (STM32_COMM_NACK)
+|————————Node:( Text: (
+|————————Node:identifier Text: STM32_COMM_NACK
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return -1;
+|——————Node:return Text: return
+|——————Node:number_literal Text: -1
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if(checkchecksumword(addr,4,checksum) == -1) {cal_sendbyte(STM32_COMM_NACK); return -1;}
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (checkchecksumword(addr,4,checksum) == -1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: checkchecksumword(addr,4,checksum) == -1
+|——————Node:call_expression Text: checkchecksumword(addr,4,checksum)
+|———————Node:identifier Text: checkchecksumword
+|———————Node:argument_list Text: (addr,4,checksum)
+|————————Node:( Text: (
+|————————Node:identifier Text: addr
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 4
+|————————Node:, Text: ,
+|————————Node:identifier Text: checksum
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:compound_statement Text: {cal_sendbyte(STM32_COMM_NACK); return -1;}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: cal_sendbyte(STM32_COMM_NACK);
+|——————Node:call_expression Text: cal_sendbyte(STM32_COMM_NACK)
+|———————Node:identifier Text: cal_sendbyte
+|———————Node:argument_list Text: (STM32_COMM_NACK)
+|————————Node:( Text: (
+|————————Node:identifier Text: STM32_COMM_NACK
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return -1;
+|——————Node:return Text: return
+|——————Node:number_literal Text: -1
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: cal_SENDACK();
+|————Node:call_expression Text: cal_SENDACK()
+|—————Node:identifier Text: cal_SENDACK
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:if_statement Text: if(cal_receivebyte((uint8_t *)&number, TIMEOUT_NACK) == -1) return -1;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (cal_receivebyte((uint8_t *)&number, TIMEOUT_NACK) == -1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: cal_receivebyte((uint8_t *)&number, TIMEOUT_NACK) == -1
+|——————Node:call_expression Text: cal_receivebyte((uint8_t *)&number, TIMEOUT_NACK)
+|———————Node:identifier Text: cal_receivebyte
+|———————Node:argument_list Text: ((uint8_t *)&number, TIMEOUT_NACK)
+|————————Node:( Text: (
+|————————Node:cast_expression Text: (uint8_t *)&number
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint8_t *
+|——————————Node:primitive_type Text: uint8_t
+|——————————Node:abstract_pointer_declarator Text: *
+|———————————Node:* Text: *
+|—————————Node:) Text: )
+|—————————Node:pointer_expression Text: &number
+|——————————Node:& Text: &
+|——————————Node:identifier Text: number
+|————————Node:, Text: ,
+|————————Node:identifier Text: TIMEOUT_NACK
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:return_statement Text: return -1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: -1
+|—————Node:; Text: ;
+|———Node:if_statement Text: if(cal_receivebyte((uint8_t *)&checksum, TIMEOUT_NACK) == -1) return -1;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (cal_receivebyte((uint8_t *)&checksum, TIMEOUT_NACK) == -1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: cal_receivebyte((uint8_t *)&checksum, TIMEOUT_NACK) == -1
+|——————Node:call_expression Text: cal_receivebyte((uint8_t *)&checksum, TIMEOUT_NACK)
+|———————Node:identifier Text: cal_receivebyte
+|———————Node:argument_list Text: ((uint8_t *)&checksum, TIMEOUT_NACK)
+|————————Node:( Text: (
+|————————Node:cast_expression Text: (uint8_t *)&checksum
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint8_t *
+|——————————Node:primitive_type Text: uint8_t
+|——————————Node:abstract_pointer_declarator Text: *
+|———————————Node:* Text: *
+|—————————Node:) Text: )
+|—————————Node:pointer_expression Text: &checksum
+|——————————Node:& Text: &
+|——————————Node:identifier Text: checksum
+|————————Node:, Text: ,
+|————————Node:identifier Text: TIMEOUT_NACK
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:return_statement Text: return -1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: -1
+|—————Node:; Text: ;
+|———Node:if_statement Text: if(checkchecksumbytes(&number,1,checksum) == -1) {cal_sendbyte(STM32_COMM_NACK); return -1;}
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (checkchecksumbytes(&number,1,checksum) == -1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: checkchecksumbytes(&number,1,checksum) == -1
+|——————Node:call_expression Text: checkchecksumbytes(&number,1,checksum)
+|———————Node:identifier Text: checkchecksumbytes
+|———————Node:argument_list Text: (&number,1,checksum)
+|————————Node:( Text: (
+|————————Node:pointer_expression Text: &number
+|—————————Node:& Text: &
+|—————————Node:identifier Text: number
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 1
+|————————Node:, Text: ,
+|————————Node:identifier Text: checksum
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:compound_statement Text: {cal_sendbyte(STM32_COMM_NACK); return -1;}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: cal_sendbyte(STM32_COMM_NACK);
+|——————Node:call_expression Text: cal_sendbyte(STM32_COMM_NACK)
+|———————Node:identifier Text: cal_sendbyte
+|———————Node:argument_list Text: (STM32_COMM_NACK)
+|————————Node:( Text: (
+|————————Node:identifier Text: STM32_COMM_NACK
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return -1;
+|——————Node:return Text: return
+|——————Node:number_literal Text: -1
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: cal_SENDACK();
+|————Node:call_expression Text: cal_SENDACK()
+|—————Node:identifier Text: cal_SENDACK
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:for_statement Text: for (i = 0;i < (number+1);i=i+4) {
+		temp = hil_readFLASH(addr+i);
+		cal_SENDBYTE(temp & 0xFF);
+		cal_SENDBYTE((temp>>8) & 0xFF);
+		cal_SENDBYTE((temp>>16) & 0xFF);
+		cal_SENDBYTE(temp>>24);
+    }
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:assignment_expression Text: i = 0
+|—————Node:identifier Text: i
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|————Node:binary_expression Text: i < (number+1)
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:parenthesized_expression Text: (number+1)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: number+1
+|———————Node:identifier Text: number
+|———————Node:+ Text: +
+|———————Node:number_literal Text: 1
+|——————Node:) Text: )
+|————Node:; Text: ;
+|————Node:assignment_expression Text: i=i+4
+|—————Node:identifier Text: i
+|—————Node:= Text: =
+|—————Node:binary_expression Text: i+4
+|——————Node:identifier Text: i
+|——————Node:+ Text: +
+|——————Node:number_literal Text: 4
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+		temp = hil_readFLASH(addr+i);
+		cal_SENDBYTE(temp & 0xFF);
+		cal_SENDBYTE((temp>>8) & 0xFF);
+		cal_SENDBYTE((temp>>16) & 0xFF);
+		cal_SENDBYTE(temp>>24);
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: temp = hil_readFLASH(addr+i);
+|——————Node:assignment_expression Text: temp = hil_readFLASH(addr+i)
+|———————Node:identifier Text: temp
+|———————Node:= Text: =
+|———————Node:call_expression Text: hil_readFLASH(addr+i)
+|————————Node:identifier Text: hil_readFLASH
+|————————Node:argument_list Text: (addr+i)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: addr+i
+|——————————Node:identifier Text: addr
+|——————————Node:+ Text: +
+|——————————Node:identifier Text: i
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: cal_SENDBYTE(temp & 0xFF);
+|——————Node:call_expression Text: cal_SENDBYTE(temp & 0xFF)
+|———————Node:identifier Text: cal_SENDBYTE
+|———————Node:argument_list Text: (temp & 0xFF)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: temp & 0xFF
+|—————————Node:identifier Text: temp
+|—————————Node:& Text: &
+|—————————Node:number_literal Text: 0xFF
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: cal_SENDBYTE((temp>>8) & 0xFF);
+|——————Node:call_expression Text: cal_SENDBYTE((temp>>8) & 0xFF)
+|———————Node:identifier Text: cal_SENDBYTE
+|———————Node:argument_list Text: ((temp>>8) & 0xFF)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: (temp>>8) & 0xFF
+|—————————Node:parenthesized_expression Text: (temp>>8)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: temp>>8
+|———————————Node:identifier Text: temp
+|———————————Node:>> Text: >>
+|———————————Node:number_literal Text: 8
+|——————————Node:) Text: )
+|—————————Node:& Text: &
+|—————————Node:number_literal Text: 0xFF
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: cal_SENDBYTE((temp>>16) & 0xFF);
+|——————Node:call_expression Text: cal_SENDBYTE((temp>>16) & 0xFF)
+|———————Node:identifier Text: cal_SENDBYTE
+|———————Node:argument_list Text: ((temp>>16) & 0xFF)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: (temp>>16) & 0xFF
+|—————————Node:parenthesized_expression Text: (temp>>16)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: temp>>16
+|———————————Node:identifier Text: temp
+|———————————Node:>> Text: >>
+|———————————Node:number_literal Text: 16
+|——————————Node:) Text: )
+|—————————Node:& Text: &
+|—————————Node:number_literal Text: 0xFF
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: cal_SENDBYTE(temp>>24);
+|——————Node:call_expression Text: cal_SENDBYTE(temp>>24)
+|———————Node:identifier Text: cal_SENDBYTE
+|———————Node:argument_list Text: (temp>>24)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: temp>>24
+|—————————Node:identifier Text: temp
+|—————————Node:>> Text: >>
+|—————————Node:number_literal Text: 24
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: cal_SENDLOG("-> cmd: read memory terminated \r\n");
+|————Node:call_expression Text: cal_SENDLOG("-> cmd: read memory terminated \r\n")
+|—————Node:identifier Text: cal_SENDLOG
+|—————Node:argument_list Text: ("-> cmd: read memory terminated \r\n")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "-> cmd: read memory terminated \r\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: -> cmd: read memory terminated 
+|———————Node:escape_sequence Text: \r
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int32_t command_go() {
+	uint8_t checksum;
+	uint32_t addr;
+	//if (hil_ropactive())  {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	cal_SENDACK();
+
+	/* Receive address and its checksum and validate it. */
+	cal_READWORD(addr,TIMEOUT_NACK);
+	cal_READBYTE(checksum,TIMEOUT_NACK); //checksum
+	if(checkchecksumword(addr,4,checksum) == -1) {cal_SENDNACK();}
+	if(!hil_validateaddr(addr) == 1) {cal_SENDNACK();}
+	cal_SENDACK();
+	//cal_SENDACK();
+
+	/* Jump! */
+	jumptoapp(addr);
+
+	return 0;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: command_go()
+|———Node:identifier Text: command_go
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	uint8_t checksum;
+	uint32_t addr;
+	//if (hil_ropactive())  {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	cal_SENDACK();
+
+	/* Receive address and its checksum and validate it. */
+	cal_READWORD(addr,TIMEOUT_NACK);
+	cal_READBYTE(checksum,TIMEOUT_NACK); //checksum
+	if(checkchecksumword(addr,4,checksum) == -1) {cal_SENDNACK();}
+	if(!hil_validateaddr(addr) == 1) {cal_SENDNACK();}
+	cal_SENDACK();
+	//cal_SENDACK();
+
+	/* Jump! */
+	jumptoapp(addr);
+
+	return 0;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: uint8_t checksum;
+|————Node:primitive_type Text: uint8_t
+|————Node:identifier Text: checksum
+|————Node:; Text: ;
+|———Node:declaration Text: uint32_t addr;
+|————Node:primitive_type Text: uint32_t
+|————Node:identifier Text: addr
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_SENDACK();
+|————Node:call_expression Text: cal_SENDACK()
+|—————Node:identifier Text: cal_SENDACK
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_READWORD(addr,TIMEOUT_NACK);
+|————Node:call_expression Text: cal_READWORD(addr,TIMEOUT_NACK)
+|—————Node:identifier Text: cal_READWORD
+|—————Node:argument_list Text: (addr,TIMEOUT_NACK)
+|——————Node:( Text: (
+|——————Node:identifier Text: addr
+|——————Node:, Text: ,
+|——————Node:identifier Text: TIMEOUT_NACK
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_READBYTE(checksum,TIMEOUT_NACK);
+|————Node:call_expression Text: cal_READBYTE(checksum,TIMEOUT_NACK)
+|—————Node:identifier Text: cal_READBYTE
+|—————Node:argument_list Text: (checksum,TIMEOUT_NACK)
+|——————Node:( Text: (
+|——————Node:identifier Text: checksum
+|——————Node:, Text: ,
+|——————Node:identifier Text: TIMEOUT_NACK
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:if_statement Text: if(checkchecksumword(addr,4,checksum) == -1) {cal_SENDNACK();}
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (checkchecksumword(addr,4,checksum) == -1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: checkchecksumword(addr,4,checksum) == -1
+|——————Node:call_expression Text: checkchecksumword(addr,4,checksum)
+|———————Node:identifier Text: checkchecksumword
+|———————Node:argument_list Text: (addr,4,checksum)
+|————————Node:( Text: (
+|————————Node:identifier Text: addr
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 4
+|————————Node:, Text: ,
+|————————Node:identifier Text: checksum
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:compound_statement Text: {cal_SENDNACK();}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: cal_SENDNACK();
+|——————Node:call_expression Text: cal_SENDNACK()
+|———————Node:identifier Text: cal_SENDNACK
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if(!hil_validateaddr(addr) == 1) {cal_SENDNACK();}
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (!hil_validateaddr(addr) == 1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: !hil_validateaddr(addr) == 1
+|——————Node:unary_expression Text: !hil_validateaddr(addr)
+|———————Node:! Text: !
+|———————Node:call_expression Text: hil_validateaddr(addr)
+|————————Node:identifier Text: hil_validateaddr
+|————————Node:argument_list Text: (addr)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: addr
+|—————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: 1
+|—————Node:) Text: )
+|————Node:compound_statement Text: {cal_SENDNACK();}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: cal_SENDNACK();
+|——————Node:call_expression Text: cal_SENDNACK()
+|———————Node:identifier Text: cal_SENDNACK
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: cal_SENDACK();
+|————Node:call_expression Text: cal_SENDACK()
+|—————Node:identifier Text: cal_SENDACK
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: jumptoapp(addr);
+|————Node:call_expression Text: jumptoapp(addr)
+|—————Node:identifier Text: jumptoapp
+|—————Node:argument_list Text: (addr)
+|——————Node:( Text: (
+|——————Node:identifier Text: addr
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int32_t command_write_memory() {
+
+	uint32_t addr;
+	uint8_t number, checksum;
+	uint8_t bytes[4] = {0, 0, 0, 0};
+	uint32_t i, j;
+
+	//if (hil_ropactive())  {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	cal_SENDACK();
+
+	/* Receive address. */
+	cal_READWORD(addr,TIMEOUT_NACK);
+	cal_READBYTE(checksum,TIMEOUT_NACK);
+	if(checkchecksumword(addr,4,checksum) == -1) {cal_SENDNACK();}
+	cal_SENDACK();
+
+	/* Receive data packet. */
+	/* it is actually number + 1 to be received according to the docs
+     * expecting nummber+1 bytes, and add one place to append number itself at the end
+     * range: 0 - number+1, places available: number+2
+     */
+	cal_READBYTE(number, TIMEOUT_NACK);
+	uint8_t databuffer[number+2];
+	for(i=0;i<number+1;i++) {
+		if(cal_receivebyte(databuffer+i, TIMEOUT_NACK)) return -1; //41 41 a
+	}
+	databuffer[number+1]=number;
+	cal_READBYTE(checksum,TIMEOUT_NACK);
+	if(checkchecksumbytes(databuffer,number+2,checksum)==-1) {cal_SENDNACK();}
+	else {
+		switch (hil_validateaddr(addr)) {
+			case 1:  //case FLASH
+				for (j=0;j<(number+1);j=j+4) {
+					for (i=0; (i<4 && (j+i)<=number); i++) {
+						bytes[i]=databuffer[j+i];
+					}
+				FLASH_ProgramWord(addr+j,*(uint32_t*)bytes);
+				}
+				cal_SENDACK();
+				break;
+			case 0:  //case RAM
+				//UNTESTED
+				for (j=0;j<number+1;j++) {
+				*(&addr+j)=*(databuffer+j);
+				}
+				break;
+			default: //case option bytes
+				//UNTESTED
+				if(addr==0x1FFFF800) {
+					FLASH_ProgramOptionByteData(addr, *databuffer);
+					if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+					hil_reset();
+					break;
+				}
+			else {
+				cal_SENDNACK();
+				return -1;
+			}
+		}
+	}
+	return 0;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: command_write_memory()
+|———Node:identifier Text: command_write_memory
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+
+	uint32_t addr;
+	uint8_t number, checksum;
+	uint8_t bytes[4] = {0, 0, 0, 0};
+	uint32_t i, j;
+
+	//if (hil_ropactive())  {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	cal_SENDACK();
+
+	/* Receive address. */
+	cal_READWORD(addr,TIMEOUT_NACK);
+	cal_READBYTE(checksum,TIMEOUT_NACK);
+	if(checkchecksumword(addr,4,checksum) == -1) {cal_SENDNACK();}
+	cal_SENDACK();
+
+	/* Receive data packet. */
+	/* it is actually number + 1 to be received according to the docs
+     * expecting nummber+1 bytes, and add one place to append number itself at the end
+     * range: 0 - number+1, places available: number+2
+     */
+	cal_READBYTE(number, TIMEOUT_NACK);
+	uint8_t databuffer[number+2];
+	for(i=0;i<number+1;i++) {
+		if(cal_receivebyte(databuffer+i, TIMEOUT_NACK)) return -1; //41 41 a
+	}
+	databuffer[number+1]=number;
+	cal_READBYTE(checksum,TIMEOUT_NACK);
+	if(checkchecksumbytes(databuffer,number+2,checksum)==-1) {cal_SENDNACK();}
+	else {
+		switch (hil_validateaddr(addr)) {
+			case 1:  //case FLASH
+				for (j=0;j<(number+1);j=j+4) {
+					for (i=0; (i<4 && (j+i)<=number); i++) {
+						bytes[i]=databuffer[j+i];
+					}
+				FLASH_ProgramWord(addr+j,*(uint32_t*)bytes);
+				}
+				cal_SENDACK();
+				break;
+			case 0:  //case RAM
+				//UNTESTED
+				for (j=0;j<number+1;j++) {
+				*(&addr+j)=*(databuffer+j);
+				}
+				break;
+			default: //case option bytes
+				//UNTESTED
+				if(addr==0x1FFFF800) {
+					FLASH_ProgramOptionByteData(addr, *databuffer);
+					if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+					hil_reset();
+					break;
+				}
+			else {
+				cal_SENDNACK();
+				return -1;
+			}
+		}
+	}
+	return 0;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: uint32_t addr;
+|————Node:primitive_type Text: uint32_t
+|————Node:identifier Text: addr
+|————Node:; Text: ;
+|———Node:declaration Text: uint8_t number, checksum;
+|————Node:primitive_type Text: uint8_t
+|————Node:identifier Text: number
+|————Node:, Text: ,
+|————Node:identifier Text: checksum
+|————Node:; Text: ;
+|———Node:declaration Text: uint8_t bytes[4] = {0, 0, 0, 0};
+|————Node:primitive_type Text: uint8_t
+|————Node:init_declarator Text: bytes[4] = {0, 0, 0, 0}
+|—————Node:array_declarator Text: bytes[4]
+|——————Node:identifier Text: bytes
+|——————Node:[ Text: [
+|——————Node:number_literal Text: 4
+|——————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:initializer_list Text: {0, 0, 0, 0}
+|——————Node:{ Text: {
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:declaration Text: uint32_t i, j;
+|————Node:primitive_type Text: uint32_t
+|————Node:identifier Text: i
+|————Node:, Text: ,
+|————Node:identifier Text: j
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_SENDACK();
+|————Node:call_expression Text: cal_SENDACK()
+|—————Node:identifier Text: cal_SENDACK
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_READWORD(addr,TIMEOUT_NACK);
+|————Node:call_expression Text: cal_READWORD(addr,TIMEOUT_NACK)
+|—————Node:identifier Text: cal_READWORD
+|—————Node:argument_list Text: (addr,TIMEOUT_NACK)
+|——————Node:( Text: (
+|——————Node:identifier Text: addr
+|——————Node:, Text: ,
+|——————Node:identifier Text: TIMEOUT_NACK
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_READBYTE(checksum,TIMEOUT_NACK);
+|————Node:call_expression Text: cal_READBYTE(checksum,TIMEOUT_NACK)
+|—————Node:identifier Text: cal_READBYTE
+|—————Node:argument_list Text: (checksum,TIMEOUT_NACK)
+|——————Node:( Text: (
+|——————Node:identifier Text: checksum
+|——————Node:, Text: ,
+|——————Node:identifier Text: TIMEOUT_NACK
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if(checkchecksumword(addr,4,checksum) == -1) {cal_SENDNACK();}
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (checkchecksumword(addr,4,checksum) == -1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: checkchecksumword(addr,4,checksum) == -1
+|——————Node:call_expression Text: checkchecksumword(addr,4,checksum)
+|———————Node:identifier Text: checkchecksumword
+|———————Node:argument_list Text: (addr,4,checksum)
+|————————Node:( Text: (
+|————————Node:identifier Text: addr
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 4
+|————————Node:, Text: ,
+|————————Node:identifier Text: checksum
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:compound_statement Text: {cal_SENDNACK();}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: cal_SENDNACK();
+|——————Node:call_expression Text: cal_SENDNACK()
+|———————Node:identifier Text: cal_SENDNACK
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: cal_SENDACK();
+|————Node:call_expression Text: cal_SENDACK()
+|—————Node:identifier Text: cal_SENDACK
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: cal_READBYTE(number, TIMEOUT_NACK);
+|————Node:call_expression Text: cal_READBYTE(number, TIMEOUT_NACK)
+|—————Node:identifier Text: cal_READBYTE
+|—————Node:argument_list Text: (number, TIMEOUT_NACK)
+|——————Node:( Text: (
+|——————Node:identifier Text: number
+|——————Node:, Text: ,
+|——————Node:identifier Text: TIMEOUT_NACK
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: uint8_t databuffer[number+2];
+|————Node:primitive_type Text: uint8_t
+|————Node:array_declarator Text: databuffer[number+2]
+|—————Node:identifier Text: databuffer
+|—————Node:[ Text: [
+|—————Node:binary_expression Text: number+2
+|——————Node:identifier Text: number
+|——————Node:+ Text: +
+|——————Node:number_literal Text: 2
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:for_statement Text: for(i=0;i<number+1;i++) {
+		if(cal_receivebyte(databuffer+i, TIMEOUT_NACK)) return -1; //41 41 a
+	}
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:assignment_expression Text: i=0
+|—————Node:identifier Text: i
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|————Node:binary_expression Text: i<number+1
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:binary_expression Text: number+1
+|——————Node:identifier Text: number
+|——————Node:+ Text: +
+|——————Node:number_literal Text: 1
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+		if(cal_receivebyte(databuffer+i, TIMEOUT_NACK)) return -1; //41 41 a
+	}
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if(cal_receivebyte(databuffer+i, TIMEOUT_NACK)) return -1;
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (cal_receivebyte(databuffer+i, TIMEOUT_NACK))
+|———————Node:( Text: (
+|———————Node:call_expression Text: cal_receivebyte(databuffer+i, TIMEOUT_NACK)
+|————————Node:identifier Text: cal_receivebyte
+|————————Node:argument_list Text: (databuffer+i, TIMEOUT_NACK)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: databuffer+i
+|——————————Node:identifier Text: databuffer
+|——————————Node:+ Text: +
+|——————————Node:identifier Text: i
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: TIMEOUT_NACK
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:return_statement Text: return -1;
+|———————Node:return Text: return
+|———————Node:number_literal Text: -1
+|———————Node:; Text: ;
+|—————Node:comment
+|—————Node:} Text: }
+|———Node:expression_statement Text: databuffer[number+1]=number;
+|————Node:assignment_expression Text: databuffer[number+1]=number
+|—————Node:subscript_expression Text: databuffer[number+1]
+|——————Node:identifier Text: databuffer
+|——————Node:[ Text: [
+|——————Node:binary_expression Text: number+1
+|———————Node:identifier Text: number
+|———————Node:+ Text: +
+|———————Node:number_literal Text: 1
+|——————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:identifier Text: number
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_READBYTE(checksum,TIMEOUT_NACK);
+|————Node:call_expression Text: cal_READBYTE(checksum,TIMEOUT_NACK)
+|—————Node:identifier Text: cal_READBYTE
+|—————Node:argument_list Text: (checksum,TIMEOUT_NACK)
+|——————Node:( Text: (
+|——————Node:identifier Text: checksum
+|——————Node:, Text: ,
+|——————Node:identifier Text: TIMEOUT_NACK
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if(checkchecksumbytes(databuffer,number+2,checksum)==-1) {cal_SENDNACK();}
+	else {
+		switch (hil_validateaddr(addr)) {
+			case 1:  //case FLASH
+				for (j=0;j<(number+1);j=j+4) {
+					for (i=0; (i<4 && (j+i)<=number); i++) {
+						bytes[i]=databuffer[j+i];
+					}
+				FLASH_ProgramWord(addr+j,*(uint32_t*)bytes);
+				}
+				cal_SENDACK();
+				break;
+			case 0:  //case RAM
+				//UNTESTED
+				for (j=0;j<number+1;j++) {
+				*(&addr+j)=*(databuffer+j);
+				}
+				break;
+			default: //case option bytes
+				//UNTESTED
+				if(addr==0x1FFFF800) {
+					FLASH_ProgramOptionByteData(addr, *databuffer);
+					if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+					hil_reset();
+					break;
+				}
+			else {
+				cal_SENDNACK();
+				return -1;
+			}
+		}
+	}
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (checkchecksumbytes(databuffer,number+2,checksum)==-1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: checkchecksumbytes(databuffer,number+2,checksum)==-1
+|——————Node:call_expression Text: checkchecksumbytes(databuffer,number+2,checksum)
+|———————Node:identifier Text: checkchecksumbytes
+|———————Node:argument_list Text: (databuffer,number+2,checksum)
+|————————Node:( Text: (
+|————————Node:identifier Text: databuffer
+|————————Node:, Text: ,
+|————————Node:binary_expression Text: number+2
+|—————————Node:identifier Text: number
+|—————————Node:+ Text: +
+|—————————Node:number_literal Text: 2
+|————————Node:, Text: ,
+|————————Node:identifier Text: checksum
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:compound_statement Text: {cal_SENDNACK();}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: cal_SENDNACK();
+|——————Node:call_expression Text: cal_SENDNACK()
+|———————Node:identifier Text: cal_SENDNACK
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else {
+		switch (hil_validateaddr(addr)) {
+			case 1:  //case FLASH
+				for (j=0;j<(number+1);j=j+4) {
+					for (i=0; (i<4 && (j+i)<=number); i++) {
+						bytes[i]=databuffer[j+i];
+					}
+				FLASH_ProgramWord(addr+j,*(uint32_t*)bytes);
+				}
+				cal_SENDACK();
+				break;
+			case 0:  //case RAM
+				//UNTESTED
+				for (j=0;j<number+1;j++) {
+				*(&addr+j)=*(databuffer+j);
+				}
+				break;
+			default: //case option bytes
+				//UNTESTED
+				if(addr==0x1FFFF800) {
+					FLASH_ProgramOptionByteData(addr, *databuffer);
+					if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+					hil_reset();
+					break;
+				}
+			else {
+				cal_SENDNACK();
+				return -1;
+			}
+		}
+	}
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+		switch (hil_validateaddr(addr)) {
+			case 1:  //case FLASH
+				for (j=0;j<(number+1);j=j+4) {
+					for (i=0; (i<4 && (j+i)<=number); i++) {
+						bytes[i]=databuffer[j+i];
+					}
+				FLASH_ProgramWord(addr+j,*(uint32_t*)bytes);
+				}
+				cal_SENDACK();
+				break;
+			case 0:  //case RAM
+				//UNTESTED
+				for (j=0;j<number+1;j++) {
+				*(&addr+j)=*(databuffer+j);
+				}
+				break;
+			default: //case option bytes
+				//UNTESTED
+				if(addr==0x1FFFF800) {
+					FLASH_ProgramOptionByteData(addr, *databuffer);
+					if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+					hil_reset();
+					break;
+				}
+			else {
+				cal_SENDNACK();
+				return -1;
+			}
+		}
+	}
+|——————Node:{ Text: {
+|——————Node:switch_statement Text: switch (hil_validateaddr(addr)) {
+			case 1:  //case FLASH
+				for (j=0;j<(number+1);j=j+4) {
+					for (i=0; (i<4 && (j+i)<=number); i++) {
+						bytes[i]=databuffer[j+i];
+					}
+				FLASH_ProgramWord(addr+j,*(uint32_t*)bytes);
+				}
+				cal_SENDACK();
+				break;
+			case 0:  //case RAM
+				//UNTESTED
+				for (j=0;j<number+1;j++) {
+				*(&addr+j)=*(databuffer+j);
+				}
+				break;
+			default: //case option bytes
+				//UNTESTED
+				if(addr==0x1FFFF800) {
+					FLASH_ProgramOptionByteData(addr, *databuffer);
+					if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+					hil_reset();
+					break;
+				}
+			else {
+				cal_SENDNACK();
+				return -1;
+			}
+		}
+|———————Node:switch Text: switch
+|———————Node:parenthesized_expression Text: (hil_validateaddr(addr))
+|————————Node:( Text: (
+|————————Node:call_expression Text: hil_validateaddr(addr)
+|—————————Node:identifier Text: hil_validateaddr
+|—————————Node:argument_list Text: (addr)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: addr
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+			case 1:  //case FLASH
+				for (j=0;j<(number+1);j=j+4) {
+					for (i=0; (i<4 && (j+i)<=number); i++) {
+						bytes[i]=databuffer[j+i];
+					}
+				FLASH_ProgramWord(addr+j,*(uint32_t*)bytes);
+				}
+				cal_SENDACK();
+				break;
+			case 0:  //case RAM
+				//UNTESTED
+				for (j=0;j<number+1;j++) {
+				*(&addr+j)=*(databuffer+j);
+				}
+				break;
+			default: //case option bytes
+				//UNTESTED
+				if(addr==0x1FFFF800) {
+					FLASH_ProgramOptionByteData(addr, *databuffer);
+					if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+					hil_reset();
+					break;
+				}
+			else {
+				cal_SENDNACK();
+				return -1;
+			}
+		}
+|————————Node:{ Text: {
+|————————Node:case_statement Text: case 1:  //case FLASH
+				for (j=0;j<(number+1);j=j+4) {
+					for (i=0; (i<4 && (j+i)<=number); i++) {
+						bytes[i]=databuffer[j+i];
+					}
+				FLASH_ProgramWord(addr+j,*(uint32_t*)bytes);
+				}
+				cal_SENDACK();
+				break;
+|—————————Node:case Text: case
+|—————————Node:number_literal Text: 1
+|—————————Node:: Text: :
+|—————————Node:comment
+|—————————Node:for_statement Text: for (j=0;j<(number+1);j=j+4) {
+					for (i=0; (i<4 && (j+i)<=number); i++) {
+						bytes[i]=databuffer[j+i];
+					}
+				FLASH_ProgramWord(addr+j,*(uint32_t*)bytes);
+				}
+|——————————Node:for Text: for
+|——————————Node:( Text: (
+|——————————Node:assignment_expression Text: j=0
+|———————————Node:identifier Text: j
+|———————————Node:= Text: =
+|———————————Node:number_literal Text: 0
+|——————————Node:; Text: ;
+|——————————Node:binary_expression Text: j<(number+1)
+|———————————Node:identifier Text: j
+|———————————Node:< Text: <
+|———————————Node:parenthesized_expression Text: (number+1)
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: number+1
+|—————————————Node:identifier Text: number
+|—————————————Node:+ Text: +
+|—————————————Node:number_literal Text: 1
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|——————————Node:assignment_expression Text: j=j+4
+|———————————Node:identifier Text: j
+|———————————Node:= Text: =
+|———————————Node:binary_expression Text: j+4
+|————————————Node:identifier Text: j
+|————————————Node:+ Text: +
+|————————————Node:number_literal Text: 4
+|——————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+					for (i=0; (i<4 && (j+i)<=number); i++) {
+						bytes[i]=databuffer[j+i];
+					}
+				FLASH_ProgramWord(addr+j,*(uint32_t*)bytes);
+				}
+|———————————Node:{ Text: {
+|———————————Node:for_statement Text: for (i=0; (i<4 && (j+i)<=number); i++) {
+						bytes[i]=databuffer[j+i];
+					}
+|————————————Node:for Text: for
+|————————————Node:( Text: (
+|————————————Node:assignment_expression Text: i=0
+|—————————————Node:identifier Text: i
+|—————————————Node:= Text: =
+|—————————————Node:number_literal Text: 0
+|————————————Node:; Text: ;
+|————————————Node:parenthesized_expression Text: (i<4 && (j+i)<=number)
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: i<4 && (j+i)<=number
+|——————————————Node:binary_expression Text: i<4
+|———————————————Node:identifier Text: i
+|———————————————Node:< Text: <
+|———————————————Node:number_literal Text: 4
+|——————————————Node:&& Text: &&
+|——————————————Node:binary_expression Text: (j+i)<=number
+|———————————————Node:parenthesized_expression Text: (j+i)
+|————————————————Node:( Text: (
+|————————————————Node:binary_expression Text: j+i
+|—————————————————Node:identifier Text: j
+|—————————————————Node:+ Text: +
+|—————————————————Node:identifier Text: i
+|————————————————Node:) Text: )
+|———————————————Node:<= Text: <=
+|———————————————Node:identifier Text: number
+|—————————————Node:) Text: )
+|————————————Node:; Text: ;
+|————————————Node:update_expression Text: i++
+|—————————————Node:identifier Text: i
+|—————————————Node:++ Text: ++
+|————————————Node:) Text: )
+|————————————Node:compound_statement Text: {
+						bytes[i]=databuffer[j+i];
+					}
+|—————————————Node:{ Text: {
+|—————————————Node:expression_statement Text: bytes[i]=databuffer[j+i];
+|——————————————Node:assignment_expression Text: bytes[i]=databuffer[j+i]
+|———————————————Node:subscript_expression Text: bytes[i]
+|————————————————Node:identifier Text: bytes
+|————————————————Node:[ Text: [
+|————————————————Node:identifier Text: i
+|————————————————Node:] Text: ]
+|———————————————Node:= Text: =
+|———————————————Node:subscript_expression Text: databuffer[j+i]
+|————————————————Node:identifier Text: databuffer
+|————————————————Node:[ Text: [
+|————————————————Node:binary_expression Text: j+i
+|—————————————————Node:identifier Text: j
+|—————————————————Node:+ Text: +
+|—————————————————Node:identifier Text: i
+|————————————————Node:] Text: ]
+|——————————————Node:; Text: ;
+|—————————————Node:} Text: }
+|———————————Node:expression_statement Text: FLASH_ProgramWord(addr+j,*(uint32_t*)bytes);
+|————————————Node:call_expression Text: FLASH_ProgramWord(addr+j,*(uint32_t*)bytes)
+|—————————————Node:identifier Text: FLASH_ProgramWord
+|—————————————Node:argument_list Text: (addr+j,*(uint32_t*)bytes)
+|——————————————Node:( Text: (
+|——————————————Node:binary_expression Text: addr+j
+|———————————————Node:identifier Text: addr
+|———————————————Node:+ Text: +
+|———————————————Node:identifier Text: j
+|——————————————Node:, Text: ,
+|——————————————Node:pointer_expression Text: *(uint32_t*)bytes
+|———————————————Node:* Text: *
+|———————————————Node:cast_expression Text: (uint32_t*)bytes
+|————————————————Node:( Text: (
+|————————————————Node:type_descriptor Text: uint32_t*
+|—————————————————Node:primitive_type Text: uint32_t
+|—————————————————Node:abstract_pointer_declarator Text: *
+|——————————————————Node:* Text: *
+|————————————————Node:) Text: )
+|————————————————Node:identifier Text: bytes
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|—————————Node:expression_statement Text: cal_SENDACK();
+|——————————Node:call_expression Text: cal_SENDACK()
+|———————————Node:identifier Text: cal_SENDACK
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:break_statement Text: break;
+|——————————Node:break Text: break
+|——————————Node:; Text: ;
+|————————Node:case_statement Text: case 0:  //case RAM
+				//UNTESTED
+				for (j=0;j<number+1;j++) {
+				*(&addr+j)=*(databuffer+j);
+				}
+				break;
+|—————————Node:case Text: case
+|—————————Node:number_literal Text: 0
+|—————————Node:: Text: :
+|—————————Node:comment
+|—————————Node:comment
+|—————————Node:for_statement Text: for (j=0;j<number+1;j++) {
+				*(&addr+j)=*(databuffer+j);
+				}
+|——————————Node:for Text: for
+|——————————Node:( Text: (
+|——————————Node:assignment_expression Text: j=0
+|———————————Node:identifier Text: j
+|———————————Node:= Text: =
+|———————————Node:number_literal Text: 0
+|——————————Node:; Text: ;
+|——————————Node:binary_expression Text: j<number+1
+|———————————Node:identifier Text: j
+|———————————Node:< Text: <
+|———————————Node:binary_expression Text: number+1
+|————————————Node:identifier Text: number
+|————————————Node:+ Text: +
+|————————————Node:number_literal Text: 1
+|——————————Node:; Text: ;
+|——————————Node:update_expression Text: j++
+|———————————Node:identifier Text: j
+|———————————Node:++ Text: ++
+|——————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+				*(&addr+j)=*(databuffer+j);
+				}
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: *(&addr+j)=*(databuffer+j);
+|————————————Node:assignment_expression Text: *(&addr+j)=*(databuffer+j)
+|—————————————Node:pointer_expression Text: *(&addr+j)
+|——————————————Node:* Text: *
+|——————————————Node:parenthesized_expression Text: (&addr+j)
+|———————————————Node:( Text: (
+|———————————————Node:binary_expression Text: &addr+j
+|————————————————Node:pointer_expression Text: &addr
+|—————————————————Node:& Text: &
+|—————————————————Node:identifier Text: addr
+|————————————————Node:+ Text: +
+|————————————————Node:identifier Text: j
+|———————————————Node:) Text: )
+|—————————————Node:= Text: =
+|—————————————Node:pointer_expression Text: *(databuffer+j)
+|——————————————Node:* Text: *
+|——————————————Node:parenthesized_expression Text: (databuffer+j)
+|———————————————Node:( Text: (
+|———————————————Node:binary_expression Text: databuffer+j
+|————————————————Node:identifier Text: databuffer
+|————————————————Node:+ Text: +
+|————————————————Node:identifier Text: j
+|———————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|—————————Node:break_statement Text: break;
+|——————————Node:break Text: break
+|——————————Node:; Text: ;
+|————————Node:case_statement Text: default: //case option bytes
+				//UNTESTED
+				if(addr==0x1FFFF800) {
+					FLASH_ProgramOptionByteData(addr, *databuffer);
+					if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+					hil_reset();
+					break;
+				}
+			else {
+				cal_SENDNACK();
+				return -1;
+			}
+|—————————Node:default Text: default
+|—————————Node:: Text: :
+|—————————Node:comment
+|—————————Node:comment
+|—————————Node:if_statement Text: if(addr==0x1FFFF800) {
+					FLASH_ProgramOptionByteData(addr, *databuffer);
+					if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+					hil_reset();
+					break;
+				}
+			else {
+				cal_SENDNACK();
+				return -1;
+			}
+|——————————Node:if Text: if
+|——————————Node:parenthesized_expression Text: (addr==0x1FFFF800)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: addr==0x1FFFF800
+|————————————Node:identifier Text: addr
+|————————————Node:== Text: ==
+|————————————Node:number_literal Text: 0x1FFFF800
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+					FLASH_ProgramOptionByteData(addr, *databuffer);
+					if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+					hil_reset();
+					break;
+				}
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: FLASH_ProgramOptionByteData(addr, *databuffer);
+|————————————Node:call_expression Text: FLASH_ProgramOptionByteData(addr, *databuffer)
+|—————————————Node:identifier Text: FLASH_ProgramOptionByteData
+|—————————————Node:argument_list Text: (addr, *databuffer)
+|——————————————Node:( Text: (
+|——————————————Node:identifier Text: addr
+|——————————————Node:, Text: ,
+|——————————————Node:pointer_expression Text: *databuffer
+|———————————————Node:* Text: *
+|———————————————Node:identifier Text: databuffer
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:if_statement Text: if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+|————————————Node:if Text: if
+|————————————Node:parenthesized_expression Text: (cal_sendbyte(STM32_COMM_ACK)==-1)
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: cal_sendbyte(STM32_COMM_ACK)==-1
+|——————————————Node:call_expression Text: cal_sendbyte(STM32_COMM_ACK)
+|———————————————Node:identifier Text: cal_sendbyte
+|———————————————Node:argument_list Text: (STM32_COMM_ACK)
+|————————————————Node:( Text: (
+|————————————————Node:identifier Text: STM32_COMM_ACK
+|————————————————Node:) Text: )
+|——————————————Node:== Text: ==
+|——————————————Node:number_literal Text: -1
+|—————————————Node:) Text: )
+|————————————Node:return_statement Text: return -1;
+|—————————————Node:return Text: return
+|—————————————Node:number_literal Text: -1
+|—————————————Node:; Text: ;
+|———————————Node:expression_statement Text: hil_reset();
+|————————————Node:call_expression Text: hil_reset()
+|—————————————Node:identifier Text: hil_reset
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:break_statement Text: break;
+|————————————Node:break Text: break
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|——————————Node:else_clause Text: else {
+				cal_SENDNACK();
+				return -1;
+			}
+|———————————Node:else Text: else
+|———————————Node:compound_statement Text: {
+				cal_SENDNACK();
+				return -1;
+			}
+|————————————Node:{ Text: {
+|————————————Node:expression_statement Text: cal_SENDNACK();
+|—————————————Node:call_expression Text: cal_SENDNACK()
+|——————————————Node:identifier Text: cal_SENDNACK
+|——————————————Node:argument_list Text: ()
+|———————————————Node:( Text: (
+|———————————————Node:) Text: )
+|—————————————Node:; Text: ;
+|————————————Node:return_statement Text: return -1;
+|—————————————Node:return Text: return
+|—————————————Node:number_literal Text: -1
+|—————————————Node:; Text: ;
+|————————————Node:} Text: }
+|————————Node:} Text: }
+|——————Node:} Text: }
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: int32_t command_erase_memory() {
+	uint8_t number, checksum;
+	uint32_t pageaddr;
+	uint8_t i;
+
+	cal_SENDLOG("-> cmd: erase memory started, acking \r\n");
+	//if (hil_ropactive())  {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	cal_SENDACK();
+
+	/* Read number of pages to be erased. */
+	cal_READBYTE(number, TIMEOUT_NACK);
+
+	/* If global erase. */
+	if (number==0xFF) {
+		cal_SENDLOG("-> cmd: global erase requested, starting global erase \r\n");
+		hil_globalerasememory();
+		cal_SENDLOG("-> cmd: global erase terminated, acking \r\n");
+		cal_SENDACK();
+		else return 0;
+	}
+	/* If pagewise erase. */
+	else {
+
+			//UNTESTED!
+
+			cal_SENDLOG("-> cmd: pagewise erase requested \r\n");
+			uint8_t databuffer[number+2];
+			for(i=0;i<number+1;i++) {
+				if(cal_receivebyte(databuffer+i, TIMEOUT_NACK)) return -1;//receive page codes
+			}
+			databuffer[number+1]=number;
+			cal_READBYTE(checksum, TIMEOUT_NACK);
+			if(checkchecksumbytes(databuffer,number+2,checksum)==-1) cal_SENDNACK();
+			cal_SENDLOG("-> cmd: checksum correct, starting pagewise erase \r\n");
+			for (i=0;i<number+1;i++) {
+			   pageaddr = (databuffer[i]-1)*FLASHPAGESIZE+FLASHbase;
+			   FLASH_ErasePage(pageaddr);
+			}
+			cal_SENDLOG("-> cmd: pagewise erase terminated, acking \r\n");
+			cal_SENDACK();
+		}
+	return 0;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: command_erase_memory()
+|———Node:identifier Text: command_erase_memory
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	uint8_t number, checksum;
+	uint32_t pageaddr;
+	uint8_t i;
+
+	cal_SENDLOG("-> cmd: erase memory started, acking \r\n");
+	//if (hil_ropactive())  {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	cal_SENDACK();
+
+	/* Read number of pages to be erased. */
+	cal_READBYTE(number, TIMEOUT_NACK);
+
+	/* If global erase. */
+	if (number==0xFF) {
+		cal_SENDLOG("-> cmd: global erase requested, starting global erase \r\n");
+		hil_globalerasememory();
+		cal_SENDLOG("-> cmd: global erase terminated, acking \r\n");
+		cal_SENDACK();
+		else return 0;
+	}
+	/* If pagewise erase. */
+	else {
+
+			//UNTESTED!
+
+			cal_SENDLOG("-> cmd: pagewise erase requested \r\n");
+			uint8_t databuffer[number+2];
+			for(i=0;i<number+1;i++) {
+				if(cal_receivebyte(databuffer+i, TIMEOUT_NACK)) return -1;//receive page codes
+			}
+			databuffer[number+1]=number;
+			cal_READBYTE(checksum, TIMEOUT_NACK);
+			if(checkchecksumbytes(databuffer,number+2,checksum)==-1) cal_SENDNACK();
+			cal_SENDLOG("-> cmd: checksum correct, starting pagewise erase \r\n");
+			for (i=0;i<number+1;i++) {
+			   pageaddr = (databuffer[i]-1)*FLASHPAGESIZE+FLASHbase;
+			   FLASH_ErasePage(pageaddr);
+			}
+			cal_SENDLOG("-> cmd: pagewise erase terminated, acking \r\n");
+			cal_SENDACK();
+		}
+	return 0;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: uint8_t number, checksum;
+|————Node:primitive_type Text: uint8_t
+|————Node:identifier Text: number
+|————Node:, Text: ,
+|————Node:identifier Text: checksum
+|————Node:; Text: ;
+|———Node:declaration Text: uint32_t pageaddr;
+|————Node:primitive_type Text: uint32_t
+|————Node:identifier Text: pageaddr
+|————Node:; Text: ;
+|———Node:declaration Text: uint8_t i;
+|————Node:primitive_type Text: uint8_t
+|————Node:identifier Text: i
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_SENDLOG("-> cmd: erase memory started, acking \r\n");
+|————Node:call_expression Text: cal_SENDLOG("-> cmd: erase memory started, acking \r\n")
+|—————Node:identifier Text: cal_SENDLOG
+|—————Node:argument_list Text: ("-> cmd: erase memory started, acking \r\n")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "-> cmd: erase memory started, acking \r\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: -> cmd: erase memory started, acking 
+|———————Node:escape_sequence Text: \r
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_SENDACK();
+|————Node:call_expression Text: cal_SENDACK()
+|—————Node:identifier Text: cal_SENDACK
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: cal_READBYTE(number, TIMEOUT_NACK);
+|————Node:call_expression Text: cal_READBYTE(number, TIMEOUT_NACK)
+|—————Node:identifier Text: cal_READBYTE
+|—————Node:argument_list Text: (number, TIMEOUT_NACK)
+|——————Node:( Text: (
+|——————Node:identifier Text: number
+|——————Node:, Text: ,
+|——————Node:identifier Text: TIMEOUT_NACK
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:if_statement Text: if (number==0xFF) {
+		cal_SENDLOG("-> cmd: global erase requested, starting global erase \r\n");
+		hil_globalerasememory();
+		cal_SENDLOG("-> cmd: global erase terminated, acking \r\n");
+		cal_SENDACK();
+		else return 0;
+	}
+	/* If pagewise erase. */
+	else {
+
+			//UNTESTED!
+
+			cal_SENDLOG("-> cmd: pagewise erase requested \r\n");
+			uint8_t databuffer[number+2];
+			for(i=0;i<number+1;i++) {
+				if(cal_receivebyte(databuffer+i, TIMEOUT_NACK)) return -1;//receive page codes
+			}
+			databuffer[number+1]=number;
+			cal_READBYTE(checksum, TIMEOUT_NACK);
+			if(checkchecksumbytes(databuffer,number+2,checksum)==-1) cal_SENDNACK();
+			cal_SENDLOG("-> cmd: checksum correct, starting pagewise erase \r\n");
+			for (i=0;i<number+1;i++) {
+			   pageaddr = (databuffer[i]-1)*FLASHPAGESIZE+FLASHbase;
+			   FLASH_ErasePage(pageaddr);
+			}
+			cal_SENDLOG("-> cmd: pagewise erase terminated, acking \r\n");
+			cal_SENDACK();
+		}
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (number==0xFF)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: number==0xFF
+|——————Node:identifier Text: number
+|——————Node:== Text: ==
+|——————Node:number_literal Text: 0xFF
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+		cal_SENDLOG("-> cmd: global erase requested, starting global erase \r\n");
+		hil_globalerasememory();
+		cal_SENDLOG("-> cmd: global erase terminated, acking \r\n");
+		cal_SENDACK();
+		else return 0;
+	}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: cal_SENDLOG("-> cmd: global erase requested, starting global erase \r\n");
+|——————Node:call_expression Text: cal_SENDLOG("-> cmd: global erase requested, starting global erase \r\n")
+|———————Node:identifier Text: cal_SENDLOG
+|———————Node:argument_list Text: ("-> cmd: global erase requested, starting global erase \r\n")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "-> cmd: global erase requested, starting global erase \r\n"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: -> cmd: global erase requested, starting global erase 
+|—————————Node:escape_sequence Text: \r
+|—————————Node:escape_sequence Text: \n
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: hil_globalerasememory();
+|——————Node:call_expression Text: hil_globalerasememory()
+|———————Node:identifier Text: hil_globalerasememory
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: cal_SENDLOG("-> cmd: global erase terminated, acking \r\n");
+|——————Node:call_expression Text: cal_SENDLOG("-> cmd: global erase terminated, acking \r\n")
+|———————Node:identifier Text: cal_SENDLOG
+|———————Node:argument_list Text: ("-> cmd: global erase terminated, acking \r\n")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "-> cmd: global erase terminated, acking \r\n"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: -> cmd: global erase terminated, acking 
+|—————————Node:escape_sequence Text: \r
+|—————————Node:escape_sequence Text: \n
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: cal_SENDACK();
+|——————Node:call_expression Text: cal_SENDACK()
+|———————Node:identifier Text: cal_SENDACK
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: else return 0;
+|——————Node:type_identifier Text: else
+|——————Node:identifier Text: return
+|——————Node:ERROR Text: 0
+|———————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:comment
+|————Node:else_clause Text: else {
+
+			//UNTESTED!
+
+			cal_SENDLOG("-> cmd: pagewise erase requested \r\n");
+			uint8_t databuffer[number+2];
+			for(i=0;i<number+1;i++) {
+				if(cal_receivebyte(databuffer+i, TIMEOUT_NACK)) return -1;//receive page codes
+			}
+			databuffer[number+1]=number;
+			cal_READBYTE(checksum, TIMEOUT_NACK);
+			if(checkchecksumbytes(databuffer,number+2,checksum)==-1) cal_SENDNACK();
+			cal_SENDLOG("-> cmd: checksum correct, starting pagewise erase \r\n");
+			for (i=0;i<number+1;i++) {
+			   pageaddr = (databuffer[i]-1)*FLASHPAGESIZE+FLASHbase;
+			   FLASH_ErasePage(pageaddr);
+			}
+			cal_SENDLOG("-> cmd: pagewise erase terminated, acking \r\n");
+			cal_SENDACK();
+		}
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+
+			//UNTESTED!
+
+			cal_SENDLOG("-> cmd: pagewise erase requested \r\n");
+			uint8_t databuffer[number+2];
+			for(i=0;i<number+1;i++) {
+				if(cal_receivebyte(databuffer+i, TIMEOUT_NACK)) return -1;//receive page codes
+			}
+			databuffer[number+1]=number;
+			cal_READBYTE(checksum, TIMEOUT_NACK);
+			if(checkchecksumbytes(databuffer,number+2,checksum)==-1) cal_SENDNACK();
+			cal_SENDLOG("-> cmd: checksum correct, starting pagewise erase \r\n");
+			for (i=0;i<number+1;i++) {
+			   pageaddr = (databuffer[i]-1)*FLASHPAGESIZE+FLASHbase;
+			   FLASH_ErasePage(pageaddr);
+			}
+			cal_SENDLOG("-> cmd: pagewise erase terminated, acking \r\n");
+			cal_SENDACK();
+		}
+|——————Node:{ Text: {
+|——————Node:comment
+|——————Node:expression_statement Text: cal_SENDLOG("-> cmd: pagewise erase requested \r\n");
+|———————Node:call_expression Text: cal_SENDLOG("-> cmd: pagewise erase requested \r\n")
+|————————Node:identifier Text: cal_SENDLOG
+|————————Node:argument_list Text: ("-> cmd: pagewise erase requested \r\n")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "-> cmd: pagewise erase requested \r\n"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: -> cmd: pagewise erase requested 
+|——————————Node:escape_sequence Text: \r
+|——————————Node:escape_sequence Text: \n
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:declaration Text: uint8_t databuffer[number+2];
+|———————Node:primitive_type Text: uint8_t
+|———————Node:array_declarator Text: databuffer[number+2]
+|————————Node:identifier Text: databuffer
+|————————Node:[ Text: [
+|————————Node:binary_expression Text: number+2
+|—————————Node:identifier Text: number
+|—————————Node:+ Text: +
+|—————————Node:number_literal Text: 2
+|————————Node:] Text: ]
+|———————Node:; Text: ;
+|——————Node:for_statement Text: for(i=0;i<number+1;i++) {
+				if(cal_receivebyte(databuffer+i, TIMEOUT_NACK)) return -1;//receive page codes
+			}
+|———————Node:for Text: for
+|———————Node:( Text: (
+|———————Node:assignment_expression Text: i=0
+|————————Node:identifier Text: i
+|————————Node:= Text: =
+|————————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|———————Node:binary_expression Text: i<number+1
+|————————Node:identifier Text: i
+|————————Node:< Text: <
+|————————Node:binary_expression Text: number+1
+|—————————Node:identifier Text: number
+|—————————Node:+ Text: +
+|—————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|———————Node:update_expression Text: i++
+|————————Node:identifier Text: i
+|————————Node:++ Text: ++
+|———————Node:) Text: )
+|———————Node:compound_statement Text: {
+				if(cal_receivebyte(databuffer+i, TIMEOUT_NACK)) return -1;//receive page codes
+			}
+|————————Node:{ Text: {
+|————————Node:if_statement Text: if(cal_receivebyte(databuffer+i, TIMEOUT_NACK)) return -1;
+|—————————Node:if Text: if
+|—————————Node:parenthesized_expression Text: (cal_receivebyte(databuffer+i, TIMEOUT_NACK))
+|——————————Node:( Text: (
+|——————————Node:call_expression Text: cal_receivebyte(databuffer+i, TIMEOUT_NACK)
+|———————————Node:identifier Text: cal_receivebyte
+|———————————Node:argument_list Text: (databuffer+i, TIMEOUT_NACK)
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: databuffer+i
+|—————————————Node:identifier Text: databuffer
+|—————————————Node:+ Text: +
+|—————————————Node:identifier Text: i
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: TIMEOUT_NACK
+|————————————Node:) Text: )
+|——————————Node:) Text: )
+|—————————Node:return_statement Text: return -1;
+|——————————Node:return Text: return
+|——————————Node:number_literal Text: -1
+|——————————Node:; Text: ;
+|————————Node:comment
+|————————Node:} Text: }
+|——————Node:expression_statement Text: databuffer[number+1]=number;
+|———————Node:assignment_expression Text: databuffer[number+1]=number
+|————————Node:subscript_expression Text: databuffer[number+1]
+|—————————Node:identifier Text: databuffer
+|—————————Node:[ Text: [
+|—————————Node:binary_expression Text: number+1
+|——————————Node:identifier Text: number
+|——————————Node:+ Text: +
+|——————————Node:number_literal Text: 1
+|—————————Node:] Text: ]
+|————————Node:= Text: =
+|————————Node:identifier Text: number
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: cal_READBYTE(checksum, TIMEOUT_NACK);
+|———————Node:call_expression Text: cal_READBYTE(checksum, TIMEOUT_NACK)
+|————————Node:identifier Text: cal_READBYTE
+|————————Node:argument_list Text: (checksum, TIMEOUT_NACK)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: checksum
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: TIMEOUT_NACK
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if(checkchecksumbytes(databuffer,number+2,checksum)==-1) cal_SENDNACK();
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (checkchecksumbytes(databuffer,number+2,checksum)==-1)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: checkchecksumbytes(databuffer,number+2,checksum)==-1
+|—————————Node:call_expression Text: checkchecksumbytes(databuffer,number+2,checksum)
+|——————————Node:identifier Text: checkchecksumbytes
+|——————————Node:argument_list Text: (databuffer,number+2,checksum)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: databuffer
+|———————————Node:, Text: ,
+|———————————Node:binary_expression Text: number+2
+|————————————Node:identifier Text: number
+|————————————Node:+ Text: +
+|————————————Node:number_literal Text: 2
+|———————————Node:, Text: ,
+|———————————Node:identifier Text: checksum
+|———————————Node:) Text: )
+|—————————Node:== Text: ==
+|—————————Node:number_literal Text: -1
+|————————Node:) Text: )
+|———————Node:expression_statement Text: cal_SENDNACK();
+|————————Node:call_expression Text: cal_SENDNACK()
+|—————————Node:identifier Text: cal_SENDNACK
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|——————Node:expression_statement Text: cal_SENDLOG("-> cmd: checksum correct, starting pagewise erase \r\n");
+|———————Node:call_expression Text: cal_SENDLOG("-> cmd: checksum correct, starting pagewise erase \r\n")
+|————————Node:identifier Text: cal_SENDLOG
+|————————Node:argument_list Text: ("-> cmd: checksum correct, starting pagewise erase \r\n")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "-> cmd: checksum correct, starting pagewise erase \r\n"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: -> cmd: checksum correct, starting pagewise erase 
+|——————————Node:escape_sequence Text: \r
+|——————————Node:escape_sequence Text: \n
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:for_statement Text: for (i=0;i<number+1;i++) {
+			   pageaddr = (databuffer[i]-1)*FLASHPAGESIZE+FLASHbase;
+			   FLASH_ErasePage(pageaddr);
+			}
+|———————Node:for Text: for
+|———————Node:( Text: (
+|———————Node:assignment_expression Text: i=0
+|————————Node:identifier Text: i
+|————————Node:= Text: =
+|————————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|———————Node:binary_expression Text: i<number+1
+|————————Node:identifier Text: i
+|————————Node:< Text: <
+|————————Node:binary_expression Text: number+1
+|—————————Node:identifier Text: number
+|—————————Node:+ Text: +
+|—————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|———————Node:update_expression Text: i++
+|————————Node:identifier Text: i
+|————————Node:++ Text: ++
+|———————Node:) Text: )
+|———————Node:compound_statement Text: {
+			   pageaddr = (databuffer[i]-1)*FLASHPAGESIZE+FLASHbase;
+			   FLASH_ErasePage(pageaddr);
+			}
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: pageaddr = (databuffer[i]-1)*FLASHPAGESIZE+FLASHbase;
+|—————————Node:assignment_expression Text: pageaddr = (databuffer[i]-1)*FLASHPAGESIZE+FLASHbase
+|——————————Node:identifier Text: pageaddr
+|——————————Node:= Text: =
+|——————————Node:binary_expression Text: (databuffer[i]-1)*FLASHPAGESIZE+FLASHbase
+|———————————Node:binary_expression Text: (databuffer[i]-1)*FLASHPAGESIZE
+|————————————Node:parenthesized_expression Text: (databuffer[i]-1)
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: databuffer[i]-1
+|——————————————Node:subscript_expression Text: databuffer[i]
+|———————————————Node:identifier Text: databuffer
+|———————————————Node:[ Text: [
+|———————————————Node:identifier Text: i
+|———————————————Node:] Text: ]
+|——————————————Node:- Text: -
+|——————————————Node:number_literal Text: 1
+|—————————————Node:) Text: )
+|————————————Node:* Text: *
+|————————————Node:identifier Text: FLASHPAGESIZE
+|———————————Node:+ Text: +
+|———————————Node:identifier Text: FLASHbase
+|—————————Node:; Text: ;
+|————————Node:expression_statement Text: FLASH_ErasePage(pageaddr);
+|—————————Node:call_expression Text: FLASH_ErasePage(pageaddr)
+|——————————Node:identifier Text: FLASH_ErasePage
+|——————————Node:argument_list Text: (pageaddr)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: pageaddr
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:expression_statement Text: cal_SENDLOG("-> cmd: pagewise erase terminated, acking \r\n");
+|———————Node:call_expression Text: cal_SENDLOG("-> cmd: pagewise erase terminated, acking \r\n")
+|————————Node:identifier Text: cal_SENDLOG
+|————————Node:argument_list Text: ("-> cmd: pagewise erase terminated, acking \r\n")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "-> cmd: pagewise erase terminated, acking \r\n"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: -> cmd: pagewise erase terminated, acking 
+|——————————Node:escape_sequence Text: \r
+|——————————Node:escape_sequence Text: \n
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: cal_SENDACK();
+|———————Node:call_expression Text: cal_SENDACK()
+|————————Node:identifier Text: cal_SENDACK
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int32_t command_exterase_memory() {
+	uint16_t *q = 0x0000;
+	if (hil_ropactive())  {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+	//receive 2 bytes
+	switch (*q) {
+	case 0xFFFF:
+		//receive checksum 2 bytes
+		//check it
+		//yes
+		hil_globalerasememory();
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		//NO
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+		    break;
+	case 0xFFFE:
+		//receive checksum 2 bytes
+		//check it
+		//yes
+		hil_erasebank1();
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		//NO
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+			break;
+	case 0xFFFD:
+		//receive checksum 2 bytes
+		//check it
+		//yes
+		hil_erasebank2();
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		//NO
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+			break;
+	default:
+		//receive page codes and checksum
+		//checksum ok
+		//no
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+		//yes
+		hil_erasecorrespondingpage(0xFFFF);
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		break;
+	}
+	return 0;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: command_exterase_memory()
+|———Node:identifier Text: command_exterase_memory
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	uint16_t *q = 0x0000;
+	if (hil_ropactive())  {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+	//receive 2 bytes
+	switch (*q) {
+	case 0xFFFF:
+		//receive checksum 2 bytes
+		//check it
+		//yes
+		hil_globalerasememory();
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		//NO
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+		    break;
+	case 0xFFFE:
+		//receive checksum 2 bytes
+		//check it
+		//yes
+		hil_erasebank1();
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		//NO
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+			break;
+	case 0xFFFD:
+		//receive checksum 2 bytes
+		//check it
+		//yes
+		hil_erasebank2();
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		//NO
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+			break;
+	default:
+		//receive page codes and checksum
+		//checksum ok
+		//no
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+		//yes
+		hil_erasecorrespondingpage(0xFFFF);
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		break;
+	}
+	return 0;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: uint16_t *q = 0x0000;
+|————Node:primitive_type Text: uint16_t
+|————Node:init_declarator Text: *q = 0x0000
+|—————Node:pointer_declarator Text: *q
+|——————Node:* Text: *
+|——————Node:identifier Text: q
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x0000
+|————Node:; Text: ;
+|———Node:if_statement Text: if (hil_ropactive())  {cal_sendbyte(STM32_COMM_NACK); return -1;}
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (hil_ropactive())
+|—————Node:( Text: (
+|—————Node:call_expression Text: hil_ropactive()
+|——————Node:identifier Text: hil_ropactive
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {cal_sendbyte(STM32_COMM_NACK); return -1;}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: cal_sendbyte(STM32_COMM_NACK);
+|——————Node:call_expression Text: cal_sendbyte(STM32_COMM_NACK)
+|———————Node:identifier Text: cal_sendbyte
+|———————Node:argument_list Text: (STM32_COMM_NACK)
+|————————Node:( Text: (
+|————————Node:identifier Text: STM32_COMM_NACK
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return -1;
+|——————Node:return Text: return
+|——————Node:number_literal Text: -1
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (cal_sendbyte(STM32_COMM_ACK)==-1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: cal_sendbyte(STM32_COMM_ACK)==-1
+|——————Node:call_expression Text: cal_sendbyte(STM32_COMM_ACK)
+|———————Node:identifier Text: cal_sendbyte
+|———————Node:argument_list Text: (STM32_COMM_ACK)
+|————————Node:( Text: (
+|————————Node:identifier Text: STM32_COMM_ACK
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:return_statement Text: return -1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: -1
+|—————Node:; Text: ;
+|———Node:comment
+|———Node:switch_statement Text: switch (*q) {
+	case 0xFFFF:
+		//receive checksum 2 bytes
+		//check it
+		//yes
+		hil_globalerasememory();
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		//NO
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+		    break;
+	case 0xFFFE:
+		//receive checksum 2 bytes
+		//check it
+		//yes
+		hil_erasebank1();
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		//NO
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+			break;
+	case 0xFFFD:
+		//receive checksum 2 bytes
+		//check it
+		//yes
+		hil_erasebank2();
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		//NO
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+			break;
+	default:
+		//receive page codes and checksum
+		//checksum ok
+		//no
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+		//yes
+		hil_erasecorrespondingpage(0xFFFF);
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		break;
+	}
+|————Node:switch Text: switch
+|————Node:parenthesized_expression Text: (*q)
+|—————Node:( Text: (
+|—————Node:pointer_expression Text: *q
+|——————Node:* Text: *
+|——————Node:identifier Text: q
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+	case 0xFFFF:
+		//receive checksum 2 bytes
+		//check it
+		//yes
+		hil_globalerasememory();
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		//NO
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+		    break;
+	case 0xFFFE:
+		//receive checksum 2 bytes
+		//check it
+		//yes
+		hil_erasebank1();
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		//NO
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+			break;
+	case 0xFFFD:
+		//receive checksum 2 bytes
+		//check it
+		//yes
+		hil_erasebank2();
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		//NO
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+			break;
+	default:
+		//receive page codes and checksum
+		//checksum ok
+		//no
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+		//yes
+		hil_erasecorrespondingpage(0xFFFF);
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		break;
+	}
+|—————Node:{ Text: {
+|—————Node:case_statement Text: case 0xFFFF:
+		//receive checksum 2 bytes
+		//check it
+		//yes
+		hil_globalerasememory();
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		//NO
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+		    break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 0xFFFF
+|——————Node:: Text: :
+|——————Node:comment
+|——————Node:comment
+|——————Node:comment
+|——————Node:expression_statement Text: hil_globalerasememory();
+|———————Node:call_expression Text: hil_globalerasememory()
+|————————Node:identifier Text: hil_globalerasememory
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (cal_sendbyte(STM32_COMM_ACK)==-1)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: cal_sendbyte(STM32_COMM_ACK)==-1
+|—————————Node:call_expression Text: cal_sendbyte(STM32_COMM_ACK)
+|——————————Node:identifier Text: cal_sendbyte
+|——————————Node:argument_list Text: (STM32_COMM_ACK)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: STM32_COMM_ACK
+|———————————Node:) Text: )
+|—————————Node:== Text: ==
+|—————————Node:number_literal Text: -1
+|————————Node:) Text: )
+|———————Node:return_statement Text: return -1;
+|————————Node:return Text: return
+|————————Node:number_literal Text: -1
+|————————Node:; Text: ;
+|——————Node:comment
+|——————Node:if_statement Text: if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (cal_sendbyte(STM32_COMM_NACK)==-1)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: cal_sendbyte(STM32_COMM_NACK)==-1
+|—————————Node:call_expression Text: cal_sendbyte(STM32_COMM_NACK)
+|——————————Node:identifier Text: cal_sendbyte
+|——————————Node:argument_list Text: (STM32_COMM_NACK)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: STM32_COMM_NACK
+|———————————Node:) Text: )
+|—————————Node:== Text: ==
+|—————————Node:number_literal Text: -1
+|————————Node:) Text: )
+|———————Node:return_statement Text: return -1;
+|————————Node:return Text: return
+|————————Node:number_literal Text: -1
+|————————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 0xFFFE:
+		//receive checksum 2 bytes
+		//check it
+		//yes
+		hil_erasebank1();
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		//NO
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+			break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 0xFFFE
+|——————Node:: Text: :
+|——————Node:comment
+|——————Node:comment
+|——————Node:comment
+|——————Node:expression_statement Text: hil_erasebank1();
+|———————Node:call_expression Text: hil_erasebank1()
+|————————Node:identifier Text: hil_erasebank1
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (cal_sendbyte(STM32_COMM_ACK)==-1)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: cal_sendbyte(STM32_COMM_ACK)==-1
+|—————————Node:call_expression Text: cal_sendbyte(STM32_COMM_ACK)
+|——————————Node:identifier Text: cal_sendbyte
+|——————————Node:argument_list Text: (STM32_COMM_ACK)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: STM32_COMM_ACK
+|———————————Node:) Text: )
+|—————————Node:== Text: ==
+|—————————Node:number_literal Text: -1
+|————————Node:) Text: )
+|———————Node:return_statement Text: return -1;
+|————————Node:return Text: return
+|————————Node:number_literal Text: -1
+|————————Node:; Text: ;
+|——————Node:comment
+|——————Node:if_statement Text: if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (cal_sendbyte(STM32_COMM_NACK)==-1)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: cal_sendbyte(STM32_COMM_NACK)==-1
+|—————————Node:call_expression Text: cal_sendbyte(STM32_COMM_NACK)
+|——————————Node:identifier Text: cal_sendbyte
+|——————————Node:argument_list Text: (STM32_COMM_NACK)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: STM32_COMM_NACK
+|———————————Node:) Text: )
+|—————————Node:== Text: ==
+|—————————Node:number_literal Text: -1
+|————————Node:) Text: )
+|———————Node:return_statement Text: return -1;
+|————————Node:return Text: return
+|————————Node:number_literal Text: -1
+|————————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 0xFFFD:
+		//receive checksum 2 bytes
+		//check it
+		//yes
+		hil_erasebank2();
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		//NO
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+			break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 0xFFFD
+|——————Node:: Text: :
+|——————Node:comment
+|——————Node:comment
+|——————Node:comment
+|——————Node:expression_statement Text: hil_erasebank2();
+|———————Node:call_expression Text: hil_erasebank2()
+|————————Node:identifier Text: hil_erasebank2
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (cal_sendbyte(STM32_COMM_ACK)==-1)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: cal_sendbyte(STM32_COMM_ACK)==-1
+|—————————Node:call_expression Text: cal_sendbyte(STM32_COMM_ACK)
+|——————————Node:identifier Text: cal_sendbyte
+|——————————Node:argument_list Text: (STM32_COMM_ACK)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: STM32_COMM_ACK
+|———————————Node:) Text: )
+|—————————Node:== Text: ==
+|—————————Node:number_literal Text: -1
+|————————Node:) Text: )
+|———————Node:return_statement Text: return -1;
+|————————Node:return Text: return
+|————————Node:number_literal Text: -1
+|————————Node:; Text: ;
+|——————Node:comment
+|——————Node:if_statement Text: if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (cal_sendbyte(STM32_COMM_NACK)==-1)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: cal_sendbyte(STM32_COMM_NACK)==-1
+|—————————Node:call_expression Text: cal_sendbyte(STM32_COMM_NACK)
+|——————————Node:identifier Text: cal_sendbyte
+|——————————Node:argument_list Text: (STM32_COMM_NACK)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: STM32_COMM_NACK
+|———————————Node:) Text: )
+|—————————Node:== Text: ==
+|—————————Node:number_literal Text: -1
+|————————Node:) Text: )
+|———————Node:return_statement Text: return -1;
+|————————Node:return Text: return
+|————————Node:number_literal Text: -1
+|————————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: default:
+		//receive page codes and checksum
+		//checksum ok
+		//no
+		if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+		//yes
+		hil_erasecorrespondingpage(0xFFFF);
+		if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+		break;
+|——————Node:default Text: default
+|——————Node:: Text: :
+|——————Node:comment
+|——————Node:comment
+|——————Node:comment
+|——————Node:if_statement Text: if(cal_sendbyte(STM32_COMM_NACK)==-1) return -1;
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (cal_sendbyte(STM32_COMM_NACK)==-1)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: cal_sendbyte(STM32_COMM_NACK)==-1
+|—————————Node:call_expression Text: cal_sendbyte(STM32_COMM_NACK)
+|——————————Node:identifier Text: cal_sendbyte
+|——————————Node:argument_list Text: (STM32_COMM_NACK)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: STM32_COMM_NACK
+|———————————Node:) Text: )
+|—————————Node:== Text: ==
+|—————————Node:number_literal Text: -1
+|————————Node:) Text: )
+|———————Node:return_statement Text: return -1;
+|————————Node:return Text: return
+|————————Node:number_literal Text: -1
+|————————Node:; Text: ;
+|——————Node:comment
+|——————Node:expression_statement Text: hil_erasecorrespondingpage(0xFFFF);
+|———————Node:call_expression Text: hil_erasecorrespondingpage(0xFFFF)
+|————————Node:identifier Text: hil_erasecorrespondingpage
+|————————Node:argument_list Text: (0xFFFF)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 0xFFFF
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (cal_sendbyte(STM32_COMM_ACK)==-1)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: cal_sendbyte(STM32_COMM_ACK)==-1
+|—————————Node:call_expression Text: cal_sendbyte(STM32_COMM_ACK)
+|——————————Node:identifier Text: cal_sendbyte
+|——————————Node:argument_list Text: (STM32_COMM_ACK)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: STM32_COMM_ACK
+|———————————Node:) Text: )
+|—————————Node:== Text: ==
+|—————————Node:number_literal Text: -1
+|————————Node:) Text: )
+|———————Node:return_statement Text: return -1;
+|————————Node:return Text: return
+|————————Node:number_literal Text: -1
+|————————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int32_t command_write_protect() {
+	uint8_t number;
+	uint8_t checksum ;
+	uint8_t i;
+	uint32_t sector;
+	if (hil_ropactive())  {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+	cal_receivebyte((uint8_t *)&number, TIMEOUT_NACK); //number of sectors to be protected (1 byte)
+	uint8_t databuffer[number+2];  //sector code
+	for(i=0;i<number+1;i++) {
+		if(cal_receivebyte(databuffer+i, TIMEOUT_NACK)) return -1;//receive sector codes
+	}
+	databuffer[number+1]=number;
+	if(cal_receivebyte((uint8_t *)&checksum, TIMEOUT_NACK) == -1) return -1;
+	if(checkchecksumbytes(databuffer,number+2,checksum)==-1) {cal_sendbyte(STM32_COMM_NACK); return -1;};
+	for (i=0;i<number+1;i++) {
+    sector = (databuffer[i]-1)*SECTORSIZE+FLASHbase;   //what is sector codes received. this calculation might be wrong
+    hil_enablewriteprotectionflashmen(sector);
+	}
+	if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+	hil_reset();
+	return 0;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: command_write_protect()
+|———Node:identifier Text: command_write_protect
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	uint8_t number;
+	uint8_t checksum ;
+	uint8_t i;
+	uint32_t sector;
+	if (hil_ropactive())  {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+	cal_receivebyte((uint8_t *)&number, TIMEOUT_NACK); //number of sectors to be protected (1 byte)
+	uint8_t databuffer[number+2];  //sector code
+	for(i=0;i<number+1;i++) {
+		if(cal_receivebyte(databuffer+i, TIMEOUT_NACK)) return -1;//receive sector codes
+	}
+	databuffer[number+1]=number;
+	if(cal_receivebyte((uint8_t *)&checksum, TIMEOUT_NACK) == -1) return -1;
+	if(checkchecksumbytes(databuffer,number+2,checksum)==-1) {cal_sendbyte(STM32_COMM_NACK); return -1;};
+	for (i=0;i<number+1;i++) {
+    sector = (databuffer[i]-1)*SECTORSIZE+FLASHbase;   //what is sector codes received. this calculation might be wrong
+    hil_enablewriteprotectionflashmen(sector);
+	}
+	if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+	hil_reset();
+	return 0;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: uint8_t number;
+|————Node:primitive_type Text: uint8_t
+|————Node:identifier Text: number
+|————Node:; Text: ;
+|———Node:declaration Text: uint8_t checksum ;
+|————Node:primitive_type Text: uint8_t
+|————Node:identifier Text: checksum
+|————Node:; Text: ;
+|———Node:declaration Text: uint8_t i;
+|————Node:primitive_type Text: uint8_t
+|————Node:identifier Text: i
+|————Node:; Text: ;
+|———Node:declaration Text: uint32_t sector;
+|————Node:primitive_type Text: uint32_t
+|————Node:identifier Text: sector
+|————Node:; Text: ;
+|———Node:if_statement Text: if (hil_ropactive())  {cal_sendbyte(STM32_COMM_NACK); return -1;}
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (hil_ropactive())
+|—————Node:( Text: (
+|—————Node:call_expression Text: hil_ropactive()
+|——————Node:identifier Text: hil_ropactive
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {cal_sendbyte(STM32_COMM_NACK); return -1;}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: cal_sendbyte(STM32_COMM_NACK);
+|——————Node:call_expression Text: cal_sendbyte(STM32_COMM_NACK)
+|———————Node:identifier Text: cal_sendbyte
+|———————Node:argument_list Text: (STM32_COMM_NACK)
+|————————Node:( Text: (
+|————————Node:identifier Text: STM32_COMM_NACK
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return -1;
+|——————Node:return Text: return
+|——————Node:number_literal Text: -1
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (cal_sendbyte(STM32_COMM_ACK)==-1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: cal_sendbyte(STM32_COMM_ACK)==-1
+|——————Node:call_expression Text: cal_sendbyte(STM32_COMM_ACK)
+|———————Node:identifier Text: cal_sendbyte
+|———————Node:argument_list Text: (STM32_COMM_ACK)
+|————————Node:( Text: (
+|————————Node:identifier Text: STM32_COMM_ACK
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:return_statement Text: return -1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: -1
+|—————Node:; Text: ;
+|———Node:expression_statement Text: cal_receivebyte((uint8_t *)&number, TIMEOUT_NACK);
+|————Node:call_expression Text: cal_receivebyte((uint8_t *)&number, TIMEOUT_NACK)
+|—————Node:identifier Text: cal_receivebyte
+|—————Node:argument_list Text: ((uint8_t *)&number, TIMEOUT_NACK)
+|——————Node:( Text: (
+|——————Node:cast_expression Text: (uint8_t *)&number
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: uint8_t *
+|————————Node:primitive_type Text: uint8_t
+|————————Node:abstract_pointer_declarator Text: *
+|—————————Node:* Text: *
+|———————Node:) Text: )
+|———————Node:pointer_expression Text: &number
+|————————Node:& Text: &
+|————————Node:identifier Text: number
+|——————Node:, Text: ,
+|——————Node:identifier Text: TIMEOUT_NACK
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:declaration Text: uint8_t databuffer[number+2];
+|————Node:primitive_type Text: uint8_t
+|————Node:array_declarator Text: databuffer[number+2]
+|—————Node:identifier Text: databuffer
+|—————Node:[ Text: [
+|—————Node:binary_expression Text: number+2
+|——————Node:identifier Text: number
+|——————Node:+ Text: +
+|——————Node:number_literal Text: 2
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:comment
+|———Node:for_statement Text: for(i=0;i<number+1;i++) {
+		if(cal_receivebyte(databuffer+i, TIMEOUT_NACK)) return -1;//receive sector codes
+	}
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:assignment_expression Text: i=0
+|—————Node:identifier Text: i
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|————Node:binary_expression Text: i<number+1
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:binary_expression Text: number+1
+|——————Node:identifier Text: number
+|——————Node:+ Text: +
+|——————Node:number_literal Text: 1
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+		if(cal_receivebyte(databuffer+i, TIMEOUT_NACK)) return -1;//receive sector codes
+	}
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if(cal_receivebyte(databuffer+i, TIMEOUT_NACK)) return -1;
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (cal_receivebyte(databuffer+i, TIMEOUT_NACK))
+|———————Node:( Text: (
+|———————Node:call_expression Text: cal_receivebyte(databuffer+i, TIMEOUT_NACK)
+|————————Node:identifier Text: cal_receivebyte
+|————————Node:argument_list Text: (databuffer+i, TIMEOUT_NACK)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: databuffer+i
+|——————————Node:identifier Text: databuffer
+|——————————Node:+ Text: +
+|——————————Node:identifier Text: i
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: TIMEOUT_NACK
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:return_statement Text: return -1;
+|———————Node:return Text: return
+|———————Node:number_literal Text: -1
+|———————Node:; Text: ;
+|—————Node:comment
+|—————Node:} Text: }
+|———Node:expression_statement Text: databuffer[number+1]=number;
+|————Node:assignment_expression Text: databuffer[number+1]=number
+|—————Node:subscript_expression Text: databuffer[number+1]
+|——————Node:identifier Text: databuffer
+|——————Node:[ Text: [
+|——————Node:binary_expression Text: number+1
+|———————Node:identifier Text: number
+|———————Node:+ Text: +
+|———————Node:number_literal Text: 1
+|——————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:identifier Text: number
+|————Node:; Text: ;
+|———Node:if_statement Text: if(cal_receivebyte((uint8_t *)&checksum, TIMEOUT_NACK) == -1) return -1;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (cal_receivebyte((uint8_t *)&checksum, TIMEOUT_NACK) == -1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: cal_receivebyte((uint8_t *)&checksum, TIMEOUT_NACK) == -1
+|——————Node:call_expression Text: cal_receivebyte((uint8_t *)&checksum, TIMEOUT_NACK)
+|———————Node:identifier Text: cal_receivebyte
+|———————Node:argument_list Text: ((uint8_t *)&checksum, TIMEOUT_NACK)
+|————————Node:( Text: (
+|————————Node:cast_expression Text: (uint8_t *)&checksum
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint8_t *
+|——————————Node:primitive_type Text: uint8_t
+|——————————Node:abstract_pointer_declarator Text: *
+|———————————Node:* Text: *
+|—————————Node:) Text: )
+|—————————Node:pointer_expression Text: &checksum
+|——————————Node:& Text: &
+|——————————Node:identifier Text: checksum
+|————————Node:, Text: ,
+|————————Node:identifier Text: TIMEOUT_NACK
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:return_statement Text: return -1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: -1
+|—————Node:; Text: ;
+|———Node:if_statement Text: if(checkchecksumbytes(databuffer,number+2,checksum)==-1) {cal_sendbyte(STM32_COMM_NACK); return -1;}
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (checkchecksumbytes(databuffer,number+2,checksum)==-1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: checkchecksumbytes(databuffer,number+2,checksum)==-1
+|——————Node:call_expression Text: checkchecksumbytes(databuffer,number+2,checksum)
+|———————Node:identifier Text: checkchecksumbytes
+|———————Node:argument_list Text: (databuffer,number+2,checksum)
+|————————Node:( Text: (
+|————————Node:identifier Text: databuffer
+|————————Node:, Text: ,
+|————————Node:binary_expression Text: number+2
+|—————————Node:identifier Text: number
+|—————————Node:+ Text: +
+|—————————Node:number_literal Text: 2
+|————————Node:, Text: ,
+|————————Node:identifier Text: checksum
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:compound_statement Text: {cal_sendbyte(STM32_COMM_NACK); return -1;}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: cal_sendbyte(STM32_COMM_NACK);
+|——————Node:call_expression Text: cal_sendbyte(STM32_COMM_NACK)
+|———————Node:identifier Text: cal_sendbyte
+|———————Node:argument_list Text: (STM32_COMM_NACK)
+|————————Node:( Text: (
+|————————Node:identifier Text: STM32_COMM_NACK
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return -1;
+|——————Node:return Text: return
+|——————Node:number_literal Text: -1
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: ;
+|————Node:; Text: ;
+|———Node:for_statement Text: for (i=0;i<number+1;i++) {
+    sector = (databuffer[i]-1)*SECTORSIZE+FLASHbase;   //what is sector codes received. this calculation might be wrong
+    hil_enablewriteprotectionflashmen(sector);
+	}
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:assignment_expression Text: i=0
+|—————Node:identifier Text: i
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|————Node:binary_expression Text: i<number+1
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:binary_expression Text: number+1
+|——————Node:identifier Text: number
+|——————Node:+ Text: +
+|——————Node:number_literal Text: 1
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+    sector = (databuffer[i]-1)*SECTORSIZE+FLASHbase;   //what is sector codes received. this calculation might be wrong
+    hil_enablewriteprotectionflashmen(sector);
+	}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: sector = (databuffer[i]-1)*SECTORSIZE+FLASHbase;
+|——————Node:assignment_expression Text: sector = (databuffer[i]-1)*SECTORSIZE+FLASHbase
+|———————Node:identifier Text: sector
+|———————Node:= Text: =
+|———————Node:binary_expression Text: (databuffer[i]-1)*SECTORSIZE+FLASHbase
+|————————Node:binary_expression Text: (databuffer[i]-1)*SECTORSIZE
+|—————————Node:parenthesized_expression Text: (databuffer[i]-1)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: databuffer[i]-1
+|———————————Node:subscript_expression Text: databuffer[i]
+|————————————Node:identifier Text: databuffer
+|————————————Node:[ Text: [
+|————————————Node:identifier Text: i
+|————————————Node:] Text: ]
+|———————————Node:- Text: -
+|———————————Node:number_literal Text: 1
+|——————————Node:) Text: )
+|—————————Node:* Text: *
+|—————————Node:identifier Text: SECTORSIZE
+|————————Node:+ Text: +
+|————————Node:identifier Text: FLASHbase
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:expression_statement Text: hil_enablewriteprotectionflashmen(sector);
+|——————Node:call_expression Text: hil_enablewriteprotectionflashmen(sector)
+|———————Node:identifier Text: hil_enablewriteprotectionflashmen
+|———————Node:argument_list Text: (sector)
+|————————Node:( Text: (
+|————————Node:identifier Text: sector
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (cal_sendbyte(STM32_COMM_ACK)==-1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: cal_sendbyte(STM32_COMM_ACK)==-1
+|——————Node:call_expression Text: cal_sendbyte(STM32_COMM_ACK)
+|———————Node:identifier Text: cal_sendbyte
+|———————Node:argument_list Text: (STM32_COMM_ACK)
+|————————Node:( Text: (
+|————————Node:identifier Text: STM32_COMM_ACK
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:return_statement Text: return -1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: -1
+|—————Node:; Text: ;
+|———Node:expression_statement Text: hil_reset();
+|————Node:call_expression Text: hil_reset()
+|—————Node:identifier Text: hil_reset
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int32_t command_write_unprotect() {
+	//if (hil_ropactive())  {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	cal_SENDLOG("-> cmd: write unprotect entered, acking \r\n");
+	cal_SENDACK();
+	hil_removewriteprotectionflashmem();
+	cal_SENDLOG("-> cmd: write protection removed, acking \r\n");
+	cal_SENDACK();
+	cal_SENDLOG("-> cmd: write unprotect ended, generating system reset \r\n");
+	hil_reset();
+	return 0;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: command_write_unprotect()
+|———Node:identifier Text: command_write_unprotect
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	//if (hil_ropactive())  {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	cal_SENDLOG("-> cmd: write unprotect entered, acking \r\n");
+	cal_SENDACK();
+	hil_removewriteprotectionflashmem();
+	cal_SENDLOG("-> cmd: write protection removed, acking \r\n");
+	cal_SENDACK();
+	cal_SENDLOG("-> cmd: write unprotect ended, generating system reset \r\n");
+	hil_reset();
+	return 0;
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:expression_statement Text: cal_SENDLOG("-> cmd: write unprotect entered, acking \r\n");
+|————Node:call_expression Text: cal_SENDLOG("-> cmd: write unprotect entered, acking \r\n")
+|—————Node:identifier Text: cal_SENDLOG
+|—————Node:argument_list Text: ("-> cmd: write unprotect entered, acking \r\n")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "-> cmd: write unprotect entered, acking \r\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: -> cmd: write unprotect entered, acking 
+|———————Node:escape_sequence Text: \r
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_SENDACK();
+|————Node:call_expression Text: cal_SENDACK()
+|—————Node:identifier Text: cal_SENDACK
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: hil_removewriteprotectionflashmem();
+|————Node:call_expression Text: hil_removewriteprotectionflashmem()
+|—————Node:identifier Text: hil_removewriteprotectionflashmem
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_SENDLOG("-> cmd: write protection removed, acking \r\n");
+|————Node:call_expression Text: cal_SENDLOG("-> cmd: write protection removed, acking \r\n")
+|—————Node:identifier Text: cal_SENDLOG
+|—————Node:argument_list Text: ("-> cmd: write protection removed, acking \r\n")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "-> cmd: write protection removed, acking \r\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: -> cmd: write protection removed, acking 
+|———————Node:escape_sequence Text: \r
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_SENDACK();
+|————Node:call_expression Text: cal_SENDACK()
+|—————Node:identifier Text: cal_SENDACK
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_SENDLOG("-> cmd: write unprotect ended, generating system reset \r\n");
+|————Node:call_expression Text: cal_SENDLOG("-> cmd: write unprotect ended, generating system reset \r\n")
+|—————Node:identifier Text: cal_SENDLOG
+|—————Node:argument_list Text: ("-> cmd: write unprotect ended, generating system reset \r\n")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "-> cmd: write unprotect ended, generating system reset \r\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: -> cmd: write unprotect ended, generating system reset 
+|———————Node:escape_sequence Text: \r
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: hil_reset();
+|————Node:call_expression Text: hil_reset()
+|—————Node:identifier Text: hil_reset
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int32_t command_readout_protect() {
+	if (hil_ropactive())  {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+	hil_enablerop();
+	if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+	hil_reset();
+	return 0;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: command_readout_protect()
+|———Node:identifier Text: command_readout_protect
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	if (hil_ropactive())  {cal_sendbyte(STM32_COMM_NACK); return -1;}
+	if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+	hil_enablerop();
+	if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+	hil_reset();
+	return 0;
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (hil_ropactive())  {cal_sendbyte(STM32_COMM_NACK); return -1;}
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (hil_ropactive())
+|—————Node:( Text: (
+|—————Node:call_expression Text: hil_ropactive()
+|——————Node:identifier Text: hil_ropactive
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {cal_sendbyte(STM32_COMM_NACK); return -1;}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: cal_sendbyte(STM32_COMM_NACK);
+|——————Node:call_expression Text: cal_sendbyte(STM32_COMM_NACK)
+|———————Node:identifier Text: cal_sendbyte
+|———————Node:argument_list Text: (STM32_COMM_NACK)
+|————————Node:( Text: (
+|————————Node:identifier Text: STM32_COMM_NACK
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return -1;
+|——————Node:return Text: return
+|——————Node:number_literal Text: -1
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (cal_sendbyte(STM32_COMM_ACK)==-1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: cal_sendbyte(STM32_COMM_ACK)==-1
+|——————Node:call_expression Text: cal_sendbyte(STM32_COMM_ACK)
+|———————Node:identifier Text: cal_sendbyte
+|———————Node:argument_list Text: (STM32_COMM_ACK)
+|————————Node:( Text: (
+|————————Node:identifier Text: STM32_COMM_ACK
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:return_statement Text: return -1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: -1
+|—————Node:; Text: ;
+|———Node:expression_statement Text: hil_enablerop();
+|————Node:call_expression Text: hil_enablerop()
+|—————Node:identifier Text: hil_enablerop
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (cal_sendbyte(STM32_COMM_ACK)==-1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: cal_sendbyte(STM32_COMM_ACK)==-1
+|——————Node:call_expression Text: cal_sendbyte(STM32_COMM_ACK)
+|———————Node:identifier Text: cal_sendbyte
+|———————Node:argument_list Text: (STM32_COMM_ACK)
+|————————Node:( Text: (
+|————————Node:identifier Text: STM32_COMM_ACK
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:return_statement Text: return -1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: -1
+|—————Node:; Text: ;
+|———Node:expression_statement Text: hil_reset();
+|————Node:call_expression Text: hil_reset()
+|—————Node:identifier Text: hil_reset
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int32_t command_readout_unprotect() {
+	if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+	hil_disablerop();//Flash Mass Erased :(
+	if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+	hil_clearram();
+	hil_reset();
+	return 0;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: command_readout_unprotect()
+|———Node:identifier Text: command_readout_unprotect
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+	hil_disablerop();//Flash Mass Erased :(
+	if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+	hil_clearram();
+	hil_reset();
+	return 0;
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (cal_sendbyte(STM32_COMM_ACK)==-1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: cal_sendbyte(STM32_COMM_ACK)==-1
+|——————Node:call_expression Text: cal_sendbyte(STM32_COMM_ACK)
+|———————Node:identifier Text: cal_sendbyte
+|———————Node:argument_list Text: (STM32_COMM_ACK)
+|————————Node:( Text: (
+|————————Node:identifier Text: STM32_COMM_ACK
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:return_statement Text: return -1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: -1
+|—————Node:; Text: ;
+|———Node:expression_statement Text: hil_disablerop();
+|————Node:call_expression Text: hil_disablerop()
+|—————Node:identifier Text: hil_disablerop
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:if_statement Text: if(cal_sendbyte(STM32_COMM_ACK)==-1) return -1;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (cal_sendbyte(STM32_COMM_ACK)==-1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: cal_sendbyte(STM32_COMM_ACK)==-1
+|——————Node:call_expression Text: cal_sendbyte(STM32_COMM_ACK)
+|———————Node:identifier Text: cal_sendbyte
+|———————Node:argument_list Text: (STM32_COMM_ACK)
+|————————Node:( Text: (
+|————————Node:identifier Text: STM32_COMM_ACK
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:return_statement Text: return -1;
+|—————Node:return Text: return
+|—————Node:number_literal Text: -1
+|—————Node:; Text: ;
+|———Node:expression_statement Text: hil_clearram();
+|————Node:call_expression Text: hil_clearram()
+|—————Node:identifier Text: hil_clearram
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: hil_reset();
+|————Node:call_expression Text: hil_reset()
+|—————Node:identifier Text: hil_reset
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment

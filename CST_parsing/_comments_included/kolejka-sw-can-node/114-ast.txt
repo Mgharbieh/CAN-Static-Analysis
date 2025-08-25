@@ -1,0 +1,57 @@
+kolejka-sw-can-node-src\app\shell\git_version.hpp
+
+|Node:translation_unit
+|—Node:comment Text: /*
+ * git_version.hpp
+ * Copyright (C) 2023 Marcin Osiński <osinski.marcin.r@gmail.com>
+ *
+ * Distributed under terms of the MIT license.
+ */
+|—Node:preproc_ifdef Text: #ifndef GIT_VERSION_H
+#define GIT_VERSION_H
+
+static const char* GIT_CommitHash = "59dcdfb";
+static const char* GIT_CommitDate = "2024-08-15";
+
+
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: GIT_VERSION_H
+|——Node:preproc_def Text: #define GIT_VERSION_H
+
+|———Node:#define Text: #define
+|———Node:identifier Text: GIT_VERSION_H
+|——Node:declaration Text: static const char* GIT_CommitHash = "59dcdfb";
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:type_qualifier Text: const
+|————Node:const Text: const
+|———Node:primitive_type Text: char
+|———Node:init_declarator Text: * GIT_CommitHash = "59dcdfb"
+|————Node:pointer_declarator Text: * GIT_CommitHash
+|—————Node:* Text: *
+|—————Node:identifier Text: GIT_CommitHash
+|————Node:= Text: =
+|————Node:string_literal Text: "59dcdfb"
+|—————Node:" Text: "
+|—————Node:string_content Text: 59dcdfb
+|—————Node:" Text: "
+|———Node:; Text: ;
+|——Node:declaration Text: static const char* GIT_CommitDate = "2024-08-15";
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:type_qualifier Text: const
+|————Node:const Text: const
+|———Node:primitive_type Text: char
+|———Node:init_declarator Text: * GIT_CommitDate = "2024-08-15"
+|————Node:pointer_declarator Text: * GIT_CommitDate
+|—————Node:* Text: *
+|—————Node:identifier Text: GIT_CommitDate
+|————Node:= Text: =
+|————Node:string_literal Text: "2024-08-15"
+|—————Node:" Text: "
+|—————Node:string_content Text: 2024-08-15
+|—————Node:" Text: "
+|———Node:; Text: ;
+|——Node:#endif Text: #endif
+|—Node:comment Text: /* GIT_VERSION_H */

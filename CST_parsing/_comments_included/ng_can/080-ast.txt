@@ -1,0 +1,264 @@
+ng_can-src\can_port.h
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include <stdbool.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <stdbool.h>
+|—Node:preproc_include Text: #include <stddef.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <stddef.h>
+|—Node:preproc_include Text: #include <stdint.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <stdint.h>
+|—Node:preproc_include Text: #include <linux/can.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <linux/can.h>
+|—Node:preproc_include Text: #include <linux/can/raw.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <linux/can/raw.h>
+|—Node:preproc_include Text: #include <linux/can/error.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <linux/can/error.h>
+|—Node:preproc_def Text: #define MAX_READBUF 100
+
+|——Node:#define Text: #define
+|——Node:identifier Text: MAX_READBUF
+|——Node:preproc_arg Text: 100
+|—Node:preproc_def Text: #define ENCODED_FRAME_SIZE 27
+
+|——Node:#define Text: #define
+|——Node:identifier Text: ENCODED_FRAME_SIZE
+|——Node:preproc_arg Text: 27
+|—Node:struct_specifier Text: struct can_port {
+    // CAN file handle
+    int fd;
+
+    //write buffer
+    char *write_buffer;
+    //^const?
+    int write_buffer_size;
+    int write_buffer_offset;
+
+    //read buffer stuff
+    char *read_buffer;
+    int awaiting_read;
+}
+|——Node:struct Text: struct
+|——Node:type_identifier Text: can_port
+|——Node:field_declaration_list Text: {
+    // CAN file handle
+    int fd;
+
+    //write buffer
+    char *write_buffer;
+    //^const?
+    int write_buffer_size;
+    int write_buffer_offset;
+
+    //read buffer stuff
+    char *read_buffer;
+    int awaiting_read;
+}
+|———Node:{ Text: {
+|———Node:comment Text: // CAN file handle
+|———Node:field_declaration Text: int fd;
+|————Node:primitive_type Text: int
+|————Node:field_identifier Text: fd
+|————Node:; Text: ;
+|———Node:comment Text: //write buffer
+|———Node:field_declaration Text: char *write_buffer;
+|————Node:primitive_type Text: char
+|————Node:pointer_declarator Text: *write_buffer
+|—————Node:* Text: *
+|—————Node:field_identifier Text: write_buffer
+|————Node:; Text: ;
+|———Node:comment Text: //^const?
+|———Node:field_declaration Text: int write_buffer_size;
+|————Node:primitive_type Text: int
+|————Node:field_identifier Text: write_buffer_size
+|————Node:; Text: ;
+|———Node:field_declaration Text: int write_buffer_offset;
+|————Node:primitive_type Text: int
+|————Node:field_identifier Text: write_buffer_offset
+|————Node:; Text: ;
+|———Node:comment Text: //read buffer stuff
+|———Node:field_declaration Text: char *read_buffer;
+|————Node:primitive_type Text: char
+|————Node:pointer_declarator Text: *read_buffer
+|—————Node:* Text: *
+|—————Node:field_identifier Text: read_buffer
+|————Node:; Text: ;
+|———Node:field_declaration Text: int awaiting_read;
+|————Node:primitive_type Text: int
+|————Node:field_identifier Text: awaiting_read
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:; Text: ;
+|—Node:declaration Text: int can_open(struct can_port *port, char *interface_name);
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: can_open(struct can_port *port, char *interface_name)
+|———Node:identifier Text: can_open
+|———Node:parameter_list Text: (struct can_port *port, char *interface_name)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct can_port *port
+|—————Node:struct_specifier Text: struct can_port
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_port
+|—————Node:pointer_declarator Text: *port
+|——————Node:* Text: *
+|——————Node:identifier Text: port
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: char *interface_name
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: *interface_name
+|——————Node:* Text: *
+|——————Node:identifier Text: interface_name
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:declaration Text: int can_is_open(struct can_port *port);
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: can_is_open(struct can_port *port)
+|———Node:identifier Text: can_is_open
+|———Node:parameter_list Text: (struct can_port *port)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct can_port *port
+|—————Node:struct_specifier Text: struct can_port
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_port
+|—————Node:pointer_declarator Text: *port
+|——————Node:* Text: *
+|——————Node:identifier Text: port
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:declaration Text: int can_init(struct can_port **pport);
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: can_init(struct can_port **pport)
+|———Node:identifier Text: can_init
+|———Node:parameter_list Text: (struct can_port **pport)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct can_port **pport
+|—————Node:struct_specifier Text: struct can_port
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_port
+|—————Node:pointer_declarator Text: **pport
+|——————Node:* Text: *
+|——————Node:pointer_declarator Text: *pport
+|———————Node:* Text: *
+|———————Node:identifier Text: pport
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:declaration Text: int can_close(struct can_port *port);
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: can_close(struct can_port *port)
+|———Node:identifier Text: can_close
+|———Node:parameter_list Text: (struct can_port *port)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct can_port *port
+|—————Node:struct_specifier Text: struct can_port
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_port
+|—————Node:pointer_declarator Text: *port
+|——————Node:* Text: *
+|——————Node:identifier Text: port
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:declaration Text: int can_write(struct can_port *can_port, struct can_frame *can_frame);
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: can_write(struct can_port *can_port, struct can_frame *can_frame)
+|———Node:identifier Text: can_write
+|———Node:parameter_list Text: (struct can_port *can_port, struct can_frame *can_frame)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct can_port *can_port
+|—————Node:struct_specifier Text: struct can_port
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_port
+|—————Node:pointer_declarator Text: *can_port
+|——————Node:* Text: *
+|——————Node:identifier Text: can_port
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: struct can_frame *can_frame
+|—————Node:struct_specifier Text: struct can_frame
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_frame
+|—————Node:pointer_declarator Text: *can_frame
+|——————Node:* Text: *
+|——————Node:identifier Text: can_frame
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:declaration Text: int can_read(struct can_port *can_port, struct can_frame *can_frame);
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: can_read(struct can_port *can_port, struct can_frame *can_frame)
+|———Node:identifier Text: can_read
+|———Node:parameter_list Text: (struct can_port *can_port, struct can_frame *can_frame)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct can_port *can_port
+|—————Node:struct_specifier Text: struct can_port
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_port
+|—————Node:pointer_declarator Text: *can_port
+|——————Node:* Text: *
+|——————Node:identifier Text: can_port
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: struct can_frame *can_frame
+|—————Node:struct_specifier Text: struct can_frame
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_frame
+|—————Node:pointer_declarator Text: *can_frame
+|——————Node:* Text: *
+|——————Node:identifier Text: can_frame
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:declaration Text: int can_read_into_buffer(struct can_port *can_port, int *resp_index);
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: can_read_into_buffer(struct can_port *can_port, int *resp_index)
+|———Node:identifier Text: can_read_into_buffer
+|———Node:parameter_list Text: (struct can_port *can_port, int *resp_index)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct can_port *can_port
+|—————Node:struct_specifier Text: struct can_port
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_port
+|—————Node:pointer_declarator Text: *can_port
+|——————Node:* Text: *
+|——————Node:identifier Text: can_port
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: int *resp_index
+|—————Node:primitive_type Text: int
+|—————Node:pointer_declarator Text: *resp_index
+|——————Node:* Text: *
+|——————Node:identifier Text: resp_index
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:declaration Text: void encode_can_frame(char *resp, int *resp_index, struct can_frame *can_frame);
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: encode_can_frame(char *resp, int *resp_index, struct can_frame *can_frame)
+|———Node:identifier Text: encode_can_frame
+|———Node:parameter_list Text: (char *resp, int *resp_index, struct can_frame *can_frame)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: char *resp
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: *resp
+|——————Node:* Text: *
+|——————Node:identifier Text: resp
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: int *resp_index
+|—————Node:primitive_type Text: int
+|—————Node:pointer_declarator Text: *resp_index
+|——————Node:* Text: *
+|——————Node:identifier Text: resp_index
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: struct can_frame *can_frame
+|—————Node:struct_specifier Text: struct can_frame
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_frame
+|—————Node:pointer_declarator Text: *can_frame
+|——————Node:* Text: *
+|——————Node:identifier Text: can_frame
+|————Node:) Text: )
+|——Node:; Text: ;

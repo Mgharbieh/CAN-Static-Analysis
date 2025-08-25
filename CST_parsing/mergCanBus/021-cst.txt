@@ -1,0 +1,408 @@
+mergCanBus-MergCBUSThrottle.h
+
+|Node:translation_unit
+|—Node:preproc_ifdef Text: #ifndef MERGCBUSTHROTTLE_H
+
+#define MERGCBUSTHROTTLE_H
+
+#include "MergCBUS.h"
+#include "Message.h"
+#include "ThrottleInfo.h"
+
+#define NUM_SESSIONS 4
+
+class MergCBUSThrottle
+{
+    public:
+        MergCBUSThrottle(MergCBUS *cbus);
+        virtual ~MergCBUSThrottle();
+
+        bool getSession(uint16_t loco);
+        bool setSession(uint8_t session,uint16_t loco);
+        bool releaseSession(uint8_t session);
+
+        bool consist(uint16_t loco1,uint16_t loco2);
+        void setKeepAliveInterval(uint16_t interval_milli);
+        uint16_t getKeepAliveInterval();
+        void setFOn(uint8_t session, uint8_t f);
+        void setFOff(uint8_t session, uint8_t f);
+        uint8_t getSpeed();
+        void setDirection(bool d_forward);
+        bool getDirection();
+        bool setSpeedDirection(uint8_t session, uint8_t v,bool d_forward);
+        void setSpeedMode(uint8_t session);
+        bool stealLoco();
+        bool shareLoco();
+        void run();
+
+    protected:
+    private:
+        MergCBUS *cbus;
+        Message *message;
+        uint16_t keepalive_interval;
+        bool direction;
+        ThrottleInfo tinfo[NUM_SESSIONS];
+        void sendKeepAlive();
+
+};
+
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: MERGCBUSTHROTTLE_H
+|——Node:preproc_def Text: #define MERGCBUSTHROTTLE_H
+
+|———Node:#define Text: #define
+|———Node:identifier Text: MERGCBUSTHROTTLE_H
+|——Node:preproc_include Text: #include "MergCBUS.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "MergCBUS.h"
+|————Node:" Text: "
+|————Node:string_content Text: MergCBUS.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "Message.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "Message.h"
+|————Node:" Text: "
+|————Node:string_content Text: Message.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "ThrottleInfo.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "ThrottleInfo.h"
+|————Node:" Text: "
+|————Node:string_content Text: ThrottleInfo.h
+|————Node:" Text: "
+|——Node:preproc_def Text: #define NUM_SESSIONS 4
+
+|———Node:#define Text: #define
+|———Node:identifier Text: NUM_SESSIONS
+|———Node:preproc_arg Text: 4
+|——Node:function_definition Text: class MergCBUSThrottle
+{
+    public:
+        MergCBUSThrottle(MergCBUS *cbus);
+        virtual ~MergCBUSThrottle();
+
+        bool getSession(uint16_t loco);
+        bool setSession(uint8_t session,uint16_t loco);
+        bool releaseSession(uint8_t session);
+
+        bool consist(uint16_t loco1,uint16_t loco2);
+        void setKeepAliveInterval(uint16_t interval_milli);
+        uint16_t getKeepAliveInterval();
+        void setFOn(uint8_t session, uint8_t f);
+        void setFOff(uint8_t session, uint8_t f);
+        uint8_t getSpeed();
+        void setDirection(bool d_forward);
+        bool getDirection();
+        bool setSpeedDirection(uint8_t session, uint8_t v,bool d_forward);
+        void setSpeedMode(uint8_t session);
+        bool stealLoco();
+        bool shareLoco();
+        void run();
+
+    protected:
+    private:
+        MergCBUS *cbus;
+        Message *message;
+        uint16_t keepalive_interval;
+        bool direction;
+        ThrottleInfo tinfo[NUM_SESSIONS];
+        void sendKeepAlive();
+
+}
+|———Node:type_identifier Text: class
+|———Node:identifier Text: MergCBUSThrottle
+|———Node:compound_statement Text: {
+    public:
+        MergCBUSThrottle(MergCBUS *cbus);
+        virtual ~MergCBUSThrottle();
+
+        bool getSession(uint16_t loco);
+        bool setSession(uint8_t session,uint16_t loco);
+        bool releaseSession(uint8_t session);
+
+        bool consist(uint16_t loco1,uint16_t loco2);
+        void setKeepAliveInterval(uint16_t interval_milli);
+        uint16_t getKeepAliveInterval();
+        void setFOn(uint8_t session, uint8_t f);
+        void setFOff(uint8_t session, uint8_t f);
+        uint8_t getSpeed();
+        void setDirection(bool d_forward);
+        bool getDirection();
+        bool setSpeedDirection(uint8_t session, uint8_t v,bool d_forward);
+        void setSpeedMode(uint8_t session);
+        bool stealLoco();
+        bool shareLoco();
+        void run();
+
+    protected:
+    private:
+        MergCBUS *cbus;
+        Message *message;
+        uint16_t keepalive_interval;
+        bool direction;
+        ThrottleInfo tinfo[NUM_SESSIONS];
+        void sendKeepAlive();
+
+}
+|————Node:{ Text: {
+|————Node:labeled_statement Text: public:
+        MergCBUSThrottle(MergCBUS *cbus);
+|—————Node:statement_identifier Text: public
+|—————Node:: Text: :
+|—————Node:expression_statement Text: MergCBUSThrottle(MergCBUS *cbus);
+|——————Node:call_expression Text: MergCBUSThrottle(MergCBUS *cbus)
+|———————Node:identifier Text: MergCBUSThrottle
+|———————Node:argument_list Text: (MergCBUS *cbus)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: MergCBUS *cbus
+|—————————Node:identifier Text: MergCBUS
+|—————————Node:* Text: *
+|—————————Node:identifier Text: cbus
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|————Node:declaration Text: virtual ~MergCBUSThrottle();
+|—————Node:type_identifier Text: virtual
+|—————Node:ERROR Text: ~
+|——————Node:~ Text: ~
+|—————Node:function_declarator Text: MergCBUSThrottle()
+|——————Node:identifier Text: MergCBUSThrottle
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: bool getSession(uint16_t loco);
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: getSession(uint16_t loco)
+|——————Node:identifier Text: getSession
+|——————Node:parameter_list Text: (uint16_t loco)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint16_t loco
+|————————Node:primitive_type Text: uint16_t
+|————————Node:identifier Text: loco
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: bool setSession(uint8_t session,uint16_t loco);
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: setSession(uint8_t session,uint16_t loco)
+|——————Node:identifier Text: setSession
+|——————Node:parameter_list Text: (uint8_t session,uint16_t loco)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint8_t session
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: session
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: uint16_t loco
+|————————Node:primitive_type Text: uint16_t
+|————————Node:identifier Text: loco
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: bool releaseSession(uint8_t session);
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: releaseSession(uint8_t session)
+|——————Node:identifier Text: releaseSession
+|——————Node:parameter_list Text: (uint8_t session)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint8_t session
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: session
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: bool consist(uint16_t loco1,uint16_t loco2);
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: consist(uint16_t loco1,uint16_t loco2)
+|——————Node:identifier Text: consist
+|——————Node:parameter_list Text: (uint16_t loco1,uint16_t loco2)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint16_t loco1
+|————————Node:primitive_type Text: uint16_t
+|————————Node:identifier Text: loco1
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: uint16_t loco2
+|————————Node:primitive_type Text: uint16_t
+|————————Node:identifier Text: loco2
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void setKeepAliveInterval(uint16_t interval_milli);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setKeepAliveInterval(uint16_t interval_milli)
+|——————Node:identifier Text: setKeepAliveInterval
+|——————Node:parameter_list Text: (uint16_t interval_milli)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint16_t interval_milli
+|————————Node:primitive_type Text: uint16_t
+|————————Node:identifier Text: interval_milli
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: uint16_t getKeepAliveInterval();
+|—————Node:primitive_type Text: uint16_t
+|—————Node:function_declarator Text: getKeepAliveInterval()
+|——————Node:identifier Text: getKeepAliveInterval
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void setFOn(uint8_t session, uint8_t f);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setFOn(uint8_t session, uint8_t f)
+|——————Node:identifier Text: setFOn
+|——————Node:parameter_list Text: (uint8_t session, uint8_t f)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint8_t session
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: session
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: uint8_t f
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: f
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void setFOff(uint8_t session, uint8_t f);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setFOff(uint8_t session, uint8_t f)
+|——————Node:identifier Text: setFOff
+|——————Node:parameter_list Text: (uint8_t session, uint8_t f)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint8_t session
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: session
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: uint8_t f
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: f
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: uint8_t getSpeed();
+|—————Node:primitive_type Text: uint8_t
+|—————Node:function_declarator Text: getSpeed()
+|——————Node:identifier Text: getSpeed
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void setDirection(bool d_forward);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setDirection(bool d_forward)
+|——————Node:identifier Text: setDirection
+|——————Node:parameter_list Text: (bool d_forward)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: bool d_forward
+|————————Node:primitive_type Text: bool
+|————————Node:identifier Text: d_forward
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: bool getDirection();
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: getDirection()
+|——————Node:identifier Text: getDirection
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: bool setSpeedDirection(uint8_t session, uint8_t v,bool d_forward);
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: setSpeedDirection(uint8_t session, uint8_t v,bool d_forward)
+|——————Node:identifier Text: setSpeedDirection
+|——————Node:parameter_list Text: (uint8_t session, uint8_t v,bool d_forward)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint8_t session
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: session
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: uint8_t v
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: v
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: bool d_forward
+|————————Node:primitive_type Text: bool
+|————————Node:identifier Text: d_forward
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void setSpeedMode(uint8_t session);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setSpeedMode(uint8_t session)
+|——————Node:identifier Text: setSpeedMode
+|——————Node:parameter_list Text: (uint8_t session)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint8_t session
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: session
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: bool stealLoco();
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: stealLoco()
+|——————Node:identifier Text: stealLoco
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: bool shareLoco();
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: shareLoco()
+|——————Node:identifier Text: shareLoco
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void run();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: run()
+|——————Node:identifier Text: run
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:labeled_statement Text: protected:
+    private:
+        MergCBUS *cbus;
+|—————Node:statement_identifier Text: protected
+|—————Node:: Text: :
+|—————Node:labeled_statement Text: private:
+        MergCBUS *cbus;
+|——————Node:statement_identifier Text: private
+|——————Node:: Text: :
+|——————Node:declaration Text: MergCBUS *cbus;
+|———————Node:type_identifier Text: MergCBUS
+|———————Node:pointer_declarator Text: *cbus
+|————————Node:* Text: *
+|————————Node:identifier Text: cbus
+|———————Node:; Text: ;
+|————Node:declaration Text: Message *message;
+|—————Node:type_identifier Text: Message
+|—————Node:pointer_declarator Text: *message
+|——————Node:* Text: *
+|——————Node:identifier Text: message
+|—————Node:; Text: ;
+|————Node:declaration Text: uint16_t keepalive_interval;
+|—————Node:primitive_type Text: uint16_t
+|—————Node:identifier Text: keepalive_interval
+|—————Node:; Text: ;
+|————Node:declaration Text: bool direction;
+|—————Node:primitive_type Text: bool
+|—————Node:identifier Text: direction
+|—————Node:; Text: ;
+|————Node:declaration Text: ThrottleInfo tinfo[NUM_SESSIONS];
+|—————Node:type_identifier Text: ThrottleInfo
+|—————Node:array_declarator Text: tinfo[NUM_SESSIONS]
+|——————Node:identifier Text: tinfo
+|——————Node:[ Text: [
+|——————Node:identifier Text: NUM_SESSIONS
+|——————Node:] Text: ]
+|—————Node:; Text: ;
+|————Node:declaration Text: void sendKeepAlive();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: sendKeepAlive()
+|——————Node:identifier Text: sendKeepAlive
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:expression_statement Text: ;
+|———Node:; Text: ;
+|——Node:#endif Text: #endif
+|—Node:comment

@@ -1,0 +1,2906 @@
+dev-can-linux-src\netif.c
+
+|Node:translation_unit
+|—Node:comment
+|—Node:preproc_include Text: #include <pci/pci.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <pci/pci.h>
+|—Node:preproc_include Text: #include <linux/netdevice.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <linux/netdevice.h>
+|—Node:preproc_include Text: #include <linux/can.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <linux/can.h>
+|—Node:preproc_include Text: #include <linux/can/error.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <linux/can/error.h>
+|—Node:preproc_include Text: #include <linux/can/skb.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <linux/can/skb.h>
+|—Node:preproc_include Text: #include <session.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <session.h>
+|—Node:preproc_include Text: #include "netif.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "netif.h"
+|———Node:" Text: "
+|———Node:string_content Text: netif.h
+|———Node:" Text: "
+|—Node:function_definition Text: void* netif_tx (void* arg) {
+    device_session_t* ds = (device_session_t*)arg;
+    struct net_device* dev = ds->device;
+    struct can_msg* canmsg;
+
+    while (1) {
+        if (ds->tx_queue.attr.size == 0) {
+            log_trace("netif_tx exit: %s\n", dev->name);
+
+            return NULL;
+        }
+
+        if ((canmsg = dequeue(&ds->tx_queue, 0)) == NULL) {
+            log_trace("netif_tx exit: %s\n", dev->name);
+
+            return NULL;
+        }
+
+        struct sk_buff *skb;
+        struct can_frame *cf;
+
+        /* create zero'ed CAN frame buffer */
+        skb = alloc_can_skb(dev, &cf);
+
+        if (skb == NULL) {
+            log_err("netif_tx exit: alloc_can_skb error\n");
+
+            return NULL;
+        }
+
+        skb->len = CAN_MTU;
+        cf->can_id = canmsg->mid;
+        cf->can_dlc = canmsg->len;
+
+        if (canmsg->ext.is_extended_mid) { // Extended MID
+            cf->can_id |= CAN_EFF_FLAG;
+        }
+        else { // Standard MID
+            /**
+             * Message IDs or MIDs are slightly different on QNX compared to
+             * Linux. The form of the ID depends on whether or not the driver
+             * is using extended MIDs:
+             *
+             *      - In standard 11-bit MIDs, bits 18–28 define the MID.
+             *      - In extended 29-bit MIDs, bits 0–28 define the MID.
+             */
+
+            cf->can_id >>= 18;
+        }
+
+        int i;
+        for (i = 0; i < canmsg->len; ++i) {
+            cf->data[i] = canmsg->dat[i];
+        }
+
+        dev->netdev_ops->ndo_start_xmit(skb, dev);
+    }
+
+    return 0;
+}
+|——Node:primitive_type Text: void
+|——Node:pointer_declarator Text: * netif_tx (void* arg)
+|———Node:* Text: *
+|———Node:function_declarator Text: netif_tx (void* arg)
+|————Node:identifier Text: netif_tx
+|————Node:parameter_list Text: (void* arg)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: void* arg
+|——————Node:primitive_type Text: void
+|——————Node:pointer_declarator Text: * arg
+|———————Node:* Text: *
+|———————Node:identifier Text: arg
+|—————Node:) Text: )
+|——Node:compound_statement Text: {
+    device_session_t* ds = (device_session_t*)arg;
+    struct net_device* dev = ds->device;
+    struct can_msg* canmsg;
+
+    while (1) {
+        if (ds->tx_queue.attr.size == 0) {
+            log_trace("netif_tx exit: %s\n", dev->name);
+
+            return NULL;
+        }
+
+        if ((canmsg = dequeue(&ds->tx_queue, 0)) == NULL) {
+            log_trace("netif_tx exit: %s\n", dev->name);
+
+            return NULL;
+        }
+
+        struct sk_buff *skb;
+        struct can_frame *cf;
+
+        /* create zero'ed CAN frame buffer */
+        skb = alloc_can_skb(dev, &cf);
+
+        if (skb == NULL) {
+            log_err("netif_tx exit: alloc_can_skb error\n");
+
+            return NULL;
+        }
+
+        skb->len = CAN_MTU;
+        cf->can_id = canmsg->mid;
+        cf->can_dlc = canmsg->len;
+
+        if (canmsg->ext.is_extended_mid) { // Extended MID
+            cf->can_id |= CAN_EFF_FLAG;
+        }
+        else { // Standard MID
+            /**
+             * Message IDs or MIDs are slightly different on QNX compared to
+             * Linux. The form of the ID depends on whether or not the driver
+             * is using extended MIDs:
+             *
+             *      - In standard 11-bit MIDs, bits 18–28 define the MID.
+             *      - In extended 29-bit MIDs, bits 0–28 define the MID.
+             */
+
+            cf->can_id >>= 18;
+        }
+
+        int i;
+        for (i = 0; i < canmsg->len; ++i) {
+            cf->data[i] = canmsg->dat[i];
+        }
+
+        dev->netdev_ops->ndo_start_xmit(skb, dev);
+    }
+
+    return 0;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: device_session_t* ds = (device_session_t*)arg;
+|————Node:type_identifier Text: device_session_t
+|————Node:init_declarator Text: * ds = (device_session_t*)arg
+|—————Node:pointer_declarator Text: * ds
+|——————Node:* Text: *
+|——————Node:identifier Text: ds
+|—————Node:= Text: =
+|—————Node:cast_expression Text: (device_session_t*)arg
+|——————Node:( Text: (
+|——————Node:type_descriptor Text: device_session_t*
+|———————Node:type_identifier Text: device_session_t
+|———————Node:abstract_pointer_declarator Text: *
+|————————Node:* Text: *
+|——————Node:) Text: )
+|——————Node:identifier Text: arg
+|————Node:; Text: ;
+|———Node:declaration Text: struct net_device* dev = ds->device;
+|————Node:struct_specifier Text: struct net_device
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: net_device
+|————Node:init_declarator Text: * dev = ds->device
+|—————Node:pointer_declarator Text: * dev
+|——————Node:* Text: *
+|——————Node:identifier Text: dev
+|—————Node:= Text: =
+|—————Node:field_expression Text: ds->device
+|——————Node:identifier Text: ds
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: device
+|————Node:; Text: ;
+|———Node:declaration Text: struct can_msg* canmsg;
+|————Node:struct_specifier Text: struct can_msg
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: can_msg
+|————Node:pointer_declarator Text: * canmsg
+|—————Node:* Text: *
+|—————Node:identifier Text: canmsg
+|————Node:; Text: ;
+|———Node:while_statement Text: while (1) {
+        if (ds->tx_queue.attr.size == 0) {
+            log_trace("netif_tx exit: %s\n", dev->name);
+
+            return NULL;
+        }
+
+        if ((canmsg = dequeue(&ds->tx_queue, 0)) == NULL) {
+            log_trace("netif_tx exit: %s\n", dev->name);
+
+            return NULL;
+        }
+
+        struct sk_buff *skb;
+        struct can_frame *cf;
+
+        /* create zero'ed CAN frame buffer */
+        skb = alloc_can_skb(dev, &cf);
+
+        if (skb == NULL) {
+            log_err("netif_tx exit: alloc_can_skb error\n");
+
+            return NULL;
+        }
+
+        skb->len = CAN_MTU;
+        cf->can_id = canmsg->mid;
+        cf->can_dlc = canmsg->len;
+
+        if (canmsg->ext.is_extended_mid) { // Extended MID
+            cf->can_id |= CAN_EFF_FLAG;
+        }
+        else { // Standard MID
+            /**
+             * Message IDs or MIDs are slightly different on QNX compared to
+             * Linux. The form of the ID depends on whether or not the driver
+             * is using extended MIDs:
+             *
+             *      - In standard 11-bit MIDs, bits 18–28 define the MID.
+             *      - In extended 29-bit MIDs, bits 0–28 define the MID.
+             */
+
+            cf->can_id >>= 18;
+        }
+
+        int i;
+        for (i = 0; i < canmsg->len; ++i) {
+            cf->data[i] = canmsg->dat[i];
+        }
+
+        dev->netdev_ops->ndo_start_xmit(skb, dev);
+    }
+|————Node:while Text: while
+|————Node:parenthesized_expression Text: (1)
+|—————Node:( Text: (
+|—————Node:number_literal Text: 1
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        if (ds->tx_queue.attr.size == 0) {
+            log_trace("netif_tx exit: %s\n", dev->name);
+
+            return NULL;
+        }
+
+        if ((canmsg = dequeue(&ds->tx_queue, 0)) == NULL) {
+            log_trace("netif_tx exit: %s\n", dev->name);
+
+            return NULL;
+        }
+
+        struct sk_buff *skb;
+        struct can_frame *cf;
+
+        /* create zero'ed CAN frame buffer */
+        skb = alloc_can_skb(dev, &cf);
+
+        if (skb == NULL) {
+            log_err("netif_tx exit: alloc_can_skb error\n");
+
+            return NULL;
+        }
+
+        skb->len = CAN_MTU;
+        cf->can_id = canmsg->mid;
+        cf->can_dlc = canmsg->len;
+
+        if (canmsg->ext.is_extended_mid) { // Extended MID
+            cf->can_id |= CAN_EFF_FLAG;
+        }
+        else { // Standard MID
+            /**
+             * Message IDs or MIDs are slightly different on QNX compared to
+             * Linux. The form of the ID depends on whether or not the driver
+             * is using extended MIDs:
+             *
+             *      - In standard 11-bit MIDs, bits 18–28 define the MID.
+             *      - In extended 29-bit MIDs, bits 0–28 define the MID.
+             */
+
+            cf->can_id >>= 18;
+        }
+
+        int i;
+        for (i = 0; i < canmsg->len; ++i) {
+            cf->data[i] = canmsg->dat[i];
+        }
+
+        dev->netdev_ops->ndo_start_xmit(skb, dev);
+    }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if (ds->tx_queue.attr.size == 0) {
+            log_trace("netif_tx exit: %s\n", dev->name);
+
+            return NULL;
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (ds->tx_queue.attr.size == 0)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: ds->tx_queue.attr.size == 0
+|————————Node:field_expression Text: ds->tx_queue.attr.size
+|—————————Node:field_expression Text: ds->tx_queue.attr
+|——————————Node:field_expression Text: ds->tx_queue
+|———————————Node:identifier Text: ds
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: tx_queue
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: attr
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: size
+|————————Node:== Text: ==
+|————————Node:number_literal Text: 0
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            log_trace("netif_tx exit: %s\n", dev->name);
+
+            return NULL;
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: log_trace("netif_tx exit: %s\n", dev->name);
+|————————Node:call_expression Text: log_trace("netif_tx exit: %s\n", dev->name)
+|—————————Node:identifier Text: log_trace
+|—————————Node:argument_list Text: ("netif_tx exit: %s\n", dev->name)
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "netif_tx exit: %s\n"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: netif_tx exit: %s
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: dev->name
+|———————————Node:identifier Text: dev
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: name
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:return_statement Text: return NULL;
+|————————Node:return Text: return
+|————————Node:null Text: NULL
+|—————————Node:NULL Text: NULL
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:if_statement Text: if ((canmsg = dequeue(&ds->tx_queue, 0)) == NULL) {
+            log_trace("netif_tx exit: %s\n", dev->name);
+
+            return NULL;
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: ((canmsg = dequeue(&ds->tx_queue, 0)) == NULL)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: (canmsg = dequeue(&ds->tx_queue, 0)) == NULL
+|————————Node:parenthesized_expression Text: (canmsg = dequeue(&ds->tx_queue, 0))
+|—————————Node:( Text: (
+|—————————Node:assignment_expression Text: canmsg = dequeue(&ds->tx_queue, 0)
+|——————————Node:identifier Text: canmsg
+|——————————Node:= Text: =
+|——————————Node:call_expression Text: dequeue(&ds->tx_queue, 0)
+|———————————Node:identifier Text: dequeue
+|———————————Node:argument_list Text: (&ds->tx_queue, 0)
+|————————————Node:( Text: (
+|————————————Node:pointer_expression Text: &ds->tx_queue
+|—————————————Node:& Text: &
+|—————————————Node:field_expression Text: ds->tx_queue
+|——————————————Node:identifier Text: ds
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: tx_queue
+|————————————Node:, Text: ,
+|————————————Node:number_literal Text: 0
+|————————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:== Text: ==
+|————————Node:null Text: NULL
+|—————————Node:NULL Text: NULL
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            log_trace("netif_tx exit: %s\n", dev->name);
+
+            return NULL;
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: log_trace("netif_tx exit: %s\n", dev->name);
+|————————Node:call_expression Text: log_trace("netif_tx exit: %s\n", dev->name)
+|—————————Node:identifier Text: log_trace
+|—————————Node:argument_list Text: ("netif_tx exit: %s\n", dev->name)
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "netif_tx exit: %s\n"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: netif_tx exit: %s
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: dev->name
+|———————————Node:identifier Text: dev
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: name
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:return_statement Text: return NULL;
+|————————Node:return Text: return
+|————————Node:null Text: NULL
+|—————————Node:NULL Text: NULL
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:declaration Text: struct sk_buff *skb;
+|——————Node:struct_specifier Text: struct sk_buff
+|———————Node:struct Text: struct
+|———————Node:type_identifier Text: sk_buff
+|——————Node:pointer_declarator Text: *skb
+|———————Node:* Text: *
+|———————Node:identifier Text: skb
+|——————Node:; Text: ;
+|—————Node:declaration Text: struct can_frame *cf;
+|——————Node:struct_specifier Text: struct can_frame
+|———————Node:struct Text: struct
+|———————Node:type_identifier Text: can_frame
+|——————Node:pointer_declarator Text: *cf
+|———————Node:* Text: *
+|———————Node:identifier Text: cf
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:expression_statement Text: skb = alloc_can_skb(dev, &cf);
+|——————Node:assignment_expression Text: skb = alloc_can_skb(dev, &cf)
+|———————Node:identifier Text: skb
+|———————Node:= Text: =
+|———————Node:call_expression Text: alloc_can_skb(dev, &cf)
+|————————Node:identifier Text: alloc_can_skb
+|————————Node:argument_list Text: (dev, &cf)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: dev
+|—————————Node:, Text: ,
+|—————————Node:pointer_expression Text: &cf
+|——————————Node:& Text: &
+|——————————Node:identifier Text: cf
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if (skb == NULL) {
+            log_err("netif_tx exit: alloc_can_skb error\n");
+
+            return NULL;
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (skb == NULL)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: skb == NULL
+|————————Node:identifier Text: skb
+|————————Node:== Text: ==
+|————————Node:null Text: NULL
+|—————————Node:NULL Text: NULL
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            log_err("netif_tx exit: alloc_can_skb error\n");
+
+            return NULL;
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: log_err("netif_tx exit: alloc_can_skb error\n");
+|————————Node:call_expression Text: log_err("netif_tx exit: alloc_can_skb error\n")
+|—————————Node:identifier Text: log_err
+|—————————Node:argument_list Text: ("netif_tx exit: alloc_can_skb error\n")
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "netif_tx exit: alloc_can_skb error\n"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: netif_tx exit: alloc_can_skb error
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:return_statement Text: return NULL;
+|————————Node:return Text: return
+|————————Node:null Text: NULL
+|—————————Node:NULL Text: NULL
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:expression_statement Text: skb->len = CAN_MTU;
+|——————Node:assignment_expression Text: skb->len = CAN_MTU
+|———————Node:field_expression Text: skb->len
+|————————Node:identifier Text: skb
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: len
+|———————Node:= Text: =
+|———————Node:identifier Text: CAN_MTU
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: cf->can_id = canmsg->mid;
+|——————Node:assignment_expression Text: cf->can_id = canmsg->mid
+|———————Node:field_expression Text: cf->can_id
+|————————Node:identifier Text: cf
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: can_id
+|———————Node:= Text: =
+|———————Node:field_expression Text: canmsg->mid
+|————————Node:identifier Text: canmsg
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: mid
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: cf->can_dlc = canmsg->len;
+|——————Node:assignment_expression Text: cf->can_dlc = canmsg->len
+|———————Node:field_expression Text: cf->can_dlc
+|————————Node:identifier Text: cf
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: can_dlc
+|———————Node:= Text: =
+|———————Node:field_expression Text: canmsg->len
+|————————Node:identifier Text: canmsg
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: len
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if (canmsg->ext.is_extended_mid) { // Extended MID
+            cf->can_id |= CAN_EFF_FLAG;
+        }
+        else { // Standard MID
+            /**
+             * Message IDs or MIDs are slightly different on QNX compared to
+             * Linux. The form of the ID depends on whether or not the driver
+             * is using extended MIDs:
+             *
+             *      - In standard 11-bit MIDs, bits 18–28 define the MID.
+             *      - In extended 29-bit MIDs, bits 0–28 define the MID.
+             */
+
+            cf->can_id >>= 18;
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (canmsg->ext.is_extended_mid)
+|———————Node:( Text: (
+|———————Node:field_expression Text: canmsg->ext.is_extended_mid
+|————————Node:field_expression Text: canmsg->ext
+|—————————Node:identifier Text: canmsg
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: ext
+|————————Node:. Text: .
+|————————Node:field_identifier Text: is_extended_mid
+|———————Node:) Text: )
+|——————Node:compound_statement Text: { // Extended MID
+            cf->can_id |= CAN_EFF_FLAG;
+        }
+|———————Node:{ Text: {
+|———————Node:comment
+|———————Node:expression_statement Text: cf->can_id |= CAN_EFF_FLAG;
+|————————Node:assignment_expression Text: cf->can_id |= CAN_EFF_FLAG
+|—————————Node:field_expression Text: cf->can_id
+|——————————Node:identifier Text: cf
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: can_id
+|—————————Node:|= Text: |=
+|—————————Node:identifier Text: CAN_EFF_FLAG
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|——————Node:else_clause Text: else { // Standard MID
+            /**
+             * Message IDs or MIDs are slightly different on QNX compared to
+             * Linux. The form of the ID depends on whether or not the driver
+             * is using extended MIDs:
+             *
+             *      - In standard 11-bit MIDs, bits 18–28 define the MID.
+             *      - In extended 29-bit MIDs, bits 0–28 define the MID.
+             */
+
+            cf->can_id >>= 18;
+        }
+|———————Node:else Text: else
+|———————Node:compound_statement Text: { // Standard MID
+            /**
+             * Message IDs or MIDs are slightly different on QNX compared to
+             * Linux. The form of the ID depends on whether or not the driver
+             * is using extended MIDs:
+             *
+             *      - In standard 11-bit MIDs, bits 18–28 define the MID.
+             *      - In extended 29-bit MIDs, bits 0–28 define the MID.
+             */
+
+            cf->can_id >>= 18;
+        }
+|————————Node:{ Text: {
+|————————Node:comment
+|————————Node:comment
+|————————Node:expression_statement Text: cf->can_id >>= 18;
+|—————————Node:assignment_expression Text: cf->can_id >>= 18
+|——————————Node:field_expression Text: cf->can_id
+|———————————Node:identifier Text: cf
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: can_id
+|——————————Node:>>= Text: >>=
+|——————————Node:number_literal Text: 18
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|—————Node:declaration Text: int i;
+|——————Node:primitive_type Text: int
+|——————Node:identifier Text: i
+|——————Node:; Text: ;
+|—————Node:for_statement Text: for (i = 0; i < canmsg->len; ++i) {
+            cf->data[i] = canmsg->dat[i];
+        }
+|——————Node:for Text: for
+|——————Node:( Text: (
+|——————Node:assignment_expression Text: i = 0
+|———————Node:identifier Text: i
+|———————Node:= Text: =
+|———————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|——————Node:binary_expression Text: i < canmsg->len
+|———————Node:identifier Text: i
+|———————Node:< Text: <
+|———————Node:field_expression Text: canmsg->len
+|————————Node:identifier Text: canmsg
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: len
+|——————Node:; Text: ;
+|——————Node:update_expression Text: ++i
+|———————Node:++ Text: ++
+|———————Node:identifier Text: i
+|——————Node:) Text: )
+|——————Node:compound_statement Text: {
+            cf->data[i] = canmsg->dat[i];
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: cf->data[i] = canmsg->dat[i];
+|————————Node:assignment_expression Text: cf->data[i] = canmsg->dat[i]
+|—————————Node:subscript_expression Text: cf->data[i]
+|——————————Node:field_expression Text: cf->data
+|———————————Node:identifier Text: cf
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: data
+|——————————Node:[ Text: [
+|——————————Node:identifier Text: i
+|——————————Node:] Text: ]
+|—————————Node:= Text: =
+|—————————Node:subscript_expression Text: canmsg->dat[i]
+|——————————Node:field_expression Text: canmsg->dat
+|———————————Node:identifier Text: canmsg
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: dat
+|——————————Node:[ Text: [
+|——————————Node:identifier Text: i
+|——————————Node:] Text: ]
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:expression_statement Text: dev->netdev_ops->ndo_start_xmit(skb, dev);
+|——————Node:call_expression Text: dev->netdev_ops->ndo_start_xmit(skb, dev)
+|———————Node:field_expression Text: dev->netdev_ops->ndo_start_xmit
+|————————Node:field_expression Text: dev->netdev_ops
+|—————————Node:identifier Text: dev
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: netdev_ops
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: ndo_start_xmit
+|———————Node:argument_list Text: (skb, dev)
+|————————Node:( Text: (
+|————————Node:identifier Text: skb
+|————————Node:, Text: ,
+|————————Node:identifier Text: dev
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int netif_rx (struct sk_buff* skb) {
+    struct can_frame* msg = (struct can_frame*)skb->data;
+
+    /* handle error message frame */
+    if (msg->can_id & CAN_ERR_FLAG) {
+        if (msg->can_id & CAN_ERR_TX_TIMEOUT) {
+            log_warn("netif_rx: %s: TX timeout (by netdevice driver)\n",
+                    skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_LOSTARB) {
+            log_warn("netif_rx: %s: lost arbitration: %x\n",
+                    skb->dev->name, msg->data[0]);
+        }
+        if (msg->can_id & CAN_ERR_CRTL) {
+            log_warn("netif_rx: %s: controller problems: %x\n",
+                    skb->dev->name, msg->data[1]);
+        }
+        if (msg->can_id & CAN_ERR_PROT) {
+            log_warn("netif_rx: %s: protocol violations: %x, %x\n",
+                    skb->dev->name, msg->data[2], msg->data[3]);
+        }
+        if (msg->can_id & CAN_ERR_TRX) {
+            log_warn("netif_rx: %s: transceiver status: %x\n",
+                    skb->dev->name, msg->data[4]);
+        }
+        if (msg->can_id & CAN_ERR_ACK) {
+            log_warn("netif_rx: %s: received no ACK on transmission\n",
+                    skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_BUSOFF) {
+            log_warn("netif_rx: %s: bus off\n", skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_BUSERROR) {
+            log_warn("netif_rx: %s: bus error (may flood!)\n",
+                    skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_RESTARTED) {
+            log_warn("netif_rx: %s: controller restarted\n",
+                    skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_CNT) {
+            log_warn("netif_rx: %s: TX error counter; tx:%x, rx:%x\n",
+                    skb->dev->name, msg->data[6], msg->data[7]);
+        }
+
+        kfree_skb(skb);
+
+        return NET_RX_SUCCESS;
+    }
+
+    if (msg->can_id & CAN_RTR_FLAG) {
+        log_trace("netif_rx; CAN_RTR_FLAG\n");
+
+        if (!skb->is_echo) {
+            kfree_skb(skb);
+        }
+
+        return NET_RX_SUCCESS;
+    }
+
+    struct can_msg canmsg;
+
+    /* set MID; omit EFF, RTR, ERR flags */
+    canmsg.mid = (msg->can_id & CAN_ERR_MASK);
+
+    if (msg->can_id & CAN_EFF_FLAG) { // Extended MID
+        canmsg.ext.is_extended_mid = 1; // EFF
+    }
+    else { // Standard MID
+        canmsg.ext.is_extended_mid = 0; // SFF
+
+        /**
+         * Message IDs or MIDs are slightly different on QNX compared to
+         * Linux. The form of the ID depends on whether or not the driver
+         * is using extended MIDs:
+         *
+         *      - In standard 11-bit MIDs, bits 18–28 define the MID.
+         *      - In extended 29-bit MIDs, bits 0–28 define the MID.
+         */
+
+        canmsg.mid <<= 18;
+    }
+
+    // set TIMESTAMP
+    if (optt) {
+        canmsg.ext.timestamp = user_timestamp;
+    }
+    else if (user_timestamp_time != 0) {
+        canmsg.ext.timestamp =
+            user_timestamp + get_clock_time_us()/1000 - user_timestamp_time;
+    }
+    else {
+        canmsg.ext.timestamp = get_clock_time_us()/1000;
+    }
+
+    canmsg.ext.is_remote_frame = (skb->is_echo ? 0 : 1);
+    canmsg.len = msg->len; // set LEN
+
+    int i;
+    for (i = 0; i < CAN_MSG_DATA_MAX; ++i) {
+        canmsg.dat[i] = msg->data[i]; // Set DAT
+    }
+
+    pthread_mutex_lock(&device_session_create_mutex);
+
+    device_session_t* ds = skb->dev->device_session;
+
+    client_session_t** it = &ds->root_client_session;
+    while (it != NULL && *it != NULL) {
+        if ((canmsg.mid & *(*it)->mfilter) == canmsg.mid) {
+            if (enqueue(&(*it)->rx_queue, &canmsg) != EOK) {
+            }
+        }
+
+        it = &(*it)->next;
+    }
+
+    pthread_mutex_unlock(&device_session_create_mutex);
+
+    log_trace("netif_rx; %s [%s] %X [%d] %2X %2X %2X %2X %2X %2X %2X %2X\n",
+            skb->dev->name,
+            /* EFF/SFF is set in the MSB */
+            (msg->can_id & CAN_EFF_FLAG) ? "EFF" : "SFF",
+            msg->can_id & CAN_ERR_MASK, /* omit EFF, RTR, ERR flags */
+            msg->len,
+            msg->data[0],
+            msg->data[1],
+            msg->data[2],
+            msg->data[3],
+            msg->data[4],
+            msg->data[5],
+            msg->data[6],
+            msg->data[7]);
+
+    if (!skb->is_echo) {
+        kfree_skb(skb);
+    }
+
+    return NET_RX_SUCCESS;
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: netif_rx (struct sk_buff* skb)
+|———Node:identifier Text: netif_rx
+|———Node:parameter_list Text: (struct sk_buff* skb)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct sk_buff* skb
+|—————Node:struct_specifier Text: struct sk_buff
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: sk_buff
+|—————Node:pointer_declarator Text: * skb
+|——————Node:* Text: *
+|——————Node:identifier Text: skb
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    struct can_frame* msg = (struct can_frame*)skb->data;
+
+    /* handle error message frame */
+    if (msg->can_id & CAN_ERR_FLAG) {
+        if (msg->can_id & CAN_ERR_TX_TIMEOUT) {
+            log_warn("netif_rx: %s: TX timeout (by netdevice driver)\n",
+                    skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_LOSTARB) {
+            log_warn("netif_rx: %s: lost arbitration: %x\n",
+                    skb->dev->name, msg->data[0]);
+        }
+        if (msg->can_id & CAN_ERR_CRTL) {
+            log_warn("netif_rx: %s: controller problems: %x\n",
+                    skb->dev->name, msg->data[1]);
+        }
+        if (msg->can_id & CAN_ERR_PROT) {
+            log_warn("netif_rx: %s: protocol violations: %x, %x\n",
+                    skb->dev->name, msg->data[2], msg->data[3]);
+        }
+        if (msg->can_id & CAN_ERR_TRX) {
+            log_warn("netif_rx: %s: transceiver status: %x\n",
+                    skb->dev->name, msg->data[4]);
+        }
+        if (msg->can_id & CAN_ERR_ACK) {
+            log_warn("netif_rx: %s: received no ACK on transmission\n",
+                    skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_BUSOFF) {
+            log_warn("netif_rx: %s: bus off\n", skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_BUSERROR) {
+            log_warn("netif_rx: %s: bus error (may flood!)\n",
+                    skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_RESTARTED) {
+            log_warn("netif_rx: %s: controller restarted\n",
+                    skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_CNT) {
+            log_warn("netif_rx: %s: TX error counter; tx:%x, rx:%x\n",
+                    skb->dev->name, msg->data[6], msg->data[7]);
+        }
+
+        kfree_skb(skb);
+
+        return NET_RX_SUCCESS;
+    }
+
+    if (msg->can_id & CAN_RTR_FLAG) {
+        log_trace("netif_rx; CAN_RTR_FLAG\n");
+
+        if (!skb->is_echo) {
+            kfree_skb(skb);
+        }
+
+        return NET_RX_SUCCESS;
+    }
+
+    struct can_msg canmsg;
+
+    /* set MID; omit EFF, RTR, ERR flags */
+    canmsg.mid = (msg->can_id & CAN_ERR_MASK);
+
+    if (msg->can_id & CAN_EFF_FLAG) { // Extended MID
+        canmsg.ext.is_extended_mid = 1; // EFF
+    }
+    else { // Standard MID
+        canmsg.ext.is_extended_mid = 0; // SFF
+
+        /**
+         * Message IDs or MIDs are slightly different on QNX compared to
+         * Linux. The form of the ID depends on whether or not the driver
+         * is using extended MIDs:
+         *
+         *      - In standard 11-bit MIDs, bits 18–28 define the MID.
+         *      - In extended 29-bit MIDs, bits 0–28 define the MID.
+         */
+
+        canmsg.mid <<= 18;
+    }
+
+    // set TIMESTAMP
+    if (optt) {
+        canmsg.ext.timestamp = user_timestamp;
+    }
+    else if (user_timestamp_time != 0) {
+        canmsg.ext.timestamp =
+            user_timestamp + get_clock_time_us()/1000 - user_timestamp_time;
+    }
+    else {
+        canmsg.ext.timestamp = get_clock_time_us()/1000;
+    }
+
+    canmsg.ext.is_remote_frame = (skb->is_echo ? 0 : 1);
+    canmsg.len = msg->len; // set LEN
+
+    int i;
+    for (i = 0; i < CAN_MSG_DATA_MAX; ++i) {
+        canmsg.dat[i] = msg->data[i]; // Set DAT
+    }
+
+    pthread_mutex_lock(&device_session_create_mutex);
+
+    device_session_t* ds = skb->dev->device_session;
+
+    client_session_t** it = &ds->root_client_session;
+    while (it != NULL && *it != NULL) {
+        if ((canmsg.mid & *(*it)->mfilter) == canmsg.mid) {
+            if (enqueue(&(*it)->rx_queue, &canmsg) != EOK) {
+            }
+        }
+
+        it = &(*it)->next;
+    }
+
+    pthread_mutex_unlock(&device_session_create_mutex);
+
+    log_trace("netif_rx; %s [%s] %X [%d] %2X %2X %2X %2X %2X %2X %2X %2X\n",
+            skb->dev->name,
+            /* EFF/SFF is set in the MSB */
+            (msg->can_id & CAN_EFF_FLAG) ? "EFF" : "SFF",
+            msg->can_id & CAN_ERR_MASK, /* omit EFF, RTR, ERR flags */
+            msg->len,
+            msg->data[0],
+            msg->data[1],
+            msg->data[2],
+            msg->data[3],
+            msg->data[4],
+            msg->data[5],
+            msg->data[6],
+            msg->data[7]);
+
+    if (!skb->is_echo) {
+        kfree_skb(skb);
+    }
+
+    return NET_RX_SUCCESS;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: struct can_frame* msg = (struct can_frame*)skb->data;
+|————Node:struct_specifier Text: struct can_frame
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: can_frame
+|————Node:init_declarator Text: * msg = (struct can_frame*)skb->data
+|—————Node:pointer_declarator Text: * msg
+|——————Node:* Text: *
+|——————Node:identifier Text: msg
+|—————Node:= Text: =
+|—————Node:cast_expression Text: (struct can_frame*)skb->data
+|——————Node:( Text: (
+|——————Node:type_descriptor Text: struct can_frame*
+|———————Node:struct_specifier Text: struct can_frame
+|————————Node:struct Text: struct
+|————————Node:type_identifier Text: can_frame
+|———————Node:abstract_pointer_declarator Text: *
+|————————Node:* Text: *
+|——————Node:) Text: )
+|——————Node:field_expression Text: skb->data
+|———————Node:identifier Text: skb
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: data
+|————Node:; Text: ;
+|———Node:comment
+|———Node:if_statement Text: if (msg->can_id & CAN_ERR_FLAG) {
+        if (msg->can_id & CAN_ERR_TX_TIMEOUT) {
+            log_warn("netif_rx: %s: TX timeout (by netdevice driver)\n",
+                    skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_LOSTARB) {
+            log_warn("netif_rx: %s: lost arbitration: %x\n",
+                    skb->dev->name, msg->data[0]);
+        }
+        if (msg->can_id & CAN_ERR_CRTL) {
+            log_warn("netif_rx: %s: controller problems: %x\n",
+                    skb->dev->name, msg->data[1]);
+        }
+        if (msg->can_id & CAN_ERR_PROT) {
+            log_warn("netif_rx: %s: protocol violations: %x, %x\n",
+                    skb->dev->name, msg->data[2], msg->data[3]);
+        }
+        if (msg->can_id & CAN_ERR_TRX) {
+            log_warn("netif_rx: %s: transceiver status: %x\n",
+                    skb->dev->name, msg->data[4]);
+        }
+        if (msg->can_id & CAN_ERR_ACK) {
+            log_warn("netif_rx: %s: received no ACK on transmission\n",
+                    skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_BUSOFF) {
+            log_warn("netif_rx: %s: bus off\n", skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_BUSERROR) {
+            log_warn("netif_rx: %s: bus error (may flood!)\n",
+                    skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_RESTARTED) {
+            log_warn("netif_rx: %s: controller restarted\n",
+                    skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_CNT) {
+            log_warn("netif_rx: %s: TX error counter; tx:%x, rx:%x\n",
+                    skb->dev->name, msg->data[6], msg->data[7]);
+        }
+
+        kfree_skb(skb);
+
+        return NET_RX_SUCCESS;
+    }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (msg->can_id & CAN_ERR_FLAG)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: msg->can_id & CAN_ERR_FLAG
+|——————Node:field_expression Text: msg->can_id
+|———————Node:identifier Text: msg
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: can_id
+|——————Node:& Text: &
+|——————Node:identifier Text: CAN_ERR_FLAG
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        if (msg->can_id & CAN_ERR_TX_TIMEOUT) {
+            log_warn("netif_rx: %s: TX timeout (by netdevice driver)\n",
+                    skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_LOSTARB) {
+            log_warn("netif_rx: %s: lost arbitration: %x\n",
+                    skb->dev->name, msg->data[0]);
+        }
+        if (msg->can_id & CAN_ERR_CRTL) {
+            log_warn("netif_rx: %s: controller problems: %x\n",
+                    skb->dev->name, msg->data[1]);
+        }
+        if (msg->can_id & CAN_ERR_PROT) {
+            log_warn("netif_rx: %s: protocol violations: %x, %x\n",
+                    skb->dev->name, msg->data[2], msg->data[3]);
+        }
+        if (msg->can_id & CAN_ERR_TRX) {
+            log_warn("netif_rx: %s: transceiver status: %x\n",
+                    skb->dev->name, msg->data[4]);
+        }
+        if (msg->can_id & CAN_ERR_ACK) {
+            log_warn("netif_rx: %s: received no ACK on transmission\n",
+                    skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_BUSOFF) {
+            log_warn("netif_rx: %s: bus off\n", skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_BUSERROR) {
+            log_warn("netif_rx: %s: bus error (may flood!)\n",
+                    skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_RESTARTED) {
+            log_warn("netif_rx: %s: controller restarted\n",
+                    skb->dev->name);
+        }
+        if (msg->can_id & CAN_ERR_CNT) {
+            log_warn("netif_rx: %s: TX error counter; tx:%x, rx:%x\n",
+                    skb->dev->name, msg->data[6], msg->data[7]);
+        }
+
+        kfree_skb(skb);
+
+        return NET_RX_SUCCESS;
+    }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if (msg->can_id & CAN_ERR_TX_TIMEOUT) {
+            log_warn("netif_rx: %s: TX timeout (by netdevice driver)\n",
+                    skb->dev->name);
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (msg->can_id & CAN_ERR_TX_TIMEOUT)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: msg->can_id & CAN_ERR_TX_TIMEOUT
+|————————Node:field_expression Text: msg->can_id
+|—————————Node:identifier Text: msg
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: can_id
+|————————Node:& Text: &
+|————————Node:identifier Text: CAN_ERR_TX_TIMEOUT
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            log_warn("netif_rx: %s: TX timeout (by netdevice driver)\n",
+                    skb->dev->name);
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: log_warn("netif_rx: %s: TX timeout (by netdevice driver)\n",
+                    skb->dev->name);
+|————————Node:call_expression Text: log_warn("netif_rx: %s: TX timeout (by netdevice driver)\n",
+                    skb->dev->name)
+|—————————Node:identifier Text: log_warn
+|—————————Node:argument_list Text: ("netif_rx: %s: TX timeout (by netdevice driver)\n",
+                    skb->dev->name)
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "netif_rx: %s: TX timeout (by netdevice driver)\n"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: netif_rx: %s: TX timeout (by netdevice driver)
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: skb->dev->name
+|———————————Node:field_expression Text: skb->dev
+|————————————Node:identifier Text: skb
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: dev
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: name
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:if_statement Text: if (msg->can_id & CAN_ERR_LOSTARB) {
+            log_warn("netif_rx: %s: lost arbitration: %x\n",
+                    skb->dev->name, msg->data[0]);
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (msg->can_id & CAN_ERR_LOSTARB)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: msg->can_id & CAN_ERR_LOSTARB
+|————————Node:field_expression Text: msg->can_id
+|—————————Node:identifier Text: msg
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: can_id
+|————————Node:& Text: &
+|————————Node:identifier Text: CAN_ERR_LOSTARB
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            log_warn("netif_rx: %s: lost arbitration: %x\n",
+                    skb->dev->name, msg->data[0]);
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: log_warn("netif_rx: %s: lost arbitration: %x\n",
+                    skb->dev->name, msg->data[0]);
+|————————Node:call_expression Text: log_warn("netif_rx: %s: lost arbitration: %x\n",
+                    skb->dev->name, msg->data[0])
+|—————————Node:identifier Text: log_warn
+|—————————Node:argument_list Text: ("netif_rx: %s: lost arbitration: %x\n",
+                    skb->dev->name, msg->data[0])
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "netif_rx: %s: lost arbitration: %x\n"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: netif_rx: %s: lost arbitration: %x
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: skb->dev->name
+|———————————Node:field_expression Text: skb->dev
+|————————————Node:identifier Text: skb
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: dev
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: name
+|——————————Node:, Text: ,
+|——————————Node:subscript_expression Text: msg->data[0]
+|———————————Node:field_expression Text: msg->data
+|————————————Node:identifier Text: msg
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: data
+|———————————Node:[ Text: [
+|———————————Node:number_literal Text: 0
+|———————————Node:] Text: ]
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:if_statement Text: if (msg->can_id & CAN_ERR_CRTL) {
+            log_warn("netif_rx: %s: controller problems: %x\n",
+                    skb->dev->name, msg->data[1]);
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (msg->can_id & CAN_ERR_CRTL)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: msg->can_id & CAN_ERR_CRTL
+|————————Node:field_expression Text: msg->can_id
+|—————————Node:identifier Text: msg
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: can_id
+|————————Node:& Text: &
+|————————Node:identifier Text: CAN_ERR_CRTL
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            log_warn("netif_rx: %s: controller problems: %x\n",
+                    skb->dev->name, msg->data[1]);
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: log_warn("netif_rx: %s: controller problems: %x\n",
+                    skb->dev->name, msg->data[1]);
+|————————Node:call_expression Text: log_warn("netif_rx: %s: controller problems: %x\n",
+                    skb->dev->name, msg->data[1])
+|—————————Node:identifier Text: log_warn
+|—————————Node:argument_list Text: ("netif_rx: %s: controller problems: %x\n",
+                    skb->dev->name, msg->data[1])
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "netif_rx: %s: controller problems: %x\n"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: netif_rx: %s: controller problems: %x
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: skb->dev->name
+|———————————Node:field_expression Text: skb->dev
+|————————————Node:identifier Text: skb
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: dev
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: name
+|——————————Node:, Text: ,
+|——————————Node:subscript_expression Text: msg->data[1]
+|———————————Node:field_expression Text: msg->data
+|————————————Node:identifier Text: msg
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: data
+|———————————Node:[ Text: [
+|———————————Node:number_literal Text: 1
+|———————————Node:] Text: ]
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:if_statement Text: if (msg->can_id & CAN_ERR_PROT) {
+            log_warn("netif_rx: %s: protocol violations: %x, %x\n",
+                    skb->dev->name, msg->data[2], msg->data[3]);
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (msg->can_id & CAN_ERR_PROT)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: msg->can_id & CAN_ERR_PROT
+|————————Node:field_expression Text: msg->can_id
+|—————————Node:identifier Text: msg
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: can_id
+|————————Node:& Text: &
+|————————Node:identifier Text: CAN_ERR_PROT
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            log_warn("netif_rx: %s: protocol violations: %x, %x\n",
+                    skb->dev->name, msg->data[2], msg->data[3]);
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: log_warn("netif_rx: %s: protocol violations: %x, %x\n",
+                    skb->dev->name, msg->data[2], msg->data[3]);
+|————————Node:call_expression Text: log_warn("netif_rx: %s: protocol violations: %x, %x\n",
+                    skb->dev->name, msg->data[2], msg->data[3])
+|—————————Node:identifier Text: log_warn
+|—————————Node:argument_list Text: ("netif_rx: %s: protocol violations: %x, %x\n",
+                    skb->dev->name, msg->data[2], msg->data[3])
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "netif_rx: %s: protocol violations: %x, %x\n"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: netif_rx: %s: protocol violations: %x, %x
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: skb->dev->name
+|———————————Node:field_expression Text: skb->dev
+|————————————Node:identifier Text: skb
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: dev
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: name
+|——————————Node:, Text: ,
+|——————————Node:subscript_expression Text: msg->data[2]
+|———————————Node:field_expression Text: msg->data
+|————————————Node:identifier Text: msg
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: data
+|———————————Node:[ Text: [
+|———————————Node:number_literal Text: 2
+|———————————Node:] Text: ]
+|——————————Node:, Text: ,
+|——————————Node:subscript_expression Text: msg->data[3]
+|———————————Node:field_expression Text: msg->data
+|————————————Node:identifier Text: msg
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: data
+|———————————Node:[ Text: [
+|———————————Node:number_literal Text: 3
+|———————————Node:] Text: ]
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:if_statement Text: if (msg->can_id & CAN_ERR_TRX) {
+            log_warn("netif_rx: %s: transceiver status: %x\n",
+                    skb->dev->name, msg->data[4]);
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (msg->can_id & CAN_ERR_TRX)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: msg->can_id & CAN_ERR_TRX
+|————————Node:field_expression Text: msg->can_id
+|—————————Node:identifier Text: msg
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: can_id
+|————————Node:& Text: &
+|————————Node:identifier Text: CAN_ERR_TRX
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            log_warn("netif_rx: %s: transceiver status: %x\n",
+                    skb->dev->name, msg->data[4]);
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: log_warn("netif_rx: %s: transceiver status: %x\n",
+                    skb->dev->name, msg->data[4]);
+|————————Node:call_expression Text: log_warn("netif_rx: %s: transceiver status: %x\n",
+                    skb->dev->name, msg->data[4])
+|—————————Node:identifier Text: log_warn
+|—————————Node:argument_list Text: ("netif_rx: %s: transceiver status: %x\n",
+                    skb->dev->name, msg->data[4])
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "netif_rx: %s: transceiver status: %x\n"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: netif_rx: %s: transceiver status: %x
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: skb->dev->name
+|———————————Node:field_expression Text: skb->dev
+|————————————Node:identifier Text: skb
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: dev
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: name
+|——————————Node:, Text: ,
+|——————————Node:subscript_expression Text: msg->data[4]
+|———————————Node:field_expression Text: msg->data
+|————————————Node:identifier Text: msg
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: data
+|———————————Node:[ Text: [
+|———————————Node:number_literal Text: 4
+|———————————Node:] Text: ]
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:if_statement Text: if (msg->can_id & CAN_ERR_ACK) {
+            log_warn("netif_rx: %s: received no ACK on transmission\n",
+                    skb->dev->name);
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (msg->can_id & CAN_ERR_ACK)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: msg->can_id & CAN_ERR_ACK
+|————————Node:field_expression Text: msg->can_id
+|—————————Node:identifier Text: msg
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: can_id
+|————————Node:& Text: &
+|————————Node:identifier Text: CAN_ERR_ACK
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            log_warn("netif_rx: %s: received no ACK on transmission\n",
+                    skb->dev->name);
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: log_warn("netif_rx: %s: received no ACK on transmission\n",
+                    skb->dev->name);
+|————————Node:call_expression Text: log_warn("netif_rx: %s: received no ACK on transmission\n",
+                    skb->dev->name)
+|—————————Node:identifier Text: log_warn
+|—————————Node:argument_list Text: ("netif_rx: %s: received no ACK on transmission\n",
+                    skb->dev->name)
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "netif_rx: %s: received no ACK on transmission\n"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: netif_rx: %s: received no ACK on transmission
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: skb->dev->name
+|———————————Node:field_expression Text: skb->dev
+|————————————Node:identifier Text: skb
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: dev
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: name
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:if_statement Text: if (msg->can_id & CAN_ERR_BUSOFF) {
+            log_warn("netif_rx: %s: bus off\n", skb->dev->name);
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (msg->can_id & CAN_ERR_BUSOFF)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: msg->can_id & CAN_ERR_BUSOFF
+|————————Node:field_expression Text: msg->can_id
+|—————————Node:identifier Text: msg
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: can_id
+|————————Node:& Text: &
+|————————Node:identifier Text: CAN_ERR_BUSOFF
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            log_warn("netif_rx: %s: bus off\n", skb->dev->name);
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: log_warn("netif_rx: %s: bus off\n", skb->dev->name);
+|————————Node:call_expression Text: log_warn("netif_rx: %s: bus off\n", skb->dev->name)
+|—————————Node:identifier Text: log_warn
+|—————————Node:argument_list Text: ("netif_rx: %s: bus off\n", skb->dev->name)
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "netif_rx: %s: bus off\n"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: netif_rx: %s: bus off
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: skb->dev->name
+|———————————Node:field_expression Text: skb->dev
+|————————————Node:identifier Text: skb
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: dev
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: name
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:if_statement Text: if (msg->can_id & CAN_ERR_BUSERROR) {
+            log_warn("netif_rx: %s: bus error (may flood!)\n",
+                    skb->dev->name);
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (msg->can_id & CAN_ERR_BUSERROR)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: msg->can_id & CAN_ERR_BUSERROR
+|————————Node:field_expression Text: msg->can_id
+|—————————Node:identifier Text: msg
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: can_id
+|————————Node:& Text: &
+|————————Node:identifier Text: CAN_ERR_BUSERROR
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            log_warn("netif_rx: %s: bus error (may flood!)\n",
+                    skb->dev->name);
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: log_warn("netif_rx: %s: bus error (may flood!)\n",
+                    skb->dev->name);
+|————————Node:call_expression Text: log_warn("netif_rx: %s: bus error (may flood!)\n",
+                    skb->dev->name)
+|—————————Node:identifier Text: log_warn
+|—————————Node:argument_list Text: ("netif_rx: %s: bus error (may flood!)\n",
+                    skb->dev->name)
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "netif_rx: %s: bus error (may flood!)\n"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: netif_rx: %s: bus error (may flood!)
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: skb->dev->name
+|———————————Node:field_expression Text: skb->dev
+|————————————Node:identifier Text: skb
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: dev
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: name
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:if_statement Text: if (msg->can_id & CAN_ERR_RESTARTED) {
+            log_warn("netif_rx: %s: controller restarted\n",
+                    skb->dev->name);
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (msg->can_id & CAN_ERR_RESTARTED)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: msg->can_id & CAN_ERR_RESTARTED
+|————————Node:field_expression Text: msg->can_id
+|—————————Node:identifier Text: msg
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: can_id
+|————————Node:& Text: &
+|————————Node:identifier Text: CAN_ERR_RESTARTED
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            log_warn("netif_rx: %s: controller restarted\n",
+                    skb->dev->name);
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: log_warn("netif_rx: %s: controller restarted\n",
+                    skb->dev->name);
+|————————Node:call_expression Text: log_warn("netif_rx: %s: controller restarted\n",
+                    skb->dev->name)
+|—————————Node:identifier Text: log_warn
+|—————————Node:argument_list Text: ("netif_rx: %s: controller restarted\n",
+                    skb->dev->name)
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "netif_rx: %s: controller restarted\n"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: netif_rx: %s: controller restarted
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: skb->dev->name
+|———————————Node:field_expression Text: skb->dev
+|————————————Node:identifier Text: skb
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: dev
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: name
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:if_statement Text: if (msg->can_id & CAN_ERR_CNT) {
+            log_warn("netif_rx: %s: TX error counter; tx:%x, rx:%x\n",
+                    skb->dev->name, msg->data[6], msg->data[7]);
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (msg->can_id & CAN_ERR_CNT)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: msg->can_id & CAN_ERR_CNT
+|————————Node:field_expression Text: msg->can_id
+|—————————Node:identifier Text: msg
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: can_id
+|————————Node:& Text: &
+|————————Node:identifier Text: CAN_ERR_CNT
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            log_warn("netif_rx: %s: TX error counter; tx:%x, rx:%x\n",
+                    skb->dev->name, msg->data[6], msg->data[7]);
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: log_warn("netif_rx: %s: TX error counter; tx:%x, rx:%x\n",
+                    skb->dev->name, msg->data[6], msg->data[7]);
+|————————Node:call_expression Text: log_warn("netif_rx: %s: TX error counter; tx:%x, rx:%x\n",
+                    skb->dev->name, msg->data[6], msg->data[7])
+|—————————Node:identifier Text: log_warn
+|—————————Node:argument_list Text: ("netif_rx: %s: TX error counter; tx:%x, rx:%x\n",
+                    skb->dev->name, msg->data[6], msg->data[7])
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "netif_rx: %s: TX error counter; tx:%x, rx:%x\n"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: netif_rx: %s: TX error counter; tx:%x, rx:%x
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: skb->dev->name
+|———————————Node:field_expression Text: skb->dev
+|————————————Node:identifier Text: skb
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: dev
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: name
+|——————————Node:, Text: ,
+|——————————Node:subscript_expression Text: msg->data[6]
+|———————————Node:field_expression Text: msg->data
+|————————————Node:identifier Text: msg
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: data
+|———————————Node:[ Text: [
+|———————————Node:number_literal Text: 6
+|———————————Node:] Text: ]
+|——————————Node:, Text: ,
+|——————————Node:subscript_expression Text: msg->data[7]
+|———————————Node:field_expression Text: msg->data
+|————————————Node:identifier Text: msg
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: data
+|———————————Node:[ Text: [
+|———————————Node:number_literal Text: 7
+|———————————Node:] Text: ]
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:expression_statement Text: kfree_skb(skb);
+|——————Node:call_expression Text: kfree_skb(skb)
+|———————Node:identifier Text: kfree_skb
+|———————Node:argument_list Text: (skb)
+|————————Node:( Text: (
+|————————Node:identifier Text: skb
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return NET_RX_SUCCESS;
+|——————Node:return Text: return
+|——————Node:identifier Text: NET_RX_SUCCESS
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if (msg->can_id & CAN_RTR_FLAG) {
+        log_trace("netif_rx; CAN_RTR_FLAG\n");
+
+        if (!skb->is_echo) {
+            kfree_skb(skb);
+        }
+
+        return NET_RX_SUCCESS;
+    }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (msg->can_id & CAN_RTR_FLAG)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: msg->can_id & CAN_RTR_FLAG
+|——————Node:field_expression Text: msg->can_id
+|———————Node:identifier Text: msg
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: can_id
+|——————Node:& Text: &
+|——————Node:identifier Text: CAN_RTR_FLAG
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        log_trace("netif_rx; CAN_RTR_FLAG\n");
+
+        if (!skb->is_echo) {
+            kfree_skb(skb);
+        }
+
+        return NET_RX_SUCCESS;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: log_trace("netif_rx; CAN_RTR_FLAG\n");
+|——————Node:call_expression Text: log_trace("netif_rx; CAN_RTR_FLAG\n")
+|———————Node:identifier Text: log_trace
+|———————Node:argument_list Text: ("netif_rx; CAN_RTR_FLAG\n")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "netif_rx; CAN_RTR_FLAG\n"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: netif_rx; CAN_RTR_FLAG
+|—————————Node:escape_sequence Text: \n
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if (!skb->is_echo) {
+            kfree_skb(skb);
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (!skb->is_echo)
+|———————Node:( Text: (
+|———————Node:unary_expression Text: !skb->is_echo
+|————————Node:! Text: !
+|————————Node:field_expression Text: skb->is_echo
+|—————————Node:identifier Text: skb
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: is_echo
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            kfree_skb(skb);
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: kfree_skb(skb);
+|————————Node:call_expression Text: kfree_skb(skb)
+|—————————Node:identifier Text: kfree_skb
+|—————————Node:argument_list Text: (skb)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: skb
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:return_statement Text: return NET_RX_SUCCESS;
+|——————Node:return Text: return
+|——————Node:identifier Text: NET_RX_SUCCESS
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:declaration Text: struct can_msg canmsg;
+|————Node:struct_specifier Text: struct can_msg
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: can_msg
+|————Node:identifier Text: canmsg
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: canmsg.mid = (msg->can_id & CAN_ERR_MASK);
+|————Node:assignment_expression Text: canmsg.mid = (msg->can_id & CAN_ERR_MASK)
+|—————Node:field_expression Text: canmsg.mid
+|——————Node:identifier Text: canmsg
+|——————Node:. Text: .
+|——————Node:field_identifier Text: mid
+|—————Node:= Text: =
+|—————Node:parenthesized_expression Text: (msg->can_id & CAN_ERR_MASK)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: msg->can_id & CAN_ERR_MASK
+|———————Node:field_expression Text: msg->can_id
+|————————Node:identifier Text: msg
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: can_id
+|———————Node:& Text: &
+|———————Node:identifier Text: CAN_ERR_MASK
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (msg->can_id & CAN_EFF_FLAG) { // Extended MID
+        canmsg.ext.is_extended_mid = 1; // EFF
+    }
+    else { // Standard MID
+        canmsg.ext.is_extended_mid = 0; // SFF
+
+        /**
+         * Message IDs or MIDs are slightly different on QNX compared to
+         * Linux. The form of the ID depends on whether or not the driver
+         * is using extended MIDs:
+         *
+         *      - In standard 11-bit MIDs, bits 18–28 define the MID.
+         *      - In extended 29-bit MIDs, bits 0–28 define the MID.
+         */
+
+        canmsg.mid <<= 18;
+    }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (msg->can_id & CAN_EFF_FLAG)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: msg->can_id & CAN_EFF_FLAG
+|——————Node:field_expression Text: msg->can_id
+|———————Node:identifier Text: msg
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: can_id
+|——————Node:& Text: &
+|——————Node:identifier Text: CAN_EFF_FLAG
+|—————Node:) Text: )
+|————Node:compound_statement Text: { // Extended MID
+        canmsg.ext.is_extended_mid = 1; // EFF
+    }
+|—————Node:{ Text: {
+|—————Node:comment
+|—————Node:expression_statement Text: canmsg.ext.is_extended_mid = 1;
+|——————Node:assignment_expression Text: canmsg.ext.is_extended_mid = 1
+|———————Node:field_expression Text: canmsg.ext.is_extended_mid
+|————————Node:field_expression Text: canmsg.ext
+|—————————Node:identifier Text: canmsg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: ext
+|————————Node:. Text: .
+|————————Node:field_identifier Text: is_extended_mid
+|———————Node:= Text: =
+|———————Node:number_literal Text: 1
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:} Text: }
+|————Node:else_clause Text: else { // Standard MID
+        canmsg.ext.is_extended_mid = 0; // SFF
+
+        /**
+         * Message IDs or MIDs are slightly different on QNX compared to
+         * Linux. The form of the ID depends on whether or not the driver
+         * is using extended MIDs:
+         *
+         *      - In standard 11-bit MIDs, bits 18–28 define the MID.
+         *      - In extended 29-bit MIDs, bits 0–28 define the MID.
+         */
+
+        canmsg.mid <<= 18;
+    }
+|—————Node:else Text: else
+|—————Node:compound_statement Text: { // Standard MID
+        canmsg.ext.is_extended_mid = 0; // SFF
+
+        /**
+         * Message IDs or MIDs are slightly different on QNX compared to
+         * Linux. The form of the ID depends on whether or not the driver
+         * is using extended MIDs:
+         *
+         *      - In standard 11-bit MIDs, bits 18–28 define the MID.
+         *      - In extended 29-bit MIDs, bits 0–28 define the MID.
+         */
+
+        canmsg.mid <<= 18;
+    }
+|——————Node:{ Text: {
+|——————Node:comment
+|——————Node:expression_statement Text: canmsg.ext.is_extended_mid = 0;
+|———————Node:assignment_expression Text: canmsg.ext.is_extended_mid = 0
+|————————Node:field_expression Text: canmsg.ext.is_extended_mid
+|—————————Node:field_expression Text: canmsg.ext
+|——————————Node:identifier Text: canmsg
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: ext
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: is_extended_mid
+|————————Node:= Text: =
+|————————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:comment
+|——————Node:expression_statement Text: canmsg.mid <<= 18;
+|———————Node:assignment_expression Text: canmsg.mid <<= 18
+|————————Node:field_expression Text: canmsg.mid
+|—————————Node:identifier Text: canmsg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: mid
+|————————Node:<<= Text: <<=
+|————————Node:number_literal Text: 18
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:comment
+|———Node:if_statement Text: if (optt) {
+        canmsg.ext.timestamp = user_timestamp;
+    }
+    else if (user_timestamp_time != 0) {
+        canmsg.ext.timestamp =
+            user_timestamp + get_clock_time_us()/1000 - user_timestamp_time;
+    }
+    else {
+        canmsg.ext.timestamp = get_clock_time_us()/1000;
+    }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (optt)
+|—————Node:( Text: (
+|—————Node:identifier Text: optt
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        canmsg.ext.timestamp = user_timestamp;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: canmsg.ext.timestamp = user_timestamp;
+|——————Node:assignment_expression Text: canmsg.ext.timestamp = user_timestamp
+|———————Node:field_expression Text: canmsg.ext.timestamp
+|————————Node:field_expression Text: canmsg.ext
+|—————————Node:identifier Text: canmsg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: ext
+|————————Node:. Text: .
+|————————Node:field_identifier Text: timestamp
+|———————Node:= Text: =
+|———————Node:identifier Text: user_timestamp
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else if (user_timestamp_time != 0) {
+        canmsg.ext.timestamp =
+            user_timestamp + get_clock_time_us()/1000 - user_timestamp_time;
+    }
+    else {
+        canmsg.ext.timestamp = get_clock_time_us()/1000;
+    }
+|—————Node:else Text: else
+|—————Node:if_statement Text: if (user_timestamp_time != 0) {
+        canmsg.ext.timestamp =
+            user_timestamp + get_clock_time_us()/1000 - user_timestamp_time;
+    }
+    else {
+        canmsg.ext.timestamp = get_clock_time_us()/1000;
+    }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (user_timestamp_time != 0)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: user_timestamp_time != 0
+|————————Node:identifier Text: user_timestamp_time
+|————————Node:!= Text: !=
+|————————Node:number_literal Text: 0
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+        canmsg.ext.timestamp =
+            user_timestamp + get_clock_time_us()/1000 - user_timestamp_time;
+    }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: canmsg.ext.timestamp =
+            user_timestamp + get_clock_time_us()/1000 - user_timestamp_time;
+|————————Node:assignment_expression Text: canmsg.ext.timestamp =
+            user_timestamp + get_clock_time_us()/1000 - user_timestamp_time
+|—————————Node:field_expression Text: canmsg.ext.timestamp
+|——————————Node:field_expression Text: canmsg.ext
+|———————————Node:identifier Text: canmsg
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: ext
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: timestamp
+|—————————Node:= Text: =
+|—————————Node:binary_expression Text: user_timestamp + get_clock_time_us()/1000 - user_timestamp_time
+|——————————Node:binary_expression Text: user_timestamp + get_clock_time_us()/1000
+|———————————Node:identifier Text: user_timestamp
+|———————————Node:+ Text: +
+|———————————Node:binary_expression Text: get_clock_time_us()/1000
+|————————————Node:call_expression Text: get_clock_time_us()
+|—————————————Node:identifier Text: get_clock_time_us
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:/ Text: /
+|————————————Node:number_literal Text: 1000
+|——————————Node:- Text: -
+|——————————Node:identifier Text: user_timestamp_time
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|——————Node:else_clause Text: else {
+        canmsg.ext.timestamp = get_clock_time_us()/1000;
+    }
+|———————Node:else Text: else
+|———————Node:compound_statement Text: {
+        canmsg.ext.timestamp = get_clock_time_us()/1000;
+    }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: canmsg.ext.timestamp = get_clock_time_us()/1000;
+|—————————Node:assignment_expression Text: canmsg.ext.timestamp = get_clock_time_us()/1000
+|——————————Node:field_expression Text: canmsg.ext.timestamp
+|———————————Node:field_expression Text: canmsg.ext
+|————————————Node:identifier Text: canmsg
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: ext
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: timestamp
+|——————————Node:= Text: =
+|——————————Node:binary_expression Text: get_clock_time_us()/1000
+|———————————Node:call_expression Text: get_clock_time_us()
+|————————————Node:identifier Text: get_clock_time_us
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:/ Text: /
+|———————————Node:number_literal Text: 1000
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———Node:expression_statement Text: canmsg.ext.is_remote_frame = (skb->is_echo ? 0 : 1);
+|————Node:assignment_expression Text: canmsg.ext.is_remote_frame = (skb->is_echo ? 0 : 1)
+|—————Node:field_expression Text: canmsg.ext.is_remote_frame
+|——————Node:field_expression Text: canmsg.ext
+|———————Node:identifier Text: canmsg
+|———————Node:. Text: .
+|———————Node:field_identifier Text: ext
+|——————Node:. Text: .
+|——————Node:field_identifier Text: is_remote_frame
+|—————Node:= Text: =
+|—————Node:parenthesized_expression Text: (skb->is_echo ? 0 : 1)
+|——————Node:( Text: (
+|——————Node:conditional_expression Text: skb->is_echo ? 0 : 1
+|———————Node:field_expression Text: skb->is_echo
+|————————Node:identifier Text: skb
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: is_echo
+|———————Node:? Text: ?
+|———————Node:number_literal Text: 0
+|———————Node:: Text: :
+|———————Node:number_literal Text: 1
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: canmsg.len = msg->len;
+|————Node:assignment_expression Text: canmsg.len = msg->len
+|—————Node:field_expression Text: canmsg.len
+|——————Node:identifier Text: canmsg
+|——————Node:. Text: .
+|——————Node:field_identifier Text: len
+|—————Node:= Text: =
+|—————Node:field_expression Text: msg->len
+|——————Node:identifier Text: msg
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: len
+|————Node:; Text: ;
+|———Node:comment
+|———Node:declaration Text: int i;
+|————Node:primitive_type Text: int
+|————Node:identifier Text: i
+|————Node:; Text: ;
+|———Node:for_statement Text: for (i = 0; i < CAN_MSG_DATA_MAX; ++i) {
+        canmsg.dat[i] = msg->data[i]; // Set DAT
+    }
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:assignment_expression Text: i = 0
+|—————Node:identifier Text: i
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|————Node:binary_expression Text: i < CAN_MSG_DATA_MAX
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:identifier Text: CAN_MSG_DATA_MAX
+|————Node:; Text: ;
+|————Node:update_expression Text: ++i
+|—————Node:++ Text: ++
+|—————Node:identifier Text: i
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+        canmsg.dat[i] = msg->data[i]; // Set DAT
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: canmsg.dat[i] = msg->data[i];
+|——————Node:assignment_expression Text: canmsg.dat[i] = msg->data[i]
+|———————Node:subscript_expression Text: canmsg.dat[i]
+|————————Node:field_expression Text: canmsg.dat
+|—————————Node:identifier Text: canmsg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: dat
+|————————Node:[ Text: [
+|————————Node:identifier Text: i
+|————————Node:] Text: ]
+|———————Node:= Text: =
+|———————Node:subscript_expression Text: msg->data[i]
+|————————Node:field_expression Text: msg->data
+|—————————Node:identifier Text: msg
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: data
+|————————Node:[ Text: [
+|————————Node:identifier Text: i
+|————————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:} Text: }
+|———Node:expression_statement Text: pthread_mutex_lock(&device_session_create_mutex);
+|————Node:call_expression Text: pthread_mutex_lock(&device_session_create_mutex)
+|—————Node:identifier Text: pthread_mutex_lock
+|—————Node:argument_list Text: (&device_session_create_mutex)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &device_session_create_mutex
+|———————Node:& Text: &
+|———————Node:identifier Text: device_session_create_mutex
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: device_session_t* ds = skb->dev->device_session;
+|————Node:type_identifier Text: device_session_t
+|————Node:init_declarator Text: * ds = skb->dev->device_session
+|—————Node:pointer_declarator Text: * ds
+|——————Node:* Text: *
+|——————Node:identifier Text: ds
+|—————Node:= Text: =
+|—————Node:field_expression Text: skb->dev->device_session
+|——————Node:field_expression Text: skb->dev
+|———————Node:identifier Text: skb
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: dev
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: device_session
+|————Node:; Text: ;
+|———Node:declaration Text: client_session_t** it = &ds->root_client_session;
+|————Node:type_identifier Text: client_session_t
+|————Node:init_declarator Text: ** it = &ds->root_client_session
+|—————Node:pointer_declarator Text: ** it
+|——————Node:* Text: *
+|——————Node:pointer_declarator Text: * it
+|———————Node:* Text: *
+|———————Node:identifier Text: it
+|—————Node:= Text: =
+|—————Node:pointer_expression Text: &ds->root_client_session
+|——————Node:& Text: &
+|——————Node:field_expression Text: ds->root_client_session
+|———————Node:identifier Text: ds
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: root_client_session
+|————Node:; Text: ;
+|———Node:while_statement Text: while (it != NULL && *it != NULL) {
+        if ((canmsg.mid & *(*it)->mfilter) == canmsg.mid) {
+            if (enqueue(&(*it)->rx_queue, &canmsg) != EOK) {
+            }
+        }
+
+        it = &(*it)->next;
+    }
+|————Node:while Text: while
+|————Node:parenthesized_expression Text: (it != NULL && *it != NULL)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: it != NULL && *it != NULL
+|——————Node:binary_expression Text: it != NULL
+|———————Node:identifier Text: it
+|———————Node:!= Text: !=
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|——————Node:&& Text: &&
+|——————Node:binary_expression Text: *it != NULL
+|———————Node:pointer_expression Text: *it
+|————————Node:* Text: *
+|————————Node:identifier Text: it
+|———————Node:!= Text: !=
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        if ((canmsg.mid & *(*it)->mfilter) == canmsg.mid) {
+            if (enqueue(&(*it)->rx_queue, &canmsg) != EOK) {
+            }
+        }
+
+        it = &(*it)->next;
+    }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if ((canmsg.mid & *(*it)->mfilter) == canmsg.mid) {
+            if (enqueue(&(*it)->rx_queue, &canmsg) != EOK) {
+            }
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: ((canmsg.mid & *(*it)->mfilter) == canmsg.mid)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: (canmsg.mid & *(*it)->mfilter) == canmsg.mid
+|————————Node:parenthesized_expression Text: (canmsg.mid & *(*it)->mfilter)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: canmsg.mid & *(*it)->mfilter
+|——————————Node:field_expression Text: canmsg.mid
+|———————————Node:identifier Text: canmsg
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: mid
+|——————————Node:& Text: &
+|——————————Node:pointer_expression Text: *(*it)->mfilter
+|———————————Node:* Text: *
+|———————————Node:field_expression Text: (*it)->mfilter
+|————————————Node:parenthesized_expression Text: (*it)
+|—————————————Node:( Text: (
+|—————————————Node:pointer_expression Text: *it
+|——————————————Node:* Text: *
+|——————————————Node:identifier Text: it
+|—————————————Node:) Text: )
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: mfilter
+|—————————Node:) Text: )
+|————————Node:== Text: ==
+|————————Node:field_expression Text: canmsg.mid
+|—————————Node:identifier Text: canmsg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: mid
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            if (enqueue(&(*it)->rx_queue, &canmsg) != EOK) {
+            }
+        }
+|———————Node:{ Text: {
+|———————Node:if_statement Text: if (enqueue(&(*it)->rx_queue, &canmsg) != EOK) {
+            }
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (enqueue(&(*it)->rx_queue, &canmsg) != EOK)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: enqueue(&(*it)->rx_queue, &canmsg) != EOK
+|——————————Node:call_expression Text: enqueue(&(*it)->rx_queue, &canmsg)
+|———————————Node:identifier Text: enqueue
+|———————————Node:argument_list Text: (&(*it)->rx_queue, &canmsg)
+|————————————Node:( Text: (
+|————————————Node:pointer_expression Text: &(*it)->rx_queue
+|—————————————Node:& Text: &
+|—————————————Node:field_expression Text: (*it)->rx_queue
+|——————————————Node:parenthesized_expression Text: (*it)
+|———————————————Node:( Text: (
+|———————————————Node:pointer_expression Text: *it
+|————————————————Node:* Text: *
+|————————————————Node:identifier Text: it
+|———————————————Node:) Text: )
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: rx_queue
+|————————————Node:, Text: ,
+|————————————Node:pointer_expression Text: &canmsg
+|—————————————Node:& Text: &
+|—————————————Node:identifier Text: canmsg
+|————————————Node:) Text: )
+|——————————Node:!= Text: !=
+|——————————Node:identifier Text: EOK
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+            }
+|—————————Node:{ Text: {
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|—————Node:expression_statement Text: it = &(*it)->next;
+|——————Node:assignment_expression Text: it = &(*it)->next
+|———————Node:identifier Text: it
+|———————Node:= Text: =
+|———————Node:pointer_expression Text: &(*it)->next
+|————————Node:& Text: &
+|————————Node:field_expression Text: (*it)->next
+|—————————Node:parenthesized_expression Text: (*it)
+|——————————Node:( Text: (
+|——————————Node:pointer_expression Text: *it
+|———————————Node:* Text: *
+|———————————Node:identifier Text: it
+|——————————Node:) Text: )
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: next
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: pthread_mutex_unlock(&device_session_create_mutex);
+|————Node:call_expression Text: pthread_mutex_unlock(&device_session_create_mutex)
+|—————Node:identifier Text: pthread_mutex_unlock
+|—————Node:argument_list Text: (&device_session_create_mutex)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &device_session_create_mutex
+|———————Node:& Text: &
+|———————Node:identifier Text: device_session_create_mutex
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: log_trace("netif_rx; %s [%s] %X [%d] %2X %2X %2X %2X %2X %2X %2X %2X\n",
+            skb->dev->name,
+            /* EFF/SFF is set in the MSB */
+            (msg->can_id & CAN_EFF_FLAG) ? "EFF" : "SFF",
+            msg->can_id & CAN_ERR_MASK, /* omit EFF, RTR, ERR flags */
+            msg->len,
+            msg->data[0],
+            msg->data[1],
+            msg->data[2],
+            msg->data[3],
+            msg->data[4],
+            msg->data[5],
+            msg->data[6],
+            msg->data[7]);
+|————Node:call_expression Text: log_trace("netif_rx; %s [%s] %X [%d] %2X %2X %2X %2X %2X %2X %2X %2X\n",
+            skb->dev->name,
+            /* EFF/SFF is set in the MSB */
+            (msg->can_id & CAN_EFF_FLAG) ? "EFF" : "SFF",
+            msg->can_id & CAN_ERR_MASK, /* omit EFF, RTR, ERR flags */
+            msg->len,
+            msg->data[0],
+            msg->data[1],
+            msg->data[2],
+            msg->data[3],
+            msg->data[4],
+            msg->data[5],
+            msg->data[6],
+            msg->data[7])
+|—————Node:identifier Text: log_trace
+|—————Node:argument_list Text: ("netif_rx; %s [%s] %X [%d] %2X %2X %2X %2X %2X %2X %2X %2X\n",
+            skb->dev->name,
+            /* EFF/SFF is set in the MSB */
+            (msg->can_id & CAN_EFF_FLAG) ? "EFF" : "SFF",
+            msg->can_id & CAN_ERR_MASK, /* omit EFF, RTR, ERR flags */
+            msg->len,
+            msg->data[0],
+            msg->data[1],
+            msg->data[2],
+            msg->data[3],
+            msg->data[4],
+            msg->data[5],
+            msg->data[6],
+            msg->data[7])
+|——————Node:( Text: (
+|——————Node:string_literal Text: "netif_rx; %s [%s] %X [%d] %2X %2X %2X %2X %2X %2X %2X %2X\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: netif_rx; %s [%s] %X [%d] %2X %2X %2X %2X %2X %2X %2X %2X
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:field_expression Text: skb->dev->name
+|———————Node:field_expression Text: skb->dev
+|————————Node:identifier Text: skb
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: dev
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: name
+|——————Node:, Text: ,
+|——————Node:comment
+|——————Node:conditional_expression Text: (msg->can_id & CAN_EFF_FLAG) ? "EFF" : "SFF"
+|———————Node:parenthesized_expression Text: (msg->can_id & CAN_EFF_FLAG)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: msg->can_id & CAN_EFF_FLAG
+|—————————Node:field_expression Text: msg->can_id
+|——————————Node:identifier Text: msg
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: can_id
+|—————————Node:& Text: &
+|—————————Node:identifier Text: CAN_EFF_FLAG
+|————————Node:) Text: )
+|———————Node:? Text: ?
+|———————Node:string_literal Text: "EFF"
+|————————Node:" Text: "
+|————————Node:string_content Text: EFF
+|————————Node:" Text: "
+|———————Node:: Text: :
+|———————Node:string_literal Text: "SFF"
+|————————Node:" Text: "
+|————————Node:string_content Text: SFF
+|————————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:binary_expression Text: msg->can_id & CAN_ERR_MASK
+|———————Node:field_expression Text: msg->can_id
+|————————Node:identifier Text: msg
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: can_id
+|———————Node:& Text: &
+|———————Node:identifier Text: CAN_ERR_MASK
+|——————Node:, Text: ,
+|——————Node:comment
+|——————Node:field_expression Text: msg->len
+|———————Node:identifier Text: msg
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: len
+|——————Node:, Text: ,
+|——————Node:subscript_expression Text: msg->data[0]
+|———————Node:field_expression Text: msg->data
+|————————Node:identifier Text: msg
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: data
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 0
+|———————Node:] Text: ]
+|——————Node:, Text: ,
+|——————Node:subscript_expression Text: msg->data[1]
+|———————Node:field_expression Text: msg->data
+|————————Node:identifier Text: msg
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: data
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 1
+|———————Node:] Text: ]
+|——————Node:, Text: ,
+|——————Node:subscript_expression Text: msg->data[2]
+|———————Node:field_expression Text: msg->data
+|————————Node:identifier Text: msg
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: data
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 2
+|———————Node:] Text: ]
+|——————Node:, Text: ,
+|——————Node:subscript_expression Text: msg->data[3]
+|———————Node:field_expression Text: msg->data
+|————————Node:identifier Text: msg
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: data
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 3
+|———————Node:] Text: ]
+|——————Node:, Text: ,
+|——————Node:subscript_expression Text: msg->data[4]
+|———————Node:field_expression Text: msg->data
+|————————Node:identifier Text: msg
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: data
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 4
+|———————Node:] Text: ]
+|——————Node:, Text: ,
+|——————Node:subscript_expression Text: msg->data[5]
+|———————Node:field_expression Text: msg->data
+|————————Node:identifier Text: msg
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: data
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 5
+|———————Node:] Text: ]
+|——————Node:, Text: ,
+|——————Node:subscript_expression Text: msg->data[6]
+|———————Node:field_expression Text: msg->data
+|————————Node:identifier Text: msg
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: data
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 6
+|———————Node:] Text: ]
+|——————Node:, Text: ,
+|——————Node:subscript_expression Text: msg->data[7]
+|———————Node:field_expression Text: msg->data
+|————————Node:identifier Text: msg
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: data
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 7
+|———————Node:] Text: ]
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (!skb->is_echo) {
+        kfree_skb(skb);
+    }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (!skb->is_echo)
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !skb->is_echo
+|——————Node:! Text: !
+|——————Node:field_expression Text: skb->is_echo
+|———————Node:identifier Text: skb
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: is_echo
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        kfree_skb(skb);
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: kfree_skb(skb);
+|——————Node:call_expression Text: kfree_skb(skb)
+|———————Node:identifier Text: kfree_skb
+|———————Node:argument_list Text: (skb)
+|————————Node:( Text: (
+|————————Node:identifier Text: skb
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return NET_RX_SUCCESS;
+|————Node:return Text: return
+|————Node:identifier Text: NET_RX_SUCCESS
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void netif_start_queue(struct net_device *dev)
+{
+    log_trace("netif_start_queue\n");
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: netif_start_queue(struct net_device *dev)
+|———Node:identifier Text: netif_start_queue
+|———Node:parameter_list Text: (struct net_device *dev)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct net_device *dev
+|—————Node:struct_specifier Text: struct net_device
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: net_device
+|—————Node:pointer_declarator Text: *dev
+|——————Node:* Text: *
+|——————Node:identifier Text: dev
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    log_trace("netif_start_queue\n");
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: log_trace("netif_start_queue\n");
+|————Node:call_expression Text: log_trace("netif_start_queue\n")
+|—————Node:identifier Text: log_trace
+|—————Node:argument_list Text: ("netif_start_queue\n")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "netif_start_queue\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: netif_start_queue
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: bool netif_carrier_ok(const struct net_device *dev) {
+    return true;
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: netif_carrier_ok(const struct net_device *dev)
+|———Node:identifier Text: netif_carrier_ok
+|———Node:parameter_list Text: (const struct net_device *dev)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: const struct net_device *dev
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:struct_specifier Text: struct net_device
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: net_device
+|—————Node:pointer_declarator Text: *dev
+|——————Node:* Text: *
+|——————Node:identifier Text: dev
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    return true;
+}
+|———Node:{ Text: {
+|———Node:return_statement Text: return true;
+|————Node:return Text: return
+|————Node:true Text: true
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void netif_carrier_on(struct net_device *dev)
+{
+    log_trace("netif_carrier_on\n");
+    // Not called from SJA1000 driver
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: netif_carrier_on(struct net_device *dev)
+|———Node:identifier Text: netif_carrier_on
+|———Node:parameter_list Text: (struct net_device *dev)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct net_device *dev
+|—————Node:struct_specifier Text: struct net_device
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: net_device
+|—————Node:pointer_declarator Text: *dev
+|——————Node:* Text: *
+|——————Node:identifier Text: dev
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    log_trace("netif_carrier_on\n");
+    // Not called from SJA1000 driver
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: log_trace("netif_carrier_on\n");
+|————Node:call_expression Text: log_trace("netif_carrier_on\n")
+|—————Node:identifier Text: log_trace
+|—————Node:argument_list Text: ("netif_carrier_on\n")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "netif_carrier_on\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: netif_carrier_on
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:} Text: }
+|—Node:function_definition Text: void netif_carrier_off(struct net_device *dev)
+{
+    log_trace("netif_carrier_off\n");
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: netif_carrier_off(struct net_device *dev)
+|———Node:identifier Text: netif_carrier_off
+|———Node:parameter_list Text: (struct net_device *dev)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct net_device *dev
+|—————Node:struct_specifier Text: struct net_device
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: net_device
+|—————Node:pointer_declarator Text: *dev
+|——————Node:* Text: *
+|——————Node:identifier Text: dev
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    log_trace("netif_carrier_off\n");
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: log_trace("netif_carrier_off\n");
+|————Node:call_expression Text: log_trace("netif_carrier_off\n")
+|—————Node:identifier Text: log_trace
+|—————Node:argument_list Text: ("netif_carrier_off\n")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "netif_carrier_off\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: netif_carrier_off
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: int netif_queue_stopped(const struct net_device *dev)
+{
+    log_trace("netif_queue_stopped\n");
+
+    return 0;
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: netif_queue_stopped(const struct net_device *dev)
+|———Node:identifier Text: netif_queue_stopped
+|———Node:parameter_list Text: (const struct net_device *dev)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: const struct net_device *dev
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:struct_specifier Text: struct net_device
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: net_device
+|—————Node:pointer_declarator Text: *dev
+|——————Node:* Text: *
+|——————Node:identifier Text: dev
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    log_trace("netif_queue_stopped\n");
+
+    return 0;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: log_trace("netif_queue_stopped\n");
+|————Node:call_expression Text: log_trace("netif_queue_stopped\n")
+|—————Node:identifier Text: log_trace
+|—————Node:argument_list Text: ("netif_queue_stopped\n")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "netif_queue_stopped\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: netif_queue_stopped
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void netif_wake_queue (struct net_device* dev) {
+    log_trace("netif_wake_queue\n");
+
+    device_session_t* ds = dev->device_session;
+
+    pthread_mutex_lock(&ds->mutex);
+    ds->queue_stopped = 0;
+    pthread_cond_signal(&ds->cond);
+    pthread_mutex_unlock(&ds->mutex);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: netif_wake_queue (struct net_device* dev)
+|———Node:identifier Text: netif_wake_queue
+|———Node:parameter_list Text: (struct net_device* dev)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct net_device* dev
+|—————Node:struct_specifier Text: struct net_device
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: net_device
+|—————Node:pointer_declarator Text: * dev
+|——————Node:* Text: *
+|——————Node:identifier Text: dev
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    log_trace("netif_wake_queue\n");
+
+    device_session_t* ds = dev->device_session;
+
+    pthread_mutex_lock(&ds->mutex);
+    ds->queue_stopped = 0;
+    pthread_cond_signal(&ds->cond);
+    pthread_mutex_unlock(&ds->mutex);
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: log_trace("netif_wake_queue\n");
+|————Node:call_expression Text: log_trace("netif_wake_queue\n")
+|—————Node:identifier Text: log_trace
+|—————Node:argument_list Text: ("netif_wake_queue\n")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "netif_wake_queue\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: netif_wake_queue
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: device_session_t* ds = dev->device_session;
+|————Node:type_identifier Text: device_session_t
+|————Node:init_declarator Text: * ds = dev->device_session
+|—————Node:pointer_declarator Text: * ds
+|——————Node:* Text: *
+|——————Node:identifier Text: ds
+|—————Node:= Text: =
+|—————Node:field_expression Text: dev->device_session
+|——————Node:identifier Text: dev
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: device_session
+|————Node:; Text: ;
+|———Node:expression_statement Text: pthread_mutex_lock(&ds->mutex);
+|————Node:call_expression Text: pthread_mutex_lock(&ds->mutex)
+|—————Node:identifier Text: pthread_mutex_lock
+|—————Node:argument_list Text: (&ds->mutex)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &ds->mutex
+|———————Node:& Text: &
+|———————Node:field_expression Text: ds->mutex
+|————————Node:identifier Text: ds
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: mutex
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ds->queue_stopped = 0;
+|————Node:assignment_expression Text: ds->queue_stopped = 0
+|—————Node:field_expression Text: ds->queue_stopped
+|——————Node:identifier Text: ds
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: queue_stopped
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: pthread_cond_signal(&ds->cond);
+|————Node:call_expression Text: pthread_cond_signal(&ds->cond)
+|—————Node:identifier Text: pthread_cond_signal
+|—————Node:argument_list Text: (&ds->cond)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &ds->cond
+|———————Node:& Text: &
+|———————Node:field_expression Text: ds->cond
+|————————Node:identifier Text: ds
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: cond
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: pthread_mutex_unlock(&ds->mutex);
+|————Node:call_expression Text: pthread_mutex_unlock(&ds->mutex)
+|—————Node:identifier Text: pthread_mutex_unlock
+|—————Node:argument_list Text: (&ds->mutex)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &ds->mutex
+|———————Node:& Text: &
+|———————Node:field_expression Text: ds->mutex
+|————————Node:identifier Text: ds
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: mutex
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void netif_stop_queue (struct net_device* dev) {
+    log_trace("netif_stop_queue\n");
+
+    device_session_t* ds = dev->device_session;
+
+    if (ds->tx_queue.attr.size == 0) {
+        return;
+    }
+
+    pthread_t self = pthread_self();
+    if (self != ds->tx_thread) {
+        return;
+    }
+
+    pthread_mutex_lock(&ds->mutex);
+    while (ds->queue_stopped && ds->tx_queue.attr.size != 0) {
+        pthread_cond_wait(&ds->cond, &ds->mutex);
+    }
+
+    ds->queue_stopped = 1;
+    pthread_mutex_unlock(&ds->mutex);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: netif_stop_queue (struct net_device* dev)
+|———Node:identifier Text: netif_stop_queue
+|———Node:parameter_list Text: (struct net_device* dev)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct net_device* dev
+|—————Node:struct_specifier Text: struct net_device
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: net_device
+|—————Node:pointer_declarator Text: * dev
+|——————Node:* Text: *
+|——————Node:identifier Text: dev
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    log_trace("netif_stop_queue\n");
+
+    device_session_t* ds = dev->device_session;
+
+    if (ds->tx_queue.attr.size == 0) {
+        return;
+    }
+
+    pthread_t self = pthread_self();
+    if (self != ds->tx_thread) {
+        return;
+    }
+
+    pthread_mutex_lock(&ds->mutex);
+    while (ds->queue_stopped && ds->tx_queue.attr.size != 0) {
+        pthread_cond_wait(&ds->cond, &ds->mutex);
+    }
+
+    ds->queue_stopped = 1;
+    pthread_mutex_unlock(&ds->mutex);
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: log_trace("netif_stop_queue\n");
+|————Node:call_expression Text: log_trace("netif_stop_queue\n")
+|—————Node:identifier Text: log_trace
+|—————Node:argument_list Text: ("netif_stop_queue\n")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "netif_stop_queue\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: netif_stop_queue
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: device_session_t* ds = dev->device_session;
+|————Node:type_identifier Text: device_session_t
+|————Node:init_declarator Text: * ds = dev->device_session
+|—————Node:pointer_declarator Text: * ds
+|——————Node:* Text: *
+|——————Node:identifier Text: ds
+|—————Node:= Text: =
+|—————Node:field_expression Text: dev->device_session
+|——————Node:identifier Text: dev
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: device_session
+|————Node:; Text: ;
+|———Node:if_statement Text: if (ds->tx_queue.attr.size == 0) {
+        return;
+    }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (ds->tx_queue.attr.size == 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: ds->tx_queue.attr.size == 0
+|——————Node:field_expression Text: ds->tx_queue.attr.size
+|———————Node:field_expression Text: ds->tx_queue.attr
+|————————Node:field_expression Text: ds->tx_queue
+|—————————Node:identifier Text: ds
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: tx_queue
+|————————Node:. Text: .
+|————————Node:field_identifier Text: attr
+|———————Node:. Text: .
+|———————Node:field_identifier Text: size
+|——————Node:== Text: ==
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        return;
+    }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return;
+|——————Node:return Text: return
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:declaration Text: pthread_t self = pthread_self();
+|————Node:type_identifier Text: pthread_t
+|————Node:init_declarator Text: self = pthread_self()
+|—————Node:identifier Text: self
+|—————Node:= Text: =
+|—————Node:call_expression Text: pthread_self()
+|——————Node:identifier Text: pthread_self
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (self != ds->tx_thread) {
+        return;
+    }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (self != ds->tx_thread)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: self != ds->tx_thread
+|——————Node:identifier Text: self
+|——————Node:!= Text: !=
+|——————Node:field_expression Text: ds->tx_thread
+|———————Node:identifier Text: ds
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: tx_thread
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        return;
+    }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return;
+|——————Node:return Text: return
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: pthread_mutex_lock(&ds->mutex);
+|————Node:call_expression Text: pthread_mutex_lock(&ds->mutex)
+|—————Node:identifier Text: pthread_mutex_lock
+|—————Node:argument_list Text: (&ds->mutex)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &ds->mutex
+|———————Node:& Text: &
+|———————Node:field_expression Text: ds->mutex
+|————————Node:identifier Text: ds
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: mutex
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:while_statement Text: while (ds->queue_stopped && ds->tx_queue.attr.size != 0) {
+        pthread_cond_wait(&ds->cond, &ds->mutex);
+    }
+|————Node:while Text: while
+|————Node:parenthesized_expression Text: (ds->queue_stopped && ds->tx_queue.attr.size != 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: ds->queue_stopped && ds->tx_queue.attr.size != 0
+|——————Node:field_expression Text: ds->queue_stopped
+|———————Node:identifier Text: ds
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: queue_stopped
+|——————Node:&& Text: &&
+|——————Node:binary_expression Text: ds->tx_queue.attr.size != 0
+|———————Node:field_expression Text: ds->tx_queue.attr.size
+|————————Node:field_expression Text: ds->tx_queue.attr
+|—————————Node:field_expression Text: ds->tx_queue
+|——————————Node:identifier Text: ds
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: tx_queue
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: attr
+|————————Node:. Text: .
+|————————Node:field_identifier Text: size
+|———————Node:!= Text: !=
+|———————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        pthread_cond_wait(&ds->cond, &ds->mutex);
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: pthread_cond_wait(&ds->cond, &ds->mutex);
+|——————Node:call_expression Text: pthread_cond_wait(&ds->cond, &ds->mutex)
+|———————Node:identifier Text: pthread_cond_wait
+|———————Node:argument_list Text: (&ds->cond, &ds->mutex)
+|————————Node:( Text: (
+|————————Node:pointer_expression Text: &ds->cond
+|—————————Node:& Text: &
+|—————————Node:field_expression Text: ds->cond
+|——————————Node:identifier Text: ds
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: cond
+|————————Node:, Text: ,
+|————————Node:pointer_expression Text: &ds->mutex
+|—————————Node:& Text: &
+|—————————Node:field_expression Text: ds->mutex
+|——————————Node:identifier Text: ds
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: mutex
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: ds->queue_stopped = 1;
+|————Node:assignment_expression Text: ds->queue_stopped = 1
+|—————Node:field_expression Text: ds->queue_stopped
+|——————Node:identifier Text: ds
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: queue_stopped
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:expression_statement Text: pthread_mutex_unlock(&ds->mutex);
+|————Node:call_expression Text: pthread_mutex_unlock(&ds->mutex)
+|—————Node:identifier Text: pthread_mutex_unlock
+|—————Node:argument_list Text: (&ds->mutex)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &ds->mutex
+|———————Node:& Text: &
+|———————Node:field_expression Text: ds->mutex
+|————————Node:identifier Text: ds
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: mutex
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }

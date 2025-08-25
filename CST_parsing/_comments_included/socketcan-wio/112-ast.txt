@@ -1,0 +1,422 @@
+socketcan-wio-tests\test.cpp
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include <stdio.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <stdio.h>
+|—Node:preproc_include Text: #include "can.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "can.h"
+|———Node:" Text: "
+|———Node:string_content Text: can.h
+|———Node:" Text: "
+|—Node:using_declaration Text: using namespace wlp;
+|——Node:using Text: using
+|——Node:namespace Text: namespace
+|——Node:identifier Text: wlp
+|——Node:; Text: ;
+|—Node:function_definition Text: int main() {
+    canbus bus("vcan0");
+    if(!bus.begin()) {
+        return 1;
+    }
+    uint8_t arr[] = {1, 2, 3};
+    if(!bus.send(43, arr, 3)) {
+        return 1;
+    }
+    if(!bus.request(43, 3)) {
+        return 1;
+    }
+    uint32_t id;
+    uint8_t data[8];
+    uint8_t len;
+    bool req;
+
+    while(true) {
+        if(!bus.recv(&id, data, &len, &req)) {
+            return 1;
+        }
+        printf("Recv: %d (%d) ", id, len);
+        if(!req) {
+            for(uint8_t i = 0; i < len; ++i) {
+                printf("%02x ", data[i]);
+            }
+            printf("\n");
+        } else {
+            printf("remote request\n");
+        }
+    }
+
+    return 0;
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: main()
+|———Node:identifier Text: main
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    canbus bus("vcan0");
+    if(!bus.begin()) {
+        return 1;
+    }
+    uint8_t arr[] = {1, 2, 3};
+    if(!bus.send(43, arr, 3)) {
+        return 1;
+    }
+    if(!bus.request(43, 3)) {
+        return 1;
+    }
+    uint32_t id;
+    uint8_t data[8];
+    uint8_t len;
+    bool req;
+
+    while(true) {
+        if(!bus.recv(&id, data, &len, &req)) {
+            return 1;
+        }
+        printf("Recv: %d (%d) ", id, len);
+        if(!req) {
+            for(uint8_t i = 0; i < len; ++i) {
+                printf("%02x ", data[i]);
+            }
+            printf("\n");
+        } else {
+            printf("remote request\n");
+        }
+    }
+
+    return 0;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: canbus bus("vcan0");
+|————Node:type_identifier Text: canbus
+|————Node:init_declarator Text: bus("vcan0")
+|—————Node:identifier Text: bus
+|—————Node:argument_list Text: ("vcan0")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "vcan0"
+|———————Node:" Text: "
+|———————Node:string_content Text: vcan0
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if(!bus.begin()) {
+        return 1;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (!bus.begin())
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !bus.begin()
+|——————Node:! Text: !
+|——————Node:call_expression Text: bus.begin()
+|———————Node:field_expression Text: bus.begin
+|————————Node:identifier Text: bus
+|————————Node:. Text: .
+|————————Node:field_identifier Text: begin
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        return 1;
+    }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return 1;
+|——————Node:return Text: return
+|——————Node:number_literal Text: 1
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:declaration Text: uint8_t arr[] = {1, 2, 3};
+|————Node:primitive_type Text: uint8_t
+|————Node:init_declarator Text: arr[] = {1, 2, 3}
+|—————Node:array_declarator Text: arr[]
+|——————Node:identifier Text: arr
+|——————Node:[ Text: [
+|——————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:initializer_list Text: {1, 2, 3}
+|——————Node:{ Text: {
+|——————Node:number_literal Text: 1
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 2
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 3
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:if_statement Text: if(!bus.send(43, arr, 3)) {
+        return 1;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (!bus.send(43, arr, 3))
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !bus.send(43, arr, 3)
+|——————Node:! Text: !
+|——————Node:call_expression Text: bus.send(43, arr, 3)
+|———————Node:field_expression Text: bus.send
+|————————Node:identifier Text: bus
+|————————Node:. Text: .
+|————————Node:field_identifier Text: send
+|———————Node:argument_list Text: (43, arr, 3)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 43
+|————————Node:, Text: ,
+|————————Node:identifier Text: arr
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 3
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        return 1;
+    }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return 1;
+|——————Node:return Text: return
+|——————Node:number_literal Text: 1
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if(!bus.request(43, 3)) {
+        return 1;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (!bus.request(43, 3))
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !bus.request(43, 3)
+|——————Node:! Text: !
+|——————Node:call_expression Text: bus.request(43, 3)
+|———————Node:field_expression Text: bus.request
+|————————Node:identifier Text: bus
+|————————Node:. Text: .
+|————————Node:field_identifier Text: request
+|———————Node:argument_list Text: (43, 3)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 43
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 3
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        return 1;
+    }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return 1;
+|——————Node:return Text: return
+|——————Node:number_literal Text: 1
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:declaration Text: uint32_t id;
+|————Node:primitive_type Text: uint32_t
+|————Node:identifier Text: id
+|————Node:; Text: ;
+|———Node:declaration Text: uint8_t data[8];
+|————Node:primitive_type Text: uint8_t
+|————Node:array_declarator Text: data[8]
+|—————Node:identifier Text: data
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 8
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:declaration Text: uint8_t len;
+|————Node:primitive_type Text: uint8_t
+|————Node:identifier Text: len
+|————Node:; Text: ;
+|———Node:declaration Text: bool req;
+|————Node:primitive_type Text: bool
+|————Node:identifier Text: req
+|————Node:; Text: ;
+|———Node:while_statement Text: while(true) {
+        if(!bus.recv(&id, data, &len, &req)) {
+            return 1;
+        }
+        printf("Recv: %d (%d) ", id, len);
+        if(!req) {
+            for(uint8_t i = 0; i < len; ++i) {
+                printf("%02x ", data[i]);
+            }
+            printf("\n");
+        } else {
+            printf("remote request\n");
+        }
+    }
+|————Node:while Text: while
+|————Node:condition_clause Text: (true)
+|—————Node:( Text: (
+|—————Node:true Text: true
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        if(!bus.recv(&id, data, &len, &req)) {
+            return 1;
+        }
+        printf("Recv: %d (%d) ", id, len);
+        if(!req) {
+            for(uint8_t i = 0; i < len; ++i) {
+                printf("%02x ", data[i]);
+            }
+            printf("\n");
+        } else {
+            printf("remote request\n");
+        }
+    }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if(!bus.recv(&id, data, &len, &req)) {
+            return 1;
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (!bus.recv(&id, data, &len, &req))
+|———————Node:( Text: (
+|———————Node:unary_expression Text: !bus.recv(&id, data, &len, &req)
+|————————Node:! Text: !
+|————————Node:call_expression Text: bus.recv(&id, data, &len, &req)
+|—————————Node:field_expression Text: bus.recv
+|——————————Node:identifier Text: bus
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: recv
+|—————————Node:argument_list Text: (&id, data, &len, &req)
+|——————————Node:( Text: (
+|——————————Node:pointer_expression Text: &id
+|———————————Node:& Text: &
+|———————————Node:identifier Text: id
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: data
+|——————————Node:, Text: ,
+|——————————Node:pointer_expression Text: &len
+|———————————Node:& Text: &
+|———————————Node:identifier Text: len
+|——————————Node:, Text: ,
+|——————————Node:pointer_expression Text: &req
+|———————————Node:& Text: &
+|———————————Node:identifier Text: req
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            return 1;
+        }
+|———————Node:{ Text: {
+|———————Node:return_statement Text: return 1;
+|————————Node:return Text: return
+|————————Node:number_literal Text: 1
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:expression_statement Text: printf("Recv: %d (%d) ", id, len);
+|——————Node:call_expression Text: printf("Recv: %d (%d) ", id, len)
+|———————Node:identifier Text: printf
+|———————Node:argument_list Text: ("Recv: %d (%d) ", id, len)
+|————————Node:( Text: (
+|————————Node:string_literal Text: "Recv: %d (%d) "
+|—————————Node:" Text: "
+|—————————Node:string_content Text: Recv: %d (%d) 
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:identifier Text: id
+|————————Node:, Text: ,
+|————————Node:identifier Text: len
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if(!req) {
+            for(uint8_t i = 0; i < len; ++i) {
+                printf("%02x ", data[i]);
+            }
+            printf("\n");
+        } else {
+            printf("remote request\n");
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (!req)
+|———————Node:( Text: (
+|———————Node:unary_expression Text: !req
+|————————Node:! Text: !
+|————————Node:identifier Text: req
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            for(uint8_t i = 0; i < len; ++i) {
+                printf("%02x ", data[i]);
+            }
+            printf("\n");
+        }
+|———————Node:{ Text: {
+|———————Node:for_statement Text: for(uint8_t i = 0; i < len; ++i) {
+                printf("%02x ", data[i]);
+            }
+|————————Node:for Text: for
+|————————Node:( Text: (
+|————————Node:declaration Text: uint8_t i = 0;
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:init_declarator Text: i = 0
+|——————————Node:identifier Text: i
+|——————————Node:= Text: =
+|——————————Node:number_literal Text: 0
+|—————————Node:; Text: ;
+|————————Node:binary_expression Text: i < len
+|—————————Node:identifier Text: i
+|—————————Node:< Text: <
+|—————————Node:identifier Text: len
+|————————Node:; Text: ;
+|————————Node:update_expression Text: ++i
+|—————————Node:++ Text: ++
+|—————————Node:identifier Text: i
+|————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                printf("%02x ", data[i]);
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: printf("%02x ", data[i]);
+|——————————Node:call_expression Text: printf("%02x ", data[i])
+|———————————Node:identifier Text: printf
+|———————————Node:argument_list Text: ("%02x ", data[i])
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "%02x "
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: %02x 
+|—————————————Node:" Text: "
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: data[i]
+|—————————————Node:identifier Text: data
+|—————————————Node:subscript_argument_list Text: [i]
+|——————————————Node:[ Text: [
+|——————————————Node:identifier Text: i
+|——————————————Node:] Text: ]
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:expression_statement Text: printf("\n");
+|————————Node:call_expression Text: printf("\n")
+|—————————Node:identifier Text: printf
+|—————————Node:argument_list Text: ("\n")
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "\n"
+|———————————Node:" Text: "
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|——————Node:else_clause Text: else {
+            printf("remote request\n");
+        }
+|———————Node:else Text: else
+|———————Node:compound_statement Text: {
+            printf("remote request\n");
+        }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: printf("remote request\n");
+|—————————Node:call_expression Text: printf("remote request\n")
+|——————————Node:identifier Text: printf
+|——————————Node:argument_list Text: ("remote request\n")
+|———————————Node:( Text: (
+|———————————Node:string_literal Text: "remote request\n"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: remote request
+|————————————Node:escape_sequence Text: \n
+|————————————Node:" Text: "
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|—————Node:} Text: }
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }

@@ -1,0 +1,103 @@
+A0RET-wifi.h
+
+|Node:translation_unit
+|—Node:preproc_call Text: #pragma once
+
+|——Node:preproc_directive Text: #pragma
+|——Node:preproc_arg Text: once
+|—Node:preproc_include Text: #include <WiFi.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <WiFi.h>
+|—Node:preproc_include Text: #include <ESPmDNS.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <ESPmDNS.h>
+|—Node:preproc_include Text: #include <WiFiUdp.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <WiFiUdp.h>
+|—Node:preproc_include Text: #include <ArduinoOTA.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <ArduinoOTA.h>
+|—Node:function_definition Text: class WiFiManager
+{
+public:
+    WiFiManager();
+    void setup();
+    void loop();
+    void sendBufferedData();
+private:
+    WiFiServer wifiServer;
+    WiFiUDP wifiUDPServer;
+    uint32_t lastBroadcast;
+}
+|——Node:type_identifier Text: class
+|——Node:identifier Text: WiFiManager
+|——Node:compound_statement Text: {
+public:
+    WiFiManager();
+    void setup();
+    void loop();
+    void sendBufferedData();
+private:
+    WiFiServer wifiServer;
+    WiFiUDP wifiUDPServer;
+    uint32_t lastBroadcast;
+}
+|———Node:{ Text: {
+|———Node:labeled_statement Text: public:
+    WiFiManager();
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:expression_statement Text: WiFiManager();
+|—————Node:call_expression Text: WiFiManager()
+|——————Node:identifier Text: WiFiManager
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:declaration Text: void setup();
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: setup()
+|—————Node:identifier Text: setup
+|—————Node:parameter_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: void loop();
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: loop()
+|—————Node:identifier Text: loop
+|—————Node:parameter_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: void sendBufferedData();
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: sendBufferedData()
+|—————Node:identifier Text: sendBufferedData
+|—————Node:parameter_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:labeled_statement Text: private:
+    WiFiServer wifiServer;
+|————Node:statement_identifier Text: private
+|————Node:: Text: :
+|————Node:declaration Text: WiFiServer wifiServer;
+|—————Node:type_identifier Text: WiFiServer
+|—————Node:identifier Text: wifiServer
+|—————Node:; Text: ;
+|———Node:declaration Text: WiFiUDP wifiUDPServer;
+|————Node:type_identifier Text: WiFiUDP
+|————Node:identifier Text: wifiUDPServer
+|————Node:; Text: ;
+|———Node:declaration Text: uint32_t lastBroadcast;
+|————Node:primitive_type Text: uint32_t
+|————Node:identifier Text: lastBroadcast
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:expression_statement Text: ;
+|——Node:; Text: ;

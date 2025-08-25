@@ -1,0 +1,3401 @@
+Seeed_Arduino_CAN-src\mcp2518fd_can.h
+
+|Node:translation_unit
+|—Node:preproc_ifdef Text: #ifndef _MCP2518FD_H_
+#define _MCP2518FD_H_
+
+#include "mcp2518fd_can_dfs.h"
+#include "mcp_can.h"
+#include <Arduino.h>
+#include <SPI.h>
+
+// *****************************************************************************
+// *****************************************************************************
+//! Reset DUT
+
+// Code anchor for break points
+#define Nop() asm("nop")
+
+// Index to SPI channel
+// Used when multiple MCP25xxFD are connected to the same SPI interface, but
+// with different CS
+#define SPI_DEFAULT_BUFFER_LENGTH 96
+
+// extern SPIClass* pSPI;
+#define spi_readwrite pSPI->transfer
+#define spi_read() spi_readwrite(0x00)
+#define spi_write(spi_val) spi_readwrite(spi_val)
+#define SPI_BEGIN()                                                            \
+  pSPI->beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0))
+#define SPI_END() pSPI->endTransaction();
+
+// *****************************************************************************
+// *****************************************************************************
+// Section: Defines
+
+#define CRCBASE 0xFFFF
+#define CRCUPPER 1
+
+//! Reverse order of bits in byte
+const uint8_t BitReverseTable256[256] = {
+    0x00, 0x80, 0x40, 0xC0, 0x20, 0xA0, 0x60, 0xE0, 0x10, 0x90, 0x50, 0xD0,
+    0x30, 0xB0, 0x70, 0xF0, 0x08, 0x88, 0x48, 0xC8, 0x28, 0xA8, 0x68, 0xE8,
+    0x18, 0x98, 0x58, 0xD8, 0x38, 0xB8, 0x78, 0xF8, 0x04, 0x84, 0x44, 0xC4,
+    0x24, 0xA4, 0x64, 0xE4, 0x14, 0x94, 0x54, 0xD4, 0x34, 0xB4, 0x74, 0xF4,
+    0x0C, 0x8C, 0x4C, 0xCC, 0x2C, 0xAC, 0x6C, 0xEC, 0x1C, 0x9C, 0x5C, 0xDC,
+    0x3C, 0xBC, 0x7C, 0xFC, 0x02, 0x82, 0x42, 0xC2, 0x22, 0xA2, 0x62, 0xE2,
+    0x12, 0x92, 0x52, 0xD2, 0x32, 0xB2, 0x72, 0xF2, 0x0A, 0x8A, 0x4A, 0xCA,
+    0x2A, 0xAA, 0x6A, 0xEA, 0x1A, 0x9A, 0x5A, 0xDA, 0x3A, 0xBA, 0x7A, 0xFA,
+    0x06, 0x86, 0x46, 0xC6, 0x26, 0xA6, 0x66, 0xE6, 0x16, 0x96, 0x56, 0xD6,
+    0x36, 0xB6, 0x76, 0xF6, 0x0E, 0x8E, 0x4E, 0xCE, 0x2E, 0xAE, 0x6E, 0xEE,
+    0x1E, 0x9E, 0x5E, 0xDE, 0x3E, 0xBE, 0x7E, 0xFE, 0x01, 0x81, 0x41, 0xC1,
+    0x21, 0xA1, 0x61, 0xE1, 0x11, 0x91, 0x51, 0xD1, 0x31, 0xB1, 0x71, 0xF1,
+    0x09, 0x89, 0x49, 0xC9, 0x29, 0xA9, 0x69, 0xE9, 0x19, 0x99, 0x59, 0xD9,
+    0x39, 0xB9, 0x79, 0xF9, 0x05, 0x85, 0x45, 0xC5, 0x25, 0xA5, 0x65, 0xE5,
+    0x15, 0x95, 0x55, 0xD5, 0x35, 0xB5, 0x75, 0xF5, 0x0D, 0x8D, 0x4D, 0xCD,
+    0x2D, 0xAD, 0x6D, 0xED, 0x1D, 0x9D, 0x5D, 0xDD, 0x3D, 0xBD, 0x7D, 0xFD,
+    0x03, 0x83, 0x43, 0xC3, 0x23, 0xA3, 0x63, 0xE3, 0x13, 0x93, 0x53, 0xD3,
+    0x33, 0xB3, 0x73, 0xF3, 0x0B, 0x8B, 0x4B, 0xCB, 0x2B, 0xAB, 0x6B, 0xEB,
+    0x1B, 0x9B, 0x5B, 0xDB, 0x3B, 0xBB, 0x7B, 0xFB, 0x07, 0x87, 0x47, 0xC7,
+    0x27, 0xA7, 0x67, 0xE7, 0x17, 0x97, 0x57, 0xD7, 0x37, 0xB7, 0x77, 0xF7,
+    0x0F, 0x8F, 0x4F, 0xCF, 0x2F, 0xAF, 0x6F, 0xEF, 0x1F, 0x9F, 0x5F, 0xDF,
+    0x3F, 0xBF, 0x7F, 0xFF};
+
+//! Look-up table for CRC calculation
+const uint16_t crc16_table[256] = {
+    0x0000, 0x8005, 0x800F, 0x000A, 0x801B, 0x001E, 0x0014, 0x8011, 0x8033,
+    0x0036, 0x003C, 0x8039, 0x0028, 0x802D, 0x8027, 0x0022, 0x8063, 0x0066,
+    0x006C, 0x8069, 0x0078, 0x807D, 0x8077, 0x0072, 0x0050, 0x8055, 0x805F,
+    0x005A, 0x804B, 0x004E, 0x0044, 0x8041, 0x80C3, 0x00C6, 0x00CC, 0x80C9,
+    0x00D8, 0x80DD, 0x80D7, 0x00D2, 0x00F0, 0x80F5, 0x80FF, 0x00FA, 0x80EB,
+    0x00EE, 0x00E4, 0x80E1, 0x00A0, 0x80A5, 0x80AF, 0x00AA, 0x80BB, 0x00BE,
+    0x00B4, 0x80B1, 0x8093, 0x0096, 0x009C, 0x8099, 0x0088, 0x808D, 0x8087,
+    0x0082, 0x8183, 0x0186, 0x018C, 0x8189, 0x0198, 0x819D, 0x8197, 0x0192,
+    0x01B0, 0x81B5, 0x81BF, 0x01BA, 0x81AB, 0x01AE, 0x01A4, 0x81A1, 0x01E0,
+    0x81E5, 0x81EF, 0x01EA, 0x81FB, 0x01FE, 0x01F4, 0x81F1, 0x81D3, 0x01D6,
+    0x01DC, 0x81D9, 0x01C8, 0x81CD, 0x81C7, 0x01C2, 0x0140, 0x8145, 0x814F,
+    0x014A, 0x815B, 0x015E, 0x0154, 0x8151, 0x8173, 0x0176, 0x017C, 0x8179,
+    0x0168, 0x816D, 0x8167, 0x0162, 0x8123, 0x0126, 0x012C, 0x8129, 0x0138,
+    0x813D, 0x8137, 0x0132, 0x0110, 0x8115, 0x811F, 0x011A, 0x810B, 0x010E,
+    0x0104, 0x8101, 0x8303, 0x0306, 0x030C, 0x8309, 0x0318, 0x831D, 0x8317,
+    0x0312, 0x0330, 0x8335, 0x833F, 0x033A, 0x832B, 0x032E, 0x0324, 0x8321,
+    0x0360, 0x8365, 0x836F, 0x036A, 0x837B, 0x037E, 0x0374, 0x8371, 0x8353,
+    0x0356, 0x035C, 0x8359, 0x0348, 0x834D, 0x8347, 0x0342, 0x03C0, 0x83C5,
+    0x83CF, 0x03CA, 0x83DB, 0x03DE, 0x03D4, 0x83D1, 0x83F3, 0x03F6, 0x03FC,
+    0x83F9, 0x03E8, 0x83ED, 0x83E7, 0x03E2, 0x83A3, 0x03A6, 0x03AC, 0x83A9,
+    0x03B8, 0x83BD, 0x83B7, 0x03B2, 0x0390, 0x8395, 0x839F, 0x039A, 0x838B,
+    0x038E, 0x0384, 0x8381, 0x0280, 0x8285, 0x828F, 0x028A, 0x829B, 0x029E,
+    0x0294, 0x8291, 0x82B3, 0x02B6, 0x02BC, 0x82B9, 0x02A8, 0x82AD, 0x82A7,
+    0x02A2, 0x82E3, 0x02E6, 0x02EC, 0x82E9, 0x02F8, 0x82FD, 0x82F7, 0x02F2,
+    0x02D0, 0x82D5, 0x82DF, 0x02DA, 0x82CB, 0x02CE, 0x02C4, 0x82C1, 0x8243,
+    0x0246, 0x024C, 0x8249, 0x0258, 0x825D, 0x8257, 0x0252, 0x0270, 0x8275,
+    0x827F, 0x027A, 0x826B, 0x026E, 0x0264, 0x8261, 0x0220, 0x8225, 0x822F,
+    0x022A, 0x823B, 0x023E, 0x0234, 0x8231, 0x8213, 0x0216, 0x021C, 0x8219,
+    0x0208, 0x820D, 0x8207, 0x0202};
+
+class SPIClass;
+
+class mcp2518fd : public MCP_CAN {
+public:
+  mcp2518fd(byte _CS) : MCP_CAN(_CS), nReservedTx(0){};
+
+public:
+  virtual void
+  enableTxInterrupt(bool enable = true); // enable transmit interrupt
+  virtual void reserveTxBuffers(byte nTxBuf = 0) {
+    nReservedTx = (nTxBuf < 3 ? nTxBuf : 3 - 1);
+  }
+  virtual byte getLastTxBuffer() {
+    return 3 - 1; // read index of last tx buffer
+  }
+  virtual byte begin(byte speedset,
+                     const byte clockset = CAN_SYSCLK_40M); // init can
+  virtual byte init_Mask(byte num, byte ext, unsigned long ulData);
+  virtual byte init_Filt(byte num, byte ext,
+                         unsigned long ulData); // init filters
+  virtual void setSleepWakeup(const byte enable);
+  virtual byte sleep();
+  virtual byte wake();
+  virtual byte setMode(const byte opMode);
+  virtual byte getMode();
+  virtual byte sendMsgBuf(unsigned long id, byte ext, byte rtrBit, byte len,
+                          const byte *buf, bool wait_sent = true);
+  virtual byte sendMsgBuf(unsigned long id, byte ext, byte len, const byte *buf,
+                          bool wait_sent = true);
+  virtual byte readMsgBuf(byte *len, byte *buf);
+  virtual byte readMsgBufID(unsigned long *ID, byte *len, byte *buf);
+  virtual byte checkReceive(void);
+  virtual byte checkError(void);
+  virtual unsigned long getCanId(void);
+  virtual byte isRemoteRequest(void);
+  virtual byte isExtendedFrame(void);
+  virtual byte readMsgBufID(byte status, volatile unsigned long *id,
+                            volatile byte *ext, volatile byte *rtr,
+                            volatile byte *len,
+                            volatile byte *buf); // read buf with object ID
+  virtual byte trySendMsgBuf(unsigned long id, byte ext, byte rtrBit, byte len,
+                             const byte *buf, byte iTxBuf = 0xff);
+  virtual byte sendMsgBuf(byte status, unsigned long id, byte ext, byte rtrBit,
+                          byte len, volatile const byte *buf);
+  virtual void clearBufferTransmitIfFlags(byte flags = 0);
+  virtual byte readRxTxStatus(void);
+  virtual byte checkClearRxStatus(byte *status);
+  virtual byte checkClearTxStatus(byte *status, byte iTxBuf = 0xff);
+  virtual bool mcpPinMode(const byte pin, const byte mode);
+  virtual bool mcpDigitalWrite(const byte pin, const byte mode);
+  virtual byte mcpDigitalRead(const byte pin);
+
+private:
+  byte mcp2518fd_readMsgBufID(volatile byte *len, volatile byte *buf);
+  byte mcp2518fd_sendMsg(const byte *buf, byte len, unsigned long id, byte ext,
+                         byte rtr, bool wait_sent);
+  int8_t mcp2518fd_receiveMsg();
+
+private:
+  uint8_t mcp2518fd_init(byte speedset, const byte clock); // mcp2518fdinit
+  int8_t mcp2518fd_reset(void);                            // reset mcp2518fd
+  int8_t mcp2518fd_EccEnable(void);                        // Section: ECC
+  int8_t mcp2518fd_RamInit(uint8_t d);
+  int8_t mcp2518fd_ConfigureObjectReset(CAN_CONFIG *config);
+  int8_t mcp2518fd_Configure(CAN_CONFIG *config);
+  int8_t
+  mcp2518fd_TransmitChannelConfigureObjectReset(CAN_TX_FIFO_CONFIG *config);
+  int8_t mcp2518fd_TransmitChannelConfigure(CAN_FIFO_CHANNEL channel,
+                                            CAN_TX_FIFO_CONFIG *config);
+  int8_t
+  mcp2518fd_ReceiveChannelConfigureObjectReset(CAN_RX_FIFO_CONFIG *config);
+  int8_t mcp2518fd_ReceiveChannelConfigure(CAN_FIFO_CHANNEL channel,
+                                           CAN_RX_FIFO_CONFIG *config);
+  int8_t mcp2518fd_FilterObjectConfigure(CAN_FILTER filter,
+                                         CAN_FILTEROBJ_ID *id);
+  int8_t mcp2518fd_FilterMaskConfigure(CAN_FILTER filter, CAN_MASKOBJ_ID *mask);
+  int8_t mcp2518fd_FilterToFifoLink(CAN_FILTER filter, CAN_FIFO_CHANNEL channel,
+                                    bool enable);
+  int8_t mcp2518fd_BitTimeConfigure(MCP2518FD_BITTIME_SETUP bitTime,
+                                    CAN_SSP_MODE sspMode, CAN_SYSCLK_SPEED clk);
+  int8_t mcp2518fd_GpioModeConfigure(GPIO_PIN_MODE gpio0, GPIO_PIN_MODE gpio1);
+  int8_t mcp2518fd_TransmitChannelEventEnable(CAN_FIFO_CHANNEL channel,
+                                              CAN_TX_FIFO_EVENT flags);
+  int8_t mcp2518fd_ReceiveChannelEventEnable(CAN_FIFO_CHANNEL channel,
+                                             CAN_RX_FIFO_EVENT flags);
+  int8_t mcp2518fd_ModuleEventEnable(CAN_MODULE_EVENT flags);
+  int8_t mcp2518fd_OperationModeSelect(CAN_OPERATION_MODE opMode);
+  CAN_OPERATION_MODE mcp2518fd_OperationModeGet();
+  void mcp2518fd_TransmitMessageQueue();
+  int8_t mcp2518fd_TransmitChannelEventGet(CAN_FIFO_CHANNEL channel,
+                                           CAN_TX_FIFO_EVENT *flags);
+  int8_t mcp2518fd_ErrorCountStateGet(uint8_t *tec, uint8_t *rec,
+                                      CAN_ERROR_STATE *flags);
+  int8_t mcp2518fd_TransmitChannelLoad(CAN_FIFO_CHANNEL channel,
+                                       CAN_TX_MSGOBJ *txObj, uint8_t *txd,
+                                       uint32_t txdNumBytes, bool flush);
+  int8_t mcp2518fd_ReceiveChannelEventGet(CAN_FIFO_CHANNEL channel,
+                                          CAN_RX_FIFO_EVENT *flags);
+  int8_t mcp2518fd_ReceiveMessageGet(CAN_FIFO_CHANNEL channel,
+                                     CAN_RX_MSGOBJ *rxObj, uint8_t *rxd,
+                                     uint8_t nBytes);
+  int8_t mcp2518fd_ReceiveChannelUpdate(CAN_FIFO_CHANNEL channel);
+  int8_t mcp2518fd_TransmitChannelUpdate(CAN_FIFO_CHANNEL channel, bool flush);
+  int8_t mcp2518fd_ReceiveChannelStatusGet(CAN_FIFO_CHANNEL channel,
+                                           CAN_RX_FIFO_STATUS *status);
+  int8_t mcp2518fd_ErrorStateGet(CAN_ERROR_STATE *flags);
+  int8_t mcp2518fd_ModuleEventRxCodeGet(CAN_RXCODE *rxCode);
+  int8_t mcp2518fd_ModuleEventTxCodeGet(CAN_TXCODE *txCode);
+  int8_t mcp2518fd_TransmitChannelEventAttemptClear(CAN_FIFO_CHANNEL channel);
+
+  int8_t mcp2518fd_LowPowerModeEnable();
+  int8_t mcp2518fd_LowPowerModeDisable();
+
+  int8_t mcp2518fd_ReadByte(uint16_t address, uint8_t *rxd);
+  int8_t mcp2518fd_WriteByte(uint16_t address, uint8_t txd);
+  int8_t mcp2518fd_ReadWord(uint16_t address, uint32_t *rxd);
+  int8_t mcp2518fd_WriteWord(uint16_t address, uint32_t txd);
+  int8_t mcp2518fd_ReadHalfWord(uint16_t address, uint16_t *rxd);
+  int8_t mcp2518fd_WriteHalfWord(uint16_t address, uint16_t txd);
+  int8_t mcp2518fd_ReadByteArray(uint16_t address, uint8_t *rxd,
+                                 uint16_t nBytes);
+  int8_t mcp2518fd_WriteByteArray(uint16_t address, uint8_t *txd,
+                                  uint16_t nBytes);
+  int8_t mcp2518fd_WriteByteSafe(uint16_t address, uint8_t txd);
+  int8_t mcp2518fd_WriteWordSafe(uint16_t address, uint32_t txd);
+  int8_t mcp2518fd_ReadByteArrayWithCRC(uint16_t address, uint8_t *rxd,
+                                        uint16_t nBytes, bool fromRam,
+                                        bool *crcIsCorrect);
+  int8_t mcp2518fd_WriteByteArrayWithCRC(uint16_t address, uint8_t *txd,
+                                         uint16_t nBytes, bool fromRam);
+  int8_t mcp2518fd_ReadWordArray(uint16_t address, uint32_t *rxd,
+                                 uint16_t nWords);
+  int8_t mcp2518fd_WriteWordArray(uint16_t address, uint32_t *txd,
+                                  uint16_t nWords);
+
+private:
+  int8_t
+  mcp2518fd_BitTimeConfigureNominal40MHz(MCP2518FD_BITTIME_SETUP bitTime);
+  int8_t mcp2518fd_BitTimeConfigureData40MHz(MCP2518FD_BITTIME_SETUP bitTime,
+                                             CAN_SSP_MODE sspMode);
+  int8_t
+  mcp2518fd_BitTimeConfigureNominal20MHz(MCP2518FD_BITTIME_SETUP bitTime);
+  int8_t mcp2518fd_BitTimeConfigureData20MHz(MCP2518FD_BITTIME_SETUP bitTime,
+                                             CAN_SSP_MODE sspMode);
+  int8_t
+  mcp2518fd_BitTimeConfigureNominal10MHz(MCP2518FD_BITTIME_SETUP bitTime);
+  int8_t mcp2518fd_BitTimeConfigureData10MHz(MCP2518FD_BITTIME_SETUP bitTime,
+                                             CAN_SSP_MODE sspMode);
+
+  byte ext_flg; // identifier xxxID
+  // either extended (the 29 LSB) or standard (the 11 LSB)
+  unsigned long can_id; // can id
+  byte rtr;             // rtr
+  byte nReservedTx;     // Count of tx buffers for reserved send
+  CAN_OPERATION_MODE mcpMode = CAN_CLASSIC_MODE; // Current controller mode
+};
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: _MCP2518FD_H_
+|——Node:preproc_def Text: #define _MCP2518FD_H_
+
+|———Node:#define Text: #define
+|———Node:identifier Text: _MCP2518FD_H_
+|——Node:preproc_include Text: #include "mcp2518fd_can_dfs.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "mcp2518fd_can_dfs.h"
+|————Node:" Text: "
+|————Node:string_content Text: mcp2518fd_can_dfs.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "mcp_can.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "mcp_can.h"
+|————Node:" Text: "
+|————Node:string_content Text: mcp_can.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include <Arduino.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <Arduino.h>
+|——Node:preproc_include Text: #include <SPI.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <SPI.h>
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:preproc_function_def Text: #define Nop() asm("nop")
+
+|———Node:#define Text: #define
+|———Node:identifier Text: Nop
+|———Node:preproc_params Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|———Node:preproc_arg Text: asm("nop")
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:preproc_def Text: #define SPI_DEFAULT_BUFFER_LENGTH 96
+
+|———Node:#define Text: #define
+|———Node:identifier Text: SPI_DEFAULT_BUFFER_LENGTH
+|———Node:preproc_arg Text: 96
+|——Node:comment
+|——Node:preproc_def Text: #define spi_readwrite pSPI->transfer
+
+|———Node:#define Text: #define
+|———Node:identifier Text: spi_readwrite
+|———Node:preproc_arg Text: pSPI->transfer
+|——Node:preproc_function_def Text: #define spi_read() spi_readwrite(0x00)
+
+|———Node:#define Text: #define
+|———Node:identifier Text: spi_read
+|———Node:preproc_params Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|———Node:preproc_arg Text: spi_readwrite(0x00)
+|——Node:preproc_function_def Text: #define spi_write(spi_val) spi_readwrite(spi_val)
+
+|———Node:#define Text: #define
+|———Node:identifier Text: spi_write
+|———Node:preproc_params Text: (spi_val)
+|————Node:( Text: (
+|————Node:identifier Text: spi_val
+|————Node:) Text: )
+|———Node:preproc_arg Text: spi_readwrite(spi_val)
+|——Node:preproc_function_def Text: #define SPI_BEGIN()                                                            \
+  pSPI->beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0))
+
+|———Node:#define Text: #define
+|———Node:identifier Text: SPI_BEGIN
+|———Node:preproc_params Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|———Node:preproc_arg Text: pSPI->beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0))
+|——Node:preproc_function_def Text: #define SPI_END() pSPI->endTransaction();
+
+|———Node:#define Text: #define
+|———Node:identifier Text: SPI_END
+|———Node:preproc_params Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|———Node:preproc_arg Text: pSPI->endTransaction();
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:preproc_def Text: #define CRCBASE 0xFFFF
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CRCBASE
+|———Node:preproc_arg Text: 0xFFFF
+|——Node:preproc_def Text: #define CRCUPPER 1
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CRCUPPER
+|———Node:preproc_arg Text: 1
+|——Node:comment
+|——Node:declaration Text: const uint8_t BitReverseTable256[256] = {
+    0x00, 0x80, 0x40, 0xC0, 0x20, 0xA0, 0x60, 0xE0, 0x10, 0x90, 0x50, 0xD0,
+    0x30, 0xB0, 0x70, 0xF0, 0x08, 0x88, 0x48, 0xC8, 0x28, 0xA8, 0x68, 0xE8,
+    0x18, 0x98, 0x58, 0xD8, 0x38, 0xB8, 0x78, 0xF8, 0x04, 0x84, 0x44, 0xC4,
+    0x24, 0xA4, 0x64, 0xE4, 0x14, 0x94, 0x54, 0xD4, 0x34, 0xB4, 0x74, 0xF4,
+    0x0C, 0x8C, 0x4C, 0xCC, 0x2C, 0xAC, 0x6C, 0xEC, 0x1C, 0x9C, 0x5C, 0xDC,
+    0x3C, 0xBC, 0x7C, 0xFC, 0x02, 0x82, 0x42, 0xC2, 0x22, 0xA2, 0x62, 0xE2,
+    0x12, 0x92, 0x52, 0xD2, 0x32, 0xB2, 0x72, 0xF2, 0x0A, 0x8A, 0x4A, 0xCA,
+    0x2A, 0xAA, 0x6A, 0xEA, 0x1A, 0x9A, 0x5A, 0xDA, 0x3A, 0xBA, 0x7A, 0xFA,
+    0x06, 0x86, 0x46, 0xC6, 0x26, 0xA6, 0x66, 0xE6, 0x16, 0x96, 0x56, 0xD6,
+    0x36, 0xB6, 0x76, 0xF6, 0x0E, 0x8E, 0x4E, 0xCE, 0x2E, 0xAE, 0x6E, 0xEE,
+    0x1E, 0x9E, 0x5E, 0xDE, 0x3E, 0xBE, 0x7E, 0xFE, 0x01, 0x81, 0x41, 0xC1,
+    0x21, 0xA1, 0x61, 0xE1, 0x11, 0x91, 0x51, 0xD1, 0x31, 0xB1, 0x71, 0xF1,
+    0x09, 0x89, 0x49, 0xC9, 0x29, 0xA9, 0x69, 0xE9, 0x19, 0x99, 0x59, 0xD9,
+    0x39, 0xB9, 0x79, 0xF9, 0x05, 0x85, 0x45, 0xC5, 0x25, 0xA5, 0x65, 0xE5,
+    0x15, 0x95, 0x55, 0xD5, 0x35, 0xB5, 0x75, 0xF5, 0x0D, 0x8D, 0x4D, 0xCD,
+    0x2D, 0xAD, 0x6D, 0xED, 0x1D, 0x9D, 0x5D, 0xDD, 0x3D, 0xBD, 0x7D, 0xFD,
+    0x03, 0x83, 0x43, 0xC3, 0x23, 0xA3, 0x63, 0xE3, 0x13, 0x93, 0x53, 0xD3,
+    0x33, 0xB3, 0x73, 0xF3, 0x0B, 0x8B, 0x4B, 0xCB, 0x2B, 0xAB, 0x6B, 0xEB,
+    0x1B, 0x9B, 0x5B, 0xDB, 0x3B, 0xBB, 0x7B, 0xFB, 0x07, 0x87, 0x47, 0xC7,
+    0x27, 0xA7, 0x67, 0xE7, 0x17, 0x97, 0x57, 0xD7, 0x37, 0xB7, 0x77, 0xF7,
+    0x0F, 0x8F, 0x4F, 0xCF, 0x2F, 0xAF, 0x6F, 0xEF, 0x1F, 0x9F, 0x5F, 0xDF,
+    0x3F, 0xBF, 0x7F, 0xFF};
+|———Node:type_qualifier Text: const
+|————Node:const Text: const
+|———Node:primitive_type Text: uint8_t
+|———Node:init_declarator Text: BitReverseTable256[256] = {
+    0x00, 0x80, 0x40, 0xC0, 0x20, 0xA0, 0x60, 0xE0, 0x10, 0x90, 0x50, 0xD0,
+    0x30, 0xB0, 0x70, 0xF0, 0x08, 0x88, 0x48, 0xC8, 0x28, 0xA8, 0x68, 0xE8,
+    0x18, 0x98, 0x58, 0xD8, 0x38, 0xB8, 0x78, 0xF8, 0x04, 0x84, 0x44, 0xC4,
+    0x24, 0xA4, 0x64, 0xE4, 0x14, 0x94, 0x54, 0xD4, 0x34, 0xB4, 0x74, 0xF4,
+    0x0C, 0x8C, 0x4C, 0xCC, 0x2C, 0xAC, 0x6C, 0xEC, 0x1C, 0x9C, 0x5C, 0xDC,
+    0x3C, 0xBC, 0x7C, 0xFC, 0x02, 0x82, 0x42, 0xC2, 0x22, 0xA2, 0x62, 0xE2,
+    0x12, 0x92, 0x52, 0xD2, 0x32, 0xB2, 0x72, 0xF2, 0x0A, 0x8A, 0x4A, 0xCA,
+    0x2A, 0xAA, 0x6A, 0xEA, 0x1A, 0x9A, 0x5A, 0xDA, 0x3A, 0xBA, 0x7A, 0xFA,
+    0x06, 0x86, 0x46, 0xC6, 0x26, 0xA6, 0x66, 0xE6, 0x16, 0x96, 0x56, 0xD6,
+    0x36, 0xB6, 0x76, 0xF6, 0x0E, 0x8E, 0x4E, 0xCE, 0x2E, 0xAE, 0x6E, 0xEE,
+    0x1E, 0x9E, 0x5E, 0xDE, 0x3E, 0xBE, 0x7E, 0xFE, 0x01, 0x81, 0x41, 0xC1,
+    0x21, 0xA1, 0x61, 0xE1, 0x11, 0x91, 0x51, 0xD1, 0x31, 0xB1, 0x71, 0xF1,
+    0x09, 0x89, 0x49, 0xC9, 0x29, 0xA9, 0x69, 0xE9, 0x19, 0x99, 0x59, 0xD9,
+    0x39, 0xB9, 0x79, 0xF9, 0x05, 0x85, 0x45, 0xC5, 0x25, 0xA5, 0x65, 0xE5,
+    0x15, 0x95, 0x55, 0xD5, 0x35, 0xB5, 0x75, 0xF5, 0x0D, 0x8D, 0x4D, 0xCD,
+    0x2D, 0xAD, 0x6D, 0xED, 0x1D, 0x9D, 0x5D, 0xDD, 0x3D, 0xBD, 0x7D, 0xFD,
+    0x03, 0x83, 0x43, 0xC3, 0x23, 0xA3, 0x63, 0xE3, 0x13, 0x93, 0x53, 0xD3,
+    0x33, 0xB3, 0x73, 0xF3, 0x0B, 0x8B, 0x4B, 0xCB, 0x2B, 0xAB, 0x6B, 0xEB,
+    0x1B, 0x9B, 0x5B, 0xDB, 0x3B, 0xBB, 0x7B, 0xFB, 0x07, 0x87, 0x47, 0xC7,
+    0x27, 0xA7, 0x67, 0xE7, 0x17, 0x97, 0x57, 0xD7, 0x37, 0xB7, 0x77, 0xF7,
+    0x0F, 0x8F, 0x4F, 0xCF, 0x2F, 0xAF, 0x6F, 0xEF, 0x1F, 0x9F, 0x5F, 0xDF,
+    0x3F, 0xBF, 0x7F, 0xFF}
+|————Node:array_declarator Text: BitReverseTable256[256]
+|—————Node:identifier Text: BitReverseTable256
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 256
+|—————Node:] Text: ]
+|————Node:= Text: =
+|————Node:initializer_list Text: {
+    0x00, 0x80, 0x40, 0xC0, 0x20, 0xA0, 0x60, 0xE0, 0x10, 0x90, 0x50, 0xD0,
+    0x30, 0xB0, 0x70, 0xF0, 0x08, 0x88, 0x48, 0xC8, 0x28, 0xA8, 0x68, 0xE8,
+    0x18, 0x98, 0x58, 0xD8, 0x38, 0xB8, 0x78, 0xF8, 0x04, 0x84, 0x44, 0xC4,
+    0x24, 0xA4, 0x64, 0xE4, 0x14, 0x94, 0x54, 0xD4, 0x34, 0xB4, 0x74, 0xF4,
+    0x0C, 0x8C, 0x4C, 0xCC, 0x2C, 0xAC, 0x6C, 0xEC, 0x1C, 0x9C, 0x5C, 0xDC,
+    0x3C, 0xBC, 0x7C, 0xFC, 0x02, 0x82, 0x42, 0xC2, 0x22, 0xA2, 0x62, 0xE2,
+    0x12, 0x92, 0x52, 0xD2, 0x32, 0xB2, 0x72, 0xF2, 0x0A, 0x8A, 0x4A, 0xCA,
+    0x2A, 0xAA, 0x6A, 0xEA, 0x1A, 0x9A, 0x5A, 0xDA, 0x3A, 0xBA, 0x7A, 0xFA,
+    0x06, 0x86, 0x46, 0xC6, 0x26, 0xA6, 0x66, 0xE6, 0x16, 0x96, 0x56, 0xD6,
+    0x36, 0xB6, 0x76, 0xF6, 0x0E, 0x8E, 0x4E, 0xCE, 0x2E, 0xAE, 0x6E, 0xEE,
+    0x1E, 0x9E, 0x5E, 0xDE, 0x3E, 0xBE, 0x7E, 0xFE, 0x01, 0x81, 0x41, 0xC1,
+    0x21, 0xA1, 0x61, 0xE1, 0x11, 0x91, 0x51, 0xD1, 0x31, 0xB1, 0x71, 0xF1,
+    0x09, 0x89, 0x49, 0xC9, 0x29, 0xA9, 0x69, 0xE9, 0x19, 0x99, 0x59, 0xD9,
+    0x39, 0xB9, 0x79, 0xF9, 0x05, 0x85, 0x45, 0xC5, 0x25, 0xA5, 0x65, 0xE5,
+    0x15, 0x95, 0x55, 0xD5, 0x35, 0xB5, 0x75, 0xF5, 0x0D, 0x8D, 0x4D, 0xCD,
+    0x2D, 0xAD, 0x6D, 0xED, 0x1D, 0x9D, 0x5D, 0xDD, 0x3D, 0xBD, 0x7D, 0xFD,
+    0x03, 0x83, 0x43, 0xC3, 0x23, 0xA3, 0x63, 0xE3, 0x13, 0x93, 0x53, 0xD3,
+    0x33, 0xB3, 0x73, 0xF3, 0x0B, 0x8B, 0x4B, 0xCB, 0x2B, 0xAB, 0x6B, 0xEB,
+    0x1B, 0x9B, 0x5B, 0xDB, 0x3B, 0xBB, 0x7B, 0xFB, 0x07, 0x87, 0x47, 0xC7,
+    0x27, 0xA7, 0x67, 0xE7, 0x17, 0x97, 0x57, 0xD7, 0x37, 0xB7, 0x77, 0xF7,
+    0x0F, 0x8F, 0x4F, 0xCF, 0x2F, 0xAF, 0x6F, 0xEF, 0x1F, 0x9F, 0x5F, 0xDF,
+    0x3F, 0xBF, 0x7F, 0xFF}
+|—————Node:{ Text: {
+|—————Node:number_literal Text: 0x00
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x80
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x40
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xC0
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x20
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xA0
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x60
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xE0
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x10
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x90
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x50
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xD0
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x30
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xB0
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x70
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xF0
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x08
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x88
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x48
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xC8
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x28
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xA8
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x68
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xE8
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x18
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x98
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x58
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xD8
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x38
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xB8
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x78
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xF8
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x04
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x84
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x44
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xC4
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x24
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xA4
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x64
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xE4
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x14
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x94
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x54
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xD4
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x34
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xB4
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x74
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xF4
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x4C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xCC
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x2C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xAC
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x6C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xEC
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x1C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x9C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x5C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xDC
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x3C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xBC
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x7C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xFC
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x02
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x82
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x42
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xC2
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x22
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xA2
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x62
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xE2
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x12
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x92
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x52
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xD2
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x32
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xB2
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x72
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xF2
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x4A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xCA
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x2A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xAA
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x6A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xEA
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x1A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x9A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x5A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xDA
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x3A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xBA
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x7A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xFA
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x06
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x86
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x46
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xC6
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x26
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xA6
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x66
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xE6
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x16
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x96
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x56
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xD6
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x36
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xB6
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x76
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xF6
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x4E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xCE
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x2E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xAE
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x6E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xEE
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x1E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x9E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x5E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xDE
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x3E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xBE
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x7E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xFE
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x01
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x81
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x41
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xC1
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x21
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xA1
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x61
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xE1
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x11
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x91
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x51
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xD1
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x31
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xB1
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x71
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xF1
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x09
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x89
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x49
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xC9
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x29
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xA9
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x69
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xE9
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x19
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x99
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x59
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xD9
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x39
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xB9
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x79
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xF9
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x05
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x85
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x45
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xC5
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x25
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xA5
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x65
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xE5
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x15
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x95
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x55
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xD5
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x35
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xB5
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x75
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xF5
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x4D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xCD
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x2D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xAD
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x6D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xED
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x1D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x9D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x5D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xDD
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x3D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xBD
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x7D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xFD
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x03
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x83
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x43
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xC3
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x23
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xA3
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x63
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xE3
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x13
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x93
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x53
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xD3
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x33
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xB3
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x73
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xF3
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x4B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xCB
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x2B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xAB
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x6B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xEB
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x1B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x9B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x5B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xDB
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x3B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xBB
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x7B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xFB
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x07
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x87
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x47
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xC7
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x27
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xA7
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x67
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xE7
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x17
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x97
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x57
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xD7
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x37
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xB7
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x77
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xF7
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x4F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xCF
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x2F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xAF
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x6F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xEF
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x1F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x9F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x5F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xDF
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x3F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xBF
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x7F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0xFF
+|—————Node:} Text: }
+|———Node:; Text: ;
+|——Node:comment
+|——Node:declaration Text: const uint16_t crc16_table[256] = {
+    0x0000, 0x8005, 0x800F, 0x000A, 0x801B, 0x001E, 0x0014, 0x8011, 0x8033,
+    0x0036, 0x003C, 0x8039, 0x0028, 0x802D, 0x8027, 0x0022, 0x8063, 0x0066,
+    0x006C, 0x8069, 0x0078, 0x807D, 0x8077, 0x0072, 0x0050, 0x8055, 0x805F,
+    0x005A, 0x804B, 0x004E, 0x0044, 0x8041, 0x80C3, 0x00C6, 0x00CC, 0x80C9,
+    0x00D8, 0x80DD, 0x80D7, 0x00D2, 0x00F0, 0x80F5, 0x80FF, 0x00FA, 0x80EB,
+    0x00EE, 0x00E4, 0x80E1, 0x00A0, 0x80A5, 0x80AF, 0x00AA, 0x80BB, 0x00BE,
+    0x00B4, 0x80B1, 0x8093, 0x0096, 0x009C, 0x8099, 0x0088, 0x808D, 0x8087,
+    0x0082, 0x8183, 0x0186, 0x018C, 0x8189, 0x0198, 0x819D, 0x8197, 0x0192,
+    0x01B0, 0x81B5, 0x81BF, 0x01BA, 0x81AB, 0x01AE, 0x01A4, 0x81A1, 0x01E0,
+    0x81E5, 0x81EF, 0x01EA, 0x81FB, 0x01FE, 0x01F4, 0x81F1, 0x81D3, 0x01D6,
+    0x01DC, 0x81D9, 0x01C8, 0x81CD, 0x81C7, 0x01C2, 0x0140, 0x8145, 0x814F,
+    0x014A, 0x815B, 0x015E, 0x0154, 0x8151, 0x8173, 0x0176, 0x017C, 0x8179,
+    0x0168, 0x816D, 0x8167, 0x0162, 0x8123, 0x0126, 0x012C, 0x8129, 0x0138,
+    0x813D, 0x8137, 0x0132, 0x0110, 0x8115, 0x811F, 0x011A, 0x810B, 0x010E,
+    0x0104, 0x8101, 0x8303, 0x0306, 0x030C, 0x8309, 0x0318, 0x831D, 0x8317,
+    0x0312, 0x0330, 0x8335, 0x833F, 0x033A, 0x832B, 0x032E, 0x0324, 0x8321,
+    0x0360, 0x8365, 0x836F, 0x036A, 0x837B, 0x037E, 0x0374, 0x8371, 0x8353,
+    0x0356, 0x035C, 0x8359, 0x0348, 0x834D, 0x8347, 0x0342, 0x03C0, 0x83C5,
+    0x83CF, 0x03CA, 0x83DB, 0x03DE, 0x03D4, 0x83D1, 0x83F3, 0x03F6, 0x03FC,
+    0x83F9, 0x03E8, 0x83ED, 0x83E7, 0x03E2, 0x83A3, 0x03A6, 0x03AC, 0x83A9,
+    0x03B8, 0x83BD, 0x83B7, 0x03B2, 0x0390, 0x8395, 0x839F, 0x039A, 0x838B,
+    0x038E, 0x0384, 0x8381, 0x0280, 0x8285, 0x828F, 0x028A, 0x829B, 0x029E,
+    0x0294, 0x8291, 0x82B3, 0x02B6, 0x02BC, 0x82B9, 0x02A8, 0x82AD, 0x82A7,
+    0x02A2, 0x82E3, 0x02E6, 0x02EC, 0x82E9, 0x02F8, 0x82FD, 0x82F7, 0x02F2,
+    0x02D0, 0x82D5, 0x82DF, 0x02DA, 0x82CB, 0x02CE, 0x02C4, 0x82C1, 0x8243,
+    0x0246, 0x024C, 0x8249, 0x0258, 0x825D, 0x8257, 0x0252, 0x0270, 0x8275,
+    0x827F, 0x027A, 0x826B, 0x026E, 0x0264, 0x8261, 0x0220, 0x8225, 0x822F,
+    0x022A, 0x823B, 0x023E, 0x0234, 0x8231, 0x8213, 0x0216, 0x021C, 0x8219,
+    0x0208, 0x820D, 0x8207, 0x0202};
+|———Node:type_qualifier Text: const
+|————Node:const Text: const
+|———Node:primitive_type Text: uint16_t
+|———Node:init_declarator Text: crc16_table[256] = {
+    0x0000, 0x8005, 0x800F, 0x000A, 0x801B, 0x001E, 0x0014, 0x8011, 0x8033,
+    0x0036, 0x003C, 0x8039, 0x0028, 0x802D, 0x8027, 0x0022, 0x8063, 0x0066,
+    0x006C, 0x8069, 0x0078, 0x807D, 0x8077, 0x0072, 0x0050, 0x8055, 0x805F,
+    0x005A, 0x804B, 0x004E, 0x0044, 0x8041, 0x80C3, 0x00C6, 0x00CC, 0x80C9,
+    0x00D8, 0x80DD, 0x80D7, 0x00D2, 0x00F0, 0x80F5, 0x80FF, 0x00FA, 0x80EB,
+    0x00EE, 0x00E4, 0x80E1, 0x00A0, 0x80A5, 0x80AF, 0x00AA, 0x80BB, 0x00BE,
+    0x00B4, 0x80B1, 0x8093, 0x0096, 0x009C, 0x8099, 0x0088, 0x808D, 0x8087,
+    0x0082, 0x8183, 0x0186, 0x018C, 0x8189, 0x0198, 0x819D, 0x8197, 0x0192,
+    0x01B0, 0x81B5, 0x81BF, 0x01BA, 0x81AB, 0x01AE, 0x01A4, 0x81A1, 0x01E0,
+    0x81E5, 0x81EF, 0x01EA, 0x81FB, 0x01FE, 0x01F4, 0x81F1, 0x81D3, 0x01D6,
+    0x01DC, 0x81D9, 0x01C8, 0x81CD, 0x81C7, 0x01C2, 0x0140, 0x8145, 0x814F,
+    0x014A, 0x815B, 0x015E, 0x0154, 0x8151, 0x8173, 0x0176, 0x017C, 0x8179,
+    0x0168, 0x816D, 0x8167, 0x0162, 0x8123, 0x0126, 0x012C, 0x8129, 0x0138,
+    0x813D, 0x8137, 0x0132, 0x0110, 0x8115, 0x811F, 0x011A, 0x810B, 0x010E,
+    0x0104, 0x8101, 0x8303, 0x0306, 0x030C, 0x8309, 0x0318, 0x831D, 0x8317,
+    0x0312, 0x0330, 0x8335, 0x833F, 0x033A, 0x832B, 0x032E, 0x0324, 0x8321,
+    0x0360, 0x8365, 0x836F, 0x036A, 0x837B, 0x037E, 0x0374, 0x8371, 0x8353,
+    0x0356, 0x035C, 0x8359, 0x0348, 0x834D, 0x8347, 0x0342, 0x03C0, 0x83C5,
+    0x83CF, 0x03CA, 0x83DB, 0x03DE, 0x03D4, 0x83D1, 0x83F3, 0x03F6, 0x03FC,
+    0x83F9, 0x03E8, 0x83ED, 0x83E7, 0x03E2, 0x83A3, 0x03A6, 0x03AC, 0x83A9,
+    0x03B8, 0x83BD, 0x83B7, 0x03B2, 0x0390, 0x8395, 0x839F, 0x039A, 0x838B,
+    0x038E, 0x0384, 0x8381, 0x0280, 0x8285, 0x828F, 0x028A, 0x829B, 0x029E,
+    0x0294, 0x8291, 0x82B3, 0x02B6, 0x02BC, 0x82B9, 0x02A8, 0x82AD, 0x82A7,
+    0x02A2, 0x82E3, 0x02E6, 0x02EC, 0x82E9, 0x02F8, 0x82FD, 0x82F7, 0x02F2,
+    0x02D0, 0x82D5, 0x82DF, 0x02DA, 0x82CB, 0x02CE, 0x02C4, 0x82C1, 0x8243,
+    0x0246, 0x024C, 0x8249, 0x0258, 0x825D, 0x8257, 0x0252, 0x0270, 0x8275,
+    0x827F, 0x027A, 0x826B, 0x026E, 0x0264, 0x8261, 0x0220, 0x8225, 0x822F,
+    0x022A, 0x823B, 0x023E, 0x0234, 0x8231, 0x8213, 0x0216, 0x021C, 0x8219,
+    0x0208, 0x820D, 0x8207, 0x0202}
+|————Node:array_declarator Text: crc16_table[256]
+|—————Node:identifier Text: crc16_table
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 256
+|—————Node:] Text: ]
+|————Node:= Text: =
+|————Node:initializer_list Text: {
+    0x0000, 0x8005, 0x800F, 0x000A, 0x801B, 0x001E, 0x0014, 0x8011, 0x8033,
+    0x0036, 0x003C, 0x8039, 0x0028, 0x802D, 0x8027, 0x0022, 0x8063, 0x0066,
+    0x006C, 0x8069, 0x0078, 0x807D, 0x8077, 0x0072, 0x0050, 0x8055, 0x805F,
+    0x005A, 0x804B, 0x004E, 0x0044, 0x8041, 0x80C3, 0x00C6, 0x00CC, 0x80C9,
+    0x00D8, 0x80DD, 0x80D7, 0x00D2, 0x00F0, 0x80F5, 0x80FF, 0x00FA, 0x80EB,
+    0x00EE, 0x00E4, 0x80E1, 0x00A0, 0x80A5, 0x80AF, 0x00AA, 0x80BB, 0x00BE,
+    0x00B4, 0x80B1, 0x8093, 0x0096, 0x009C, 0x8099, 0x0088, 0x808D, 0x8087,
+    0x0082, 0x8183, 0x0186, 0x018C, 0x8189, 0x0198, 0x819D, 0x8197, 0x0192,
+    0x01B0, 0x81B5, 0x81BF, 0x01BA, 0x81AB, 0x01AE, 0x01A4, 0x81A1, 0x01E0,
+    0x81E5, 0x81EF, 0x01EA, 0x81FB, 0x01FE, 0x01F4, 0x81F1, 0x81D3, 0x01D6,
+    0x01DC, 0x81D9, 0x01C8, 0x81CD, 0x81C7, 0x01C2, 0x0140, 0x8145, 0x814F,
+    0x014A, 0x815B, 0x015E, 0x0154, 0x8151, 0x8173, 0x0176, 0x017C, 0x8179,
+    0x0168, 0x816D, 0x8167, 0x0162, 0x8123, 0x0126, 0x012C, 0x8129, 0x0138,
+    0x813D, 0x8137, 0x0132, 0x0110, 0x8115, 0x811F, 0x011A, 0x810B, 0x010E,
+    0x0104, 0x8101, 0x8303, 0x0306, 0x030C, 0x8309, 0x0318, 0x831D, 0x8317,
+    0x0312, 0x0330, 0x8335, 0x833F, 0x033A, 0x832B, 0x032E, 0x0324, 0x8321,
+    0x0360, 0x8365, 0x836F, 0x036A, 0x837B, 0x037E, 0x0374, 0x8371, 0x8353,
+    0x0356, 0x035C, 0x8359, 0x0348, 0x834D, 0x8347, 0x0342, 0x03C0, 0x83C5,
+    0x83CF, 0x03CA, 0x83DB, 0x03DE, 0x03D4, 0x83D1, 0x83F3, 0x03F6, 0x03FC,
+    0x83F9, 0x03E8, 0x83ED, 0x83E7, 0x03E2, 0x83A3, 0x03A6, 0x03AC, 0x83A9,
+    0x03B8, 0x83BD, 0x83B7, 0x03B2, 0x0390, 0x8395, 0x839F, 0x039A, 0x838B,
+    0x038E, 0x0384, 0x8381, 0x0280, 0x8285, 0x828F, 0x028A, 0x829B, 0x029E,
+    0x0294, 0x8291, 0x82B3, 0x02B6, 0x02BC, 0x82B9, 0x02A8, 0x82AD, 0x82A7,
+    0x02A2, 0x82E3, 0x02E6, 0x02EC, 0x82E9, 0x02F8, 0x82FD, 0x82F7, 0x02F2,
+    0x02D0, 0x82D5, 0x82DF, 0x02DA, 0x82CB, 0x02CE, 0x02C4, 0x82C1, 0x8243,
+    0x0246, 0x024C, 0x8249, 0x0258, 0x825D, 0x8257, 0x0252, 0x0270, 0x8275,
+    0x827F, 0x027A, 0x826B, 0x026E, 0x0264, 0x8261, 0x0220, 0x8225, 0x822F,
+    0x022A, 0x823B, 0x023E, 0x0234, 0x8231, 0x8213, 0x0216, 0x021C, 0x8219,
+    0x0208, 0x820D, 0x8207, 0x0202}
+|—————Node:{ Text: {
+|—————Node:number_literal Text: 0x0000
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8005
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x800F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x000A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x801B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x001E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0014
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8011
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8033
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0036
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x003C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8039
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0028
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x802D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8027
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0022
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8063
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0066
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x006C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8069
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0078
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x807D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8077
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0072
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0050
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8055
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x805F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x005A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x804B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x004E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0044
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8041
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x80C3
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x00C6
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x00CC
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x80C9
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x00D8
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x80DD
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x80D7
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x00D2
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x00F0
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x80F5
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x80FF
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x00FA
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x80EB
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x00EE
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x00E4
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x80E1
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x00A0
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x80A5
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x80AF
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x00AA
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x80BB
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x00BE
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x00B4
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x80B1
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8093
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0096
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x009C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8099
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0088
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x808D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8087
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0082
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8183
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0186
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x018C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8189
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0198
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x819D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8197
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0192
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x01B0
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x81B5
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x81BF
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x01BA
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x81AB
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x01AE
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x01A4
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x81A1
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x01E0
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x81E5
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x81EF
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x01EA
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x81FB
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x01FE
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x01F4
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x81F1
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x81D3
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x01D6
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x01DC
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x81D9
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x01C8
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x81CD
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x81C7
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x01C2
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0140
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8145
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x814F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x014A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x815B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x015E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0154
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8151
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8173
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0176
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x017C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8179
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0168
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x816D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8167
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0162
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8123
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0126
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x012C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8129
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0138
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x813D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8137
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0132
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0110
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8115
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x811F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x011A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x810B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x010E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0104
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8101
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8303
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0306
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x030C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8309
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0318
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x831D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8317
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0312
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0330
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8335
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x833F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x033A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x832B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x032E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0324
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8321
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0360
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8365
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x836F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x036A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x837B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x037E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0374
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8371
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8353
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0356
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x035C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8359
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0348
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x834D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8347
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0342
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x03C0
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x83C5
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x83CF
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x03CA
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x83DB
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x03DE
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x03D4
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x83D1
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x83F3
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x03F6
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x03FC
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x83F9
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x03E8
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x83ED
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x83E7
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x03E2
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x83A3
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x03A6
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x03AC
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x83A9
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x03B8
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x83BD
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x83B7
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x03B2
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0390
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8395
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x839F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x039A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x838B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x038E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0384
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8381
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0280
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8285
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x828F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x028A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x829B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x029E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0294
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8291
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x82B3
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x02B6
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x02BC
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x82B9
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x02A8
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x82AD
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x82A7
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x02A2
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x82E3
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x02E6
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x02EC
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x82E9
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x02F8
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x82FD
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x82F7
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x02F2
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x02D0
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x82D5
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x82DF
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x02DA
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x82CB
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x02CE
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x02C4
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x82C1
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8243
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0246
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x024C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8249
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0258
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x825D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8257
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0252
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0270
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8275
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x827F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x027A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x826B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x026E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0264
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8261
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0220
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8225
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x822F
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x022A
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x823B
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x023E
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0234
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8231
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8213
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0216
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x021C
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8219
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0208
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x820D
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x8207
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 0x0202
+|—————Node:} Text: }
+|———Node:; Text: ;
+|——Node:declaration Text: class SPIClass;
+|———Node:type_identifier Text: class
+|———Node:identifier Text: SPIClass
+|———Node:; Text: ;
+|——Node:function_definition Text: class mcp2518fd : public MCP_CAN {
+public:
+  mcp2518fd(byte _CS) : MCP_CAN(_CS), nReservedTx(0){};
+
+public:
+  virtual void
+  enableTxInterrupt(bool enable = true); // enable transmit interrupt
+  virtual void reserveTxBuffers(byte nTxBuf = 0) {
+    nReservedTx = (nTxBuf < 3 ? nTxBuf : 3 - 1);
+  }
+|———Node:type_identifier Text: class
+|———Node:identifier Text: mcp2518fd
+|———Node:ERROR Text: : public MCP_CAN
+|————Node:: Text: :
+|————Node:identifier Text: public
+|————Node:identifier Text: MCP_CAN
+|———Node:compound_statement Text: {
+public:
+  mcp2518fd(byte _CS) : MCP_CAN(_CS), nReservedTx(0){};
+
+public:
+  virtual void
+  enableTxInterrupt(bool enable = true); // enable transmit interrupt
+  virtual void reserveTxBuffers(byte nTxBuf = 0) {
+    nReservedTx = (nTxBuf < 3 ? nTxBuf : 3 - 1);
+  }
+|————Node:{ Text: {
+|————Node:labeled_statement Text: public:
+  mcp2518fd(byte _CS) : MCP_CAN(_CS), nReservedTx(0){};
+|—————Node:statement_identifier Text: public
+|—————Node:: Text: :
+|—————Node:declaration Text: mcp2518fd(byte _CS) : MCP_CAN(_CS), nReservedTx(0){};
+|——————Node:macro_type_specifier Text: mcp2518fd(byte _CS)
+|———————Node:identifier Text: mcp2518fd
+|———————Node:( Text: (
+|———————Node:ERROR Text: byte
+|————————Node:type_identifier Text: byte
+|———————Node:type_descriptor Text: _CS
+|————————Node:type_identifier Text: _CS
+|———————Node:) Text: )
+|——————Node:ERROR Text: :
+|———————Node:: Text: :
+|——————Node:function_declarator Text: MCP_CAN(_CS)
+|———————Node:identifier Text: MCP_CAN
+|———————Node:parameter_list Text: (_CS)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: _CS
+|—————————Node:type_identifier Text: _CS
+|————————Node:) Text: )
+|——————Node:ERROR Text: , nReservedTx(0){}
+|———————Node:, Text: ,
+|———————Node:function_declarator Text: nReservedTx(0)
+|————————Node:identifier Text: nReservedTx
+|————————Node:parameter_list Text: (0)
+|—————————Node:( Text: (
+|—————————Node:ERROR Text: 0
+|——————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|———————Node:{ Text: {
+|———————Node:} Text: }
+|——————Node:; Text: ;
+|————Node:labeled_statement Text: public:
+  virtual void
+  enableTxInterrupt(bool enable = true);
+|—————Node:statement_identifier Text: public
+|—————Node:: Text: :
+|—————Node:declaration Text: virtual void
+  enableTxInterrupt(bool enable = true);
+|——————Node:type_identifier Text: virtual
+|——————Node:ERROR Text: void
+|———————Node:identifier Text: void
+|——————Node:init_declarator Text: enableTxInterrupt(bool enable = true
+|———————Node:function_declarator Text: enableTxInterrupt(bool enable
+|————————Node:identifier Text: enableTxInterrupt
+|————————Node:parameter_list Text: (bool enable
+|—————————Node:( Text: (
+|—————————Node:parameter_declaration Text: bool enable
+|——————————Node:primitive_type Text: bool
+|——————————Node:identifier Text: enable
+|—————————Node:) Text: 
+|———————Node:= Text: =
+|———————Node:true Text: true
+|——————Node:ERROR Text: )
+|———————Node:) Text: )
+|——————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: virtual void reserveTxBuffers(byte nTxBuf = 0) {
+    nReservedTx = (nTxBuf < 3 ? nTxBuf : 3 - 1);
+|—————Node:type_identifier Text: virtual
+|—————Node:ERROR Text: void
+|——————Node:identifier Text: void
+|—————Node:init_declarator Text: reserveTxBuffers(byte nTxBuf = 0) {
+    nReservedTx = (nTxBuf < 3 ? nTxBuf : 3 - 1)
+|——————Node:function_declarator Text: reserveTxBuffers(byte nTxBuf
+|———————Node:identifier Text: reserveTxBuffers
+|———————Node:parameter_list Text: (byte nTxBuf
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: byte nTxBuf
+|—————————Node:type_identifier Text: byte
+|—————————Node:identifier Text: nTxBuf
+|————————Node:) Text: 
+|——————Node:= Text: =
+|——————Node:ERROR Text: 0)
+|———————Node:number_literal Text: 0
+|———————Node:) Text: )
+|——————Node:initializer_list Text: {
+    nReservedTx = (nTxBuf < 3 ? nTxBuf : 3 - 1)
+|———————Node:{ Text: {
+|———————Node:assignment_expression Text: nReservedTx = (nTxBuf < 3 ? nTxBuf : 3 - 1)
+|————————Node:identifier Text: nReservedTx
+|————————Node:= Text: =
+|————————Node:parenthesized_expression Text: (nTxBuf < 3 ? nTxBuf : 3 - 1)
+|—————————Node:( Text: (
+|—————————Node:conditional_expression Text: nTxBuf < 3 ? nTxBuf : 3 - 1
+|——————————Node:binary_expression Text: nTxBuf < 3
+|———————————Node:identifier Text: nTxBuf
+|———————————Node:< Text: <
+|———————————Node:number_literal Text: 3
+|——————————Node:? Text: ?
+|——————————Node:identifier Text: nTxBuf
+|——————————Node:: Text: :
+|——————————Node:binary_expression Text: 3 - 1
+|———————————Node:number_literal Text: 3
+|———————————Node:- Text: -
+|———————————Node:number_literal Text: 1
+|—————————Node:) Text: )
+|———————Node:} Text: 
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: virtual byte getLastTxBuffer() {
+    return 3 - 1; // read index of last tx buffer
+  }
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:function_declarator Text: getLastTxBuffer()
+|————Node:identifier Text: getLastTxBuffer
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+    return 3 - 1; // read index of last tx buffer
+  }
+|————Node:{ Text: {
+|————Node:return_statement Text: return 3 - 1;
+|—————Node:return Text: return
+|—————Node:binary_expression Text: 3 - 1
+|——————Node:number_literal Text: 3
+|——————Node:- Text: -
+|——————Node:number_literal Text: 1
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:} Text: }
+|——Node:declaration Text: virtual byte begin(byte speedset,
+                     const byte clockset = CAN_SYSCLK_40M);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:function_declarator Text: begin(byte speedset,
+                     const byte clockset = CAN_SYSCLK_40M)
+|————Node:identifier Text: begin
+|————Node:parameter_list Text: (byte speedset,
+                     const byte clockset = CAN_SYSCLK_40M)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: byte speedset
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: speedset
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const byte clockset = CAN_SYSCLK_40M
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: byte
+|——————Node:ERROR Text: clockset =
+|———————Node:identifier Text: clockset
+|———————Node:= Text: =
+|——————Node:identifier Text: CAN_SYSCLK_40M
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:comment
+|——Node:declaration Text: virtual byte init_Mask(byte num, byte ext, unsigned long ulData);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:function_declarator Text: init_Mask(byte num, byte ext, unsigned long ulData)
+|————Node:identifier Text: init_Mask
+|————Node:parameter_list Text: (byte num, byte ext, unsigned long ulData)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: byte num
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: num
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: byte ext
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: ext
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: unsigned long ulData
+|——————Node:sized_type_specifier Text: unsigned long
+|———————Node:unsigned Text: unsigned
+|———————Node:long Text: long
+|——————Node:identifier Text: ulData
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual byte init_Filt(byte num, byte ext,
+                         unsigned long ulData);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:function_declarator Text: init_Filt(byte num, byte ext,
+                         unsigned long ulData)
+|————Node:identifier Text: init_Filt
+|————Node:parameter_list Text: (byte num, byte ext,
+                         unsigned long ulData)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: byte num
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: num
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: byte ext
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: ext
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: unsigned long ulData
+|——————Node:sized_type_specifier Text: unsigned long
+|———————Node:unsigned Text: unsigned
+|———————Node:long Text: long
+|——————Node:identifier Text: ulData
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:comment
+|——Node:declaration Text: virtual void setSleepWakeup(const byte enable);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: void
+|————Node:identifier Text: void
+|———Node:function_declarator Text: setSleepWakeup(const byte enable)
+|————Node:identifier Text: setSleepWakeup
+|————Node:parameter_list Text: (const byte enable)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const byte enable
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: enable
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual byte sleep();
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:function_declarator Text: sleep()
+|————Node:identifier Text: sleep
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual byte wake();
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:function_declarator Text: wake()
+|————Node:identifier Text: wake
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual byte setMode(const byte opMode);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:function_declarator Text: setMode(const byte opMode)
+|————Node:identifier Text: setMode
+|————Node:parameter_list Text: (const byte opMode)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const byte opMode
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: opMode
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual byte getMode();
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:function_declarator Text: getMode()
+|————Node:identifier Text: getMode
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual byte sendMsgBuf(unsigned long id, byte ext, byte rtrBit, byte len,
+                          const byte *buf, bool wait_sent = true);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:init_declarator Text: sendMsgBuf(unsigned long id, byte ext, byte rtrBit, byte len,
+                          const byte *buf, bool wait_sent = true
+|————Node:function_declarator Text: sendMsgBuf(unsigned long id, byte ext, byte rtrBit, byte len,
+                          const byte *buf, bool wait_sent
+|—————Node:identifier Text: sendMsgBuf
+|—————Node:parameter_list Text: (unsigned long id, byte ext, byte rtrBit, byte len,
+                          const byte *buf, bool wait_sent
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: unsigned long id
+|———————Node:sized_type_specifier Text: unsigned long
+|————————Node:unsigned Text: unsigned
+|————————Node:long Text: long
+|———————Node:identifier Text: id
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: byte ext
+|———————Node:type_identifier Text: byte
+|———————Node:identifier Text: ext
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: byte rtrBit
+|———————Node:type_identifier Text: byte
+|———————Node:identifier Text: rtrBit
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: byte len
+|———————Node:type_identifier Text: byte
+|———————Node:identifier Text: len
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: const byte *buf
+|———————Node:type_qualifier Text: const
+|————————Node:const Text: const
+|———————Node:type_identifier Text: byte
+|———————Node:pointer_declarator Text: *buf
+|————————Node:* Text: *
+|————————Node:identifier Text: buf
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: bool wait_sent
+|———————Node:primitive_type Text: bool
+|———————Node:identifier Text: wait_sent
+|——————Node:) Text: 
+|————Node:= Text: =
+|————Node:true Text: true
+|———Node:ERROR Text: )
+|————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual byte sendMsgBuf(unsigned long id, byte ext, byte len, const byte *buf,
+                          bool wait_sent = true);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:init_declarator Text: sendMsgBuf(unsigned long id, byte ext, byte len, const byte *buf,
+                          bool wait_sent = true
+|————Node:function_declarator Text: sendMsgBuf(unsigned long id, byte ext, byte len, const byte *buf,
+                          bool wait_sent
+|—————Node:identifier Text: sendMsgBuf
+|—————Node:parameter_list Text: (unsigned long id, byte ext, byte len, const byte *buf,
+                          bool wait_sent
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: unsigned long id
+|———————Node:sized_type_specifier Text: unsigned long
+|————————Node:unsigned Text: unsigned
+|————————Node:long Text: long
+|———————Node:identifier Text: id
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: byte ext
+|———————Node:type_identifier Text: byte
+|———————Node:identifier Text: ext
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: byte len
+|———————Node:type_identifier Text: byte
+|———————Node:identifier Text: len
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: const byte *buf
+|———————Node:type_qualifier Text: const
+|————————Node:const Text: const
+|———————Node:type_identifier Text: byte
+|———————Node:pointer_declarator Text: *buf
+|————————Node:* Text: *
+|————————Node:identifier Text: buf
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: bool wait_sent
+|———————Node:primitive_type Text: bool
+|———————Node:identifier Text: wait_sent
+|——————Node:) Text: 
+|————Node:= Text: =
+|————Node:true Text: true
+|———Node:ERROR Text: )
+|————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual byte readMsgBuf(byte *len, byte *buf);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:function_declarator Text: readMsgBuf(byte *len, byte *buf)
+|————Node:identifier Text: readMsgBuf
+|————Node:parameter_list Text: (byte *len, byte *buf)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: byte *len
+|——————Node:type_identifier Text: byte
+|——————Node:pointer_declarator Text: *len
+|———————Node:* Text: *
+|———————Node:identifier Text: len
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: byte *buf
+|——————Node:type_identifier Text: byte
+|——————Node:pointer_declarator Text: *buf
+|———————Node:* Text: *
+|———————Node:identifier Text: buf
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual byte readMsgBufID(unsigned long *ID, byte *len, byte *buf);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:function_declarator Text: readMsgBufID(unsigned long *ID, byte *len, byte *buf)
+|————Node:identifier Text: readMsgBufID
+|————Node:parameter_list Text: (unsigned long *ID, byte *len, byte *buf)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: unsigned long *ID
+|——————Node:sized_type_specifier Text: unsigned long
+|———————Node:unsigned Text: unsigned
+|———————Node:long Text: long
+|——————Node:pointer_declarator Text: *ID
+|———————Node:* Text: *
+|———————Node:identifier Text: ID
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: byte *len
+|——————Node:type_identifier Text: byte
+|——————Node:pointer_declarator Text: *len
+|———————Node:* Text: *
+|———————Node:identifier Text: len
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: byte *buf
+|——————Node:type_identifier Text: byte
+|——————Node:pointer_declarator Text: *buf
+|———————Node:* Text: *
+|———————Node:identifier Text: buf
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual byte checkReceive(void);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:function_declarator Text: checkReceive(void)
+|————Node:identifier Text: checkReceive
+|————Node:parameter_list Text: (void)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: void
+|——————Node:primitive_type Text: void
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual byte checkError(void);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:function_declarator Text: checkError(void)
+|————Node:identifier Text: checkError
+|————Node:parameter_list Text: (void)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: void
+|——————Node:primitive_type Text: void
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual unsigned long getCanId(void);
+|———Node:sized_type_specifier Text: virtual unsigned long
+|————Node:type_identifier Text: virtual
+|————Node:unsigned Text: unsigned
+|————Node:long Text: long
+|———Node:function_declarator Text: getCanId(void)
+|————Node:identifier Text: getCanId
+|————Node:parameter_list Text: (void)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: void
+|——————Node:primitive_type Text: void
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual byte isRemoteRequest(void);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:function_declarator Text: isRemoteRequest(void)
+|————Node:identifier Text: isRemoteRequest
+|————Node:parameter_list Text: (void)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: void
+|——————Node:primitive_type Text: void
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual byte isExtendedFrame(void);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:function_declarator Text: isExtendedFrame(void)
+|————Node:identifier Text: isExtendedFrame
+|————Node:parameter_list Text: (void)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: void
+|——————Node:primitive_type Text: void
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual byte readMsgBufID(byte status, volatile unsigned long *id,
+                            volatile byte *ext, volatile byte *rtr,
+                            volatile byte *len,
+                            volatile byte *buf);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:function_declarator Text: readMsgBufID(byte status, volatile unsigned long *id,
+                            volatile byte *ext, volatile byte *rtr,
+                            volatile byte *len,
+                            volatile byte *buf)
+|————Node:identifier Text: readMsgBufID
+|————Node:parameter_list Text: (byte status, volatile unsigned long *id,
+                            volatile byte *ext, volatile byte *rtr,
+                            volatile byte *len,
+                            volatile byte *buf)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: byte status
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: status
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: volatile unsigned long *id
+|——————Node:type_qualifier Text: volatile
+|———————Node:volatile Text: volatile
+|——————Node:sized_type_specifier Text: unsigned long
+|———————Node:unsigned Text: unsigned
+|———————Node:long Text: long
+|——————Node:pointer_declarator Text: *id
+|———————Node:* Text: *
+|———————Node:identifier Text: id
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: volatile byte *ext
+|——————Node:type_qualifier Text: volatile
+|———————Node:volatile Text: volatile
+|——————Node:type_identifier Text: byte
+|——————Node:pointer_declarator Text: *ext
+|———————Node:* Text: *
+|———————Node:identifier Text: ext
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: volatile byte *rtr
+|——————Node:type_qualifier Text: volatile
+|———————Node:volatile Text: volatile
+|——————Node:type_identifier Text: byte
+|——————Node:pointer_declarator Text: *rtr
+|———————Node:* Text: *
+|———————Node:identifier Text: rtr
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: volatile byte *len
+|——————Node:type_qualifier Text: volatile
+|———————Node:volatile Text: volatile
+|——————Node:type_identifier Text: byte
+|——————Node:pointer_declarator Text: *len
+|———————Node:* Text: *
+|———————Node:identifier Text: len
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: volatile byte *buf
+|——————Node:type_qualifier Text: volatile
+|———————Node:volatile Text: volatile
+|——————Node:type_identifier Text: byte
+|——————Node:pointer_declarator Text: *buf
+|———————Node:* Text: *
+|———————Node:identifier Text: buf
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:comment
+|——Node:declaration Text: virtual byte trySendMsgBuf(unsigned long id, byte ext, byte rtrBit, byte len,
+                             const byte *buf, byte iTxBuf = 0xff);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:init_declarator Text: trySendMsgBuf(unsigned long id, byte ext, byte rtrBit, byte len,
+                             const byte *buf, byte iTxBuf = 0xff
+|————Node:function_declarator Text: trySendMsgBuf(unsigned long id, byte ext, byte rtrBit, byte len,
+                             const byte *buf, byte iTxBuf
+|—————Node:identifier Text: trySendMsgBuf
+|—————Node:parameter_list Text: (unsigned long id, byte ext, byte rtrBit, byte len,
+                             const byte *buf, byte iTxBuf
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: unsigned long id
+|———————Node:sized_type_specifier Text: unsigned long
+|————————Node:unsigned Text: unsigned
+|————————Node:long Text: long
+|———————Node:identifier Text: id
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: byte ext
+|———————Node:type_identifier Text: byte
+|———————Node:identifier Text: ext
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: byte rtrBit
+|———————Node:type_identifier Text: byte
+|———————Node:identifier Text: rtrBit
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: byte len
+|———————Node:type_identifier Text: byte
+|———————Node:identifier Text: len
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: const byte *buf
+|———————Node:type_qualifier Text: const
+|————————Node:const Text: const
+|———————Node:type_identifier Text: byte
+|———————Node:pointer_declarator Text: *buf
+|————————Node:* Text: *
+|————————Node:identifier Text: buf
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: byte iTxBuf
+|———————Node:type_identifier Text: byte
+|———————Node:identifier Text: iTxBuf
+|——————Node:) Text: 
+|————Node:= Text: =
+|————Node:number_literal Text: 0xff
+|———Node:ERROR Text: )
+|————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual byte sendMsgBuf(byte status, unsigned long id, byte ext, byte rtrBit,
+                          byte len, volatile const byte *buf);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:function_declarator Text: sendMsgBuf(byte status, unsigned long id, byte ext, byte rtrBit,
+                          byte len, volatile const byte *buf)
+|————Node:identifier Text: sendMsgBuf
+|————Node:parameter_list Text: (byte status, unsigned long id, byte ext, byte rtrBit,
+                          byte len, volatile const byte *buf)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: byte status
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: status
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: unsigned long id
+|——————Node:sized_type_specifier Text: unsigned long
+|———————Node:unsigned Text: unsigned
+|———————Node:long Text: long
+|——————Node:identifier Text: id
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: byte ext
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: ext
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: byte rtrBit
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: rtrBit
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: byte len
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: len
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: volatile const byte *buf
+|——————Node:type_qualifier Text: volatile
+|———————Node:volatile Text: volatile
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: byte
+|——————Node:pointer_declarator Text: *buf
+|———————Node:* Text: *
+|———————Node:identifier Text: buf
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual void clearBufferTransmitIfFlags(byte flags = 0);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: void
+|————Node:identifier Text: void
+|———Node:init_declarator Text: clearBufferTransmitIfFlags(byte flags = 0
+|————Node:function_declarator Text: clearBufferTransmitIfFlags(byte flags
+|—————Node:identifier Text: clearBufferTransmitIfFlags
+|—————Node:parameter_list Text: (byte flags
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: byte flags
+|———————Node:type_identifier Text: byte
+|———————Node:identifier Text: flags
+|——————Node:) Text: 
+|————Node:= Text: =
+|————Node:number_literal Text: 0
+|———Node:ERROR Text: )
+|————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual byte readRxTxStatus(void);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:function_declarator Text: readRxTxStatus(void)
+|————Node:identifier Text: readRxTxStatus
+|————Node:parameter_list Text: (void)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: void
+|——————Node:primitive_type Text: void
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual byte checkClearRxStatus(byte *status);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:function_declarator Text: checkClearRxStatus(byte *status)
+|————Node:identifier Text: checkClearRxStatus
+|————Node:parameter_list Text: (byte *status)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: byte *status
+|——————Node:type_identifier Text: byte
+|——————Node:pointer_declarator Text: *status
+|———————Node:* Text: *
+|———————Node:identifier Text: status
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual byte checkClearTxStatus(byte *status, byte iTxBuf = 0xff);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:init_declarator Text: checkClearTxStatus(byte *status, byte iTxBuf = 0xff
+|————Node:function_declarator Text: checkClearTxStatus(byte *status, byte iTxBuf
+|—————Node:identifier Text: checkClearTxStatus
+|—————Node:parameter_list Text: (byte *status, byte iTxBuf
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: byte *status
+|———————Node:type_identifier Text: byte
+|———————Node:pointer_declarator Text: *status
+|————————Node:* Text: *
+|————————Node:identifier Text: status
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: byte iTxBuf
+|———————Node:type_identifier Text: byte
+|———————Node:identifier Text: iTxBuf
+|——————Node:) Text: 
+|————Node:= Text: =
+|————Node:number_literal Text: 0xff
+|———Node:ERROR Text: )
+|————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual bool mcpPinMode(const byte pin, const byte mode);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: bool
+|————Node:identifier Text: bool
+|———Node:function_declarator Text: mcpPinMode(const byte pin, const byte mode)
+|————Node:identifier Text: mcpPinMode
+|————Node:parameter_list Text: (const byte pin, const byte mode)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const byte pin
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: pin
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const byte mode
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: mode
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual bool mcpDigitalWrite(const byte pin, const byte mode);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: bool
+|————Node:identifier Text: bool
+|———Node:function_declarator Text: mcpDigitalWrite(const byte pin, const byte mode)
+|————Node:identifier Text: mcpDigitalWrite
+|————Node:parameter_list Text: (const byte pin, const byte mode)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const byte pin
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: pin
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const byte mode
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: mode
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: virtual byte mcpDigitalRead(const byte pin);
+|———Node:type_identifier Text: virtual
+|———Node:ERROR Text: byte
+|————Node:identifier Text: byte
+|———Node:function_declarator Text: mcpDigitalRead(const byte pin)
+|————Node:identifier Text: mcpDigitalRead
+|————Node:parameter_list Text: (const byte pin)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const byte pin
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: pin
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:labeled_statement Text: private:
+  byte mcp2518fd_readMsgBufID(volatile byte *len, volatile byte *buf);
+|———Node:statement_identifier Text: private
+|———Node:: Text: :
+|———Node:declaration Text: byte mcp2518fd_readMsgBufID(volatile byte *len, volatile byte *buf);
+|————Node:type_identifier Text: byte
+|————Node:function_declarator Text: mcp2518fd_readMsgBufID(volatile byte *len, volatile byte *buf)
+|—————Node:identifier Text: mcp2518fd_readMsgBufID
+|—————Node:parameter_list Text: (volatile byte *len, volatile byte *buf)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: volatile byte *len
+|———————Node:type_qualifier Text: volatile
+|————————Node:volatile Text: volatile
+|———————Node:type_identifier Text: byte
+|———————Node:pointer_declarator Text: *len
+|————————Node:* Text: *
+|————————Node:identifier Text: len
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: volatile byte *buf
+|———————Node:type_qualifier Text: volatile
+|————————Node:volatile Text: volatile
+|———————Node:type_identifier Text: byte
+|———————Node:pointer_declarator Text: *buf
+|————————Node:* Text: *
+|————————Node:identifier Text: buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|——Node:declaration Text: byte mcp2518fd_sendMsg(const byte *buf, byte len, unsigned long id, byte ext,
+                         byte rtr, bool wait_sent);
+|———Node:type_identifier Text: byte
+|———Node:function_declarator Text: mcp2518fd_sendMsg(const byte *buf, byte len, unsigned long id, byte ext,
+                         byte rtr, bool wait_sent)
+|————Node:identifier Text: mcp2518fd_sendMsg
+|————Node:parameter_list Text: (const byte *buf, byte len, unsigned long id, byte ext,
+                         byte rtr, bool wait_sent)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const byte *buf
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: byte
+|——————Node:pointer_declarator Text: *buf
+|———————Node:* Text: *
+|———————Node:identifier Text: buf
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: byte len
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: len
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: unsigned long id
+|——————Node:sized_type_specifier Text: unsigned long
+|———————Node:unsigned Text: unsigned
+|———————Node:long Text: long
+|——————Node:identifier Text: id
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: byte ext
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: ext
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: byte rtr
+|——————Node:type_identifier Text: byte
+|——————Node:identifier Text: rtr
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: bool wait_sent
+|——————Node:primitive_type Text: bool
+|——————Node:identifier Text: wait_sent
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_receiveMsg();
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_receiveMsg()
+|————Node:identifier Text: mcp2518fd_receiveMsg
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:labeled_statement Text: private:
+  uint8_t mcp2518fd_init(byte speedset, const byte clock);
+|———Node:statement_identifier Text: private
+|———Node:: Text: :
+|———Node:declaration Text: uint8_t mcp2518fd_init(byte speedset, const byte clock);
+|————Node:primitive_type Text: uint8_t
+|————Node:function_declarator Text: mcp2518fd_init(byte speedset, const byte clock)
+|—————Node:identifier Text: mcp2518fd_init
+|—————Node:parameter_list Text: (byte speedset, const byte clock)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: byte speedset
+|———————Node:type_identifier Text: byte
+|———————Node:identifier Text: speedset
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: const byte clock
+|———————Node:type_qualifier Text: const
+|————————Node:const Text: const
+|———————Node:type_identifier Text: byte
+|———————Node:identifier Text: clock
+|——————Node:) Text: )
+|————Node:; Text: ;
+|——Node:comment
+|——Node:declaration Text: int8_t mcp2518fd_reset(void);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_reset(void)
+|————Node:identifier Text: mcp2518fd_reset
+|————Node:parameter_list Text: (void)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: void
+|——————Node:primitive_type Text: void
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:comment
+|——Node:declaration Text: int8_t mcp2518fd_EccEnable(void);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_EccEnable(void)
+|————Node:identifier Text: mcp2518fd_EccEnable
+|————Node:parameter_list Text: (void)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: void
+|——————Node:primitive_type Text: void
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:comment
+|——Node:declaration Text: int8_t mcp2518fd_RamInit(uint8_t d);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_RamInit(uint8_t d)
+|————Node:identifier Text: mcp2518fd_RamInit
+|————Node:parameter_list Text: (uint8_t d)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint8_t d
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: d
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_ConfigureObjectReset(CAN_CONFIG *config);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_ConfigureObjectReset(CAN_CONFIG *config)
+|————Node:identifier Text: mcp2518fd_ConfigureObjectReset
+|————Node:parameter_list Text: (CAN_CONFIG *config)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_CONFIG *config
+|——————Node:type_identifier Text: CAN_CONFIG
+|——————Node:pointer_declarator Text: *config
+|———————Node:* Text: *
+|———————Node:identifier Text: config
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_Configure(CAN_CONFIG *config);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_Configure(CAN_CONFIG *config)
+|————Node:identifier Text: mcp2518fd_Configure
+|————Node:parameter_list Text: (CAN_CONFIG *config)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_CONFIG *config
+|——————Node:type_identifier Text: CAN_CONFIG
+|——————Node:pointer_declarator Text: *config
+|———————Node:* Text: *
+|———————Node:identifier Text: config
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t
+  mcp2518fd_TransmitChannelConfigureObjectReset(CAN_TX_FIFO_CONFIG *config);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_TransmitChannelConfigureObjectReset(CAN_TX_FIFO_CONFIG *config)
+|————Node:identifier Text: mcp2518fd_TransmitChannelConfigureObjectReset
+|————Node:parameter_list Text: (CAN_TX_FIFO_CONFIG *config)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_TX_FIFO_CONFIG *config
+|——————Node:type_identifier Text: CAN_TX_FIFO_CONFIG
+|——————Node:pointer_declarator Text: *config
+|———————Node:* Text: *
+|———————Node:identifier Text: config
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_TransmitChannelConfigure(CAN_FIFO_CHANNEL channel,
+                                            CAN_TX_FIFO_CONFIG *config);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_TransmitChannelConfigure(CAN_FIFO_CHANNEL channel,
+                                            CAN_TX_FIFO_CONFIG *config)
+|————Node:identifier Text: mcp2518fd_TransmitChannelConfigure
+|————Node:parameter_list Text: (CAN_FIFO_CHANNEL channel,
+                                            CAN_TX_FIFO_CONFIG *config)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_FIFO_CHANNEL channel
+|——————Node:type_identifier Text: CAN_FIFO_CHANNEL
+|——————Node:identifier Text: channel
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: CAN_TX_FIFO_CONFIG *config
+|——————Node:type_identifier Text: CAN_TX_FIFO_CONFIG
+|——————Node:pointer_declarator Text: *config
+|———————Node:* Text: *
+|———————Node:identifier Text: config
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t
+  mcp2518fd_ReceiveChannelConfigureObjectReset(CAN_RX_FIFO_CONFIG *config);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_ReceiveChannelConfigureObjectReset(CAN_RX_FIFO_CONFIG *config)
+|————Node:identifier Text: mcp2518fd_ReceiveChannelConfigureObjectReset
+|————Node:parameter_list Text: (CAN_RX_FIFO_CONFIG *config)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_RX_FIFO_CONFIG *config
+|——————Node:type_identifier Text: CAN_RX_FIFO_CONFIG
+|——————Node:pointer_declarator Text: *config
+|———————Node:* Text: *
+|———————Node:identifier Text: config
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_ReceiveChannelConfigure(CAN_FIFO_CHANNEL channel,
+                                           CAN_RX_FIFO_CONFIG *config);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_ReceiveChannelConfigure(CAN_FIFO_CHANNEL channel,
+                                           CAN_RX_FIFO_CONFIG *config)
+|————Node:identifier Text: mcp2518fd_ReceiveChannelConfigure
+|————Node:parameter_list Text: (CAN_FIFO_CHANNEL channel,
+                                           CAN_RX_FIFO_CONFIG *config)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_FIFO_CHANNEL channel
+|——————Node:type_identifier Text: CAN_FIFO_CHANNEL
+|——————Node:identifier Text: channel
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: CAN_RX_FIFO_CONFIG *config
+|——————Node:type_identifier Text: CAN_RX_FIFO_CONFIG
+|——————Node:pointer_declarator Text: *config
+|———————Node:* Text: *
+|———————Node:identifier Text: config
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_FilterObjectConfigure(CAN_FILTER filter,
+                                         CAN_FILTEROBJ_ID *id);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_FilterObjectConfigure(CAN_FILTER filter,
+                                         CAN_FILTEROBJ_ID *id)
+|————Node:identifier Text: mcp2518fd_FilterObjectConfigure
+|————Node:parameter_list Text: (CAN_FILTER filter,
+                                         CAN_FILTEROBJ_ID *id)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_FILTER filter
+|——————Node:type_identifier Text: CAN_FILTER
+|——————Node:identifier Text: filter
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: CAN_FILTEROBJ_ID *id
+|——————Node:type_identifier Text: CAN_FILTEROBJ_ID
+|——————Node:pointer_declarator Text: *id
+|———————Node:* Text: *
+|———————Node:identifier Text: id
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_FilterMaskConfigure(CAN_FILTER filter, CAN_MASKOBJ_ID *mask);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_FilterMaskConfigure(CAN_FILTER filter, CAN_MASKOBJ_ID *mask)
+|————Node:identifier Text: mcp2518fd_FilterMaskConfigure
+|————Node:parameter_list Text: (CAN_FILTER filter, CAN_MASKOBJ_ID *mask)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_FILTER filter
+|——————Node:type_identifier Text: CAN_FILTER
+|——————Node:identifier Text: filter
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: CAN_MASKOBJ_ID *mask
+|——————Node:type_identifier Text: CAN_MASKOBJ_ID
+|——————Node:pointer_declarator Text: *mask
+|———————Node:* Text: *
+|———————Node:identifier Text: mask
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_FilterToFifoLink(CAN_FILTER filter, CAN_FIFO_CHANNEL channel,
+                                    bool enable);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_FilterToFifoLink(CAN_FILTER filter, CAN_FIFO_CHANNEL channel,
+                                    bool enable)
+|————Node:identifier Text: mcp2518fd_FilterToFifoLink
+|————Node:parameter_list Text: (CAN_FILTER filter, CAN_FIFO_CHANNEL channel,
+                                    bool enable)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_FILTER filter
+|——————Node:type_identifier Text: CAN_FILTER
+|——————Node:identifier Text: filter
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: CAN_FIFO_CHANNEL channel
+|——————Node:type_identifier Text: CAN_FIFO_CHANNEL
+|——————Node:identifier Text: channel
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: bool enable
+|——————Node:primitive_type Text: bool
+|——————Node:identifier Text: enable
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_BitTimeConfigure(MCP2518FD_BITTIME_SETUP bitTime,
+                                    CAN_SSP_MODE sspMode, CAN_SYSCLK_SPEED clk);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_BitTimeConfigure(MCP2518FD_BITTIME_SETUP bitTime,
+                                    CAN_SSP_MODE sspMode, CAN_SYSCLK_SPEED clk)
+|————Node:identifier Text: mcp2518fd_BitTimeConfigure
+|————Node:parameter_list Text: (MCP2518FD_BITTIME_SETUP bitTime,
+                                    CAN_SSP_MODE sspMode, CAN_SYSCLK_SPEED clk)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: MCP2518FD_BITTIME_SETUP bitTime
+|——————Node:type_identifier Text: MCP2518FD_BITTIME_SETUP
+|——————Node:identifier Text: bitTime
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: CAN_SSP_MODE sspMode
+|——————Node:type_identifier Text: CAN_SSP_MODE
+|——————Node:identifier Text: sspMode
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: CAN_SYSCLK_SPEED clk
+|——————Node:type_identifier Text: CAN_SYSCLK_SPEED
+|——————Node:identifier Text: clk
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_GpioModeConfigure(GPIO_PIN_MODE gpio0, GPIO_PIN_MODE gpio1);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_GpioModeConfigure(GPIO_PIN_MODE gpio0, GPIO_PIN_MODE gpio1)
+|————Node:identifier Text: mcp2518fd_GpioModeConfigure
+|————Node:parameter_list Text: (GPIO_PIN_MODE gpio0, GPIO_PIN_MODE gpio1)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: GPIO_PIN_MODE gpio0
+|——————Node:type_identifier Text: GPIO_PIN_MODE
+|——————Node:identifier Text: gpio0
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: GPIO_PIN_MODE gpio1
+|——————Node:type_identifier Text: GPIO_PIN_MODE
+|——————Node:identifier Text: gpio1
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_TransmitChannelEventEnable(CAN_FIFO_CHANNEL channel,
+                                              CAN_TX_FIFO_EVENT flags);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_TransmitChannelEventEnable(CAN_FIFO_CHANNEL channel,
+                                              CAN_TX_FIFO_EVENT flags)
+|————Node:identifier Text: mcp2518fd_TransmitChannelEventEnable
+|————Node:parameter_list Text: (CAN_FIFO_CHANNEL channel,
+                                              CAN_TX_FIFO_EVENT flags)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_FIFO_CHANNEL channel
+|——————Node:type_identifier Text: CAN_FIFO_CHANNEL
+|——————Node:identifier Text: channel
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: CAN_TX_FIFO_EVENT flags
+|——————Node:type_identifier Text: CAN_TX_FIFO_EVENT
+|——————Node:identifier Text: flags
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_ReceiveChannelEventEnable(CAN_FIFO_CHANNEL channel,
+                                             CAN_RX_FIFO_EVENT flags);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_ReceiveChannelEventEnable(CAN_FIFO_CHANNEL channel,
+                                             CAN_RX_FIFO_EVENT flags)
+|————Node:identifier Text: mcp2518fd_ReceiveChannelEventEnable
+|————Node:parameter_list Text: (CAN_FIFO_CHANNEL channel,
+                                             CAN_RX_FIFO_EVENT flags)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_FIFO_CHANNEL channel
+|——————Node:type_identifier Text: CAN_FIFO_CHANNEL
+|——————Node:identifier Text: channel
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: CAN_RX_FIFO_EVENT flags
+|——————Node:type_identifier Text: CAN_RX_FIFO_EVENT
+|——————Node:identifier Text: flags
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_ModuleEventEnable(CAN_MODULE_EVENT flags);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_ModuleEventEnable(CAN_MODULE_EVENT flags)
+|————Node:identifier Text: mcp2518fd_ModuleEventEnable
+|————Node:parameter_list Text: (CAN_MODULE_EVENT flags)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_MODULE_EVENT flags
+|——————Node:type_identifier Text: CAN_MODULE_EVENT
+|——————Node:identifier Text: flags
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_OperationModeSelect(CAN_OPERATION_MODE opMode);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_OperationModeSelect(CAN_OPERATION_MODE opMode)
+|————Node:identifier Text: mcp2518fd_OperationModeSelect
+|————Node:parameter_list Text: (CAN_OPERATION_MODE opMode)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_OPERATION_MODE opMode
+|——————Node:type_identifier Text: CAN_OPERATION_MODE
+|——————Node:identifier Text: opMode
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: CAN_OPERATION_MODE mcp2518fd_OperationModeGet();
+|———Node:type_identifier Text: CAN_OPERATION_MODE
+|———Node:function_declarator Text: mcp2518fd_OperationModeGet()
+|————Node:identifier Text: mcp2518fd_OperationModeGet
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: void mcp2518fd_TransmitMessageQueue();
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: mcp2518fd_TransmitMessageQueue()
+|————Node:identifier Text: mcp2518fd_TransmitMessageQueue
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_TransmitChannelEventGet(CAN_FIFO_CHANNEL channel,
+                                           CAN_TX_FIFO_EVENT *flags);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_TransmitChannelEventGet(CAN_FIFO_CHANNEL channel,
+                                           CAN_TX_FIFO_EVENT *flags)
+|————Node:identifier Text: mcp2518fd_TransmitChannelEventGet
+|————Node:parameter_list Text: (CAN_FIFO_CHANNEL channel,
+                                           CAN_TX_FIFO_EVENT *flags)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_FIFO_CHANNEL channel
+|——————Node:type_identifier Text: CAN_FIFO_CHANNEL
+|——————Node:identifier Text: channel
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: CAN_TX_FIFO_EVENT *flags
+|——————Node:type_identifier Text: CAN_TX_FIFO_EVENT
+|——————Node:pointer_declarator Text: *flags
+|———————Node:* Text: *
+|———————Node:identifier Text: flags
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_ErrorCountStateGet(uint8_t *tec, uint8_t *rec,
+                                      CAN_ERROR_STATE *flags);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_ErrorCountStateGet(uint8_t *tec, uint8_t *rec,
+                                      CAN_ERROR_STATE *flags)
+|————Node:identifier Text: mcp2518fd_ErrorCountStateGet
+|————Node:parameter_list Text: (uint8_t *tec, uint8_t *rec,
+                                      CAN_ERROR_STATE *flags)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint8_t *tec
+|——————Node:primitive_type Text: uint8_t
+|——————Node:pointer_declarator Text: *tec
+|———————Node:* Text: *
+|———————Node:identifier Text: tec
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint8_t *rec
+|——————Node:primitive_type Text: uint8_t
+|——————Node:pointer_declarator Text: *rec
+|———————Node:* Text: *
+|———————Node:identifier Text: rec
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: CAN_ERROR_STATE *flags
+|——————Node:type_identifier Text: CAN_ERROR_STATE
+|——————Node:pointer_declarator Text: *flags
+|———————Node:* Text: *
+|———————Node:identifier Text: flags
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_TransmitChannelLoad(CAN_FIFO_CHANNEL channel,
+                                       CAN_TX_MSGOBJ *txObj, uint8_t *txd,
+                                       uint32_t txdNumBytes, bool flush);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_TransmitChannelLoad(CAN_FIFO_CHANNEL channel,
+                                       CAN_TX_MSGOBJ *txObj, uint8_t *txd,
+                                       uint32_t txdNumBytes, bool flush)
+|————Node:identifier Text: mcp2518fd_TransmitChannelLoad
+|————Node:parameter_list Text: (CAN_FIFO_CHANNEL channel,
+                                       CAN_TX_MSGOBJ *txObj, uint8_t *txd,
+                                       uint32_t txdNumBytes, bool flush)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_FIFO_CHANNEL channel
+|——————Node:type_identifier Text: CAN_FIFO_CHANNEL
+|——————Node:identifier Text: channel
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: CAN_TX_MSGOBJ *txObj
+|——————Node:type_identifier Text: CAN_TX_MSGOBJ
+|——————Node:pointer_declarator Text: *txObj
+|———————Node:* Text: *
+|———————Node:identifier Text: txObj
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint8_t *txd
+|——————Node:primitive_type Text: uint8_t
+|——————Node:pointer_declarator Text: *txd
+|———————Node:* Text: *
+|———————Node:identifier Text: txd
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint32_t txdNumBytes
+|——————Node:primitive_type Text: uint32_t
+|——————Node:identifier Text: txdNumBytes
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: bool flush
+|——————Node:primitive_type Text: bool
+|——————Node:identifier Text: flush
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_ReceiveChannelEventGet(CAN_FIFO_CHANNEL channel,
+                                          CAN_RX_FIFO_EVENT *flags);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_ReceiveChannelEventGet(CAN_FIFO_CHANNEL channel,
+                                          CAN_RX_FIFO_EVENT *flags)
+|————Node:identifier Text: mcp2518fd_ReceiveChannelEventGet
+|————Node:parameter_list Text: (CAN_FIFO_CHANNEL channel,
+                                          CAN_RX_FIFO_EVENT *flags)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_FIFO_CHANNEL channel
+|——————Node:type_identifier Text: CAN_FIFO_CHANNEL
+|——————Node:identifier Text: channel
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: CAN_RX_FIFO_EVENT *flags
+|——————Node:type_identifier Text: CAN_RX_FIFO_EVENT
+|——————Node:pointer_declarator Text: *flags
+|———————Node:* Text: *
+|———————Node:identifier Text: flags
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_ReceiveMessageGet(CAN_FIFO_CHANNEL channel,
+                                     CAN_RX_MSGOBJ *rxObj, uint8_t *rxd,
+                                     uint8_t nBytes);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_ReceiveMessageGet(CAN_FIFO_CHANNEL channel,
+                                     CAN_RX_MSGOBJ *rxObj, uint8_t *rxd,
+                                     uint8_t nBytes)
+|————Node:identifier Text: mcp2518fd_ReceiveMessageGet
+|————Node:parameter_list Text: (CAN_FIFO_CHANNEL channel,
+                                     CAN_RX_MSGOBJ *rxObj, uint8_t *rxd,
+                                     uint8_t nBytes)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_FIFO_CHANNEL channel
+|——————Node:type_identifier Text: CAN_FIFO_CHANNEL
+|——————Node:identifier Text: channel
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: CAN_RX_MSGOBJ *rxObj
+|——————Node:type_identifier Text: CAN_RX_MSGOBJ
+|——————Node:pointer_declarator Text: *rxObj
+|———————Node:* Text: *
+|———————Node:identifier Text: rxObj
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint8_t *rxd
+|——————Node:primitive_type Text: uint8_t
+|——————Node:pointer_declarator Text: *rxd
+|———————Node:* Text: *
+|———————Node:identifier Text: rxd
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint8_t nBytes
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: nBytes
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_ReceiveChannelUpdate(CAN_FIFO_CHANNEL channel);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_ReceiveChannelUpdate(CAN_FIFO_CHANNEL channel)
+|————Node:identifier Text: mcp2518fd_ReceiveChannelUpdate
+|————Node:parameter_list Text: (CAN_FIFO_CHANNEL channel)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_FIFO_CHANNEL channel
+|——————Node:type_identifier Text: CAN_FIFO_CHANNEL
+|——————Node:identifier Text: channel
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_TransmitChannelUpdate(CAN_FIFO_CHANNEL channel, bool flush);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_TransmitChannelUpdate(CAN_FIFO_CHANNEL channel, bool flush)
+|————Node:identifier Text: mcp2518fd_TransmitChannelUpdate
+|————Node:parameter_list Text: (CAN_FIFO_CHANNEL channel, bool flush)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_FIFO_CHANNEL channel
+|——————Node:type_identifier Text: CAN_FIFO_CHANNEL
+|——————Node:identifier Text: channel
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: bool flush
+|——————Node:primitive_type Text: bool
+|——————Node:identifier Text: flush
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_ReceiveChannelStatusGet(CAN_FIFO_CHANNEL channel,
+                                           CAN_RX_FIFO_STATUS *status);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_ReceiveChannelStatusGet(CAN_FIFO_CHANNEL channel,
+                                           CAN_RX_FIFO_STATUS *status)
+|————Node:identifier Text: mcp2518fd_ReceiveChannelStatusGet
+|————Node:parameter_list Text: (CAN_FIFO_CHANNEL channel,
+                                           CAN_RX_FIFO_STATUS *status)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_FIFO_CHANNEL channel
+|——————Node:type_identifier Text: CAN_FIFO_CHANNEL
+|——————Node:identifier Text: channel
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: CAN_RX_FIFO_STATUS *status
+|——————Node:type_identifier Text: CAN_RX_FIFO_STATUS
+|——————Node:pointer_declarator Text: *status
+|———————Node:* Text: *
+|———————Node:identifier Text: status
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_ErrorStateGet(CAN_ERROR_STATE *flags);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_ErrorStateGet(CAN_ERROR_STATE *flags)
+|————Node:identifier Text: mcp2518fd_ErrorStateGet
+|————Node:parameter_list Text: (CAN_ERROR_STATE *flags)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_ERROR_STATE *flags
+|——————Node:type_identifier Text: CAN_ERROR_STATE
+|——————Node:pointer_declarator Text: *flags
+|———————Node:* Text: *
+|———————Node:identifier Text: flags
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_ModuleEventRxCodeGet(CAN_RXCODE *rxCode);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_ModuleEventRxCodeGet(CAN_RXCODE *rxCode)
+|————Node:identifier Text: mcp2518fd_ModuleEventRxCodeGet
+|————Node:parameter_list Text: (CAN_RXCODE *rxCode)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_RXCODE *rxCode
+|——————Node:type_identifier Text: CAN_RXCODE
+|——————Node:pointer_declarator Text: *rxCode
+|———————Node:* Text: *
+|———————Node:identifier Text: rxCode
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_ModuleEventTxCodeGet(CAN_TXCODE *txCode);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_ModuleEventTxCodeGet(CAN_TXCODE *txCode)
+|————Node:identifier Text: mcp2518fd_ModuleEventTxCodeGet
+|————Node:parameter_list Text: (CAN_TXCODE *txCode)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_TXCODE *txCode
+|——————Node:type_identifier Text: CAN_TXCODE
+|——————Node:pointer_declarator Text: *txCode
+|———————Node:* Text: *
+|———————Node:identifier Text: txCode
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_TransmitChannelEventAttemptClear(CAN_FIFO_CHANNEL channel);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_TransmitChannelEventAttemptClear(CAN_FIFO_CHANNEL channel)
+|————Node:identifier Text: mcp2518fd_TransmitChannelEventAttemptClear
+|————Node:parameter_list Text: (CAN_FIFO_CHANNEL channel)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CAN_FIFO_CHANNEL channel
+|——————Node:type_identifier Text: CAN_FIFO_CHANNEL
+|——————Node:identifier Text: channel
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_LowPowerModeEnable();
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_LowPowerModeEnable()
+|————Node:identifier Text: mcp2518fd_LowPowerModeEnable
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_LowPowerModeDisable();
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_LowPowerModeDisable()
+|————Node:identifier Text: mcp2518fd_LowPowerModeDisable
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_ReadByte(uint16_t address, uint8_t *rxd);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_ReadByte(uint16_t address, uint8_t *rxd)
+|————Node:identifier Text: mcp2518fd_ReadByte
+|————Node:parameter_list Text: (uint16_t address, uint8_t *rxd)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint16_t address
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: address
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint8_t *rxd
+|——————Node:primitive_type Text: uint8_t
+|——————Node:pointer_declarator Text: *rxd
+|———————Node:* Text: *
+|———————Node:identifier Text: rxd
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_WriteByte(uint16_t address, uint8_t txd);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_WriteByte(uint16_t address, uint8_t txd)
+|————Node:identifier Text: mcp2518fd_WriteByte
+|————Node:parameter_list Text: (uint16_t address, uint8_t txd)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint16_t address
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: address
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint8_t txd
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: txd
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_ReadWord(uint16_t address, uint32_t *rxd);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_ReadWord(uint16_t address, uint32_t *rxd)
+|————Node:identifier Text: mcp2518fd_ReadWord
+|————Node:parameter_list Text: (uint16_t address, uint32_t *rxd)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint16_t address
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: address
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint32_t *rxd
+|——————Node:primitive_type Text: uint32_t
+|——————Node:pointer_declarator Text: *rxd
+|———————Node:* Text: *
+|———————Node:identifier Text: rxd
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_WriteWord(uint16_t address, uint32_t txd);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_WriteWord(uint16_t address, uint32_t txd)
+|————Node:identifier Text: mcp2518fd_WriteWord
+|————Node:parameter_list Text: (uint16_t address, uint32_t txd)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint16_t address
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: address
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint32_t txd
+|——————Node:primitive_type Text: uint32_t
+|——————Node:identifier Text: txd
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_ReadHalfWord(uint16_t address, uint16_t *rxd);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_ReadHalfWord(uint16_t address, uint16_t *rxd)
+|————Node:identifier Text: mcp2518fd_ReadHalfWord
+|————Node:parameter_list Text: (uint16_t address, uint16_t *rxd)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint16_t address
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: address
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint16_t *rxd
+|——————Node:primitive_type Text: uint16_t
+|——————Node:pointer_declarator Text: *rxd
+|———————Node:* Text: *
+|———————Node:identifier Text: rxd
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_WriteHalfWord(uint16_t address, uint16_t txd);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_WriteHalfWord(uint16_t address, uint16_t txd)
+|————Node:identifier Text: mcp2518fd_WriteHalfWord
+|————Node:parameter_list Text: (uint16_t address, uint16_t txd)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint16_t address
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: address
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint16_t txd
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: txd
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_ReadByteArray(uint16_t address, uint8_t *rxd,
+                                 uint16_t nBytes);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_ReadByteArray(uint16_t address, uint8_t *rxd,
+                                 uint16_t nBytes)
+|————Node:identifier Text: mcp2518fd_ReadByteArray
+|————Node:parameter_list Text: (uint16_t address, uint8_t *rxd,
+                                 uint16_t nBytes)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint16_t address
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: address
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint8_t *rxd
+|——————Node:primitive_type Text: uint8_t
+|——————Node:pointer_declarator Text: *rxd
+|———————Node:* Text: *
+|———————Node:identifier Text: rxd
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint16_t nBytes
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: nBytes
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_WriteByteArray(uint16_t address, uint8_t *txd,
+                                  uint16_t nBytes);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_WriteByteArray(uint16_t address, uint8_t *txd,
+                                  uint16_t nBytes)
+|————Node:identifier Text: mcp2518fd_WriteByteArray
+|————Node:parameter_list Text: (uint16_t address, uint8_t *txd,
+                                  uint16_t nBytes)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint16_t address
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: address
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint8_t *txd
+|——————Node:primitive_type Text: uint8_t
+|——————Node:pointer_declarator Text: *txd
+|———————Node:* Text: *
+|———————Node:identifier Text: txd
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint16_t nBytes
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: nBytes
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_WriteByteSafe(uint16_t address, uint8_t txd);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_WriteByteSafe(uint16_t address, uint8_t txd)
+|————Node:identifier Text: mcp2518fd_WriteByteSafe
+|————Node:parameter_list Text: (uint16_t address, uint8_t txd)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint16_t address
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: address
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint8_t txd
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: txd
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_WriteWordSafe(uint16_t address, uint32_t txd);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_WriteWordSafe(uint16_t address, uint32_t txd)
+|————Node:identifier Text: mcp2518fd_WriteWordSafe
+|————Node:parameter_list Text: (uint16_t address, uint32_t txd)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint16_t address
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: address
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint32_t txd
+|——————Node:primitive_type Text: uint32_t
+|——————Node:identifier Text: txd
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_ReadByteArrayWithCRC(uint16_t address, uint8_t *rxd,
+                                        uint16_t nBytes, bool fromRam,
+                                        bool *crcIsCorrect);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_ReadByteArrayWithCRC(uint16_t address, uint8_t *rxd,
+                                        uint16_t nBytes, bool fromRam,
+                                        bool *crcIsCorrect)
+|————Node:identifier Text: mcp2518fd_ReadByteArrayWithCRC
+|————Node:parameter_list Text: (uint16_t address, uint8_t *rxd,
+                                        uint16_t nBytes, bool fromRam,
+                                        bool *crcIsCorrect)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint16_t address
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: address
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint8_t *rxd
+|——————Node:primitive_type Text: uint8_t
+|——————Node:pointer_declarator Text: *rxd
+|———————Node:* Text: *
+|———————Node:identifier Text: rxd
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint16_t nBytes
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: nBytes
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: bool fromRam
+|——————Node:primitive_type Text: bool
+|——————Node:identifier Text: fromRam
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: bool *crcIsCorrect
+|——————Node:primitive_type Text: bool
+|——————Node:pointer_declarator Text: *crcIsCorrect
+|———————Node:* Text: *
+|———————Node:identifier Text: crcIsCorrect
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_WriteByteArrayWithCRC(uint16_t address, uint8_t *txd,
+                                         uint16_t nBytes, bool fromRam);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_WriteByteArrayWithCRC(uint16_t address, uint8_t *txd,
+                                         uint16_t nBytes, bool fromRam)
+|————Node:identifier Text: mcp2518fd_WriteByteArrayWithCRC
+|————Node:parameter_list Text: (uint16_t address, uint8_t *txd,
+                                         uint16_t nBytes, bool fromRam)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint16_t address
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: address
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint8_t *txd
+|——————Node:primitive_type Text: uint8_t
+|——————Node:pointer_declarator Text: *txd
+|———————Node:* Text: *
+|———————Node:identifier Text: txd
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint16_t nBytes
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: nBytes
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: bool fromRam
+|——————Node:primitive_type Text: bool
+|——————Node:identifier Text: fromRam
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_ReadWordArray(uint16_t address, uint32_t *rxd,
+                                 uint16_t nWords);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_ReadWordArray(uint16_t address, uint32_t *rxd,
+                                 uint16_t nWords)
+|————Node:identifier Text: mcp2518fd_ReadWordArray
+|————Node:parameter_list Text: (uint16_t address, uint32_t *rxd,
+                                 uint16_t nWords)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint16_t address
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: address
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint32_t *rxd
+|——————Node:primitive_type Text: uint32_t
+|——————Node:pointer_declarator Text: *rxd
+|———————Node:* Text: *
+|———————Node:identifier Text: rxd
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint16_t nWords
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: nWords
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_WriteWordArray(uint16_t address, uint32_t *txd,
+                                  uint16_t nWords);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_WriteWordArray(uint16_t address, uint32_t *txd,
+                                  uint16_t nWords)
+|————Node:identifier Text: mcp2518fd_WriteWordArray
+|————Node:parameter_list Text: (uint16_t address, uint32_t *txd,
+                                  uint16_t nWords)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint16_t address
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: address
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint32_t *txd
+|——————Node:primitive_type Text: uint32_t
+|——————Node:pointer_declarator Text: *txd
+|———————Node:* Text: *
+|———————Node:identifier Text: txd
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint16_t nWords
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: nWords
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:labeled_statement Text: private:
+  int8_t
+  mcp2518fd_BitTimeConfigureNominal40MHz(MCP2518FD_BITTIME_SETUP bitTime);
+|———Node:statement_identifier Text: private
+|———Node:: Text: :
+|———Node:declaration Text: int8_t
+  mcp2518fd_BitTimeConfigureNominal40MHz(MCP2518FD_BITTIME_SETUP bitTime);
+|————Node:primitive_type Text: int8_t
+|————Node:function_declarator Text: mcp2518fd_BitTimeConfigureNominal40MHz(MCP2518FD_BITTIME_SETUP bitTime)
+|—————Node:identifier Text: mcp2518fd_BitTimeConfigureNominal40MHz
+|—————Node:parameter_list Text: (MCP2518FD_BITTIME_SETUP bitTime)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: MCP2518FD_BITTIME_SETUP bitTime
+|———————Node:type_identifier Text: MCP2518FD_BITTIME_SETUP
+|———————Node:identifier Text: bitTime
+|——————Node:) Text: )
+|————Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_BitTimeConfigureData40MHz(MCP2518FD_BITTIME_SETUP bitTime,
+                                             CAN_SSP_MODE sspMode);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_BitTimeConfigureData40MHz(MCP2518FD_BITTIME_SETUP bitTime,
+                                             CAN_SSP_MODE sspMode)
+|————Node:identifier Text: mcp2518fd_BitTimeConfigureData40MHz
+|————Node:parameter_list Text: (MCP2518FD_BITTIME_SETUP bitTime,
+                                             CAN_SSP_MODE sspMode)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: MCP2518FD_BITTIME_SETUP bitTime
+|——————Node:type_identifier Text: MCP2518FD_BITTIME_SETUP
+|——————Node:identifier Text: bitTime
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: CAN_SSP_MODE sspMode
+|——————Node:type_identifier Text: CAN_SSP_MODE
+|——————Node:identifier Text: sspMode
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t
+  mcp2518fd_BitTimeConfigureNominal20MHz(MCP2518FD_BITTIME_SETUP bitTime);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_BitTimeConfigureNominal20MHz(MCP2518FD_BITTIME_SETUP bitTime)
+|————Node:identifier Text: mcp2518fd_BitTimeConfigureNominal20MHz
+|————Node:parameter_list Text: (MCP2518FD_BITTIME_SETUP bitTime)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: MCP2518FD_BITTIME_SETUP bitTime
+|——————Node:type_identifier Text: MCP2518FD_BITTIME_SETUP
+|——————Node:identifier Text: bitTime
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_BitTimeConfigureData20MHz(MCP2518FD_BITTIME_SETUP bitTime,
+                                             CAN_SSP_MODE sspMode);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_BitTimeConfigureData20MHz(MCP2518FD_BITTIME_SETUP bitTime,
+                                             CAN_SSP_MODE sspMode)
+|————Node:identifier Text: mcp2518fd_BitTimeConfigureData20MHz
+|————Node:parameter_list Text: (MCP2518FD_BITTIME_SETUP bitTime,
+                                             CAN_SSP_MODE sspMode)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: MCP2518FD_BITTIME_SETUP bitTime
+|——————Node:type_identifier Text: MCP2518FD_BITTIME_SETUP
+|——————Node:identifier Text: bitTime
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: CAN_SSP_MODE sspMode
+|——————Node:type_identifier Text: CAN_SSP_MODE
+|——————Node:identifier Text: sspMode
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t
+  mcp2518fd_BitTimeConfigureNominal10MHz(MCP2518FD_BITTIME_SETUP bitTime);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_BitTimeConfigureNominal10MHz(MCP2518FD_BITTIME_SETUP bitTime)
+|————Node:identifier Text: mcp2518fd_BitTimeConfigureNominal10MHz
+|————Node:parameter_list Text: (MCP2518FD_BITTIME_SETUP bitTime)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: MCP2518FD_BITTIME_SETUP bitTime
+|——————Node:type_identifier Text: MCP2518FD_BITTIME_SETUP
+|——————Node:identifier Text: bitTime
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: int8_t mcp2518fd_BitTimeConfigureData10MHz(MCP2518FD_BITTIME_SETUP bitTime,
+                                             CAN_SSP_MODE sspMode);
+|———Node:primitive_type Text: int8_t
+|———Node:function_declarator Text: mcp2518fd_BitTimeConfigureData10MHz(MCP2518FD_BITTIME_SETUP bitTime,
+                                             CAN_SSP_MODE sspMode)
+|————Node:identifier Text: mcp2518fd_BitTimeConfigureData10MHz
+|————Node:parameter_list Text: (MCP2518FD_BITTIME_SETUP bitTime,
+                                             CAN_SSP_MODE sspMode)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: MCP2518FD_BITTIME_SETUP bitTime
+|——————Node:type_identifier Text: MCP2518FD_BITTIME_SETUP
+|——————Node:identifier Text: bitTime
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: CAN_SSP_MODE sspMode
+|——————Node:type_identifier Text: CAN_SSP_MODE
+|——————Node:identifier Text: sspMode
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: byte ext_flg;
+|———Node:type_identifier Text: byte
+|———Node:identifier Text: ext_flg
+|———Node:; Text: ;
+|——Node:comment
+|——Node:comment
+|——Node:declaration Text: unsigned long can_id;
+|———Node:sized_type_specifier Text: unsigned long
+|————Node:unsigned Text: unsigned
+|————Node:long Text: long
+|———Node:identifier Text: can_id
+|———Node:; Text: ;
+|——Node:comment
+|——Node:declaration Text: byte rtr;
+|———Node:type_identifier Text: byte
+|———Node:identifier Text: rtr
+|———Node:; Text: ;
+|——Node:comment
+|——Node:declaration Text: byte nReservedTx;
+|———Node:type_identifier Text: byte
+|———Node:identifier Text: nReservedTx
+|———Node:; Text: ;
+|——Node:comment
+|——Node:declaration Text: CAN_OPERATION_MODE mcpMode = CAN_CLASSIC_MODE;
+|———Node:type_identifier Text: CAN_OPERATION_MODE
+|———Node:init_declarator Text: mcpMode = CAN_CLASSIC_MODE
+|————Node:identifier Text: mcpMode
+|————Node:= Text: =
+|————Node:identifier Text: CAN_CLASSIC_MODE
+|———Node:; Text: ;
+|——Node:comment
+|——Node:ERROR Text: }
+|———Node:} Text: }
+|——Node:expression_statement Text: ;
+|———Node:; Text: ;
+|——Node:#endif Text: #endif

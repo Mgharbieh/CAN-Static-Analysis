@@ -1,0 +1,2005 @@
+tincan-src\tincan\canbus.cpp
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include "canbus.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "canbus.h"
+|———Node:" Text: "
+|———Node:string_content Text: canbus.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include <algorithm>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <algorithm>
+|—Node:preproc_include Text: #include "tincan/canbusdef.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "tincan/canbusdef.h"
+|———Node:" Text: "
+|———Node:string_content Text: tincan/canbusdef.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "tincan/signalutil.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "tincan/signalutil.h"
+|———Node:" Text: "
+|———Node:string_content Text: tincan/signalutil.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "util.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "util.h"
+|———Node:" Text: "
+|———Node:string_content Text: util.h
+|———Node:" Text: "
+|—Node:namespace_definition Text: namespace {
+
+
+void calculate_signal_values(tin::Can_frame& frame)
+{
+  if (frame.frame_def->multiplexer) {
+    std::int32_t switch_value = -1;
+    auto it = std::find_if(std::begin(frame.can_signals), std::end(frame.can_signals),
+        [&](auto&& s) { return s.signal_def->multiplex_switch; });
+    if (it != std::end(frame.can_signals)) {
+      const auto* def = it->signal_def;
+      auto raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+      switch_value = static_cast<std::int32_t>(std::get<std::uint64_t>(raw));
+    }
+    for (auto& signal : frame.can_signals) {
+      const auto* def = signal.signal_def;
+      if (def->multiplex_value == -1 || def->multiplex_value == switch_value) {
+        signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+        signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+      }
+    }
+  }
+  else {
+    for (auto& signal : frame.can_signals) {
+      const auto* def = signal.signal_def;
+      signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+      signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+    }
+  }
+}
+
+
+}
+|——Node:namespace Text: namespace
+|——Node:declaration_list Text: {
+
+
+void calculate_signal_values(tin::Can_frame& frame)
+{
+  if (frame.frame_def->multiplexer) {
+    std::int32_t switch_value = -1;
+    auto it = std::find_if(std::begin(frame.can_signals), std::end(frame.can_signals),
+        [&](auto&& s) { return s.signal_def->multiplex_switch; });
+    if (it != std::end(frame.can_signals)) {
+      const auto* def = it->signal_def;
+      auto raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+      switch_value = static_cast<std::int32_t>(std::get<std::uint64_t>(raw));
+    }
+    for (auto& signal : frame.can_signals) {
+      const auto* def = signal.signal_def;
+      if (def->multiplex_value == -1 || def->multiplex_value == switch_value) {
+        signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+        signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+      }
+    }
+  }
+  else {
+    for (auto& signal : frame.can_signals) {
+      const auto* def = signal.signal_def;
+      signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+      signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+    }
+  }
+}
+
+
+}
+|———Node:{ Text: {
+|———Node:function_definition Text: void calculate_signal_values(tin::Can_frame& frame)
+{
+  if (frame.frame_def->multiplexer) {
+    std::int32_t switch_value = -1;
+    auto it = std::find_if(std::begin(frame.can_signals), std::end(frame.can_signals),
+        [&](auto&& s) { return s.signal_def->multiplex_switch; });
+    if (it != std::end(frame.can_signals)) {
+      const auto* def = it->signal_def;
+      auto raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+      switch_value = static_cast<std::int32_t>(std::get<std::uint64_t>(raw));
+    }
+    for (auto& signal : frame.can_signals) {
+      const auto* def = signal.signal_def;
+      if (def->multiplex_value == -1 || def->multiplex_value == switch_value) {
+        signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+        signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+      }
+    }
+  }
+  else {
+    for (auto& signal : frame.can_signals) {
+      const auto* def = signal.signal_def;
+      signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+      signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+    }
+  }
+}
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: calculate_signal_values(tin::Can_frame& frame)
+|—————Node:identifier Text: calculate_signal_values
+|—————Node:parameter_list Text: (tin::Can_frame& frame)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: tin::Can_frame& frame
+|———————Node:qualified_identifier Text: tin::Can_frame
+|————————Node:namespace_identifier Text: tin
+|————————Node::: Text: ::
+|————————Node:type_identifier Text: Can_frame
+|———————Node:reference_declarator Text: & frame
+|————————Node:& Text: &
+|————————Node:identifier Text: frame
+|——————Node:) Text: )
+|————Node:compound_statement Text: {
+  if (frame.frame_def->multiplexer) {
+    std::int32_t switch_value = -1;
+    auto it = std::find_if(std::begin(frame.can_signals), std::end(frame.can_signals),
+        [&](auto&& s) { return s.signal_def->multiplex_switch; });
+    if (it != std::end(frame.can_signals)) {
+      const auto* def = it->signal_def;
+      auto raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+      switch_value = static_cast<std::int32_t>(std::get<std::uint64_t>(raw));
+    }
+    for (auto& signal : frame.can_signals) {
+      const auto* def = signal.signal_def;
+      if (def->multiplex_value == -1 || def->multiplex_value == switch_value) {
+        signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+        signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+      }
+    }
+  }
+  else {
+    for (auto& signal : frame.can_signals) {
+      const auto* def = signal.signal_def;
+      signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+      signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+    }
+  }
+}
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if (frame.frame_def->multiplexer) {
+    std::int32_t switch_value = -1;
+    auto it = std::find_if(std::begin(frame.can_signals), std::end(frame.can_signals),
+        [&](auto&& s) { return s.signal_def->multiplex_switch; });
+    if (it != std::end(frame.can_signals)) {
+      const auto* def = it->signal_def;
+      auto raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+      switch_value = static_cast<std::int32_t>(std::get<std::uint64_t>(raw));
+    }
+    for (auto& signal : frame.can_signals) {
+      const auto* def = signal.signal_def;
+      if (def->multiplex_value == -1 || def->multiplex_value == switch_value) {
+        signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+        signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+      }
+    }
+  }
+  else {
+    for (auto& signal : frame.can_signals) {
+      const auto* def = signal.signal_def;
+      signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+      signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+    }
+  }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (frame.frame_def->multiplexer)
+|———————Node:( Text: (
+|———————Node:field_expression Text: frame.frame_def->multiplexer
+|————————Node:field_expression Text: frame.frame_def
+|—————————Node:identifier Text: frame
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: frame_def
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: multiplexer
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+    std::int32_t switch_value = -1;
+    auto it = std::find_if(std::begin(frame.can_signals), std::end(frame.can_signals),
+        [&](auto&& s) { return s.signal_def->multiplex_switch; });
+    if (it != std::end(frame.can_signals)) {
+      const auto* def = it->signal_def;
+      auto raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+      switch_value = static_cast<std::int32_t>(std::get<std::uint64_t>(raw));
+    }
+    for (auto& signal : frame.can_signals) {
+      const auto* def = signal.signal_def;
+      if (def->multiplex_value == -1 || def->multiplex_value == switch_value) {
+        signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+        signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+      }
+    }
+  }
+|———————Node:{ Text: {
+|———————Node:declaration Text: std::int32_t switch_value = -1;
+|————————Node:qualified_identifier Text: std::int32_t
+|—————————Node:namespace_identifier Text: std
+|—————————Node::: Text: ::
+|—————————Node:type_identifier Text: int32_t
+|————————Node:init_declarator Text: switch_value = -1
+|—————————Node:identifier Text: switch_value
+|—————————Node:= Text: =
+|—————————Node:number_literal Text: -1
+|————————Node:; Text: ;
+|———————Node:declaration Text: auto it = std::find_if(std::begin(frame.can_signals), std::end(frame.can_signals),
+        [&](auto&& s) { return s.signal_def->multiplex_switch; });
+|————————Node:placeholder_type_specifier Text: auto
+|—————————Node:auto Text: auto
+|————————Node:init_declarator Text: it = std::find_if(std::begin(frame.can_signals), std::end(frame.can_signals),
+        [&](auto&& s) { return s.signal_def->multiplex_switch; })
+|—————————Node:identifier Text: it
+|—————————Node:= Text: =
+|—————————Node:call_expression Text: std::find_if(std::begin(frame.can_signals), std::end(frame.can_signals),
+        [&](auto&& s) { return s.signal_def->multiplex_switch; })
+|——————————Node:qualified_identifier Text: std::find_if
+|———————————Node:namespace_identifier Text: std
+|———————————Node::: Text: ::
+|———————————Node:identifier Text: find_if
+|——————————Node:argument_list Text: (std::begin(frame.can_signals), std::end(frame.can_signals),
+        [&](auto&& s) { return s.signal_def->multiplex_switch; })
+|———————————Node:( Text: (
+|———————————Node:call_expression Text: std::begin(frame.can_signals)
+|————————————Node:qualified_identifier Text: std::begin
+|—————————————Node:namespace_identifier Text: std
+|—————————————Node::: Text: ::
+|—————————————Node:identifier Text: begin
+|————————————Node:argument_list Text: (frame.can_signals)
+|—————————————Node:( Text: (
+|—————————————Node:field_expression Text: frame.can_signals
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: can_signals
+|—————————————Node:) Text: )
+|———————————Node:, Text: ,
+|———————————Node:call_expression Text: std::end(frame.can_signals)
+|————————————Node:qualified_identifier Text: std::end
+|—————————————Node:namespace_identifier Text: std
+|—————————————Node::: Text: ::
+|—————————————Node:identifier Text: end
+|————————————Node:argument_list Text: (frame.can_signals)
+|—————————————Node:( Text: (
+|—————————————Node:field_expression Text: frame.can_signals
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: can_signals
+|—————————————Node:) Text: )
+|———————————Node:, Text: ,
+|———————————Node:lambda_expression Text: [&](auto&& s) { return s.signal_def->multiplex_switch; }
+|————————————Node:lambda_capture_specifier Text: [&]
+|—————————————Node:[ Text: [
+|—————————————Node:lambda_default_capture Text: &
+|——————————————Node:& Text: &
+|—————————————Node:] Text: ]
+|————————————Node:abstract_function_declarator Text: (auto&& s)
+|—————————————Node:parameter_list Text: (auto&& s)
+|——————————————Node:( Text: (
+|——————————————Node:parameter_declaration Text: auto&& s
+|———————————————Node:placeholder_type_specifier Text: auto
+|————————————————Node:auto Text: auto
+|———————————————Node:reference_declarator Text: && s
+|————————————————Node:&& Text: &&
+|————————————————Node:identifier Text: s
+|——————————————Node:) Text: )
+|————————————Node:compound_statement Text: { return s.signal_def->multiplex_switch; }
+|—————————————Node:{ Text: {
+|—————————————Node:return_statement Text: return s.signal_def->multiplex_switch;
+|——————————————Node:return Text: return
+|——————————————Node:field_expression Text: s.signal_def->multiplex_switch
+|———————————————Node:field_expression Text: s.signal_def
+|————————————————Node:identifier Text: s
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: signal_def
+|———————————————Node:-> Text: ->
+|———————————————Node:field_identifier Text: multiplex_switch
+|——————————————Node:; Text: ;
+|—————————————Node:} Text: }
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if (it != std::end(frame.can_signals)) {
+      const auto* def = it->signal_def;
+      auto raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+      switch_value = static_cast<std::int32_t>(std::get<std::uint64_t>(raw));
+    }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (it != std::end(frame.can_signals))
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: it != std::end(frame.can_signals)
+|——————————Node:identifier Text: it
+|——————————Node:!= Text: !=
+|——————————Node:call_expression Text: std::end(frame.can_signals)
+|———————————Node:qualified_identifier Text: std::end
+|————————————Node:namespace_identifier Text: std
+|————————————Node::: Text: ::
+|————————————Node:identifier Text: end
+|———————————Node:argument_list Text: (frame.can_signals)
+|————————————Node:( Text: (
+|————————————Node:field_expression Text: frame.can_signals
+|—————————————Node:identifier Text: frame
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: can_signals
+|————————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+      const auto* def = it->signal_def;
+      auto raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+      switch_value = static_cast<std::int32_t>(std::get<std::uint64_t>(raw));
+    }
+|—————————Node:{ Text: {
+|—————————Node:declaration Text: const auto* def = it->signal_def;
+|——————————Node:type_qualifier Text: const
+|———————————Node:const Text: const
+|——————————Node:placeholder_type_specifier Text: auto
+|———————————Node:auto Text: auto
+|——————————Node:init_declarator Text: * def = it->signal_def
+|———————————Node:pointer_declarator Text: * def
+|————————————Node:* Text: *
+|————————————Node:identifier Text: def
+|———————————Node:= Text: =
+|———————————Node:field_expression Text: it->signal_def
+|————————————Node:identifier Text: it
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: signal_def
+|——————————Node:; Text: ;
+|—————————Node:declaration Text: auto raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+|——————————Node:placeholder_type_specifier Text: auto
+|———————————Node:auto Text: auto
+|——————————Node:init_declarator Text: raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign)
+|———————————Node:identifier Text: raw
+|———————————Node:= Text: =
+|———————————Node:call_expression Text: tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign)
+|————————————Node:qualified_identifier Text: tin::build_raw_value
+|—————————————Node:namespace_identifier Text: tin
+|—————————————Node::: Text: ::
+|—————————————Node:identifier Text: build_raw_value
+|————————————Node:argument_list Text: (frame.raw_data, def->pos, def->len, def->order, def->sign)
+|—————————————Node:( Text: (
+|—————————————Node:field_expression Text: frame.raw_data
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: raw_data
+|—————————————Node:, Text: ,
+|—————————————Node:field_expression Text: def->pos
+|——————————————Node:identifier Text: def
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: pos
+|—————————————Node:, Text: ,
+|—————————————Node:field_expression Text: def->len
+|——————————————Node:identifier Text: def
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: len
+|—————————————Node:, Text: ,
+|—————————————Node:field_expression Text: def->order
+|——————————————Node:identifier Text: def
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: order
+|—————————————Node:, Text: ,
+|—————————————Node:field_expression Text: def->sign
+|——————————————Node:identifier Text: def
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: sign
+|—————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: switch_value = static_cast<std::int32_t>(std::get<std::uint64_t>(raw));
+|——————————Node:assignment_expression Text: switch_value = static_cast<std::int32_t>(std::get<std::uint64_t>(raw))
+|———————————Node:identifier Text: switch_value
+|———————————Node:= Text: =
+|———————————Node:call_expression Text: static_cast<std::int32_t>(std::get<std::uint64_t>(raw))
+|————————————Node:template_function Text: static_cast<std::int32_t>
+|—————————————Node:identifier Text: static_cast
+|—————————————Node:template_argument_list Text: <std::int32_t>
+|——————————————Node:< Text: <
+|——————————————Node:type_descriptor Text: std::int32_t
+|———————————————Node:qualified_identifier Text: std::int32_t
+|————————————————Node:namespace_identifier Text: std
+|————————————————Node::: Text: ::
+|————————————————Node:type_identifier Text: int32_t
+|——————————————Node:> Text: >
+|————————————Node:argument_list Text: (std::get<std::uint64_t>(raw))
+|—————————————Node:( Text: (
+|—————————————Node:call_expression Text: std::get<std::uint64_t>(raw)
+|——————————————Node:qualified_identifier Text: std::get<std::uint64_t>
+|———————————————Node:namespace_identifier Text: std
+|———————————————Node::: Text: ::
+|———————————————Node:template_function Text: get<std::uint64_t>
+|————————————————Node:identifier Text: get
+|————————————————Node:template_argument_list Text: <std::uint64_t>
+|—————————————————Node:< Text: <
+|—————————————————Node:type_descriptor Text: std::uint64_t
+|——————————————————Node:qualified_identifier Text: std::uint64_t
+|———————————————————Node:namespace_identifier Text: std
+|———————————————————Node::: Text: ::
+|———————————————————Node:type_identifier Text: uint64_t
+|—————————————————Node:> Text: >
+|——————————————Node:argument_list Text: (raw)
+|———————————————Node:( Text: (
+|———————————————Node:identifier Text: raw
+|———————————————Node:) Text: )
+|—————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:for_range_loop Text: for (auto& signal : frame.can_signals) {
+      const auto* def = signal.signal_def;
+      if (def->multiplex_value == -1 || def->multiplex_value == switch_value) {
+        signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+        signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+      }
+    }
+|————————Node:for Text: for
+|————————Node:( Text: (
+|————————Node:placeholder_type_specifier Text: auto
+|—————————Node:auto Text: auto
+|————————Node:reference_declarator Text: & signal
+|—————————Node:& Text: &
+|—————————Node:identifier Text: signal
+|————————Node:: Text: :
+|————————Node:field_expression Text: frame.can_signals
+|—————————Node:identifier Text: frame
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: can_signals
+|————————Node:) Text: )
+|————————Node:compound_statement Text: {
+      const auto* def = signal.signal_def;
+      if (def->multiplex_value == -1 || def->multiplex_value == switch_value) {
+        signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+        signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+      }
+    }
+|—————————Node:{ Text: {
+|—————————Node:declaration Text: const auto* def = signal.signal_def;
+|——————————Node:type_qualifier Text: const
+|———————————Node:const Text: const
+|——————————Node:placeholder_type_specifier Text: auto
+|———————————Node:auto Text: auto
+|——————————Node:init_declarator Text: * def = signal.signal_def
+|———————————Node:pointer_declarator Text: * def
+|————————————Node:* Text: *
+|————————————Node:identifier Text: def
+|———————————Node:= Text: =
+|———————————Node:field_expression Text: signal.signal_def
+|————————————Node:identifier Text: signal
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: signal_def
+|——————————Node:; Text: ;
+|—————————Node:if_statement Text: if (def->multiplex_value == -1 || def->multiplex_value == switch_value) {
+        signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+        signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+      }
+|——————————Node:if Text: if
+|——————————Node:condition_clause Text: (def->multiplex_value == -1 || def->multiplex_value == switch_value)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: def->multiplex_value == -1 || def->multiplex_value == switch_value
+|————————————Node:binary_expression Text: def->multiplex_value == -1
+|—————————————Node:field_expression Text: def->multiplex_value
+|——————————————Node:identifier Text: def
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: multiplex_value
+|—————————————Node:== Text: ==
+|—————————————Node:number_literal Text: -1
+|————————————Node:|| Text: ||
+|————————————Node:binary_expression Text: def->multiplex_value == switch_value
+|—————————————Node:field_expression Text: def->multiplex_value
+|——————————————Node:identifier Text: def
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: multiplex_value
+|—————————————Node:== Text: ==
+|—————————————Node:identifier Text: switch_value
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+        signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+        signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+      }
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+|————————————Node:assignment_expression Text: signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign)
+|—————————————Node:field_expression Text: signal.raw
+|——————————————Node:identifier Text: signal
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: raw
+|—————————————Node:= Text: =
+|—————————————Node:call_expression Text: tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign)
+|——————————————Node:qualified_identifier Text: tin::build_raw_value
+|———————————————Node:namespace_identifier Text: tin
+|———————————————Node::: Text: ::
+|———————————————Node:identifier Text: build_raw_value
+|——————————————Node:argument_list Text: (frame.raw_data, def->pos, def->len, def->order, def->sign)
+|———————————————Node:( Text: (
+|———————————————Node:field_expression Text: frame.raw_data
+|————————————————Node:identifier Text: frame
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: raw_data
+|———————————————Node:, Text: ,
+|———————————————Node:field_expression Text: def->pos
+|————————————————Node:identifier Text: def
+|————————————————Node:-> Text: ->
+|————————————————Node:field_identifier Text: pos
+|———————————————Node:, Text: ,
+|———————————————Node:field_expression Text: def->len
+|————————————————Node:identifier Text: def
+|————————————————Node:-> Text: ->
+|————————————————Node:field_identifier Text: len
+|———————————————Node:, Text: ,
+|———————————————Node:field_expression Text: def->order
+|————————————————Node:identifier Text: def
+|————————————————Node:-> Text: ->
+|————————————————Node:field_identifier Text: order
+|———————————————Node:, Text: ,
+|———————————————Node:field_expression Text: def->sign
+|————————————————Node:identifier Text: def
+|————————————————Node:-> Text: ->
+|————————————————Node:field_identifier Text: sign
+|———————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:expression_statement Text: signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+|————————————Node:assignment_expression Text: signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset)
+|—————————————Node:field_expression Text: signal.phys
+|——————————————Node:identifier Text: signal
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: phys
+|—————————————Node:= Text: =
+|—————————————Node:call_expression Text: tin::calc_phys_value(signal.raw, def->factor, def->offset)
+|——————————————Node:qualified_identifier Text: tin::calc_phys_value
+|———————————————Node:namespace_identifier Text: tin
+|———————————————Node::: Text: ::
+|———————————————Node:identifier Text: calc_phys_value
+|——————————————Node:argument_list Text: (signal.raw, def->factor, def->offset)
+|———————————————Node:( Text: (
+|———————————————Node:field_expression Text: signal.raw
+|————————————————Node:identifier Text: signal
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: raw
+|———————————————Node:, Text: ,
+|———————————————Node:field_expression Text: def->factor
+|————————————————Node:identifier Text: def
+|————————————————Node:-> Text: ->
+|————————————————Node:field_identifier Text: factor
+|———————————————Node:, Text: ,
+|———————————————Node:field_expression Text: def->offset
+|————————————————Node:identifier Text: def
+|————————————————Node:-> Text: ->
+|————————————————Node:field_identifier Text: offset
+|———————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|——————Node:else_clause Text: else {
+    for (auto& signal : frame.can_signals) {
+      const auto* def = signal.signal_def;
+      signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+      signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+    }
+  }
+|———————Node:else Text: else
+|———————Node:compound_statement Text: {
+    for (auto& signal : frame.can_signals) {
+      const auto* def = signal.signal_def;
+      signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+      signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+    }
+  }
+|————————Node:{ Text: {
+|————————Node:for_range_loop Text: for (auto& signal : frame.can_signals) {
+      const auto* def = signal.signal_def;
+      signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+      signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+    }
+|—————————Node:for Text: for
+|—————————Node:( Text: (
+|—————————Node:placeholder_type_specifier Text: auto
+|——————————Node:auto Text: auto
+|—————————Node:reference_declarator Text: & signal
+|——————————Node:& Text: &
+|——————————Node:identifier Text: signal
+|—————————Node:: Text: :
+|—————————Node:field_expression Text: frame.can_signals
+|——————————Node:identifier Text: frame
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: can_signals
+|—————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+      const auto* def = signal.signal_def;
+      signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+      signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+    }
+|——————————Node:{ Text: {
+|——————————Node:declaration Text: const auto* def = signal.signal_def;
+|———————————Node:type_qualifier Text: const
+|————————————Node:const Text: const
+|———————————Node:placeholder_type_specifier Text: auto
+|————————————Node:auto Text: auto
+|———————————Node:init_declarator Text: * def = signal.signal_def
+|————————————Node:pointer_declarator Text: * def
+|—————————————Node:* Text: *
+|—————————————Node:identifier Text: def
+|————————————Node:= Text: =
+|————————————Node:field_expression Text: signal.signal_def
+|—————————————Node:identifier Text: signal
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: signal_def
+|———————————Node:; Text: ;
+|——————————Node:expression_statement Text: signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign);
+|———————————Node:assignment_expression Text: signal.raw = tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign)
+|————————————Node:field_expression Text: signal.raw
+|—————————————Node:identifier Text: signal
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: raw
+|————————————Node:= Text: =
+|————————————Node:call_expression Text: tin::build_raw_value(frame.raw_data, def->pos, def->len, def->order, def->sign)
+|—————————————Node:qualified_identifier Text: tin::build_raw_value
+|——————————————Node:namespace_identifier Text: tin
+|——————————————Node::: Text: ::
+|——————————————Node:identifier Text: build_raw_value
+|—————————————Node:argument_list Text: (frame.raw_data, def->pos, def->len, def->order, def->sign)
+|——————————————Node:( Text: (
+|——————————————Node:field_expression Text: frame.raw_data
+|———————————————Node:identifier Text: frame
+|———————————————Node:. Text: .
+|———————————————Node:field_identifier Text: raw_data
+|——————————————Node:, Text: ,
+|——————————————Node:field_expression Text: def->pos
+|———————————————Node:identifier Text: def
+|———————————————Node:-> Text: ->
+|———————————————Node:field_identifier Text: pos
+|——————————————Node:, Text: ,
+|——————————————Node:field_expression Text: def->len
+|———————————————Node:identifier Text: def
+|———————————————Node:-> Text: ->
+|———————————————Node:field_identifier Text: len
+|——————————————Node:, Text: ,
+|——————————————Node:field_expression Text: def->order
+|———————————————Node:identifier Text: def
+|———————————————Node:-> Text: ->
+|———————————————Node:field_identifier Text: order
+|——————————————Node:, Text: ,
+|——————————————Node:field_expression Text: def->sign
+|———————————————Node:identifier Text: def
+|———————————————Node:-> Text: ->
+|———————————————Node:field_identifier Text: sign
+|——————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:expression_statement Text: signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset);
+|———————————Node:assignment_expression Text: signal.phys = tin::calc_phys_value(signal.raw, def->factor, def->offset)
+|————————————Node:field_expression Text: signal.phys
+|—————————————Node:identifier Text: signal
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: phys
+|————————————Node:= Text: =
+|————————————Node:call_expression Text: tin::calc_phys_value(signal.raw, def->factor, def->offset)
+|—————————————Node:qualified_identifier Text: tin::calc_phys_value
+|——————————————Node:namespace_identifier Text: tin
+|——————————————Node::: Text: ::
+|——————————————Node:identifier Text: calc_phys_value
+|—————————————Node:argument_list Text: (signal.raw, def->factor, def->offset)
+|——————————————Node:( Text: (
+|——————————————Node:field_expression Text: signal.raw
+|———————————————Node:identifier Text: signal
+|———————————————Node:. Text: .
+|———————————————Node:field_identifier Text: raw
+|——————————————Node:, Text: ,
+|——————————————Node:field_expression Text: def->factor
+|———————————————Node:identifier Text: def
+|———————————————Node:-> Text: ->
+|———————————————Node:field_identifier Text: factor
+|——————————————Node:, Text: ,
+|——————————————Node:field_expression Text: def->offset
+|———————————————Node:identifier Text: def
+|———————————————Node:-> Text: ->
+|———————————————Node:field_identifier Text: offset
+|——————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|————————Node:} Text: }
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: void tin::Can_bus::reset()
+{
+  set_definition(nullptr);
+  reset_frames();
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: tin::Can_bus::reset()
+|———Node:qualified_identifier Text: tin::Can_bus::reset
+|————Node:namespace_identifier Text: tin
+|————Node::: Text: ::
+|————Node:qualified_identifier Text: Can_bus::reset
+|—————Node:namespace_identifier Text: Can_bus
+|—————Node::: Text: ::
+|—————Node:identifier Text: reset
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  set_definition(nullptr);
+  reset_frames();
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: set_definition(nullptr);
+|————Node:call_expression Text: set_definition(nullptr)
+|—————Node:identifier Text: set_definition
+|—————Node:argument_list Text: (nullptr)
+|——————Node:( Text: (
+|——————Node:null Text: nullptr
+|———————Node:nullptr Text: nullptr
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: reset_frames();
+|————Node:call_expression Text: reset_frames()
+|—————Node:identifier Text: reset_frames
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: const tin::Can_frame* tin::Can_bus::frame(std::uint32_t id) const
+{
+  auto it = frames_.find(id);
+
+  if (it != std::end(frames_)) {
+    return &it->second;
+  }
+
+  return nullptr;
+}
+|——Node:type_qualifier Text: const
+|———Node:const Text: const
+|——Node:qualified_identifier Text: tin::Can_frame
+|———Node:namespace_identifier Text: tin
+|———Node::: Text: ::
+|———Node:type_identifier Text: Can_frame
+|——Node:pointer_declarator Text: * tin::Can_bus::frame(std::uint32_t id) const
+|———Node:* Text: *
+|———Node:function_declarator Text: tin::Can_bus::frame(std::uint32_t id) const
+|————Node:qualified_identifier Text: tin::Can_bus::frame
+|—————Node:namespace_identifier Text: tin
+|—————Node::: Text: ::
+|—————Node:qualified_identifier Text: Can_bus::frame
+|——————Node:namespace_identifier Text: Can_bus
+|——————Node::: Text: ::
+|——————Node:identifier Text: frame
+|————Node:parameter_list Text: (std::uint32_t id)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: std::uint32_t id
+|——————Node:qualified_identifier Text: std::uint32_t
+|———————Node:namespace_identifier Text: std
+|———————Node::: Text: ::
+|———————Node:type_identifier Text: uint32_t
+|——————Node:identifier Text: id
+|—————Node:) Text: )
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|——Node:compound_statement Text: {
+  auto it = frames_.find(id);
+
+  if (it != std::end(frames_)) {
+    return &it->second;
+  }
+
+  return nullptr;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: auto it = frames_.find(id);
+|————Node:placeholder_type_specifier Text: auto
+|—————Node:auto Text: auto
+|————Node:init_declarator Text: it = frames_.find(id)
+|—————Node:identifier Text: it
+|—————Node:= Text: =
+|—————Node:call_expression Text: frames_.find(id)
+|——————Node:field_expression Text: frames_.find
+|———————Node:identifier Text: frames_
+|———————Node:. Text: .
+|———————Node:field_identifier Text: find
+|——————Node:argument_list Text: (id)
+|———————Node:( Text: (
+|———————Node:identifier Text: id
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (it != std::end(frames_)) {
+    return &it->second;
+  }
+|————Node:if Text: if
+|————Node:condition_clause Text: (it != std::end(frames_))
+|—————Node:( Text: (
+|—————Node:binary_expression Text: it != std::end(frames_)
+|——————Node:identifier Text: it
+|——————Node:!= Text: !=
+|——————Node:call_expression Text: std::end(frames_)
+|———————Node:qualified_identifier Text: std::end
+|————————Node:namespace_identifier Text: std
+|————————Node::: Text: ::
+|————————Node:identifier Text: end
+|———————Node:argument_list Text: (frames_)
+|————————Node:( Text: (
+|————————Node:identifier Text: frames_
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    return &it->second;
+  }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return &it->second;
+|——————Node:return Text: return
+|——————Node:pointer_expression Text: &it->second
+|———————Node:& Text: &
+|———————Node:field_expression Text: it->second
+|————————Node:identifier Text: it
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: second
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return nullptr;
+|————Node:return Text: return
+|————Node:null Text: nullptr
+|—————Node:nullptr Text: nullptr
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void tin::Can_bus::add_frame(std::uint64_t time, tin::Can_raw_frame raw_frame)
+{
+  constexpr std::uint32_t CAN_FLAG_EXT = 1u << 31;
+  constexpr std::uint32_t CAN_FLAG_RTR = 1u << 30;
+  constexpr std::uint32_t CAN_FLAG_ERR = 1u << 29;
+
+  auto it = frames_.find(raw_frame.id & 0x1fffffff);
+  if (it != std::end(frames_)) {  // Frame was received previously, update data
+    auto& frame = it->second;
+    frame.raw_data = raw_frame.data;
+    frame.extended = (raw_frame.id & CAN_FLAG_EXT) != 0;
+    frame.rtr = (raw_frame.id & CAN_FLAG_RTR) != 0;
+    frame.error = (raw_frame.id & CAN_FLAG_ERR) != 0;
+    frame.receive_time = time;
+    frame.last_receive_system_time = util::Timer::system_now();
+    frame.alive = true;
+    auto& prev_time = prev_frame_time_[frame.id];
+    auto& cycle_times = cycle_times_[frame.id];
+    cycle_times.push_back(static_cast<std::int32_t>(time - prev_time));
+    frame.mean_cycle_time = util::math::mean(cycle_times);
+    prev_time = time;
+    if (frame.frame_def) {
+      calculate_signal_values(frame);
+    }
+  }
+  else {  // A new frame, add to bus
+    Can_frame frame;
+    frame.id = raw_frame.id & 0x1fffffff;
+    frame.length = raw_frame.dlc;
+    frame.raw_data = raw_frame.data;
+    frame.extended = (raw_frame.id & CAN_FLAG_EXT) != 0;
+    frame.rtr = (raw_frame.id & CAN_FLAG_RTR) != 0;
+    frame.error = (raw_frame.id & CAN_FLAG_ERR) != 0;
+    frame.receive_time = time;
+    frame.last_receive_system_time = util::Timer::system_now();
+    frame.alive = true;
+
+    prev_frame_time_[frame.id] = time;
+    cycle_times_[frame.id] = boost::circular_buffer<std::int32_t>{20};
+
+    if (bus_def_) {
+      if (frame.frame_def = find_frame_def(*bus_def_, raw_frame.id); frame.frame_def) {
+        for (const auto& signal_def : frame.frame_def->can_signal_defs) {
+          frame.can_signals.emplace_back();
+          frame.can_signals.back().signal_def = &signal_def;
+        }
+        calculate_signal_values(frame);
+      }
+    }
+
+    frames_[frame.id] = frame;
+  }
+
+  emit frame_received(frame.id);
+  emit data_changed(frame.id);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: tin::Can_bus::add_frame(std::uint64_t time, tin::Can_raw_frame raw_frame)
+|———Node:qualified_identifier Text: tin::Can_bus::add_frame
+|————Node:namespace_identifier Text: tin
+|————Node::: Text: ::
+|————Node:qualified_identifier Text: Can_bus::add_frame
+|—————Node:namespace_identifier Text: Can_bus
+|—————Node::: Text: ::
+|—————Node:identifier Text: add_frame
+|———Node:parameter_list Text: (std::uint64_t time, tin::Can_raw_frame raw_frame)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: std::uint64_t time
+|—————Node:qualified_identifier Text: std::uint64_t
+|——————Node:namespace_identifier Text: std
+|——————Node::: Text: ::
+|——————Node:type_identifier Text: uint64_t
+|—————Node:identifier Text: time
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: tin::Can_raw_frame raw_frame
+|—————Node:qualified_identifier Text: tin::Can_raw_frame
+|——————Node:namespace_identifier Text: tin
+|——————Node::: Text: ::
+|——————Node:type_identifier Text: Can_raw_frame
+|—————Node:identifier Text: raw_frame
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  constexpr std::uint32_t CAN_FLAG_EXT = 1u << 31;
+  constexpr std::uint32_t CAN_FLAG_RTR = 1u << 30;
+  constexpr std::uint32_t CAN_FLAG_ERR = 1u << 29;
+
+  auto it = frames_.find(raw_frame.id & 0x1fffffff);
+  if (it != std::end(frames_)) {  // Frame was received previously, update data
+    auto& frame = it->second;
+    frame.raw_data = raw_frame.data;
+    frame.extended = (raw_frame.id & CAN_FLAG_EXT) != 0;
+    frame.rtr = (raw_frame.id & CAN_FLAG_RTR) != 0;
+    frame.error = (raw_frame.id & CAN_FLAG_ERR) != 0;
+    frame.receive_time = time;
+    frame.last_receive_system_time = util::Timer::system_now();
+    frame.alive = true;
+    auto& prev_time = prev_frame_time_[frame.id];
+    auto& cycle_times = cycle_times_[frame.id];
+    cycle_times.push_back(static_cast<std::int32_t>(time - prev_time));
+    frame.mean_cycle_time = util::math::mean(cycle_times);
+    prev_time = time;
+    if (frame.frame_def) {
+      calculate_signal_values(frame);
+    }
+  }
+  else {  // A new frame, add to bus
+    Can_frame frame;
+    frame.id = raw_frame.id & 0x1fffffff;
+    frame.length = raw_frame.dlc;
+    frame.raw_data = raw_frame.data;
+    frame.extended = (raw_frame.id & CAN_FLAG_EXT) != 0;
+    frame.rtr = (raw_frame.id & CAN_FLAG_RTR) != 0;
+    frame.error = (raw_frame.id & CAN_FLAG_ERR) != 0;
+    frame.receive_time = time;
+    frame.last_receive_system_time = util::Timer::system_now();
+    frame.alive = true;
+
+    prev_frame_time_[frame.id] = time;
+    cycle_times_[frame.id] = boost::circular_buffer<std::int32_t>{20};
+
+    if (bus_def_) {
+      if (frame.frame_def = find_frame_def(*bus_def_, raw_frame.id); frame.frame_def) {
+        for (const auto& signal_def : frame.frame_def->can_signal_defs) {
+          frame.can_signals.emplace_back();
+          frame.can_signals.back().signal_def = &signal_def;
+        }
+        calculate_signal_values(frame);
+      }
+    }
+
+    frames_[frame.id] = frame;
+  }
+
+  emit frame_received(frame.id);
+  emit data_changed(frame.id);
+}
+|———Node:{ Text: {
+|———Node:declaration Text: constexpr std::uint32_t CAN_FLAG_EXT = 1u << 31;
+|————Node:type_qualifier Text: constexpr
+|—————Node:constexpr Text: constexpr
+|————Node:qualified_identifier Text: std::uint32_t
+|—————Node:namespace_identifier Text: std
+|—————Node::: Text: ::
+|—————Node:type_identifier Text: uint32_t
+|————Node:init_declarator Text: CAN_FLAG_EXT = 1u << 31
+|—————Node:identifier Text: CAN_FLAG_EXT
+|—————Node:= Text: =
+|—————Node:binary_expression Text: 1u << 31
+|——————Node:number_literal Text: 1u
+|——————Node:<< Text: <<
+|——————Node:number_literal Text: 31
+|————Node:; Text: ;
+|———Node:declaration Text: constexpr std::uint32_t CAN_FLAG_RTR = 1u << 30;
+|————Node:type_qualifier Text: constexpr
+|—————Node:constexpr Text: constexpr
+|————Node:qualified_identifier Text: std::uint32_t
+|—————Node:namespace_identifier Text: std
+|—————Node::: Text: ::
+|—————Node:type_identifier Text: uint32_t
+|————Node:init_declarator Text: CAN_FLAG_RTR = 1u << 30
+|—————Node:identifier Text: CAN_FLAG_RTR
+|—————Node:= Text: =
+|—————Node:binary_expression Text: 1u << 30
+|——————Node:number_literal Text: 1u
+|——————Node:<< Text: <<
+|——————Node:number_literal Text: 30
+|————Node:; Text: ;
+|———Node:declaration Text: constexpr std::uint32_t CAN_FLAG_ERR = 1u << 29;
+|————Node:type_qualifier Text: constexpr
+|—————Node:constexpr Text: constexpr
+|————Node:qualified_identifier Text: std::uint32_t
+|—————Node:namespace_identifier Text: std
+|—————Node::: Text: ::
+|—————Node:type_identifier Text: uint32_t
+|————Node:init_declarator Text: CAN_FLAG_ERR = 1u << 29
+|—————Node:identifier Text: CAN_FLAG_ERR
+|—————Node:= Text: =
+|—————Node:binary_expression Text: 1u << 29
+|——————Node:number_literal Text: 1u
+|——————Node:<< Text: <<
+|——————Node:number_literal Text: 29
+|————Node:; Text: ;
+|———Node:declaration Text: auto it = frames_.find(raw_frame.id & 0x1fffffff);
+|————Node:placeholder_type_specifier Text: auto
+|—————Node:auto Text: auto
+|————Node:init_declarator Text: it = frames_.find(raw_frame.id & 0x1fffffff)
+|—————Node:identifier Text: it
+|—————Node:= Text: =
+|—————Node:call_expression Text: frames_.find(raw_frame.id & 0x1fffffff)
+|——————Node:field_expression Text: frames_.find
+|———————Node:identifier Text: frames_
+|———————Node:. Text: .
+|———————Node:field_identifier Text: find
+|——————Node:argument_list Text: (raw_frame.id & 0x1fffffff)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: raw_frame.id & 0x1fffffff
+|————————Node:field_expression Text: raw_frame.id
+|—————————Node:identifier Text: raw_frame
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: id
+|————————Node:& Text: &
+|————————Node:number_literal Text: 0x1fffffff
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (it != std::end(frames_)) {  // Frame was received previously, update data
+    auto& frame = it->second;
+    frame.raw_data = raw_frame.data;
+    frame.extended = (raw_frame.id & CAN_FLAG_EXT) != 0;
+    frame.rtr = (raw_frame.id & CAN_FLAG_RTR) != 0;
+    frame.error = (raw_frame.id & CAN_FLAG_ERR) != 0;
+    frame.receive_time = time;
+    frame.last_receive_system_time = util::Timer::system_now();
+    frame.alive = true;
+    auto& prev_time = prev_frame_time_[frame.id];
+    auto& cycle_times = cycle_times_[frame.id];
+    cycle_times.push_back(static_cast<std::int32_t>(time - prev_time));
+    frame.mean_cycle_time = util::math::mean(cycle_times);
+    prev_time = time;
+    if (frame.frame_def) {
+      calculate_signal_values(frame);
+    }
+  }
+  else {  // A new frame, add to bus
+    Can_frame frame;
+    frame.id = raw_frame.id & 0x1fffffff;
+    frame.length = raw_frame.dlc;
+    frame.raw_data = raw_frame.data;
+    frame.extended = (raw_frame.id & CAN_FLAG_EXT) != 0;
+    frame.rtr = (raw_frame.id & CAN_FLAG_RTR) != 0;
+    frame.error = (raw_frame.id & CAN_FLAG_ERR) != 0;
+    frame.receive_time = time;
+    frame.last_receive_system_time = util::Timer::system_now();
+    frame.alive = true;
+
+    prev_frame_time_[frame.id] = time;
+    cycle_times_[frame.id] = boost::circular_buffer<std::int32_t>{20};
+
+    if (bus_def_) {
+      if (frame.frame_def = find_frame_def(*bus_def_, raw_frame.id); frame.frame_def) {
+        for (const auto& signal_def : frame.frame_def->can_signal_defs) {
+          frame.can_signals.emplace_back();
+          frame.can_signals.back().signal_def = &signal_def;
+        }
+        calculate_signal_values(frame);
+      }
+    }
+
+    frames_[frame.id] = frame;
+  }
+|————Node:if Text: if
+|————Node:condition_clause Text: (it != std::end(frames_))
+|—————Node:( Text: (
+|—————Node:binary_expression Text: it != std::end(frames_)
+|——————Node:identifier Text: it
+|——————Node:!= Text: !=
+|——————Node:call_expression Text: std::end(frames_)
+|———————Node:qualified_identifier Text: std::end
+|————————Node:namespace_identifier Text: std
+|————————Node::: Text: ::
+|————————Node:identifier Text: end
+|———————Node:argument_list Text: (frames_)
+|————————Node:( Text: (
+|————————Node:identifier Text: frames_
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {  // Frame was received previously, update data
+    auto& frame = it->second;
+    frame.raw_data = raw_frame.data;
+    frame.extended = (raw_frame.id & CAN_FLAG_EXT) != 0;
+    frame.rtr = (raw_frame.id & CAN_FLAG_RTR) != 0;
+    frame.error = (raw_frame.id & CAN_FLAG_ERR) != 0;
+    frame.receive_time = time;
+    frame.last_receive_system_time = util::Timer::system_now();
+    frame.alive = true;
+    auto& prev_time = prev_frame_time_[frame.id];
+    auto& cycle_times = cycle_times_[frame.id];
+    cycle_times.push_back(static_cast<std::int32_t>(time - prev_time));
+    frame.mean_cycle_time = util::math::mean(cycle_times);
+    prev_time = time;
+    if (frame.frame_def) {
+      calculate_signal_values(frame);
+    }
+  }
+|—————Node:{ Text: {
+|—————Node:comment
+|—————Node:declaration Text: auto& frame = it->second;
+|——————Node:placeholder_type_specifier Text: auto
+|———————Node:auto Text: auto
+|——————Node:init_declarator Text: & frame = it->second
+|———————Node:reference_declarator Text: & frame
+|————————Node:& Text: &
+|————————Node:identifier Text: frame
+|———————Node:= Text: =
+|———————Node:field_expression Text: it->second
+|————————Node:identifier Text: it
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: second
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: frame.raw_data = raw_frame.data;
+|——————Node:assignment_expression Text: frame.raw_data = raw_frame.data
+|———————Node:field_expression Text: frame.raw_data
+|————————Node:identifier Text: frame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: raw_data
+|———————Node:= Text: =
+|———————Node:field_expression Text: raw_frame.data
+|————————Node:identifier Text: raw_frame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: data
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: frame.extended = (raw_frame.id & CAN_FLAG_EXT) != 0;
+|——————Node:assignment_expression Text: frame.extended = (raw_frame.id & CAN_FLAG_EXT) != 0
+|———————Node:field_expression Text: frame.extended
+|————————Node:identifier Text: frame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: extended
+|———————Node:= Text: =
+|———————Node:binary_expression Text: (raw_frame.id & CAN_FLAG_EXT) != 0
+|————————Node:parenthesized_expression Text: (raw_frame.id & CAN_FLAG_EXT)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: raw_frame.id & CAN_FLAG_EXT
+|——————————Node:field_expression Text: raw_frame.id
+|———————————Node:identifier Text: raw_frame
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: id
+|——————————Node:& Text: &
+|——————————Node:identifier Text: CAN_FLAG_EXT
+|—————————Node:) Text: )
+|————————Node:!= Text: !=
+|————————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: frame.rtr = (raw_frame.id & CAN_FLAG_RTR) != 0;
+|——————Node:assignment_expression Text: frame.rtr = (raw_frame.id & CAN_FLAG_RTR) != 0
+|———————Node:field_expression Text: frame.rtr
+|————————Node:identifier Text: frame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: rtr
+|———————Node:= Text: =
+|———————Node:binary_expression Text: (raw_frame.id & CAN_FLAG_RTR) != 0
+|————————Node:parenthesized_expression Text: (raw_frame.id & CAN_FLAG_RTR)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: raw_frame.id & CAN_FLAG_RTR
+|——————————Node:field_expression Text: raw_frame.id
+|———————————Node:identifier Text: raw_frame
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: id
+|——————————Node:& Text: &
+|——————————Node:identifier Text: CAN_FLAG_RTR
+|—————————Node:) Text: )
+|————————Node:!= Text: !=
+|————————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: frame.error = (raw_frame.id & CAN_FLAG_ERR) != 0;
+|——————Node:assignment_expression Text: frame.error = (raw_frame.id & CAN_FLAG_ERR) != 0
+|———————Node:field_expression Text: frame.error
+|————————Node:identifier Text: frame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: error
+|———————Node:= Text: =
+|———————Node:binary_expression Text: (raw_frame.id & CAN_FLAG_ERR) != 0
+|————————Node:parenthesized_expression Text: (raw_frame.id & CAN_FLAG_ERR)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: raw_frame.id & CAN_FLAG_ERR
+|——————————Node:field_expression Text: raw_frame.id
+|———————————Node:identifier Text: raw_frame
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: id
+|——————————Node:& Text: &
+|——————————Node:identifier Text: CAN_FLAG_ERR
+|—————————Node:) Text: )
+|————————Node:!= Text: !=
+|————————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: frame.receive_time = time;
+|——————Node:assignment_expression Text: frame.receive_time = time
+|———————Node:field_expression Text: frame.receive_time
+|————————Node:identifier Text: frame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: receive_time
+|———————Node:= Text: =
+|———————Node:identifier Text: time
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: frame.last_receive_system_time = util::Timer::system_now();
+|——————Node:assignment_expression Text: frame.last_receive_system_time = util::Timer::system_now()
+|———————Node:field_expression Text: frame.last_receive_system_time
+|————————Node:identifier Text: frame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: last_receive_system_time
+|———————Node:= Text: =
+|———————Node:call_expression Text: util::Timer::system_now()
+|————————Node:qualified_identifier Text: util::Timer::system_now
+|—————————Node:namespace_identifier Text: util
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: Timer::system_now
+|——————————Node:namespace_identifier Text: Timer
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: system_now
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: frame.alive = true;
+|——————Node:assignment_expression Text: frame.alive = true
+|———————Node:field_expression Text: frame.alive
+|————————Node:identifier Text: frame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: alive
+|———————Node:= Text: =
+|———————Node:true Text: true
+|——————Node:; Text: ;
+|—————Node:declaration Text: auto& prev_time = prev_frame_time_[frame.id];
+|——————Node:placeholder_type_specifier Text: auto
+|———————Node:auto Text: auto
+|——————Node:init_declarator Text: & prev_time = prev_frame_time_[frame.id]
+|———————Node:reference_declarator Text: & prev_time
+|————————Node:& Text: &
+|————————Node:identifier Text: prev_time
+|———————Node:= Text: =
+|———————Node:subscript_expression Text: prev_frame_time_[frame.id]
+|————————Node:identifier Text: prev_frame_time_
+|————————Node:subscript_argument_list Text: [frame.id]
+|—————————Node:[ Text: [
+|—————————Node:field_expression Text: frame.id
+|——————————Node:identifier Text: frame
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: id
+|—————————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:declaration Text: auto& cycle_times = cycle_times_[frame.id];
+|——————Node:placeholder_type_specifier Text: auto
+|———————Node:auto Text: auto
+|——————Node:init_declarator Text: & cycle_times = cycle_times_[frame.id]
+|———————Node:reference_declarator Text: & cycle_times
+|————————Node:& Text: &
+|————————Node:identifier Text: cycle_times
+|———————Node:= Text: =
+|———————Node:subscript_expression Text: cycle_times_[frame.id]
+|————————Node:identifier Text: cycle_times_
+|————————Node:subscript_argument_list Text: [frame.id]
+|—————————Node:[ Text: [
+|—————————Node:field_expression Text: frame.id
+|——————————Node:identifier Text: frame
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: id
+|—————————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: cycle_times.push_back(static_cast<std::int32_t>(time - prev_time));
+|——————Node:call_expression Text: cycle_times.push_back(static_cast<std::int32_t>(time - prev_time))
+|———————Node:field_expression Text: cycle_times.push_back
+|————————Node:identifier Text: cycle_times
+|————————Node:. Text: .
+|————————Node:field_identifier Text: push_back
+|———————Node:argument_list Text: (static_cast<std::int32_t>(time - prev_time))
+|————————Node:( Text: (
+|————————Node:call_expression Text: static_cast<std::int32_t>(time - prev_time)
+|—————————Node:template_function Text: static_cast<std::int32_t>
+|——————————Node:identifier Text: static_cast
+|——————————Node:template_argument_list Text: <std::int32_t>
+|———————————Node:< Text: <
+|———————————Node:type_descriptor Text: std::int32_t
+|————————————Node:qualified_identifier Text: std::int32_t
+|—————————————Node:namespace_identifier Text: std
+|—————————————Node::: Text: ::
+|—————————————Node:type_identifier Text: int32_t
+|———————————Node:> Text: >
+|—————————Node:argument_list Text: (time - prev_time)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: time - prev_time
+|———————————Node:identifier Text: time
+|———————————Node:- Text: -
+|———————————Node:identifier Text: prev_time
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: frame.mean_cycle_time = util::math::mean(cycle_times);
+|——————Node:assignment_expression Text: frame.mean_cycle_time = util::math::mean(cycle_times)
+|———————Node:field_expression Text: frame.mean_cycle_time
+|————————Node:identifier Text: frame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: mean_cycle_time
+|———————Node:= Text: =
+|———————Node:call_expression Text: util::math::mean(cycle_times)
+|————————Node:qualified_identifier Text: util::math::mean
+|—————————Node:namespace_identifier Text: util
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: math::mean
+|——————————Node:namespace_identifier Text: math
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: mean
+|————————Node:argument_list Text: (cycle_times)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: cycle_times
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: prev_time = time;
+|——————Node:assignment_expression Text: prev_time = time
+|———————Node:identifier Text: prev_time
+|———————Node:= Text: =
+|———————Node:identifier Text: time
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if (frame.frame_def) {
+      calculate_signal_values(frame);
+    }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (frame.frame_def)
+|———————Node:( Text: (
+|———————Node:field_expression Text: frame.frame_def
+|————————Node:identifier Text: frame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: frame_def
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+      calculate_signal_values(frame);
+    }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: calculate_signal_values(frame);
+|————————Node:call_expression Text: calculate_signal_values(frame)
+|—————————Node:identifier Text: calculate_signal_values
+|—————————Node:argument_list Text: (frame)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: frame
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|————Node:else_clause Text: else {  // A new frame, add to bus
+    Can_frame frame;
+    frame.id = raw_frame.id & 0x1fffffff;
+    frame.length = raw_frame.dlc;
+    frame.raw_data = raw_frame.data;
+    frame.extended = (raw_frame.id & CAN_FLAG_EXT) != 0;
+    frame.rtr = (raw_frame.id & CAN_FLAG_RTR) != 0;
+    frame.error = (raw_frame.id & CAN_FLAG_ERR) != 0;
+    frame.receive_time = time;
+    frame.last_receive_system_time = util::Timer::system_now();
+    frame.alive = true;
+
+    prev_frame_time_[frame.id] = time;
+    cycle_times_[frame.id] = boost::circular_buffer<std::int32_t>{20};
+
+    if (bus_def_) {
+      if (frame.frame_def = find_frame_def(*bus_def_, raw_frame.id); frame.frame_def) {
+        for (const auto& signal_def : frame.frame_def->can_signal_defs) {
+          frame.can_signals.emplace_back();
+          frame.can_signals.back().signal_def = &signal_def;
+        }
+        calculate_signal_values(frame);
+      }
+    }
+
+    frames_[frame.id] = frame;
+  }
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {  // A new frame, add to bus
+    Can_frame frame;
+    frame.id = raw_frame.id & 0x1fffffff;
+    frame.length = raw_frame.dlc;
+    frame.raw_data = raw_frame.data;
+    frame.extended = (raw_frame.id & CAN_FLAG_EXT) != 0;
+    frame.rtr = (raw_frame.id & CAN_FLAG_RTR) != 0;
+    frame.error = (raw_frame.id & CAN_FLAG_ERR) != 0;
+    frame.receive_time = time;
+    frame.last_receive_system_time = util::Timer::system_now();
+    frame.alive = true;
+
+    prev_frame_time_[frame.id] = time;
+    cycle_times_[frame.id] = boost::circular_buffer<std::int32_t>{20};
+
+    if (bus_def_) {
+      if (frame.frame_def = find_frame_def(*bus_def_, raw_frame.id); frame.frame_def) {
+        for (const auto& signal_def : frame.frame_def->can_signal_defs) {
+          frame.can_signals.emplace_back();
+          frame.can_signals.back().signal_def = &signal_def;
+        }
+        calculate_signal_values(frame);
+      }
+    }
+
+    frames_[frame.id] = frame;
+  }
+|——————Node:{ Text: {
+|——————Node:comment
+|——————Node:declaration Text: Can_frame frame;
+|———————Node:type_identifier Text: Can_frame
+|———————Node:identifier Text: frame
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: frame.id = raw_frame.id & 0x1fffffff;
+|———————Node:assignment_expression Text: frame.id = raw_frame.id & 0x1fffffff
+|————————Node:field_expression Text: frame.id
+|—————————Node:identifier Text: frame
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: id
+|————————Node:= Text: =
+|————————Node:binary_expression Text: raw_frame.id & 0x1fffffff
+|—————————Node:field_expression Text: raw_frame.id
+|——————————Node:identifier Text: raw_frame
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: id
+|—————————Node:& Text: &
+|—————————Node:number_literal Text: 0x1fffffff
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: frame.length = raw_frame.dlc;
+|———————Node:assignment_expression Text: frame.length = raw_frame.dlc
+|————————Node:field_expression Text: frame.length
+|—————————Node:identifier Text: frame
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: length
+|————————Node:= Text: =
+|————————Node:field_expression Text: raw_frame.dlc
+|—————————Node:identifier Text: raw_frame
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: dlc
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: frame.raw_data = raw_frame.data;
+|———————Node:assignment_expression Text: frame.raw_data = raw_frame.data
+|————————Node:field_expression Text: frame.raw_data
+|—————————Node:identifier Text: frame
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: raw_data
+|————————Node:= Text: =
+|————————Node:field_expression Text: raw_frame.data
+|—————————Node:identifier Text: raw_frame
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: data
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: frame.extended = (raw_frame.id & CAN_FLAG_EXT) != 0;
+|———————Node:assignment_expression Text: frame.extended = (raw_frame.id & CAN_FLAG_EXT) != 0
+|————————Node:field_expression Text: frame.extended
+|—————————Node:identifier Text: frame
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: extended
+|————————Node:= Text: =
+|————————Node:binary_expression Text: (raw_frame.id & CAN_FLAG_EXT) != 0
+|—————————Node:parenthesized_expression Text: (raw_frame.id & CAN_FLAG_EXT)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: raw_frame.id & CAN_FLAG_EXT
+|———————————Node:field_expression Text: raw_frame.id
+|————————————Node:identifier Text: raw_frame
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: id
+|———————————Node:& Text: &
+|———————————Node:identifier Text: CAN_FLAG_EXT
+|——————————Node:) Text: )
+|—————————Node:!= Text: !=
+|—————————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: frame.rtr = (raw_frame.id & CAN_FLAG_RTR) != 0;
+|———————Node:assignment_expression Text: frame.rtr = (raw_frame.id & CAN_FLAG_RTR) != 0
+|————————Node:field_expression Text: frame.rtr
+|—————————Node:identifier Text: frame
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: rtr
+|————————Node:= Text: =
+|————————Node:binary_expression Text: (raw_frame.id & CAN_FLAG_RTR) != 0
+|—————————Node:parenthesized_expression Text: (raw_frame.id & CAN_FLAG_RTR)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: raw_frame.id & CAN_FLAG_RTR
+|———————————Node:field_expression Text: raw_frame.id
+|————————————Node:identifier Text: raw_frame
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: id
+|———————————Node:& Text: &
+|———————————Node:identifier Text: CAN_FLAG_RTR
+|——————————Node:) Text: )
+|—————————Node:!= Text: !=
+|—————————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: frame.error = (raw_frame.id & CAN_FLAG_ERR) != 0;
+|———————Node:assignment_expression Text: frame.error = (raw_frame.id & CAN_FLAG_ERR) != 0
+|————————Node:field_expression Text: frame.error
+|—————————Node:identifier Text: frame
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: error
+|————————Node:= Text: =
+|————————Node:binary_expression Text: (raw_frame.id & CAN_FLAG_ERR) != 0
+|—————————Node:parenthesized_expression Text: (raw_frame.id & CAN_FLAG_ERR)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: raw_frame.id & CAN_FLAG_ERR
+|———————————Node:field_expression Text: raw_frame.id
+|————————————Node:identifier Text: raw_frame
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: id
+|———————————Node:& Text: &
+|———————————Node:identifier Text: CAN_FLAG_ERR
+|——————————Node:) Text: )
+|—————————Node:!= Text: !=
+|—————————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: frame.receive_time = time;
+|———————Node:assignment_expression Text: frame.receive_time = time
+|————————Node:field_expression Text: frame.receive_time
+|—————————Node:identifier Text: frame
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: receive_time
+|————————Node:= Text: =
+|————————Node:identifier Text: time
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: frame.last_receive_system_time = util::Timer::system_now();
+|———————Node:assignment_expression Text: frame.last_receive_system_time = util::Timer::system_now()
+|————————Node:field_expression Text: frame.last_receive_system_time
+|—————————Node:identifier Text: frame
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: last_receive_system_time
+|————————Node:= Text: =
+|————————Node:call_expression Text: util::Timer::system_now()
+|—————————Node:qualified_identifier Text: util::Timer::system_now
+|——————————Node:namespace_identifier Text: util
+|——————————Node::: Text: ::
+|——————————Node:qualified_identifier Text: Timer::system_now
+|———————————Node:namespace_identifier Text: Timer
+|———————————Node::: Text: ::
+|———————————Node:identifier Text: system_now
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: frame.alive = true;
+|———————Node:assignment_expression Text: frame.alive = true
+|————————Node:field_expression Text: frame.alive
+|—————————Node:identifier Text: frame
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: alive
+|————————Node:= Text: =
+|————————Node:true Text: true
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: prev_frame_time_[frame.id] = time;
+|———————Node:assignment_expression Text: prev_frame_time_[frame.id] = time
+|————————Node:subscript_expression Text: prev_frame_time_[frame.id]
+|—————————Node:identifier Text: prev_frame_time_
+|—————————Node:subscript_argument_list Text: [frame.id]
+|——————————Node:[ Text: [
+|——————————Node:field_expression Text: frame.id
+|———————————Node:identifier Text: frame
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: id
+|——————————Node:] Text: ]
+|————————Node:= Text: =
+|————————Node:identifier Text: time
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: cycle_times_[frame.id] = boost::circular_buffer<std::int32_t>{20};
+|———————Node:assignment_expression Text: cycle_times_[frame.id] = boost::circular_buffer<std::int32_t>{20}
+|————————Node:subscript_expression Text: cycle_times_[frame.id]
+|—————————Node:identifier Text: cycle_times_
+|—————————Node:subscript_argument_list Text: [frame.id]
+|——————————Node:[ Text: [
+|——————————Node:field_expression Text: frame.id
+|———————————Node:identifier Text: frame
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: id
+|——————————Node:] Text: ]
+|————————Node:= Text: =
+|————————Node:compound_literal_expression Text: boost::circular_buffer<std::int32_t>{20}
+|—————————Node:qualified_identifier Text: boost::circular_buffer<std::int32_t>
+|——————————Node:namespace_identifier Text: boost
+|——————————Node::: Text: ::
+|——————————Node:template_type Text: circular_buffer<std::int32_t>
+|———————————Node:type_identifier Text: circular_buffer
+|———————————Node:template_argument_list Text: <std::int32_t>
+|————————————Node:< Text: <
+|————————————Node:type_descriptor Text: std::int32_t
+|—————————————Node:qualified_identifier Text: std::int32_t
+|——————————————Node:namespace_identifier Text: std
+|——————————————Node::: Text: ::
+|——————————————Node:type_identifier Text: int32_t
+|————————————Node:> Text: >
+|—————————Node:initializer_list Text: {20}
+|——————————Node:{ Text: {
+|——————————Node:number_literal Text: 20
+|——————————Node:} Text: }
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (bus_def_) {
+      if (frame.frame_def = find_frame_def(*bus_def_, raw_frame.id); frame.frame_def) {
+        for (const auto& signal_def : frame.frame_def->can_signal_defs) {
+          frame.can_signals.emplace_back();
+          frame.can_signals.back().signal_def = &signal_def;
+        }
+        calculate_signal_values(frame);
+      }
+    }
+|———————Node:if Text: if
+|———————Node:condition_clause Text: (bus_def_)
+|————————Node:( Text: (
+|————————Node:identifier Text: bus_def_
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+      if (frame.frame_def = find_frame_def(*bus_def_, raw_frame.id); frame.frame_def) {
+        for (const auto& signal_def : frame.frame_def->can_signal_defs) {
+          frame.can_signals.emplace_back();
+          frame.can_signals.back().signal_def = &signal_def;
+        }
+        calculate_signal_values(frame);
+      }
+    }
+|————————Node:{ Text: {
+|————————Node:if_statement Text: if (frame.frame_def = find_frame_def(*bus_def_, raw_frame.id); frame.frame_def) {
+        for (const auto& signal_def : frame.frame_def->can_signal_defs) {
+          frame.can_signals.emplace_back();
+          frame.can_signals.back().signal_def = &signal_def;
+        }
+        calculate_signal_values(frame);
+      }
+|—————————Node:if Text: if
+|—————————Node:condition_clause Text: (frame.frame_def = find_frame_def(*bus_def_, raw_frame.id); frame.frame_def)
+|——————————Node:( Text: (
+|——————————Node:init_statement Text: frame.frame_def = find_frame_def(*bus_def_, raw_frame.id);
+|———————————Node:expression_statement Text: frame.frame_def = find_frame_def(*bus_def_, raw_frame.id);
+|————————————Node:assignment_expression Text: frame.frame_def = find_frame_def(*bus_def_, raw_frame.id)
+|—————————————Node:field_expression Text: frame.frame_def
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: frame_def
+|—————————————Node:= Text: =
+|—————————————Node:call_expression Text: find_frame_def(*bus_def_, raw_frame.id)
+|——————————————Node:identifier Text: find_frame_def
+|——————————————Node:argument_list Text: (*bus_def_, raw_frame.id)
+|———————————————Node:( Text: (
+|———————————————Node:pointer_expression Text: *bus_def_
+|————————————————Node:* Text: *
+|————————————————Node:identifier Text: bus_def_
+|———————————————Node:, Text: ,
+|———————————————Node:field_expression Text: raw_frame.id
+|————————————————Node:identifier Text: raw_frame
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: id
+|———————————————Node:) Text: )
+|————————————Node:; Text: ;
+|——————————Node:field_expression Text: frame.frame_def
+|———————————Node:identifier Text: frame
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: frame_def
+|——————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+        for (const auto& signal_def : frame.frame_def->can_signal_defs) {
+          frame.can_signals.emplace_back();
+          frame.can_signals.back().signal_def = &signal_def;
+        }
+        calculate_signal_values(frame);
+      }
+|——————————Node:{ Text: {
+|——————————Node:for_range_loop Text: for (const auto& signal_def : frame.frame_def->can_signal_defs) {
+          frame.can_signals.emplace_back();
+          frame.can_signals.back().signal_def = &signal_def;
+        }
+|———————————Node:for Text: for
+|———————————Node:( Text: (
+|———————————Node:type_qualifier Text: const
+|————————————Node:const Text: const
+|———————————Node:placeholder_type_specifier Text: auto
+|————————————Node:auto Text: auto
+|———————————Node:reference_declarator Text: & signal_def
+|————————————Node:& Text: &
+|————————————Node:identifier Text: signal_def
+|———————————Node:: Text: :
+|———————————Node:field_expression Text: frame.frame_def->can_signal_defs
+|————————————Node:field_expression Text: frame.frame_def
+|—————————————Node:identifier Text: frame
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: frame_def
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: can_signal_defs
+|———————————Node:) Text: )
+|———————————Node:compound_statement Text: {
+          frame.can_signals.emplace_back();
+          frame.can_signals.back().signal_def = &signal_def;
+        }
+|————————————Node:{ Text: {
+|————————————Node:expression_statement Text: frame.can_signals.emplace_back();
+|—————————————Node:call_expression Text: frame.can_signals.emplace_back()
+|——————————————Node:field_expression Text: frame.can_signals.emplace_back
+|———————————————Node:field_expression Text: frame.can_signals
+|————————————————Node:identifier Text: frame
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: can_signals
+|———————————————Node:. Text: .
+|———————————————Node:field_identifier Text: emplace_back
+|——————————————Node:argument_list Text: ()
+|———————————————Node:( Text: (
+|———————————————Node:) Text: )
+|—————————————Node:; Text: ;
+|————————————Node:expression_statement Text: frame.can_signals.back().signal_def = &signal_def;
+|—————————————Node:assignment_expression Text: frame.can_signals.back().signal_def = &signal_def
+|——————————————Node:field_expression Text: frame.can_signals.back().signal_def
+|———————————————Node:call_expression Text: frame.can_signals.back()
+|————————————————Node:field_expression Text: frame.can_signals.back
+|—————————————————Node:field_expression Text: frame.can_signals
+|——————————————————Node:identifier Text: frame
+|——————————————————Node:. Text: .
+|——————————————————Node:field_identifier Text: can_signals
+|—————————————————Node:. Text: .
+|—————————————————Node:field_identifier Text: back
+|————————————————Node:argument_list Text: ()
+|—————————————————Node:( Text: (
+|—————————————————Node:) Text: )
+|———————————————Node:. Text: .
+|———————————————Node:field_identifier Text: signal_def
+|——————————————Node:= Text: =
+|——————————————Node:pointer_expression Text: &signal_def
+|———————————————Node:& Text: &
+|———————————————Node:identifier Text: signal_def
+|—————————————Node:; Text: ;
+|————————————Node:} Text: }
+|——————————Node:expression_statement Text: calculate_signal_values(frame);
+|———————————Node:call_expression Text: calculate_signal_values(frame)
+|————————————Node:identifier Text: calculate_signal_values
+|————————————Node:argument_list Text: (frame)
+|—————————————Node:( Text: (
+|—————————————Node:identifier Text: frame
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|————————Node:} Text: }
+|——————Node:expression_statement Text: frames_[frame.id] = frame;
+|———————Node:assignment_expression Text: frames_[frame.id] = frame
+|————————Node:subscript_expression Text: frames_[frame.id]
+|—————————Node:identifier Text: frames_
+|—————————Node:subscript_argument_list Text: [frame.id]
+|——————————Node:[ Text: [
+|——————————Node:field_expression Text: frame.id
+|———————————Node:identifier Text: frame
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: id
+|——————————Node:] Text: ]
+|————————Node:= Text: =
+|————————Node:identifier Text: frame
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:declaration Text: emit frame_received(frame.id);
+|————Node:type_identifier Text: emit
+|————Node:init_declarator Text: frame_received(frame.id)
+|—————Node:identifier Text: frame_received
+|—————Node:argument_list Text: (frame.id)
+|——————Node:( Text: (
+|——————Node:field_expression Text: frame.id
+|———————Node:identifier Text: frame
+|———————Node:. Text: .
+|———————Node:field_identifier Text: id
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: emit data_changed(frame.id);
+|————Node:type_identifier Text: emit
+|————Node:init_declarator Text: data_changed(frame.id)
+|—————Node:identifier Text: data_changed
+|—————Node:argument_list Text: (frame.id)
+|——————Node:( Text: (
+|——————Node:field_expression Text: frame.id
+|———————Node:identifier Text: frame
+|———————Node:. Text: .
+|———————Node:field_identifier Text: id
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void tin::Can_bus::update_frames()
+{
+  auto now = util::Timer::system_now();
+
+  for (auto& p : frames_) {
+    auto& frame = p.second;
+
+    if (frame.alive) {
+      auto delta = now - frame.last_receive_system_time;
+
+      if (frame.mean_cycle_time > 0 && delta > frame.mean_cycle_time * 3) {
+        frame.alive = false;
+        emit data_changed(frame.id);
+      }
+    }
+  }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: tin::Can_bus::update_frames()
+|———Node:qualified_identifier Text: tin::Can_bus::update_frames
+|————Node:namespace_identifier Text: tin
+|————Node::: Text: ::
+|————Node:qualified_identifier Text: Can_bus::update_frames
+|—————Node:namespace_identifier Text: Can_bus
+|—————Node::: Text: ::
+|—————Node:identifier Text: update_frames
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  auto now = util::Timer::system_now();
+
+  for (auto& p : frames_) {
+    auto& frame = p.second;
+
+    if (frame.alive) {
+      auto delta = now - frame.last_receive_system_time;
+
+      if (frame.mean_cycle_time > 0 && delta > frame.mean_cycle_time * 3) {
+        frame.alive = false;
+        emit data_changed(frame.id);
+      }
+    }
+  }
+}
+|———Node:{ Text: {
+|———Node:declaration Text: auto now = util::Timer::system_now();
+|————Node:placeholder_type_specifier Text: auto
+|—————Node:auto Text: auto
+|————Node:init_declarator Text: now = util::Timer::system_now()
+|—————Node:identifier Text: now
+|—————Node:= Text: =
+|—————Node:call_expression Text: util::Timer::system_now()
+|——————Node:qualified_identifier Text: util::Timer::system_now
+|———————Node:namespace_identifier Text: util
+|———————Node::: Text: ::
+|———————Node:qualified_identifier Text: Timer::system_now
+|————————Node:namespace_identifier Text: Timer
+|————————Node::: Text: ::
+|————————Node:identifier Text: system_now
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:for_range_loop Text: for (auto& p : frames_) {
+    auto& frame = p.second;
+
+    if (frame.alive) {
+      auto delta = now - frame.last_receive_system_time;
+
+      if (frame.mean_cycle_time > 0 && delta > frame.mean_cycle_time * 3) {
+        frame.alive = false;
+        emit data_changed(frame.id);
+      }
+    }
+  }
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:placeholder_type_specifier Text: auto
+|—————Node:auto Text: auto
+|————Node:reference_declarator Text: & p
+|—————Node:& Text: &
+|—————Node:identifier Text: p
+|————Node:: Text: :
+|————Node:identifier Text: frames_
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+    auto& frame = p.second;
+
+    if (frame.alive) {
+      auto delta = now - frame.last_receive_system_time;
+
+      if (frame.mean_cycle_time > 0 && delta > frame.mean_cycle_time * 3) {
+        frame.alive = false;
+        emit data_changed(frame.id);
+      }
+    }
+  }
+|—————Node:{ Text: {
+|—————Node:declaration Text: auto& frame = p.second;
+|——————Node:placeholder_type_specifier Text: auto
+|———————Node:auto Text: auto
+|——————Node:init_declarator Text: & frame = p.second
+|———————Node:reference_declarator Text: & frame
+|————————Node:& Text: &
+|————————Node:identifier Text: frame
+|———————Node:= Text: =
+|———————Node:field_expression Text: p.second
+|————————Node:identifier Text: p
+|————————Node:. Text: .
+|————————Node:field_identifier Text: second
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if (frame.alive) {
+      auto delta = now - frame.last_receive_system_time;
+
+      if (frame.mean_cycle_time > 0 && delta > frame.mean_cycle_time * 3) {
+        frame.alive = false;
+        emit data_changed(frame.id);
+      }
+    }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (frame.alive)
+|———————Node:( Text: (
+|———————Node:field_expression Text: frame.alive
+|————————Node:identifier Text: frame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: alive
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+      auto delta = now - frame.last_receive_system_time;
+
+      if (frame.mean_cycle_time > 0 && delta > frame.mean_cycle_time * 3) {
+        frame.alive = false;
+        emit data_changed(frame.id);
+      }
+    }
+|———————Node:{ Text: {
+|———————Node:declaration Text: auto delta = now - frame.last_receive_system_time;
+|————————Node:placeholder_type_specifier Text: auto
+|—————————Node:auto Text: auto
+|————————Node:init_declarator Text: delta = now - frame.last_receive_system_time
+|—————————Node:identifier Text: delta
+|—————————Node:= Text: =
+|—————————Node:binary_expression Text: now - frame.last_receive_system_time
+|——————————Node:identifier Text: now
+|——————————Node:- Text: -
+|——————————Node:field_expression Text: frame.last_receive_system_time
+|———————————Node:identifier Text: frame
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: last_receive_system_time
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if (frame.mean_cycle_time > 0 && delta > frame.mean_cycle_time * 3) {
+        frame.alive = false;
+        emit data_changed(frame.id);
+      }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (frame.mean_cycle_time > 0 && delta > frame.mean_cycle_time * 3)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: frame.mean_cycle_time > 0 && delta > frame.mean_cycle_time * 3
+|——————————Node:binary_expression Text: frame.mean_cycle_time > 0
+|———————————Node:field_expression Text: frame.mean_cycle_time
+|————————————Node:identifier Text: frame
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: mean_cycle_time
+|———————————Node:> Text: >
+|———————————Node:number_literal Text: 0
+|——————————Node:&& Text: &&
+|——————————Node:binary_expression Text: delta > frame.mean_cycle_time * 3
+|———————————Node:identifier Text: delta
+|———————————Node:> Text: >
+|———————————Node:binary_expression Text: frame.mean_cycle_time * 3
+|————————————Node:field_expression Text: frame.mean_cycle_time
+|—————————————Node:identifier Text: frame
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: mean_cycle_time
+|————————————Node:* Text: *
+|————————————Node:number_literal Text: 3
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+        frame.alive = false;
+        emit data_changed(frame.id);
+      }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: frame.alive = false;
+|——————————Node:assignment_expression Text: frame.alive = false
+|———————————Node:field_expression Text: frame.alive
+|————————————Node:identifier Text: frame
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: alive
+|———————————Node:= Text: =
+|———————————Node:false Text: false
+|——————————Node:; Text: ;
+|—————————Node:declaration Text: emit data_changed(frame.id);
+|——————————Node:type_identifier Text: emit
+|——————————Node:init_declarator Text: data_changed(frame.id)
+|———————————Node:identifier Text: data_changed
+|———————————Node:argument_list Text: (frame.id)
+|————————————Node:( Text: (
+|————————————Node:field_expression Text: frame.id
+|—————————————Node:identifier Text: frame
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: id
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:} Text: }

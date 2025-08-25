@@ -1,0 +1,3348 @@
+CanMagSens-main\comm\CanBus.cpp
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include "CanBus.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "CanBus.h"
+|———Node:" Text: "
+|———Node:string_content Text: CanBus.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "Messages.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "Messages.h"
+|———Node:" Text: "
+|———Node:string_content Text: Messages.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "DeviceMgr.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "DeviceMgr.h"
+|———Node:" Text: "
+|———Node:string_content Text: DeviceMgr.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "DataLink.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "DataLink.h"
+|———Node:" Text: "
+|———Node:string_content Text: DataLink.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "logdef.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "logdef.h"
+|———Node:" Text: "
+|———Node:string_content Text: logdef.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include <freertos/FreeRTOS.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <freertos/FreeRTOS.h>
+|—Node:preproc_include Text: #include <freertos/task.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <freertos/task.h>
+|—Node:preproc_include Text: #include <freertos/semphr.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <freertos/semphr.h>
+|—Node:preproc_include Text: #include <driver/gpio.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <driver/gpio.h>
+|—Node:preproc_include Text: #include <esp_err.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <esp_err.h>
+|—Node:preproc_include Text: #include <cstring>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <cstring>
+|—Node:comment
+|—Node:declaration Text: static constexpr int CANTEST_ID = CAN_REG_PORT+1;
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:type_qualifier Text: constexpr
+|———Node:constexpr Text: constexpr
+|——Node:primitive_type Text: int
+|——Node:init_declarator Text: CANTEST_ID = CAN_REG_PORT+1
+|———Node:identifier Text: CANTEST_ID
+|———Node:= Text: =
+|———Node:binary_expression Text: CAN_REG_PORT+1
+|————Node:identifier Text: CAN_REG_PORT
+|————Node:+ Text: +
+|————Node:number_literal Text: 1
+|——Node:; Text: ;
+|—Node:declaration Text: static TaskHandle_t rxTask = nullptr;
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:type_identifier Text: TaskHandle_t
+|——Node:init_declarator Text: rxTask = nullptr
+|———Node:identifier Text: rxTask
+|———Node:= Text: =
+|———Node:null Text: nullptr
+|————Node:nullptr Text: nullptr
+|——Node:; Text: ;
+|—Node:declaration Text: CANbus *CAN = 0;
+|——Node:type_identifier Text: CANbus
+|——Node:init_declarator Text: *CAN = 0
+|———Node:pointer_declarator Text: *CAN
+|————Node:* Text: *
+|————Node:identifier Text: CAN
+|———Node:= Text: =
+|———Node:number_literal Text: 0
+|——Node:; Text: ;
+|—Node:declaration Text: static bool terminate_receiver = false;
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: bool
+|——Node:init_declarator Text: terminate_receiver = false
+|———Node:identifier Text: terminate_receiver
+|———Node:= Text: =
+|———Node:false Text: false
+|——Node:; Text: ;
+|—Node:declaration Text: static bool do_recover = false;
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: bool
+|——Node:init_declarator Text: do_recover = false
+|———Node:identifier Text: do_recover
+|———Node:= Text: =
+|———Node:false Text: false
+|——Node:; Text: ;
+|—Node:comment
+|—Node:function_definition Text: void CANReceiveTask(void *arg)
+{
+    CANbus* can = static_cast<CANbus*>(arg);
+    unsigned int tick = 0;
+
+    if ( ! can->isInitialized() )
+    {
+        ESP_LOGI(FNAME, "CANbus not ready");
+        vTaskDelete(NULL);
+        // return;
+    }
+
+    std::string msg; // scratch buffer
+    msg.resize(10);
+    do {
+        // basically block on the twai receiver for ever
+        twai_message_t rx;
+        if (ESP_OK == twai_receive(&rx, pdMS_TO_TICKS(500)) && rx.data_length_code > 0)
+        {
+            msg.assign((char *)rx.data, rx.data_length_code);
+            ESP_LOGD(FNAME, "CAN RX NMEA chunk, id:0x%x, len:%d msg: %s", rx.identifier, rx.data_length_code, msg.c_str());
+            auto dl = can->_dlink.find(rx.identifier);
+            if ( dl != can->_dlink.end() ) {
+                dl->second->process(msg.data(), msg.size());
+            }
+        }
+        else
+        {
+            // protocol state machine may want to react on no traffic
+            for (auto &dl : can->_dlink ) {
+                dl.second->process(nullptr, 0);
+            }
+        }
+
+        if ( terminate_receiver ) { break; }
+        if ( do_recover ) {
+            can->recover(); // Can only do this not waiting in twai_receive
+            do_recover = false;
+        }
+
+        if ((tick++ % 100) == 0)
+        {
+            if (uxTaskGetStackHighWaterMark(rxTask) < 128) {
+                ESP_LOGW(FNAME, "Warning canbus task stack low: %d bytes", uxTaskGetStackHighWaterMark(rxTask));
+            }
+        }
+    } while ( true );
+
+    // cannot stop twai when waiting on twai_receive (->crash)
+    can->driverUninstall();
+
+    terminate_receiver = false; // handshake
+    rxTask = nullptr;
+    vTaskDelete(NULL);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CANReceiveTask(void *arg)
+|———Node:identifier Text: CANReceiveTask
+|———Node:parameter_list Text: (void *arg)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void *arg
+|—————Node:primitive_type Text: void
+|—————Node:pointer_declarator Text: *arg
+|——————Node:* Text: *
+|——————Node:identifier Text: arg
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    CANbus* can = static_cast<CANbus*>(arg);
+    unsigned int tick = 0;
+
+    if ( ! can->isInitialized() )
+    {
+        ESP_LOGI(FNAME, "CANbus not ready");
+        vTaskDelete(NULL);
+        // return;
+    }
+
+    std::string msg; // scratch buffer
+    msg.resize(10);
+    do {
+        // basically block on the twai receiver for ever
+        twai_message_t rx;
+        if (ESP_OK == twai_receive(&rx, pdMS_TO_TICKS(500)) && rx.data_length_code > 0)
+        {
+            msg.assign((char *)rx.data, rx.data_length_code);
+            ESP_LOGD(FNAME, "CAN RX NMEA chunk, id:0x%x, len:%d msg: %s", rx.identifier, rx.data_length_code, msg.c_str());
+            auto dl = can->_dlink.find(rx.identifier);
+            if ( dl != can->_dlink.end() ) {
+                dl->second->process(msg.data(), msg.size());
+            }
+        }
+        else
+        {
+            // protocol state machine may want to react on no traffic
+            for (auto &dl : can->_dlink ) {
+                dl.second->process(nullptr, 0);
+            }
+        }
+
+        if ( terminate_receiver ) { break; }
+        if ( do_recover ) {
+            can->recover(); // Can only do this not waiting in twai_receive
+            do_recover = false;
+        }
+
+        if ((tick++ % 100) == 0)
+        {
+            if (uxTaskGetStackHighWaterMark(rxTask) < 128) {
+                ESP_LOGW(FNAME, "Warning canbus task stack low: %d bytes", uxTaskGetStackHighWaterMark(rxTask));
+            }
+        }
+    } while ( true );
+
+    // cannot stop twai when waiting on twai_receive (->crash)
+    can->driverUninstall();
+
+    terminate_receiver = false; // handshake
+    rxTask = nullptr;
+    vTaskDelete(NULL);
+}
+|———Node:{ Text: {
+|———Node:declaration Text: CANbus* can = static_cast<CANbus*>(arg);
+|————Node:type_identifier Text: CANbus
+|————Node:init_declarator Text: * can = static_cast<CANbus*>(arg)
+|—————Node:pointer_declarator Text: * can
+|——————Node:* Text: *
+|——————Node:identifier Text: can
+|—————Node:= Text: =
+|—————Node:call_expression Text: static_cast<CANbus*>(arg)
+|——————Node:template_function Text: static_cast<CANbus*>
+|———————Node:identifier Text: static_cast
+|———————Node:template_argument_list Text: <CANbus*>
+|————————Node:< Text: <
+|————————Node:type_descriptor Text: CANbus*
+|—————————Node:type_identifier Text: CANbus
+|—————————Node:abstract_pointer_declarator Text: *
+|——————————Node:* Text: *
+|————————Node:> Text: >
+|——————Node:argument_list Text: (arg)
+|———————Node:( Text: (
+|———————Node:identifier Text: arg
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: unsigned int tick = 0;
+|————Node:sized_type_specifier Text: unsigned int
+|—————Node:unsigned Text: unsigned
+|—————Node:primitive_type Text: int
+|————Node:init_declarator Text: tick = 0
+|—————Node:identifier Text: tick
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:if_statement Text: if ( ! can->isInitialized() )
+    {
+        ESP_LOGI(FNAME, "CANbus not ready");
+        vTaskDelete(NULL);
+        // return;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: ( ! can->isInitialized() )
+|—————Node:( Text: (
+|—————Node:unary_expression Text: ! can->isInitialized()
+|——————Node:! Text: !
+|——————Node:call_expression Text: can->isInitialized()
+|———————Node:field_expression Text: can->isInitialized
+|————————Node:identifier Text: can
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: isInitialized
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        ESP_LOGI(FNAME, "CANbus not ready");
+        vTaskDelete(NULL);
+        // return;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: ESP_LOGI(FNAME, "CANbus not ready");
+|——————Node:call_expression Text: ESP_LOGI(FNAME, "CANbus not ready")
+|———————Node:identifier Text: ESP_LOGI
+|———————Node:argument_list Text: (FNAME, "CANbus not ready")
+|————————Node:( Text: (
+|————————Node:identifier Text: FNAME
+|————————Node:, Text: ,
+|————————Node:string_literal Text: "CANbus not ready"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: CANbus not ready
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: vTaskDelete(NULL);
+|——————Node:call_expression Text: vTaskDelete(NULL)
+|———————Node:identifier Text: vTaskDelete
+|———————Node:argument_list Text: (NULL)
+|————————Node:( Text: (
+|————————Node:null Text: NULL
+|—————————Node:NULL Text: NULL
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:} Text: }
+|———Node:declaration Text: std::string msg;
+|————Node:qualified_identifier Text: std::string
+|—————Node:namespace_identifier Text: std
+|—————Node::: Text: ::
+|—————Node:type_identifier Text: string
+|————Node:identifier Text: msg
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: msg.resize(10);
+|————Node:call_expression Text: msg.resize(10)
+|—————Node:field_expression Text: msg.resize
+|——————Node:identifier Text: msg
+|——————Node:. Text: .
+|——————Node:field_identifier Text: resize
+|—————Node:argument_list Text: (10)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 10
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:do_statement Text: do {
+        // basically block on the twai receiver for ever
+        twai_message_t rx;
+        if (ESP_OK == twai_receive(&rx, pdMS_TO_TICKS(500)) && rx.data_length_code > 0)
+        {
+            msg.assign((char *)rx.data, rx.data_length_code);
+            ESP_LOGD(FNAME, "CAN RX NMEA chunk, id:0x%x, len:%d msg: %s", rx.identifier, rx.data_length_code, msg.c_str());
+            auto dl = can->_dlink.find(rx.identifier);
+            if ( dl != can->_dlink.end() ) {
+                dl->second->process(msg.data(), msg.size());
+            }
+        }
+        else
+        {
+            // protocol state machine may want to react on no traffic
+            for (auto &dl : can->_dlink ) {
+                dl.second->process(nullptr, 0);
+            }
+        }
+
+        if ( terminate_receiver ) { break; }
+        if ( do_recover ) {
+            can->recover(); // Can only do this not waiting in twai_receive
+            do_recover = false;
+        }
+
+        if ((tick++ % 100) == 0)
+        {
+            if (uxTaskGetStackHighWaterMark(rxTask) < 128) {
+                ESP_LOGW(FNAME, "Warning canbus task stack low: %d bytes", uxTaskGetStackHighWaterMark(rxTask));
+            }
+        }
+    } while ( true );
+|————Node:do Text: do
+|————Node:compound_statement Text: {
+        // basically block on the twai receiver for ever
+        twai_message_t rx;
+        if (ESP_OK == twai_receive(&rx, pdMS_TO_TICKS(500)) && rx.data_length_code > 0)
+        {
+            msg.assign((char *)rx.data, rx.data_length_code);
+            ESP_LOGD(FNAME, "CAN RX NMEA chunk, id:0x%x, len:%d msg: %s", rx.identifier, rx.data_length_code, msg.c_str());
+            auto dl = can->_dlink.find(rx.identifier);
+            if ( dl != can->_dlink.end() ) {
+                dl->second->process(msg.data(), msg.size());
+            }
+        }
+        else
+        {
+            // protocol state machine may want to react on no traffic
+            for (auto &dl : can->_dlink ) {
+                dl.second->process(nullptr, 0);
+            }
+        }
+
+        if ( terminate_receiver ) { break; }
+        if ( do_recover ) {
+            can->recover(); // Can only do this not waiting in twai_receive
+            do_recover = false;
+        }
+
+        if ((tick++ % 100) == 0)
+        {
+            if (uxTaskGetStackHighWaterMark(rxTask) < 128) {
+                ESP_LOGW(FNAME, "Warning canbus task stack low: %d bytes", uxTaskGetStackHighWaterMark(rxTask));
+            }
+        }
+    }
+|—————Node:{ Text: {
+|—————Node:comment
+|—————Node:declaration Text: twai_message_t rx;
+|——————Node:type_identifier Text: twai_message_t
+|——————Node:identifier Text: rx
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if (ESP_OK == twai_receive(&rx, pdMS_TO_TICKS(500)) && rx.data_length_code > 0)
+        {
+            msg.assign((char *)rx.data, rx.data_length_code);
+            ESP_LOGD(FNAME, "CAN RX NMEA chunk, id:0x%x, len:%d msg: %s", rx.identifier, rx.data_length_code, msg.c_str());
+            auto dl = can->_dlink.find(rx.identifier);
+            if ( dl != can->_dlink.end() ) {
+                dl->second->process(msg.data(), msg.size());
+            }
+        }
+        else
+        {
+            // protocol state machine may want to react on no traffic
+            for (auto &dl : can->_dlink ) {
+                dl.second->process(nullptr, 0);
+            }
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (ESP_OK == twai_receive(&rx, pdMS_TO_TICKS(500)) && rx.data_length_code > 0)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: ESP_OK == twai_receive(&rx, pdMS_TO_TICKS(500)) && rx.data_length_code > 0
+|————————Node:binary_expression Text: ESP_OK == twai_receive(&rx, pdMS_TO_TICKS(500))
+|—————————Node:identifier Text: ESP_OK
+|—————————Node:== Text: ==
+|—————————Node:call_expression Text: twai_receive(&rx, pdMS_TO_TICKS(500))
+|——————————Node:identifier Text: twai_receive
+|——————————Node:argument_list Text: (&rx, pdMS_TO_TICKS(500))
+|———————————Node:( Text: (
+|———————————Node:pointer_expression Text: &rx
+|————————————Node:& Text: &
+|————————————Node:identifier Text: rx
+|———————————Node:, Text: ,
+|———————————Node:call_expression Text: pdMS_TO_TICKS(500)
+|————————————Node:identifier Text: pdMS_TO_TICKS
+|————————————Node:argument_list Text: (500)
+|—————————————Node:( Text: (
+|—————————————Node:number_literal Text: 500
+|—————————————Node:) Text: )
+|———————————Node:) Text: )
+|————————Node:&& Text: &&
+|————————Node:binary_expression Text: rx.data_length_code > 0
+|—————————Node:field_expression Text: rx.data_length_code
+|——————————Node:identifier Text: rx
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: data_length_code
+|—————————Node:> Text: >
+|—————————Node:number_literal Text: 0
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            msg.assign((char *)rx.data, rx.data_length_code);
+            ESP_LOGD(FNAME, "CAN RX NMEA chunk, id:0x%x, len:%d msg: %s", rx.identifier, rx.data_length_code, msg.c_str());
+            auto dl = can->_dlink.find(rx.identifier);
+            if ( dl != can->_dlink.end() ) {
+                dl->second->process(msg.data(), msg.size());
+            }
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: msg.assign((char *)rx.data, rx.data_length_code);
+|————————Node:call_expression Text: msg.assign((char *)rx.data, rx.data_length_code)
+|—————————Node:field_expression Text: msg.assign
+|——————————Node:identifier Text: msg
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: assign
+|—————————Node:argument_list Text: ((char *)rx.data, rx.data_length_code)
+|——————————Node:( Text: (
+|——————————Node:cast_expression Text: (char *)rx.data
+|———————————Node:( Text: (
+|———————————Node:type_descriptor Text: char *
+|————————————Node:primitive_type Text: char
+|————————————Node:abstract_pointer_declarator Text: *
+|—————————————Node:* Text: *
+|———————————Node:) Text: )
+|———————————Node:field_expression Text: rx.data
+|————————————Node:identifier Text: rx
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: data
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: rx.data_length_code
+|———————————Node:identifier Text: rx
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: data_length_code
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: ESP_LOGD(FNAME, "CAN RX NMEA chunk, id:0x%x, len:%d msg: %s", rx.identifier, rx.data_length_code, msg.c_str());
+|————————Node:call_expression Text: ESP_LOGD(FNAME, "CAN RX NMEA chunk, id:0x%x, len:%d msg: %s", rx.identifier, rx.data_length_code, msg.c_str())
+|—————————Node:identifier Text: ESP_LOGD
+|—————————Node:argument_list Text: (FNAME, "CAN RX NMEA chunk, id:0x%x, len:%d msg: %s", rx.identifier, rx.data_length_code, msg.c_str())
+|——————————Node:( Text: (
+|——————————Node:identifier Text: FNAME
+|——————————Node:, Text: ,
+|——————————Node:string_literal Text: "CAN RX NMEA chunk, id:0x%x, len:%d msg: %s"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: CAN RX NMEA chunk, id:0x%x, len:%d msg: %s
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: rx.identifier
+|———————————Node:identifier Text: rx
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: identifier
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: rx.data_length_code
+|———————————Node:identifier Text: rx
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: data_length_code
+|——————————Node:, Text: ,
+|——————————Node:call_expression Text: msg.c_str()
+|———————————Node:field_expression Text: msg.c_str
+|————————————Node:identifier Text: msg
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: c_str
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:declaration Text: auto dl = can->_dlink.find(rx.identifier);
+|————————Node:placeholder_type_specifier Text: auto
+|—————————Node:auto Text: auto
+|————————Node:init_declarator Text: dl = can->_dlink.find(rx.identifier)
+|—————————Node:identifier Text: dl
+|—————————Node:= Text: =
+|—————————Node:call_expression Text: can->_dlink.find(rx.identifier)
+|——————————Node:field_expression Text: can->_dlink.find
+|———————————Node:field_expression Text: can->_dlink
+|————————————Node:identifier Text: can
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: _dlink
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: find
+|——————————Node:argument_list Text: (rx.identifier)
+|———————————Node:( Text: (
+|———————————Node:field_expression Text: rx.identifier
+|————————————Node:identifier Text: rx
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: identifier
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if ( dl != can->_dlink.end() ) {
+                dl->second->process(msg.data(), msg.size());
+            }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: ( dl != can->_dlink.end() )
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: dl != can->_dlink.end()
+|——————————Node:identifier Text: dl
+|——————————Node:!= Text: !=
+|——————————Node:call_expression Text: can->_dlink.end()
+|———————————Node:field_expression Text: can->_dlink.end
+|————————————Node:field_expression Text: can->_dlink
+|—————————————Node:identifier Text: can
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: _dlink
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: end
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                dl->second->process(msg.data(), msg.size());
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: dl->second->process(msg.data(), msg.size());
+|——————————Node:call_expression Text: dl->second->process(msg.data(), msg.size())
+|———————————Node:field_expression Text: dl->second->process
+|————————————Node:field_expression Text: dl->second
+|—————————————Node:identifier Text: dl
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: second
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: process
+|———————————Node:argument_list Text: (msg.data(), msg.size())
+|————————————Node:( Text: (
+|————————————Node:call_expression Text: msg.data()
+|—————————————Node:field_expression Text: msg.data
+|——————————————Node:identifier Text: msg
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: data
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:, Text: ,
+|————————————Node:call_expression Text: msg.size()
+|—————————————Node:field_expression Text: msg.size
+|——————————————Node:identifier Text: msg
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: size
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|——————Node:else_clause Text: else
+        {
+            // protocol state machine may want to react on no traffic
+            for (auto &dl : can->_dlink ) {
+                dl.second->process(nullptr, 0);
+            }
+        }
+|———————Node:else Text: else
+|———————Node:compound_statement Text: {
+            // protocol state machine may want to react on no traffic
+            for (auto &dl : can->_dlink ) {
+                dl.second->process(nullptr, 0);
+            }
+        }
+|————————Node:{ Text: {
+|————————Node:comment
+|————————Node:for_range_loop Text: for (auto &dl : can->_dlink ) {
+                dl.second->process(nullptr, 0);
+            }
+|—————————Node:for Text: for
+|—————————Node:( Text: (
+|—————————Node:placeholder_type_specifier Text: auto
+|——————————Node:auto Text: auto
+|—————————Node:reference_declarator Text: &dl
+|——————————Node:& Text: &
+|——————————Node:identifier Text: dl
+|—————————Node:: Text: :
+|—————————Node:field_expression Text: can->_dlink
+|——————————Node:identifier Text: can
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: _dlink
+|—————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+                dl.second->process(nullptr, 0);
+            }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: dl.second->process(nullptr, 0);
+|———————————Node:call_expression Text: dl.second->process(nullptr, 0)
+|————————————Node:field_expression Text: dl.second->process
+|—————————————Node:field_expression Text: dl.second
+|——————————————Node:identifier Text: dl
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: second
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: process
+|————————————Node:argument_list Text: (nullptr, 0)
+|—————————————Node:( Text: (
+|—————————————Node:null Text: nullptr
+|——————————————Node:nullptr Text: nullptr
+|—————————————Node:, Text: ,
+|—————————————Node:number_literal Text: 0
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|————————Node:} Text: }
+|—————Node:if_statement Text: if ( terminate_receiver ) { break; }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: ( terminate_receiver )
+|———————Node:( Text: (
+|———————Node:identifier Text: terminate_receiver
+|———————Node:) Text: )
+|——————Node:compound_statement Text: { break; }
+|———————Node:{ Text: {
+|———————Node:break_statement Text: break;
+|————————Node:break Text: break
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:if_statement Text: if ( do_recover ) {
+            can->recover(); // Can only do this not waiting in twai_receive
+            do_recover = false;
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: ( do_recover )
+|———————Node:( Text: (
+|———————Node:identifier Text: do_recover
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            can->recover(); // Can only do this not waiting in twai_receive
+            do_recover = false;
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: can->recover();
+|————————Node:call_expression Text: can->recover()
+|—————————Node:field_expression Text: can->recover
+|——————————Node:identifier Text: can
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: recover
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:comment
+|———————Node:expression_statement Text: do_recover = false;
+|————————Node:assignment_expression Text: do_recover = false
+|—————————Node:identifier Text: do_recover
+|—————————Node:= Text: =
+|—————————Node:false Text: false
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:if_statement Text: if ((tick++ % 100) == 0)
+        {
+            if (uxTaskGetStackHighWaterMark(rxTask) < 128) {
+                ESP_LOGW(FNAME, "Warning canbus task stack low: %d bytes", uxTaskGetStackHighWaterMark(rxTask));
+            }
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: ((tick++ % 100) == 0)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: (tick++ % 100) == 0
+|————————Node:parenthesized_expression Text: (tick++ % 100)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: tick++ % 100
+|——————————Node:update_expression Text: tick++
+|———————————Node:identifier Text: tick
+|———————————Node:++ Text: ++
+|——————————Node:% Text: %
+|——————————Node:number_literal Text: 100
+|—————————Node:) Text: )
+|————————Node:== Text: ==
+|————————Node:number_literal Text: 0
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            if (uxTaskGetStackHighWaterMark(rxTask) < 128) {
+                ESP_LOGW(FNAME, "Warning canbus task stack low: %d bytes", uxTaskGetStackHighWaterMark(rxTask));
+            }
+        }
+|———————Node:{ Text: {
+|———————Node:if_statement Text: if (uxTaskGetStackHighWaterMark(rxTask) < 128) {
+                ESP_LOGW(FNAME, "Warning canbus task stack low: %d bytes", uxTaskGetStackHighWaterMark(rxTask));
+            }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (uxTaskGetStackHighWaterMark(rxTask) < 128)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: uxTaskGetStackHighWaterMark(rxTask) < 128
+|——————————Node:call_expression Text: uxTaskGetStackHighWaterMark(rxTask)
+|———————————Node:identifier Text: uxTaskGetStackHighWaterMark
+|———————————Node:argument_list Text: (rxTask)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: rxTask
+|————————————Node:) Text: )
+|——————————Node:< Text: <
+|——————————Node:number_literal Text: 128
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                ESP_LOGW(FNAME, "Warning canbus task stack low: %d bytes", uxTaskGetStackHighWaterMark(rxTask));
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: ESP_LOGW(FNAME, "Warning canbus task stack low: %d bytes", uxTaskGetStackHighWaterMark(rxTask));
+|——————————Node:call_expression Text: ESP_LOGW(FNAME, "Warning canbus task stack low: %d bytes", uxTaskGetStackHighWaterMark(rxTask))
+|———————————Node:identifier Text: ESP_LOGW
+|———————————Node:argument_list Text: (FNAME, "Warning canbus task stack low: %d bytes", uxTaskGetStackHighWaterMark(rxTask))
+|————————————Node:( Text: (
+|————————————Node:identifier Text: FNAME
+|————————————Node:, Text: ,
+|————————————Node:string_literal Text: "Warning canbus task stack low: %d bytes"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: Warning canbus task stack low: %d bytes
+|—————————————Node:" Text: "
+|————————————Node:, Text: ,
+|————————————Node:call_expression Text: uxTaskGetStackHighWaterMark(rxTask)
+|—————————————Node:identifier Text: uxTaskGetStackHighWaterMark
+|—————————————Node:argument_list Text: (rxTask)
+|——————————————Node:( Text: (
+|——————————————Node:identifier Text: rxTask
+|——————————————Node:) Text: )
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|—————Node:} Text: }
+|————Node:while Text: while
+|————Node:parenthesized_expression Text: ( true )
+|—————Node:( Text: (
+|—————Node:true Text: true
+|—————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: can->driverUninstall();
+|————Node:call_expression Text: can->driverUninstall()
+|—————Node:field_expression Text: can->driverUninstall
+|——————Node:identifier Text: can
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: driverUninstall
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: terminate_receiver = false;
+|————Node:assignment_expression Text: terminate_receiver = false
+|—————Node:identifier Text: terminate_receiver
+|—————Node:= Text: =
+|—————Node:false Text: false
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: rxTask = nullptr;
+|————Node:assignment_expression Text: rxTask = nullptr
+|—————Node:identifier Text: rxTask
+|—————Node:= Text: =
+|—————Node:null Text: nullptr
+|——————Node:nullptr Text: nullptr
+|————Node:; Text: ;
+|———Node:expression_statement Text: vTaskDelete(NULL);
+|————Node:call_expression Text: vTaskDelete(NULL)
+|—————Node:identifier Text: vTaskDelete
+|—————Node:argument_list Text: (NULL)
+|——————Node:( Text: (
+|——————Node:null Text: NULL
+|———————Node:NULL Text: NULL
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: CANbus::CANbus(const gpio_num_t tx, const gpio_num_t rx) :
+    _tx_io(tx),
+    _rx_io(rx)
+{
+}
+|——Node:function_declarator Text: CANbus::CANbus(const gpio_num_t tx, const gpio_num_t rx)
+|———Node:qualified_identifier Text: CANbus::CANbus
+|————Node:namespace_identifier Text: CANbus
+|————Node::: Text: ::
+|————Node:identifier Text: CANbus
+|———Node:parameter_list Text: (const gpio_num_t tx, const gpio_num_t rx)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: const gpio_num_t tx
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:type_identifier Text: gpio_num_t
+|—————Node:identifier Text: tx
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: const gpio_num_t rx
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:type_identifier Text: gpio_num_t
+|—————Node:identifier Text: rx
+|————Node:) Text: )
+|——Node:field_initializer_list Text: :
+    _tx_io(tx),
+    _rx_io(rx)
+|———Node:: Text: :
+|———Node:field_initializer Text: _tx_io(tx)
+|————Node:field_identifier Text: _tx_io
+|————Node:argument_list Text: (tx)
+|—————Node:( Text: (
+|—————Node:identifier Text: tx
+|—————Node:) Text: )
+|———Node:, Text: ,
+|———Node:field_initializer Text: _rx_io(rx)
+|————Node:field_identifier Text: _rx_io
+|————Node:argument_list Text: (rx)
+|—————Node:( Text: (
+|—————Node:identifier Text: rx
+|—————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:function_definition Text: void CANbus::ConfigureIntf(int cfg)
+{
+    // todo
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CANbus::ConfigureIntf(int cfg)
+|———Node:qualified_identifier Text: CANbus::ConfigureIntf
+|————Node:namespace_identifier Text: CANbus
+|————Node::: Text: ::
+|————Node:identifier Text: ConfigureIntf
+|———Node:parameter_list Text: (int cfg)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: int cfg
+|—————Node:primitive_type Text: int
+|—————Node:identifier Text: cfg
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    // todo
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: void CANbus::driverInstall(twai_mode_t mode, CanSpeed speed)
+{
+    if (_initialized)
+    {
+        driverUninstall();
+    }
+
+    twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(_tx_io, _rx_io, mode);
+    ESP_LOGI(FNAME, "default alerts %X", g_config.alerts_enabled);
+    // g_config.alerts_enabled = TWAI_ALERT_TX_FAILED | TWAI_ALERT_BUS_OFF | TWAI_ALERT_ABOVE_ERR_WARN | TWAI_ALERT_BUS_ERROR;
+    g_config.alerts_enabled = TWAI_ALERT_ALL;
+    g_config.bus_off_io = GPIO_NUM_NC;
+    g_config.rx_queue_len = 15;
+    g_config.tx_queue_len = 15;
+    ESP_LOGI(FNAME, "set alerts to %X", g_config.alerts_enabled);
+
+    twai_timing_config_t t_config;
+    _speed = speed;
+    _tx_timeout = 2; // 111usec/chunk -> 2msec
+    if (speed == CAN_SPEED_250KBIT)
+    {
+        ESP_LOGI(FNAME, "CAN rate 250KBit");
+        t_config = TWAI_TIMING_CONFIG_250KBITS();
+        _tx_timeout = 8; // 444usec/chunk -> 4msec
+    }
+    else if (speed == CAN_SPEED_500KBIT)
+    {
+        ESP_LOGI(FNAME, "CAN rate 500KBit");
+        t_config = TWAI_TIMING_CONFIG_500KBITS();
+        _tx_timeout = 4; // 222usec/chunk -> 2msec
+    }
+    else if (speed == CAN_SPEED_1MBIT)
+    {
+        ESP_LOGI(FNAME, "CAN rate 1MBit");
+        t_config = TWAI_TIMING_CONFIG_1MBITS();
+    }
+    else
+    {
+        ESP_LOGI(FNAME, "CAN rate 1MBit for selftest");
+        t_config = TWAI_TIMING_CONFIG_1MBITS();
+    }
+
+    // Install TWAI driver
+    twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+    if (twai_driver_install(&g_config, &t_config, &f_config) == ESP_OK)
+    {
+        ESP_LOGI(FNAME, "Driver installed OK, mode %d, filter 0x%4x", mode, f_config.acceptance_code);
+    }
+    else
+    {
+        ESP_LOGI(FNAME, "Failed to install driver");
+        return;
+    }
+
+    // Start TWAI driver
+    if (twai_start() == ESP_OK)
+    {
+        ESP_LOGI(FNAME, "Driver started");
+        _initialized = true;
+    }
+    else
+    {
+        twai_driver_uninstall();
+        ESP_LOGI(FNAME, "Failed to start driver");
+    }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CANbus::driverInstall(twai_mode_t mode, CanSpeed speed)
+|———Node:qualified_identifier Text: CANbus::driverInstall
+|————Node:namespace_identifier Text: CANbus
+|————Node::: Text: ::
+|————Node:identifier Text: driverInstall
+|———Node:parameter_list Text: (twai_mode_t mode, CanSpeed speed)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: twai_mode_t mode
+|—————Node:type_identifier Text: twai_mode_t
+|—————Node:identifier Text: mode
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: CanSpeed speed
+|—————Node:type_identifier Text: CanSpeed
+|—————Node:identifier Text: speed
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if (_initialized)
+    {
+        driverUninstall();
+    }
+
+    twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(_tx_io, _rx_io, mode);
+    ESP_LOGI(FNAME, "default alerts %X", g_config.alerts_enabled);
+    // g_config.alerts_enabled = TWAI_ALERT_TX_FAILED | TWAI_ALERT_BUS_OFF | TWAI_ALERT_ABOVE_ERR_WARN | TWAI_ALERT_BUS_ERROR;
+    g_config.alerts_enabled = TWAI_ALERT_ALL;
+    g_config.bus_off_io = GPIO_NUM_NC;
+    g_config.rx_queue_len = 15;
+    g_config.tx_queue_len = 15;
+    ESP_LOGI(FNAME, "set alerts to %X", g_config.alerts_enabled);
+
+    twai_timing_config_t t_config;
+    _speed = speed;
+    _tx_timeout = 2; // 111usec/chunk -> 2msec
+    if (speed == CAN_SPEED_250KBIT)
+    {
+        ESP_LOGI(FNAME, "CAN rate 250KBit");
+        t_config = TWAI_TIMING_CONFIG_250KBITS();
+        _tx_timeout = 8; // 444usec/chunk -> 4msec
+    }
+    else if (speed == CAN_SPEED_500KBIT)
+    {
+        ESP_LOGI(FNAME, "CAN rate 500KBit");
+        t_config = TWAI_TIMING_CONFIG_500KBITS();
+        _tx_timeout = 4; // 222usec/chunk -> 2msec
+    }
+    else if (speed == CAN_SPEED_1MBIT)
+    {
+        ESP_LOGI(FNAME, "CAN rate 1MBit");
+        t_config = TWAI_TIMING_CONFIG_1MBITS();
+    }
+    else
+    {
+        ESP_LOGI(FNAME, "CAN rate 1MBit for selftest");
+        t_config = TWAI_TIMING_CONFIG_1MBITS();
+    }
+
+    // Install TWAI driver
+    twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+    if (twai_driver_install(&g_config, &t_config, &f_config) == ESP_OK)
+    {
+        ESP_LOGI(FNAME, "Driver installed OK, mode %d, filter 0x%4x", mode, f_config.acceptance_code);
+    }
+    else
+    {
+        ESP_LOGI(FNAME, "Failed to install driver");
+        return;
+    }
+
+    // Start TWAI driver
+    if (twai_start() == ESP_OK)
+    {
+        ESP_LOGI(FNAME, "Driver started");
+        _initialized = true;
+    }
+    else
+    {
+        twai_driver_uninstall();
+        ESP_LOGI(FNAME, "Failed to start driver");
+    }
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (_initialized)
+    {
+        driverUninstall();
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (_initialized)
+|—————Node:( Text: (
+|—————Node:identifier Text: _initialized
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        driverUninstall();
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: driverUninstall();
+|——————Node:call_expression Text: driverUninstall()
+|———————Node:identifier Text: driverUninstall
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:declaration Text: twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(_tx_io, _rx_io, mode);
+|————Node:type_identifier Text: twai_general_config_t
+|————Node:init_declarator Text: g_config = TWAI_GENERAL_CONFIG_DEFAULT(_tx_io, _rx_io, mode)
+|—————Node:identifier Text: g_config
+|—————Node:= Text: =
+|—————Node:call_expression Text: TWAI_GENERAL_CONFIG_DEFAULT(_tx_io, _rx_io, mode)
+|——————Node:identifier Text: TWAI_GENERAL_CONFIG_DEFAULT
+|——————Node:argument_list Text: (_tx_io, _rx_io, mode)
+|———————Node:( Text: (
+|———————Node:identifier Text: _tx_io
+|———————Node:, Text: ,
+|———————Node:identifier Text: _rx_io
+|———————Node:, Text: ,
+|———————Node:identifier Text: mode
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ESP_LOGI(FNAME, "default alerts %X", g_config.alerts_enabled);
+|————Node:call_expression Text: ESP_LOGI(FNAME, "default alerts %X", g_config.alerts_enabled)
+|—————Node:identifier Text: ESP_LOGI
+|—————Node:argument_list Text: (FNAME, "default alerts %X", g_config.alerts_enabled)
+|——————Node:( Text: (
+|——————Node:identifier Text: FNAME
+|——————Node:, Text: ,
+|——————Node:string_literal Text: "default alerts %X"
+|———————Node:" Text: "
+|———————Node:string_content Text: default alerts %X
+|———————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:field_expression Text: g_config.alerts_enabled
+|———————Node:identifier Text: g_config
+|———————Node:. Text: .
+|———————Node:field_identifier Text: alerts_enabled
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: g_config.alerts_enabled = TWAI_ALERT_ALL;
+|————Node:assignment_expression Text: g_config.alerts_enabled = TWAI_ALERT_ALL
+|—————Node:field_expression Text: g_config.alerts_enabled
+|——————Node:identifier Text: g_config
+|——————Node:. Text: .
+|——————Node:field_identifier Text: alerts_enabled
+|—————Node:= Text: =
+|—————Node:identifier Text: TWAI_ALERT_ALL
+|————Node:; Text: ;
+|———Node:expression_statement Text: g_config.bus_off_io = GPIO_NUM_NC;
+|————Node:assignment_expression Text: g_config.bus_off_io = GPIO_NUM_NC
+|—————Node:field_expression Text: g_config.bus_off_io
+|——————Node:identifier Text: g_config
+|——————Node:. Text: .
+|——————Node:field_identifier Text: bus_off_io
+|—————Node:= Text: =
+|—————Node:identifier Text: GPIO_NUM_NC
+|————Node:; Text: ;
+|———Node:expression_statement Text: g_config.rx_queue_len = 15;
+|————Node:assignment_expression Text: g_config.rx_queue_len = 15
+|—————Node:field_expression Text: g_config.rx_queue_len
+|——————Node:identifier Text: g_config
+|——————Node:. Text: .
+|——————Node:field_identifier Text: rx_queue_len
+|—————Node:= Text: =
+|—————Node:number_literal Text: 15
+|————Node:; Text: ;
+|———Node:expression_statement Text: g_config.tx_queue_len = 15;
+|————Node:assignment_expression Text: g_config.tx_queue_len = 15
+|—————Node:field_expression Text: g_config.tx_queue_len
+|——————Node:identifier Text: g_config
+|——————Node:. Text: .
+|——————Node:field_identifier Text: tx_queue_len
+|—————Node:= Text: =
+|—————Node:number_literal Text: 15
+|————Node:; Text: ;
+|———Node:expression_statement Text: ESP_LOGI(FNAME, "set alerts to %X", g_config.alerts_enabled);
+|————Node:call_expression Text: ESP_LOGI(FNAME, "set alerts to %X", g_config.alerts_enabled)
+|—————Node:identifier Text: ESP_LOGI
+|—————Node:argument_list Text: (FNAME, "set alerts to %X", g_config.alerts_enabled)
+|——————Node:( Text: (
+|——————Node:identifier Text: FNAME
+|——————Node:, Text: ,
+|——————Node:string_literal Text: "set alerts to %X"
+|———————Node:" Text: "
+|———————Node:string_content Text: set alerts to %X
+|———————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:field_expression Text: g_config.alerts_enabled
+|———————Node:identifier Text: g_config
+|———————Node:. Text: .
+|———————Node:field_identifier Text: alerts_enabled
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: twai_timing_config_t t_config;
+|————Node:type_identifier Text: twai_timing_config_t
+|————Node:identifier Text: t_config
+|————Node:; Text: ;
+|———Node:expression_statement Text: _speed = speed;
+|————Node:assignment_expression Text: _speed = speed
+|—————Node:identifier Text: _speed
+|—————Node:= Text: =
+|—————Node:identifier Text: speed
+|————Node:; Text: ;
+|———Node:expression_statement Text: _tx_timeout = 2;
+|————Node:assignment_expression Text: _tx_timeout = 2
+|—————Node:identifier Text: _tx_timeout
+|—————Node:= Text: =
+|—————Node:number_literal Text: 2
+|————Node:; Text: ;
+|———Node:comment
+|———Node:if_statement Text: if (speed == CAN_SPEED_250KBIT)
+    {
+        ESP_LOGI(FNAME, "CAN rate 250KBit");
+        t_config = TWAI_TIMING_CONFIG_250KBITS();
+        _tx_timeout = 8; // 444usec/chunk -> 4msec
+    }
+    else if (speed == CAN_SPEED_500KBIT)
+    {
+        ESP_LOGI(FNAME, "CAN rate 500KBit");
+        t_config = TWAI_TIMING_CONFIG_500KBITS();
+        _tx_timeout = 4; // 222usec/chunk -> 2msec
+    }
+    else if (speed == CAN_SPEED_1MBIT)
+    {
+        ESP_LOGI(FNAME, "CAN rate 1MBit");
+        t_config = TWAI_TIMING_CONFIG_1MBITS();
+    }
+    else
+    {
+        ESP_LOGI(FNAME, "CAN rate 1MBit for selftest");
+        t_config = TWAI_TIMING_CONFIG_1MBITS();
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (speed == CAN_SPEED_250KBIT)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: speed == CAN_SPEED_250KBIT
+|——————Node:identifier Text: speed
+|——————Node:== Text: ==
+|——————Node:identifier Text: CAN_SPEED_250KBIT
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        ESP_LOGI(FNAME, "CAN rate 250KBit");
+        t_config = TWAI_TIMING_CONFIG_250KBITS();
+        _tx_timeout = 8; // 444usec/chunk -> 4msec
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: ESP_LOGI(FNAME, "CAN rate 250KBit");
+|——————Node:call_expression Text: ESP_LOGI(FNAME, "CAN rate 250KBit")
+|———————Node:identifier Text: ESP_LOGI
+|———————Node:argument_list Text: (FNAME, "CAN rate 250KBit")
+|————————Node:( Text: (
+|————————Node:identifier Text: FNAME
+|————————Node:, Text: ,
+|————————Node:string_literal Text: "CAN rate 250KBit"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: CAN rate 250KBit
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: t_config = TWAI_TIMING_CONFIG_250KBITS();
+|——————Node:assignment_expression Text: t_config = TWAI_TIMING_CONFIG_250KBITS()
+|———————Node:identifier Text: t_config
+|———————Node:= Text: =
+|———————Node:call_expression Text: TWAI_TIMING_CONFIG_250KBITS()
+|————————Node:identifier Text: TWAI_TIMING_CONFIG_250KBITS
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: _tx_timeout = 8;
+|——————Node:assignment_expression Text: _tx_timeout = 8
+|———————Node:identifier Text: _tx_timeout
+|———————Node:= Text: =
+|———————Node:number_literal Text: 8
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:} Text: }
+|————Node:else_clause Text: else if (speed == CAN_SPEED_500KBIT)
+    {
+        ESP_LOGI(FNAME, "CAN rate 500KBit");
+        t_config = TWAI_TIMING_CONFIG_500KBITS();
+        _tx_timeout = 4; // 222usec/chunk -> 2msec
+    }
+    else if (speed == CAN_SPEED_1MBIT)
+    {
+        ESP_LOGI(FNAME, "CAN rate 1MBit");
+        t_config = TWAI_TIMING_CONFIG_1MBITS();
+    }
+    else
+    {
+        ESP_LOGI(FNAME, "CAN rate 1MBit for selftest");
+        t_config = TWAI_TIMING_CONFIG_1MBITS();
+    }
+|—————Node:else Text: else
+|—————Node:if_statement Text: if (speed == CAN_SPEED_500KBIT)
+    {
+        ESP_LOGI(FNAME, "CAN rate 500KBit");
+        t_config = TWAI_TIMING_CONFIG_500KBITS();
+        _tx_timeout = 4; // 222usec/chunk -> 2msec
+    }
+    else if (speed == CAN_SPEED_1MBIT)
+    {
+        ESP_LOGI(FNAME, "CAN rate 1MBit");
+        t_config = TWAI_TIMING_CONFIG_1MBITS();
+    }
+    else
+    {
+        ESP_LOGI(FNAME, "CAN rate 1MBit for selftest");
+        t_config = TWAI_TIMING_CONFIG_1MBITS();
+    }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (speed == CAN_SPEED_500KBIT)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: speed == CAN_SPEED_500KBIT
+|————————Node:identifier Text: speed
+|————————Node:== Text: ==
+|————————Node:identifier Text: CAN_SPEED_500KBIT
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+        ESP_LOGI(FNAME, "CAN rate 500KBit");
+        t_config = TWAI_TIMING_CONFIG_500KBITS();
+        _tx_timeout = 4; // 222usec/chunk -> 2msec
+    }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: ESP_LOGI(FNAME, "CAN rate 500KBit");
+|————————Node:call_expression Text: ESP_LOGI(FNAME, "CAN rate 500KBit")
+|—————————Node:identifier Text: ESP_LOGI
+|—————————Node:argument_list Text: (FNAME, "CAN rate 500KBit")
+|——————————Node:( Text: (
+|——————————Node:identifier Text: FNAME
+|——————————Node:, Text: ,
+|——————————Node:string_literal Text: "CAN rate 500KBit"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: CAN rate 500KBit
+|———————————Node:" Text: "
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: t_config = TWAI_TIMING_CONFIG_500KBITS();
+|————————Node:assignment_expression Text: t_config = TWAI_TIMING_CONFIG_500KBITS()
+|—————————Node:identifier Text: t_config
+|—————————Node:= Text: =
+|—————————Node:call_expression Text: TWAI_TIMING_CONFIG_500KBITS()
+|——————————Node:identifier Text: TWAI_TIMING_CONFIG_500KBITS
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: _tx_timeout = 4;
+|————————Node:assignment_expression Text: _tx_timeout = 4
+|—————————Node:identifier Text: _tx_timeout
+|—————————Node:= Text: =
+|—————————Node:number_literal Text: 4
+|————————Node:; Text: ;
+|———————Node:comment
+|———————Node:} Text: }
+|——————Node:else_clause Text: else if (speed == CAN_SPEED_1MBIT)
+    {
+        ESP_LOGI(FNAME, "CAN rate 1MBit");
+        t_config = TWAI_TIMING_CONFIG_1MBITS();
+    }
+    else
+    {
+        ESP_LOGI(FNAME, "CAN rate 1MBit for selftest");
+        t_config = TWAI_TIMING_CONFIG_1MBITS();
+    }
+|———————Node:else Text: else
+|———————Node:if_statement Text: if (speed == CAN_SPEED_1MBIT)
+    {
+        ESP_LOGI(FNAME, "CAN rate 1MBit");
+        t_config = TWAI_TIMING_CONFIG_1MBITS();
+    }
+    else
+    {
+        ESP_LOGI(FNAME, "CAN rate 1MBit for selftest");
+        t_config = TWAI_TIMING_CONFIG_1MBITS();
+    }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (speed == CAN_SPEED_1MBIT)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: speed == CAN_SPEED_1MBIT
+|——————————Node:identifier Text: speed
+|——————————Node:== Text: ==
+|——————————Node:identifier Text: CAN_SPEED_1MBIT
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+        ESP_LOGI(FNAME, "CAN rate 1MBit");
+        t_config = TWAI_TIMING_CONFIG_1MBITS();
+    }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: ESP_LOGI(FNAME, "CAN rate 1MBit");
+|——————————Node:call_expression Text: ESP_LOGI(FNAME, "CAN rate 1MBit")
+|———————————Node:identifier Text: ESP_LOGI
+|———————————Node:argument_list Text: (FNAME, "CAN rate 1MBit")
+|————————————Node:( Text: (
+|————————————Node:identifier Text: FNAME
+|————————————Node:, Text: ,
+|————————————Node:string_literal Text: "CAN rate 1MBit"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: CAN rate 1MBit
+|—————————————Node:" Text: "
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: t_config = TWAI_TIMING_CONFIG_1MBITS();
+|——————————Node:assignment_expression Text: t_config = TWAI_TIMING_CONFIG_1MBITS()
+|———————————Node:identifier Text: t_config
+|———————————Node:= Text: =
+|———————————Node:call_expression Text: TWAI_TIMING_CONFIG_1MBITS()
+|————————————Node:identifier Text: TWAI_TIMING_CONFIG_1MBITS
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|————————Node:else_clause Text: else
+    {
+        ESP_LOGI(FNAME, "CAN rate 1MBit for selftest");
+        t_config = TWAI_TIMING_CONFIG_1MBITS();
+    }
+|—————————Node:else Text: else
+|—————————Node:compound_statement Text: {
+        ESP_LOGI(FNAME, "CAN rate 1MBit for selftest");
+        t_config = TWAI_TIMING_CONFIG_1MBITS();
+    }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: ESP_LOGI(FNAME, "CAN rate 1MBit for selftest");
+|———————————Node:call_expression Text: ESP_LOGI(FNAME, "CAN rate 1MBit for selftest")
+|————————————Node:identifier Text: ESP_LOGI
+|————————————Node:argument_list Text: (FNAME, "CAN rate 1MBit for selftest")
+|—————————————Node:( Text: (
+|—————————————Node:identifier Text: FNAME
+|—————————————Node:, Text: ,
+|—————————————Node:string_literal Text: "CAN rate 1MBit for selftest"
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: CAN rate 1MBit for selftest
+|——————————————Node:" Text: "
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:expression_statement Text: t_config = TWAI_TIMING_CONFIG_1MBITS();
+|———————————Node:assignment_expression Text: t_config = TWAI_TIMING_CONFIG_1MBITS()
+|————————————Node:identifier Text: t_config
+|————————————Node:= Text: =
+|————————————Node:call_expression Text: TWAI_TIMING_CONFIG_1MBITS()
+|—————————————Node:identifier Text: TWAI_TIMING_CONFIG_1MBITS
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|———Node:comment
+|———Node:declaration Text: twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+|————Node:type_identifier Text: twai_filter_config_t
+|————Node:init_declarator Text: f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL()
+|—————Node:identifier Text: f_config
+|—————Node:= Text: =
+|—————Node:call_expression Text: TWAI_FILTER_CONFIG_ACCEPT_ALL()
+|——————Node:identifier Text: TWAI_FILTER_CONFIG_ACCEPT_ALL
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (twai_driver_install(&g_config, &t_config, &f_config) == ESP_OK)
+    {
+        ESP_LOGI(FNAME, "Driver installed OK, mode %d, filter 0x%4x", mode, f_config.acceptance_code);
+    }
+    else
+    {
+        ESP_LOGI(FNAME, "Failed to install driver");
+        return;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (twai_driver_install(&g_config, &t_config, &f_config) == ESP_OK)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: twai_driver_install(&g_config, &t_config, &f_config) == ESP_OK
+|——————Node:call_expression Text: twai_driver_install(&g_config, &t_config, &f_config)
+|———————Node:identifier Text: twai_driver_install
+|———————Node:argument_list Text: (&g_config, &t_config, &f_config)
+|————————Node:( Text: (
+|————————Node:pointer_expression Text: &g_config
+|—————————Node:& Text: &
+|—————————Node:identifier Text: g_config
+|————————Node:, Text: ,
+|————————Node:pointer_expression Text: &t_config
+|—————————Node:& Text: &
+|—————————Node:identifier Text: t_config
+|————————Node:, Text: ,
+|————————Node:pointer_expression Text: &f_config
+|—————————Node:& Text: &
+|—————————Node:identifier Text: f_config
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:identifier Text: ESP_OK
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        ESP_LOGI(FNAME, "Driver installed OK, mode %d, filter 0x%4x", mode, f_config.acceptance_code);
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: ESP_LOGI(FNAME, "Driver installed OK, mode %d, filter 0x%4x", mode, f_config.acceptance_code);
+|——————Node:call_expression Text: ESP_LOGI(FNAME, "Driver installed OK, mode %d, filter 0x%4x", mode, f_config.acceptance_code)
+|———————Node:identifier Text: ESP_LOGI
+|———————Node:argument_list Text: (FNAME, "Driver installed OK, mode %d, filter 0x%4x", mode, f_config.acceptance_code)
+|————————Node:( Text: (
+|————————Node:identifier Text: FNAME
+|————————Node:, Text: ,
+|————————Node:string_literal Text: "Driver installed OK, mode %d, filter 0x%4x"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: Driver installed OK, mode %d, filter 0x%4x
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:identifier Text: mode
+|————————Node:, Text: ,
+|————————Node:field_expression Text: f_config.acceptance_code
+|—————————Node:identifier Text: f_config
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: acceptance_code
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else
+    {
+        ESP_LOGI(FNAME, "Failed to install driver");
+        return;
+    }
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+        ESP_LOGI(FNAME, "Failed to install driver");
+        return;
+    }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: ESP_LOGI(FNAME, "Failed to install driver");
+|———————Node:call_expression Text: ESP_LOGI(FNAME, "Failed to install driver")
+|————————Node:identifier Text: ESP_LOGI
+|————————Node:argument_list Text: (FNAME, "Failed to install driver")
+|—————————Node:( Text: (
+|—————————Node:identifier Text: FNAME
+|—————————Node:, Text: ,
+|—————————Node:string_literal Text: "Failed to install driver"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Failed to install driver
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:return_statement Text: return;
+|———————Node:return Text: return
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:comment
+|———Node:if_statement Text: if (twai_start() == ESP_OK)
+    {
+        ESP_LOGI(FNAME, "Driver started");
+        _initialized = true;
+    }
+    else
+    {
+        twai_driver_uninstall();
+        ESP_LOGI(FNAME, "Failed to start driver");
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (twai_start() == ESP_OK)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: twai_start() == ESP_OK
+|——————Node:call_expression Text: twai_start()
+|———————Node:identifier Text: twai_start
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:identifier Text: ESP_OK
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        ESP_LOGI(FNAME, "Driver started");
+        _initialized = true;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: ESP_LOGI(FNAME, "Driver started");
+|——————Node:call_expression Text: ESP_LOGI(FNAME, "Driver started")
+|———————Node:identifier Text: ESP_LOGI
+|———————Node:argument_list Text: (FNAME, "Driver started")
+|————————Node:( Text: (
+|————————Node:identifier Text: FNAME
+|————————Node:, Text: ,
+|————————Node:string_literal Text: "Driver started"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: Driver started
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: _initialized = true;
+|——————Node:assignment_expression Text: _initialized = true
+|———————Node:identifier Text: _initialized
+|———————Node:= Text: =
+|———————Node:true Text: true
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else
+    {
+        twai_driver_uninstall();
+        ESP_LOGI(FNAME, "Failed to start driver");
+    }
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+        twai_driver_uninstall();
+        ESP_LOGI(FNAME, "Failed to start driver");
+    }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: twai_driver_uninstall();
+|———————Node:call_expression Text: twai_driver_uninstall()
+|————————Node:identifier Text: twai_driver_uninstall
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: ESP_LOGI(FNAME, "Failed to start driver");
+|———————Node:call_expression Text: ESP_LOGI(FNAME, "Failed to start driver")
+|————————Node:identifier Text: ESP_LOGI
+|————————Node:argument_list Text: (FNAME, "Failed to start driver")
+|—————————Node:( Text: (
+|—————————Node:identifier Text: FNAME
+|—————————Node:, Text: ,
+|—————————Node:string_literal Text: "Failed to start driver"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Failed to start driver
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:} Text: }
+|—Node:function_definition Text: void CANbus::driverUninstall()
+{
+    if (_initialized)
+    {
+        _initialized = false;
+        twai_stop();
+        twai_driver_uninstall();
+    }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CANbus::driverUninstall()
+|———Node:qualified_identifier Text: CANbus::driverUninstall
+|————Node:namespace_identifier Text: CANbus
+|————Node::: Text: ::
+|————Node:identifier Text: driverUninstall
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if (_initialized)
+    {
+        _initialized = false;
+        twai_stop();
+        twai_driver_uninstall();
+    }
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (_initialized)
+    {
+        _initialized = false;
+        twai_stop();
+        twai_driver_uninstall();
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (_initialized)
+|—————Node:( Text: (
+|—————Node:identifier Text: _initialized
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        _initialized = false;
+        twai_stop();
+        twai_driver_uninstall();
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: _initialized = false;
+|——————Node:assignment_expression Text: _initialized = false
+|———————Node:identifier Text: _initialized
+|———————Node:= Text: =
+|———————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: twai_stop();
+|——————Node:call_expression Text: twai_stop()
+|———————Node:identifier Text: twai_stop
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: twai_driver_uninstall();
+|——————Node:call_expression Text: twai_driver_uninstall()
+|———————Node:identifier Text: twai_driver_uninstall
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:function_definition Text: void CANbus::recover()
+{
+    twai_status_info_t status_info;
+    if (twai_get_status_info(&status_info) == ESP_OK)
+    {
+        if (status_info.state == TWAI_STATE_BUS_OFF)
+        {
+            // recovery is only possible in this state
+            ESP_LOGW(FNAME, "CANbus recover");
+            twai_initiate_recovery();
+            vTaskDelay(10 / portTICK_PERIOD_MS);
+            twai_start();
+        }
+    }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CANbus::recover()
+|———Node:qualified_identifier Text: CANbus::recover
+|————Node:namespace_identifier Text: CANbus
+|————Node::: Text: ::
+|————Node:identifier Text: recover
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    twai_status_info_t status_info;
+    if (twai_get_status_info(&status_info) == ESP_OK)
+    {
+        if (status_info.state == TWAI_STATE_BUS_OFF)
+        {
+            // recovery is only possible in this state
+            ESP_LOGW(FNAME, "CANbus recover");
+            twai_initiate_recovery();
+            vTaskDelay(10 / portTICK_PERIOD_MS);
+            twai_start();
+        }
+    }
+}
+|———Node:{ Text: {
+|———Node:declaration Text: twai_status_info_t status_info;
+|————Node:type_identifier Text: twai_status_info_t
+|————Node:identifier Text: status_info
+|————Node:; Text: ;
+|———Node:if_statement Text: if (twai_get_status_info(&status_info) == ESP_OK)
+    {
+        if (status_info.state == TWAI_STATE_BUS_OFF)
+        {
+            // recovery is only possible in this state
+            ESP_LOGW(FNAME, "CANbus recover");
+            twai_initiate_recovery();
+            vTaskDelay(10 / portTICK_PERIOD_MS);
+            twai_start();
+        }
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (twai_get_status_info(&status_info) == ESP_OK)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: twai_get_status_info(&status_info) == ESP_OK
+|——————Node:call_expression Text: twai_get_status_info(&status_info)
+|———————Node:identifier Text: twai_get_status_info
+|———————Node:argument_list Text: (&status_info)
+|————————Node:( Text: (
+|————————Node:pointer_expression Text: &status_info
+|—————————Node:& Text: &
+|—————————Node:identifier Text: status_info
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:identifier Text: ESP_OK
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        if (status_info.state == TWAI_STATE_BUS_OFF)
+        {
+            // recovery is only possible in this state
+            ESP_LOGW(FNAME, "CANbus recover");
+            twai_initiate_recovery();
+            vTaskDelay(10 / portTICK_PERIOD_MS);
+            twai_start();
+        }
+    }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if (status_info.state == TWAI_STATE_BUS_OFF)
+        {
+            // recovery is only possible in this state
+            ESP_LOGW(FNAME, "CANbus recover");
+            twai_initiate_recovery();
+            vTaskDelay(10 / portTICK_PERIOD_MS);
+            twai_start();
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (status_info.state == TWAI_STATE_BUS_OFF)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: status_info.state == TWAI_STATE_BUS_OFF
+|————————Node:field_expression Text: status_info.state
+|—————————Node:identifier Text: status_info
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: state
+|————————Node:== Text: ==
+|————————Node:identifier Text: TWAI_STATE_BUS_OFF
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            // recovery is only possible in this state
+            ESP_LOGW(FNAME, "CANbus recover");
+            twai_initiate_recovery();
+            vTaskDelay(10 / portTICK_PERIOD_MS);
+            twai_start();
+        }
+|———————Node:{ Text: {
+|———————Node:comment
+|———————Node:expression_statement Text: ESP_LOGW(FNAME, "CANbus recover");
+|————————Node:call_expression Text: ESP_LOGW(FNAME, "CANbus recover")
+|—————————Node:identifier Text: ESP_LOGW
+|—————————Node:argument_list Text: (FNAME, "CANbus recover")
+|——————————Node:( Text: (
+|——————————Node:identifier Text: FNAME
+|——————————Node:, Text: ,
+|——————————Node:string_literal Text: "CANbus recover"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: CANbus recover
+|———————————Node:" Text: "
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: twai_initiate_recovery();
+|————————Node:call_expression Text: twai_initiate_recovery()
+|—————————Node:identifier Text: twai_initiate_recovery
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: vTaskDelay(10 / portTICK_PERIOD_MS);
+|————————Node:call_expression Text: vTaskDelay(10 / portTICK_PERIOD_MS)
+|—————————Node:identifier Text: vTaskDelay
+|—————————Node:argument_list Text: (10 / portTICK_PERIOD_MS)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: 10 / portTICK_PERIOD_MS
+|———————————Node:number_literal Text: 10
+|———————————Node:/ Text: /
+|———————————Node:identifier Text: portTICK_PERIOD_MS
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: twai_start();
+|————————Node:call_expression Text: twai_start()
+|—————————Node:identifier Text: twai_start
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: bool CANbus::begin(CanSpeed speed)
+{
+    ESP_LOGI(FNAME, "CAN begin");
+
+    if ( ! _initialized && selfTest() ) {
+        driverInstall(TWAI_MODE_NORMAL, CanSpeed::CAN_SPEED_1MBIT);
+
+        terminate_receiver = false;
+        xTaskCreate(&CANReceiveTask, "CanRx", 4096, this, 10, &rxTask);
+    } else {
+        driverUninstall();
+    }
+    return _initialized;
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: CANbus::begin(CanSpeed speed)
+|———Node:qualified_identifier Text: CANbus::begin
+|————Node:namespace_identifier Text: CANbus
+|————Node::: Text: ::
+|————Node:identifier Text: begin
+|———Node:parameter_list Text: (CanSpeed speed)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: CanSpeed speed
+|—————Node:type_identifier Text: CanSpeed
+|—————Node:identifier Text: speed
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    ESP_LOGI(FNAME, "CAN begin");
+
+    if ( ! _initialized && selfTest() ) {
+        driverInstall(TWAI_MODE_NORMAL, CanSpeed::CAN_SPEED_1MBIT);
+
+        terminate_receiver = false;
+        xTaskCreate(&CANReceiveTask, "CanRx", 4096, this, 10, &rxTask);
+    } else {
+        driverUninstall();
+    }
+    return _initialized;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: ESP_LOGI(FNAME, "CAN begin");
+|————Node:call_expression Text: ESP_LOGI(FNAME, "CAN begin")
+|—————Node:identifier Text: ESP_LOGI
+|—————Node:argument_list Text: (FNAME, "CAN begin")
+|——————Node:( Text: (
+|——————Node:identifier Text: FNAME
+|——————Node:, Text: ,
+|——————Node:string_literal Text: "CAN begin"
+|———————Node:" Text: "
+|———————Node:string_content Text: CAN begin
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if ( ! _initialized && selfTest() ) {
+        driverInstall(TWAI_MODE_NORMAL, CanSpeed::CAN_SPEED_1MBIT);
+
+        terminate_receiver = false;
+        xTaskCreate(&CANReceiveTask, "CanRx", 4096, this, 10, &rxTask);
+    } else {
+        driverUninstall();
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: ( ! _initialized && selfTest() )
+|—————Node:( Text: (
+|—————Node:binary_expression Text: ! _initialized && selfTest()
+|——————Node:unary_expression Text: ! _initialized
+|———————Node:! Text: !
+|———————Node:identifier Text: _initialized
+|——————Node:&& Text: &&
+|——————Node:call_expression Text: selfTest()
+|———————Node:identifier Text: selfTest
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        driverInstall(TWAI_MODE_NORMAL, CanSpeed::CAN_SPEED_1MBIT);
+
+        terminate_receiver = false;
+        xTaskCreate(&CANReceiveTask, "CanRx", 4096, this, 10, &rxTask);
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: driverInstall(TWAI_MODE_NORMAL, CanSpeed::CAN_SPEED_1MBIT);
+|——————Node:call_expression Text: driverInstall(TWAI_MODE_NORMAL, CanSpeed::CAN_SPEED_1MBIT)
+|———————Node:identifier Text: driverInstall
+|———————Node:argument_list Text: (TWAI_MODE_NORMAL, CanSpeed::CAN_SPEED_1MBIT)
+|————————Node:( Text: (
+|————————Node:identifier Text: TWAI_MODE_NORMAL
+|————————Node:, Text: ,
+|————————Node:qualified_identifier Text: CanSpeed::CAN_SPEED_1MBIT
+|—————————Node:namespace_identifier Text: CanSpeed
+|—————————Node::: Text: ::
+|—————————Node:identifier Text: CAN_SPEED_1MBIT
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: terminate_receiver = false;
+|——————Node:assignment_expression Text: terminate_receiver = false
+|———————Node:identifier Text: terminate_receiver
+|———————Node:= Text: =
+|———————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: xTaskCreate(&CANReceiveTask, "CanRx", 4096, this, 10, &rxTask);
+|——————Node:call_expression Text: xTaskCreate(&CANReceiveTask, "CanRx", 4096, this, 10, &rxTask)
+|———————Node:identifier Text: xTaskCreate
+|———————Node:argument_list Text: (&CANReceiveTask, "CanRx", 4096, this, 10, &rxTask)
+|————————Node:( Text: (
+|————————Node:pointer_expression Text: &CANReceiveTask
+|—————————Node:& Text: &
+|—————————Node:identifier Text: CANReceiveTask
+|————————Node:, Text: ,
+|————————Node:string_literal Text: "CanRx"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: CanRx
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 4096
+|————————Node:, Text: ,
+|————————Node:this Text: this
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 10
+|————————Node:, Text: ,
+|————————Node:pointer_expression Text: &rxTask
+|—————————Node:& Text: &
+|—————————Node:identifier Text: rxTask
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else {
+        driverUninstall();
+    }
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+        driverUninstall();
+    }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: driverUninstall();
+|———————Node:call_expression Text: driverUninstall()
+|————————Node:identifier Text: driverUninstall
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:return_statement Text: return _initialized;
+|————Node:return Text: return
+|————Node:identifier Text: _initialized
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: void CANbus::stop()
+{
+    ESP_LOGI(FNAME, "CAN stop");
+
+    // send terminate signals to tasks
+    terminate_receiver = true; // for receiver
+
+    DeleteAllDataLinks();
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CANbus::stop()
+|———Node:qualified_identifier Text: CANbus::stop
+|————Node:namespace_identifier Text: CANbus
+|————Node::: Text: ::
+|————Node:identifier Text: stop
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    ESP_LOGI(FNAME, "CAN stop");
+
+    // send terminate signals to tasks
+    terminate_receiver = true; // for receiver
+
+    DeleteAllDataLinks();
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: ESP_LOGI(FNAME, "CAN stop");
+|————Node:call_expression Text: ESP_LOGI(FNAME, "CAN stop")
+|—————Node:identifier Text: ESP_LOGI
+|—————Node:argument_list Text: (FNAME, "CAN stop")
+|——————Node:( Text: (
+|——————Node:identifier Text: FNAME
+|——————Node:, Text: ,
+|——————Node:string_literal Text: "CAN stop"
+|———————Node:" Text: "
+|———————Node:string_content Text: CAN stop
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: terminate_receiver = true;
+|————Node:assignment_expression Text: terminate_receiver = true
+|—————Node:identifier Text: terminate_receiver
+|—————Node:= Text: =
+|—————Node:true Text: true
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: DeleteAllDataLinks();
+|————Node:call_expression Text: DeleteAllDataLinks()
+|—————Node:identifier Text: DeleteAllDataLinks
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: bool CANbus::selfTest()
+{
+    ESP_LOGI(FNAME, "CAN bus selftest");
+    driverInstall(TWAI_MODE_NO_ACK, CanSpeed::CAN_SPEED_1MBIT);
+    // driverInstall(TWAI_MODE_LISTEN_ONLY, CanSpeed::CAN_SPEED_1MBIT);
+    
+    bool res = false;
+    int id = CANTEST_ID; // todo find some better idea to splatter bytes on the bus for a test
+    twai_clear_receive_queue();
+    for (int i = 0; i < 3; i++)
+    {
+        char tx[10] = {"1827364"};
+        int len = strlen(tx);
+        ESP_LOGI(FNAME, "strlen %d", len);
+        twai_clear_receive_queue(); // there might be data from a remote device
+        if ( ! sendData(id, tx, len, 1) ) {
+            ESP_LOGW(FNAME, "CAN bus selftest TX FAILED");
+        }
+
+        twai_message_t rx;
+        if ( (ESP_OK == twai_receive(&rx, pdMS_TO_TICKS(20)))
+            && (rx.identifier == id)
+            && (rx.data_length_code == len)
+            && (memcmp(rx.data, tx, len) == 0) )
+        {
+            ESP_LOGI(FNAME, "RX CAN bus OKAY");
+            res = true;
+            break;
+        }
+        else
+        {
+            std::string msg((char*)rx.data, rx.data_length_code);
+            ESP_LOGW(FNAME, "CAN bus selftest RX call FAILED bytes:%d rxid:%x rxmsg:%s", rx.data_length_code, rx.identifier, msg.c_str());
+            twai_clear_receive_queue();
+        }
+    }
+    driverUninstall();
+
+    ESP_LOGW(FNAME, "CAN bus selftest TX/RX %s", res?"Ok":"failed");
+    return res;
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: CANbus::selfTest()
+|———Node:qualified_identifier Text: CANbus::selfTest
+|————Node:namespace_identifier Text: CANbus
+|————Node::: Text: ::
+|————Node:identifier Text: selfTest
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    ESP_LOGI(FNAME, "CAN bus selftest");
+    driverInstall(TWAI_MODE_NO_ACK, CanSpeed::CAN_SPEED_1MBIT);
+    // driverInstall(TWAI_MODE_LISTEN_ONLY, CanSpeed::CAN_SPEED_1MBIT);
+    
+    bool res = false;
+    int id = CANTEST_ID; // todo find some better idea to splatter bytes on the bus for a test
+    twai_clear_receive_queue();
+    for (int i = 0; i < 3; i++)
+    {
+        char tx[10] = {"1827364"};
+        int len = strlen(tx);
+        ESP_LOGI(FNAME, "strlen %d", len);
+        twai_clear_receive_queue(); // there might be data from a remote device
+        if ( ! sendData(id, tx, len, 1) ) {
+            ESP_LOGW(FNAME, "CAN bus selftest TX FAILED");
+        }
+
+        twai_message_t rx;
+        if ( (ESP_OK == twai_receive(&rx, pdMS_TO_TICKS(20)))
+            && (rx.identifier == id)
+            && (rx.data_length_code == len)
+            && (memcmp(rx.data, tx, len) == 0) )
+        {
+            ESP_LOGI(FNAME, "RX CAN bus OKAY");
+            res = true;
+            break;
+        }
+        else
+        {
+            std::string msg((char*)rx.data, rx.data_length_code);
+            ESP_LOGW(FNAME, "CAN bus selftest RX call FAILED bytes:%d rxid:%x rxmsg:%s", rx.data_length_code, rx.identifier, msg.c_str());
+            twai_clear_receive_queue();
+        }
+    }
+    driverUninstall();
+
+    ESP_LOGW(FNAME, "CAN bus selftest TX/RX %s", res?"Ok":"failed");
+    return res;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: ESP_LOGI(FNAME, "CAN bus selftest");
+|————Node:call_expression Text: ESP_LOGI(FNAME, "CAN bus selftest")
+|—————Node:identifier Text: ESP_LOGI
+|—————Node:argument_list Text: (FNAME, "CAN bus selftest")
+|——————Node:( Text: (
+|——————Node:identifier Text: FNAME
+|——————Node:, Text: ,
+|——————Node:string_literal Text: "CAN bus selftest"
+|———————Node:" Text: "
+|———————Node:string_content Text: CAN bus selftest
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: driverInstall(TWAI_MODE_NO_ACK, CanSpeed::CAN_SPEED_1MBIT);
+|————Node:call_expression Text: driverInstall(TWAI_MODE_NO_ACK, CanSpeed::CAN_SPEED_1MBIT)
+|—————Node:identifier Text: driverInstall
+|—————Node:argument_list Text: (TWAI_MODE_NO_ACK, CanSpeed::CAN_SPEED_1MBIT)
+|——————Node:( Text: (
+|——————Node:identifier Text: TWAI_MODE_NO_ACK
+|——————Node:, Text: ,
+|——————Node:qualified_identifier Text: CanSpeed::CAN_SPEED_1MBIT
+|———————Node:namespace_identifier Text: CanSpeed
+|———————Node::: Text: ::
+|———————Node:identifier Text: CAN_SPEED_1MBIT
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:declaration Text: bool res = false;
+|————Node:primitive_type Text: bool
+|————Node:init_declarator Text: res = false
+|—————Node:identifier Text: res
+|—————Node:= Text: =
+|—————Node:false Text: false
+|————Node:; Text: ;
+|———Node:declaration Text: int id = CANTEST_ID;
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: id = CANTEST_ID
+|—————Node:identifier Text: id
+|—————Node:= Text: =
+|—————Node:identifier Text: CANTEST_ID
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: twai_clear_receive_queue();
+|————Node:call_expression Text: twai_clear_receive_queue()
+|—————Node:identifier Text: twai_clear_receive_queue
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:for_statement Text: for (int i = 0; i < 3; i++)
+    {
+        char tx[10] = {"1827364"};
+        int len = strlen(tx);
+        ESP_LOGI(FNAME, "strlen %d", len);
+        twai_clear_receive_queue(); // there might be data from a remote device
+        if ( ! sendData(id, tx, len, 1) ) {
+            ESP_LOGW(FNAME, "CAN bus selftest TX FAILED");
+        }
+
+        twai_message_t rx;
+        if ( (ESP_OK == twai_receive(&rx, pdMS_TO_TICKS(20)))
+            && (rx.identifier == id)
+            && (rx.data_length_code == len)
+            && (memcmp(rx.data, tx, len) == 0) )
+        {
+            ESP_LOGI(FNAME, "RX CAN bus OKAY");
+            res = true;
+            break;
+        }
+        else
+        {
+            std::string msg((char*)rx.data, rx.data_length_code);
+            ESP_LOGW(FNAME, "CAN bus selftest RX call FAILED bytes:%d rxid:%x rxmsg:%s", rx.data_length_code, rx.identifier, msg.c_str());
+            twai_clear_receive_queue();
+        }
+    }
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:declaration Text: int i = 0;
+|—————Node:primitive_type Text: int
+|—————Node:init_declarator Text: i = 0
+|——————Node:identifier Text: i
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:binary_expression Text: i < 3
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:number_literal Text: 3
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+        char tx[10] = {"1827364"};
+        int len = strlen(tx);
+        ESP_LOGI(FNAME, "strlen %d", len);
+        twai_clear_receive_queue(); // there might be data from a remote device
+        if ( ! sendData(id, tx, len, 1) ) {
+            ESP_LOGW(FNAME, "CAN bus selftest TX FAILED");
+        }
+
+        twai_message_t rx;
+        if ( (ESP_OK == twai_receive(&rx, pdMS_TO_TICKS(20)))
+            && (rx.identifier == id)
+            && (rx.data_length_code == len)
+            && (memcmp(rx.data, tx, len) == 0) )
+        {
+            ESP_LOGI(FNAME, "RX CAN bus OKAY");
+            res = true;
+            break;
+        }
+        else
+        {
+            std::string msg((char*)rx.data, rx.data_length_code);
+            ESP_LOGW(FNAME, "CAN bus selftest RX call FAILED bytes:%d rxid:%x rxmsg:%s", rx.data_length_code, rx.identifier, msg.c_str());
+            twai_clear_receive_queue();
+        }
+    }
+|—————Node:{ Text: {
+|—————Node:declaration Text: char tx[10] = {"1827364"};
+|——————Node:primitive_type Text: char
+|——————Node:init_declarator Text: tx[10] = {"1827364"}
+|———————Node:array_declarator Text: tx[10]
+|————————Node:identifier Text: tx
+|————————Node:[ Text: [
+|————————Node:number_literal Text: 10
+|————————Node:] Text: ]
+|———————Node:= Text: =
+|———————Node:initializer_list Text: {"1827364"}
+|————————Node:{ Text: {
+|————————Node:string_literal Text: "1827364"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: 1827364
+|—————————Node:" Text: "
+|————————Node:} Text: }
+|——————Node:; Text: ;
+|—————Node:declaration Text: int len = strlen(tx);
+|——————Node:primitive_type Text: int
+|——————Node:init_declarator Text: len = strlen(tx)
+|———————Node:identifier Text: len
+|———————Node:= Text: =
+|———————Node:call_expression Text: strlen(tx)
+|————————Node:identifier Text: strlen
+|————————Node:argument_list Text: (tx)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: tx
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: ESP_LOGI(FNAME, "strlen %d", len);
+|——————Node:call_expression Text: ESP_LOGI(FNAME, "strlen %d", len)
+|———————Node:identifier Text: ESP_LOGI
+|———————Node:argument_list Text: (FNAME, "strlen %d", len)
+|————————Node:( Text: (
+|————————Node:identifier Text: FNAME
+|————————Node:, Text: ,
+|————————Node:string_literal Text: "strlen %d"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: strlen %d
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:identifier Text: len
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: twai_clear_receive_queue();
+|——————Node:call_expression Text: twai_clear_receive_queue()
+|———————Node:identifier Text: twai_clear_receive_queue
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:if_statement Text: if ( ! sendData(id, tx, len, 1) ) {
+            ESP_LOGW(FNAME, "CAN bus selftest TX FAILED");
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: ( ! sendData(id, tx, len, 1) )
+|———————Node:( Text: (
+|———————Node:unary_expression Text: ! sendData(id, tx, len, 1)
+|————————Node:! Text: !
+|————————Node:call_expression Text: sendData(id, tx, len, 1)
+|—————————Node:identifier Text: sendData
+|—————————Node:argument_list Text: (id, tx, len, 1)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: id
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: tx
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: len
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 1
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            ESP_LOGW(FNAME, "CAN bus selftest TX FAILED");
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: ESP_LOGW(FNAME, "CAN bus selftest TX FAILED");
+|————————Node:call_expression Text: ESP_LOGW(FNAME, "CAN bus selftest TX FAILED")
+|—————————Node:identifier Text: ESP_LOGW
+|—————————Node:argument_list Text: (FNAME, "CAN bus selftest TX FAILED")
+|——————————Node:( Text: (
+|——————————Node:identifier Text: FNAME
+|——————————Node:, Text: ,
+|——————————Node:string_literal Text: "CAN bus selftest TX FAILED"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: CAN bus selftest TX FAILED
+|———————————Node:" Text: "
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:declaration Text: twai_message_t rx;
+|——————Node:type_identifier Text: twai_message_t
+|——————Node:identifier Text: rx
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if ( (ESP_OK == twai_receive(&rx, pdMS_TO_TICKS(20)))
+            && (rx.identifier == id)
+            && (rx.data_length_code == len)
+            && (memcmp(rx.data, tx, len) == 0) )
+        {
+            ESP_LOGI(FNAME, "RX CAN bus OKAY");
+            res = true;
+            break;
+        }
+        else
+        {
+            std::string msg((char*)rx.data, rx.data_length_code);
+            ESP_LOGW(FNAME, "CAN bus selftest RX call FAILED bytes:%d rxid:%x rxmsg:%s", rx.data_length_code, rx.identifier, msg.c_str());
+            twai_clear_receive_queue();
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: ( (ESP_OK == twai_receive(&rx, pdMS_TO_TICKS(20)))
+            && (rx.identifier == id)
+            && (rx.data_length_code == len)
+            && (memcmp(rx.data, tx, len) == 0) )
+|———————Node:( Text: (
+|———————Node:binary_expression Text: (ESP_OK == twai_receive(&rx, pdMS_TO_TICKS(20)))
+            && (rx.identifier == id)
+            && (rx.data_length_code == len)
+            && (memcmp(rx.data, tx, len) == 0)
+|————————Node:binary_expression Text: (ESP_OK == twai_receive(&rx, pdMS_TO_TICKS(20)))
+            && (rx.identifier == id)
+            && (rx.data_length_code == len)
+|—————————Node:binary_expression Text: (ESP_OK == twai_receive(&rx, pdMS_TO_TICKS(20)))
+            && (rx.identifier == id)
+|——————————Node:parenthesized_expression Text: (ESP_OK == twai_receive(&rx, pdMS_TO_TICKS(20)))
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: ESP_OK == twai_receive(&rx, pdMS_TO_TICKS(20))
+|————————————Node:identifier Text: ESP_OK
+|————————————Node:== Text: ==
+|————————————Node:call_expression Text: twai_receive(&rx, pdMS_TO_TICKS(20))
+|—————————————Node:identifier Text: twai_receive
+|—————————————Node:argument_list Text: (&rx, pdMS_TO_TICKS(20))
+|——————————————Node:( Text: (
+|——————————————Node:pointer_expression Text: &rx
+|———————————————Node:& Text: &
+|———————————————Node:identifier Text: rx
+|——————————————Node:, Text: ,
+|——————————————Node:call_expression Text: pdMS_TO_TICKS(20)
+|———————————————Node:identifier Text: pdMS_TO_TICKS
+|———————————————Node:argument_list Text: (20)
+|————————————————Node:( Text: (
+|————————————————Node:number_literal Text: 20
+|————————————————Node:) Text: )
+|——————————————Node:) Text: )
+|———————————Node:) Text: )
+|——————————Node:&& Text: &&
+|——————————Node:parenthesized_expression Text: (rx.identifier == id)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: rx.identifier == id
+|————————————Node:field_expression Text: rx.identifier
+|—————————————Node:identifier Text: rx
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: identifier
+|————————————Node:== Text: ==
+|————————————Node:identifier Text: id
+|———————————Node:) Text: )
+|—————————Node:&& Text: &&
+|—————————Node:parenthesized_expression Text: (rx.data_length_code == len)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: rx.data_length_code == len
+|———————————Node:field_expression Text: rx.data_length_code
+|————————————Node:identifier Text: rx
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: data_length_code
+|———————————Node:== Text: ==
+|———————————Node:identifier Text: len
+|——————————Node:) Text: )
+|————————Node:&& Text: &&
+|————————Node:parenthesized_expression Text: (memcmp(rx.data, tx, len) == 0)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: memcmp(rx.data, tx, len) == 0
+|——————————Node:call_expression Text: memcmp(rx.data, tx, len)
+|———————————Node:identifier Text: memcmp
+|———————————Node:argument_list Text: (rx.data, tx, len)
+|————————————Node:( Text: (
+|————————————Node:field_expression Text: rx.data
+|—————————————Node:identifier Text: rx
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: data
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: tx
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: len
+|————————————Node:) Text: )
+|——————————Node:== Text: ==
+|——————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            ESP_LOGI(FNAME, "RX CAN bus OKAY");
+            res = true;
+            break;
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: ESP_LOGI(FNAME, "RX CAN bus OKAY");
+|————————Node:call_expression Text: ESP_LOGI(FNAME, "RX CAN bus OKAY")
+|—————————Node:identifier Text: ESP_LOGI
+|—————————Node:argument_list Text: (FNAME, "RX CAN bus OKAY")
+|——————————Node:( Text: (
+|——————————Node:identifier Text: FNAME
+|——————————Node:, Text: ,
+|——————————Node:string_literal Text: "RX CAN bus OKAY"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: RX CAN bus OKAY
+|———————————Node:" Text: "
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: res = true;
+|————————Node:assignment_expression Text: res = true
+|—————————Node:identifier Text: res
+|—————————Node:= Text: =
+|—————————Node:true Text: true
+|————————Node:; Text: ;
+|———————Node:break_statement Text: break;
+|————————Node:break Text: break
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|——————Node:else_clause Text: else
+        {
+            std::string msg((char*)rx.data, rx.data_length_code);
+            ESP_LOGW(FNAME, "CAN bus selftest RX call FAILED bytes:%d rxid:%x rxmsg:%s", rx.data_length_code, rx.identifier, msg.c_str());
+            twai_clear_receive_queue();
+        }
+|———————Node:else Text: else
+|———————Node:compound_statement Text: {
+            std::string msg((char*)rx.data, rx.data_length_code);
+            ESP_LOGW(FNAME, "CAN bus selftest RX call FAILED bytes:%d rxid:%x rxmsg:%s", rx.data_length_code, rx.identifier, msg.c_str());
+            twai_clear_receive_queue();
+        }
+|————————Node:{ Text: {
+|————————Node:declaration Text: std::string msg((char*)rx.data, rx.data_length_code);
+|—————————Node:qualified_identifier Text: std::string
+|——————————Node:namespace_identifier Text: std
+|——————————Node::: Text: ::
+|——————————Node:type_identifier Text: string
+|—————————Node:init_declarator Text: msg((char*)rx.data, rx.data_length_code)
+|——————————Node:identifier Text: msg
+|——————————Node:argument_list Text: ((char*)rx.data, rx.data_length_code)
+|———————————Node:( Text: (
+|———————————Node:cast_expression Text: (char*)rx.data
+|————————————Node:( Text: (
+|————————————Node:type_descriptor Text: char*
+|—————————————Node:primitive_type Text: char
+|—————————————Node:abstract_pointer_declarator Text: *
+|——————————————Node:* Text: *
+|————————————Node:) Text: )
+|————————————Node:field_expression Text: rx.data
+|—————————————Node:identifier Text: rx
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: data
+|———————————Node:, Text: ,
+|———————————Node:field_expression Text: rx.data_length_code
+|————————————Node:identifier Text: rx
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: data_length_code
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:expression_statement Text: ESP_LOGW(FNAME, "CAN bus selftest RX call FAILED bytes:%d rxid:%x rxmsg:%s", rx.data_length_code, rx.identifier, msg.c_str());
+|—————————Node:call_expression Text: ESP_LOGW(FNAME, "CAN bus selftest RX call FAILED bytes:%d rxid:%x rxmsg:%s", rx.data_length_code, rx.identifier, msg.c_str())
+|——————————Node:identifier Text: ESP_LOGW
+|——————————Node:argument_list Text: (FNAME, "CAN bus selftest RX call FAILED bytes:%d rxid:%x rxmsg:%s", rx.data_length_code, rx.identifier, msg.c_str())
+|———————————Node:( Text: (
+|———————————Node:identifier Text: FNAME
+|———————————Node:, Text: ,
+|———————————Node:string_literal Text: "CAN bus selftest RX call FAILED bytes:%d rxid:%x rxmsg:%s"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: CAN bus selftest RX call FAILED bytes:%d rxid:%x rxmsg:%s
+|————————————Node:" Text: "
+|———————————Node:, Text: ,
+|———————————Node:field_expression Text: rx.data_length_code
+|————————————Node:identifier Text: rx
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: data_length_code
+|———————————Node:, Text: ,
+|———————————Node:field_expression Text: rx.identifier
+|————————————Node:identifier Text: rx
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: identifier
+|———————————Node:, Text: ,
+|———————————Node:call_expression Text: msg.c_str()
+|————————————Node:field_expression Text: msg.c_str
+|—————————————Node:identifier Text: msg
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: c_str
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:expression_statement Text: twai_clear_receive_queue();
+|—————————Node:call_expression Text: twai_clear_receive_queue()
+|——————————Node:identifier Text: twai_clear_receive_queue
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|—————Node:} Text: }
+|———Node:expression_statement Text: driverUninstall();
+|————Node:call_expression Text: driverUninstall()
+|—————Node:identifier Text: driverUninstall
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ESP_LOGW(FNAME, "CAN bus selftest TX/RX %s", res?"Ok":"failed");
+|————Node:call_expression Text: ESP_LOGW(FNAME, "CAN bus selftest TX/RX %s", res?"Ok":"failed")
+|—————Node:identifier Text: ESP_LOGW
+|—————Node:argument_list Text: (FNAME, "CAN bus selftest TX/RX %s", res?"Ok":"failed")
+|——————Node:( Text: (
+|——————Node:identifier Text: FNAME
+|——————Node:, Text: ,
+|——————Node:string_literal Text: "CAN bus selftest TX/RX %s"
+|———————Node:" Text: "
+|———————Node:string_content Text: CAN bus selftest TX/RX %s
+|———————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:conditional_expression Text: res?"Ok":"failed"
+|———————Node:identifier Text: res
+|———————Node:? Text: ?
+|———————Node:string_literal Text: "Ok"
+|————————Node:" Text: "
+|————————Node:string_content Text: Ok
+|————————Node:" Text: "
+|———————Node:: Text: :
+|———————Node:string_literal Text: "failed"
+|————————Node:" Text: "
+|————————Node:string_content Text: failed
+|————————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return res;
+|————Node:return Text: return
+|————Node:identifier Text: res
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: int CANbus::Send(const char *cptr, int &len, int port)
+{
+    constexpr int chunk = 8;
+
+    int rem = len;
+    while (rem > 0)
+    {
+        int dlen = std::min(chunk, rem);
+        if ( ! sendData(port, cptr, dlen) ) {
+            break;
+        }
+        cptr += dlen;
+        rem -= dlen;
+    }
+
+    if ( rem == 0 ) {
+        return 0;
+    }
+    else {
+        len = len - rem; // buffered bytes
+        return (rem/chunk + 1) * _tx_timeout; // ETA to wait for next trial
+    }
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: CANbus::Send(const char *cptr, int &len, int port)
+|———Node:qualified_identifier Text: CANbus::Send
+|————Node:namespace_identifier Text: CANbus
+|————Node::: Text: ::
+|————Node:identifier Text: Send
+|———Node:parameter_list Text: (const char *cptr, int &len, int port)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: const char *cptr
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: *cptr
+|——————Node:* Text: *
+|——————Node:identifier Text: cptr
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: int &len
+|—————Node:primitive_type Text: int
+|—————Node:reference_declarator Text: &len
+|——————Node:& Text: &
+|——————Node:identifier Text: len
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: int port
+|—————Node:primitive_type Text: int
+|—————Node:identifier Text: port
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    constexpr int chunk = 8;
+
+    int rem = len;
+    while (rem > 0)
+    {
+        int dlen = std::min(chunk, rem);
+        if ( ! sendData(port, cptr, dlen) ) {
+            break;
+        }
+        cptr += dlen;
+        rem -= dlen;
+    }
+
+    if ( rem == 0 ) {
+        return 0;
+    }
+    else {
+        len = len - rem; // buffered bytes
+        return (rem/chunk + 1) * _tx_timeout; // ETA to wait for next trial
+    }
+}
+|———Node:{ Text: {
+|———Node:declaration Text: constexpr int chunk = 8;
+|————Node:type_qualifier Text: constexpr
+|—————Node:constexpr Text: constexpr
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: chunk = 8
+|—————Node:identifier Text: chunk
+|—————Node:= Text: =
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:declaration Text: int rem = len;
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: rem = len
+|—————Node:identifier Text: rem
+|—————Node:= Text: =
+|—————Node:identifier Text: len
+|————Node:; Text: ;
+|———Node:while_statement Text: while (rem > 0)
+    {
+        int dlen = std::min(chunk, rem);
+        if ( ! sendData(port, cptr, dlen) ) {
+            break;
+        }
+        cptr += dlen;
+        rem -= dlen;
+    }
+|————Node:while Text: while
+|————Node:condition_clause Text: (rem > 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: rem > 0
+|——————Node:identifier Text: rem
+|——————Node:> Text: >
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        int dlen = std::min(chunk, rem);
+        if ( ! sendData(port, cptr, dlen) ) {
+            break;
+        }
+        cptr += dlen;
+        rem -= dlen;
+    }
+|—————Node:{ Text: {
+|—————Node:declaration Text: int dlen = std::min(chunk, rem);
+|——————Node:primitive_type Text: int
+|——————Node:init_declarator Text: dlen = std::min(chunk, rem)
+|———————Node:identifier Text: dlen
+|———————Node:= Text: =
+|———————Node:call_expression Text: std::min(chunk, rem)
+|————————Node:qualified_identifier Text: std::min
+|—————————Node:namespace_identifier Text: std
+|—————————Node::: Text: ::
+|—————————Node:identifier Text: min
+|————————Node:argument_list Text: (chunk, rem)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: chunk
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: rem
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if ( ! sendData(port, cptr, dlen) ) {
+            break;
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: ( ! sendData(port, cptr, dlen) )
+|———————Node:( Text: (
+|———————Node:unary_expression Text: ! sendData(port, cptr, dlen)
+|————————Node:! Text: !
+|————————Node:call_expression Text: sendData(port, cptr, dlen)
+|—————————Node:identifier Text: sendData
+|—————————Node:argument_list Text: (port, cptr, dlen)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: port
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: cptr
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: dlen
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            break;
+        }
+|———————Node:{ Text: {
+|———————Node:break_statement Text: break;
+|————————Node:break Text: break
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:expression_statement Text: cptr += dlen;
+|——————Node:assignment_expression Text: cptr += dlen
+|———————Node:identifier Text: cptr
+|———————Node:+= Text: +=
+|———————Node:identifier Text: dlen
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: rem -= dlen;
+|——————Node:assignment_expression Text: rem -= dlen
+|———————Node:identifier Text: rem
+|———————Node:-= Text: -=
+|———————Node:identifier Text: dlen
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if ( rem == 0 ) {
+        return 0;
+    }
+    else {
+        len = len - rem; // buffered bytes
+        return (rem/chunk + 1) * _tx_timeout; // ETA to wait for next trial
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: ( rem == 0 )
+|—————Node:( Text: (
+|—————Node:binary_expression Text: rem == 0
+|——————Node:identifier Text: rem
+|——————Node:== Text: ==
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        return 0;
+    }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return 0;
+|——————Node:return Text: return
+|——————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else {
+        len = len - rem; // buffered bytes
+        return (rem/chunk + 1) * _tx_timeout; // ETA to wait for next trial
+    }
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+        len = len - rem; // buffered bytes
+        return (rem/chunk + 1) * _tx_timeout; // ETA to wait for next trial
+    }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: len = len - rem;
+|———————Node:assignment_expression Text: len = len - rem
+|————————Node:identifier Text: len
+|————————Node:= Text: =
+|————————Node:binary_expression Text: len - rem
+|—————————Node:identifier Text: len
+|—————————Node:- Text: -
+|—————————Node:identifier Text: rem
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:return_statement Text: return (rem/chunk + 1) * _tx_timeout;
+|———————Node:return Text: return
+|———————Node:binary_expression Text: (rem/chunk + 1) * _tx_timeout
+|————————Node:parenthesized_expression Text: (rem/chunk + 1)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: rem/chunk + 1
+|——————————Node:binary_expression Text: rem/chunk
+|———————————Node:identifier Text: rem
+|———————————Node:/ Text: /
+|———————————Node:identifier Text: chunk
+|——————————Node:+ Text: +
+|——————————Node:number_literal Text: 1
+|—————————Node:) Text: )
+|————————Node:* Text: *
+|————————Node:identifier Text: _tx_timeout
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:} Text: }
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: bool CANbus::sendData(int id, const char *msg, int length, int self)
+{
+    if (!_initialized)
+    {
+        ESP_LOGI(FNAME, "CANbus not ready initialized");
+        return false;
+    }
+
+    // build message
+    twai_message_t message;
+    message.identifier = id;
+    message.self = self;
+    message.data_length_code = length;
+    for (int i = 0; i < length; i++)
+    {
+        message.data[i] = msg[i];
+    }
+
+    // logger.format(LOG_INFO,"TX CAN bus message id:%x, bytes:%d, data:%c... self:%d", message.identifier, message.data_length_code, *message.data, message.self );
+    // Queue message for transmission
+    uint32_t alerts = 0;
+    int retry = 3;
+    esp_err_t res = ESP_OK;
+    while ( retry-- > 0 )
+    {
+        res = twai_transmit(&message, 0);
+        if ( res == ESP_OK ) {
+            break;
+        }
+
+        ESP_LOGE(FNAME, "Transmit error: %s", esp_err_to_name(res));
+        if (res == ESP_ERR_TIMEOUT) {
+            ESP_LOGW(FNAME, "Transmit timeout. Message dropped.");
+        }
+        twai_read_alerts(&alerts, pdMS_TO_TICKS(_tx_timeout));
+        ESP_LOGW(FNAME, "Tx chunk failed alerts 0x%x", alerts );
+    }
+    if ( alerts != 0 )
+    {
+        if ( alerts & TWAI_ALERT_BUS_OFF ) {
+            ESP_LOGE(FNAME, "BUS OFF alert");
+            do_recover = true;
+        }
+        if (alerts & TWAI_ALERT_RX_QUEUE_FULL) {
+            ESP_LOGW(FNAME, "RX QUEUE FULL alert");
+        }
+        if (alerts & TWAI_ALERT_TX_FAILED) {
+            ESP_LOGW(FNAME, "TX_FAILED alert");
+        }
+        return false;
+    }
+    return (res == ESP_OK);
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: CANbus::sendData(int id, const char *msg, int length, int self)
+|———Node:qualified_identifier Text: CANbus::sendData
+|————Node:namespace_identifier Text: CANbus
+|————Node::: Text: ::
+|————Node:identifier Text: sendData
+|———Node:parameter_list Text: (int id, const char *msg, int length, int self)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: int id
+|—————Node:primitive_type Text: int
+|—————Node:identifier Text: id
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: const char *msg
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: *msg
+|——————Node:* Text: *
+|——————Node:identifier Text: msg
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: int length
+|—————Node:primitive_type Text: int
+|—————Node:identifier Text: length
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: int self
+|—————Node:primitive_type Text: int
+|—————Node:identifier Text: self
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if (!_initialized)
+    {
+        ESP_LOGI(FNAME, "CANbus not ready initialized");
+        return false;
+    }
+
+    // build message
+    twai_message_t message;
+    message.identifier = id;
+    message.self = self;
+    message.data_length_code = length;
+    for (int i = 0; i < length; i++)
+    {
+        message.data[i] = msg[i];
+    }
+
+    // logger.format(LOG_INFO,"TX CAN bus message id:%x, bytes:%d, data:%c... self:%d", message.identifier, message.data_length_code, *message.data, message.self );
+    // Queue message for transmission
+    uint32_t alerts = 0;
+    int retry = 3;
+    esp_err_t res = ESP_OK;
+    while ( retry-- > 0 )
+    {
+        res = twai_transmit(&message, 0);
+        if ( res == ESP_OK ) {
+            break;
+        }
+
+        ESP_LOGE(FNAME, "Transmit error: %s", esp_err_to_name(res));
+        if (res == ESP_ERR_TIMEOUT) {
+            ESP_LOGW(FNAME, "Transmit timeout. Message dropped.");
+        }
+        twai_read_alerts(&alerts, pdMS_TO_TICKS(_tx_timeout));
+        ESP_LOGW(FNAME, "Tx chunk failed alerts 0x%x", alerts );
+    }
+    if ( alerts != 0 )
+    {
+        if ( alerts & TWAI_ALERT_BUS_OFF ) {
+            ESP_LOGE(FNAME, "BUS OFF alert");
+            do_recover = true;
+        }
+        if (alerts & TWAI_ALERT_RX_QUEUE_FULL) {
+            ESP_LOGW(FNAME, "RX QUEUE FULL alert");
+        }
+        if (alerts & TWAI_ALERT_TX_FAILED) {
+            ESP_LOGW(FNAME, "TX_FAILED alert");
+        }
+        return false;
+    }
+    return (res == ESP_OK);
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (!_initialized)
+    {
+        ESP_LOGI(FNAME, "CANbus not ready initialized");
+        return false;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (!_initialized)
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !_initialized
+|——————Node:! Text: !
+|——————Node:identifier Text: _initialized
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        ESP_LOGI(FNAME, "CANbus not ready initialized");
+        return false;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: ESP_LOGI(FNAME, "CANbus not ready initialized");
+|——————Node:call_expression Text: ESP_LOGI(FNAME, "CANbus not ready initialized")
+|———————Node:identifier Text: ESP_LOGI
+|———————Node:argument_list Text: (FNAME, "CANbus not ready initialized")
+|————————Node:( Text: (
+|————————Node:identifier Text: FNAME
+|————————Node:, Text: ,
+|————————Node:string_literal Text: "CANbus not ready initialized"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: CANbus not ready initialized
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return false;
+|——————Node:return Text: return
+|——————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:comment
+|———Node:declaration Text: twai_message_t message;
+|————Node:type_identifier Text: twai_message_t
+|————Node:identifier Text: message
+|————Node:; Text: ;
+|———Node:expression_statement Text: message.identifier = id;
+|————Node:assignment_expression Text: message.identifier = id
+|—————Node:field_expression Text: message.identifier
+|——————Node:identifier Text: message
+|——————Node:. Text: .
+|——————Node:field_identifier Text: identifier
+|—————Node:= Text: =
+|—————Node:identifier Text: id
+|————Node:; Text: ;
+|———Node:expression_statement Text: message.self = self;
+|————Node:assignment_expression Text: message.self = self
+|—————Node:field_expression Text: message.self
+|——————Node:identifier Text: message
+|——————Node:. Text: .
+|——————Node:field_identifier Text: self
+|—————Node:= Text: =
+|—————Node:identifier Text: self
+|————Node:; Text: ;
+|———Node:expression_statement Text: message.data_length_code = length;
+|————Node:assignment_expression Text: message.data_length_code = length
+|—————Node:field_expression Text: message.data_length_code
+|——————Node:identifier Text: message
+|——————Node:. Text: .
+|——————Node:field_identifier Text: data_length_code
+|—————Node:= Text: =
+|—————Node:identifier Text: length
+|————Node:; Text: ;
+|———Node:for_statement Text: for (int i = 0; i < length; i++)
+    {
+        message.data[i] = msg[i];
+    }
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:declaration Text: int i = 0;
+|—————Node:primitive_type Text: int
+|—————Node:init_declarator Text: i = 0
+|——————Node:identifier Text: i
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:binary_expression Text: i < length
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:identifier Text: length
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+        message.data[i] = msg[i];
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: message.data[i] = msg[i];
+|——————Node:assignment_expression Text: message.data[i] = msg[i]
+|———————Node:subscript_expression Text: message.data[i]
+|————————Node:field_expression Text: message.data
+|—————————Node:identifier Text: message
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: data
+|————————Node:subscript_argument_list Text: [i]
+|—————————Node:[ Text: [
+|—————————Node:identifier Text: i
+|—————————Node:] Text: ]
+|———————Node:= Text: =
+|———————Node:subscript_expression Text: msg[i]
+|————————Node:identifier Text: msg
+|————————Node:subscript_argument_list Text: [i]
+|—————————Node:[ Text: [
+|—————————Node:identifier Text: i
+|—————————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:comment
+|———Node:comment
+|———Node:declaration Text: uint32_t alerts = 0;
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: alerts = 0
+|—————Node:identifier Text: alerts
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: int retry = 3;
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: retry = 3
+|—————Node:identifier Text: retry
+|—————Node:= Text: =
+|—————Node:number_literal Text: 3
+|————Node:; Text: ;
+|———Node:declaration Text: esp_err_t res = ESP_OK;
+|————Node:type_identifier Text: esp_err_t
+|————Node:init_declarator Text: res = ESP_OK
+|—————Node:identifier Text: res
+|—————Node:= Text: =
+|—————Node:identifier Text: ESP_OK
+|————Node:; Text: ;
+|———Node:while_statement Text: while ( retry-- > 0 )
+    {
+        res = twai_transmit(&message, 0);
+        if ( res == ESP_OK ) {
+            break;
+        }
+
+        ESP_LOGE(FNAME, "Transmit error: %s", esp_err_to_name(res));
+        if (res == ESP_ERR_TIMEOUT) {
+            ESP_LOGW(FNAME, "Transmit timeout. Message dropped.");
+        }
+        twai_read_alerts(&alerts, pdMS_TO_TICKS(_tx_timeout));
+        ESP_LOGW(FNAME, "Tx chunk failed alerts 0x%x", alerts );
+    }
+|————Node:while Text: while
+|————Node:condition_clause Text: ( retry-- > 0 )
+|—————Node:( Text: (
+|—————Node:binary_expression Text: retry-- > 0
+|——————Node:update_expression Text: retry--
+|———————Node:identifier Text: retry
+|———————Node:-- Text: --
+|——————Node:> Text: >
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        res = twai_transmit(&message, 0);
+        if ( res == ESP_OK ) {
+            break;
+        }
+
+        ESP_LOGE(FNAME, "Transmit error: %s", esp_err_to_name(res));
+        if (res == ESP_ERR_TIMEOUT) {
+            ESP_LOGW(FNAME, "Transmit timeout. Message dropped.");
+        }
+        twai_read_alerts(&alerts, pdMS_TO_TICKS(_tx_timeout));
+        ESP_LOGW(FNAME, "Tx chunk failed alerts 0x%x", alerts );
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: res = twai_transmit(&message, 0);
+|——————Node:assignment_expression Text: res = twai_transmit(&message, 0)
+|———————Node:identifier Text: res
+|———————Node:= Text: =
+|———————Node:call_expression Text: twai_transmit(&message, 0)
+|————————Node:identifier Text: twai_transmit
+|————————Node:argument_list Text: (&message, 0)
+|—————————Node:( Text: (
+|—————————Node:pointer_expression Text: &message
+|——————————Node:& Text: &
+|——————————Node:identifier Text: message
+|—————————Node:, Text: ,
+|—————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if ( res == ESP_OK ) {
+            break;
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: ( res == ESP_OK )
+|———————Node:( Text: (
+|———————Node:binary_expression Text: res == ESP_OK
+|————————Node:identifier Text: res
+|————————Node:== Text: ==
+|————————Node:identifier Text: ESP_OK
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            break;
+        }
+|———————Node:{ Text: {
+|———————Node:break_statement Text: break;
+|————————Node:break Text: break
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:expression_statement Text: ESP_LOGE(FNAME, "Transmit error: %s", esp_err_to_name(res));
+|——————Node:call_expression Text: ESP_LOGE(FNAME, "Transmit error: %s", esp_err_to_name(res))
+|———————Node:identifier Text: ESP_LOGE
+|———————Node:argument_list Text: (FNAME, "Transmit error: %s", esp_err_to_name(res))
+|————————Node:( Text: (
+|————————Node:identifier Text: FNAME
+|————————Node:, Text: ,
+|————————Node:string_literal Text: "Transmit error: %s"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: Transmit error: %s
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:call_expression Text: esp_err_to_name(res)
+|—————————Node:identifier Text: esp_err_to_name
+|—————————Node:argument_list Text: (res)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: res
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if (res == ESP_ERR_TIMEOUT) {
+            ESP_LOGW(FNAME, "Transmit timeout. Message dropped.");
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (res == ESP_ERR_TIMEOUT)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: res == ESP_ERR_TIMEOUT
+|————————Node:identifier Text: res
+|————————Node:== Text: ==
+|————————Node:identifier Text: ESP_ERR_TIMEOUT
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            ESP_LOGW(FNAME, "Transmit timeout. Message dropped.");
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: ESP_LOGW(FNAME, "Transmit timeout. Message dropped.");
+|————————Node:call_expression Text: ESP_LOGW(FNAME, "Transmit timeout. Message dropped.")
+|—————————Node:identifier Text: ESP_LOGW
+|—————————Node:argument_list Text: (FNAME, "Transmit timeout. Message dropped.")
+|——————————Node:( Text: (
+|——————————Node:identifier Text: FNAME
+|——————————Node:, Text: ,
+|——————————Node:string_literal Text: "Transmit timeout. Message dropped."
+|———————————Node:" Text: "
+|———————————Node:string_content Text: Transmit timeout. Message dropped.
+|———————————Node:" Text: "
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:expression_statement Text: twai_read_alerts(&alerts, pdMS_TO_TICKS(_tx_timeout));
+|——————Node:call_expression Text: twai_read_alerts(&alerts, pdMS_TO_TICKS(_tx_timeout))
+|———————Node:identifier Text: twai_read_alerts
+|———————Node:argument_list Text: (&alerts, pdMS_TO_TICKS(_tx_timeout))
+|————————Node:( Text: (
+|————————Node:pointer_expression Text: &alerts
+|—————————Node:& Text: &
+|—————————Node:identifier Text: alerts
+|————————Node:, Text: ,
+|————————Node:call_expression Text: pdMS_TO_TICKS(_tx_timeout)
+|—————————Node:identifier Text: pdMS_TO_TICKS
+|—————————Node:argument_list Text: (_tx_timeout)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: _tx_timeout
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: ESP_LOGW(FNAME, "Tx chunk failed alerts 0x%x", alerts );
+|——————Node:call_expression Text: ESP_LOGW(FNAME, "Tx chunk failed alerts 0x%x", alerts )
+|———————Node:identifier Text: ESP_LOGW
+|———————Node:argument_list Text: (FNAME, "Tx chunk failed alerts 0x%x", alerts )
+|————————Node:( Text: (
+|————————Node:identifier Text: FNAME
+|————————Node:, Text: ,
+|————————Node:string_literal Text: "Tx chunk failed alerts 0x%x"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: Tx chunk failed alerts 0x%x
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:identifier Text: alerts
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if ( alerts != 0 )
+    {
+        if ( alerts & TWAI_ALERT_BUS_OFF ) {
+            ESP_LOGE(FNAME, "BUS OFF alert");
+            do_recover = true;
+        }
+        if (alerts & TWAI_ALERT_RX_QUEUE_FULL) {
+            ESP_LOGW(FNAME, "RX QUEUE FULL alert");
+        }
+        if (alerts & TWAI_ALERT_TX_FAILED) {
+            ESP_LOGW(FNAME, "TX_FAILED alert");
+        }
+        return false;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: ( alerts != 0 )
+|—————Node:( Text: (
+|—————Node:binary_expression Text: alerts != 0
+|——————Node:identifier Text: alerts
+|——————Node:!= Text: !=
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        if ( alerts & TWAI_ALERT_BUS_OFF ) {
+            ESP_LOGE(FNAME, "BUS OFF alert");
+            do_recover = true;
+        }
+        if (alerts & TWAI_ALERT_RX_QUEUE_FULL) {
+            ESP_LOGW(FNAME, "RX QUEUE FULL alert");
+        }
+        if (alerts & TWAI_ALERT_TX_FAILED) {
+            ESP_LOGW(FNAME, "TX_FAILED alert");
+        }
+        return false;
+    }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if ( alerts & TWAI_ALERT_BUS_OFF ) {
+            ESP_LOGE(FNAME, "BUS OFF alert");
+            do_recover = true;
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: ( alerts & TWAI_ALERT_BUS_OFF )
+|———————Node:( Text: (
+|———————Node:binary_expression Text: alerts & TWAI_ALERT_BUS_OFF
+|————————Node:identifier Text: alerts
+|————————Node:& Text: &
+|————————Node:identifier Text: TWAI_ALERT_BUS_OFF
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            ESP_LOGE(FNAME, "BUS OFF alert");
+            do_recover = true;
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: ESP_LOGE(FNAME, "BUS OFF alert");
+|————————Node:call_expression Text: ESP_LOGE(FNAME, "BUS OFF alert")
+|—————————Node:identifier Text: ESP_LOGE
+|—————————Node:argument_list Text: (FNAME, "BUS OFF alert")
+|——————————Node:( Text: (
+|——————————Node:identifier Text: FNAME
+|——————————Node:, Text: ,
+|——————————Node:string_literal Text: "BUS OFF alert"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: BUS OFF alert
+|———————————Node:" Text: "
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: do_recover = true;
+|————————Node:assignment_expression Text: do_recover = true
+|—————————Node:identifier Text: do_recover
+|—————————Node:= Text: =
+|—————————Node:true Text: true
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:if_statement Text: if (alerts & TWAI_ALERT_RX_QUEUE_FULL) {
+            ESP_LOGW(FNAME, "RX QUEUE FULL alert");
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (alerts & TWAI_ALERT_RX_QUEUE_FULL)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: alerts & TWAI_ALERT_RX_QUEUE_FULL
+|————————Node:identifier Text: alerts
+|————————Node:& Text: &
+|————————Node:identifier Text: TWAI_ALERT_RX_QUEUE_FULL
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            ESP_LOGW(FNAME, "RX QUEUE FULL alert");
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: ESP_LOGW(FNAME, "RX QUEUE FULL alert");
+|————————Node:call_expression Text: ESP_LOGW(FNAME, "RX QUEUE FULL alert")
+|—————————Node:identifier Text: ESP_LOGW
+|—————————Node:argument_list Text: (FNAME, "RX QUEUE FULL alert")
+|——————————Node:( Text: (
+|——————————Node:identifier Text: FNAME
+|——————————Node:, Text: ,
+|——————————Node:string_literal Text: "RX QUEUE FULL alert"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: RX QUEUE FULL alert
+|———————————Node:" Text: "
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:if_statement Text: if (alerts & TWAI_ALERT_TX_FAILED) {
+            ESP_LOGW(FNAME, "TX_FAILED alert");
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (alerts & TWAI_ALERT_TX_FAILED)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: alerts & TWAI_ALERT_TX_FAILED
+|————————Node:identifier Text: alerts
+|————————Node:& Text: &
+|————————Node:identifier Text: TWAI_ALERT_TX_FAILED
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            ESP_LOGW(FNAME, "TX_FAILED alert");
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: ESP_LOGW(FNAME, "TX_FAILED alert");
+|————————Node:call_expression Text: ESP_LOGW(FNAME, "TX_FAILED alert")
+|—————————Node:identifier Text: ESP_LOGW
+|—————————Node:argument_list Text: (FNAME, "TX_FAILED alert")
+|——————————Node:( Text: (
+|——————————Node:identifier Text: FNAME
+|——————————Node:, Text: ,
+|——————————Node:string_literal Text: "TX_FAILED alert"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: TX_FAILED alert
+|———————————Node:" Text: "
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:return_statement Text: return false;
+|——————Node:return Text: return
+|——————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return (res == ESP_OK);
+|————Node:return Text: return
+|————Node:parenthesized_expression Text: (res == ESP_OK)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: res == ESP_OK
+|——————Node:identifier Text: res
+|——————Node:== Text: ==
+|——————Node:identifier Text: ESP_OK
+|—————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }

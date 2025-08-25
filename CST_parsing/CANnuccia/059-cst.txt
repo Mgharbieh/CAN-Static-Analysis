@@ -1,0 +1,1957 @@
+CANnuccia-src\stm32\can.c
+
+|Node:translation_unit
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:preproc_include Text: #include "common/can.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "common/can.h"
+|———Node:" Text: "
+|———Node:string_content Text: common/can.h
+|———Node:" Text: "
+|—Node:comment
+|—Node:comment
+|—Node:preproc_def Text: #define RCC_APB1ENR (*(volatile uint32_t *)0x4002101C)
+
+|——Node:#define Text: #define
+|——Node:identifier Text: RCC_APB1ENR
+|——Node:preproc_arg Text: (*(volatile uint32_t *)0x4002101C)
+|—Node:preproc_def Text: #define RCC_APB1ENR_CANEN 0x02000000u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: RCC_APB1ENR_CANEN
+|——Node:preproc_arg Text: 0x02000000u
+|—Node:preproc_def Text: #define RCC_APB2ENR (*(volatile uint32_t *)0x40021018)
+
+|——Node:#define Text: #define
+|——Node:identifier Text: RCC_APB2ENR
+|——Node:preproc_arg Text: (*(volatile uint32_t *)0x40021018)
+|—Node:preproc_def Text: #define RCC_APB2ENR_IOPBEN 0x00000008u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: RCC_APB2ENR_IOPBEN
+|——Node:preproc_arg Text: 0x00000008u
+|—Node:preproc_def Text: #define RCC_APB2ENR_AFIOEN 0x00000001u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: RCC_APB2ENR_AFIOEN
+|——Node:preproc_arg Text: 0x00000001u
+|—Node:preproc_def Text: #define AFIO_MAPR (*(volatile uint32_t *)0x40010004)
+
+|——Node:#define Text: #define
+|——Node:identifier Text: AFIO_MAPR
+|——Node:preproc_arg Text: (*(volatile uint32_t *)0x40010004)
+|—Node:preproc_def Text: #define AFIO_MAPR_CAN1_PA11A12 0x00000000u // Map CAN1_RX to PA11, CAN1_TX to PA12
+
+|——Node:#define Text: #define
+|——Node:identifier Text: AFIO_MAPR_CAN1_PA11A12
+|——Node:preproc_arg Text: 0x00000000u // Map CAN1_RX to PA11, CAN1_TX to PA12
+|—Node:preproc_def Text: #define AFIO_MAPR_CAN1_PB8B9 0x00004000u // Map CAN1_RX to PB8, CAN1_TX to PB9
+
+|——Node:#define Text: #define
+|——Node:identifier Text: AFIO_MAPR_CAN1_PB8B9
+|——Node:preproc_arg Text: 0x00004000u // Map CAN1_RX to PB8, CAN1_TX to PB9
+|—Node:preproc_def Text: #define GPIOB_CRH (*(volatile uint32_t *)0x40010C04)
+
+|——Node:#define Text: #define
+|——Node:identifier Text: GPIOB_CRH
+|——Node:preproc_arg Text: (*(volatile uint32_t *)0x40010C04)
+|—Node:struct_specifier Text: struct CanMailbox
+{
+    uint32_t IR;
+    uint32_t DTR;
+    uint32_t DLR;
+    uint32_t DHR;
+}
+|——Node:struct Text: struct
+|——Node:type_identifier Text: CanMailbox
+|——Node:field_declaration_list Text: {
+    uint32_t IR;
+    uint32_t DTR;
+    uint32_t DLR;
+    uint32_t DHR;
+}
+|———Node:{ Text: {
+|———Node:field_declaration Text: uint32_t IR;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: IR
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t DTR;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: DTR
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t DLR;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: DLR
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t DHR;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: DHR
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:; Text: ;
+|—Node:struct_specifier Text: struct CanFilter
+{
+    uint32_t R1;
+    uint32_t R2;
+}
+|——Node:struct Text: struct
+|——Node:type_identifier Text: CanFilter
+|——Node:field_declaration_list Text: {
+    uint32_t R1;
+    uint32_t R2;
+}
+|———Node:{ Text: {
+|———Node:field_declaration Text: uint32_t R1;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: R1
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t R2;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: R2
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:; Text: ;
+|—Node:struct_specifier Text: struct Can
+{
+    uint32_t MCR;
+    uint32_t MSR;
+    uint32_t TSR;
+    uint32_t RF0R;
+    uint32_t RF1R;
+    uint32_t IER;
+    uint32_t ESR;
+    uint32_t BTR;
+    uint32_t _reserved1[88];
+    struct CanMailbox OUTBOX[3]; // 3 TX mailboxes
+    struct CanMailbox INBOX[2]; // 2 RX mailboxes: FIFO0, FIFO1
+    uint32_t _reserved2[12];
+    uint32_t FMR;
+    uint32_t FM1R;
+    uint32_t _reserved3[1];
+    uint32_t FS1R;
+    uint32_t _reserved4[1];
+    uint32_t FFA1R;
+    uint32_t _reserved5[1];
+    uint32_t FA1R;
+    uint32_t _reserved6[8];
+    struct CanFilter FILTER[28];
+}
+|——Node:struct Text: struct
+|——Node:type_identifier Text: Can
+|——Node:field_declaration_list Text: {
+    uint32_t MCR;
+    uint32_t MSR;
+    uint32_t TSR;
+    uint32_t RF0R;
+    uint32_t RF1R;
+    uint32_t IER;
+    uint32_t ESR;
+    uint32_t BTR;
+    uint32_t _reserved1[88];
+    struct CanMailbox OUTBOX[3]; // 3 TX mailboxes
+    struct CanMailbox INBOX[2]; // 2 RX mailboxes: FIFO0, FIFO1
+    uint32_t _reserved2[12];
+    uint32_t FMR;
+    uint32_t FM1R;
+    uint32_t _reserved3[1];
+    uint32_t FS1R;
+    uint32_t _reserved4[1];
+    uint32_t FFA1R;
+    uint32_t _reserved5[1];
+    uint32_t FA1R;
+    uint32_t _reserved6[8];
+    struct CanFilter FILTER[28];
+}
+|———Node:{ Text: {
+|———Node:field_declaration Text: uint32_t MCR;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: MCR
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t MSR;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: MSR
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t TSR;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: TSR
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t RF0R;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: RF0R
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t RF1R;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: RF1R
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t IER;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: IER
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t ESR;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: ESR
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t BTR;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: BTR
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t _reserved1[88];
+|————Node:primitive_type Text: uint32_t
+|————Node:array_declarator Text: _reserved1[88]
+|—————Node:field_identifier Text: _reserved1
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 88
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:field_declaration Text: struct CanMailbox OUTBOX[3];
+|————Node:struct_specifier Text: struct CanMailbox
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: CanMailbox
+|————Node:array_declarator Text: OUTBOX[3]
+|—————Node:field_identifier Text: OUTBOX
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 3
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:comment
+|———Node:field_declaration Text: struct CanMailbox INBOX[2];
+|————Node:struct_specifier Text: struct CanMailbox
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: CanMailbox
+|————Node:array_declarator Text: INBOX[2]
+|—————Node:field_identifier Text: INBOX
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 2
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:comment
+|———Node:field_declaration Text: uint32_t _reserved2[12];
+|————Node:primitive_type Text: uint32_t
+|————Node:array_declarator Text: _reserved2[12]
+|—————Node:field_identifier Text: _reserved2
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 12
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t FMR;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: FMR
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t FM1R;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: FM1R
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t _reserved3[1];
+|————Node:primitive_type Text: uint32_t
+|————Node:array_declarator Text: _reserved3[1]
+|—————Node:field_identifier Text: _reserved3
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 1
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t FS1R;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: FS1R
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t _reserved4[1];
+|————Node:primitive_type Text: uint32_t
+|————Node:array_declarator Text: _reserved4[1]
+|—————Node:field_identifier Text: _reserved4
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 1
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t FFA1R;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: FFA1R
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t _reserved5[1];
+|————Node:primitive_type Text: uint32_t
+|————Node:array_declarator Text: _reserved5[1]
+|—————Node:field_identifier Text: _reserved5
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 1
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t FA1R;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: FA1R
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint32_t _reserved6[8];
+|————Node:primitive_type Text: uint32_t
+|————Node:array_declarator Text: _reserved6[8]
+|—————Node:field_identifier Text: _reserved6
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 8
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:field_declaration Text: struct CanFilter FILTER[28];
+|————Node:struct_specifier Text: struct CanFilter
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: CanFilter
+|————Node:array_declarator Text: FILTER[28]
+|—————Node:field_identifier Text: FILTER
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 28
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:; Text: ;
+|—Node:preproc_def Text: #define CAN1 ((volatile struct Can *)0x40006400)
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CAN1
+|——Node:preproc_arg Text: ((volatile struct Can *)0x40006400)
+|—Node:preproc_def Text: #define CAN_BTR_LBKM 0x40000000u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CAN_BTR_LBKM
+|——Node:preproc_arg Text: 0x40000000u
+|—Node:preproc_def Text: #define CAN_TIR_TXRQ 0x00000001u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CAN_TIR_TXRQ
+|——Node:preproc_arg Text: 0x00000001u
+|—Node:preproc_def Text: #define CAN_MCR_ABOM 0x00000040u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CAN_MCR_ABOM
+|——Node:preproc_arg Text: 0x00000040u
+|—Node:preproc_def Text: #define CAN_MCR_AWUM 0x00000020u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CAN_MCR_AWUM
+|——Node:preproc_arg Text: 0x00000020u
+|—Node:preproc_def Text: #define CAN_MCR_SLEEP 0x00000002u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CAN_MCR_SLEEP
+|——Node:preproc_arg Text: 0x00000002u
+|—Node:preproc_def Text: #define CAN_MCR_INRQ 0x00000001u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CAN_MCR_INRQ
+|——Node:preproc_arg Text: 0x00000001u
+|—Node:preproc_def Text: #define CAN_MSR_SLAK 0x00000002u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CAN_MSR_SLAK
+|——Node:preproc_arg Text: 0x00000002u
+|—Node:preproc_def Text: #define CAN_MSR_INAK 0x00000001u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CAN_MSR_INAK
+|——Node:preproc_arg Text: 0x00000001u
+|—Node:preproc_def Text: #define CAN_TSR_TME2 0x10000000u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CAN_TSR_TME2
+|——Node:preproc_arg Text: 0x10000000u
+|—Node:preproc_def Text: #define CAN_TSR_TME1 0x08000000u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CAN_TSR_TME1
+|——Node:preproc_arg Text: 0x08000000u
+|—Node:preproc_def Text: #define CAN_TSR_TME0 0x04000000u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CAN_TSR_TME0
+|——Node:preproc_arg Text: 0x04000000u
+|—Node:preproc_def Text: #define CAN_TSR_CODE 0x03000000u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CAN_TSR_CODE
+|——Node:preproc_arg Text: 0x03000000u
+|—Node:preproc_def Text: #define CAN_FMR_FINIT 0x00000001u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CAN_FMR_FINIT
+|——Node:preproc_arg Text: 0x00000001u
+|—Node:preproc_def Text: #define CAN_DTR_DLC 0x0000000Fu
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CAN_DTR_DLC
+|——Node:preproc_arg Text: 0x0000000Fu
+|—Node:preproc_def Text: #define CAN_RFR_RFOM 0x00000020u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CAN_RFR_RFOM
+|——Node:preproc_arg Text: 0x00000020u
+|—Node:preproc_def Text: #define CAN_RFR_FOVR 0x00000010u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CAN_RFR_FOVR
+|——Node:preproc_arg Text: 0x00000010u
+|—Node:preproc_def Text: #define CAN_RFR_FULL 0x00000008u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CAN_RFR_FULL
+|——Node:preproc_arg Text: 0x00000008u
+|—Node:preproc_def Text: #define CAN_RFR_FMP 0x00000003u
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CAN_RFR_FMP
+|——Node:preproc_arg Text: 0x00000003u
+|—Node:comment
+|—Node:function_definition Text: inline static void initCANFilter(unsigned n, uint32_t id, uint32_t mask)
+{
+    const uint32_t fltBit = (1u << n);
+    CAN1->FM1R &= ~fltBit; // CAN1: filter n in mask mode
+    CAN1->FS1R |= fltBit; // CAN1: filter n is 32-bit (not 16-bit)
+    CAN1->FFA1R &= ~fltBit; // CAN1: filter n assigned to FIFO 0
+    CAN1->FILTER[n].R1 = id;
+    CAN1->FILTER[n].R2 = mask;
+    CAN1->FA1R |= fltBit; // CAN1: filter 0 is active
+}
+|——Node:storage_class_specifier Text: inline
+|———Node:inline Text: inline
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: initCANFilter(unsigned n, uint32_t id, uint32_t mask)
+|———Node:identifier Text: initCANFilter
+|———Node:parameter_list Text: (unsigned n, uint32_t id, uint32_t mask)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: unsigned n
+|—————Node:sized_type_specifier Text: unsigned
+|——————Node:unsigned Text: unsigned
+|—————Node:identifier Text: n
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint32_t id
+|—————Node:primitive_type Text: uint32_t
+|—————Node:identifier Text: id
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint32_t mask
+|—————Node:primitive_type Text: uint32_t
+|—————Node:identifier Text: mask
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    const uint32_t fltBit = (1u << n);
+    CAN1->FM1R &= ~fltBit; // CAN1: filter n in mask mode
+    CAN1->FS1R |= fltBit; // CAN1: filter n is 32-bit (not 16-bit)
+    CAN1->FFA1R &= ~fltBit; // CAN1: filter n assigned to FIFO 0
+    CAN1->FILTER[n].R1 = id;
+    CAN1->FILTER[n].R2 = mask;
+    CAN1->FA1R |= fltBit; // CAN1: filter 0 is active
+}
+|———Node:{ Text: {
+|———Node:declaration Text: const uint32_t fltBit = (1u << n);
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: fltBit = (1u << n)
+|—————Node:identifier Text: fltBit
+|—————Node:= Text: =
+|—————Node:parenthesized_expression Text: (1u << n)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: 1u << n
+|———————Node:number_literal Text: 1u
+|———————Node:<< Text: <<
+|———————Node:identifier Text: n
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: CAN1->FM1R &= ~fltBit;
+|————Node:assignment_expression Text: CAN1->FM1R &= ~fltBit
+|—————Node:field_expression Text: CAN1->FM1R
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: FM1R
+|—————Node:&= Text: &=
+|—————Node:unary_expression Text: ~fltBit
+|——————Node:~ Text: ~
+|——————Node:identifier Text: fltBit
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: CAN1->FS1R |= fltBit;
+|————Node:assignment_expression Text: CAN1->FS1R |= fltBit
+|—————Node:field_expression Text: CAN1->FS1R
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: FS1R
+|—————Node:|= Text: |=
+|—————Node:identifier Text: fltBit
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: CAN1->FFA1R &= ~fltBit;
+|————Node:assignment_expression Text: CAN1->FFA1R &= ~fltBit
+|—————Node:field_expression Text: CAN1->FFA1R
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: FFA1R
+|—————Node:&= Text: &=
+|—————Node:unary_expression Text: ~fltBit
+|——————Node:~ Text: ~
+|——————Node:identifier Text: fltBit
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: CAN1->FILTER[n].R1 = id;
+|————Node:assignment_expression Text: CAN1->FILTER[n].R1 = id
+|—————Node:field_expression Text: CAN1->FILTER[n].R1
+|——————Node:subscript_expression Text: CAN1->FILTER[n]
+|———————Node:field_expression Text: CAN1->FILTER
+|————————Node:identifier Text: CAN1
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: FILTER
+|———————Node:[ Text: [
+|———————Node:identifier Text: n
+|———————Node:] Text: ]
+|——————Node:. Text: .
+|——————Node:field_identifier Text: R1
+|—————Node:= Text: =
+|—————Node:identifier Text: id
+|————Node:; Text: ;
+|———Node:expression_statement Text: CAN1->FILTER[n].R2 = mask;
+|————Node:assignment_expression Text: CAN1->FILTER[n].R2 = mask
+|—————Node:field_expression Text: CAN1->FILTER[n].R2
+|——————Node:subscript_expression Text: CAN1->FILTER[n]
+|———————Node:field_expression Text: CAN1->FILTER
+|————————Node:identifier Text: CAN1
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: FILTER
+|———————Node:[ Text: [
+|———————Node:identifier Text: n
+|———————Node:] Text: ]
+|——————Node:. Text: .
+|——————Node:field_identifier Text: R2
+|—————Node:= Text: =
+|—————Node:identifier Text: mask
+|————Node:; Text: ;
+|———Node:expression_statement Text: CAN1->FA1R |= fltBit;
+|————Node:assignment_expression Text: CAN1->FA1R |= fltBit
+|—————Node:field_expression Text: CAN1->FA1R
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: FA1R
+|—————Node:|= Text: |=
+|—————Node:identifier Text: fltBit
+|————Node:; Text: ;
+|———Node:comment
+|———Node:} Text: }
+|—Node:function_definition Text: int cnCANInit(uint32_t id, uint32_t mask)
+{
+    // TODO: Macro to set whether to remap CAN1 to port B or leave it on port A
+    //       The code below makes CAN1 be mapped to port B
+    RCC_APB2ENR |= RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN; // Enable clock source for GPIO port B and AFIO
+    AFIO_MAPR |= AFIO_MAPR_CAN1_PB8B9; // Set CAN1 remapping to PB8/PB9
+    GPIOB_CRH |= 0x94; // Set PB8 as floating input (CNF8=01=(floating input), MODE8=00=(input))
+                       // Set PB9 as push-pull output (CNF9=10=(AF push/pull), MODE9=01=(output, max 10MHz))
+    RCC_APB1ENR |= RCC_APB1ENR_CANEN; // Enable clock source for CAN1
+
+    // TODO IMPLEMENT: enable CAN1 interrupts on msg received + sent?
+
+    CAN1->MCR |= CAN_MCR_INRQ; // Ask CAN1 to enter init mode
+    while(!(CAN1->MSR & CAN_MSR_INAK)) { } // Wait for CAN1 to actually enter init mode
+
+    CAN1->FMR |= CAN_FMR_FINIT; // Enter filter init mode
+    initCANFilter(0, id, mask);
+    CAN1->FMR &= ~CAN_FMR_FINIT; // Exit filter init mode
+
+    CAN1->MCR |= CAN_MCR_AWUM | CAN_MCR_ABOM; // Auto wakeup on message rx, auto bus-off on 128 errors
+    // TODO: set other CAN options if needed (NART, RFLM, TXFP, ABOM...)
+
+    // FIXME: Set BTR here to change the CAN baud rate; optionally set
+    //        CAN_BTR_LBKM to enable loopback for debugging
+
+    CAN1->MCR &= ~CAN_MCR_INRQ; // Ask CAN1 to enter normal mode
+    while(CAN1->MSR & CAN_MSR_INAK) { } // Wait for CAN1 to exiting init mode
+    CAN1->MCR &= ~CAN_MCR_SLEEP; // Wake CAN1 from sleep. It should now sync...
+
+    return 1;
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: cnCANInit(uint32_t id, uint32_t mask)
+|———Node:identifier Text: cnCANInit
+|———Node:parameter_list Text: (uint32_t id, uint32_t mask)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint32_t id
+|—————Node:primitive_type Text: uint32_t
+|—————Node:identifier Text: id
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint32_t mask
+|—————Node:primitive_type Text: uint32_t
+|—————Node:identifier Text: mask
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    // TODO: Macro to set whether to remap CAN1 to port B or leave it on port A
+    //       The code below makes CAN1 be mapped to port B
+    RCC_APB2ENR |= RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN; // Enable clock source for GPIO port B and AFIO
+    AFIO_MAPR |= AFIO_MAPR_CAN1_PB8B9; // Set CAN1 remapping to PB8/PB9
+    GPIOB_CRH |= 0x94; // Set PB8 as floating input (CNF8=01=(floating input), MODE8=00=(input))
+                       // Set PB9 as push-pull output (CNF9=10=(AF push/pull), MODE9=01=(output, max 10MHz))
+    RCC_APB1ENR |= RCC_APB1ENR_CANEN; // Enable clock source for CAN1
+
+    // TODO IMPLEMENT: enable CAN1 interrupts on msg received + sent?
+
+    CAN1->MCR |= CAN_MCR_INRQ; // Ask CAN1 to enter init mode
+    while(!(CAN1->MSR & CAN_MSR_INAK)) { } // Wait for CAN1 to actually enter init mode
+
+    CAN1->FMR |= CAN_FMR_FINIT; // Enter filter init mode
+    initCANFilter(0, id, mask);
+    CAN1->FMR &= ~CAN_FMR_FINIT; // Exit filter init mode
+
+    CAN1->MCR |= CAN_MCR_AWUM | CAN_MCR_ABOM; // Auto wakeup on message rx, auto bus-off on 128 errors
+    // TODO: set other CAN options if needed (NART, RFLM, TXFP, ABOM...)
+
+    // FIXME: Set BTR here to change the CAN baud rate; optionally set
+    //        CAN_BTR_LBKM to enable loopback for debugging
+
+    CAN1->MCR &= ~CAN_MCR_INRQ; // Ask CAN1 to enter normal mode
+    while(CAN1->MSR & CAN_MSR_INAK) { } // Wait for CAN1 to exiting init mode
+    CAN1->MCR &= ~CAN_MCR_SLEEP; // Wake CAN1 from sleep. It should now sync...
+
+    return 1;
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: RCC_APB2ENR |= RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN;
+|————Node:assignment_expression Text: RCC_APB2ENR |= RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN
+|—————Node:identifier Text: RCC_APB2ENR
+|—————Node:|= Text: |=
+|—————Node:binary_expression Text: RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN
+|——————Node:identifier Text: RCC_APB2ENR_IOPBEN
+|——————Node:| Text: |
+|——————Node:identifier Text: RCC_APB2ENR_AFIOEN
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: AFIO_MAPR |= AFIO_MAPR_CAN1_PB8B9;
+|————Node:assignment_expression Text: AFIO_MAPR |= AFIO_MAPR_CAN1_PB8B9
+|—————Node:identifier Text: AFIO_MAPR
+|—————Node:|= Text: |=
+|—————Node:identifier Text: AFIO_MAPR_CAN1_PB8B9
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: GPIOB_CRH |= 0x94;
+|————Node:assignment_expression Text: GPIOB_CRH |= 0x94
+|—————Node:identifier Text: GPIOB_CRH
+|—————Node:|= Text: |=
+|—————Node:number_literal Text: 0x94
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: RCC_APB1ENR |= RCC_APB1ENR_CANEN;
+|————Node:assignment_expression Text: RCC_APB1ENR |= RCC_APB1ENR_CANEN
+|—————Node:identifier Text: RCC_APB1ENR
+|—————Node:|= Text: |=
+|—————Node:identifier Text: RCC_APB1ENR_CANEN
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: CAN1->MCR |= CAN_MCR_INRQ;
+|————Node:assignment_expression Text: CAN1->MCR |= CAN_MCR_INRQ
+|—————Node:field_expression Text: CAN1->MCR
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: MCR
+|—————Node:|= Text: |=
+|—————Node:identifier Text: CAN_MCR_INRQ
+|————Node:; Text: ;
+|———Node:comment
+|———Node:while_statement Text: while(!(CAN1->MSR & CAN_MSR_INAK)) { }
+|————Node:while Text: while
+|————Node:parenthesized_expression Text: (!(CAN1->MSR & CAN_MSR_INAK))
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !(CAN1->MSR & CAN_MSR_INAK)
+|——————Node:! Text: !
+|——————Node:parenthesized_expression Text: (CAN1->MSR & CAN_MSR_INAK)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: CAN1->MSR & CAN_MSR_INAK
+|————————Node:field_expression Text: CAN1->MSR
+|—————————Node:identifier Text: CAN1
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: MSR
+|————————Node:& Text: &
+|————————Node:identifier Text: CAN_MSR_INAK
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: { }
+|—————Node:{ Text: {
+|—————Node:} Text: }
+|———Node:comment
+|———Node:expression_statement Text: CAN1->FMR |= CAN_FMR_FINIT;
+|————Node:assignment_expression Text: CAN1->FMR |= CAN_FMR_FINIT
+|—————Node:field_expression Text: CAN1->FMR
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: FMR
+|—————Node:|= Text: |=
+|—————Node:identifier Text: CAN_FMR_FINIT
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: initCANFilter(0, id, mask);
+|————Node:call_expression Text: initCANFilter(0, id, mask)
+|—————Node:identifier Text: initCANFilter
+|—————Node:argument_list Text: (0, id, mask)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:identifier Text: id
+|——————Node:, Text: ,
+|——————Node:identifier Text: mask
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: CAN1->FMR &= ~CAN_FMR_FINIT;
+|————Node:assignment_expression Text: CAN1->FMR &= ~CAN_FMR_FINIT
+|—————Node:field_expression Text: CAN1->FMR
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: FMR
+|—————Node:&= Text: &=
+|—————Node:unary_expression Text: ~CAN_FMR_FINIT
+|——————Node:~ Text: ~
+|——————Node:identifier Text: CAN_FMR_FINIT
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: CAN1->MCR |= CAN_MCR_AWUM | CAN_MCR_ABOM;
+|————Node:assignment_expression Text: CAN1->MCR |= CAN_MCR_AWUM | CAN_MCR_ABOM
+|—————Node:field_expression Text: CAN1->MCR
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: MCR
+|—————Node:|= Text: |=
+|—————Node:binary_expression Text: CAN_MCR_AWUM | CAN_MCR_ABOM
+|——————Node:identifier Text: CAN_MCR_AWUM
+|——————Node:| Text: |
+|——————Node:identifier Text: CAN_MCR_ABOM
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: CAN1->MCR &= ~CAN_MCR_INRQ;
+|————Node:assignment_expression Text: CAN1->MCR &= ~CAN_MCR_INRQ
+|—————Node:field_expression Text: CAN1->MCR
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: MCR
+|—————Node:&= Text: &=
+|—————Node:unary_expression Text: ~CAN_MCR_INRQ
+|——————Node:~ Text: ~
+|——————Node:identifier Text: CAN_MCR_INRQ
+|————Node:; Text: ;
+|———Node:comment
+|———Node:while_statement Text: while(CAN1->MSR & CAN_MSR_INAK) { }
+|————Node:while Text: while
+|————Node:parenthesized_expression Text: (CAN1->MSR & CAN_MSR_INAK)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: CAN1->MSR & CAN_MSR_INAK
+|——————Node:field_expression Text: CAN1->MSR
+|———————Node:identifier Text: CAN1
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: MSR
+|——————Node:& Text: &
+|——————Node:identifier Text: CAN_MSR_INAK
+|—————Node:) Text: )
+|————Node:compound_statement Text: { }
+|—————Node:{ Text: {
+|—————Node:} Text: }
+|———Node:comment
+|———Node:expression_statement Text: CAN1->MCR &= ~CAN_MCR_SLEEP;
+|————Node:assignment_expression Text: CAN1->MCR &= ~CAN_MCR_SLEEP
+|—————Node:field_expression Text: CAN1->MCR
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: MCR
+|—————Node:&= Text: &=
+|—————Node:unary_expression Text: ~CAN_MCR_SLEEP
+|——————Node:~ Text: ~
+|——————Node:identifier Text: CAN_MCR_SLEEP
+|————Node:; Text: ;
+|———Node:comment
+|———Node:return_statement Text: return 1;
+|————Node:return Text: return
+|————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: int cnCANSend(uint32_t id, unsigned len, const uint8_t data[len])
+{
+    if(!(CAN1->TSR & (CAN_TSR_TME0 | CAN_TSR_TME1 | CAN_TSR_TME2)))
+    {
+        // All TX mailboxes are full, can't send message
+        return -1;
+    }
+
+    uint32_t mailboxId = (CAN1->TSR & CAN_TSR_CODE) >> 24; // First empty mailbox, 0..2
+    CAN1->OUTBOX[mailboxId].IR = id & ~CAN_TIR_TXRQ; // Set id, IDE and RTR; ensure TXRQ is 0 for now
+    len = len <= 8 ? len : 8; // *Truncate length to 8*!
+    CAN1->OUTBOX[mailboxId].DTR = len & CAN_DTR_DLC; // Set Data Length Code
+
+    // Copy data to DLR and DHR
+    // WARNING: The ARM core does NOT support unaligned access; copying byte
+    //          arrays directly will corrupt the data - need the ugly switch
+    //          below or a `memcpy()`!
+    volatile uint32_t *DHR = &CAN1->OUTBOX[mailboxId].DHR, *DLR = &CAN1->OUTBOX[mailboxId].DLR;
+    *DHR = 0;
+    *DLR = 0;
+    switch(len)
+    {
+    case 8:
+    default:
+        *DHR |= ((uint32_t)data[7] << 24);
+    case 7:
+        *DHR |= ((uint32_t)data[6] << 16);
+    case 6:
+        *DHR |= ((uint32_t)data[5] << 8);
+    case 5:
+        *DHR |= data[4];
+    case 4:
+        *DLR |= ((uint32_t)data[3] << 24);
+    case 3:
+        *DLR |= ((uint32_t)data[2] << 16);
+    case 2:
+        *DLR |= ((uint32_t)data[1] << 8);
+    case 1:
+        *DLR |= data[0];
+    case 0:
+        break;
+    }
+
+    CAN1->OUTBOX[mailboxId].IR |= CAN_TIR_TXRQ; // Trigger transmission
+    return (int)len;
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: cnCANSend(uint32_t id, unsigned len, const uint8_t data[len])
+|———Node:identifier Text: cnCANSend
+|———Node:parameter_list Text: (uint32_t id, unsigned len, const uint8_t data[len])
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint32_t id
+|—————Node:primitive_type Text: uint32_t
+|—————Node:identifier Text: id
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: unsigned len
+|—————Node:sized_type_specifier Text: unsigned
+|——————Node:unsigned Text: unsigned
+|—————Node:identifier Text: len
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: const uint8_t data[len]
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: uint8_t
+|—————Node:array_declarator Text: data[len]
+|——————Node:identifier Text: data
+|——————Node:[ Text: [
+|——————Node:identifier Text: len
+|——————Node:] Text: ]
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if(!(CAN1->TSR & (CAN_TSR_TME0 | CAN_TSR_TME1 | CAN_TSR_TME2)))
+    {
+        // All TX mailboxes are full, can't send message
+        return -1;
+    }
+
+    uint32_t mailboxId = (CAN1->TSR & CAN_TSR_CODE) >> 24; // First empty mailbox, 0..2
+    CAN1->OUTBOX[mailboxId].IR = id & ~CAN_TIR_TXRQ; // Set id, IDE and RTR; ensure TXRQ is 0 for now
+    len = len <= 8 ? len : 8; // *Truncate length to 8*!
+    CAN1->OUTBOX[mailboxId].DTR = len & CAN_DTR_DLC; // Set Data Length Code
+
+    // Copy data to DLR and DHR
+    // WARNING: The ARM core does NOT support unaligned access; copying byte
+    //          arrays directly will corrupt the data - need the ugly switch
+    //          below or a `memcpy()`!
+    volatile uint32_t *DHR = &CAN1->OUTBOX[mailboxId].DHR, *DLR = &CAN1->OUTBOX[mailboxId].DLR;
+    *DHR = 0;
+    *DLR = 0;
+    switch(len)
+    {
+    case 8:
+    default:
+        *DHR |= ((uint32_t)data[7] << 24);
+    case 7:
+        *DHR |= ((uint32_t)data[6] << 16);
+    case 6:
+        *DHR |= ((uint32_t)data[5] << 8);
+    case 5:
+        *DHR |= data[4];
+    case 4:
+        *DLR |= ((uint32_t)data[3] << 24);
+    case 3:
+        *DLR |= ((uint32_t)data[2] << 16);
+    case 2:
+        *DLR |= ((uint32_t)data[1] << 8);
+    case 1:
+        *DLR |= data[0];
+    case 0:
+        break;
+    }
+
+    CAN1->OUTBOX[mailboxId].IR |= CAN_TIR_TXRQ; // Trigger transmission
+    return (int)len;
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if(!(CAN1->TSR & (CAN_TSR_TME0 | CAN_TSR_TME1 | CAN_TSR_TME2)))
+    {
+        // All TX mailboxes are full, can't send message
+        return -1;
+    }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (!(CAN1->TSR & (CAN_TSR_TME0 | CAN_TSR_TME1 | CAN_TSR_TME2)))
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !(CAN1->TSR & (CAN_TSR_TME0 | CAN_TSR_TME1 | CAN_TSR_TME2))
+|——————Node:! Text: !
+|——————Node:parenthesized_expression Text: (CAN1->TSR & (CAN_TSR_TME0 | CAN_TSR_TME1 | CAN_TSR_TME2))
+|———————Node:( Text: (
+|———————Node:binary_expression Text: CAN1->TSR & (CAN_TSR_TME0 | CAN_TSR_TME1 | CAN_TSR_TME2)
+|————————Node:field_expression Text: CAN1->TSR
+|—————————Node:identifier Text: CAN1
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: TSR
+|————————Node:& Text: &
+|————————Node:parenthesized_expression Text: (CAN_TSR_TME0 | CAN_TSR_TME1 | CAN_TSR_TME2)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: CAN_TSR_TME0 | CAN_TSR_TME1 | CAN_TSR_TME2
+|——————————Node:binary_expression Text: CAN_TSR_TME0 | CAN_TSR_TME1
+|———————————Node:identifier Text: CAN_TSR_TME0
+|———————————Node:| Text: |
+|———————————Node:identifier Text: CAN_TSR_TME1
+|——————————Node:| Text: |
+|——————————Node:identifier Text: CAN_TSR_TME2
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        // All TX mailboxes are full, can't send message
+        return -1;
+    }
+|—————Node:{ Text: {
+|—————Node:comment
+|—————Node:return_statement Text: return -1;
+|——————Node:return Text: return
+|——————Node:number_literal Text: -1
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:declaration Text: uint32_t mailboxId = (CAN1->TSR & CAN_TSR_CODE) >> 24;
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: mailboxId = (CAN1->TSR & CAN_TSR_CODE) >> 24
+|—————Node:identifier Text: mailboxId
+|—————Node:= Text: =
+|—————Node:binary_expression Text: (CAN1->TSR & CAN_TSR_CODE) >> 24
+|——————Node:parenthesized_expression Text: (CAN1->TSR & CAN_TSR_CODE)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: CAN1->TSR & CAN_TSR_CODE
+|————————Node:field_expression Text: CAN1->TSR
+|—————————Node:identifier Text: CAN1
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: TSR
+|————————Node:& Text: &
+|————————Node:identifier Text: CAN_TSR_CODE
+|———————Node:) Text: )
+|——————Node:>> Text: >>
+|——————Node:number_literal Text: 24
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: CAN1->OUTBOX[mailboxId].IR = id & ~CAN_TIR_TXRQ;
+|————Node:assignment_expression Text: CAN1->OUTBOX[mailboxId].IR = id & ~CAN_TIR_TXRQ
+|—————Node:field_expression Text: CAN1->OUTBOX[mailboxId].IR
+|——————Node:subscript_expression Text: CAN1->OUTBOX[mailboxId]
+|———————Node:field_expression Text: CAN1->OUTBOX
+|————————Node:identifier Text: CAN1
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: OUTBOX
+|———————Node:[ Text: [
+|———————Node:identifier Text: mailboxId
+|———————Node:] Text: ]
+|——————Node:. Text: .
+|——————Node:field_identifier Text: IR
+|—————Node:= Text: =
+|—————Node:binary_expression Text: id & ~CAN_TIR_TXRQ
+|——————Node:identifier Text: id
+|——————Node:& Text: &
+|——————Node:unary_expression Text: ~CAN_TIR_TXRQ
+|———————Node:~ Text: ~
+|———————Node:identifier Text: CAN_TIR_TXRQ
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: len = len <= 8 ? len : 8;
+|————Node:assignment_expression Text: len = len <= 8 ? len : 8
+|—————Node:identifier Text: len
+|—————Node:= Text: =
+|—————Node:conditional_expression Text: len <= 8 ? len : 8
+|——————Node:binary_expression Text: len <= 8
+|———————Node:identifier Text: len
+|———————Node:<= Text: <=
+|———————Node:number_literal Text: 8
+|——————Node:? Text: ?
+|——————Node:identifier Text: len
+|——————Node:: Text: :
+|——————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: CAN1->OUTBOX[mailboxId].DTR = len & CAN_DTR_DLC;
+|————Node:assignment_expression Text: CAN1->OUTBOX[mailboxId].DTR = len & CAN_DTR_DLC
+|—————Node:field_expression Text: CAN1->OUTBOX[mailboxId].DTR
+|——————Node:subscript_expression Text: CAN1->OUTBOX[mailboxId]
+|———————Node:field_expression Text: CAN1->OUTBOX
+|————————Node:identifier Text: CAN1
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: OUTBOX
+|———————Node:[ Text: [
+|———————Node:identifier Text: mailboxId
+|———————Node:] Text: ]
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DTR
+|—————Node:= Text: =
+|—————Node:binary_expression Text: len & CAN_DTR_DLC
+|——————Node:identifier Text: len
+|——————Node:& Text: &
+|——————Node:identifier Text: CAN_DTR_DLC
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:declaration Text: volatile uint32_t *DHR = &CAN1->OUTBOX[mailboxId].DHR, *DLR = &CAN1->OUTBOX[mailboxId].DLR;
+|————Node:type_qualifier Text: volatile
+|—————Node:volatile Text: volatile
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: *DHR = &CAN1->OUTBOX[mailboxId].DHR
+|—————Node:pointer_declarator Text: *DHR
+|——————Node:* Text: *
+|——————Node:identifier Text: DHR
+|—————Node:= Text: =
+|—————Node:pointer_expression Text: &CAN1->OUTBOX[mailboxId].DHR
+|——————Node:& Text: &
+|——————Node:field_expression Text: CAN1->OUTBOX[mailboxId].DHR
+|———————Node:subscript_expression Text: CAN1->OUTBOX[mailboxId]
+|————————Node:field_expression Text: CAN1->OUTBOX
+|—————————Node:identifier Text: CAN1
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: OUTBOX
+|————————Node:[ Text: [
+|————————Node:identifier Text: mailboxId
+|————————Node:] Text: ]
+|———————Node:. Text: .
+|———————Node:field_identifier Text: DHR
+|————Node:, Text: ,
+|————Node:init_declarator Text: *DLR = &CAN1->OUTBOX[mailboxId].DLR
+|—————Node:pointer_declarator Text: *DLR
+|——————Node:* Text: *
+|——————Node:identifier Text: DLR
+|—————Node:= Text: =
+|—————Node:pointer_expression Text: &CAN1->OUTBOX[mailboxId].DLR
+|——————Node:& Text: &
+|——————Node:field_expression Text: CAN1->OUTBOX[mailboxId].DLR
+|———————Node:subscript_expression Text: CAN1->OUTBOX[mailboxId]
+|————————Node:field_expression Text: CAN1->OUTBOX
+|—————————Node:identifier Text: CAN1
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: OUTBOX
+|————————Node:[ Text: [
+|————————Node:identifier Text: mailboxId
+|————————Node:] Text: ]
+|———————Node:. Text: .
+|———————Node:field_identifier Text: DLR
+|————Node:; Text: ;
+|———Node:expression_statement Text: *DHR = 0;
+|————Node:assignment_expression Text: *DHR = 0
+|—————Node:pointer_expression Text: *DHR
+|——————Node:* Text: *
+|——————Node:identifier Text: DHR
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: *DLR = 0;
+|————Node:assignment_expression Text: *DLR = 0
+|—————Node:pointer_expression Text: *DLR
+|——————Node:* Text: *
+|——————Node:identifier Text: DLR
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:switch_statement Text: switch(len)
+    {
+    case 8:
+    default:
+        *DHR |= ((uint32_t)data[7] << 24);
+    case 7:
+        *DHR |= ((uint32_t)data[6] << 16);
+    case 6:
+        *DHR |= ((uint32_t)data[5] << 8);
+    case 5:
+        *DHR |= data[4];
+    case 4:
+        *DLR |= ((uint32_t)data[3] << 24);
+    case 3:
+        *DLR |= ((uint32_t)data[2] << 16);
+    case 2:
+        *DLR |= ((uint32_t)data[1] << 8);
+    case 1:
+        *DLR |= data[0];
+    case 0:
+        break;
+    }
+|————Node:switch Text: switch
+|————Node:parenthesized_expression Text: (len)
+|—————Node:( Text: (
+|—————Node:identifier Text: len
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    case 8:
+    default:
+        *DHR |= ((uint32_t)data[7] << 24);
+    case 7:
+        *DHR |= ((uint32_t)data[6] << 16);
+    case 6:
+        *DHR |= ((uint32_t)data[5] << 8);
+    case 5:
+        *DHR |= data[4];
+    case 4:
+        *DLR |= ((uint32_t)data[3] << 24);
+    case 3:
+        *DLR |= ((uint32_t)data[2] << 16);
+    case 2:
+        *DLR |= ((uint32_t)data[1] << 8);
+    case 1:
+        *DLR |= data[0];
+    case 0:
+        break;
+    }
+|—————Node:{ Text: {
+|—————Node:case_statement Text: case 8:
+|——————Node:case Text: case
+|——————Node:number_literal Text: 8
+|——————Node:: Text: :
+|—————Node:case_statement Text: default:
+        *DHR |= ((uint32_t)data[7] << 24);
+|——————Node:default Text: default
+|——————Node:: Text: :
+|——————Node:expression_statement Text: *DHR |= ((uint32_t)data[7] << 24);
+|———————Node:assignment_expression Text: *DHR |= ((uint32_t)data[7] << 24)
+|————————Node:pointer_expression Text: *DHR
+|—————————Node:* Text: *
+|—————————Node:identifier Text: DHR
+|————————Node:|= Text: |=
+|————————Node:parenthesized_expression Text: ((uint32_t)data[7] << 24)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: (uint32_t)data[7] << 24
+|——————————Node:cast_expression Text: (uint32_t)data[7]
+|———————————Node:( Text: (
+|———————————Node:type_descriptor Text: uint32_t
+|————————————Node:primitive_type Text: uint32_t
+|———————————Node:) Text: )
+|———————————Node:subscript_expression Text: data[7]
+|————————————Node:identifier Text: data
+|————————————Node:[ Text: [
+|————————————Node:number_literal Text: 7
+|————————————Node:] Text: ]
+|——————————Node:<< Text: <<
+|——————————Node:number_literal Text: 24
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 7:
+        *DHR |= ((uint32_t)data[6] << 16);
+|——————Node:case Text: case
+|——————Node:number_literal Text: 7
+|——————Node:: Text: :
+|——————Node:expression_statement Text: *DHR |= ((uint32_t)data[6] << 16);
+|———————Node:assignment_expression Text: *DHR |= ((uint32_t)data[6] << 16)
+|————————Node:pointer_expression Text: *DHR
+|—————————Node:* Text: *
+|—————————Node:identifier Text: DHR
+|————————Node:|= Text: |=
+|————————Node:parenthesized_expression Text: ((uint32_t)data[6] << 16)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: (uint32_t)data[6] << 16
+|——————————Node:cast_expression Text: (uint32_t)data[6]
+|———————————Node:( Text: (
+|———————————Node:type_descriptor Text: uint32_t
+|————————————Node:primitive_type Text: uint32_t
+|———————————Node:) Text: )
+|———————————Node:subscript_expression Text: data[6]
+|————————————Node:identifier Text: data
+|————————————Node:[ Text: [
+|————————————Node:number_literal Text: 6
+|————————————Node:] Text: ]
+|——————————Node:<< Text: <<
+|——————————Node:number_literal Text: 16
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 6:
+        *DHR |= ((uint32_t)data[5] << 8);
+|——————Node:case Text: case
+|——————Node:number_literal Text: 6
+|——————Node:: Text: :
+|——————Node:expression_statement Text: *DHR |= ((uint32_t)data[5] << 8);
+|———————Node:assignment_expression Text: *DHR |= ((uint32_t)data[5] << 8)
+|————————Node:pointer_expression Text: *DHR
+|—————————Node:* Text: *
+|—————————Node:identifier Text: DHR
+|————————Node:|= Text: |=
+|————————Node:parenthesized_expression Text: ((uint32_t)data[5] << 8)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: (uint32_t)data[5] << 8
+|——————————Node:cast_expression Text: (uint32_t)data[5]
+|———————————Node:( Text: (
+|———————————Node:type_descriptor Text: uint32_t
+|————————————Node:primitive_type Text: uint32_t
+|———————————Node:) Text: )
+|———————————Node:subscript_expression Text: data[5]
+|————————————Node:identifier Text: data
+|————————————Node:[ Text: [
+|————————————Node:number_literal Text: 5
+|————————————Node:] Text: ]
+|——————————Node:<< Text: <<
+|——————————Node:number_literal Text: 8
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 5:
+        *DHR |= data[4];
+|——————Node:case Text: case
+|——————Node:number_literal Text: 5
+|——————Node:: Text: :
+|——————Node:expression_statement Text: *DHR |= data[4];
+|———————Node:assignment_expression Text: *DHR |= data[4]
+|————————Node:pointer_expression Text: *DHR
+|—————————Node:* Text: *
+|—————————Node:identifier Text: DHR
+|————————Node:|= Text: |=
+|————————Node:subscript_expression Text: data[4]
+|—————————Node:identifier Text: data
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 4
+|—————————Node:] Text: ]
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 4:
+        *DLR |= ((uint32_t)data[3] << 24);
+|——————Node:case Text: case
+|——————Node:number_literal Text: 4
+|——————Node:: Text: :
+|——————Node:expression_statement Text: *DLR |= ((uint32_t)data[3] << 24);
+|———————Node:assignment_expression Text: *DLR |= ((uint32_t)data[3] << 24)
+|————————Node:pointer_expression Text: *DLR
+|—————————Node:* Text: *
+|—————————Node:identifier Text: DLR
+|————————Node:|= Text: |=
+|————————Node:parenthesized_expression Text: ((uint32_t)data[3] << 24)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: (uint32_t)data[3] << 24
+|——————————Node:cast_expression Text: (uint32_t)data[3]
+|———————————Node:( Text: (
+|———————————Node:type_descriptor Text: uint32_t
+|————————————Node:primitive_type Text: uint32_t
+|———————————Node:) Text: )
+|———————————Node:subscript_expression Text: data[3]
+|————————————Node:identifier Text: data
+|————————————Node:[ Text: [
+|————————————Node:number_literal Text: 3
+|————————————Node:] Text: ]
+|——————————Node:<< Text: <<
+|——————————Node:number_literal Text: 24
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 3:
+        *DLR |= ((uint32_t)data[2] << 16);
+|——————Node:case Text: case
+|——————Node:number_literal Text: 3
+|——————Node:: Text: :
+|——————Node:expression_statement Text: *DLR |= ((uint32_t)data[2] << 16);
+|———————Node:assignment_expression Text: *DLR |= ((uint32_t)data[2] << 16)
+|————————Node:pointer_expression Text: *DLR
+|—————————Node:* Text: *
+|—————————Node:identifier Text: DLR
+|————————Node:|= Text: |=
+|————————Node:parenthesized_expression Text: ((uint32_t)data[2] << 16)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: (uint32_t)data[2] << 16
+|——————————Node:cast_expression Text: (uint32_t)data[2]
+|———————————Node:( Text: (
+|———————————Node:type_descriptor Text: uint32_t
+|————————————Node:primitive_type Text: uint32_t
+|———————————Node:) Text: )
+|———————————Node:subscript_expression Text: data[2]
+|————————————Node:identifier Text: data
+|————————————Node:[ Text: [
+|————————————Node:number_literal Text: 2
+|————————————Node:] Text: ]
+|——————————Node:<< Text: <<
+|——————————Node:number_literal Text: 16
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 2:
+        *DLR |= ((uint32_t)data[1] << 8);
+|——————Node:case Text: case
+|——————Node:number_literal Text: 2
+|——————Node:: Text: :
+|——————Node:expression_statement Text: *DLR |= ((uint32_t)data[1] << 8);
+|———————Node:assignment_expression Text: *DLR |= ((uint32_t)data[1] << 8)
+|————————Node:pointer_expression Text: *DLR
+|—————————Node:* Text: *
+|—————————Node:identifier Text: DLR
+|————————Node:|= Text: |=
+|————————Node:parenthesized_expression Text: ((uint32_t)data[1] << 8)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: (uint32_t)data[1] << 8
+|——————————Node:cast_expression Text: (uint32_t)data[1]
+|———————————Node:( Text: (
+|———————————Node:type_descriptor Text: uint32_t
+|————————————Node:primitive_type Text: uint32_t
+|———————————Node:) Text: )
+|———————————Node:subscript_expression Text: data[1]
+|————————————Node:identifier Text: data
+|————————————Node:[ Text: [
+|————————————Node:number_literal Text: 1
+|————————————Node:] Text: ]
+|——————————Node:<< Text: <<
+|——————————Node:number_literal Text: 8
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 1:
+        *DLR |= data[0];
+|——————Node:case Text: case
+|——————Node:number_literal Text: 1
+|——————Node:: Text: :
+|——————Node:expression_statement Text: *DLR |= data[0];
+|———————Node:assignment_expression Text: *DLR |= data[0]
+|————————Node:pointer_expression Text: *DLR
+|—————————Node:* Text: *
+|—————————Node:identifier Text: DLR
+|————————Node:|= Text: |=
+|————————Node:subscript_expression Text: data[0]
+|—————————Node:identifier Text: data
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 0
+|—————————Node:] Text: ]
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 0:
+        break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 0
+|——————Node:: Text: :
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: CAN1->OUTBOX[mailboxId].IR |= CAN_TIR_TXRQ;
+|————Node:assignment_expression Text: CAN1->OUTBOX[mailboxId].IR |= CAN_TIR_TXRQ
+|—————Node:field_expression Text: CAN1->OUTBOX[mailboxId].IR
+|——————Node:subscript_expression Text: CAN1->OUTBOX[mailboxId]
+|———————Node:field_expression Text: CAN1->OUTBOX
+|————————Node:identifier Text: CAN1
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: OUTBOX
+|———————Node:[ Text: [
+|———————Node:identifier Text: mailboxId
+|———————Node:] Text: ]
+|——————Node:. Text: .
+|——————Node:field_identifier Text: IR
+|—————Node:|= Text: |=
+|—————Node:identifier Text: CAN_TIR_TXRQ
+|————Node:; Text: ;
+|———Node:comment
+|———Node:return_statement Text: return (int)len;
+|————Node:return Text: return
+|————Node:cast_expression Text: (int)len
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: int
+|——————Node:primitive_type Text: int
+|—————Node:) Text: )
+|—————Node:identifier Text: len
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: int cnCANRecv(uint32_t *recvId, unsigned maxLen, uint8_t data[maxLen])
+{
+    // assert(recvId);
+    // NOTE: Code always reads FIFO 0 - TODO: make it work also for FIFO 1
+
+    if(!(CAN1->RF0R & CAN_RFR_FMP))
+    {
+        // No messages pending on FIFO 0
+        return -1;
+    }
+
+    *recvId = CAN1->INBOX[0].IR; // Fetch FIFO 0 (CAN id, IDE, RTR)
+    unsigned payloadLen = CAN1->INBOX[0].DTR & CAN_DTR_DLC; // Fetch FIFO 0 payload length
+    maxLen = maxLen < payloadLen ? maxLen : payloadLen; // Truncate payload length to `maxLen`
+
+    // Copy data out of FIFO 0's DLR and DHR
+    // WARNING: The ARM core does NOT support unaligned access; copying byte
+    //          arrays directly will corrupt the data - need the ugly switch
+    //          below or a `memcpy()`!
+    volatile const uint32_t *DHR = &CAN1->INBOX[0].DHR, *DLR = &CAN1->INBOX[0].DLR;
+    switch(maxLen)
+    {
+    case 8:
+    default:
+        data[7] = (uint8_t)((*DHR & 0xFF000000u) >> 24);
+    case 7:
+        data[6] = (uint8_t)((*DHR & 0x00FF0000u) >> 16);
+    case 6:
+        data[5] = (uint8_t)((*DHR & 0x0000FF00u) >> 8);
+    case 5:
+        data[4] = (uint8_t)(*DHR & 0x000000FFu);
+    case 4:
+        data[3] = (uint8_t)((*DLR & 0xFF000000u) >> 24);
+    case 3:
+        data[2] = (uint8_t)((*DLR & 0x00FF0000u) >> 16);
+    case 2:
+        data[1] = (uint8_t)((*DLR & 0x0000FF00u) >> 8);
+    case 1:
+        data[0] = (uint8_t)(*DLR & 0x000000FFu);
+    case 0:
+        break;
+    }
+
+    // Message processed, clear it from FIFO 0
+    CAN1->RF0R |= CAN_RFR_RFOM;
+
+    return (int)maxLen;
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: cnCANRecv(uint32_t *recvId, unsigned maxLen, uint8_t data[maxLen])
+|———Node:identifier Text: cnCANRecv
+|———Node:parameter_list Text: (uint32_t *recvId, unsigned maxLen, uint8_t data[maxLen])
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint32_t *recvId
+|—————Node:primitive_type Text: uint32_t
+|—————Node:pointer_declarator Text: *recvId
+|——————Node:* Text: *
+|——————Node:identifier Text: recvId
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: unsigned maxLen
+|—————Node:sized_type_specifier Text: unsigned
+|——————Node:unsigned Text: unsigned
+|—————Node:identifier Text: maxLen
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint8_t data[maxLen]
+|—————Node:primitive_type Text: uint8_t
+|—————Node:array_declarator Text: data[maxLen]
+|——————Node:identifier Text: data
+|——————Node:[ Text: [
+|——————Node:identifier Text: maxLen
+|——————Node:] Text: ]
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    // assert(recvId);
+    // NOTE: Code always reads FIFO 0 - TODO: make it work also for FIFO 1
+
+    if(!(CAN1->RF0R & CAN_RFR_FMP))
+    {
+        // No messages pending on FIFO 0
+        return -1;
+    }
+
+    *recvId = CAN1->INBOX[0].IR; // Fetch FIFO 0 (CAN id, IDE, RTR)
+    unsigned payloadLen = CAN1->INBOX[0].DTR & CAN_DTR_DLC; // Fetch FIFO 0 payload length
+    maxLen = maxLen < payloadLen ? maxLen : payloadLen; // Truncate payload length to `maxLen`
+
+    // Copy data out of FIFO 0's DLR and DHR
+    // WARNING: The ARM core does NOT support unaligned access; copying byte
+    //          arrays directly will corrupt the data - need the ugly switch
+    //          below or a `memcpy()`!
+    volatile const uint32_t *DHR = &CAN1->INBOX[0].DHR, *DLR = &CAN1->INBOX[0].DLR;
+    switch(maxLen)
+    {
+    case 8:
+    default:
+        data[7] = (uint8_t)((*DHR & 0xFF000000u) >> 24);
+    case 7:
+        data[6] = (uint8_t)((*DHR & 0x00FF0000u) >> 16);
+    case 6:
+        data[5] = (uint8_t)((*DHR & 0x0000FF00u) >> 8);
+    case 5:
+        data[4] = (uint8_t)(*DHR & 0x000000FFu);
+    case 4:
+        data[3] = (uint8_t)((*DLR & 0xFF000000u) >> 24);
+    case 3:
+        data[2] = (uint8_t)((*DLR & 0x00FF0000u) >> 16);
+    case 2:
+        data[1] = (uint8_t)((*DLR & 0x0000FF00u) >> 8);
+    case 1:
+        data[0] = (uint8_t)(*DLR & 0x000000FFu);
+    case 0:
+        break;
+    }
+
+    // Message processed, clear it from FIFO 0
+    CAN1->RF0R |= CAN_RFR_RFOM;
+
+    return (int)maxLen;
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:comment
+|———Node:if_statement Text: if(!(CAN1->RF0R & CAN_RFR_FMP))
+    {
+        // No messages pending on FIFO 0
+        return -1;
+    }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (!(CAN1->RF0R & CAN_RFR_FMP))
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !(CAN1->RF0R & CAN_RFR_FMP)
+|——————Node:! Text: !
+|——————Node:parenthesized_expression Text: (CAN1->RF0R & CAN_RFR_FMP)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: CAN1->RF0R & CAN_RFR_FMP
+|————————Node:field_expression Text: CAN1->RF0R
+|—————————Node:identifier Text: CAN1
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: RF0R
+|————————Node:& Text: &
+|————————Node:identifier Text: CAN_RFR_FMP
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        // No messages pending on FIFO 0
+        return -1;
+    }
+|—————Node:{ Text: {
+|—————Node:comment
+|—————Node:return_statement Text: return -1;
+|——————Node:return Text: return
+|——————Node:number_literal Text: -1
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: *recvId = CAN1->INBOX[0].IR;
+|————Node:assignment_expression Text: *recvId = CAN1->INBOX[0].IR
+|—————Node:pointer_expression Text: *recvId
+|——————Node:* Text: *
+|——————Node:identifier Text: recvId
+|—————Node:= Text: =
+|—————Node:field_expression Text: CAN1->INBOX[0].IR
+|——————Node:subscript_expression Text: CAN1->INBOX[0]
+|———————Node:field_expression Text: CAN1->INBOX
+|————————Node:identifier Text: CAN1
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: INBOX
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 0
+|———————Node:] Text: ]
+|——————Node:. Text: .
+|——————Node:field_identifier Text: IR
+|————Node:; Text: ;
+|———Node:comment
+|———Node:declaration Text: unsigned payloadLen = CAN1->INBOX[0].DTR & CAN_DTR_DLC;
+|————Node:sized_type_specifier Text: unsigned
+|—————Node:unsigned Text: unsigned
+|————Node:init_declarator Text: payloadLen = CAN1->INBOX[0].DTR & CAN_DTR_DLC
+|—————Node:identifier Text: payloadLen
+|—————Node:= Text: =
+|—————Node:binary_expression Text: CAN1->INBOX[0].DTR & CAN_DTR_DLC
+|——————Node:field_expression Text: CAN1->INBOX[0].DTR
+|———————Node:subscript_expression Text: CAN1->INBOX[0]
+|————————Node:field_expression Text: CAN1->INBOX
+|—————————Node:identifier Text: CAN1
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: INBOX
+|————————Node:[ Text: [
+|————————Node:number_literal Text: 0
+|————————Node:] Text: ]
+|———————Node:. Text: .
+|———————Node:field_identifier Text: DTR
+|——————Node:& Text: &
+|——————Node:identifier Text: CAN_DTR_DLC
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: maxLen = maxLen < payloadLen ? maxLen : payloadLen;
+|————Node:assignment_expression Text: maxLen = maxLen < payloadLen ? maxLen : payloadLen
+|—————Node:identifier Text: maxLen
+|—————Node:= Text: =
+|—————Node:conditional_expression Text: maxLen < payloadLen ? maxLen : payloadLen
+|——————Node:binary_expression Text: maxLen < payloadLen
+|———————Node:identifier Text: maxLen
+|———————Node:< Text: <
+|———————Node:identifier Text: payloadLen
+|——————Node:? Text: ?
+|——————Node:identifier Text: maxLen
+|——————Node:: Text: :
+|——————Node:identifier Text: payloadLen
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:declaration Text: volatile const uint32_t *DHR = &CAN1->INBOX[0].DHR, *DLR = &CAN1->INBOX[0].DLR;
+|————Node:type_qualifier Text: volatile
+|—————Node:volatile Text: volatile
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: *DHR = &CAN1->INBOX[0].DHR
+|—————Node:pointer_declarator Text: *DHR
+|——————Node:* Text: *
+|——————Node:identifier Text: DHR
+|—————Node:= Text: =
+|—————Node:pointer_expression Text: &CAN1->INBOX[0].DHR
+|——————Node:& Text: &
+|——————Node:field_expression Text: CAN1->INBOX[0].DHR
+|———————Node:subscript_expression Text: CAN1->INBOX[0]
+|————————Node:field_expression Text: CAN1->INBOX
+|—————————Node:identifier Text: CAN1
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: INBOX
+|————————Node:[ Text: [
+|————————Node:number_literal Text: 0
+|————————Node:] Text: ]
+|———————Node:. Text: .
+|———————Node:field_identifier Text: DHR
+|————Node:, Text: ,
+|————Node:init_declarator Text: *DLR = &CAN1->INBOX[0].DLR
+|—————Node:pointer_declarator Text: *DLR
+|——————Node:* Text: *
+|——————Node:identifier Text: DLR
+|—————Node:= Text: =
+|—————Node:pointer_expression Text: &CAN1->INBOX[0].DLR
+|——————Node:& Text: &
+|——————Node:field_expression Text: CAN1->INBOX[0].DLR
+|———————Node:subscript_expression Text: CAN1->INBOX[0]
+|————————Node:field_expression Text: CAN1->INBOX
+|—————————Node:identifier Text: CAN1
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: INBOX
+|————————Node:[ Text: [
+|————————Node:number_literal Text: 0
+|————————Node:] Text: ]
+|———————Node:. Text: .
+|———————Node:field_identifier Text: DLR
+|————Node:; Text: ;
+|———Node:switch_statement Text: switch(maxLen)
+    {
+    case 8:
+    default:
+        data[7] = (uint8_t)((*DHR & 0xFF000000u) >> 24);
+    case 7:
+        data[6] = (uint8_t)((*DHR & 0x00FF0000u) >> 16);
+    case 6:
+        data[5] = (uint8_t)((*DHR & 0x0000FF00u) >> 8);
+    case 5:
+        data[4] = (uint8_t)(*DHR & 0x000000FFu);
+    case 4:
+        data[3] = (uint8_t)((*DLR & 0xFF000000u) >> 24);
+    case 3:
+        data[2] = (uint8_t)((*DLR & 0x00FF0000u) >> 16);
+    case 2:
+        data[1] = (uint8_t)((*DLR & 0x0000FF00u) >> 8);
+    case 1:
+        data[0] = (uint8_t)(*DLR & 0x000000FFu);
+    case 0:
+        break;
+    }
+|————Node:switch Text: switch
+|————Node:parenthesized_expression Text: (maxLen)
+|—————Node:( Text: (
+|—————Node:identifier Text: maxLen
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    case 8:
+    default:
+        data[7] = (uint8_t)((*DHR & 0xFF000000u) >> 24);
+    case 7:
+        data[6] = (uint8_t)((*DHR & 0x00FF0000u) >> 16);
+    case 6:
+        data[5] = (uint8_t)((*DHR & 0x0000FF00u) >> 8);
+    case 5:
+        data[4] = (uint8_t)(*DHR & 0x000000FFu);
+    case 4:
+        data[3] = (uint8_t)((*DLR & 0xFF000000u) >> 24);
+    case 3:
+        data[2] = (uint8_t)((*DLR & 0x00FF0000u) >> 16);
+    case 2:
+        data[1] = (uint8_t)((*DLR & 0x0000FF00u) >> 8);
+    case 1:
+        data[0] = (uint8_t)(*DLR & 0x000000FFu);
+    case 0:
+        break;
+    }
+|—————Node:{ Text: {
+|—————Node:case_statement Text: case 8:
+|——————Node:case Text: case
+|——————Node:number_literal Text: 8
+|——————Node:: Text: :
+|—————Node:case_statement Text: default:
+        data[7] = (uint8_t)((*DHR & 0xFF000000u) >> 24);
+|——————Node:default Text: default
+|——————Node:: Text: :
+|——————Node:expression_statement Text: data[7] = (uint8_t)((*DHR & 0xFF000000u) >> 24);
+|———————Node:assignment_expression Text: data[7] = (uint8_t)((*DHR & 0xFF000000u) >> 24)
+|————————Node:subscript_expression Text: data[7]
+|—————————Node:identifier Text: data
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 7
+|—————————Node:] Text: ]
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (uint8_t)((*DHR & 0xFF000000u) >> 24)
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint8_t
+|——————————Node:primitive_type Text: uint8_t
+|—————————Node:) Text: )
+|—————————Node:parenthesized_expression Text: ((*DHR & 0xFF000000u) >> 24)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: (*DHR & 0xFF000000u) >> 24
+|———————————Node:parenthesized_expression Text: (*DHR & 0xFF000000u)
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: *DHR & 0xFF000000u
+|—————————————Node:pointer_expression Text: *DHR
+|——————————————Node:* Text: *
+|——————————————Node:identifier Text: DHR
+|—————————————Node:& Text: &
+|—————————————Node:number_literal Text: 0xFF000000u
+|————————————Node:) Text: )
+|———————————Node:>> Text: >>
+|———————————Node:number_literal Text: 24
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 7:
+        data[6] = (uint8_t)((*DHR & 0x00FF0000u) >> 16);
+|——————Node:case Text: case
+|——————Node:number_literal Text: 7
+|——————Node:: Text: :
+|——————Node:expression_statement Text: data[6] = (uint8_t)((*DHR & 0x00FF0000u) >> 16);
+|———————Node:assignment_expression Text: data[6] = (uint8_t)((*DHR & 0x00FF0000u) >> 16)
+|————————Node:subscript_expression Text: data[6]
+|—————————Node:identifier Text: data
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 6
+|—————————Node:] Text: ]
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (uint8_t)((*DHR & 0x00FF0000u) >> 16)
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint8_t
+|——————————Node:primitive_type Text: uint8_t
+|—————————Node:) Text: )
+|—————————Node:parenthesized_expression Text: ((*DHR & 0x00FF0000u) >> 16)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: (*DHR & 0x00FF0000u) >> 16
+|———————————Node:parenthesized_expression Text: (*DHR & 0x00FF0000u)
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: *DHR & 0x00FF0000u
+|—————————————Node:pointer_expression Text: *DHR
+|——————————————Node:* Text: *
+|——————————————Node:identifier Text: DHR
+|—————————————Node:& Text: &
+|—————————————Node:number_literal Text: 0x00FF0000u
+|————————————Node:) Text: )
+|———————————Node:>> Text: >>
+|———————————Node:number_literal Text: 16
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 6:
+        data[5] = (uint8_t)((*DHR & 0x0000FF00u) >> 8);
+|——————Node:case Text: case
+|——————Node:number_literal Text: 6
+|——————Node:: Text: :
+|——————Node:expression_statement Text: data[5] = (uint8_t)((*DHR & 0x0000FF00u) >> 8);
+|———————Node:assignment_expression Text: data[5] = (uint8_t)((*DHR & 0x0000FF00u) >> 8)
+|————————Node:subscript_expression Text: data[5]
+|—————————Node:identifier Text: data
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 5
+|—————————Node:] Text: ]
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (uint8_t)((*DHR & 0x0000FF00u) >> 8)
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint8_t
+|——————————Node:primitive_type Text: uint8_t
+|—————————Node:) Text: )
+|—————————Node:parenthesized_expression Text: ((*DHR & 0x0000FF00u) >> 8)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: (*DHR & 0x0000FF00u) >> 8
+|———————————Node:parenthesized_expression Text: (*DHR & 0x0000FF00u)
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: *DHR & 0x0000FF00u
+|—————————————Node:pointer_expression Text: *DHR
+|——————————————Node:* Text: *
+|——————————————Node:identifier Text: DHR
+|—————————————Node:& Text: &
+|—————————————Node:number_literal Text: 0x0000FF00u
+|————————————Node:) Text: )
+|———————————Node:>> Text: >>
+|———————————Node:number_literal Text: 8
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 5:
+        data[4] = (uint8_t)(*DHR & 0x000000FFu);
+|——————Node:case Text: case
+|——————Node:number_literal Text: 5
+|——————Node:: Text: :
+|——————Node:expression_statement Text: data[4] = (uint8_t)(*DHR & 0x000000FFu);
+|———————Node:assignment_expression Text: data[4] = (uint8_t)(*DHR & 0x000000FFu)
+|————————Node:subscript_expression Text: data[4]
+|—————————Node:identifier Text: data
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 4
+|—————————Node:] Text: ]
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (uint8_t)(*DHR & 0x000000FFu)
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint8_t
+|——————————Node:primitive_type Text: uint8_t
+|—————————Node:) Text: )
+|—————————Node:parenthesized_expression Text: (*DHR & 0x000000FFu)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: *DHR & 0x000000FFu
+|———————————Node:pointer_expression Text: *DHR
+|————————————Node:* Text: *
+|————————————Node:identifier Text: DHR
+|———————————Node:& Text: &
+|———————————Node:number_literal Text: 0x000000FFu
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 4:
+        data[3] = (uint8_t)((*DLR & 0xFF000000u) >> 24);
+|——————Node:case Text: case
+|——————Node:number_literal Text: 4
+|——————Node:: Text: :
+|——————Node:expression_statement Text: data[3] = (uint8_t)((*DLR & 0xFF000000u) >> 24);
+|———————Node:assignment_expression Text: data[3] = (uint8_t)((*DLR & 0xFF000000u) >> 24)
+|————————Node:subscript_expression Text: data[3]
+|—————————Node:identifier Text: data
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 3
+|—————————Node:] Text: ]
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (uint8_t)((*DLR & 0xFF000000u) >> 24)
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint8_t
+|——————————Node:primitive_type Text: uint8_t
+|—————————Node:) Text: )
+|—————————Node:parenthesized_expression Text: ((*DLR & 0xFF000000u) >> 24)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: (*DLR & 0xFF000000u) >> 24
+|———————————Node:parenthesized_expression Text: (*DLR & 0xFF000000u)
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: *DLR & 0xFF000000u
+|—————————————Node:pointer_expression Text: *DLR
+|——————————————Node:* Text: *
+|——————————————Node:identifier Text: DLR
+|—————————————Node:& Text: &
+|—————————————Node:number_literal Text: 0xFF000000u
+|————————————Node:) Text: )
+|———————————Node:>> Text: >>
+|———————————Node:number_literal Text: 24
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 3:
+        data[2] = (uint8_t)((*DLR & 0x00FF0000u) >> 16);
+|——————Node:case Text: case
+|——————Node:number_literal Text: 3
+|——————Node:: Text: :
+|——————Node:expression_statement Text: data[2] = (uint8_t)((*DLR & 0x00FF0000u) >> 16);
+|———————Node:assignment_expression Text: data[2] = (uint8_t)((*DLR & 0x00FF0000u) >> 16)
+|————————Node:subscript_expression Text: data[2]
+|—————————Node:identifier Text: data
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 2
+|—————————Node:] Text: ]
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (uint8_t)((*DLR & 0x00FF0000u) >> 16)
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint8_t
+|——————————Node:primitive_type Text: uint8_t
+|—————————Node:) Text: )
+|—————————Node:parenthesized_expression Text: ((*DLR & 0x00FF0000u) >> 16)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: (*DLR & 0x00FF0000u) >> 16
+|———————————Node:parenthesized_expression Text: (*DLR & 0x00FF0000u)
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: *DLR & 0x00FF0000u
+|—————————————Node:pointer_expression Text: *DLR
+|——————————————Node:* Text: *
+|——————————————Node:identifier Text: DLR
+|—————————————Node:& Text: &
+|—————————————Node:number_literal Text: 0x00FF0000u
+|————————————Node:) Text: )
+|———————————Node:>> Text: >>
+|———————————Node:number_literal Text: 16
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 2:
+        data[1] = (uint8_t)((*DLR & 0x0000FF00u) >> 8);
+|——————Node:case Text: case
+|——————Node:number_literal Text: 2
+|——————Node:: Text: :
+|——————Node:expression_statement Text: data[1] = (uint8_t)((*DLR & 0x0000FF00u) >> 8);
+|———————Node:assignment_expression Text: data[1] = (uint8_t)((*DLR & 0x0000FF00u) >> 8)
+|————————Node:subscript_expression Text: data[1]
+|—————————Node:identifier Text: data
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 1
+|—————————Node:] Text: ]
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (uint8_t)((*DLR & 0x0000FF00u) >> 8)
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint8_t
+|——————————Node:primitive_type Text: uint8_t
+|—————————Node:) Text: )
+|—————————Node:parenthesized_expression Text: ((*DLR & 0x0000FF00u) >> 8)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: (*DLR & 0x0000FF00u) >> 8
+|———————————Node:parenthesized_expression Text: (*DLR & 0x0000FF00u)
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: *DLR & 0x0000FF00u
+|—————————————Node:pointer_expression Text: *DLR
+|——————————————Node:* Text: *
+|——————————————Node:identifier Text: DLR
+|—————————————Node:& Text: &
+|—————————————Node:number_literal Text: 0x0000FF00u
+|————————————Node:) Text: )
+|———————————Node:>> Text: >>
+|———————————Node:number_literal Text: 8
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 1:
+        data[0] = (uint8_t)(*DLR & 0x000000FFu);
+|——————Node:case Text: case
+|——————Node:number_literal Text: 1
+|——————Node:: Text: :
+|——————Node:expression_statement Text: data[0] = (uint8_t)(*DLR & 0x000000FFu);
+|———————Node:assignment_expression Text: data[0] = (uint8_t)(*DLR & 0x000000FFu)
+|————————Node:subscript_expression Text: data[0]
+|—————————Node:identifier Text: data
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 0
+|—————————Node:] Text: ]
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (uint8_t)(*DLR & 0x000000FFu)
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint8_t
+|——————————Node:primitive_type Text: uint8_t
+|—————————Node:) Text: )
+|—————————Node:parenthesized_expression Text: (*DLR & 0x000000FFu)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: *DLR & 0x000000FFu
+|———————————Node:pointer_expression Text: *DLR
+|————————————Node:* Text: *
+|————————————Node:identifier Text: DLR
+|———————————Node:& Text: &
+|———————————Node:number_literal Text: 0x000000FFu
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 0:
+        break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 0
+|——————Node:: Text: :
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:comment
+|———Node:expression_statement Text: CAN1->RF0R |= CAN_RFR_RFOM;
+|————Node:assignment_expression Text: CAN1->RF0R |= CAN_RFR_RFOM
+|—————Node:field_expression Text: CAN1->RF0R
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: RF0R
+|—————Node:|= Text: |=
+|—————Node:identifier Text: CAN_RFR_RFOM
+|————Node:; Text: ;
+|———Node:return_statement Text: return (int)maxLen;
+|————Node:return Text: return
+|————Node:cast_expression Text: (int)maxLen
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: int
+|——————Node:primitive_type Text: int
+|—————Node:) Text: )
+|—————Node:identifier Text: maxLen
+|————Node:; Text: ;
+|———Node:} Text: }

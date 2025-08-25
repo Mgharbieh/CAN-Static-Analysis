@@ -1,0 +1,3628 @@
+kolejka-sw-can-node-src\main.cpp
+
+|Node:translation_unit
+|—Node:comment Text: /*
+ * main.cpp
+ * Copyright (C) 2023 Marcin Osiński <osinski.marcin.r@gmail.com>
+ *
+ * Distributed under terms of the MIT license.
+ */
+|—Node:preproc_include Text: #include "custom_formatters.hpp"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "custom_formatters.hpp"
+|———Node:" Text: "
+|———Node:string_content Text: custom_formatters.hpp
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "event_handlers.hpp"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "event_handlers.hpp"
+|———Node:" Text: "
+|———Node:string_content Text: event_handlers.hpp
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "expander.hpp"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "expander.hpp"
+|———Node:" Text: "
+|———Node:string_content Text: expander.hpp
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "helpers.hpp"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "helpers.hpp"
+|———Node:" Text: "
+|———Node:string_content Text: helpers.hpp
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "io_mcu.hpp"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "io_mcu.hpp"
+|———Node:" Text: "
+|———Node:string_content Text: io_mcu.hpp
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "io_expanders.hpp"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "io_expanders.hpp"
+|———Node:" Text: "
+|———Node:string_content Text: io_expanders.hpp
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "system.hpp"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "system.hpp"
+|———Node:" Text: "
+|———Node:string_content Text: system.hpp
+|———Node:" Text: "
+|—Node:namespace_definition Text: namespace OperatingMode {
+/**
+ * @brief Puts device into normal mode of operations.
+ *
+ * @param nodeAddress CAN node address this device will operate with.
+ */
+void
+normal(Board::Configuration boardCfg);
+
+/**
+ * @brief Puts device into test mode. Shell is available in this mode.
+ */
+void
+test();
+}
+|——Node:namespace Text: namespace
+|——Node:namespace_identifier Text: OperatingMode
+|——Node:declaration_list Text: {
+/**
+ * @brief Puts device into normal mode of operations.
+ *
+ * @param nodeAddress CAN node address this device will operate with.
+ */
+void
+normal(Board::Configuration boardCfg);
+
+/**
+ * @brief Puts device into test mode. Shell is available in this mode.
+ */
+void
+test();
+}
+|———Node:{ Text: {
+|———Node:comment Text: /**
+ * @brief Puts device into normal mode of operations.
+ *
+ * @param nodeAddress CAN node address this device will operate with.
+ */
+|———Node:declaration Text: void
+normal(Board::Configuration boardCfg);
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: normal(Board::Configuration boardCfg)
+|—————Node:identifier Text: normal
+|—————Node:parameter_list Text: (Board::Configuration boardCfg)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: Board::Configuration boardCfg
+|———————Node:qualified_identifier Text: Board::Configuration
+|————————Node:namespace_identifier Text: Board
+|————————Node::: Text: ::
+|————————Node:type_identifier Text: Configuration
+|———————Node:identifier Text: boardCfg
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment Text: /**
+ * @brief Puts device into test mode. Shell is available in this mode.
+ */
+|———Node:declaration Text: void
+test();
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: test()
+|—————Node:identifier Text: test
+|—————Node:parameter_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: [[noreturn]] int
+main()
+{
+    System::initCorePeripherals();
+    System::initBoardPeripherals();
+    System::initCommPeripherals();
+
+    const auto systemConfiguration = System::getBoardConfig();
+
+    if (systemConfiguration == Board::Configuration::RESERVED) {
+        System::getLedRed().turnOn();
+        System::getShell().log<Shell::LogLevel::ERR>(
+          "Nieznana/niewspierana konfiguracja urządzenia!");
+        while (true) {
+            __NOP();
+        }
+    } else if (systemConfiguration == Board::Configuration::SELF_TEST) {
+        OperatingMode::test();
+
+        // OperatingMode returned = something bad happened
+        // TODO: make wdog reset the MCU?
+        System::getLedRed().turnOn();
+        System::getShell().log<Shell::LogLevel::ERR>("Napotkano krytyczny błąd w trybie testowym");
+        while (true) {
+            __NOP();
+        }
+    } else {
+        OperatingMode::normal(systemConfiguration);
+
+        // OperatingMode returned = something bad happened
+        // TODO: make wdog reset the MCU?
+        System::getLedRed().turnOn();
+        System::getShell().log<Shell::LogLevel::ERR>("Napotkano krytyczny błąd w trybie normalnym");
+        while (true) {
+            __NOP();
+        }
+    }
+}
+|——Node:attribute_declaration Text: [[noreturn]]
+|———Node:[[ Text: [[
+|———Node:attribute Text: noreturn
+|————Node:identifier Text: noreturn
+|———Node:]] Text: ]]
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: main()
+|———Node:identifier Text: main
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    System::initCorePeripherals();
+    System::initBoardPeripherals();
+    System::initCommPeripherals();
+
+    const auto systemConfiguration = System::getBoardConfig();
+
+    if (systemConfiguration == Board::Configuration::RESERVED) {
+        System::getLedRed().turnOn();
+        System::getShell().log<Shell::LogLevel::ERR>(
+          "Nieznana/niewspierana konfiguracja urządzenia!");
+        while (true) {
+            __NOP();
+        }
+    } else if (systemConfiguration == Board::Configuration::SELF_TEST) {
+        OperatingMode::test();
+
+        // OperatingMode returned = something bad happened
+        // TODO: make wdog reset the MCU?
+        System::getLedRed().turnOn();
+        System::getShell().log<Shell::LogLevel::ERR>("Napotkano krytyczny błąd w trybie testowym");
+        while (true) {
+            __NOP();
+        }
+    } else {
+        OperatingMode::normal(systemConfiguration);
+
+        // OperatingMode returned = something bad happened
+        // TODO: make wdog reset the MCU?
+        System::getLedRed().turnOn();
+        System::getShell().log<Shell::LogLevel::ERR>("Napotkano krytyczny błąd w trybie normalnym");
+        while (true) {
+            __NOP();
+        }
+    }
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: System::initCorePeripherals();
+|————Node:call_expression Text: System::initCorePeripherals()
+|—————Node:qualified_identifier Text: System::initCorePeripherals
+|——————Node:namespace_identifier Text: System
+|——————Node::: Text: ::
+|——————Node:identifier Text: initCorePeripherals
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: System::initBoardPeripherals();
+|————Node:call_expression Text: System::initBoardPeripherals()
+|—————Node:qualified_identifier Text: System::initBoardPeripherals
+|——————Node:namespace_identifier Text: System
+|——————Node::: Text: ::
+|——————Node:identifier Text: initBoardPeripherals
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: System::initCommPeripherals();
+|————Node:call_expression Text: System::initCommPeripherals()
+|—————Node:qualified_identifier Text: System::initCommPeripherals
+|——————Node:namespace_identifier Text: System
+|——————Node::: Text: ::
+|——————Node:identifier Text: initCommPeripherals
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: const auto systemConfiguration = System::getBoardConfig();
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:placeholder_type_specifier Text: auto
+|—————Node:auto Text: auto
+|————Node:init_declarator Text: systemConfiguration = System::getBoardConfig()
+|—————Node:identifier Text: systemConfiguration
+|—————Node:= Text: =
+|—————Node:call_expression Text: System::getBoardConfig()
+|——————Node:qualified_identifier Text: System::getBoardConfig
+|———————Node:namespace_identifier Text: System
+|———————Node::: Text: ::
+|———————Node:identifier Text: getBoardConfig
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (systemConfiguration == Board::Configuration::RESERVED) {
+        System::getLedRed().turnOn();
+        System::getShell().log<Shell::LogLevel::ERR>(
+          "Nieznana/niewspierana konfiguracja urządzenia!");
+        while (true) {
+            __NOP();
+        }
+    } else if (systemConfiguration == Board::Configuration::SELF_TEST) {
+        OperatingMode::test();
+
+        // OperatingMode returned = something bad happened
+        // TODO: make wdog reset the MCU?
+        System::getLedRed().turnOn();
+        System::getShell().log<Shell::LogLevel::ERR>("Napotkano krytyczny błąd w trybie testowym");
+        while (true) {
+            __NOP();
+        }
+    } else {
+        OperatingMode::normal(systemConfiguration);
+
+        // OperatingMode returned = something bad happened
+        // TODO: make wdog reset the MCU?
+        System::getLedRed().turnOn();
+        System::getShell().log<Shell::LogLevel::ERR>("Napotkano krytyczny błąd w trybie normalnym");
+        while (true) {
+            __NOP();
+        }
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (systemConfiguration == Board::Configuration::RESERVED)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: systemConfiguration == Board::Configuration::RESERVED
+|——————Node:identifier Text: systemConfiguration
+|——————Node:== Text: ==
+|——————Node:qualified_identifier Text: Board::Configuration::RESERVED
+|———————Node:namespace_identifier Text: Board
+|———————Node::: Text: ::
+|———————Node:qualified_identifier Text: Configuration::RESERVED
+|————————Node:namespace_identifier Text: Configuration
+|————————Node::: Text: ::
+|————————Node:identifier Text: RESERVED
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        System::getLedRed().turnOn();
+        System::getShell().log<Shell::LogLevel::ERR>(
+          "Nieznana/niewspierana konfiguracja urządzenia!");
+        while (true) {
+            __NOP();
+        }
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: System::getLedRed().turnOn();
+|——————Node:call_expression Text: System::getLedRed().turnOn()
+|———————Node:field_expression Text: System::getLedRed().turnOn
+|————————Node:call_expression Text: System::getLedRed()
+|—————————Node:qualified_identifier Text: System::getLedRed
+|——————————Node:namespace_identifier Text: System
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: getLedRed
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:. Text: .
+|————————Node:field_identifier Text: turnOn
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: System::getShell().log<Shell::LogLevel::ERR>(
+          "Nieznana/niewspierana konfiguracja urządzenia!");
+|——————Node:call_expression Text: System::getShell().log<Shell::LogLevel::ERR>(
+          "Nieznana/niewspierana konfiguracja urządzenia!")
+|———————Node:field_expression Text: System::getShell().log<Shell::LogLevel::ERR>
+|————————Node:call_expression Text: System::getShell()
+|—————————Node:qualified_identifier Text: System::getShell
+|——————————Node:namespace_identifier Text: System
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: getShell
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:. Text: .
+|————————Node:template_method Text: log<Shell::LogLevel::ERR>
+|—————————Node:field_identifier Text: log
+|—————————Node:template_argument_list Text: <Shell::LogLevel::ERR>
+|——————————Node:< Text: <
+|——————————Node:type_descriptor Text: Shell::LogLevel::ERR
+|———————————Node:qualified_identifier Text: Shell::LogLevel::ERR
+|————————————Node:namespace_identifier Text: Shell
+|————————————Node::: Text: ::
+|————————————Node:qualified_identifier Text: LogLevel::ERR
+|—————————————Node:namespace_identifier Text: LogLevel
+|—————————————Node::: Text: ::
+|—————————————Node:type_identifier Text: ERR
+|——————————Node:> Text: >
+|———————Node:argument_list Text: (
+          "Nieznana/niewspierana konfiguracja urządzenia!")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "Nieznana/niewspierana konfiguracja urządzenia!"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: Nieznana/niewspierana konfiguracja urządzenia!
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:while_statement Text: while (true) {
+            __NOP();
+        }
+|——————Node:while Text: while
+|——————Node:condition_clause Text: (true)
+|———————Node:( Text: (
+|———————Node:true Text: true
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            __NOP();
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: __NOP();
+|————————Node:call_expression Text: __NOP()
+|—————————Node:identifier Text: __NOP
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|————Node:else_clause Text: else if (systemConfiguration == Board::Configuration::SELF_TEST) {
+        OperatingMode::test();
+
+        // OperatingMode returned = something bad happened
+        // TODO: make wdog reset the MCU?
+        System::getLedRed().turnOn();
+        System::getShell().log<Shell::LogLevel::ERR>("Napotkano krytyczny błąd w trybie testowym");
+        while (true) {
+            __NOP();
+        }
+    } else {
+        OperatingMode::normal(systemConfiguration);
+
+        // OperatingMode returned = something bad happened
+        // TODO: make wdog reset the MCU?
+        System::getLedRed().turnOn();
+        System::getShell().log<Shell::LogLevel::ERR>("Napotkano krytyczny błąd w trybie normalnym");
+        while (true) {
+            __NOP();
+        }
+    }
+|—————Node:else Text: else
+|—————Node:if_statement Text: if (systemConfiguration == Board::Configuration::SELF_TEST) {
+        OperatingMode::test();
+
+        // OperatingMode returned = something bad happened
+        // TODO: make wdog reset the MCU?
+        System::getLedRed().turnOn();
+        System::getShell().log<Shell::LogLevel::ERR>("Napotkano krytyczny błąd w trybie testowym");
+        while (true) {
+            __NOP();
+        }
+    } else {
+        OperatingMode::normal(systemConfiguration);
+
+        // OperatingMode returned = something bad happened
+        // TODO: make wdog reset the MCU?
+        System::getLedRed().turnOn();
+        System::getShell().log<Shell::LogLevel::ERR>("Napotkano krytyczny błąd w trybie normalnym");
+        while (true) {
+            __NOP();
+        }
+    }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (systemConfiguration == Board::Configuration::SELF_TEST)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: systemConfiguration == Board::Configuration::SELF_TEST
+|————————Node:identifier Text: systemConfiguration
+|————————Node:== Text: ==
+|————————Node:qualified_identifier Text: Board::Configuration::SELF_TEST
+|—————————Node:namespace_identifier Text: Board
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: Configuration::SELF_TEST
+|——————————Node:namespace_identifier Text: Configuration
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: SELF_TEST
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+        OperatingMode::test();
+
+        // OperatingMode returned = something bad happened
+        // TODO: make wdog reset the MCU?
+        System::getLedRed().turnOn();
+        System::getShell().log<Shell::LogLevel::ERR>("Napotkano krytyczny błąd w trybie testowym");
+        while (true) {
+            __NOP();
+        }
+    }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: OperatingMode::test();
+|————————Node:call_expression Text: OperatingMode::test()
+|—————————Node:qualified_identifier Text: OperatingMode::test
+|——————————Node:namespace_identifier Text: OperatingMode
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: test
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:comment Text: // OperatingMode returned = something bad happened
+|———————Node:comment Text: // TODO: make wdog reset the MCU?
+|———————Node:expression_statement Text: System::getLedRed().turnOn();
+|————————Node:call_expression Text: System::getLedRed().turnOn()
+|—————————Node:field_expression Text: System::getLedRed().turnOn
+|——————————Node:call_expression Text: System::getLedRed()
+|———————————Node:qualified_identifier Text: System::getLedRed
+|————————————Node:namespace_identifier Text: System
+|————————————Node::: Text: ::
+|————————————Node:identifier Text: getLedRed
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: turnOn
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: System::getShell().log<Shell::LogLevel::ERR>("Napotkano krytyczny błąd w trybie testowym");
+|————————Node:call_expression Text: System::getShell().log<Shell::LogLevel::ERR>("Napotkano krytyczny błąd w trybie testowym")
+|—————————Node:field_expression Text: System::getShell().log<Shell::LogLevel::ERR>
+|——————————Node:call_expression Text: System::getShell()
+|———————————Node:qualified_identifier Text: System::getShell
+|————————————Node:namespace_identifier Text: System
+|————————————Node::: Text: ::
+|————————————Node:identifier Text: getShell
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:. Text: .
+|——————————Node:template_method Text: log<Shell::LogLevel::ERR>
+|———————————Node:field_identifier Text: log
+|———————————Node:template_argument_list Text: <Shell::LogLevel::ERR>
+|————————————Node:< Text: <
+|————————————Node:type_descriptor Text: Shell::LogLevel::ERR
+|—————————————Node:qualified_identifier Text: Shell::LogLevel::ERR
+|——————————————Node:namespace_identifier Text: Shell
+|——————————————Node::: Text: ::
+|——————————————Node:qualified_identifier Text: LogLevel::ERR
+|———————————————Node:namespace_identifier Text: LogLevel
+|———————————————Node::: Text: ::
+|———————————————Node:type_identifier Text: ERR
+|————————————Node:> Text: >
+|—————————Node:argument_list Text: ("Napotkano krytyczny błąd w trybie testowym")
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "Napotkano krytyczny błąd w trybie testowym"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: Napotkano krytyczny błąd w trybie testowym
+|———————————Node:" Text: "
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:while_statement Text: while (true) {
+            __NOP();
+        }
+|————————Node:while Text: while
+|————————Node:condition_clause Text: (true)
+|—————————Node:( Text: (
+|—————————Node:true Text: true
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+            __NOP();
+        }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: __NOP();
+|——————————Node:call_expression Text: __NOP()
+|———————————Node:identifier Text: __NOP
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|——————Node:else_clause Text: else {
+        OperatingMode::normal(systemConfiguration);
+
+        // OperatingMode returned = something bad happened
+        // TODO: make wdog reset the MCU?
+        System::getLedRed().turnOn();
+        System::getShell().log<Shell::LogLevel::ERR>("Napotkano krytyczny błąd w trybie normalnym");
+        while (true) {
+            __NOP();
+        }
+    }
+|———————Node:else Text: else
+|———————Node:compound_statement Text: {
+        OperatingMode::normal(systemConfiguration);
+
+        // OperatingMode returned = something bad happened
+        // TODO: make wdog reset the MCU?
+        System::getLedRed().turnOn();
+        System::getShell().log<Shell::LogLevel::ERR>("Napotkano krytyczny błąd w trybie normalnym");
+        while (true) {
+            __NOP();
+        }
+    }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: OperatingMode::normal(systemConfiguration);
+|—————————Node:call_expression Text: OperatingMode::normal(systemConfiguration)
+|——————————Node:qualified_identifier Text: OperatingMode::normal
+|———————————Node:namespace_identifier Text: OperatingMode
+|———————————Node::: Text: ::
+|———————————Node:identifier Text: normal
+|——————————Node:argument_list Text: (systemConfiguration)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: systemConfiguration
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:comment Text: // OperatingMode returned = something bad happened
+|————————Node:comment Text: // TODO: make wdog reset the MCU?
+|————————Node:expression_statement Text: System::getLedRed().turnOn();
+|—————————Node:call_expression Text: System::getLedRed().turnOn()
+|——————————Node:field_expression Text: System::getLedRed().turnOn
+|———————————Node:call_expression Text: System::getLedRed()
+|————————————Node:qualified_identifier Text: System::getLedRed
+|—————————————Node:namespace_identifier Text: System
+|—————————————Node::: Text: ::
+|—————————————Node:identifier Text: getLedRed
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: turnOn
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:expression_statement Text: System::getShell().log<Shell::LogLevel::ERR>("Napotkano krytyczny błąd w trybie normalnym");
+|—————————Node:call_expression Text: System::getShell().log<Shell::LogLevel::ERR>("Napotkano krytyczny błąd w trybie normalnym")
+|——————————Node:field_expression Text: System::getShell().log<Shell::LogLevel::ERR>
+|———————————Node:call_expression Text: System::getShell()
+|————————————Node:qualified_identifier Text: System::getShell
+|—————————————Node:namespace_identifier Text: System
+|—————————————Node::: Text: ::
+|—————————————Node:identifier Text: getShell
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:. Text: .
+|———————————Node:template_method Text: log<Shell::LogLevel::ERR>
+|————————————Node:field_identifier Text: log
+|————————————Node:template_argument_list Text: <Shell::LogLevel::ERR>
+|—————————————Node:< Text: <
+|—————————————Node:type_descriptor Text: Shell::LogLevel::ERR
+|——————————————Node:qualified_identifier Text: Shell::LogLevel::ERR
+|———————————————Node:namespace_identifier Text: Shell
+|———————————————Node::: Text: ::
+|———————————————Node:qualified_identifier Text: LogLevel::ERR
+|————————————————Node:namespace_identifier Text: LogLevel
+|————————————————Node::: Text: ::
+|————————————————Node:type_identifier Text: ERR
+|—————————————Node:> Text: >
+|——————————Node:argument_list Text: ("Napotkano krytyczny błąd w trybie normalnym")
+|———————————Node:( Text: (
+|———————————Node:string_literal Text: "Napotkano krytyczny błąd w trybie normalnym"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: Napotkano krytyczny błąd w trybie normalnym
+|————————————Node:" Text: "
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:while_statement Text: while (true) {
+            __NOP();
+        }
+|—————————Node:while Text: while
+|—————————Node:condition_clause Text: (true)
+|——————————Node:( Text: (
+|——————————Node:true Text: true
+|——————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+            __NOP();
+        }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: __NOP();
+|———————————Node:call_expression Text: __NOP()
+|————————————Node:identifier Text: __NOP
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|————————Node:} Text: }
+|———Node:} Text: }
+|—Node:namespace_definition Text: namespace OperatingMode {
+void
+normal(Board::Configuration boardCfg)
+{
+    auto& shell = System::getShell();
+    auto& driverCanController = System::getDriverCanCtrl();
+    auto& driversI2c = System::getDriversI2C();
+    auto& expandersIrqLines = System::getExpandersIrqLines();
+
+    const auto nodeAddress = Helper::getNodeAddrFromBoardCfg(boardCfg);
+    driverCanController.configure(CAN_Comm::generateFilter(nodeAddress),
+                                  BSP::CAN_Ctrl::OperationMode::NORMAL);
+
+    const IO::Expanders::Existing existingExpanders = IO::Expanders::discover(driversI2c);
+
+    if (CAN_Comm::sendStatus() == false) {
+        shell.log<Shell::LogLevel::ERR>("Wysyłanie statusu nie powiodło się");
+        return;
+    }
+
+    while (true) {
+        if (CAN_Comm::isFrameAvailable()) {
+            const auto frame = CAN_Comm::getReceivedFrame();
+            shell.log<Shell::LogLevel::DBG>(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0]);
+
+            // TODO: HW filter in MSCAN should filter out frames for/from other nodes and
+            // checking node address here shouldn't be necessary
+            if (frame.id.nodeAddress == nodeAddress) {
+                EventHandle::canFrame(frame);
+            } else {
+                System::getLedYellow().turnOn();
+                shell.log<Shell::LogLevel::WRN>("Odebrano ramkę nieprzeznaczoną dla nas. "
+                                                "Proces filtracji ramek na poziomie HW zawiódł");
+            }
+        }
+
+        if (IO::MCU::haveInputsChanged(System::gpioPorts)) {
+            EventHandle::ioLocalChange(nodeAddress);
+        }
+
+        for (System::I2C::BusIdx i = 0; i < System::I2C::busCount; i++) {
+            if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                EventHandle::ioExpanderChange(nodeAddress);
+            }
+        }
+    }
+}
+
+void
+test()
+{
+    auto& shell = System::getShell();
+    auto& driverCanController = System::getDriverCanCtrl();
+    auto& driversI2c = System::getDriversI2C();
+    auto& driverUart = System::getDriverUart();
+    auto& expandersIrqLines = System::getExpandersIrqLines();
+    auto& queueUartChars = System::getQueueUartChars();
+
+    shell.print(ANSI_EscapeCodes::Decorations::bold);
+    shell.println("Tryb testowy");
+    shell.print(ANSI_EscapeCodes::reset);
+
+    System::getLedRed().enableBlinking();
+    System::getLedYellow().enableBlinking();
+    System::getLedGreen().enableBlinking();
+
+    const auto mscanFilter = CAN_Comm::generateFilter(CAN_Comm::NodeAddress::Address::INVALID);
+    driverCanController.configure(mscanFilter, BSP::CAN_Ctrl::OperationMode::NORMAL);
+
+    const IO::Expanders::Existing existingExpanders = IO::Expanders::discover(driversI2c);
+    auto testExpander = Helper::getTestExpander(existingExpanders);
+
+    System::I2C::Driver* testI2cBus = nullptr;
+    PCAL6524::Address testExpanderAddr{};
+    if (testExpander.has_value()) {
+        testI2cBus = std::get<System::I2C::Driver*>(testExpander.value());
+        testExpanderAddr = std::get<PCAL6524::Address>(testExpander.value());
+        Expander::configureExpander(*testI2cBus, testExpanderAddr);
+        Expander::configureIO(*testI2cBus, testExpanderAddr, { 0x00, 0xff, 0x00 });
+    } else {
+        shell.log("Nie znaleziono żadnego expandera");
+    }
+
+    char charFromUART = 0;
+
+    // TODO: temporary test, delete later
+    Expander::RegistersData expanderRegGroup;
+    std::bitset<8> vals = 0x00;
+
+    while (true) {
+        if (CAN_Comm::isFrameAvailable()) {
+            const auto frame = CAN_Comm::getReceivedFrame();
+            shell.log(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0]);
+
+            shell.println("{: >21}({})", " ", frame.id);
+        }
+
+        if (!queueUartChars.empty()) {
+            charFromUART = queueUartChars.front();
+            queueUartChars.pop();
+            shell.receiveChar(charFromUART);
+            driverUart.writeChar(charFromUART);
+        }
+
+        if (IO::MCU::haveInputsChanged(System::gpioPorts)) {
+            shell.log("Wykryto zmianę stanu wejść");
+        }
+
+        if (testI2cBus != nullptr) {
+            for (System::I2C::BusIdx i = 0; i < System::I2C::busCount; i++) {
+                if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                    shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                }
+            }
+
+            // TODO: temporary test, delete later
+            vals.flip();
+            Expander::setOutputs(*testI2cBus, testExpanderAddr, { vals, vals, vals });
+
+            // TODO: value() may (want to) throw, change it
+            expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Input)
+                .value();
+            shell.log("Rejestry wejściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+
+            expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Output)
+                .value();
+            shell.log("Rejestry wyjściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+
+            expanderRegGroup = PCAL6524::readGroup(*testI2cBus,
+                                                   testExpanderAddr,
+                                                   PCAL6524::RegisterGroups::Configuration)
+                                 .value();
+
+            shell.log("Rejestry kontrolne expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+            shell.println("{0:-^100}", "");
+
+            System::waitSecs(5);
+            //  TODO: end of temporary test code, delete later.
+        }
+    }
+}
+}
+|——Node:namespace Text: namespace
+|——Node:namespace_identifier Text: OperatingMode
+|——Node:declaration_list Text: {
+void
+normal(Board::Configuration boardCfg)
+{
+    auto& shell = System::getShell();
+    auto& driverCanController = System::getDriverCanCtrl();
+    auto& driversI2c = System::getDriversI2C();
+    auto& expandersIrqLines = System::getExpandersIrqLines();
+
+    const auto nodeAddress = Helper::getNodeAddrFromBoardCfg(boardCfg);
+    driverCanController.configure(CAN_Comm::generateFilter(nodeAddress),
+                                  BSP::CAN_Ctrl::OperationMode::NORMAL);
+
+    const IO::Expanders::Existing existingExpanders = IO::Expanders::discover(driversI2c);
+
+    if (CAN_Comm::sendStatus() == false) {
+        shell.log<Shell::LogLevel::ERR>("Wysyłanie statusu nie powiodło się");
+        return;
+    }
+
+    while (true) {
+        if (CAN_Comm::isFrameAvailable()) {
+            const auto frame = CAN_Comm::getReceivedFrame();
+            shell.log<Shell::LogLevel::DBG>(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0]);
+
+            // TODO: HW filter in MSCAN should filter out frames for/from other nodes and
+            // checking node address here shouldn't be necessary
+            if (frame.id.nodeAddress == nodeAddress) {
+                EventHandle::canFrame(frame);
+            } else {
+                System::getLedYellow().turnOn();
+                shell.log<Shell::LogLevel::WRN>("Odebrano ramkę nieprzeznaczoną dla nas. "
+                                                "Proces filtracji ramek na poziomie HW zawiódł");
+            }
+        }
+
+        if (IO::MCU::haveInputsChanged(System::gpioPorts)) {
+            EventHandle::ioLocalChange(nodeAddress);
+        }
+
+        for (System::I2C::BusIdx i = 0; i < System::I2C::busCount; i++) {
+            if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                EventHandle::ioExpanderChange(nodeAddress);
+            }
+        }
+    }
+}
+
+void
+test()
+{
+    auto& shell = System::getShell();
+    auto& driverCanController = System::getDriverCanCtrl();
+    auto& driversI2c = System::getDriversI2C();
+    auto& driverUart = System::getDriverUart();
+    auto& expandersIrqLines = System::getExpandersIrqLines();
+    auto& queueUartChars = System::getQueueUartChars();
+
+    shell.print(ANSI_EscapeCodes::Decorations::bold);
+    shell.println("Tryb testowy");
+    shell.print(ANSI_EscapeCodes::reset);
+
+    System::getLedRed().enableBlinking();
+    System::getLedYellow().enableBlinking();
+    System::getLedGreen().enableBlinking();
+
+    const auto mscanFilter = CAN_Comm::generateFilter(CAN_Comm::NodeAddress::Address::INVALID);
+    driverCanController.configure(mscanFilter, BSP::CAN_Ctrl::OperationMode::NORMAL);
+
+    const IO::Expanders::Existing existingExpanders = IO::Expanders::discover(driversI2c);
+    auto testExpander = Helper::getTestExpander(existingExpanders);
+
+    System::I2C::Driver* testI2cBus = nullptr;
+    PCAL6524::Address testExpanderAddr{};
+    if (testExpander.has_value()) {
+        testI2cBus = std::get<System::I2C::Driver*>(testExpander.value());
+        testExpanderAddr = std::get<PCAL6524::Address>(testExpander.value());
+        Expander::configureExpander(*testI2cBus, testExpanderAddr);
+        Expander::configureIO(*testI2cBus, testExpanderAddr, { 0x00, 0xff, 0x00 });
+    } else {
+        shell.log("Nie znaleziono żadnego expandera");
+    }
+
+    char charFromUART = 0;
+
+    // TODO: temporary test, delete later
+    Expander::RegistersData expanderRegGroup;
+    std::bitset<8> vals = 0x00;
+
+    while (true) {
+        if (CAN_Comm::isFrameAvailable()) {
+            const auto frame = CAN_Comm::getReceivedFrame();
+            shell.log(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0]);
+
+            shell.println("{: >21}({})", " ", frame.id);
+        }
+
+        if (!queueUartChars.empty()) {
+            charFromUART = queueUartChars.front();
+            queueUartChars.pop();
+            shell.receiveChar(charFromUART);
+            driverUart.writeChar(charFromUART);
+        }
+
+        if (IO::MCU::haveInputsChanged(System::gpioPorts)) {
+            shell.log("Wykryto zmianę stanu wejść");
+        }
+
+        if (testI2cBus != nullptr) {
+            for (System::I2C::BusIdx i = 0; i < System::I2C::busCount; i++) {
+                if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                    shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                }
+            }
+
+            // TODO: temporary test, delete later
+            vals.flip();
+            Expander::setOutputs(*testI2cBus, testExpanderAddr, { vals, vals, vals });
+
+            // TODO: value() may (want to) throw, change it
+            expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Input)
+                .value();
+            shell.log("Rejestry wejściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+
+            expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Output)
+                .value();
+            shell.log("Rejestry wyjściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+
+            expanderRegGroup = PCAL6524::readGroup(*testI2cBus,
+                                                   testExpanderAddr,
+                                                   PCAL6524::RegisterGroups::Configuration)
+                                 .value();
+
+            shell.log("Rejestry kontrolne expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+            shell.println("{0:-^100}", "");
+
+            System::waitSecs(5);
+            //  TODO: end of temporary test code, delete later.
+        }
+    }
+}
+}
+|———Node:{ Text: {
+|———Node:function_definition Text: void
+normal(Board::Configuration boardCfg)
+{
+    auto& shell = System::getShell();
+    auto& driverCanController = System::getDriverCanCtrl();
+    auto& driversI2c = System::getDriversI2C();
+    auto& expandersIrqLines = System::getExpandersIrqLines();
+
+    const auto nodeAddress = Helper::getNodeAddrFromBoardCfg(boardCfg);
+    driverCanController.configure(CAN_Comm::generateFilter(nodeAddress),
+                                  BSP::CAN_Ctrl::OperationMode::NORMAL);
+
+    const IO::Expanders::Existing existingExpanders = IO::Expanders::discover(driversI2c);
+
+    if (CAN_Comm::sendStatus() == false) {
+        shell.log<Shell::LogLevel::ERR>("Wysyłanie statusu nie powiodło się");
+        return;
+    }
+
+    while (true) {
+        if (CAN_Comm::isFrameAvailable()) {
+            const auto frame = CAN_Comm::getReceivedFrame();
+            shell.log<Shell::LogLevel::DBG>(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0]);
+
+            // TODO: HW filter in MSCAN should filter out frames for/from other nodes and
+            // checking node address here shouldn't be necessary
+            if (frame.id.nodeAddress == nodeAddress) {
+                EventHandle::canFrame(frame);
+            } else {
+                System::getLedYellow().turnOn();
+                shell.log<Shell::LogLevel::WRN>("Odebrano ramkę nieprzeznaczoną dla nas. "
+                                                "Proces filtracji ramek na poziomie HW zawiódł");
+            }
+        }
+
+        if (IO::MCU::haveInputsChanged(System::gpioPorts)) {
+            EventHandle::ioLocalChange(nodeAddress);
+        }
+
+        for (System::I2C::BusIdx i = 0; i < System::I2C::busCount; i++) {
+            if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                EventHandle::ioExpanderChange(nodeAddress);
+            }
+        }
+    }
+}
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: normal(Board::Configuration boardCfg)
+|—————Node:identifier Text: normal
+|—————Node:parameter_list Text: (Board::Configuration boardCfg)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: Board::Configuration boardCfg
+|———————Node:qualified_identifier Text: Board::Configuration
+|————————Node:namespace_identifier Text: Board
+|————————Node::: Text: ::
+|————————Node:type_identifier Text: Configuration
+|———————Node:identifier Text: boardCfg
+|——————Node:) Text: )
+|————Node:compound_statement Text: {
+    auto& shell = System::getShell();
+    auto& driverCanController = System::getDriverCanCtrl();
+    auto& driversI2c = System::getDriversI2C();
+    auto& expandersIrqLines = System::getExpandersIrqLines();
+
+    const auto nodeAddress = Helper::getNodeAddrFromBoardCfg(boardCfg);
+    driverCanController.configure(CAN_Comm::generateFilter(nodeAddress),
+                                  BSP::CAN_Ctrl::OperationMode::NORMAL);
+
+    const IO::Expanders::Existing existingExpanders = IO::Expanders::discover(driversI2c);
+
+    if (CAN_Comm::sendStatus() == false) {
+        shell.log<Shell::LogLevel::ERR>("Wysyłanie statusu nie powiodło się");
+        return;
+    }
+
+    while (true) {
+        if (CAN_Comm::isFrameAvailable()) {
+            const auto frame = CAN_Comm::getReceivedFrame();
+            shell.log<Shell::LogLevel::DBG>(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0]);
+
+            // TODO: HW filter in MSCAN should filter out frames for/from other nodes and
+            // checking node address here shouldn't be necessary
+            if (frame.id.nodeAddress == nodeAddress) {
+                EventHandle::canFrame(frame);
+            } else {
+                System::getLedYellow().turnOn();
+                shell.log<Shell::LogLevel::WRN>("Odebrano ramkę nieprzeznaczoną dla nas. "
+                                                "Proces filtracji ramek na poziomie HW zawiódł");
+            }
+        }
+
+        if (IO::MCU::haveInputsChanged(System::gpioPorts)) {
+            EventHandle::ioLocalChange(nodeAddress);
+        }
+
+        for (System::I2C::BusIdx i = 0; i < System::I2C::busCount; i++) {
+            if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                EventHandle::ioExpanderChange(nodeAddress);
+            }
+        }
+    }
+}
+|—————Node:{ Text: {
+|—————Node:declaration Text: auto& shell = System::getShell();
+|——————Node:placeholder_type_specifier Text: auto
+|———————Node:auto Text: auto
+|——————Node:init_declarator Text: & shell = System::getShell()
+|———————Node:reference_declarator Text: & shell
+|————————Node:& Text: &
+|————————Node:identifier Text: shell
+|———————Node:= Text: =
+|———————Node:call_expression Text: System::getShell()
+|————————Node:qualified_identifier Text: System::getShell
+|—————————Node:namespace_identifier Text: System
+|—————————Node::: Text: ::
+|—————————Node:identifier Text: getShell
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: auto& driverCanController = System::getDriverCanCtrl();
+|——————Node:placeholder_type_specifier Text: auto
+|———————Node:auto Text: auto
+|——————Node:init_declarator Text: & driverCanController = System::getDriverCanCtrl()
+|———————Node:reference_declarator Text: & driverCanController
+|————————Node:& Text: &
+|————————Node:identifier Text: driverCanController
+|———————Node:= Text: =
+|———————Node:call_expression Text: System::getDriverCanCtrl()
+|————————Node:qualified_identifier Text: System::getDriverCanCtrl
+|—————————Node:namespace_identifier Text: System
+|—————————Node::: Text: ::
+|—————————Node:identifier Text: getDriverCanCtrl
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: auto& driversI2c = System::getDriversI2C();
+|——————Node:placeholder_type_specifier Text: auto
+|———————Node:auto Text: auto
+|——————Node:init_declarator Text: & driversI2c = System::getDriversI2C()
+|———————Node:reference_declarator Text: & driversI2c
+|————————Node:& Text: &
+|————————Node:identifier Text: driversI2c
+|———————Node:= Text: =
+|———————Node:call_expression Text: System::getDriversI2C()
+|————————Node:qualified_identifier Text: System::getDriversI2C
+|—————————Node:namespace_identifier Text: System
+|—————————Node::: Text: ::
+|—————————Node:identifier Text: getDriversI2C
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: auto& expandersIrqLines = System::getExpandersIrqLines();
+|——————Node:placeholder_type_specifier Text: auto
+|———————Node:auto Text: auto
+|——————Node:init_declarator Text: & expandersIrqLines = System::getExpandersIrqLines()
+|———————Node:reference_declarator Text: & expandersIrqLines
+|————————Node:& Text: &
+|————————Node:identifier Text: expandersIrqLines
+|———————Node:= Text: =
+|———————Node:call_expression Text: System::getExpandersIrqLines()
+|————————Node:qualified_identifier Text: System::getExpandersIrqLines
+|—————————Node:namespace_identifier Text: System
+|—————————Node::: Text: ::
+|—————————Node:identifier Text: getExpandersIrqLines
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: const auto nodeAddress = Helper::getNodeAddrFromBoardCfg(boardCfg);
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:placeholder_type_specifier Text: auto
+|———————Node:auto Text: auto
+|——————Node:init_declarator Text: nodeAddress = Helper::getNodeAddrFromBoardCfg(boardCfg)
+|———————Node:identifier Text: nodeAddress
+|———————Node:= Text: =
+|———————Node:call_expression Text: Helper::getNodeAddrFromBoardCfg(boardCfg)
+|————————Node:qualified_identifier Text: Helper::getNodeAddrFromBoardCfg
+|—————————Node:namespace_identifier Text: Helper
+|—————————Node::: Text: ::
+|—————————Node:identifier Text: getNodeAddrFromBoardCfg
+|————————Node:argument_list Text: (boardCfg)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: boardCfg
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: driverCanController.configure(CAN_Comm::generateFilter(nodeAddress),
+                                  BSP::CAN_Ctrl::OperationMode::NORMAL);
+|——————Node:call_expression Text: driverCanController.configure(CAN_Comm::generateFilter(nodeAddress),
+                                  BSP::CAN_Ctrl::OperationMode::NORMAL)
+|———————Node:field_expression Text: driverCanController.configure
+|————————Node:identifier Text: driverCanController
+|————————Node:. Text: .
+|————————Node:field_identifier Text: configure
+|———————Node:argument_list Text: (CAN_Comm::generateFilter(nodeAddress),
+                                  BSP::CAN_Ctrl::OperationMode::NORMAL)
+|————————Node:( Text: (
+|————————Node:call_expression Text: CAN_Comm::generateFilter(nodeAddress)
+|—————————Node:qualified_identifier Text: CAN_Comm::generateFilter
+|——————————Node:namespace_identifier Text: CAN_Comm
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: generateFilter
+|—————————Node:argument_list Text: (nodeAddress)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: nodeAddress
+|——————————Node:) Text: )
+|————————Node:, Text: ,
+|————————Node:qualified_identifier Text: BSP::CAN_Ctrl::OperationMode::NORMAL
+|—————————Node:namespace_identifier Text: BSP
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: CAN_Ctrl::OperationMode::NORMAL
+|——————————Node:namespace_identifier Text: CAN_Ctrl
+|——————————Node::: Text: ::
+|——————————Node:qualified_identifier Text: OperationMode::NORMAL
+|———————————Node:namespace_identifier Text: OperationMode
+|———————————Node::: Text: ::
+|———————————Node:identifier Text: NORMAL
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: const IO::Expanders::Existing existingExpanders = IO::Expanders::discover(driversI2c);
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:qualified_identifier Text: IO::Expanders::Existing
+|———————Node:namespace_identifier Text: IO
+|———————Node::: Text: ::
+|———————Node:qualified_identifier Text: Expanders::Existing
+|————————Node:namespace_identifier Text: Expanders
+|————————Node::: Text: ::
+|————————Node:type_identifier Text: Existing
+|——————Node:init_declarator Text: existingExpanders = IO::Expanders::discover(driversI2c)
+|———————Node:identifier Text: existingExpanders
+|———————Node:= Text: =
+|———————Node:call_expression Text: IO::Expanders::discover(driversI2c)
+|————————Node:qualified_identifier Text: IO::Expanders::discover
+|—————————Node:namespace_identifier Text: IO
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: Expanders::discover
+|——————————Node:namespace_identifier Text: Expanders
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: discover
+|————————Node:argument_list Text: (driversI2c)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: driversI2c
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if (CAN_Comm::sendStatus() == false) {
+        shell.log<Shell::LogLevel::ERR>("Wysyłanie statusu nie powiodło się");
+        return;
+    }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (CAN_Comm::sendStatus() == false)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: CAN_Comm::sendStatus() == false
+|————————Node:call_expression Text: CAN_Comm::sendStatus()
+|—————————Node:qualified_identifier Text: CAN_Comm::sendStatus
+|——————————Node:namespace_identifier Text: CAN_Comm
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: sendStatus
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:== Text: ==
+|————————Node:false Text: false
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+        shell.log<Shell::LogLevel::ERR>("Wysyłanie statusu nie powiodło się");
+        return;
+    }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: shell.log<Shell::LogLevel::ERR>("Wysyłanie statusu nie powiodło się");
+|————————Node:call_expression Text: shell.log<Shell::LogLevel::ERR>("Wysyłanie statusu nie powiodło się")
+|—————————Node:field_expression Text: shell.log<Shell::LogLevel::ERR>
+|——————————Node:identifier Text: shell
+|——————————Node:. Text: .
+|——————————Node:template_method Text: log<Shell::LogLevel::ERR>
+|———————————Node:field_identifier Text: log
+|———————————Node:template_argument_list Text: <Shell::LogLevel::ERR>
+|————————————Node:< Text: <
+|————————————Node:type_descriptor Text: Shell::LogLevel::ERR
+|—————————————Node:qualified_identifier Text: Shell::LogLevel::ERR
+|——————————————Node:namespace_identifier Text: Shell
+|——————————————Node::: Text: ::
+|——————————————Node:qualified_identifier Text: LogLevel::ERR
+|———————————————Node:namespace_identifier Text: LogLevel
+|———————————————Node::: Text: ::
+|———————————————Node:type_identifier Text: ERR
+|————————————Node:> Text: >
+|—————————Node:argument_list Text: ("Wysyłanie statusu nie powiodło się")
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "Wysyłanie statusu nie powiodło się"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: Wysyłanie statusu nie powiodło się
+|———————————Node:" Text: "
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:return_statement Text: return;
+|————————Node:return Text: return
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:while_statement Text: while (true) {
+        if (CAN_Comm::isFrameAvailable()) {
+            const auto frame = CAN_Comm::getReceivedFrame();
+            shell.log<Shell::LogLevel::DBG>(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0]);
+
+            // TODO: HW filter in MSCAN should filter out frames for/from other nodes and
+            // checking node address here shouldn't be necessary
+            if (frame.id.nodeAddress == nodeAddress) {
+                EventHandle::canFrame(frame);
+            } else {
+                System::getLedYellow().turnOn();
+                shell.log<Shell::LogLevel::WRN>("Odebrano ramkę nieprzeznaczoną dla nas. "
+                                                "Proces filtracji ramek na poziomie HW zawiódł");
+            }
+        }
+
+        if (IO::MCU::haveInputsChanged(System::gpioPorts)) {
+            EventHandle::ioLocalChange(nodeAddress);
+        }
+
+        for (System::I2C::BusIdx i = 0; i < System::I2C::busCount; i++) {
+            if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                EventHandle::ioExpanderChange(nodeAddress);
+            }
+        }
+    }
+|——————Node:while Text: while
+|——————Node:condition_clause Text: (true)
+|———————Node:( Text: (
+|———————Node:true Text: true
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+        if (CAN_Comm::isFrameAvailable()) {
+            const auto frame = CAN_Comm::getReceivedFrame();
+            shell.log<Shell::LogLevel::DBG>(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0]);
+
+            // TODO: HW filter in MSCAN should filter out frames for/from other nodes and
+            // checking node address here shouldn't be necessary
+            if (frame.id.nodeAddress == nodeAddress) {
+                EventHandle::canFrame(frame);
+            } else {
+                System::getLedYellow().turnOn();
+                shell.log<Shell::LogLevel::WRN>("Odebrano ramkę nieprzeznaczoną dla nas. "
+                                                "Proces filtracji ramek na poziomie HW zawiódł");
+            }
+        }
+
+        if (IO::MCU::haveInputsChanged(System::gpioPorts)) {
+            EventHandle::ioLocalChange(nodeAddress);
+        }
+
+        for (System::I2C::BusIdx i = 0; i < System::I2C::busCount; i++) {
+            if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                EventHandle::ioExpanderChange(nodeAddress);
+            }
+        }
+    }
+|———————Node:{ Text: {
+|———————Node:if_statement Text: if (CAN_Comm::isFrameAvailable()) {
+            const auto frame = CAN_Comm::getReceivedFrame();
+            shell.log<Shell::LogLevel::DBG>(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0]);
+
+            // TODO: HW filter in MSCAN should filter out frames for/from other nodes and
+            // checking node address here shouldn't be necessary
+            if (frame.id.nodeAddress == nodeAddress) {
+                EventHandle::canFrame(frame);
+            } else {
+                System::getLedYellow().turnOn();
+                shell.log<Shell::LogLevel::WRN>("Odebrano ramkę nieprzeznaczoną dla nas. "
+                                                "Proces filtracji ramek na poziomie HW zawiódł");
+            }
+        }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (CAN_Comm::isFrameAvailable())
+|—————————Node:( Text: (
+|—————————Node:call_expression Text: CAN_Comm::isFrameAvailable()
+|——————————Node:qualified_identifier Text: CAN_Comm::isFrameAvailable
+|———————————Node:namespace_identifier Text: CAN_Comm
+|———————————Node::: Text: ::
+|———————————Node:identifier Text: isFrameAvailable
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+            const auto frame = CAN_Comm::getReceivedFrame();
+            shell.log<Shell::LogLevel::DBG>(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0]);
+
+            // TODO: HW filter in MSCAN should filter out frames for/from other nodes and
+            // checking node address here shouldn't be necessary
+            if (frame.id.nodeAddress == nodeAddress) {
+                EventHandle::canFrame(frame);
+            } else {
+                System::getLedYellow().turnOn();
+                shell.log<Shell::LogLevel::WRN>("Odebrano ramkę nieprzeznaczoną dla nas. "
+                                                "Proces filtracji ramek na poziomie HW zawiódł");
+            }
+        }
+|—————————Node:{ Text: {
+|—————————Node:declaration Text: const auto frame = CAN_Comm::getReceivedFrame();
+|——————————Node:type_qualifier Text: const
+|———————————Node:const Text: const
+|——————————Node:placeholder_type_specifier Text: auto
+|———————————Node:auto Text: auto
+|——————————Node:init_declarator Text: frame = CAN_Comm::getReceivedFrame()
+|———————————Node:identifier Text: frame
+|———————————Node:= Text: =
+|———————————Node:call_expression Text: CAN_Comm::getReceivedFrame()
+|————————————Node:qualified_identifier Text: CAN_Comm::getReceivedFrame
+|—————————————Node:namespace_identifier Text: CAN_Comm
+|—————————————Node::: Text: ::
+|—————————————Node:identifier Text: getReceivedFrame
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: shell.log<Shell::LogLevel::DBG>(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0]);
+|——————————Node:call_expression Text: shell.log<Shell::LogLevel::DBG>(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0])
+|———————————Node:field_expression Text: shell.log<Shell::LogLevel::DBG>
+|————————————Node:identifier Text: shell
+|————————————Node:. Text: .
+|————————————Node:template_method Text: log<Shell::LogLevel::DBG>
+|—————————————Node:field_identifier Text: log
+|—————————————Node:template_argument_list Text: <Shell::LogLevel::DBG>
+|——————————————Node:< Text: <
+|——————————————Node:type_descriptor Text: Shell::LogLevel::DBG
+|———————————————Node:qualified_identifier Text: Shell::LogLevel::DBG
+|————————————————Node:namespace_identifier Text: Shell
+|————————————————Node::: Text: ::
+|————————————————Node:qualified_identifier Text: LogLevel::DBG
+|—————————————————Node:namespace_identifier Text: LogLevel
+|—————————————————Node::: Text: ::
+|—————————————————Node:type_identifier Text: DBG
+|——————————————Node:> Text: >
+|———————————Node:argument_list Text: (
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0])
+|————————————Node:( Text: (
+|————————————Node:concatenated_string Text: "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}"
+|—————————————Node:string_literal Text: "Odebrano ramkę CAN: id=0x{:03X}, "
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: Odebrano ramkę CAN: id=0x{:03X}, 
+|——————————————Node:" Text: "
+|—————————————Node:string_literal Text: "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}"
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}
+|——————————————Node:" Text: "
+|————————————Node:, Text: ,
+|————————————Node:field_expression Text: frame.id.rawValue
+|—————————————Node:field_expression Text: frame.id
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: id
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: rawValue
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: frame.payload[7]
+|—————————————Node:field_expression Text: frame.payload
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: payload
+|—————————————Node:subscript_argument_list Text: [7]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 7
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: frame.payload[6]
+|—————————————Node:field_expression Text: frame.payload
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: payload
+|—————————————Node:subscript_argument_list Text: [6]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 6
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: frame.payload[5]
+|—————————————Node:field_expression Text: frame.payload
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: payload
+|—————————————Node:subscript_argument_list Text: [5]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 5
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: frame.payload[4]
+|—————————————Node:field_expression Text: frame.payload
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: payload
+|—————————————Node:subscript_argument_list Text: [4]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 4
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: frame.payload[3]
+|—————————————Node:field_expression Text: frame.payload
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: payload
+|—————————————Node:subscript_argument_list Text: [3]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 3
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: frame.payload[2]
+|—————————————Node:field_expression Text: frame.payload
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: payload
+|—————————————Node:subscript_argument_list Text: [2]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 2
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: frame.payload[1]
+|—————————————Node:field_expression Text: frame.payload
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: payload
+|—————————————Node:subscript_argument_list Text: [1]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 1
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: frame.payload[0]
+|—————————————Node:field_expression Text: frame.payload
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: payload
+|—————————————Node:subscript_argument_list Text: [0]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 0
+|——————————————Node:] Text: ]
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:comment Text: // TODO: HW filter in MSCAN should filter out frames for/from other nodes and
+|—————————Node:comment Text: // checking node address here shouldn't be necessary
+|—————————Node:if_statement Text: if (frame.id.nodeAddress == nodeAddress) {
+                EventHandle::canFrame(frame);
+            } else {
+                System::getLedYellow().turnOn();
+                shell.log<Shell::LogLevel::WRN>("Odebrano ramkę nieprzeznaczoną dla nas. "
+                                                "Proces filtracji ramek na poziomie HW zawiódł");
+            }
+|——————————Node:if Text: if
+|——————————Node:condition_clause Text: (frame.id.nodeAddress == nodeAddress)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: frame.id.nodeAddress == nodeAddress
+|————————————Node:field_expression Text: frame.id.nodeAddress
+|—————————————Node:field_expression Text: frame.id
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: id
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: nodeAddress
+|————————————Node:== Text: ==
+|————————————Node:identifier Text: nodeAddress
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+                EventHandle::canFrame(frame);
+            }
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: EventHandle::canFrame(frame);
+|————————————Node:call_expression Text: EventHandle::canFrame(frame)
+|—————————————Node:qualified_identifier Text: EventHandle::canFrame
+|——————————————Node:namespace_identifier Text: EventHandle
+|——————————————Node::: Text: ::
+|——————————————Node:identifier Text: canFrame
+|—————————————Node:argument_list Text: (frame)
+|——————————————Node:( Text: (
+|——————————————Node:identifier Text: frame
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|——————————Node:else_clause Text: else {
+                System::getLedYellow().turnOn();
+                shell.log<Shell::LogLevel::WRN>("Odebrano ramkę nieprzeznaczoną dla nas. "
+                                                "Proces filtracji ramek na poziomie HW zawiódł");
+            }
+|———————————Node:else Text: else
+|———————————Node:compound_statement Text: {
+                System::getLedYellow().turnOn();
+                shell.log<Shell::LogLevel::WRN>("Odebrano ramkę nieprzeznaczoną dla nas. "
+                                                "Proces filtracji ramek na poziomie HW zawiódł");
+            }
+|————————————Node:{ Text: {
+|————————————Node:expression_statement Text: System::getLedYellow().turnOn();
+|—————————————Node:call_expression Text: System::getLedYellow().turnOn()
+|——————————————Node:field_expression Text: System::getLedYellow().turnOn
+|———————————————Node:call_expression Text: System::getLedYellow()
+|————————————————Node:qualified_identifier Text: System::getLedYellow
+|—————————————————Node:namespace_identifier Text: System
+|—————————————————Node::: Text: ::
+|—————————————————Node:identifier Text: getLedYellow
+|————————————————Node:argument_list Text: ()
+|—————————————————Node:( Text: (
+|—————————————————Node:) Text: )
+|———————————————Node:. Text: .
+|———————————————Node:field_identifier Text: turnOn
+|——————————————Node:argument_list Text: ()
+|———————————————Node:( Text: (
+|———————————————Node:) Text: )
+|—————————————Node:; Text: ;
+|————————————Node:expression_statement Text: shell.log<Shell::LogLevel::WRN>("Odebrano ramkę nieprzeznaczoną dla nas. "
+                                                "Proces filtracji ramek na poziomie HW zawiódł");
+|—————————————Node:call_expression Text: shell.log<Shell::LogLevel::WRN>("Odebrano ramkę nieprzeznaczoną dla nas. "
+                                                "Proces filtracji ramek na poziomie HW zawiódł")
+|——————————————Node:field_expression Text: shell.log<Shell::LogLevel::WRN>
+|———————————————Node:identifier Text: shell
+|———————————————Node:. Text: .
+|———————————————Node:template_method Text: log<Shell::LogLevel::WRN>
+|————————————————Node:field_identifier Text: log
+|————————————————Node:template_argument_list Text: <Shell::LogLevel::WRN>
+|—————————————————Node:< Text: <
+|—————————————————Node:type_descriptor Text: Shell::LogLevel::WRN
+|——————————————————Node:qualified_identifier Text: Shell::LogLevel::WRN
+|———————————————————Node:namespace_identifier Text: Shell
+|———————————————————Node::: Text: ::
+|———————————————————Node:qualified_identifier Text: LogLevel::WRN
+|————————————————————Node:namespace_identifier Text: LogLevel
+|————————————————————Node::: Text: ::
+|————————————————————Node:type_identifier Text: WRN
+|—————————————————Node:> Text: >
+|——————————————Node:argument_list Text: ("Odebrano ramkę nieprzeznaczoną dla nas. "
+                                                "Proces filtracji ramek na poziomie HW zawiódł")
+|———————————————Node:( Text: (
+|———————————————Node:concatenated_string Text: "Odebrano ramkę nieprzeznaczoną dla nas. "
+                                                "Proces filtracji ramek na poziomie HW zawiódł"
+|————————————————Node:string_literal Text: "Odebrano ramkę nieprzeznaczoną dla nas. "
+|—————————————————Node:" Text: "
+|—————————————————Node:string_content Text: Odebrano ramkę nieprzeznaczoną dla nas. 
+|—————————————————Node:" Text: "
+|————————————————Node:string_literal Text: "Proces filtracji ramek na poziomie HW zawiódł"
+|—————————————————Node:" Text: "
+|—————————————————Node:string_content Text: Proces filtracji ramek na poziomie HW zawiódł
+|—————————————————Node:" Text: "
+|———————————————Node:) Text: )
+|—————————————Node:; Text: ;
+|————————————Node:} Text: }
+|—————————Node:} Text: }
+|———————Node:if_statement Text: if (IO::MCU::haveInputsChanged(System::gpioPorts)) {
+            EventHandle::ioLocalChange(nodeAddress);
+        }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (IO::MCU::haveInputsChanged(System::gpioPorts))
+|—————————Node:( Text: (
+|—————————Node:call_expression Text: IO::MCU::haveInputsChanged(System::gpioPorts)
+|——————————Node:qualified_identifier Text: IO::MCU::haveInputsChanged
+|———————————Node:namespace_identifier Text: IO
+|———————————Node::: Text: ::
+|———————————Node:qualified_identifier Text: MCU::haveInputsChanged
+|————————————Node:namespace_identifier Text: MCU
+|————————————Node::: Text: ::
+|————————————Node:identifier Text: haveInputsChanged
+|——————————Node:argument_list Text: (System::gpioPorts)
+|———————————Node:( Text: (
+|———————————Node:qualified_identifier Text: System::gpioPorts
+|————————————Node:namespace_identifier Text: System
+|————————————Node::: Text: ::
+|————————————Node:identifier Text: gpioPorts
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+            EventHandle::ioLocalChange(nodeAddress);
+        }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: EventHandle::ioLocalChange(nodeAddress);
+|——————————Node:call_expression Text: EventHandle::ioLocalChange(nodeAddress)
+|———————————Node:qualified_identifier Text: EventHandle::ioLocalChange
+|————————————Node:namespace_identifier Text: EventHandle
+|————————————Node::: Text: ::
+|————————————Node:identifier Text: ioLocalChange
+|———————————Node:argument_list Text: (nodeAddress)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: nodeAddress
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:for_statement Text: for (System::I2C::BusIdx i = 0; i < System::I2C::busCount; i++) {
+            if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                EventHandle::ioExpanderChange(nodeAddress);
+            }
+        }
+|————————Node:for Text: for
+|————————Node:( Text: (
+|————————Node:declaration Text: System::I2C::BusIdx i = 0;
+|—————————Node:qualified_identifier Text: System::I2C::BusIdx
+|——————————Node:namespace_identifier Text: System
+|——————————Node::: Text: ::
+|——————————Node:qualified_identifier Text: I2C::BusIdx
+|———————————Node:namespace_identifier Text: I2C
+|———————————Node::: Text: ::
+|———————————Node:type_identifier Text: BusIdx
+|—————————Node:init_declarator Text: i = 0
+|——————————Node:identifier Text: i
+|——————————Node:= Text: =
+|——————————Node:number_literal Text: 0
+|—————————Node:; Text: ;
+|————————Node:binary_expression Text: i < System::I2C::busCount
+|—————————Node:identifier Text: i
+|—————————Node:< Text: <
+|—————————Node:qualified_identifier Text: System::I2C::busCount
+|——————————Node:namespace_identifier Text: System
+|——————————Node::: Text: ::
+|——————————Node:qualified_identifier Text: I2C::busCount
+|———————————Node:namespace_identifier Text: I2C
+|———————————Node::: Text: ::
+|———————————Node:identifier Text: busCount
+|————————Node:; Text: ;
+|————————Node:update_expression Text: i++
+|—————————Node:identifier Text: i
+|—————————Node:++ Text: ++
+|————————Node:) Text: )
+|————————Node:compound_statement Text: {
+            if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                EventHandle::ioExpanderChange(nodeAddress);
+            }
+        }
+|—————————Node:{ Text: {
+|—————————Node:if_statement Text: if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                EventHandle::ioExpanderChange(nodeAddress);
+            }
+|——————————Node:if Text: if
+|——————————Node:condition_clause Text: (IO::Expanders::haveInputsChanged(expandersIrqLines[i]))
+|———————————Node:( Text: (
+|———————————Node:call_expression Text: IO::Expanders::haveInputsChanged(expandersIrqLines[i])
+|————————————Node:qualified_identifier Text: IO::Expanders::haveInputsChanged
+|—————————————Node:namespace_identifier Text: IO
+|—————————————Node::: Text: ::
+|—————————————Node:qualified_identifier Text: Expanders::haveInputsChanged
+|——————————————Node:namespace_identifier Text: Expanders
+|——————————————Node::: Text: ::
+|——————————————Node:identifier Text: haveInputsChanged
+|————————————Node:argument_list Text: (expandersIrqLines[i])
+|—————————————Node:( Text: (
+|—————————————Node:subscript_expression Text: expandersIrqLines[i]
+|——————————————Node:identifier Text: expandersIrqLines
+|——————————————Node:subscript_argument_list Text: [i]
+|———————————————Node:[ Text: [
+|———————————————Node:identifier Text: i
+|———————————————Node:] Text: ]
+|—————————————Node:) Text: )
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+                shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                EventHandle::ioExpanderChange(nodeAddress);
+            }
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+|————————————Node:call_expression Text: shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i)
+|—————————————Node:field_expression Text: shell.log
+|——————————————Node:identifier Text: shell
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: log
+|—————————————Node:argument_list Text: ("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i)
+|——————————————Node:( Text: (
+|——————————————Node:string_literal Text: "Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}"
+|———————————————Node:" Text: "
+|———————————————Node:string_content Text: Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}
+|———————————————Node:" Text: "
+|——————————————Node:, Text: ,
+|——————————————Node:identifier Text: i
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:expression_statement Text: EventHandle::ioExpanderChange(nodeAddress);
+|————————————Node:call_expression Text: EventHandle::ioExpanderChange(nodeAddress)
+|—————————————Node:qualified_identifier Text: EventHandle::ioExpanderChange
+|——————————————Node:namespace_identifier Text: EventHandle
+|——————————————Node::: Text: ::
+|——————————————Node:identifier Text: ioExpanderChange
+|—————————————Node:argument_list Text: (nodeAddress)
+|——————————————Node:( Text: (
+|——————————————Node:identifier Text: nodeAddress
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:function_definition Text: void
+test()
+{
+    auto& shell = System::getShell();
+    auto& driverCanController = System::getDriverCanCtrl();
+    auto& driversI2c = System::getDriversI2C();
+    auto& driverUart = System::getDriverUart();
+    auto& expandersIrqLines = System::getExpandersIrqLines();
+    auto& queueUartChars = System::getQueueUartChars();
+
+    shell.print(ANSI_EscapeCodes::Decorations::bold);
+    shell.println("Tryb testowy");
+    shell.print(ANSI_EscapeCodes::reset);
+
+    System::getLedRed().enableBlinking();
+    System::getLedYellow().enableBlinking();
+    System::getLedGreen().enableBlinking();
+
+    const auto mscanFilter = CAN_Comm::generateFilter(CAN_Comm::NodeAddress::Address::INVALID);
+    driverCanController.configure(mscanFilter, BSP::CAN_Ctrl::OperationMode::NORMAL);
+
+    const IO::Expanders::Existing existingExpanders = IO::Expanders::discover(driversI2c);
+    auto testExpander = Helper::getTestExpander(existingExpanders);
+
+    System::I2C::Driver* testI2cBus = nullptr;
+    PCAL6524::Address testExpanderAddr{};
+    if (testExpander.has_value()) {
+        testI2cBus = std::get<System::I2C::Driver*>(testExpander.value());
+        testExpanderAddr = std::get<PCAL6524::Address>(testExpander.value());
+        Expander::configureExpander(*testI2cBus, testExpanderAddr);
+        Expander::configureIO(*testI2cBus, testExpanderAddr, { 0x00, 0xff, 0x00 });
+    } else {
+        shell.log("Nie znaleziono żadnego expandera");
+    }
+
+    char charFromUART = 0;
+
+    // TODO: temporary test, delete later
+    Expander::RegistersData expanderRegGroup;
+    std::bitset<8> vals = 0x00;
+
+    while (true) {
+        if (CAN_Comm::isFrameAvailable()) {
+            const auto frame = CAN_Comm::getReceivedFrame();
+            shell.log(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0]);
+
+            shell.println("{: >21}({})", " ", frame.id);
+        }
+
+        if (!queueUartChars.empty()) {
+            charFromUART = queueUartChars.front();
+            queueUartChars.pop();
+            shell.receiveChar(charFromUART);
+            driverUart.writeChar(charFromUART);
+        }
+
+        if (IO::MCU::haveInputsChanged(System::gpioPorts)) {
+            shell.log("Wykryto zmianę stanu wejść");
+        }
+
+        if (testI2cBus != nullptr) {
+            for (System::I2C::BusIdx i = 0; i < System::I2C::busCount; i++) {
+                if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                    shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                }
+            }
+
+            // TODO: temporary test, delete later
+            vals.flip();
+            Expander::setOutputs(*testI2cBus, testExpanderAddr, { vals, vals, vals });
+
+            // TODO: value() may (want to) throw, change it
+            expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Input)
+                .value();
+            shell.log("Rejestry wejściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+
+            expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Output)
+                .value();
+            shell.log("Rejestry wyjściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+
+            expanderRegGroup = PCAL6524::readGroup(*testI2cBus,
+                                                   testExpanderAddr,
+                                                   PCAL6524::RegisterGroups::Configuration)
+                                 .value();
+
+            shell.log("Rejestry kontrolne expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+            shell.println("{0:-^100}", "");
+
+            System::waitSecs(5);
+            //  TODO: end of temporary test code, delete later.
+        }
+    }
+}
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: test()
+|—————Node:identifier Text: test
+|—————Node:parameter_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:compound_statement Text: {
+    auto& shell = System::getShell();
+    auto& driverCanController = System::getDriverCanCtrl();
+    auto& driversI2c = System::getDriversI2C();
+    auto& driverUart = System::getDriverUart();
+    auto& expandersIrqLines = System::getExpandersIrqLines();
+    auto& queueUartChars = System::getQueueUartChars();
+
+    shell.print(ANSI_EscapeCodes::Decorations::bold);
+    shell.println("Tryb testowy");
+    shell.print(ANSI_EscapeCodes::reset);
+
+    System::getLedRed().enableBlinking();
+    System::getLedYellow().enableBlinking();
+    System::getLedGreen().enableBlinking();
+
+    const auto mscanFilter = CAN_Comm::generateFilter(CAN_Comm::NodeAddress::Address::INVALID);
+    driverCanController.configure(mscanFilter, BSP::CAN_Ctrl::OperationMode::NORMAL);
+
+    const IO::Expanders::Existing existingExpanders = IO::Expanders::discover(driversI2c);
+    auto testExpander = Helper::getTestExpander(existingExpanders);
+
+    System::I2C::Driver* testI2cBus = nullptr;
+    PCAL6524::Address testExpanderAddr{};
+    if (testExpander.has_value()) {
+        testI2cBus = std::get<System::I2C::Driver*>(testExpander.value());
+        testExpanderAddr = std::get<PCAL6524::Address>(testExpander.value());
+        Expander::configureExpander(*testI2cBus, testExpanderAddr);
+        Expander::configureIO(*testI2cBus, testExpanderAddr, { 0x00, 0xff, 0x00 });
+    } else {
+        shell.log("Nie znaleziono żadnego expandera");
+    }
+
+    char charFromUART = 0;
+
+    // TODO: temporary test, delete later
+    Expander::RegistersData expanderRegGroup;
+    std::bitset<8> vals = 0x00;
+
+    while (true) {
+        if (CAN_Comm::isFrameAvailable()) {
+            const auto frame = CAN_Comm::getReceivedFrame();
+            shell.log(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0]);
+
+            shell.println("{: >21}({})", " ", frame.id);
+        }
+
+        if (!queueUartChars.empty()) {
+            charFromUART = queueUartChars.front();
+            queueUartChars.pop();
+            shell.receiveChar(charFromUART);
+            driverUart.writeChar(charFromUART);
+        }
+
+        if (IO::MCU::haveInputsChanged(System::gpioPorts)) {
+            shell.log("Wykryto zmianę stanu wejść");
+        }
+
+        if (testI2cBus != nullptr) {
+            for (System::I2C::BusIdx i = 0; i < System::I2C::busCount; i++) {
+                if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                    shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                }
+            }
+
+            // TODO: temporary test, delete later
+            vals.flip();
+            Expander::setOutputs(*testI2cBus, testExpanderAddr, { vals, vals, vals });
+
+            // TODO: value() may (want to) throw, change it
+            expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Input)
+                .value();
+            shell.log("Rejestry wejściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+
+            expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Output)
+                .value();
+            shell.log("Rejestry wyjściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+
+            expanderRegGroup = PCAL6524::readGroup(*testI2cBus,
+                                                   testExpanderAddr,
+                                                   PCAL6524::RegisterGroups::Configuration)
+                                 .value();
+
+            shell.log("Rejestry kontrolne expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+            shell.println("{0:-^100}", "");
+
+            System::waitSecs(5);
+            //  TODO: end of temporary test code, delete later.
+        }
+    }
+}
+|—————Node:{ Text: {
+|—————Node:declaration Text: auto& shell = System::getShell();
+|——————Node:placeholder_type_specifier Text: auto
+|———————Node:auto Text: auto
+|——————Node:init_declarator Text: & shell = System::getShell()
+|———————Node:reference_declarator Text: & shell
+|————————Node:& Text: &
+|————————Node:identifier Text: shell
+|———————Node:= Text: =
+|———————Node:call_expression Text: System::getShell()
+|————————Node:qualified_identifier Text: System::getShell
+|—————————Node:namespace_identifier Text: System
+|—————————Node::: Text: ::
+|—————————Node:identifier Text: getShell
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: auto& driverCanController = System::getDriverCanCtrl();
+|——————Node:placeholder_type_specifier Text: auto
+|———————Node:auto Text: auto
+|——————Node:init_declarator Text: & driverCanController = System::getDriverCanCtrl()
+|———————Node:reference_declarator Text: & driverCanController
+|————————Node:& Text: &
+|————————Node:identifier Text: driverCanController
+|———————Node:= Text: =
+|———————Node:call_expression Text: System::getDriverCanCtrl()
+|————————Node:qualified_identifier Text: System::getDriverCanCtrl
+|—————————Node:namespace_identifier Text: System
+|—————————Node::: Text: ::
+|—————————Node:identifier Text: getDriverCanCtrl
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: auto& driversI2c = System::getDriversI2C();
+|——————Node:placeholder_type_specifier Text: auto
+|———————Node:auto Text: auto
+|——————Node:init_declarator Text: & driversI2c = System::getDriversI2C()
+|———————Node:reference_declarator Text: & driversI2c
+|————————Node:& Text: &
+|————————Node:identifier Text: driversI2c
+|———————Node:= Text: =
+|———————Node:call_expression Text: System::getDriversI2C()
+|————————Node:qualified_identifier Text: System::getDriversI2C
+|—————————Node:namespace_identifier Text: System
+|—————————Node::: Text: ::
+|—————————Node:identifier Text: getDriversI2C
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: auto& driverUart = System::getDriverUart();
+|——————Node:placeholder_type_specifier Text: auto
+|———————Node:auto Text: auto
+|——————Node:init_declarator Text: & driverUart = System::getDriverUart()
+|———————Node:reference_declarator Text: & driverUart
+|————————Node:& Text: &
+|————————Node:identifier Text: driverUart
+|———————Node:= Text: =
+|———————Node:call_expression Text: System::getDriverUart()
+|————————Node:qualified_identifier Text: System::getDriverUart
+|—————————Node:namespace_identifier Text: System
+|—————————Node::: Text: ::
+|—————————Node:identifier Text: getDriverUart
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: auto& expandersIrqLines = System::getExpandersIrqLines();
+|——————Node:placeholder_type_specifier Text: auto
+|———————Node:auto Text: auto
+|——————Node:init_declarator Text: & expandersIrqLines = System::getExpandersIrqLines()
+|———————Node:reference_declarator Text: & expandersIrqLines
+|————————Node:& Text: &
+|————————Node:identifier Text: expandersIrqLines
+|———————Node:= Text: =
+|———————Node:call_expression Text: System::getExpandersIrqLines()
+|————————Node:qualified_identifier Text: System::getExpandersIrqLines
+|—————————Node:namespace_identifier Text: System
+|—————————Node::: Text: ::
+|—————————Node:identifier Text: getExpandersIrqLines
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: auto& queueUartChars = System::getQueueUartChars();
+|——————Node:placeholder_type_specifier Text: auto
+|———————Node:auto Text: auto
+|——————Node:init_declarator Text: & queueUartChars = System::getQueueUartChars()
+|———————Node:reference_declarator Text: & queueUartChars
+|————————Node:& Text: &
+|————————Node:identifier Text: queueUartChars
+|———————Node:= Text: =
+|———————Node:call_expression Text: System::getQueueUartChars()
+|————————Node:qualified_identifier Text: System::getQueueUartChars
+|—————————Node:namespace_identifier Text: System
+|—————————Node::: Text: ::
+|—————————Node:identifier Text: getQueueUartChars
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: shell.print(ANSI_EscapeCodes::Decorations::bold);
+|——————Node:call_expression Text: shell.print(ANSI_EscapeCodes::Decorations::bold)
+|———————Node:field_expression Text: shell.print
+|————————Node:identifier Text: shell
+|————————Node:. Text: .
+|————————Node:field_identifier Text: print
+|———————Node:argument_list Text: (ANSI_EscapeCodes::Decorations::bold)
+|————————Node:( Text: (
+|————————Node:qualified_identifier Text: ANSI_EscapeCodes::Decorations::bold
+|—————————Node:namespace_identifier Text: ANSI_EscapeCodes
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: Decorations::bold
+|——————————Node:namespace_identifier Text: Decorations
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: bold
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: shell.println("Tryb testowy");
+|——————Node:call_expression Text: shell.println("Tryb testowy")
+|———————Node:field_expression Text: shell.println
+|————————Node:identifier Text: shell
+|————————Node:. Text: .
+|————————Node:field_identifier Text: println
+|———————Node:argument_list Text: ("Tryb testowy")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "Tryb testowy"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: Tryb testowy
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: shell.print(ANSI_EscapeCodes::reset);
+|——————Node:call_expression Text: shell.print(ANSI_EscapeCodes::reset)
+|———————Node:field_expression Text: shell.print
+|————————Node:identifier Text: shell
+|————————Node:. Text: .
+|————————Node:field_identifier Text: print
+|———————Node:argument_list Text: (ANSI_EscapeCodes::reset)
+|————————Node:( Text: (
+|————————Node:qualified_identifier Text: ANSI_EscapeCodes::reset
+|—————————Node:namespace_identifier Text: ANSI_EscapeCodes
+|—————————Node::: Text: ::
+|—————————Node:identifier Text: reset
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: System::getLedRed().enableBlinking();
+|——————Node:call_expression Text: System::getLedRed().enableBlinking()
+|———————Node:field_expression Text: System::getLedRed().enableBlinking
+|————————Node:call_expression Text: System::getLedRed()
+|—————————Node:qualified_identifier Text: System::getLedRed
+|——————————Node:namespace_identifier Text: System
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: getLedRed
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:. Text: .
+|————————Node:field_identifier Text: enableBlinking
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: System::getLedYellow().enableBlinking();
+|——————Node:call_expression Text: System::getLedYellow().enableBlinking()
+|———————Node:field_expression Text: System::getLedYellow().enableBlinking
+|————————Node:call_expression Text: System::getLedYellow()
+|—————————Node:qualified_identifier Text: System::getLedYellow
+|——————————Node:namespace_identifier Text: System
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: getLedYellow
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:. Text: .
+|————————Node:field_identifier Text: enableBlinking
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: System::getLedGreen().enableBlinking();
+|——————Node:call_expression Text: System::getLedGreen().enableBlinking()
+|———————Node:field_expression Text: System::getLedGreen().enableBlinking
+|————————Node:call_expression Text: System::getLedGreen()
+|—————————Node:qualified_identifier Text: System::getLedGreen
+|——————————Node:namespace_identifier Text: System
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: getLedGreen
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:. Text: .
+|————————Node:field_identifier Text: enableBlinking
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: const auto mscanFilter = CAN_Comm::generateFilter(CAN_Comm::NodeAddress::Address::INVALID);
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:placeholder_type_specifier Text: auto
+|———————Node:auto Text: auto
+|——————Node:init_declarator Text: mscanFilter = CAN_Comm::generateFilter(CAN_Comm::NodeAddress::Address::INVALID)
+|———————Node:identifier Text: mscanFilter
+|———————Node:= Text: =
+|———————Node:call_expression Text: CAN_Comm::generateFilter(CAN_Comm::NodeAddress::Address::INVALID)
+|————————Node:qualified_identifier Text: CAN_Comm::generateFilter
+|—————————Node:namespace_identifier Text: CAN_Comm
+|—————————Node::: Text: ::
+|—————————Node:identifier Text: generateFilter
+|————————Node:argument_list Text: (CAN_Comm::NodeAddress::Address::INVALID)
+|—————————Node:( Text: (
+|—————————Node:qualified_identifier Text: CAN_Comm::NodeAddress::Address::INVALID
+|——————————Node:namespace_identifier Text: CAN_Comm
+|——————————Node::: Text: ::
+|——————————Node:qualified_identifier Text: NodeAddress::Address::INVALID
+|———————————Node:namespace_identifier Text: NodeAddress
+|———————————Node::: Text: ::
+|———————————Node:qualified_identifier Text: Address::INVALID
+|————————————Node:namespace_identifier Text: Address
+|————————————Node::: Text: ::
+|————————————Node:identifier Text: INVALID
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: driverCanController.configure(mscanFilter, BSP::CAN_Ctrl::OperationMode::NORMAL);
+|——————Node:call_expression Text: driverCanController.configure(mscanFilter, BSP::CAN_Ctrl::OperationMode::NORMAL)
+|———————Node:field_expression Text: driverCanController.configure
+|————————Node:identifier Text: driverCanController
+|————————Node:. Text: .
+|————————Node:field_identifier Text: configure
+|———————Node:argument_list Text: (mscanFilter, BSP::CAN_Ctrl::OperationMode::NORMAL)
+|————————Node:( Text: (
+|————————Node:identifier Text: mscanFilter
+|————————Node:, Text: ,
+|————————Node:qualified_identifier Text: BSP::CAN_Ctrl::OperationMode::NORMAL
+|—————————Node:namespace_identifier Text: BSP
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: CAN_Ctrl::OperationMode::NORMAL
+|——————————Node:namespace_identifier Text: CAN_Ctrl
+|——————————Node::: Text: ::
+|——————————Node:qualified_identifier Text: OperationMode::NORMAL
+|———————————Node:namespace_identifier Text: OperationMode
+|———————————Node::: Text: ::
+|———————————Node:identifier Text: NORMAL
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: const IO::Expanders::Existing existingExpanders = IO::Expanders::discover(driversI2c);
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:qualified_identifier Text: IO::Expanders::Existing
+|———————Node:namespace_identifier Text: IO
+|———————Node::: Text: ::
+|———————Node:qualified_identifier Text: Expanders::Existing
+|————————Node:namespace_identifier Text: Expanders
+|————————Node::: Text: ::
+|————————Node:type_identifier Text: Existing
+|——————Node:init_declarator Text: existingExpanders = IO::Expanders::discover(driversI2c)
+|———————Node:identifier Text: existingExpanders
+|———————Node:= Text: =
+|———————Node:call_expression Text: IO::Expanders::discover(driversI2c)
+|————————Node:qualified_identifier Text: IO::Expanders::discover
+|—————————Node:namespace_identifier Text: IO
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: Expanders::discover
+|——————————Node:namespace_identifier Text: Expanders
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: discover
+|————————Node:argument_list Text: (driversI2c)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: driversI2c
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: auto testExpander = Helper::getTestExpander(existingExpanders);
+|——————Node:placeholder_type_specifier Text: auto
+|———————Node:auto Text: auto
+|——————Node:init_declarator Text: testExpander = Helper::getTestExpander(existingExpanders)
+|———————Node:identifier Text: testExpander
+|———————Node:= Text: =
+|———————Node:call_expression Text: Helper::getTestExpander(existingExpanders)
+|————————Node:qualified_identifier Text: Helper::getTestExpander
+|—————————Node:namespace_identifier Text: Helper
+|—————————Node::: Text: ::
+|—————————Node:identifier Text: getTestExpander
+|————————Node:argument_list Text: (existingExpanders)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: existingExpanders
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: System::I2C::Driver* testI2cBus = nullptr;
+|——————Node:qualified_identifier Text: System::I2C::Driver
+|———————Node:namespace_identifier Text: System
+|———————Node::: Text: ::
+|———————Node:qualified_identifier Text: I2C::Driver
+|————————Node:namespace_identifier Text: I2C
+|————————Node::: Text: ::
+|————————Node:type_identifier Text: Driver
+|——————Node:init_declarator Text: * testI2cBus = nullptr
+|———————Node:pointer_declarator Text: * testI2cBus
+|————————Node:* Text: *
+|————————Node:identifier Text: testI2cBus
+|———————Node:= Text: =
+|———————Node:null Text: nullptr
+|————————Node:nullptr Text: nullptr
+|——————Node:; Text: ;
+|—————Node:declaration Text: PCAL6524::Address testExpanderAddr{};
+|——————Node:qualified_identifier Text: PCAL6524::Address
+|———————Node:namespace_identifier Text: PCAL6524
+|———————Node::: Text: ::
+|———————Node:type_identifier Text: Address
+|——————Node:init_declarator Text: testExpanderAddr{}
+|———————Node:identifier Text: testExpanderAddr
+|———————Node:initializer_list Text: {}
+|————————Node:{ Text: {
+|————————Node:} Text: }
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if (testExpander.has_value()) {
+        testI2cBus = std::get<System::I2C::Driver*>(testExpander.value());
+        testExpanderAddr = std::get<PCAL6524::Address>(testExpander.value());
+        Expander::configureExpander(*testI2cBus, testExpanderAddr);
+        Expander::configureIO(*testI2cBus, testExpanderAddr, { 0x00, 0xff, 0x00 });
+    } else {
+        shell.log("Nie znaleziono żadnego expandera");
+    }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (testExpander.has_value())
+|———————Node:( Text: (
+|———————Node:call_expression Text: testExpander.has_value()
+|————————Node:field_expression Text: testExpander.has_value
+|—————————Node:identifier Text: testExpander
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: has_value
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+        testI2cBus = std::get<System::I2C::Driver*>(testExpander.value());
+        testExpanderAddr = std::get<PCAL6524::Address>(testExpander.value());
+        Expander::configureExpander(*testI2cBus, testExpanderAddr);
+        Expander::configureIO(*testI2cBus, testExpanderAddr, { 0x00, 0xff, 0x00 });
+    }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: testI2cBus = std::get<System::I2C::Driver*>(testExpander.value());
+|————————Node:assignment_expression Text: testI2cBus = std::get<System::I2C::Driver*>(testExpander.value())
+|—————————Node:identifier Text: testI2cBus
+|—————————Node:= Text: =
+|—————————Node:call_expression Text: std::get<System::I2C::Driver*>(testExpander.value())
+|——————————Node:qualified_identifier Text: std::get<System::I2C::Driver*>
+|———————————Node:namespace_identifier Text: std
+|———————————Node::: Text: ::
+|———————————Node:template_function Text: get<System::I2C::Driver*>
+|————————————Node:identifier Text: get
+|————————————Node:template_argument_list Text: <System::I2C::Driver*>
+|—————————————Node:< Text: <
+|—————————————Node:type_descriptor Text: System::I2C::Driver*
+|——————————————Node:qualified_identifier Text: System::I2C::Driver
+|———————————————Node:namespace_identifier Text: System
+|———————————————Node::: Text: ::
+|———————————————Node:qualified_identifier Text: I2C::Driver
+|————————————————Node:namespace_identifier Text: I2C
+|————————————————Node::: Text: ::
+|————————————————Node:type_identifier Text: Driver
+|——————————————Node:abstract_pointer_declarator Text: *
+|———————————————Node:* Text: *
+|—————————————Node:> Text: >
+|——————————Node:argument_list Text: (testExpander.value())
+|———————————Node:( Text: (
+|———————————Node:call_expression Text: testExpander.value()
+|————————————Node:field_expression Text: testExpander.value
+|—————————————Node:identifier Text: testExpander
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: value
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: testExpanderAddr = std::get<PCAL6524::Address>(testExpander.value());
+|————————Node:assignment_expression Text: testExpanderAddr = std::get<PCAL6524::Address>(testExpander.value())
+|—————————Node:identifier Text: testExpanderAddr
+|—————————Node:= Text: =
+|—————————Node:call_expression Text: std::get<PCAL6524::Address>(testExpander.value())
+|——————————Node:qualified_identifier Text: std::get<PCAL6524::Address>
+|———————————Node:namespace_identifier Text: std
+|———————————Node::: Text: ::
+|———————————Node:template_function Text: get<PCAL6524::Address>
+|————————————Node:identifier Text: get
+|————————————Node:template_argument_list Text: <PCAL6524::Address>
+|—————————————Node:< Text: <
+|—————————————Node:type_descriptor Text: PCAL6524::Address
+|——————————————Node:qualified_identifier Text: PCAL6524::Address
+|———————————————Node:namespace_identifier Text: PCAL6524
+|———————————————Node::: Text: ::
+|———————————————Node:type_identifier Text: Address
+|—————————————Node:> Text: >
+|——————————Node:argument_list Text: (testExpander.value())
+|———————————Node:( Text: (
+|———————————Node:call_expression Text: testExpander.value()
+|————————————Node:field_expression Text: testExpander.value
+|—————————————Node:identifier Text: testExpander
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: value
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: Expander::configureExpander(*testI2cBus, testExpanderAddr);
+|————————Node:call_expression Text: Expander::configureExpander(*testI2cBus, testExpanderAddr)
+|—————————Node:qualified_identifier Text: Expander::configureExpander
+|——————————Node:namespace_identifier Text: Expander
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: configureExpander
+|—————————Node:argument_list Text: (*testI2cBus, testExpanderAddr)
+|——————————Node:( Text: (
+|——————————Node:pointer_expression Text: *testI2cBus
+|———————————Node:* Text: *
+|———————————Node:identifier Text: testI2cBus
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: testExpanderAddr
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: Expander::configureIO(*testI2cBus, testExpanderAddr, { 0x00, 0xff, 0x00 });
+|————————Node:call_expression Text: Expander::configureIO(*testI2cBus, testExpanderAddr, { 0x00, 0xff, 0x00 })
+|—————————Node:qualified_identifier Text: Expander::configureIO
+|——————————Node:namespace_identifier Text: Expander
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: configureIO
+|—————————Node:argument_list Text: (*testI2cBus, testExpanderAddr, { 0x00, 0xff, 0x00 })
+|——————————Node:( Text: (
+|——————————Node:pointer_expression Text: *testI2cBus
+|———————————Node:* Text: *
+|———————————Node:identifier Text: testI2cBus
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: testExpanderAddr
+|——————————Node:, Text: ,
+|——————————Node:initializer_list Text: { 0x00, 0xff, 0x00 }
+|———————————Node:{ Text: {
+|———————————Node:number_literal Text: 0x00
+|———————————Node:, Text: ,
+|———————————Node:number_literal Text: 0xff
+|———————————Node:, Text: ,
+|———————————Node:number_literal Text: 0x00
+|———————————Node:} Text: }
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|——————Node:else_clause Text: else {
+        shell.log("Nie znaleziono żadnego expandera");
+    }
+|———————Node:else Text: else
+|———————Node:compound_statement Text: {
+        shell.log("Nie znaleziono żadnego expandera");
+    }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: shell.log("Nie znaleziono żadnego expandera");
+|—————————Node:call_expression Text: shell.log("Nie znaleziono żadnego expandera")
+|——————————Node:field_expression Text: shell.log
+|———————————Node:identifier Text: shell
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: log
+|——————————Node:argument_list Text: ("Nie znaleziono żadnego expandera")
+|———————————Node:( Text: (
+|———————————Node:string_literal Text: "Nie znaleziono żadnego expandera"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: Nie znaleziono żadnego expandera
+|————————————Node:" Text: "
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|—————Node:declaration Text: char charFromUART = 0;
+|——————Node:primitive_type Text: char
+|——————Node:init_declarator Text: charFromUART = 0
+|———————Node:identifier Text: charFromUART
+|———————Node:= Text: =
+|———————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:comment Text: // TODO: temporary test, delete later
+|—————Node:declaration Text: Expander::RegistersData expanderRegGroup;
+|——————Node:qualified_identifier Text: Expander::RegistersData
+|———————Node:namespace_identifier Text: Expander
+|———————Node::: Text: ::
+|———————Node:type_identifier Text: RegistersData
+|——————Node:identifier Text: expanderRegGroup
+|——————Node:; Text: ;
+|—————Node:declaration Text: std::bitset<8> vals = 0x00;
+|——————Node:qualified_identifier Text: std::bitset<8>
+|———————Node:namespace_identifier Text: std
+|———————Node::: Text: ::
+|———————Node:template_type Text: bitset<8>
+|————————Node:type_identifier Text: bitset
+|————————Node:template_argument_list Text: <8>
+|—————————Node:< Text: <
+|—————————Node:number_literal Text: 8
+|—————————Node:> Text: >
+|——————Node:init_declarator Text: vals = 0x00
+|———————Node:identifier Text: vals
+|———————Node:= Text: =
+|———————Node:number_literal Text: 0x00
+|——————Node:; Text: ;
+|—————Node:while_statement Text: while (true) {
+        if (CAN_Comm::isFrameAvailable()) {
+            const auto frame = CAN_Comm::getReceivedFrame();
+            shell.log(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0]);
+
+            shell.println("{: >21}({})", " ", frame.id);
+        }
+
+        if (!queueUartChars.empty()) {
+            charFromUART = queueUartChars.front();
+            queueUartChars.pop();
+            shell.receiveChar(charFromUART);
+            driverUart.writeChar(charFromUART);
+        }
+
+        if (IO::MCU::haveInputsChanged(System::gpioPorts)) {
+            shell.log("Wykryto zmianę stanu wejść");
+        }
+
+        if (testI2cBus != nullptr) {
+            for (System::I2C::BusIdx i = 0; i < System::I2C::busCount; i++) {
+                if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                    shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                }
+            }
+
+            // TODO: temporary test, delete later
+            vals.flip();
+            Expander::setOutputs(*testI2cBus, testExpanderAddr, { vals, vals, vals });
+
+            // TODO: value() may (want to) throw, change it
+            expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Input)
+                .value();
+            shell.log("Rejestry wejściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+
+            expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Output)
+                .value();
+            shell.log("Rejestry wyjściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+
+            expanderRegGroup = PCAL6524::readGroup(*testI2cBus,
+                                                   testExpanderAddr,
+                                                   PCAL6524::RegisterGroups::Configuration)
+                                 .value();
+
+            shell.log("Rejestry kontrolne expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+            shell.println("{0:-^100}", "");
+
+            System::waitSecs(5);
+            //  TODO: end of temporary test code, delete later.
+        }
+    }
+|——————Node:while Text: while
+|——————Node:condition_clause Text: (true)
+|———————Node:( Text: (
+|———————Node:true Text: true
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+        if (CAN_Comm::isFrameAvailable()) {
+            const auto frame = CAN_Comm::getReceivedFrame();
+            shell.log(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0]);
+
+            shell.println("{: >21}({})", " ", frame.id);
+        }
+
+        if (!queueUartChars.empty()) {
+            charFromUART = queueUartChars.front();
+            queueUartChars.pop();
+            shell.receiveChar(charFromUART);
+            driverUart.writeChar(charFromUART);
+        }
+
+        if (IO::MCU::haveInputsChanged(System::gpioPorts)) {
+            shell.log("Wykryto zmianę stanu wejść");
+        }
+
+        if (testI2cBus != nullptr) {
+            for (System::I2C::BusIdx i = 0; i < System::I2C::busCount; i++) {
+                if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                    shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                }
+            }
+
+            // TODO: temporary test, delete later
+            vals.flip();
+            Expander::setOutputs(*testI2cBus, testExpanderAddr, { vals, vals, vals });
+
+            // TODO: value() may (want to) throw, change it
+            expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Input)
+                .value();
+            shell.log("Rejestry wejściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+
+            expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Output)
+                .value();
+            shell.log("Rejestry wyjściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+
+            expanderRegGroup = PCAL6524::readGroup(*testI2cBus,
+                                                   testExpanderAddr,
+                                                   PCAL6524::RegisterGroups::Configuration)
+                                 .value();
+
+            shell.log("Rejestry kontrolne expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+            shell.println("{0:-^100}", "");
+
+            System::waitSecs(5);
+            //  TODO: end of temporary test code, delete later.
+        }
+    }
+|———————Node:{ Text: {
+|———————Node:if_statement Text: if (CAN_Comm::isFrameAvailable()) {
+            const auto frame = CAN_Comm::getReceivedFrame();
+            shell.log(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0]);
+
+            shell.println("{: >21}({})", " ", frame.id);
+        }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (CAN_Comm::isFrameAvailable())
+|—————————Node:( Text: (
+|—————————Node:call_expression Text: CAN_Comm::isFrameAvailable()
+|——————————Node:qualified_identifier Text: CAN_Comm::isFrameAvailable
+|———————————Node:namespace_identifier Text: CAN_Comm
+|———————————Node::: Text: ::
+|———————————Node:identifier Text: isFrameAvailable
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+            const auto frame = CAN_Comm::getReceivedFrame();
+            shell.log(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0]);
+
+            shell.println("{: >21}({})", " ", frame.id);
+        }
+|—————————Node:{ Text: {
+|—————————Node:declaration Text: const auto frame = CAN_Comm::getReceivedFrame();
+|——————————Node:type_qualifier Text: const
+|———————————Node:const Text: const
+|——————————Node:placeholder_type_specifier Text: auto
+|———————————Node:auto Text: auto
+|——————————Node:init_declarator Text: frame = CAN_Comm::getReceivedFrame()
+|———————————Node:identifier Text: frame
+|———————————Node:= Text: =
+|———————————Node:call_expression Text: CAN_Comm::getReceivedFrame()
+|————————————Node:qualified_identifier Text: CAN_Comm::getReceivedFrame
+|—————————————Node:namespace_identifier Text: CAN_Comm
+|—————————————Node::: Text: ::
+|—————————————Node:identifier Text: getReceivedFrame
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: shell.log(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0]);
+|——————————Node:call_expression Text: shell.log(
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0])
+|———————————Node:field_expression Text: shell.log
+|————————————Node:identifier Text: shell
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: log
+|———————————Node:argument_list Text: (
+              "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}",
+              frame.id.rawValue,
+              frame.payload[7],
+              frame.payload[6],
+              frame.payload[5],
+              frame.payload[4],
+              frame.payload[3],
+              frame.payload[2],
+              frame.payload[1],
+              frame.payload[0])
+|————————————Node:( Text: (
+|————————————Node:concatenated_string Text: "Odebrano ramkę CAN: id=0x{:03X}, "
+              "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}"
+|—————————————Node:string_literal Text: "Odebrano ramkę CAN: id=0x{:03X}, "
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: Odebrano ramkę CAN: id=0x{:03X}, 
+|——————————————Node:" Text: "
+|—————————————Node:string_literal Text: "data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}"
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: data=0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X},0x{:02X}
+|——————————————Node:" Text: "
+|————————————Node:, Text: ,
+|————————————Node:field_expression Text: frame.id.rawValue
+|—————————————Node:field_expression Text: frame.id
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: id
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: rawValue
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: frame.payload[7]
+|—————————————Node:field_expression Text: frame.payload
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: payload
+|—————————————Node:subscript_argument_list Text: [7]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 7
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: frame.payload[6]
+|—————————————Node:field_expression Text: frame.payload
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: payload
+|—————————————Node:subscript_argument_list Text: [6]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 6
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: frame.payload[5]
+|—————————————Node:field_expression Text: frame.payload
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: payload
+|—————————————Node:subscript_argument_list Text: [5]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 5
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: frame.payload[4]
+|—————————————Node:field_expression Text: frame.payload
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: payload
+|—————————————Node:subscript_argument_list Text: [4]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 4
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: frame.payload[3]
+|—————————————Node:field_expression Text: frame.payload
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: payload
+|—————————————Node:subscript_argument_list Text: [3]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 3
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: frame.payload[2]
+|—————————————Node:field_expression Text: frame.payload
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: payload
+|—————————————Node:subscript_argument_list Text: [2]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 2
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: frame.payload[1]
+|—————————————Node:field_expression Text: frame.payload
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: payload
+|—————————————Node:subscript_argument_list Text: [1]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 1
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: frame.payload[0]
+|—————————————Node:field_expression Text: frame.payload
+|——————————————Node:identifier Text: frame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: payload
+|—————————————Node:subscript_argument_list Text: [0]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 0
+|——————————————Node:] Text: ]
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: shell.println("{: >21}({})", " ", frame.id);
+|——————————Node:call_expression Text: shell.println("{: >21}({})", " ", frame.id)
+|———————————Node:field_expression Text: shell.println
+|————————————Node:identifier Text: shell
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: println
+|———————————Node:argument_list Text: ("{: >21}({})", " ", frame.id)
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "{: >21}({})"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: {: >21}({})
+|—————————————Node:" Text: "
+|————————————Node:, Text: ,
+|————————————Node:string_literal Text: " "
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text:  
+|—————————————Node:" Text: "
+|————————————Node:, Text: ,
+|————————————Node:field_expression Text: frame.id
+|—————————————Node:identifier Text: frame
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: id
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:if_statement Text: if (!queueUartChars.empty()) {
+            charFromUART = queueUartChars.front();
+            queueUartChars.pop();
+            shell.receiveChar(charFromUART);
+            driverUart.writeChar(charFromUART);
+        }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (!queueUartChars.empty())
+|—————————Node:( Text: (
+|—————————Node:unary_expression Text: !queueUartChars.empty()
+|——————————Node:! Text: !
+|——————————Node:call_expression Text: queueUartChars.empty()
+|———————————Node:field_expression Text: queueUartChars.empty
+|————————————Node:identifier Text: queueUartChars
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: empty
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+            charFromUART = queueUartChars.front();
+            queueUartChars.pop();
+            shell.receiveChar(charFromUART);
+            driverUart.writeChar(charFromUART);
+        }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: charFromUART = queueUartChars.front();
+|——————————Node:assignment_expression Text: charFromUART = queueUartChars.front()
+|———————————Node:identifier Text: charFromUART
+|———————————Node:= Text: =
+|———————————Node:call_expression Text: queueUartChars.front()
+|————————————Node:field_expression Text: queueUartChars.front
+|—————————————Node:identifier Text: queueUartChars
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: front
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: queueUartChars.pop();
+|——————————Node:call_expression Text: queueUartChars.pop()
+|———————————Node:field_expression Text: queueUartChars.pop
+|————————————Node:identifier Text: queueUartChars
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: pop
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: shell.receiveChar(charFromUART);
+|——————————Node:call_expression Text: shell.receiveChar(charFromUART)
+|———————————Node:field_expression Text: shell.receiveChar
+|————————————Node:identifier Text: shell
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: receiveChar
+|———————————Node:argument_list Text: (charFromUART)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: charFromUART
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: driverUart.writeChar(charFromUART);
+|——————————Node:call_expression Text: driverUart.writeChar(charFromUART)
+|———————————Node:field_expression Text: driverUart.writeChar
+|————————————Node:identifier Text: driverUart
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: writeChar
+|———————————Node:argument_list Text: (charFromUART)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: charFromUART
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:if_statement Text: if (IO::MCU::haveInputsChanged(System::gpioPorts)) {
+            shell.log("Wykryto zmianę stanu wejść");
+        }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (IO::MCU::haveInputsChanged(System::gpioPorts))
+|—————————Node:( Text: (
+|—————————Node:call_expression Text: IO::MCU::haveInputsChanged(System::gpioPorts)
+|——————————Node:qualified_identifier Text: IO::MCU::haveInputsChanged
+|———————————Node:namespace_identifier Text: IO
+|———————————Node::: Text: ::
+|———————————Node:qualified_identifier Text: MCU::haveInputsChanged
+|————————————Node:namespace_identifier Text: MCU
+|————————————Node::: Text: ::
+|————————————Node:identifier Text: haveInputsChanged
+|——————————Node:argument_list Text: (System::gpioPorts)
+|———————————Node:( Text: (
+|———————————Node:qualified_identifier Text: System::gpioPorts
+|————————————Node:namespace_identifier Text: System
+|————————————Node::: Text: ::
+|————————————Node:identifier Text: gpioPorts
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+            shell.log("Wykryto zmianę stanu wejść");
+        }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: shell.log("Wykryto zmianę stanu wejść");
+|——————————Node:call_expression Text: shell.log("Wykryto zmianę stanu wejść")
+|———————————Node:field_expression Text: shell.log
+|————————————Node:identifier Text: shell
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: log
+|———————————Node:argument_list Text: ("Wykryto zmianę stanu wejść")
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "Wykryto zmianę stanu wejść"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: Wykryto zmianę stanu wejść
+|—————————————Node:" Text: "
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:if_statement Text: if (testI2cBus != nullptr) {
+            for (System::I2C::BusIdx i = 0; i < System::I2C::busCount; i++) {
+                if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                    shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                }
+            }
+
+            // TODO: temporary test, delete later
+            vals.flip();
+            Expander::setOutputs(*testI2cBus, testExpanderAddr, { vals, vals, vals });
+
+            // TODO: value() may (want to) throw, change it
+            expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Input)
+                .value();
+            shell.log("Rejestry wejściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+
+            expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Output)
+                .value();
+            shell.log("Rejestry wyjściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+
+            expanderRegGroup = PCAL6524::readGroup(*testI2cBus,
+                                                   testExpanderAddr,
+                                                   PCAL6524::RegisterGroups::Configuration)
+                                 .value();
+
+            shell.log("Rejestry kontrolne expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+            shell.println("{0:-^100}", "");
+
+            System::waitSecs(5);
+            //  TODO: end of temporary test code, delete later.
+        }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (testI2cBus != nullptr)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: testI2cBus != nullptr
+|——————————Node:identifier Text: testI2cBus
+|——————————Node:!= Text: !=
+|——————————Node:null Text: nullptr
+|———————————Node:nullptr Text: nullptr
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+            for (System::I2C::BusIdx i = 0; i < System::I2C::busCount; i++) {
+                if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                    shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                }
+            }
+
+            // TODO: temporary test, delete later
+            vals.flip();
+            Expander::setOutputs(*testI2cBus, testExpanderAddr, { vals, vals, vals });
+
+            // TODO: value() may (want to) throw, change it
+            expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Input)
+                .value();
+            shell.log("Rejestry wejściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+
+            expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Output)
+                .value();
+            shell.log("Rejestry wyjściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+
+            expanderRegGroup = PCAL6524::readGroup(*testI2cBus,
+                                                   testExpanderAddr,
+                                                   PCAL6524::RegisterGroups::Configuration)
+                                 .value();
+
+            shell.log("Rejestry kontrolne expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+            shell.println("{0:-^100}", "");
+
+            System::waitSecs(5);
+            //  TODO: end of temporary test code, delete later.
+        }
+|—————————Node:{ Text: {
+|—————————Node:for_statement Text: for (System::I2C::BusIdx i = 0; i < System::I2C::busCount; i++) {
+                if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                    shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                }
+            }
+|——————————Node:for Text: for
+|——————————Node:( Text: (
+|——————————Node:declaration Text: System::I2C::BusIdx i = 0;
+|———————————Node:qualified_identifier Text: System::I2C::BusIdx
+|————————————Node:namespace_identifier Text: System
+|————————————Node::: Text: ::
+|————————————Node:qualified_identifier Text: I2C::BusIdx
+|—————————————Node:namespace_identifier Text: I2C
+|—————————————Node::: Text: ::
+|—————————————Node:type_identifier Text: BusIdx
+|———————————Node:init_declarator Text: i = 0
+|————————————Node:identifier Text: i
+|————————————Node:= Text: =
+|————————————Node:number_literal Text: 0
+|———————————Node:; Text: ;
+|——————————Node:binary_expression Text: i < System::I2C::busCount
+|———————————Node:identifier Text: i
+|———————————Node:< Text: <
+|———————————Node:qualified_identifier Text: System::I2C::busCount
+|————————————Node:namespace_identifier Text: System
+|————————————Node::: Text: ::
+|————————————Node:qualified_identifier Text: I2C::busCount
+|—————————————Node:namespace_identifier Text: I2C
+|—————————————Node::: Text: ::
+|—————————————Node:identifier Text: busCount
+|——————————Node:; Text: ;
+|——————————Node:update_expression Text: i++
+|———————————Node:identifier Text: i
+|———————————Node:++ Text: ++
+|——————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+                if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                    shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                }
+            }
+|———————————Node:{ Text: {
+|———————————Node:if_statement Text: if (IO::Expanders::haveInputsChanged(expandersIrqLines[i])) {
+                    shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                }
+|————————————Node:if Text: if
+|————————————Node:condition_clause Text: (IO::Expanders::haveInputsChanged(expandersIrqLines[i]))
+|—————————————Node:( Text: (
+|—————————————Node:call_expression Text: IO::Expanders::haveInputsChanged(expandersIrqLines[i])
+|——————————————Node:qualified_identifier Text: IO::Expanders::haveInputsChanged
+|———————————————Node:namespace_identifier Text: IO
+|———————————————Node::: Text: ::
+|———————————————Node:qualified_identifier Text: Expanders::haveInputsChanged
+|————————————————Node:namespace_identifier Text: Expanders
+|————————————————Node::: Text: ::
+|————————————————Node:identifier Text: haveInputsChanged
+|——————————————Node:argument_list Text: (expandersIrqLines[i])
+|———————————————Node:( Text: (
+|———————————————Node:subscript_expression Text: expandersIrqLines[i]
+|————————————————Node:identifier Text: expandersIrqLines
+|————————————————Node:subscript_argument_list Text: [i]
+|—————————————————Node:[ Text: [
+|—————————————————Node:identifier Text: i
+|—————————————————Node:] Text: ]
+|———————————————Node:) Text: )
+|—————————————Node:) Text: )
+|————————————Node:compound_statement Text: {
+                    shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+                }
+|—————————————Node:{ Text: {
+|—————————————Node:expression_statement Text: shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i);
+|——————————————Node:call_expression Text: shell.log("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i)
+|———————————————Node:field_expression Text: shell.log
+|————————————————Node:identifier Text: shell
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: log
+|———————————————Node:argument_list Text: ("Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}", i)
+|————————————————Node:( Text: (
+|————————————————Node:string_literal Text: "Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}"
+|—————————————————Node:" Text: "
+|—————————————————Node:string_content Text: Wykryto zmianę stanu IO w ekspanderach na magistrali I2C{}
+|—————————————————Node:" Text: "
+|————————————————Node:, Text: ,
+|————————————————Node:identifier Text: i
+|————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:} Text: }
+|———————————Node:} Text: }
+|—————————Node:comment Text: // TODO: temporary test, delete later
+|—————————Node:expression_statement Text: vals.flip();
+|——————————Node:call_expression Text: vals.flip()
+|———————————Node:field_expression Text: vals.flip
+|————————————Node:identifier Text: vals
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: flip
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: Expander::setOutputs(*testI2cBus, testExpanderAddr, { vals, vals, vals });
+|——————————Node:call_expression Text: Expander::setOutputs(*testI2cBus, testExpanderAddr, { vals, vals, vals })
+|———————————Node:qualified_identifier Text: Expander::setOutputs
+|————————————Node:namespace_identifier Text: Expander
+|————————————Node::: Text: ::
+|————————————Node:identifier Text: setOutputs
+|———————————Node:argument_list Text: (*testI2cBus, testExpanderAddr, { vals, vals, vals })
+|————————————Node:( Text: (
+|————————————Node:pointer_expression Text: *testI2cBus
+|—————————————Node:* Text: *
+|—————————————Node:identifier Text: testI2cBus
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: testExpanderAddr
+|————————————Node:, Text: ,
+|————————————Node:initializer_list Text: { vals, vals, vals }
+|—————————————Node:{ Text: {
+|—————————————Node:identifier Text: vals
+|—————————————Node:, Text: ,
+|—————————————Node:identifier Text: vals
+|—————————————Node:, Text: ,
+|—————————————Node:identifier Text: vals
+|—————————————Node:} Text: }
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:comment Text: // TODO: value() may (want to) throw, change it
+|—————————Node:expression_statement Text: expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Input)
+                .value();
+|——————————Node:assignment_expression Text: expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Input)
+                .value()
+|———————————Node:identifier Text: expanderRegGroup
+|———————————Node:= Text: =
+|———————————Node:call_expression Text: PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Input)
+                .value()
+|————————————Node:field_expression Text: PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Input)
+                .value
+|—————————————Node:call_expression Text: PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Input)
+|——————————————Node:qualified_identifier Text: PCAL6524::readGroup
+|———————————————Node:namespace_identifier Text: PCAL6524
+|———————————————Node::: Text: ::
+|———————————————Node:identifier Text: readGroup
+|——————————————Node:argument_list Text: (*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Input)
+|———————————————Node:( Text: (
+|———————————————Node:pointer_expression Text: *testI2cBus
+|————————————————Node:* Text: *
+|————————————————Node:identifier Text: testI2cBus
+|———————————————Node:, Text: ,
+|———————————————Node:identifier Text: testExpanderAddr
+|———————————————Node:, Text: ,
+|———————————————Node:qualified_identifier Text: PCAL6524::RegisterGroups::Input
+|————————————————Node:namespace_identifier Text: PCAL6524
+|————————————————Node::: Text: ::
+|————————————————Node:qualified_identifier Text: RegisterGroups::Input
+|—————————————————Node:namespace_identifier Text: RegisterGroups
+|—————————————————Node::: Text: ::
+|—————————————————Node:identifier Text: Input
+|———————————————Node:) Text: )
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: value
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: shell.log("Rejestry wejściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+|——————————Node:call_expression Text: shell.log("Rejestry wejściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2])
+|———————————Node:field_expression Text: shell.log
+|————————————Node:identifier Text: shell
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: log
+|———————————Node:argument_list Text: ("Rejestry wejściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2])
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "Rejestry wejściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: Rejestry wejściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}
+|—————————————Node:" Text: "
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: expanderRegGroup[0]
+|—————————————Node:identifier Text: expanderRegGroup
+|—————————————Node:subscript_argument_list Text: [0]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 0
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: expanderRegGroup[1]
+|—————————————Node:identifier Text: expanderRegGroup
+|—————————————Node:subscript_argument_list Text: [1]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 1
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: expanderRegGroup[2]
+|—————————————Node:identifier Text: expanderRegGroup
+|—————————————Node:subscript_argument_list Text: [2]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 2
+|——————————————Node:] Text: ]
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Output)
+                .value();
+|——————————Node:assignment_expression Text: expanderRegGroup =
+              PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Output)
+                .value()
+|———————————Node:identifier Text: expanderRegGroup
+|———————————Node:= Text: =
+|———————————Node:call_expression Text: PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Output)
+                .value()
+|————————————Node:field_expression Text: PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Output)
+                .value
+|—————————————Node:call_expression Text: PCAL6524::readGroup(*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Output)
+|——————————————Node:qualified_identifier Text: PCAL6524::readGroup
+|———————————————Node:namespace_identifier Text: PCAL6524
+|———————————————Node::: Text: ::
+|———————————————Node:identifier Text: readGroup
+|——————————————Node:argument_list Text: (*testI2cBus, testExpanderAddr, PCAL6524::RegisterGroups::Output)
+|———————————————Node:( Text: (
+|———————————————Node:pointer_expression Text: *testI2cBus
+|————————————————Node:* Text: *
+|————————————————Node:identifier Text: testI2cBus
+|———————————————Node:, Text: ,
+|———————————————Node:identifier Text: testExpanderAddr
+|———————————————Node:, Text: ,
+|———————————————Node:qualified_identifier Text: PCAL6524::RegisterGroups::Output
+|————————————————Node:namespace_identifier Text: PCAL6524
+|————————————————Node::: Text: ::
+|————————————————Node:qualified_identifier Text: RegisterGroups::Output
+|—————————————————Node:namespace_identifier Text: RegisterGroups
+|—————————————————Node::: Text: ::
+|—————————————————Node:identifier Text: Output
+|———————————————Node:) Text: )
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: value
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: shell.log("Rejestry wyjściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+|——————————Node:call_expression Text: shell.log("Rejestry wyjściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2])
+|———————————Node:field_expression Text: shell.log
+|————————————Node:identifier Text: shell
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: log
+|———————————Node:argument_list Text: ("Rejestry wyjściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2])
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "Rejestry wyjściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: Rejestry wyjściowe expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}
+|—————————————Node:" Text: "
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: expanderRegGroup[0]
+|—————————————Node:identifier Text: expanderRegGroup
+|—————————————Node:subscript_argument_list Text: [0]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 0
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: expanderRegGroup[1]
+|—————————————Node:identifier Text: expanderRegGroup
+|—————————————Node:subscript_argument_list Text: [1]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 1
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: expanderRegGroup[2]
+|—————————————Node:identifier Text: expanderRegGroup
+|—————————————Node:subscript_argument_list Text: [2]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 2
+|——————————————Node:] Text: ]
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: expanderRegGroup = PCAL6524::readGroup(*testI2cBus,
+                                                   testExpanderAddr,
+                                                   PCAL6524::RegisterGroups::Configuration)
+                                 .value();
+|——————————Node:assignment_expression Text: expanderRegGroup = PCAL6524::readGroup(*testI2cBus,
+                                                   testExpanderAddr,
+                                                   PCAL6524::RegisterGroups::Configuration)
+                                 .value()
+|———————————Node:identifier Text: expanderRegGroup
+|———————————Node:= Text: =
+|———————————Node:call_expression Text: PCAL6524::readGroup(*testI2cBus,
+                                                   testExpanderAddr,
+                                                   PCAL6524::RegisterGroups::Configuration)
+                                 .value()
+|————————————Node:field_expression Text: PCAL6524::readGroup(*testI2cBus,
+                                                   testExpanderAddr,
+                                                   PCAL6524::RegisterGroups::Configuration)
+                                 .value
+|—————————————Node:call_expression Text: PCAL6524::readGroup(*testI2cBus,
+                                                   testExpanderAddr,
+                                                   PCAL6524::RegisterGroups::Configuration)
+|——————————————Node:qualified_identifier Text: PCAL6524::readGroup
+|———————————————Node:namespace_identifier Text: PCAL6524
+|———————————————Node::: Text: ::
+|———————————————Node:identifier Text: readGroup
+|——————————————Node:argument_list Text: (*testI2cBus,
+                                                   testExpanderAddr,
+                                                   PCAL6524::RegisterGroups::Configuration)
+|———————————————Node:( Text: (
+|———————————————Node:pointer_expression Text: *testI2cBus
+|————————————————Node:* Text: *
+|————————————————Node:identifier Text: testI2cBus
+|———————————————Node:, Text: ,
+|———————————————Node:identifier Text: testExpanderAddr
+|———————————————Node:, Text: ,
+|———————————————Node:qualified_identifier Text: PCAL6524::RegisterGroups::Configuration
+|————————————————Node:namespace_identifier Text: PCAL6524
+|————————————————Node::: Text: ::
+|————————————————Node:qualified_identifier Text: RegisterGroups::Configuration
+|—————————————————Node:namespace_identifier Text: RegisterGroups
+|—————————————————Node::: Text: ::
+|—————————————————Node:identifier Text: Configuration
+|———————————————Node:) Text: )
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: value
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: shell.log("Rejestry kontrolne expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2]);
+|——————————Node:call_expression Text: shell.log("Rejestry kontrolne expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2])
+|———————————Node:field_expression Text: shell.log
+|————————————Node:identifier Text: shell
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: log
+|———————————Node:argument_list Text: ("Rejestry kontrolne expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}",
+                      expanderRegGroup[0],
+                      expanderRegGroup[1],
+                      expanderRegGroup[2])
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "Rejestry kontrolne expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: Rejestry kontrolne expandera = 0x{:02X}, 0x{:02X}, 0x{:02X}
+|—————————————Node:" Text: "
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: expanderRegGroup[0]
+|—————————————Node:identifier Text: expanderRegGroup
+|—————————————Node:subscript_argument_list Text: [0]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 0
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: expanderRegGroup[1]
+|—————————————Node:identifier Text: expanderRegGroup
+|—————————————Node:subscript_argument_list Text: [1]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 1
+|——————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: expanderRegGroup[2]
+|—————————————Node:identifier Text: expanderRegGroup
+|—————————————Node:subscript_argument_list Text: [2]
+|——————————————Node:[ Text: [
+|——————————————Node:number_literal Text: 2
+|——————————————Node:] Text: ]
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: shell.println("{0:-^100}", "");
+|——————————Node:call_expression Text: shell.println("{0:-^100}", "")
+|———————————Node:field_expression Text: shell.println
+|————————————Node:identifier Text: shell
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: println
+|———————————Node:argument_list Text: ("{0:-^100}", "")
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "{0:-^100}"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: {0:-^100}
+|—————————————Node:" Text: "
+|————————————Node:, Text: ,
+|————————————Node:string_literal Text: ""
+|—————————————Node:" Text: "
+|—————————————Node:" Text: "
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: System::waitSecs(5);
+|——————————Node:call_expression Text: System::waitSecs(5)
+|———————————Node:qualified_identifier Text: System::waitSecs
+|————————————Node:namespace_identifier Text: System
+|————————————Node::: Text: ::
+|————————————Node:identifier Text: waitSecs
+|———————————Node:argument_list Text: (5)
+|————————————Node:( Text: (
+|————————————Node:number_literal Text: 5
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:comment Text: //  TODO: end of temporary test code, delete later.
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:} Text: }

@@ -1,0 +1,747 @@
+cansee-src\config.cpp
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include "config.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "config.h"
+|———Node:" Text: "
+|———Node:string_content Text: config.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "CAN_config.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "CAN_config.h"
+|———Node:" Text: "
+|———Node:string_content Text: CAN_config.h
+|———Node:" Text: "
+|—Node:declaration Text: static CS_CONFIG_t cs_config;
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:type_identifier Text: CS_CONFIG_t
+|——Node:identifier Text: cs_config
+|——Node:; Text: ;
+|—Node:function_definition Text: void setConfigDefault_3 () {
+  cs_config.version                   = 3;         // change if length of config changes
+  cs_config.can0_rx                   = GPIO_NUM_4;
+  cs_config.can0_tx                   = GPIO_NUM_5;
+  cs_config.can0_speed                = (uint16_t)CAN_SPEED_500KBPS;
+  cs_config.can1_rx                   = GPIO_NUM_18;
+  cs_config.can1_tx                   = GPIO_NUM_19;
+  cs_config.can1_speed                = (uint16_t)CAN_SPEED_250KBPS;
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: setConfigDefault_3 ()
+|———Node:identifier Text: setConfigDefault_3
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  cs_config.version                   = 3;         // change if length of config changes
+  cs_config.can0_rx                   = GPIO_NUM_4;
+  cs_config.can0_tx                   = GPIO_NUM_5;
+  cs_config.can0_speed                = (uint16_t)CAN_SPEED_500KBPS;
+  cs_config.can1_rx                   = GPIO_NUM_18;
+  cs_config.can1_tx                   = GPIO_NUM_19;
+  cs_config.can1_speed                = (uint16_t)CAN_SPEED_250KBPS;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: cs_config.version                   = 3;
+|————Node:assignment_expression Text: cs_config.version                   = 3
+|—————Node:field_expression Text: cs_config.version
+|——————Node:identifier Text: cs_config
+|——————Node:. Text: .
+|——————Node:field_identifier Text: version
+|—————Node:= Text: =
+|—————Node:number_literal Text: 3
+|————Node:; Text: ;
+|———Node:comment Text: // change if length of config changes
+|———Node:expression_statement Text: cs_config.can0_rx                   = GPIO_NUM_4;
+|————Node:assignment_expression Text: cs_config.can0_rx                   = GPIO_NUM_4
+|—————Node:field_expression Text: cs_config.can0_rx
+|——————Node:identifier Text: cs_config
+|——————Node:. Text: .
+|——————Node:field_identifier Text: can0_rx
+|—————Node:= Text: =
+|—————Node:identifier Text: GPIO_NUM_4
+|————Node:; Text: ;
+|———Node:expression_statement Text: cs_config.can0_tx                   = GPIO_NUM_5;
+|————Node:assignment_expression Text: cs_config.can0_tx                   = GPIO_NUM_5
+|—————Node:field_expression Text: cs_config.can0_tx
+|——————Node:identifier Text: cs_config
+|——————Node:. Text: .
+|——————Node:field_identifier Text: can0_tx
+|—————Node:= Text: =
+|—————Node:identifier Text: GPIO_NUM_5
+|————Node:; Text: ;
+|———Node:expression_statement Text: cs_config.can0_speed                = (uint16_t)CAN_SPEED_500KBPS;
+|————Node:assignment_expression Text: cs_config.can0_speed                = (uint16_t)CAN_SPEED_500KBPS
+|—————Node:field_expression Text: cs_config.can0_speed
+|——————Node:identifier Text: cs_config
+|——————Node:. Text: .
+|——————Node:field_identifier Text: can0_speed
+|—————Node:= Text: =
+|—————Node:cast_expression Text: (uint16_t)CAN_SPEED_500KBPS
+|——————Node:( Text: (
+|——————Node:type_descriptor Text: uint16_t
+|———————Node:primitive_type Text: uint16_t
+|——————Node:) Text: )
+|——————Node:identifier Text: CAN_SPEED_500KBPS
+|————Node:; Text: ;
+|———Node:expression_statement Text: cs_config.can1_rx                   = GPIO_NUM_18;
+|————Node:assignment_expression Text: cs_config.can1_rx                   = GPIO_NUM_18
+|—————Node:field_expression Text: cs_config.can1_rx
+|——————Node:identifier Text: cs_config
+|——————Node:. Text: .
+|——————Node:field_identifier Text: can1_rx
+|—————Node:= Text: =
+|—————Node:identifier Text: GPIO_NUM_18
+|————Node:; Text: ;
+|———Node:expression_statement Text: cs_config.can1_tx                   = GPIO_NUM_19;
+|————Node:assignment_expression Text: cs_config.can1_tx                   = GPIO_NUM_19
+|—————Node:field_expression Text: cs_config.can1_tx
+|——————Node:identifier Text: cs_config
+|——————Node:. Text: .
+|——————Node:field_identifier Text: can1_tx
+|—————Node:= Text: =
+|—————Node:identifier Text: GPIO_NUM_19
+|————Node:; Text: ;
+|———Node:expression_statement Text: cs_config.can1_speed                = (uint16_t)CAN_SPEED_250KBPS;
+|————Node:assignment_expression Text: cs_config.can1_speed                = (uint16_t)CAN_SPEED_250KBPS
+|—————Node:field_expression Text: cs_config.can1_speed
+|——————Node:identifier Text: cs_config
+|——————Node:. Text: .
+|——————Node:field_identifier Text: can1_speed
+|—————Node:= Text: =
+|—————Node:cast_expression Text: (uint16_t)CAN_SPEED_250KBPS
+|——————Node:( Text: (
+|——————Node:type_descriptor Text: uint16_t
+|———————Node:primitive_type Text: uint16_t
+|——————Node:) Text: )
+|——————Node:identifier Text: CAN_SPEED_250KBPS
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void setConfigDefault () {
+  cs_config.magicnumber = 0x0caacee0;              // does that read CanSee?
+  cs_config.version                   = 1;         // change if length of config changes
+  cs_config.mode_serial               = 1;
+  cs_config.mode_bluetooth            = 1;
+  cs_config.mode_wifi                 = 0;         // WIFI_SOFTAP;
+  cs_config.mode_debug                = 0xff;
+  cs_config.mode_leds                 = 0;
+  strcpy (cs_config.name_bluetooth,   "CANSee");
+  strcpy (cs_config.pin_bluetooth,    "1234");     // not implemented in framework yet
+  strcpy (cs_config.ssid_ap,          "CANSee");
+  strcpy (cs_config.password_ap,      "CANSeeMe");
+  strcpy (cs_config.ssid_station,     "Home");
+  strcpy (cs_config.password_station, "Password");
+  setConfigDefault_3 ();
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: setConfigDefault ()
+|———Node:identifier Text: setConfigDefault
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  cs_config.magicnumber = 0x0caacee0;              // does that read CanSee?
+  cs_config.version                   = 1;         // change if length of config changes
+  cs_config.mode_serial               = 1;
+  cs_config.mode_bluetooth            = 1;
+  cs_config.mode_wifi                 = 0;         // WIFI_SOFTAP;
+  cs_config.mode_debug                = 0xff;
+  cs_config.mode_leds                 = 0;
+  strcpy (cs_config.name_bluetooth,   "CANSee");
+  strcpy (cs_config.pin_bluetooth,    "1234");     // not implemented in framework yet
+  strcpy (cs_config.ssid_ap,          "CANSee");
+  strcpy (cs_config.password_ap,      "CANSeeMe");
+  strcpy (cs_config.ssid_station,     "Home");
+  strcpy (cs_config.password_station, "Password");
+  setConfigDefault_3 ();
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: cs_config.magicnumber = 0x0caacee0;
+|————Node:assignment_expression Text: cs_config.magicnumber = 0x0caacee0
+|—————Node:field_expression Text: cs_config.magicnumber
+|——————Node:identifier Text: cs_config
+|——————Node:. Text: .
+|——————Node:field_identifier Text: magicnumber
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x0caacee0
+|————Node:; Text: ;
+|———Node:comment Text: // does that read CanSee?
+|———Node:expression_statement Text: cs_config.version                   = 1;
+|————Node:assignment_expression Text: cs_config.version                   = 1
+|—————Node:field_expression Text: cs_config.version
+|——————Node:identifier Text: cs_config
+|——————Node:. Text: .
+|——————Node:field_identifier Text: version
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:comment Text: // change if length of config changes
+|———Node:expression_statement Text: cs_config.mode_serial               = 1;
+|————Node:assignment_expression Text: cs_config.mode_serial               = 1
+|—————Node:field_expression Text: cs_config.mode_serial
+|——————Node:identifier Text: cs_config
+|——————Node:. Text: .
+|——————Node:field_identifier Text: mode_serial
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:expression_statement Text: cs_config.mode_bluetooth            = 1;
+|————Node:assignment_expression Text: cs_config.mode_bluetooth            = 1
+|—————Node:field_expression Text: cs_config.mode_bluetooth
+|——————Node:identifier Text: cs_config
+|——————Node:. Text: .
+|——————Node:field_identifier Text: mode_bluetooth
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:expression_statement Text: cs_config.mode_wifi                 = 0;
+|————Node:assignment_expression Text: cs_config.mode_wifi                 = 0
+|—————Node:field_expression Text: cs_config.mode_wifi
+|——————Node:identifier Text: cs_config
+|——————Node:. Text: .
+|——————Node:field_identifier Text: mode_wifi
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:comment Text: // WIFI_SOFTAP;
+|———Node:expression_statement Text: cs_config.mode_debug                = 0xff;
+|————Node:assignment_expression Text: cs_config.mode_debug                = 0xff
+|—————Node:field_expression Text: cs_config.mode_debug
+|——————Node:identifier Text: cs_config
+|——————Node:. Text: .
+|——————Node:field_identifier Text: mode_debug
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0xff
+|————Node:; Text: ;
+|———Node:expression_statement Text: cs_config.mode_leds                 = 0;
+|————Node:assignment_expression Text: cs_config.mode_leds                 = 0
+|—————Node:field_expression Text: cs_config.mode_leds
+|——————Node:identifier Text: cs_config
+|——————Node:. Text: .
+|——————Node:field_identifier Text: mode_leds
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: strcpy (cs_config.name_bluetooth,   "CANSee");
+|————Node:call_expression Text: strcpy (cs_config.name_bluetooth,   "CANSee")
+|—————Node:identifier Text: strcpy
+|—————Node:argument_list Text: (cs_config.name_bluetooth,   "CANSee")
+|——————Node:( Text: (
+|——————Node:field_expression Text: cs_config.name_bluetooth
+|———————Node:identifier Text: cs_config
+|———————Node:. Text: .
+|———————Node:field_identifier Text: name_bluetooth
+|——————Node:, Text: ,
+|——————Node:string_literal Text: "CANSee"
+|———————Node:" Text: "
+|———————Node:string_content Text: CANSee
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: strcpy (cs_config.pin_bluetooth,    "1234");
+|————Node:call_expression Text: strcpy (cs_config.pin_bluetooth,    "1234")
+|—————Node:identifier Text: strcpy
+|—————Node:argument_list Text: (cs_config.pin_bluetooth,    "1234")
+|——————Node:( Text: (
+|——————Node:field_expression Text: cs_config.pin_bluetooth
+|———————Node:identifier Text: cs_config
+|———————Node:. Text: .
+|———————Node:field_identifier Text: pin_bluetooth
+|——————Node:, Text: ,
+|——————Node:string_literal Text: "1234"
+|———————Node:" Text: "
+|———————Node:string_content Text: 1234
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment Text: // not implemented in framework yet
+|———Node:expression_statement Text: strcpy (cs_config.ssid_ap,          "CANSee");
+|————Node:call_expression Text: strcpy (cs_config.ssid_ap,          "CANSee")
+|—————Node:identifier Text: strcpy
+|—————Node:argument_list Text: (cs_config.ssid_ap,          "CANSee")
+|——————Node:( Text: (
+|——————Node:field_expression Text: cs_config.ssid_ap
+|———————Node:identifier Text: cs_config
+|———————Node:. Text: .
+|———————Node:field_identifier Text: ssid_ap
+|——————Node:, Text: ,
+|——————Node:string_literal Text: "CANSee"
+|———————Node:" Text: "
+|———————Node:string_content Text: CANSee
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: strcpy (cs_config.password_ap,      "CANSeeMe");
+|————Node:call_expression Text: strcpy (cs_config.password_ap,      "CANSeeMe")
+|—————Node:identifier Text: strcpy
+|—————Node:argument_list Text: (cs_config.password_ap,      "CANSeeMe")
+|——————Node:( Text: (
+|——————Node:field_expression Text: cs_config.password_ap
+|———————Node:identifier Text: cs_config
+|———————Node:. Text: .
+|———————Node:field_identifier Text: password_ap
+|——————Node:, Text: ,
+|——————Node:string_literal Text: "CANSeeMe"
+|———————Node:" Text: "
+|———————Node:string_content Text: CANSeeMe
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: strcpy (cs_config.ssid_station,     "Home");
+|————Node:call_expression Text: strcpy (cs_config.ssid_station,     "Home")
+|—————Node:identifier Text: strcpy
+|—————Node:argument_list Text: (cs_config.ssid_station,     "Home")
+|——————Node:( Text: (
+|——————Node:field_expression Text: cs_config.ssid_station
+|———————Node:identifier Text: cs_config
+|———————Node:. Text: .
+|———————Node:field_identifier Text: ssid_station
+|——————Node:, Text: ,
+|——————Node:string_literal Text: "Home"
+|———————Node:" Text: "
+|———————Node:string_content Text: Home
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: strcpy (cs_config.password_station, "Password");
+|————Node:call_expression Text: strcpy (cs_config.password_station, "Password")
+|—————Node:identifier Text: strcpy
+|—————Node:argument_list Text: (cs_config.password_station, "Password")
+|——————Node:( Text: (
+|——————Node:field_expression Text: cs_config.password_station
+|———————Node:identifier Text: cs_config
+|———————Node:. Text: .
+|———————Node:field_identifier Text: password_station
+|——————Node:, Text: ,
+|——————Node:string_literal Text: "Password"
+|———————Node:" Text: "
+|———————Node:string_content Text: Password
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: setConfigDefault_3 ();
+|————Node:call_expression Text: setConfigDefault_3 ()
+|—————Node:identifier Text: setConfigDefault_3
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: CS_CONFIG_t *getConfigFromEeprom () {
+  if (!EEPROM.begin (sizeof (CS_CONFIG_t)))
+  {
+    Serial.println ("failed to initialise EEPROM for reading");
+    setConfigDefault ();
+    return &cs_config;
+  }
+  if (EEPROM.readBytes (0, &cs_config, sizeof (CS_CONFIG_t)) != sizeof (CS_CONFIG_t) || cs_config.magicnumber != 0x0caacee0) {
+    Serial.println ("Not a valid EEPROM record");
+    setConfigToEeprom (true);
+  }
+  if (cs_config.version != 3) {
+    Serial.println ("EEPROM structure changed");
+    EEPROM.end ();
+    setConfigDefault_3 ();
+    setConfigToEeprom (false);
+    return &cs_config;
+  }
+  EEPROM.end ();
+  return &cs_config;
+}
+|——Node:type_identifier Text: CS_CONFIG_t
+|——Node:pointer_declarator Text: *getConfigFromEeprom ()
+|———Node:* Text: *
+|———Node:function_declarator Text: getConfigFromEeprom ()
+|————Node:identifier Text: getConfigFromEeprom
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|——Node:compound_statement Text: {
+  if (!EEPROM.begin (sizeof (CS_CONFIG_t)))
+  {
+    Serial.println ("failed to initialise EEPROM for reading");
+    setConfigDefault ();
+    return &cs_config;
+  }
+  if (EEPROM.readBytes (0, &cs_config, sizeof (CS_CONFIG_t)) != sizeof (CS_CONFIG_t) || cs_config.magicnumber != 0x0caacee0) {
+    Serial.println ("Not a valid EEPROM record");
+    setConfigToEeprom (true);
+  }
+  if (cs_config.version != 3) {
+    Serial.println ("EEPROM structure changed");
+    EEPROM.end ();
+    setConfigDefault_3 ();
+    setConfigToEeprom (false);
+    return &cs_config;
+  }
+  EEPROM.end ();
+  return &cs_config;
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (!EEPROM.begin (sizeof (CS_CONFIG_t)))
+  {
+    Serial.println ("failed to initialise EEPROM for reading");
+    setConfigDefault ();
+    return &cs_config;
+  }
+|————Node:if Text: if
+|————Node:condition_clause Text: (!EEPROM.begin (sizeof (CS_CONFIG_t)))
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !EEPROM.begin (sizeof (CS_CONFIG_t))
+|——————Node:! Text: !
+|——————Node:call_expression Text: EEPROM.begin (sizeof (CS_CONFIG_t))
+|———————Node:field_expression Text: EEPROM.begin
+|————————Node:identifier Text: EEPROM
+|————————Node:. Text: .
+|————————Node:field_identifier Text: begin
+|———————Node:argument_list Text: (sizeof (CS_CONFIG_t))
+|————————Node:( Text: (
+|————————Node:sizeof_expression Text: sizeof (CS_CONFIG_t)
+|—————————Node:sizeof Text: sizeof
+|—————————Node:parenthesized_expression Text: (CS_CONFIG_t)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: CS_CONFIG_t
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    Serial.println ("failed to initialise EEPROM for reading");
+    setConfigDefault ();
+    return &cs_config;
+  }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: Serial.println ("failed to initialise EEPROM for reading");
+|——————Node:call_expression Text: Serial.println ("failed to initialise EEPROM for reading")
+|———————Node:field_expression Text: Serial.println
+|————————Node:identifier Text: Serial
+|————————Node:. Text: .
+|————————Node:field_identifier Text: println
+|———————Node:argument_list Text: ("failed to initialise EEPROM for reading")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "failed to initialise EEPROM for reading"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: failed to initialise EEPROM for reading
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: setConfigDefault ();
+|——————Node:call_expression Text: setConfigDefault ()
+|———————Node:identifier Text: setConfigDefault
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return &cs_config;
+|——————Node:return Text: return
+|——————Node:pointer_expression Text: &cs_config
+|———————Node:& Text: &
+|———————Node:identifier Text: cs_config
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if (EEPROM.readBytes (0, &cs_config, sizeof (CS_CONFIG_t)) != sizeof (CS_CONFIG_t) || cs_config.magicnumber != 0x0caacee0) {
+    Serial.println ("Not a valid EEPROM record");
+    setConfigToEeprom (true);
+  }
+|————Node:if Text: if
+|————Node:condition_clause Text: (EEPROM.readBytes (0, &cs_config, sizeof (CS_CONFIG_t)) != sizeof (CS_CONFIG_t) || cs_config.magicnumber != 0x0caacee0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: EEPROM.readBytes (0, &cs_config, sizeof (CS_CONFIG_t)) != sizeof (CS_CONFIG_t) || cs_config.magicnumber != 0x0caacee0
+|——————Node:binary_expression Text: EEPROM.readBytes (0, &cs_config, sizeof (CS_CONFIG_t)) != sizeof (CS_CONFIG_t)
+|———————Node:call_expression Text: EEPROM.readBytes (0, &cs_config, sizeof (CS_CONFIG_t))
+|————————Node:field_expression Text: EEPROM.readBytes
+|—————————Node:identifier Text: EEPROM
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: readBytes
+|————————Node:argument_list Text: (0, &cs_config, sizeof (CS_CONFIG_t))
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 0
+|—————————Node:, Text: ,
+|—————————Node:pointer_expression Text: &cs_config
+|——————————Node:& Text: &
+|——————————Node:identifier Text: cs_config
+|—————————Node:, Text: ,
+|—————————Node:sizeof_expression Text: sizeof (CS_CONFIG_t)
+|——————————Node:sizeof Text: sizeof
+|——————————Node:parenthesized_expression Text: (CS_CONFIG_t)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: CS_CONFIG_t
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|———————Node:!= Text: !=
+|———————Node:sizeof_expression Text: sizeof (CS_CONFIG_t)
+|————————Node:sizeof Text: sizeof
+|————————Node:parenthesized_expression Text: (CS_CONFIG_t)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: CS_CONFIG_t
+|—————————Node:) Text: )
+|——————Node:|| Text: ||
+|——————Node:binary_expression Text: cs_config.magicnumber != 0x0caacee0
+|———————Node:field_expression Text: cs_config.magicnumber
+|————————Node:identifier Text: cs_config
+|————————Node:. Text: .
+|————————Node:field_identifier Text: magicnumber
+|———————Node:!= Text: !=
+|———————Node:number_literal Text: 0x0caacee0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    Serial.println ("Not a valid EEPROM record");
+    setConfigToEeprom (true);
+  }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: Serial.println ("Not a valid EEPROM record");
+|——————Node:call_expression Text: Serial.println ("Not a valid EEPROM record")
+|———————Node:field_expression Text: Serial.println
+|————————Node:identifier Text: Serial
+|————————Node:. Text: .
+|————————Node:field_identifier Text: println
+|———————Node:argument_list Text: ("Not a valid EEPROM record")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "Not a valid EEPROM record"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: Not a valid EEPROM record
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: setConfigToEeprom (true);
+|——————Node:call_expression Text: setConfigToEeprom (true)
+|———————Node:identifier Text: setConfigToEeprom
+|———————Node:argument_list Text: (true)
+|————————Node:( Text: (
+|————————Node:true Text: true
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if (cs_config.version != 3) {
+    Serial.println ("EEPROM structure changed");
+    EEPROM.end ();
+    setConfigDefault_3 ();
+    setConfigToEeprom (false);
+    return &cs_config;
+  }
+|————Node:if Text: if
+|————Node:condition_clause Text: (cs_config.version != 3)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: cs_config.version != 3
+|——————Node:field_expression Text: cs_config.version
+|———————Node:identifier Text: cs_config
+|———————Node:. Text: .
+|———————Node:field_identifier Text: version
+|——————Node:!= Text: !=
+|——————Node:number_literal Text: 3
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    Serial.println ("EEPROM structure changed");
+    EEPROM.end ();
+    setConfigDefault_3 ();
+    setConfigToEeprom (false);
+    return &cs_config;
+  }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: Serial.println ("EEPROM structure changed");
+|——————Node:call_expression Text: Serial.println ("EEPROM structure changed")
+|———————Node:field_expression Text: Serial.println
+|————————Node:identifier Text: Serial
+|————————Node:. Text: .
+|————————Node:field_identifier Text: println
+|———————Node:argument_list Text: ("EEPROM structure changed")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "EEPROM structure changed"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: EEPROM structure changed
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: EEPROM.end ();
+|——————Node:call_expression Text: EEPROM.end ()
+|———————Node:field_expression Text: EEPROM.end
+|————————Node:identifier Text: EEPROM
+|————————Node:. Text: .
+|————————Node:field_identifier Text: end
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: setConfigDefault_3 ();
+|——————Node:call_expression Text: setConfigDefault_3 ()
+|———————Node:identifier Text: setConfigDefault_3
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: setConfigToEeprom (false);
+|——————Node:call_expression Text: setConfigToEeprom (false)
+|———————Node:identifier Text: setConfigToEeprom
+|———————Node:argument_list Text: (false)
+|————————Node:( Text: (
+|————————Node:false Text: false
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return &cs_config;
+|——————Node:return Text: return
+|——————Node:pointer_expression Text: &cs_config
+|———————Node:& Text: &
+|———————Node:identifier Text: cs_config
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: EEPROM.end ();
+|————Node:call_expression Text: EEPROM.end ()
+|—————Node:field_expression Text: EEPROM.end
+|——————Node:identifier Text: EEPROM
+|——————Node:. Text: .
+|——————Node:field_identifier Text: end
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return &cs_config;
+|————Node:return Text: return
+|————Node:pointer_expression Text: &cs_config
+|—————Node:& Text: &
+|—————Node:identifier Text: cs_config
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void setConfigToEeprom (bool reset) {
+  if (!EEPROM.begin (sizeof (CS_CONFIG_t)))
+  {
+    Serial.println ("failed to initialise EEPROM for writing");
+    return;
+  }
+  if (reset) setConfigDefault ();
+  EEPROM.writeBytes (0, &cs_config, sizeof (CS_CONFIG_t));
+  EEPROM.commit ();
+  EEPROM.end ();
+  return;
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: setConfigToEeprom (bool reset)
+|———Node:identifier Text: setConfigToEeprom
+|———Node:parameter_list Text: (bool reset)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: bool reset
+|—————Node:primitive_type Text: bool
+|—————Node:identifier Text: reset
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  if (!EEPROM.begin (sizeof (CS_CONFIG_t)))
+  {
+    Serial.println ("failed to initialise EEPROM for writing");
+    return;
+  }
+  if (reset) setConfigDefault ();
+  EEPROM.writeBytes (0, &cs_config, sizeof (CS_CONFIG_t));
+  EEPROM.commit ();
+  EEPROM.end ();
+  return;
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (!EEPROM.begin (sizeof (CS_CONFIG_t)))
+  {
+    Serial.println ("failed to initialise EEPROM for writing");
+    return;
+  }
+|————Node:if Text: if
+|————Node:condition_clause Text: (!EEPROM.begin (sizeof (CS_CONFIG_t)))
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !EEPROM.begin (sizeof (CS_CONFIG_t))
+|——————Node:! Text: !
+|——————Node:call_expression Text: EEPROM.begin (sizeof (CS_CONFIG_t))
+|———————Node:field_expression Text: EEPROM.begin
+|————————Node:identifier Text: EEPROM
+|————————Node:. Text: .
+|————————Node:field_identifier Text: begin
+|———————Node:argument_list Text: (sizeof (CS_CONFIG_t))
+|————————Node:( Text: (
+|————————Node:sizeof_expression Text: sizeof (CS_CONFIG_t)
+|—————————Node:sizeof Text: sizeof
+|—————————Node:parenthesized_expression Text: (CS_CONFIG_t)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: CS_CONFIG_t
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    Serial.println ("failed to initialise EEPROM for writing");
+    return;
+  }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: Serial.println ("failed to initialise EEPROM for writing");
+|——————Node:call_expression Text: Serial.println ("failed to initialise EEPROM for writing")
+|———————Node:field_expression Text: Serial.println
+|————————Node:identifier Text: Serial
+|————————Node:. Text: .
+|————————Node:field_identifier Text: println
+|———————Node:argument_list Text: ("failed to initialise EEPROM for writing")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "failed to initialise EEPROM for writing"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: failed to initialise EEPROM for writing
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return;
+|——————Node:return Text: return
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if (reset) setConfigDefault ();
+|————Node:if Text: if
+|————Node:condition_clause Text: (reset)
+|—————Node:( Text: (
+|—————Node:identifier Text: reset
+|—————Node:) Text: )
+|————Node:expression_statement Text: setConfigDefault ();
+|—————Node:call_expression Text: setConfigDefault ()
+|——————Node:identifier Text: setConfigDefault
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:expression_statement Text: EEPROM.writeBytes (0, &cs_config, sizeof (CS_CONFIG_t));
+|————Node:call_expression Text: EEPROM.writeBytes (0, &cs_config, sizeof (CS_CONFIG_t))
+|—————Node:field_expression Text: EEPROM.writeBytes
+|——————Node:identifier Text: EEPROM
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeBytes
+|—————Node:argument_list Text: (0, &cs_config, sizeof (CS_CONFIG_t))
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:pointer_expression Text: &cs_config
+|———————Node:& Text: &
+|———————Node:identifier Text: cs_config
+|——————Node:, Text: ,
+|——————Node:sizeof_expression Text: sizeof (CS_CONFIG_t)
+|———————Node:sizeof Text: sizeof
+|———————Node:parenthesized_expression Text: (CS_CONFIG_t)
+|————————Node:( Text: (
+|————————Node:identifier Text: CS_CONFIG_t
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: EEPROM.commit ();
+|————Node:call_expression Text: EEPROM.commit ()
+|—————Node:field_expression Text: EEPROM.commit
+|——————Node:identifier Text: EEPROM
+|——————Node:. Text: .
+|——————Node:field_identifier Text: commit
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: EEPROM.end ();
+|————Node:call_expression Text: EEPROM.end ()
+|—————Node:field_expression Text: EEPROM.end
+|——————Node:identifier Text: EEPROM
+|——————Node:. Text: .
+|——————Node:field_identifier Text: end
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return;
+|————Node:return Text: return
+|————Node:; Text: ;
+|———Node:} Text: }

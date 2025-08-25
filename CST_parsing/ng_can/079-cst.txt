@@ -1,0 +1,990 @@
+ng_can-src\can_port.c
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include "can_port.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "can_port.h"
+|———Node:" Text: "
+|———Node:string_content Text: can_port.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "util.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "util.h"
+|———Node:" Text: "
+|———Node:string_content Text: util.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "erlcmd.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "erlcmd.h"
+|———Node:" Text: "
+|———Node:string_content Text: erlcmd.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include <errno.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <errno.h>
+|—Node:preproc_include Text: #include <stdio.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <stdio.h>
+|—Node:preproc_include Text: #include <stdlib.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <stdlib.h>
+|—Node:preproc_include Text: #include <string.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <string.h>
+|—Node:preproc_include Text: #include <unistd.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <unistd.h>
+|—Node:preproc_include Text: #include <sys/types.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <sys/types.h>
+|—Node:preproc_include Text: #include <sys/stat.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <sys/stat.h>
+|—Node:preproc_include Text: #include <fcntl.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <fcntl.h>
+|—Node:preproc_include Text: #include <sys/ioctl.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <sys/ioctl.h>
+|—Node:preproc_include Text: #include <sys/file.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <sys/file.h>
+|—Node:preproc_include Text: #include <time.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <time.h>
+|—Node:preproc_include Text: #include <poll.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <poll.h>
+|—Node:preproc_include Text: #include <sys/socket.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <sys/socket.h>
+|—Node:preproc_include Text: #include <net/if.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <net/if.h>
+|—Node:function_definition Text: int can_init(struct can_port **pport)
+{
+    struct can_port *port = malloc(sizeof(struct can_port));
+    *pport = port;
+
+    port->fd = -1;
+
+    //write buffer stuff
+    port->write_buffer_offset = 0;
+    port->write_buffer_size = 0;
+    port->write_buffer = NULL;
+
+    //read buffer stuff
+    port->awaiting_read = 0;
+    port->read_buffer = NULL;
+
+    return 0;
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: can_init(struct can_port **pport)
+|———Node:identifier Text: can_init
+|———Node:parameter_list Text: (struct can_port **pport)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct can_port **pport
+|—————Node:struct_specifier Text: struct can_port
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_port
+|—————Node:pointer_declarator Text: **pport
+|——————Node:* Text: *
+|——————Node:pointer_declarator Text: *pport
+|———————Node:* Text: *
+|———————Node:identifier Text: pport
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    struct can_port *port = malloc(sizeof(struct can_port));
+    *pport = port;
+
+    port->fd = -1;
+
+    //write buffer stuff
+    port->write_buffer_offset = 0;
+    port->write_buffer_size = 0;
+    port->write_buffer = NULL;
+
+    //read buffer stuff
+    port->awaiting_read = 0;
+    port->read_buffer = NULL;
+
+    return 0;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: struct can_port *port = malloc(sizeof(struct can_port));
+|————Node:struct_specifier Text: struct can_port
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: can_port
+|————Node:init_declarator Text: *port = malloc(sizeof(struct can_port))
+|—————Node:pointer_declarator Text: *port
+|——————Node:* Text: *
+|——————Node:identifier Text: port
+|—————Node:= Text: =
+|—————Node:call_expression Text: malloc(sizeof(struct can_port))
+|——————Node:identifier Text: malloc
+|——————Node:argument_list Text: (sizeof(struct can_port))
+|———————Node:( Text: (
+|———————Node:sizeof_expression Text: sizeof(struct can_port)
+|————————Node:sizeof Text: sizeof
+|————————Node:( Text: (
+|————————Node:type_descriptor Text: struct can_port
+|—————————Node:struct_specifier Text: struct can_port
+|——————————Node:struct Text: struct
+|——————————Node:type_identifier Text: can_port
+|————————Node:) Text: )
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: *pport = port;
+|————Node:assignment_expression Text: *pport = port
+|—————Node:pointer_expression Text: *pport
+|——————Node:* Text: *
+|——————Node:identifier Text: pport
+|—————Node:= Text: =
+|—————Node:identifier Text: port
+|————Node:; Text: ;
+|———Node:expression_statement Text: port->fd = -1;
+|————Node:assignment_expression Text: port->fd = -1
+|—————Node:field_expression Text: port->fd
+|——————Node:identifier Text: port
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: fd
+|—————Node:= Text: =
+|—————Node:number_literal Text: -1
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: port->write_buffer_offset = 0;
+|————Node:assignment_expression Text: port->write_buffer_offset = 0
+|—————Node:field_expression Text: port->write_buffer_offset
+|——————Node:identifier Text: port
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: write_buffer_offset
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: port->write_buffer_size = 0;
+|————Node:assignment_expression Text: port->write_buffer_size = 0
+|—————Node:field_expression Text: port->write_buffer_size
+|——————Node:identifier Text: port
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: write_buffer_size
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: port->write_buffer = NULL;
+|————Node:assignment_expression Text: port->write_buffer = NULL
+|—————Node:field_expression Text: port->write_buffer
+|——————Node:identifier Text: port
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: write_buffer
+|—————Node:= Text: =
+|—————Node:null Text: NULL
+|——————Node:NULL Text: NULL
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: port->awaiting_read = 0;
+|————Node:assignment_expression Text: port->awaiting_read = 0
+|—————Node:field_expression Text: port->awaiting_read
+|——————Node:identifier Text: port
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: awaiting_read
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: port->read_buffer = NULL;
+|————Node:assignment_expression Text: port->read_buffer = NULL
+|—————Node:field_expression Text: port->read_buffer
+|——————Node:identifier Text: port
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: read_buffer
+|—————Node:= Text: =
+|—————Node:null Text: NULL
+|——————Node:NULL Text: NULL
+|————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: int can_is_open(struct can_port *port)
+{
+    return port->fd != -1;
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: can_is_open(struct can_port *port)
+|———Node:identifier Text: can_is_open
+|———Node:parameter_list Text: (struct can_port *port)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct can_port *port
+|—————Node:struct_specifier Text: struct can_port
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_port
+|—————Node:pointer_declarator Text: *port
+|——————Node:* Text: *
+|——————Node:identifier Text: port
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    return port->fd != -1;
+}
+|———Node:{ Text: {
+|———Node:return_statement Text: return port->fd != -1;
+|————Node:return Text: return
+|————Node:binary_expression Text: port->fd != -1
+|—————Node:field_expression Text: port->fd
+|——————Node:identifier Text: port
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: fd
+|—————Node:!= Text: !=
+|—————Node:number_literal Text: -1
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: int can_close(struct can_port *port)
+{
+  close(port->fd);
+  port->fd = -1;
+  return 0;
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: can_close(struct can_port *port)
+|———Node:identifier Text: can_close
+|———Node:parameter_list Text: (struct can_port *port)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct can_port *port
+|—————Node:struct_specifier Text: struct can_port
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_port
+|—————Node:pointer_declarator Text: *port
+|——————Node:* Text: *
+|——————Node:identifier Text: port
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  close(port->fd);
+  port->fd = -1;
+  return 0;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: close(port->fd);
+|————Node:call_expression Text: close(port->fd)
+|—————Node:identifier Text: close
+|—————Node:argument_list Text: (port->fd)
+|——————Node:( Text: (
+|——————Node:field_expression Text: port->fd
+|———————Node:identifier Text: port
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: fd
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: port->fd = -1;
+|————Node:assignment_expression Text: port->fd = -1
+|—————Node:field_expression Text: port->fd
+|——————Node:identifier Text: port
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: fd
+|—————Node:= Text: =
+|—————Node:number_literal Text: -1
+|————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: int can_open(struct can_port *can_port, char *interface_name)
+{
+  int s;
+  struct sockaddr_can addr;
+  struct ifreq ifr;
+
+  //open socket
+  if ((s = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0)
+    return s;
+
+  int flags = fcntl(s, F_GETFL, 0);
+  fcntl(s, F_SETFL, flags | O_NONBLOCK);
+
+  can_port->fd = s;
+
+  //get interface index
+  strcpy(ifr.ifr_name, interface_name);
+  ioctl(s, SIOCGIFINDEX, &ifr);
+
+  //add busoff error filter
+  can_err_mask_t err_mask = CAN_ERR_BUSOFF;
+  setsockopt(s, SOL_CAN_RAW, CAN_RAW_ERR_FILTER, &err_mask, sizeof(err_mask));
+
+  //bind
+  addr.can_family = AF_CAN;
+  addr.can_ifindex = ifr.ifr_ifindex;
+
+  return bind(s, (struct sockaddr *)&addr, sizeof(addr));
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: can_open(struct can_port *can_port, char *interface_name)
+|———Node:identifier Text: can_open
+|———Node:parameter_list Text: (struct can_port *can_port, char *interface_name)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct can_port *can_port
+|—————Node:struct_specifier Text: struct can_port
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_port
+|—————Node:pointer_declarator Text: *can_port
+|——————Node:* Text: *
+|——————Node:identifier Text: can_port
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: char *interface_name
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: *interface_name
+|——————Node:* Text: *
+|——————Node:identifier Text: interface_name
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  int s;
+  struct sockaddr_can addr;
+  struct ifreq ifr;
+
+  //open socket
+  if ((s = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0)
+    return s;
+
+  int flags = fcntl(s, F_GETFL, 0);
+  fcntl(s, F_SETFL, flags | O_NONBLOCK);
+
+  can_port->fd = s;
+
+  //get interface index
+  strcpy(ifr.ifr_name, interface_name);
+  ioctl(s, SIOCGIFINDEX, &ifr);
+
+  //add busoff error filter
+  can_err_mask_t err_mask = CAN_ERR_BUSOFF;
+  setsockopt(s, SOL_CAN_RAW, CAN_RAW_ERR_FILTER, &err_mask, sizeof(err_mask));
+
+  //bind
+  addr.can_family = AF_CAN;
+  addr.can_ifindex = ifr.ifr_ifindex;
+
+  return bind(s, (struct sockaddr *)&addr, sizeof(addr));
+}
+|———Node:{ Text: {
+|———Node:declaration Text: int s;
+|————Node:primitive_type Text: int
+|————Node:identifier Text: s
+|————Node:; Text: ;
+|———Node:declaration Text: struct sockaddr_can addr;
+|————Node:struct_specifier Text: struct sockaddr_can
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: sockaddr_can
+|————Node:identifier Text: addr
+|————Node:; Text: ;
+|———Node:declaration Text: struct ifreq ifr;
+|————Node:struct_specifier Text: struct ifreq
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: ifreq
+|————Node:identifier Text: ifr
+|————Node:; Text: ;
+|———Node:comment
+|———Node:if_statement Text: if ((s = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0)
+    return s;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: ((s = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: (s = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0
+|——————Node:parenthesized_expression Text: (s = socket(PF_CAN, SOCK_RAW, CAN_RAW))
+|———————Node:( Text: (
+|———————Node:assignment_expression Text: s = socket(PF_CAN, SOCK_RAW, CAN_RAW)
+|————————Node:identifier Text: s
+|————————Node:= Text: =
+|————————Node:call_expression Text: socket(PF_CAN, SOCK_RAW, CAN_RAW)
+|—————————Node:identifier Text: socket
+|—————————Node:argument_list Text: (PF_CAN, SOCK_RAW, CAN_RAW)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: PF_CAN
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: SOCK_RAW
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: CAN_RAW
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:< Text: <
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:return_statement Text: return s;
+|—————Node:return Text: return
+|—————Node:identifier Text: s
+|—————Node:; Text: ;
+|———Node:declaration Text: int flags = fcntl(s, F_GETFL, 0);
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: flags = fcntl(s, F_GETFL, 0)
+|—————Node:identifier Text: flags
+|—————Node:= Text: =
+|—————Node:call_expression Text: fcntl(s, F_GETFL, 0)
+|——————Node:identifier Text: fcntl
+|——————Node:argument_list Text: (s, F_GETFL, 0)
+|———————Node:( Text: (
+|———————Node:identifier Text: s
+|———————Node:, Text: ,
+|———————Node:identifier Text: F_GETFL
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: fcntl(s, F_SETFL, flags | O_NONBLOCK);
+|————Node:call_expression Text: fcntl(s, F_SETFL, flags | O_NONBLOCK)
+|—————Node:identifier Text: fcntl
+|—————Node:argument_list Text: (s, F_SETFL, flags | O_NONBLOCK)
+|——————Node:( Text: (
+|——————Node:identifier Text: s
+|——————Node:, Text: ,
+|——————Node:identifier Text: F_SETFL
+|——————Node:, Text: ,
+|——————Node:binary_expression Text: flags | O_NONBLOCK
+|———————Node:identifier Text: flags
+|———————Node:| Text: |
+|———————Node:identifier Text: O_NONBLOCK
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: can_port->fd = s;
+|————Node:assignment_expression Text: can_port->fd = s
+|—————Node:field_expression Text: can_port->fd
+|——————Node:identifier Text: can_port
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: fd
+|—————Node:= Text: =
+|—————Node:identifier Text: s
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: strcpy(ifr.ifr_name, interface_name);
+|————Node:call_expression Text: strcpy(ifr.ifr_name, interface_name)
+|—————Node:identifier Text: strcpy
+|—————Node:argument_list Text: (ifr.ifr_name, interface_name)
+|——————Node:( Text: (
+|——————Node:field_expression Text: ifr.ifr_name
+|———————Node:identifier Text: ifr
+|———————Node:. Text: .
+|———————Node:field_identifier Text: ifr_name
+|——————Node:, Text: ,
+|——————Node:identifier Text: interface_name
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ioctl(s, SIOCGIFINDEX, &ifr);
+|————Node:call_expression Text: ioctl(s, SIOCGIFINDEX, &ifr)
+|—————Node:identifier Text: ioctl
+|—————Node:argument_list Text: (s, SIOCGIFINDEX, &ifr)
+|——————Node:( Text: (
+|——————Node:identifier Text: s
+|——————Node:, Text: ,
+|——————Node:identifier Text: SIOCGIFINDEX
+|——————Node:, Text: ,
+|——————Node:pointer_expression Text: &ifr
+|———————Node:& Text: &
+|———————Node:identifier Text: ifr
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:declaration Text: can_err_mask_t err_mask = CAN_ERR_BUSOFF;
+|————Node:type_identifier Text: can_err_mask_t
+|————Node:init_declarator Text: err_mask = CAN_ERR_BUSOFF
+|—————Node:identifier Text: err_mask
+|—————Node:= Text: =
+|—————Node:identifier Text: CAN_ERR_BUSOFF
+|————Node:; Text: ;
+|———Node:expression_statement Text: setsockopt(s, SOL_CAN_RAW, CAN_RAW_ERR_FILTER, &err_mask, sizeof(err_mask));
+|————Node:call_expression Text: setsockopt(s, SOL_CAN_RAW, CAN_RAW_ERR_FILTER, &err_mask, sizeof(err_mask))
+|—————Node:identifier Text: setsockopt
+|—————Node:argument_list Text: (s, SOL_CAN_RAW, CAN_RAW_ERR_FILTER, &err_mask, sizeof(err_mask))
+|——————Node:( Text: (
+|——————Node:identifier Text: s
+|——————Node:, Text: ,
+|——————Node:identifier Text: SOL_CAN_RAW
+|——————Node:, Text: ,
+|——————Node:identifier Text: CAN_RAW_ERR_FILTER
+|——————Node:, Text: ,
+|——————Node:pointer_expression Text: &err_mask
+|———————Node:& Text: &
+|———————Node:identifier Text: err_mask
+|——————Node:, Text: ,
+|——————Node:sizeof_expression Text: sizeof(err_mask)
+|———————Node:sizeof Text: sizeof
+|———————Node:parenthesized_expression Text: (err_mask)
+|————————Node:( Text: (
+|————————Node:identifier Text: err_mask
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: addr.can_family = AF_CAN;
+|————Node:assignment_expression Text: addr.can_family = AF_CAN
+|—————Node:field_expression Text: addr.can_family
+|——————Node:identifier Text: addr
+|——————Node:. Text: .
+|——————Node:field_identifier Text: can_family
+|—————Node:= Text: =
+|—————Node:identifier Text: AF_CAN
+|————Node:; Text: ;
+|———Node:expression_statement Text: addr.can_ifindex = ifr.ifr_ifindex;
+|————Node:assignment_expression Text: addr.can_ifindex = ifr.ifr_ifindex
+|—————Node:field_expression Text: addr.can_ifindex
+|——————Node:identifier Text: addr
+|——————Node:. Text: .
+|——————Node:field_identifier Text: can_ifindex
+|—————Node:= Text: =
+|—————Node:field_expression Text: ifr.ifr_ifindex
+|——————Node:identifier Text: ifr
+|——————Node:. Text: .
+|——————Node:field_identifier Text: ifr_ifindex
+|————Node:; Text: ;
+|———Node:return_statement Text: return bind(s, (struct sockaddr *)&addr, sizeof(addr));
+|————Node:return Text: return
+|————Node:call_expression Text: bind(s, (struct sockaddr *)&addr, sizeof(addr))
+|—————Node:identifier Text: bind
+|—————Node:argument_list Text: (s, (struct sockaddr *)&addr, sizeof(addr))
+|——————Node:( Text: (
+|——————Node:identifier Text: s
+|——————Node:, Text: ,
+|——————Node:cast_expression Text: (struct sockaddr *)&addr
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: struct sockaddr *
+|————————Node:struct_specifier Text: struct sockaddr
+|—————————Node:struct Text: struct
+|—————————Node:type_identifier Text: sockaddr
+|————————Node:abstract_pointer_declarator Text: *
+|—————————Node:* Text: *
+|———————Node:) Text: )
+|———————Node:pointer_expression Text: &addr
+|————————Node:& Text: &
+|————————Node:identifier Text: addr
+|——————Node:, Text: ,
+|——————Node:sizeof_expression Text: sizeof(addr)
+|———————Node:sizeof Text: sizeof
+|———————Node:parenthesized_expression Text: (addr)
+|————————Node:( Text: (
+|————————Node:identifier Text: addr
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: int can_write(struct can_port *can_port, struct can_frame *can_frame)
+{
+  return write(can_port->fd, can_frame, sizeof(struct can_frame));
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: can_write(struct can_port *can_port, struct can_frame *can_frame)
+|———Node:identifier Text: can_write
+|———Node:parameter_list Text: (struct can_port *can_port, struct can_frame *can_frame)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct can_port *can_port
+|—————Node:struct_specifier Text: struct can_port
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_port
+|—————Node:pointer_declarator Text: *can_port
+|——————Node:* Text: *
+|——————Node:identifier Text: can_port
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: struct can_frame *can_frame
+|—————Node:struct_specifier Text: struct can_frame
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_frame
+|—————Node:pointer_declarator Text: *can_frame
+|——————Node:* Text: *
+|——————Node:identifier Text: can_frame
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  return write(can_port->fd, can_frame, sizeof(struct can_frame));
+}
+|———Node:{ Text: {
+|———Node:return_statement Text: return write(can_port->fd, can_frame, sizeof(struct can_frame));
+|————Node:return Text: return
+|————Node:call_expression Text: write(can_port->fd, can_frame, sizeof(struct can_frame))
+|—————Node:identifier Text: write
+|—————Node:argument_list Text: (can_port->fd, can_frame, sizeof(struct can_frame))
+|——————Node:( Text: (
+|——————Node:field_expression Text: can_port->fd
+|———————Node:identifier Text: can_port
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: fd
+|——————Node:, Text: ,
+|——————Node:identifier Text: can_frame
+|——————Node:, Text: ,
+|——————Node:sizeof_expression Text: sizeof(struct can_frame)
+|———————Node:sizeof Text: sizeof
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: struct can_frame
+|————————Node:struct_specifier Text: struct can_frame
+|—————————Node:struct Text: struct
+|—————————Node:type_identifier Text: can_frame
+|———————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: void encode_can_frame(char *resp, int *resp_index, struct can_frame *can_frame)
+{
+  ei_encode_list_header(resp, resp_index, 1);
+  ei_encode_tuple_header(resp, resp_index, 2);
+  ei_encode_ulong(resp, resp_index, (unsigned long) can_frame->can_id);
+  //REVIEW: is it necessary to buffer this binary if it's under 8 bytes?
+  ei_encode_binary(resp, resp_index, can_frame->data, 8);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: encode_can_frame(char *resp, int *resp_index, struct can_frame *can_frame)
+|———Node:identifier Text: encode_can_frame
+|———Node:parameter_list Text: (char *resp, int *resp_index, struct can_frame *can_frame)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: char *resp
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: *resp
+|——————Node:* Text: *
+|——————Node:identifier Text: resp
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: int *resp_index
+|—————Node:primitive_type Text: int
+|—————Node:pointer_declarator Text: *resp_index
+|——————Node:* Text: *
+|——————Node:identifier Text: resp_index
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: struct can_frame *can_frame
+|—————Node:struct_specifier Text: struct can_frame
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_frame
+|—————Node:pointer_declarator Text: *can_frame
+|——————Node:* Text: *
+|——————Node:identifier Text: can_frame
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  ei_encode_list_header(resp, resp_index, 1);
+  ei_encode_tuple_header(resp, resp_index, 2);
+  ei_encode_ulong(resp, resp_index, (unsigned long) can_frame->can_id);
+  //REVIEW: is it necessary to buffer this binary if it's under 8 bytes?
+  ei_encode_binary(resp, resp_index, can_frame->data, 8);
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: ei_encode_list_header(resp, resp_index, 1);
+|————Node:call_expression Text: ei_encode_list_header(resp, resp_index, 1)
+|—————Node:identifier Text: ei_encode_list_header
+|—————Node:argument_list Text: (resp, resp_index, 1)
+|——————Node:( Text: (
+|——————Node:identifier Text: resp
+|——————Node:, Text: ,
+|——————Node:identifier Text: resp_index
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 1
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ei_encode_tuple_header(resp, resp_index, 2);
+|————Node:call_expression Text: ei_encode_tuple_header(resp, resp_index, 2)
+|—————Node:identifier Text: ei_encode_tuple_header
+|—————Node:argument_list Text: (resp, resp_index, 2)
+|——————Node:( Text: (
+|——————Node:identifier Text: resp
+|——————Node:, Text: ,
+|——————Node:identifier Text: resp_index
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 2
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ei_encode_ulong(resp, resp_index, (unsigned long) can_frame->can_id);
+|————Node:call_expression Text: ei_encode_ulong(resp, resp_index, (unsigned long) can_frame->can_id)
+|—————Node:identifier Text: ei_encode_ulong
+|—————Node:argument_list Text: (resp, resp_index, (unsigned long) can_frame->can_id)
+|——————Node:( Text: (
+|——————Node:identifier Text: resp
+|——————Node:, Text: ,
+|——————Node:identifier Text: resp_index
+|——————Node:, Text: ,
+|——————Node:cast_expression Text: (unsigned long) can_frame->can_id
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: unsigned long
+|————————Node:sized_type_specifier Text: unsigned long
+|—————————Node:unsigned Text: unsigned
+|—————————Node:long Text: long
+|———————Node:) Text: )
+|———————Node:field_expression Text: can_frame->can_id
+|————————Node:identifier Text: can_frame
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: can_id
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: ei_encode_binary(resp, resp_index, can_frame->data, 8);
+|————Node:call_expression Text: ei_encode_binary(resp, resp_index, can_frame->data, 8)
+|—————Node:identifier Text: ei_encode_binary
+|—————Node:argument_list Text: (resp, resp_index, can_frame->data, 8)
+|——————Node:( Text: (
+|——————Node:identifier Text: resp
+|——————Node:, Text: ,
+|——————Node:identifier Text: resp_index
+|——————Node:, Text: ,
+|——————Node:field_expression Text: can_frame->data
+|———————Node:identifier Text: can_frame
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: data
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 8
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: int can_read(struct can_port *can_port, struct can_frame *can_frame)
+{
+  return read(can_port->fd, can_frame, sizeof(struct can_frame));
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: can_read(struct can_port *can_port, struct can_frame *can_frame)
+|———Node:identifier Text: can_read
+|———Node:parameter_list Text: (struct can_port *can_port, struct can_frame *can_frame)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct can_port *can_port
+|—————Node:struct_specifier Text: struct can_port
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_port
+|—————Node:pointer_declarator Text: *can_port
+|——————Node:* Text: *
+|——————Node:identifier Text: can_port
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: struct can_frame *can_frame
+|—————Node:struct_specifier Text: struct can_frame
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_frame
+|—————Node:pointer_declarator Text: *can_frame
+|——————Node:* Text: *
+|——————Node:identifier Text: can_frame
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  return read(can_port->fd, can_frame, sizeof(struct can_frame));
+}
+|———Node:{ Text: {
+|———Node:return_statement Text: return read(can_port->fd, can_frame, sizeof(struct can_frame));
+|————Node:return Text: return
+|————Node:call_expression Text: read(can_port->fd, can_frame, sizeof(struct can_frame))
+|—————Node:identifier Text: read
+|—————Node:argument_list Text: (can_port->fd, can_frame, sizeof(struct can_frame))
+|——————Node:( Text: (
+|——————Node:field_expression Text: can_port->fd
+|———————Node:identifier Text: can_port
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: fd
+|——————Node:, Text: ,
+|——————Node:identifier Text: can_frame
+|——————Node:, Text: ,
+|——————Node:sizeof_expression Text: sizeof(struct can_frame)
+|———————Node:sizeof Text: sizeof
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: struct can_frame
+|————————Node:struct_specifier Text: struct can_frame
+|—————————Node:struct Text: struct
+|—————————Node:type_identifier Text: can_frame
+|———————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: int can_read_into_buffer(struct can_port *can_port, int *resp_index)
+{
+  int num_read;
+  struct can_frame can_frame;
+
+  for(num_read = 0; num_read < MAX_READBUF; num_read++){
+    int res = read(can_port->fd, &can_frame, sizeof(struct can_frame));
+    if(res <= 0){
+      if(errno == EAGAIN)
+        return 0;
+      else
+        return errno;
+    }
+    encode_can_frame(can_port->read_buffer, resp_index, &can_frame);
+  }
+  return 0;
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: can_read_into_buffer(struct can_port *can_port, int *resp_index)
+|———Node:identifier Text: can_read_into_buffer
+|———Node:parameter_list Text: (struct can_port *can_port, int *resp_index)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct can_port *can_port
+|—————Node:struct_specifier Text: struct can_port
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_port
+|—————Node:pointer_declarator Text: *can_port
+|——————Node:* Text: *
+|——————Node:identifier Text: can_port
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: int *resp_index
+|—————Node:primitive_type Text: int
+|—————Node:pointer_declarator Text: *resp_index
+|——————Node:* Text: *
+|——————Node:identifier Text: resp_index
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  int num_read;
+  struct can_frame can_frame;
+
+  for(num_read = 0; num_read < MAX_READBUF; num_read++){
+    int res = read(can_port->fd, &can_frame, sizeof(struct can_frame));
+    if(res <= 0){
+      if(errno == EAGAIN)
+        return 0;
+      else
+        return errno;
+    }
+    encode_can_frame(can_port->read_buffer, resp_index, &can_frame);
+  }
+  return 0;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: int num_read;
+|————Node:primitive_type Text: int
+|————Node:identifier Text: num_read
+|————Node:; Text: ;
+|———Node:declaration Text: struct can_frame can_frame;
+|————Node:struct_specifier Text: struct can_frame
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: can_frame
+|————Node:identifier Text: can_frame
+|————Node:; Text: ;
+|———Node:for_statement Text: for(num_read = 0; num_read < MAX_READBUF; num_read++){
+    int res = read(can_port->fd, &can_frame, sizeof(struct can_frame));
+    if(res <= 0){
+      if(errno == EAGAIN)
+        return 0;
+      else
+        return errno;
+    }
+    encode_can_frame(can_port->read_buffer, resp_index, &can_frame);
+  }
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:assignment_expression Text: num_read = 0
+|—————Node:identifier Text: num_read
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|————Node:binary_expression Text: num_read < MAX_READBUF
+|—————Node:identifier Text: num_read
+|—————Node:< Text: <
+|—————Node:identifier Text: MAX_READBUF
+|————Node:; Text: ;
+|————Node:update_expression Text: num_read++
+|—————Node:identifier Text: num_read
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+    int res = read(can_port->fd, &can_frame, sizeof(struct can_frame));
+    if(res <= 0){
+      if(errno == EAGAIN)
+        return 0;
+      else
+        return errno;
+    }
+    encode_can_frame(can_port->read_buffer, resp_index, &can_frame);
+  }
+|—————Node:{ Text: {
+|—————Node:declaration Text: int res = read(can_port->fd, &can_frame, sizeof(struct can_frame));
+|——————Node:primitive_type Text: int
+|——————Node:init_declarator Text: res = read(can_port->fd, &can_frame, sizeof(struct can_frame))
+|———————Node:identifier Text: res
+|———————Node:= Text: =
+|———————Node:call_expression Text: read(can_port->fd, &can_frame, sizeof(struct can_frame))
+|————————Node:identifier Text: read
+|————————Node:argument_list Text: (can_port->fd, &can_frame, sizeof(struct can_frame))
+|—————————Node:( Text: (
+|—————————Node:field_expression Text: can_port->fd
+|——————————Node:identifier Text: can_port
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: fd
+|—————————Node:, Text: ,
+|—————————Node:pointer_expression Text: &can_frame
+|——————————Node:& Text: &
+|——————————Node:identifier Text: can_frame
+|—————————Node:, Text: ,
+|—————————Node:sizeof_expression Text: sizeof(struct can_frame)
+|——————————Node:sizeof Text: sizeof
+|——————————Node:( Text: (
+|——————————Node:type_descriptor Text: struct can_frame
+|———————————Node:struct_specifier Text: struct can_frame
+|————————————Node:struct Text: struct
+|————————————Node:type_identifier Text: can_frame
+|——————————Node:) Text: )
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if(res <= 0){
+      if(errno == EAGAIN)
+        return 0;
+      else
+        return errno;
+    }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (res <= 0)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: res <= 0
+|————————Node:identifier Text: res
+|————————Node:<= Text: <=
+|————————Node:number_literal Text: 0
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+      if(errno == EAGAIN)
+        return 0;
+      else
+        return errno;
+    }
+|———————Node:{ Text: {
+|———————Node:if_statement Text: if(errno == EAGAIN)
+        return 0;
+      else
+        return errno;
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (errno == EAGAIN)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: errno == EAGAIN
+|——————————Node:identifier Text: errno
+|——————————Node:== Text: ==
+|——————————Node:identifier Text: EAGAIN
+|—————————Node:) Text: )
+|————————Node:return_statement Text: return 0;
+|—————————Node:return Text: return
+|—————————Node:number_literal Text: 0
+|—————————Node:; Text: ;
+|————————Node:else_clause Text: else
+        return errno;
+|—————————Node:else Text: else
+|—————————Node:return_statement Text: return errno;
+|——————————Node:return Text: return
+|——————————Node:identifier Text: errno
+|——————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:expression_statement Text: encode_can_frame(can_port->read_buffer, resp_index, &can_frame);
+|——————Node:call_expression Text: encode_can_frame(can_port->read_buffer, resp_index, &can_frame)
+|———————Node:identifier Text: encode_can_frame
+|———————Node:argument_list Text: (can_port->read_buffer, resp_index, &can_frame)
+|————————Node:( Text: (
+|————————Node:field_expression Text: can_port->read_buffer
+|—————————Node:identifier Text: can_port
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: read_buffer
+|————————Node:, Text: ,
+|————————Node:identifier Text: resp_index
+|————————Node:, Text: ,
+|————————Node:pointer_expression Text: &can_frame
+|—————————Node:& Text: &
+|—————————Node:identifier Text: can_frame
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }

@@ -1,0 +1,383 @@
+J1939-Framework-CAN\CommonCanReceiver.cpp
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include "CommonCanReceiver.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "CommonCanReceiver.h"
+|———Node:" Text: "
+|———Node:string_content Text: CommonCanReceiver.h
+|———Node:" Text: "
+|—Node:namespace_definition Text: namespace Can {
+
+bool CommonCanReceiver::initialize(const std::string& interface, OnReceiveFramePtr rcvCallback, OnTimeoutPtr tmoutCallback, void* data) {
+
+	mRcvCB = rcvCallback;
+	mTimeoutCB = tmoutCallback;
+
+	mData = data;
+
+	return _initialize(interface);
+
+}
+
+bool CommonCanReceiver::setFilters(std::set<CanFilter> filters) {
+
+	mFilters = filters;
+
+	return true;
+
+}
+
+
+bool CommonCanReceiver::filter(u32 id) {
+
+	bool filtered = false;
+
+	for(auto filter = mFilters.begin(); filter != mFilters.end(); ++filter) {
+		if((filter->getId() & filter->getMask()) == (id & filter->getMask())) {
+			filtered = true;
+			break;
+		}
+	}
+
+
+	return filtered;
+
+}
+
+}
+|——Node:namespace Text: namespace
+|——Node:namespace_identifier Text: Can
+|——Node:declaration_list Text: {
+
+bool CommonCanReceiver::initialize(const std::string& interface, OnReceiveFramePtr rcvCallback, OnTimeoutPtr tmoutCallback, void* data) {
+
+	mRcvCB = rcvCallback;
+	mTimeoutCB = tmoutCallback;
+
+	mData = data;
+
+	return _initialize(interface);
+
+}
+
+bool CommonCanReceiver::setFilters(std::set<CanFilter> filters) {
+
+	mFilters = filters;
+
+	return true;
+
+}
+
+
+bool CommonCanReceiver::filter(u32 id) {
+
+	bool filtered = false;
+
+	for(auto filter = mFilters.begin(); filter != mFilters.end(); ++filter) {
+		if((filter->getId() & filter->getMask()) == (id & filter->getMask())) {
+			filtered = true;
+			break;
+		}
+	}
+
+
+	return filtered;
+
+}
+
+}
+|———Node:{ Text: {
+|———Node:function_definition Text: bool CommonCanReceiver::initialize(const std::string& interface, OnReceiveFramePtr rcvCallback, OnTimeoutPtr tmoutCallback, void* data) {
+
+	mRcvCB = rcvCallback;
+	mTimeoutCB = tmoutCallback;
+
+	mData = data;
+
+	return _initialize(interface);
+
+}
+|————Node:primitive_type Text: bool
+|————Node:function_declarator Text: CommonCanReceiver::initialize(const std::string& interface, OnReceiveFramePtr rcvCallback, OnTimeoutPtr tmoutCallback, void* data)
+|—————Node:qualified_identifier Text: CommonCanReceiver::initialize
+|——————Node:namespace_identifier Text: CommonCanReceiver
+|——————Node::: Text: ::
+|——————Node:identifier Text: initialize
+|—————Node:parameter_list Text: (const std::string& interface, OnReceiveFramePtr rcvCallback, OnTimeoutPtr tmoutCallback, void* data)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: const std::string& interface
+|———————Node:type_qualifier Text: const
+|————————Node:const Text: const
+|———————Node:qualified_identifier Text: std::string
+|————————Node:namespace_identifier Text: std
+|————————Node::: Text: ::
+|————————Node:type_identifier Text: string
+|———————Node:reference_declarator Text: & interface
+|————————Node:& Text: &
+|————————Node:identifier Text: interface
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: OnReceiveFramePtr rcvCallback
+|———————Node:type_identifier Text: OnReceiveFramePtr
+|———————Node:identifier Text: rcvCallback
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: OnTimeoutPtr tmoutCallback
+|———————Node:type_identifier Text: OnTimeoutPtr
+|———————Node:identifier Text: tmoutCallback
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: void* data
+|———————Node:primitive_type Text: void
+|———————Node:pointer_declarator Text: * data
+|————————Node:* Text: *
+|————————Node:identifier Text: data
+|——————Node:) Text: )
+|————Node:compound_statement Text: {
+
+	mRcvCB = rcvCallback;
+	mTimeoutCB = tmoutCallback;
+
+	mData = data;
+
+	return _initialize(interface);
+
+}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: mRcvCB = rcvCallback;
+|——————Node:assignment_expression Text: mRcvCB = rcvCallback
+|———————Node:identifier Text: mRcvCB
+|———————Node:= Text: =
+|———————Node:identifier Text: rcvCallback
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: mTimeoutCB = tmoutCallback;
+|——————Node:assignment_expression Text: mTimeoutCB = tmoutCallback
+|———————Node:identifier Text: mTimeoutCB
+|———————Node:= Text: =
+|———————Node:identifier Text: tmoutCallback
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: mData = data;
+|——————Node:assignment_expression Text: mData = data
+|———————Node:identifier Text: mData
+|———————Node:= Text: =
+|———————Node:identifier Text: data
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return _initialize(interface);
+|——————Node:return Text: return
+|——————Node:call_expression Text: _initialize(interface)
+|———————Node:identifier Text: _initialize
+|———————Node:argument_list Text: (interface)
+|————————Node:( Text: (
+|————————Node:identifier Text: interface
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:function_definition Text: bool CommonCanReceiver::setFilters(std::set<CanFilter> filters) {
+
+	mFilters = filters;
+
+	return true;
+
+}
+|————Node:primitive_type Text: bool
+|————Node:function_declarator Text: CommonCanReceiver::setFilters(std::set<CanFilter> filters)
+|—————Node:qualified_identifier Text: CommonCanReceiver::setFilters
+|——————Node:namespace_identifier Text: CommonCanReceiver
+|——————Node::: Text: ::
+|——————Node:identifier Text: setFilters
+|—————Node:parameter_list Text: (std::set<CanFilter> filters)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: std::set<CanFilter> filters
+|———————Node:qualified_identifier Text: std::set<CanFilter>
+|————————Node:namespace_identifier Text: std
+|————————Node::: Text: ::
+|————————Node:template_type Text: set<CanFilter>
+|—————————Node:type_identifier Text: set
+|—————————Node:template_argument_list Text: <CanFilter>
+|——————————Node:< Text: <
+|——————————Node:type_descriptor Text: CanFilter
+|———————————Node:type_identifier Text: CanFilter
+|——————————Node:> Text: >
+|———————Node:identifier Text: filters
+|——————Node:) Text: )
+|————Node:compound_statement Text: {
+
+	mFilters = filters;
+
+	return true;
+
+}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: mFilters = filters;
+|——————Node:assignment_expression Text: mFilters = filters
+|———————Node:identifier Text: mFilters
+|———————Node:= Text: =
+|———————Node:identifier Text: filters
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return true;
+|——————Node:return Text: return
+|——————Node:true Text: true
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:function_definition Text: bool CommonCanReceiver::filter(u32 id) {
+
+	bool filtered = false;
+
+	for(auto filter = mFilters.begin(); filter != mFilters.end(); ++filter) {
+		if((filter->getId() & filter->getMask()) == (id & filter->getMask())) {
+			filtered = true;
+			break;
+		}
+	}
+
+
+	return filtered;
+
+}
+|————Node:primitive_type Text: bool
+|————Node:function_declarator Text: CommonCanReceiver::filter(u32 id)
+|—————Node:qualified_identifier Text: CommonCanReceiver::filter
+|——————Node:namespace_identifier Text: CommonCanReceiver
+|——————Node::: Text: ::
+|——————Node:identifier Text: filter
+|—————Node:parameter_list Text: (u32 id)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: u32 id
+|———————Node:type_identifier Text: u32
+|———————Node:identifier Text: id
+|——————Node:) Text: )
+|————Node:compound_statement Text: {
+
+	bool filtered = false;
+
+	for(auto filter = mFilters.begin(); filter != mFilters.end(); ++filter) {
+		if((filter->getId() & filter->getMask()) == (id & filter->getMask())) {
+			filtered = true;
+			break;
+		}
+	}
+
+
+	return filtered;
+
+}
+|—————Node:{ Text: {
+|—————Node:declaration Text: bool filtered = false;
+|——————Node:primitive_type Text: bool
+|——————Node:init_declarator Text: filtered = false
+|———————Node:identifier Text: filtered
+|———————Node:= Text: =
+|———————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:for_statement Text: for(auto filter = mFilters.begin(); filter != mFilters.end(); ++filter) {
+		if((filter->getId() & filter->getMask()) == (id & filter->getMask())) {
+			filtered = true;
+			break;
+		}
+	}
+|——————Node:for Text: for
+|——————Node:( Text: (
+|——————Node:declaration Text: auto filter = mFilters.begin();
+|———————Node:placeholder_type_specifier Text: auto
+|————————Node:auto Text: auto
+|———————Node:init_declarator Text: filter = mFilters.begin()
+|————————Node:identifier Text: filter
+|————————Node:= Text: =
+|————————Node:call_expression Text: mFilters.begin()
+|—————————Node:field_expression Text: mFilters.begin
+|——————————Node:identifier Text: mFilters
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: begin
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:binary_expression Text: filter != mFilters.end()
+|———————Node:identifier Text: filter
+|———————Node:!= Text: !=
+|———————Node:call_expression Text: mFilters.end()
+|————————Node:field_expression Text: mFilters.end
+|—————————Node:identifier Text: mFilters
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: end
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|——————Node:update_expression Text: ++filter
+|———————Node:++ Text: ++
+|———————Node:identifier Text: filter
+|——————Node:) Text: )
+|——————Node:compound_statement Text: {
+		if((filter->getId() & filter->getMask()) == (id & filter->getMask())) {
+			filtered = true;
+			break;
+		}
+	}
+|———————Node:{ Text: {
+|———————Node:if_statement Text: if((filter->getId() & filter->getMask()) == (id & filter->getMask())) {
+			filtered = true;
+			break;
+		}
+|————————Node:if Text: if
+|————————Node:condition_clause Text: ((filter->getId() & filter->getMask()) == (id & filter->getMask()))
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: (filter->getId() & filter->getMask()) == (id & filter->getMask())
+|——————————Node:parenthesized_expression Text: (filter->getId() & filter->getMask())
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: filter->getId() & filter->getMask()
+|————————————Node:call_expression Text: filter->getId()
+|—————————————Node:field_expression Text: filter->getId
+|——————————————Node:identifier Text: filter
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: getId
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:& Text: &
+|————————————Node:call_expression Text: filter->getMask()
+|—————————————Node:field_expression Text: filter->getMask
+|——————————————Node:identifier Text: filter
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: getMask
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|———————————Node:) Text: )
+|——————————Node:== Text: ==
+|——————————Node:parenthesized_expression Text: (id & filter->getMask())
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: id & filter->getMask()
+|————————————Node:identifier Text: id
+|————————————Node:& Text: &
+|————————————Node:call_expression Text: filter->getMask()
+|—————————————Node:field_expression Text: filter->getMask
+|——————————————Node:identifier Text: filter
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: getMask
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+			filtered = true;
+			break;
+		}
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: filtered = true;
+|——————————Node:assignment_expression Text: filtered = true
+|———————————Node:identifier Text: filtered
+|———————————Node:= Text: =
+|———————————Node:true Text: true
+|——————————Node:; Text: ;
+|—————————Node:break_statement Text: break;
+|——————————Node:break Text: break
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|—————Node:return_statement Text: return filtered;
+|——————Node:return Text: return
+|——————Node:identifier Text: filtered
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:} Text: }

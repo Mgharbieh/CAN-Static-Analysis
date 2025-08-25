@@ -1,0 +1,1710 @@
+heat_can-src\logamaticCan.cpp
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include <CAN.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <CAN.h>
+|—Node:preproc_include Text: #include "logamaticCan.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "logamaticCan.h"
+|———Node:" Text: "
+|———Node:string_content Text: logamaticCan.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "common.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "common.h"
+|———Node:" Text: "
+|———Node:string_content Text: common.h
+|———Node:" Text: "
+|—Node:declaration Text: static const long bitrates[] = {
+    (long)1000E3,
+    (long)500E3,
+    (long)250E3,
+    (long)200E3,
+    (long)125E3,
+    (long)100E3,
+     (long)80E3,
+     (long)50E3,
+     (long)40E3,
+     (long)20E3,
+     (long)10E3,
+      (long)5E3, 
+ };
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:type_qualifier Text: const
+|———Node:const Text: const
+|——Node:sized_type_specifier Text: long
+|———Node:long Text: long
+|——Node:init_declarator Text: bitrates[] = {
+    (long)1000E3,
+    (long)500E3,
+    (long)250E3,
+    (long)200E3,
+    (long)125E3,
+    (long)100E3,
+     (long)80E3,
+     (long)50E3,
+     (long)40E3,
+     (long)20E3,
+     (long)10E3,
+      (long)5E3, 
+ }
+|———Node:array_declarator Text: bitrates[]
+|————Node:identifier Text: bitrates
+|————Node:[ Text: [
+|————Node:] Text: ]
+|———Node:= Text: =
+|———Node:initializer_list Text: {
+    (long)1000E3,
+    (long)500E3,
+    (long)250E3,
+    (long)200E3,
+    (long)125E3,
+    (long)100E3,
+     (long)80E3,
+     (long)50E3,
+     (long)40E3,
+     (long)20E3,
+     (long)10E3,
+      (long)5E3, 
+ }
+|————Node:{ Text: {
+|————Node:cast_expression Text: (long)1000E3
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: long
+|——————Node:sized_type_specifier Text: long
+|———————Node:long Text: long
+|—————Node:) Text: )
+|—————Node:number_literal Text: 1000E3
+|————Node:, Text: ,
+|————Node:cast_expression Text: (long)500E3
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: long
+|——————Node:sized_type_specifier Text: long
+|———————Node:long Text: long
+|—————Node:) Text: )
+|—————Node:number_literal Text: 500E3
+|————Node:, Text: ,
+|————Node:cast_expression Text: (long)250E3
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: long
+|——————Node:sized_type_specifier Text: long
+|———————Node:long Text: long
+|—————Node:) Text: )
+|—————Node:number_literal Text: 250E3
+|————Node:, Text: ,
+|————Node:cast_expression Text: (long)200E3
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: long
+|——————Node:sized_type_specifier Text: long
+|———————Node:long Text: long
+|—————Node:) Text: )
+|—————Node:number_literal Text: 200E3
+|————Node:, Text: ,
+|————Node:cast_expression Text: (long)125E3
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: long
+|——————Node:sized_type_specifier Text: long
+|———————Node:long Text: long
+|—————Node:) Text: )
+|—————Node:number_literal Text: 125E3
+|————Node:, Text: ,
+|————Node:cast_expression Text: (long)100E3
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: long
+|——————Node:sized_type_specifier Text: long
+|———————Node:long Text: long
+|—————Node:) Text: )
+|—————Node:number_literal Text: 100E3
+|————Node:, Text: ,
+|————Node:cast_expression Text: (long)80E3
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: long
+|——————Node:sized_type_specifier Text: long
+|———————Node:long Text: long
+|—————Node:) Text: )
+|—————Node:number_literal Text: 80E3
+|————Node:, Text: ,
+|————Node:cast_expression Text: (long)50E3
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: long
+|——————Node:sized_type_specifier Text: long
+|———————Node:long Text: long
+|—————Node:) Text: )
+|—————Node:number_literal Text: 50E3
+|————Node:, Text: ,
+|————Node:cast_expression Text: (long)40E3
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: long
+|——————Node:sized_type_specifier Text: long
+|———————Node:long Text: long
+|—————Node:) Text: )
+|—————Node:number_literal Text: 40E3
+|————Node:, Text: ,
+|————Node:cast_expression Text: (long)20E3
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: long
+|——————Node:sized_type_specifier Text: long
+|———————Node:long Text: long
+|—————Node:) Text: )
+|—————Node:number_literal Text: 20E3
+|————Node:, Text: ,
+|————Node:cast_expression Text: (long)10E3
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: long
+|——————Node:sized_type_specifier Text: long
+|———————Node:long Text: long
+|—————Node:) Text: )
+|—————Node:number_literal Text: 10E3
+|————Node:, Text: ,
+|————Node:cast_expression Text: (long)5E3
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: long
+|——————Node:sized_type_specifier Text: long
+|———————Node:long Text: long
+|—————Node:) Text: )
+|—————Node:number_literal Text: 5E3
+|————Node:, Text: ,
+|————Node:} Text: }
+|——Node:; Text: ;
+|—Node:declaration Text: static char buf[42];
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: char
+|——Node:array_declarator Text: buf[42]
+|———Node:identifier Text: buf
+|———Node:[ Text: [
+|———Node:number_literal Text: 42
+|———Node:] Text: ]
+|——Node:; Text: ;
+|—Node:function_definition Text: void logamaticCan::setup() {
+    // SPI.pins(); //use the default HSPI pins
+    // SPI.setHwCs(true);  // seems to collide with CAN library's CS
+    CAN.setPins(D8, D1);
+    CAN.setClockFrequency(8E6);
+    int rc = CAN.begin(bitrates[_bitrateIdx]);
+    Serial.print("CAN.begin(");
+    Serial.print(bitrates[_bitrateIdx]);
+    Serial.print(")-> ");
+    Serial.println(rc);
+    // CAN.loopback();
+    if (rc == 1) {
+        // CAN.onReceive(onReceive);
+    }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: logamaticCan::setup()
+|———Node:qualified_identifier Text: logamaticCan::setup
+|————Node:namespace_identifier Text: logamaticCan
+|————Node::: Text: ::
+|————Node:identifier Text: setup
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    // SPI.pins(); //use the default HSPI pins
+    // SPI.setHwCs(true);  // seems to collide with CAN library's CS
+    CAN.setPins(D8, D1);
+    CAN.setClockFrequency(8E6);
+    int rc = CAN.begin(bitrates[_bitrateIdx]);
+    Serial.print("CAN.begin(");
+    Serial.print(bitrates[_bitrateIdx]);
+    Serial.print(")-> ");
+    Serial.println(rc);
+    // CAN.loopback();
+    if (rc == 1) {
+        // CAN.onReceive(onReceive);
+    }
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: CAN.setPins(D8, D1);
+|————Node:call_expression Text: CAN.setPins(D8, D1)
+|—————Node:field_expression Text: CAN.setPins
+|——————Node:identifier Text: CAN
+|——————Node:. Text: .
+|——————Node:field_identifier Text: setPins
+|—————Node:argument_list Text: (D8, D1)
+|——————Node:( Text: (
+|——————Node:identifier Text: D8
+|——————Node:, Text: ,
+|——————Node:identifier Text: D1
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: CAN.setClockFrequency(8E6);
+|————Node:call_expression Text: CAN.setClockFrequency(8E6)
+|—————Node:field_expression Text: CAN.setClockFrequency
+|——————Node:identifier Text: CAN
+|——————Node:. Text: .
+|——————Node:field_identifier Text: setClockFrequency
+|—————Node:argument_list Text: (8E6)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 8E6
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: int rc = CAN.begin(bitrates[_bitrateIdx]);
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: rc = CAN.begin(bitrates[_bitrateIdx])
+|—————Node:identifier Text: rc
+|—————Node:= Text: =
+|—————Node:call_expression Text: CAN.begin(bitrates[_bitrateIdx])
+|——————Node:field_expression Text: CAN.begin
+|———————Node:identifier Text: CAN
+|———————Node:. Text: .
+|———————Node:field_identifier Text: begin
+|——————Node:argument_list Text: (bitrates[_bitrateIdx])
+|———————Node:( Text: (
+|———————Node:subscript_expression Text: bitrates[_bitrateIdx]
+|————————Node:identifier Text: bitrates
+|————————Node:subscript_argument_list Text: [_bitrateIdx]
+|—————————Node:[ Text: [
+|—————————Node:identifier Text: _bitrateIdx
+|—————————Node:] Text: ]
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: Serial.print("CAN.begin(");
+|————Node:call_expression Text: Serial.print("CAN.begin(")
+|—————Node:field_expression Text: Serial.print
+|——————Node:identifier Text: Serial
+|——————Node:. Text: .
+|——————Node:field_identifier Text: print
+|—————Node:argument_list Text: ("CAN.begin(")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "CAN.begin("
+|———————Node:" Text: "
+|———————Node:string_content Text: CAN.begin(
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: Serial.print(bitrates[_bitrateIdx]);
+|————Node:call_expression Text: Serial.print(bitrates[_bitrateIdx])
+|—————Node:field_expression Text: Serial.print
+|——————Node:identifier Text: Serial
+|——————Node:. Text: .
+|——————Node:field_identifier Text: print
+|—————Node:argument_list Text: (bitrates[_bitrateIdx])
+|——————Node:( Text: (
+|——————Node:subscript_expression Text: bitrates[_bitrateIdx]
+|———————Node:identifier Text: bitrates
+|———————Node:subscript_argument_list Text: [_bitrateIdx]
+|————————Node:[ Text: [
+|————————Node:identifier Text: _bitrateIdx
+|————————Node:] Text: ]
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: Serial.print(")-> ");
+|————Node:call_expression Text: Serial.print(")-> ")
+|—————Node:field_expression Text: Serial.print
+|——————Node:identifier Text: Serial
+|——————Node:. Text: .
+|——————Node:field_identifier Text: print
+|—————Node:argument_list Text: (")-> ")
+|——————Node:( Text: (
+|——————Node:string_literal Text: ")-> "
+|———————Node:" Text: "
+|———————Node:string_content Text: )-> 
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: Serial.println(rc);
+|————Node:call_expression Text: Serial.println(rc)
+|—————Node:field_expression Text: Serial.println
+|——————Node:identifier Text: Serial
+|——————Node:. Text: .
+|——————Node:field_identifier Text: println
+|—————Node:argument_list Text: (rc)
+|——————Node:( Text: (
+|——————Node:identifier Text: rc
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:if_statement Text: if (rc == 1) {
+        // CAN.onReceive(onReceive);
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (rc == 1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: rc == 1
+|——————Node:identifier Text: rc
+|——————Node:== Text: ==
+|——————Node:number_literal Text: 1
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        // CAN.onReceive(onReceive);
+    }
+|—————Node:{ Text: {
+|—————Node:comment
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:function_definition Text: void logamaticCan::mqttRecv(char* topic, byte* payload, unsigned int length) {
+    if (strcmp(send_topic, topic) == 0 && length > 0) {
+        handleSend(payload, length);
+    }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: logamaticCan::mqttRecv(char* topic, byte* payload, unsigned int length)
+|———Node:qualified_identifier Text: logamaticCan::mqttRecv
+|————Node:namespace_identifier Text: logamaticCan
+|————Node::: Text: ::
+|————Node:identifier Text: mqttRecv
+|———Node:parameter_list Text: (char* topic, byte* payload, unsigned int length)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: char* topic
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: * topic
+|——————Node:* Text: *
+|——————Node:identifier Text: topic
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: byte* payload
+|—————Node:type_identifier Text: byte
+|—————Node:pointer_declarator Text: * payload
+|——————Node:* Text: *
+|——————Node:identifier Text: payload
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: unsigned int length
+|—————Node:sized_type_specifier Text: unsigned int
+|——————Node:unsigned Text: unsigned
+|——————Node:primitive_type Text: int
+|—————Node:identifier Text: length
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if (strcmp(send_topic, topic) == 0 && length > 0) {
+        handleSend(payload, length);
+    }
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (strcmp(send_topic, topic) == 0 && length > 0) {
+        handleSend(payload, length);
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (strcmp(send_topic, topic) == 0 && length > 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: strcmp(send_topic, topic) == 0 && length > 0
+|——————Node:binary_expression Text: strcmp(send_topic, topic) == 0
+|———————Node:call_expression Text: strcmp(send_topic, topic)
+|————————Node:identifier Text: strcmp
+|————————Node:argument_list Text: (send_topic, topic)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: send_topic
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: topic
+|—————————Node:) Text: )
+|———————Node:== Text: ==
+|———————Node:number_literal Text: 0
+|——————Node:&& Text: &&
+|——————Node:binary_expression Text: length > 0
+|———————Node:identifier Text: length
+|———————Node:> Text: >
+|———————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        handleSend(payload, length);
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: handleSend(payload, length);
+|——————Node:call_expression Text: handleSend(payload, length)
+|———————Node:identifier Text: handleSend
+|———————Node:argument_list Text: (payload, length)
+|————————Node:( Text: (
+|————————Node:identifier Text: payload
+|————————Node:, Text: ,
+|————————Node:identifier Text: length
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:function_definition Text: void logamaticCan::handleSend(byte* payload, unsigned int length) {
+    int rtr;
+    long id;
+    uint8_t data[8];
+    unsigned l = sizeof(buf) -1 < length ? sizeof(buf) : length;
+    memcpy(buf, payload, l);
+    buf[l] = '\0';
+    int r = sscanf(buf, "%x;%lx; %hhx %hhx %hhx %hhx %hhx %hhx %hhx %hhx", 
+            &rtr, &id, &data[0], &data[1], &data[2], &data[3], 
+            &data[4], &data[5], &data[6], &data[7]);
+    if (r != 10) {
+        const char errmsg[] = "MQTT payload";
+        mqttClient.beginPublish(TOPIC_PREFIX "can/err", sizeof(errmsg), false);
+        mqttClient.write((uint8_t*)errmsg, sizeof(errmsg));
+        mqttClient.endPublish();
+        return;
+    }
+    bool ok = CAN.beginPacket(id, 8, rtr) &&
+    CAN.write(data, 8) == 8 &&
+    CAN.endPacket();
+
+    if (!ok) {
+        const char errmsg[] = "CAN write";
+        mqttClient.beginPublish(TOPIC_PREFIX "can/error/write", sizeof(errmsg), false);
+        mqttClient.write((uint8_t*)errmsg, sizeof(errmsg));
+        mqttClient.endPublish();
+    } else {
+        const char msg[] = "CAN write success";
+        mqttClient.beginPublish(TOPIC_PREFIX "can/dbg", sizeof(msg), false);
+        mqttClient.write((uint8_t*)msg, sizeof(msg));
+        mqttClient.endPublish();
+
+    }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: logamaticCan::handleSend(byte* payload, unsigned int length)
+|———Node:qualified_identifier Text: logamaticCan::handleSend
+|————Node:namespace_identifier Text: logamaticCan
+|————Node::: Text: ::
+|————Node:identifier Text: handleSend
+|———Node:parameter_list Text: (byte* payload, unsigned int length)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: byte* payload
+|—————Node:type_identifier Text: byte
+|—————Node:pointer_declarator Text: * payload
+|——————Node:* Text: *
+|——————Node:identifier Text: payload
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: unsigned int length
+|—————Node:sized_type_specifier Text: unsigned int
+|——————Node:unsigned Text: unsigned
+|——————Node:primitive_type Text: int
+|—————Node:identifier Text: length
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    int rtr;
+    long id;
+    uint8_t data[8];
+    unsigned l = sizeof(buf) -1 < length ? sizeof(buf) : length;
+    memcpy(buf, payload, l);
+    buf[l] = '\0';
+    int r = sscanf(buf, "%x;%lx; %hhx %hhx %hhx %hhx %hhx %hhx %hhx %hhx", 
+            &rtr, &id, &data[0], &data[1], &data[2], &data[3], 
+            &data[4], &data[5], &data[6], &data[7]);
+    if (r != 10) {
+        const char errmsg[] = "MQTT payload";
+        mqttClient.beginPublish(TOPIC_PREFIX "can/err", sizeof(errmsg), false);
+        mqttClient.write((uint8_t*)errmsg, sizeof(errmsg));
+        mqttClient.endPublish();
+        return;
+    }
+    bool ok = CAN.beginPacket(id, 8, rtr) &&
+    CAN.write(data, 8) == 8 &&
+    CAN.endPacket();
+
+    if (!ok) {
+        const char errmsg[] = "CAN write";
+        mqttClient.beginPublish(TOPIC_PREFIX "can/error/write", sizeof(errmsg), false);
+        mqttClient.write((uint8_t*)errmsg, sizeof(errmsg));
+        mqttClient.endPublish();
+    } else {
+        const char msg[] = "CAN write success";
+        mqttClient.beginPublish(TOPIC_PREFIX "can/dbg", sizeof(msg), false);
+        mqttClient.write((uint8_t*)msg, sizeof(msg));
+        mqttClient.endPublish();
+
+    }
+}
+|———Node:{ Text: {
+|———Node:declaration Text: int rtr;
+|————Node:primitive_type Text: int
+|————Node:identifier Text: rtr
+|————Node:; Text: ;
+|———Node:declaration Text: long id;
+|————Node:sized_type_specifier Text: long
+|—————Node:long Text: long
+|————Node:identifier Text: id
+|————Node:; Text: ;
+|———Node:declaration Text: uint8_t data[8];
+|————Node:primitive_type Text: uint8_t
+|————Node:array_declarator Text: data[8]
+|—————Node:identifier Text: data
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 8
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:declaration Text: unsigned l = sizeof(buf) -1 < length ? sizeof(buf) : length;
+|————Node:sized_type_specifier Text: unsigned
+|—————Node:unsigned Text: unsigned
+|————Node:init_declarator Text: l = sizeof(buf) -1 < length ? sizeof(buf) : length
+|—————Node:identifier Text: l
+|—————Node:= Text: =
+|—————Node:conditional_expression Text: sizeof(buf) -1 < length ? sizeof(buf) : length
+|——————Node:binary_expression Text: sizeof(buf) -1 < length
+|———————Node:binary_expression Text: sizeof(buf) -1
+|————————Node:sizeof_expression Text: sizeof(buf)
+|—————————Node:sizeof Text: sizeof
+|—————————Node:parenthesized_expression Text: (buf)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: buf
+|——————————Node:) Text: )
+|————————Node:- Text: -
+|————————Node:number_literal Text: 1
+|———————Node:< Text: <
+|———————Node:identifier Text: length
+|——————Node:? Text: ?
+|——————Node:sizeof_expression Text: sizeof(buf)
+|———————Node:sizeof Text: sizeof
+|———————Node:parenthesized_expression Text: (buf)
+|————————Node:( Text: (
+|————————Node:identifier Text: buf
+|————————Node:) Text: )
+|——————Node:: Text: :
+|——————Node:identifier Text: length
+|————Node:; Text: ;
+|———Node:expression_statement Text: memcpy(buf, payload, l);
+|————Node:call_expression Text: memcpy(buf, payload, l)
+|—————Node:identifier Text: memcpy
+|—————Node:argument_list Text: (buf, payload, l)
+|——————Node:( Text: (
+|——————Node:identifier Text: buf
+|——————Node:, Text: ,
+|——————Node:identifier Text: payload
+|——————Node:, Text: ,
+|——————Node:identifier Text: l
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: buf[l] = '\0';
+|————Node:assignment_expression Text: buf[l] = '\0'
+|—————Node:subscript_expression Text: buf[l]
+|——————Node:identifier Text: buf
+|——————Node:subscript_argument_list Text: [l]
+|———————Node:[ Text: [
+|———————Node:identifier Text: l
+|———————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:char_literal Text: '\0'
+|——————Node:' Text: '
+|——————Node:escape_sequence Text: \0
+|——————Node:' Text: '
+|————Node:; Text: ;
+|———Node:declaration Text: int r = sscanf(buf, "%x;%lx; %hhx %hhx %hhx %hhx %hhx %hhx %hhx %hhx", 
+            &rtr, &id, &data[0], &data[1], &data[2], &data[3], 
+            &data[4], &data[5], &data[6], &data[7]);
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: r = sscanf(buf, "%x;%lx; %hhx %hhx %hhx %hhx %hhx %hhx %hhx %hhx", 
+            &rtr, &id, &data[0], &data[1], &data[2], &data[3], 
+            &data[4], &data[5], &data[6], &data[7])
+|—————Node:identifier Text: r
+|—————Node:= Text: =
+|—————Node:call_expression Text: sscanf(buf, "%x;%lx; %hhx %hhx %hhx %hhx %hhx %hhx %hhx %hhx", 
+            &rtr, &id, &data[0], &data[1], &data[2], &data[3], 
+            &data[4], &data[5], &data[6], &data[7])
+|——————Node:identifier Text: sscanf
+|——————Node:argument_list Text: (buf, "%x;%lx; %hhx %hhx %hhx %hhx %hhx %hhx %hhx %hhx", 
+            &rtr, &id, &data[0], &data[1], &data[2], &data[3], 
+            &data[4], &data[5], &data[6], &data[7])
+|———————Node:( Text: (
+|———————Node:identifier Text: buf
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "%x;%lx; %hhx %hhx %hhx %hhx %hhx %hhx %hhx %hhx"
+|————————Node:" Text: "
+|————————Node:string_content Text: %x;%lx; %hhx %hhx %hhx %hhx %hhx %hhx %hhx %hhx
+|————————Node:" Text: "
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &rtr
+|————————Node:& Text: &
+|————————Node:identifier Text: rtr
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &id
+|————————Node:& Text: &
+|————————Node:identifier Text: id
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &data[0]
+|————————Node:& Text: &
+|————————Node:subscript_expression Text: data[0]
+|—————————Node:identifier Text: data
+|—————————Node:subscript_argument_list Text: [0]
+|——————————Node:[ Text: [
+|——————————Node:number_literal Text: 0
+|——————————Node:] Text: ]
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &data[1]
+|————————Node:& Text: &
+|————————Node:subscript_expression Text: data[1]
+|—————————Node:identifier Text: data
+|—————————Node:subscript_argument_list Text: [1]
+|——————————Node:[ Text: [
+|——————————Node:number_literal Text: 1
+|——————————Node:] Text: ]
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &data[2]
+|————————Node:& Text: &
+|————————Node:subscript_expression Text: data[2]
+|—————————Node:identifier Text: data
+|—————————Node:subscript_argument_list Text: [2]
+|——————————Node:[ Text: [
+|——————————Node:number_literal Text: 2
+|——————————Node:] Text: ]
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &data[3]
+|————————Node:& Text: &
+|————————Node:subscript_expression Text: data[3]
+|—————————Node:identifier Text: data
+|—————————Node:subscript_argument_list Text: [3]
+|——————————Node:[ Text: [
+|——————————Node:number_literal Text: 3
+|——————————Node:] Text: ]
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &data[4]
+|————————Node:& Text: &
+|————————Node:subscript_expression Text: data[4]
+|—————————Node:identifier Text: data
+|—————————Node:subscript_argument_list Text: [4]
+|——————————Node:[ Text: [
+|——————————Node:number_literal Text: 4
+|——————————Node:] Text: ]
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &data[5]
+|————————Node:& Text: &
+|————————Node:subscript_expression Text: data[5]
+|—————————Node:identifier Text: data
+|—————————Node:subscript_argument_list Text: [5]
+|——————————Node:[ Text: [
+|——————————Node:number_literal Text: 5
+|——————————Node:] Text: ]
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &data[6]
+|————————Node:& Text: &
+|————————Node:subscript_expression Text: data[6]
+|—————————Node:identifier Text: data
+|—————————Node:subscript_argument_list Text: [6]
+|——————————Node:[ Text: [
+|——————————Node:number_literal Text: 6
+|——————————Node:] Text: ]
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &data[7]
+|————————Node:& Text: &
+|————————Node:subscript_expression Text: data[7]
+|—————————Node:identifier Text: data
+|—————————Node:subscript_argument_list Text: [7]
+|——————————Node:[ Text: [
+|——————————Node:number_literal Text: 7
+|——————————Node:] Text: ]
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (r != 10) {
+        const char errmsg[] = "MQTT payload";
+        mqttClient.beginPublish(TOPIC_PREFIX "can/err", sizeof(errmsg), false);
+        mqttClient.write((uint8_t*)errmsg, sizeof(errmsg));
+        mqttClient.endPublish();
+        return;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (r != 10)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: r != 10
+|——————Node:identifier Text: r
+|——————Node:!= Text: !=
+|——————Node:number_literal Text: 10
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        const char errmsg[] = "MQTT payload";
+        mqttClient.beginPublish(TOPIC_PREFIX "can/err", sizeof(errmsg), false);
+        mqttClient.write((uint8_t*)errmsg, sizeof(errmsg));
+        mqttClient.endPublish();
+        return;
+    }
+|—————Node:{ Text: {
+|—————Node:declaration Text: const char errmsg[] = "MQTT payload";
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: char
+|——————Node:init_declarator Text: errmsg[] = "MQTT payload"
+|———————Node:array_declarator Text: errmsg[]
+|————————Node:identifier Text: errmsg
+|————————Node:[ Text: [
+|————————Node:] Text: ]
+|———————Node:= Text: =
+|———————Node:string_literal Text: "MQTT payload"
+|————————Node:" Text: "
+|————————Node:string_content Text: MQTT payload
+|————————Node:" Text: "
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: mqttClient.beginPublish(TOPIC_PREFIX "can/err", sizeof(errmsg), false);
+|——————Node:call_expression Text: mqttClient.beginPublish(TOPIC_PREFIX "can/err", sizeof(errmsg), false)
+|———————Node:field_expression Text: mqttClient.beginPublish
+|————————Node:identifier Text: mqttClient
+|————————Node:. Text: .
+|————————Node:field_identifier Text: beginPublish
+|———————Node:argument_list Text: (TOPIC_PREFIX "can/err", sizeof(errmsg), false)
+|————————Node:( Text: (
+|————————Node:concatenated_string Text: TOPIC_PREFIX "can/err"
+|—————————Node:identifier Text: TOPIC_PREFIX
+|—————————Node:string_literal Text: "can/err"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: can/err
+|——————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:sizeof_expression Text: sizeof(errmsg)
+|—————————Node:sizeof Text: sizeof
+|—————————Node:parenthesized_expression Text: (errmsg)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: errmsg
+|——————————Node:) Text: )
+|————————Node:, Text: ,
+|————————Node:false Text: false
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: mqttClient.write((uint8_t*)errmsg, sizeof(errmsg));
+|——————Node:call_expression Text: mqttClient.write((uint8_t*)errmsg, sizeof(errmsg))
+|———————Node:field_expression Text: mqttClient.write
+|————————Node:identifier Text: mqttClient
+|————————Node:. Text: .
+|————————Node:field_identifier Text: write
+|———————Node:argument_list Text: ((uint8_t*)errmsg, sizeof(errmsg))
+|————————Node:( Text: (
+|————————Node:cast_expression Text: (uint8_t*)errmsg
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint8_t*
+|——————————Node:primitive_type Text: uint8_t
+|——————————Node:abstract_pointer_declarator Text: *
+|———————————Node:* Text: *
+|—————————Node:) Text: )
+|—————————Node:identifier Text: errmsg
+|————————Node:, Text: ,
+|————————Node:sizeof_expression Text: sizeof(errmsg)
+|—————————Node:sizeof Text: sizeof
+|—————————Node:parenthesized_expression Text: (errmsg)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: errmsg
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: mqttClient.endPublish();
+|——————Node:call_expression Text: mqttClient.endPublish()
+|———————Node:field_expression Text: mqttClient.endPublish
+|————————Node:identifier Text: mqttClient
+|————————Node:. Text: .
+|————————Node:field_identifier Text: endPublish
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return;
+|——————Node:return Text: return
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:declaration Text: bool ok = CAN.beginPacket(id, 8, rtr) &&
+    CAN.write(data, 8) == 8 &&
+    CAN.endPacket();
+|————Node:primitive_type Text: bool
+|————Node:init_declarator Text: ok = CAN.beginPacket(id, 8, rtr) &&
+    CAN.write(data, 8) == 8 &&
+    CAN.endPacket()
+|—————Node:identifier Text: ok
+|—————Node:= Text: =
+|—————Node:binary_expression Text: CAN.beginPacket(id, 8, rtr) &&
+    CAN.write(data, 8) == 8 &&
+    CAN.endPacket()
+|——————Node:binary_expression Text: CAN.beginPacket(id, 8, rtr) &&
+    CAN.write(data, 8) == 8
+|———————Node:call_expression Text: CAN.beginPacket(id, 8, rtr)
+|————————Node:field_expression Text: CAN.beginPacket
+|—————————Node:identifier Text: CAN
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: beginPacket
+|————————Node:argument_list Text: (id, 8, rtr)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: id
+|—————————Node:, Text: ,
+|—————————Node:number_literal Text: 8
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: rtr
+|—————————Node:) Text: )
+|———————Node:&& Text: &&
+|———————Node:binary_expression Text: CAN.write(data, 8) == 8
+|————————Node:call_expression Text: CAN.write(data, 8)
+|—————————Node:field_expression Text: CAN.write
+|——————————Node:identifier Text: CAN
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: write
+|—————————Node:argument_list Text: (data, 8)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: data
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 8
+|——————————Node:) Text: )
+|————————Node:== Text: ==
+|————————Node:number_literal Text: 8
+|——————Node:&& Text: &&
+|——————Node:call_expression Text: CAN.endPacket()
+|———————Node:field_expression Text: CAN.endPacket
+|————————Node:identifier Text: CAN
+|————————Node:. Text: .
+|————————Node:field_identifier Text: endPacket
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (!ok) {
+        const char errmsg[] = "CAN write";
+        mqttClient.beginPublish(TOPIC_PREFIX "can/error/write", sizeof(errmsg), false);
+        mqttClient.write((uint8_t*)errmsg, sizeof(errmsg));
+        mqttClient.endPublish();
+    } else {
+        const char msg[] = "CAN write success";
+        mqttClient.beginPublish(TOPIC_PREFIX "can/dbg", sizeof(msg), false);
+        mqttClient.write((uint8_t*)msg, sizeof(msg));
+        mqttClient.endPublish();
+
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (!ok)
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !ok
+|——————Node:! Text: !
+|——————Node:identifier Text: ok
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        const char errmsg[] = "CAN write";
+        mqttClient.beginPublish(TOPIC_PREFIX "can/error/write", sizeof(errmsg), false);
+        mqttClient.write((uint8_t*)errmsg, sizeof(errmsg));
+        mqttClient.endPublish();
+    }
+|—————Node:{ Text: {
+|—————Node:declaration Text: const char errmsg[] = "CAN write";
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: char
+|——————Node:init_declarator Text: errmsg[] = "CAN write"
+|———————Node:array_declarator Text: errmsg[]
+|————————Node:identifier Text: errmsg
+|————————Node:[ Text: [
+|————————Node:] Text: ]
+|———————Node:= Text: =
+|———————Node:string_literal Text: "CAN write"
+|————————Node:" Text: "
+|————————Node:string_content Text: CAN write
+|————————Node:" Text: "
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: mqttClient.beginPublish(TOPIC_PREFIX "can/error/write", sizeof(errmsg), false);
+|——————Node:call_expression Text: mqttClient.beginPublish(TOPIC_PREFIX "can/error/write", sizeof(errmsg), false)
+|———————Node:field_expression Text: mqttClient.beginPublish
+|————————Node:identifier Text: mqttClient
+|————————Node:. Text: .
+|————————Node:field_identifier Text: beginPublish
+|———————Node:argument_list Text: (TOPIC_PREFIX "can/error/write", sizeof(errmsg), false)
+|————————Node:( Text: (
+|————————Node:concatenated_string Text: TOPIC_PREFIX "can/error/write"
+|—————————Node:identifier Text: TOPIC_PREFIX
+|—————————Node:string_literal Text: "can/error/write"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: can/error/write
+|——————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:sizeof_expression Text: sizeof(errmsg)
+|—————————Node:sizeof Text: sizeof
+|—————————Node:parenthesized_expression Text: (errmsg)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: errmsg
+|——————————Node:) Text: )
+|————————Node:, Text: ,
+|————————Node:false Text: false
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: mqttClient.write((uint8_t*)errmsg, sizeof(errmsg));
+|——————Node:call_expression Text: mqttClient.write((uint8_t*)errmsg, sizeof(errmsg))
+|———————Node:field_expression Text: mqttClient.write
+|————————Node:identifier Text: mqttClient
+|————————Node:. Text: .
+|————————Node:field_identifier Text: write
+|———————Node:argument_list Text: ((uint8_t*)errmsg, sizeof(errmsg))
+|————————Node:( Text: (
+|————————Node:cast_expression Text: (uint8_t*)errmsg
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint8_t*
+|——————————Node:primitive_type Text: uint8_t
+|——————————Node:abstract_pointer_declarator Text: *
+|———————————Node:* Text: *
+|—————————Node:) Text: )
+|—————————Node:identifier Text: errmsg
+|————————Node:, Text: ,
+|————————Node:sizeof_expression Text: sizeof(errmsg)
+|—————————Node:sizeof Text: sizeof
+|—————————Node:parenthesized_expression Text: (errmsg)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: errmsg
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: mqttClient.endPublish();
+|——————Node:call_expression Text: mqttClient.endPublish()
+|———————Node:field_expression Text: mqttClient.endPublish
+|————————Node:identifier Text: mqttClient
+|————————Node:. Text: .
+|————————Node:field_identifier Text: endPublish
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else {
+        const char msg[] = "CAN write success";
+        mqttClient.beginPublish(TOPIC_PREFIX "can/dbg", sizeof(msg), false);
+        mqttClient.write((uint8_t*)msg, sizeof(msg));
+        mqttClient.endPublish();
+
+    }
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+        const char msg[] = "CAN write success";
+        mqttClient.beginPublish(TOPIC_PREFIX "can/dbg", sizeof(msg), false);
+        mqttClient.write((uint8_t*)msg, sizeof(msg));
+        mqttClient.endPublish();
+
+    }
+|——————Node:{ Text: {
+|——————Node:declaration Text: const char msg[] = "CAN write success";
+|———————Node:type_qualifier Text: const
+|————————Node:const Text: const
+|———————Node:primitive_type Text: char
+|———————Node:init_declarator Text: msg[] = "CAN write success"
+|————————Node:array_declarator Text: msg[]
+|—————————Node:identifier Text: msg
+|—————————Node:[ Text: [
+|—————————Node:] Text: ]
+|————————Node:= Text: =
+|————————Node:string_literal Text: "CAN write success"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: CAN write success
+|—————————Node:" Text: "
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: mqttClient.beginPublish(TOPIC_PREFIX "can/dbg", sizeof(msg), false);
+|———————Node:call_expression Text: mqttClient.beginPublish(TOPIC_PREFIX "can/dbg", sizeof(msg), false)
+|————————Node:field_expression Text: mqttClient.beginPublish
+|—————————Node:identifier Text: mqttClient
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: beginPublish
+|————————Node:argument_list Text: (TOPIC_PREFIX "can/dbg", sizeof(msg), false)
+|—————————Node:( Text: (
+|—————————Node:concatenated_string Text: TOPIC_PREFIX "can/dbg"
+|——————————Node:identifier Text: TOPIC_PREFIX
+|——————————Node:string_literal Text: "can/dbg"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: can/dbg
+|———————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:sizeof_expression Text: sizeof(msg)
+|——————————Node:sizeof Text: sizeof
+|——————————Node:parenthesized_expression Text: (msg)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: msg
+|———————————Node:) Text: )
+|—————————Node:, Text: ,
+|—————————Node:false Text: false
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: mqttClient.write((uint8_t*)msg, sizeof(msg));
+|———————Node:call_expression Text: mqttClient.write((uint8_t*)msg, sizeof(msg))
+|————————Node:field_expression Text: mqttClient.write
+|—————————Node:identifier Text: mqttClient
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: write
+|————————Node:argument_list Text: ((uint8_t*)msg, sizeof(msg))
+|—————————Node:( Text: (
+|—————————Node:cast_expression Text: (uint8_t*)msg
+|——————————Node:( Text: (
+|——————————Node:type_descriptor Text: uint8_t*
+|———————————Node:primitive_type Text: uint8_t
+|———————————Node:abstract_pointer_declarator Text: *
+|————————————Node:* Text: *
+|——————————Node:) Text: )
+|——————————Node:identifier Text: msg
+|—————————Node:, Text: ,
+|—————————Node:sizeof_expression Text: sizeof(msg)
+|——————————Node:sizeof Text: sizeof
+|——————————Node:parenthesized_expression Text: (msg)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: msg
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: mqttClient.endPublish();
+|———————Node:call_expression Text: mqttClient.endPublish()
+|————————Node:field_expression Text: mqttClient.endPublish
+|—————————Node:identifier Text: mqttClient
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: endPublish
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:} Text: }
+|—Node:function_definition Text: void logamaticCan::handleRecv() {
+    int d;
+    int sz;
+    while((sz = CAN.parsePacket()) > 0) {
+        _lastrecv = millis();
+        int bi = snprintf(buf, sizeof(buf), "%x;%lx;", CAN.packetRtr(), CAN.packetId());
+        while ((d = CAN.read()) >= 0) {
+            bi += snprintf(buf + bi, sizeof(buf) - bi, "%02x ", d);
+        }
+        if (mqttClient.beginPublish(TOPIC_PREFIX "can/raw/recv/", bi, false)) {
+            mqttClient.write((uint8_t*)buf, bi);
+            mqttClient.endPublish();
+        }
+    }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: logamaticCan::handleRecv()
+|———Node:qualified_identifier Text: logamaticCan::handleRecv
+|————Node:namespace_identifier Text: logamaticCan
+|————Node::: Text: ::
+|————Node:identifier Text: handleRecv
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    int d;
+    int sz;
+    while((sz = CAN.parsePacket()) > 0) {
+        _lastrecv = millis();
+        int bi = snprintf(buf, sizeof(buf), "%x;%lx;", CAN.packetRtr(), CAN.packetId());
+        while ((d = CAN.read()) >= 0) {
+            bi += snprintf(buf + bi, sizeof(buf) - bi, "%02x ", d);
+        }
+        if (mqttClient.beginPublish(TOPIC_PREFIX "can/raw/recv/", bi, false)) {
+            mqttClient.write((uint8_t*)buf, bi);
+            mqttClient.endPublish();
+        }
+    }
+}
+|———Node:{ Text: {
+|———Node:declaration Text: int d;
+|————Node:primitive_type Text: int
+|————Node:identifier Text: d
+|————Node:; Text: ;
+|———Node:declaration Text: int sz;
+|————Node:primitive_type Text: int
+|————Node:identifier Text: sz
+|————Node:; Text: ;
+|———Node:while_statement Text: while((sz = CAN.parsePacket()) > 0) {
+        _lastrecv = millis();
+        int bi = snprintf(buf, sizeof(buf), "%x;%lx;", CAN.packetRtr(), CAN.packetId());
+        while ((d = CAN.read()) >= 0) {
+            bi += snprintf(buf + bi, sizeof(buf) - bi, "%02x ", d);
+        }
+        if (mqttClient.beginPublish(TOPIC_PREFIX "can/raw/recv/", bi, false)) {
+            mqttClient.write((uint8_t*)buf, bi);
+            mqttClient.endPublish();
+        }
+    }
+|————Node:while Text: while
+|————Node:condition_clause Text: ((sz = CAN.parsePacket()) > 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: (sz = CAN.parsePacket()) > 0
+|——————Node:parenthesized_expression Text: (sz = CAN.parsePacket())
+|———————Node:( Text: (
+|———————Node:assignment_expression Text: sz = CAN.parsePacket()
+|————————Node:identifier Text: sz
+|————————Node:= Text: =
+|————————Node:call_expression Text: CAN.parsePacket()
+|—————————Node:field_expression Text: CAN.parsePacket
+|——————————Node:identifier Text: CAN
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: parsePacket
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:> Text: >
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        _lastrecv = millis();
+        int bi = snprintf(buf, sizeof(buf), "%x;%lx;", CAN.packetRtr(), CAN.packetId());
+        while ((d = CAN.read()) >= 0) {
+            bi += snprintf(buf + bi, sizeof(buf) - bi, "%02x ", d);
+        }
+        if (mqttClient.beginPublish(TOPIC_PREFIX "can/raw/recv/", bi, false)) {
+            mqttClient.write((uint8_t*)buf, bi);
+            mqttClient.endPublish();
+        }
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: _lastrecv = millis();
+|——————Node:assignment_expression Text: _lastrecv = millis()
+|———————Node:identifier Text: _lastrecv
+|———————Node:= Text: =
+|———————Node:call_expression Text: millis()
+|————————Node:identifier Text: millis
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: int bi = snprintf(buf, sizeof(buf), "%x;%lx;", CAN.packetRtr(), CAN.packetId());
+|——————Node:primitive_type Text: int
+|——————Node:init_declarator Text: bi = snprintf(buf, sizeof(buf), "%x;%lx;", CAN.packetRtr(), CAN.packetId())
+|———————Node:identifier Text: bi
+|———————Node:= Text: =
+|———————Node:call_expression Text: snprintf(buf, sizeof(buf), "%x;%lx;", CAN.packetRtr(), CAN.packetId())
+|————————Node:identifier Text: snprintf
+|————————Node:argument_list Text: (buf, sizeof(buf), "%x;%lx;", CAN.packetRtr(), CAN.packetId())
+|—————————Node:( Text: (
+|—————————Node:identifier Text: buf
+|—————————Node:, Text: ,
+|—————————Node:sizeof_expression Text: sizeof(buf)
+|——————————Node:sizeof Text: sizeof
+|——————————Node:parenthesized_expression Text: (buf)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: buf
+|———————————Node:) Text: )
+|—————————Node:, Text: ,
+|—————————Node:string_literal Text: "%x;%lx;"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: %x;%lx;
+|——————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:call_expression Text: CAN.packetRtr()
+|——————————Node:field_expression Text: CAN.packetRtr
+|———————————Node:identifier Text: CAN
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: packetRtr
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:, Text: ,
+|—————————Node:call_expression Text: CAN.packetId()
+|——————————Node:field_expression Text: CAN.packetId
+|———————————Node:identifier Text: CAN
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: packetId
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:while_statement Text: while ((d = CAN.read()) >= 0) {
+            bi += snprintf(buf + bi, sizeof(buf) - bi, "%02x ", d);
+        }
+|——————Node:while Text: while
+|——————Node:condition_clause Text: ((d = CAN.read()) >= 0)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: (d = CAN.read()) >= 0
+|————————Node:parenthesized_expression Text: (d = CAN.read())
+|—————————Node:( Text: (
+|—————————Node:assignment_expression Text: d = CAN.read()
+|——————————Node:identifier Text: d
+|——————————Node:= Text: =
+|——————————Node:call_expression Text: CAN.read()
+|———————————Node:field_expression Text: CAN.read
+|————————————Node:identifier Text: CAN
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: read
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:>= Text: >=
+|————————Node:number_literal Text: 0
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            bi += snprintf(buf + bi, sizeof(buf) - bi, "%02x ", d);
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: bi += snprintf(buf + bi, sizeof(buf) - bi, "%02x ", d);
+|————————Node:assignment_expression Text: bi += snprintf(buf + bi, sizeof(buf) - bi, "%02x ", d)
+|—————————Node:identifier Text: bi
+|—————————Node:+= Text: +=
+|—————————Node:call_expression Text: snprintf(buf + bi, sizeof(buf) - bi, "%02x ", d)
+|——————————Node:identifier Text: snprintf
+|——————————Node:argument_list Text: (buf + bi, sizeof(buf) - bi, "%02x ", d)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: buf + bi
+|————————————Node:identifier Text: buf
+|————————————Node:+ Text: +
+|————————————Node:identifier Text: bi
+|———————————Node:, Text: ,
+|———————————Node:binary_expression Text: sizeof(buf) - bi
+|————————————Node:sizeof_expression Text: sizeof(buf)
+|—————————————Node:sizeof Text: sizeof
+|—————————————Node:parenthesized_expression Text: (buf)
+|——————————————Node:( Text: (
+|——————————————Node:identifier Text: buf
+|——————————————Node:) Text: )
+|————————————Node:- Text: -
+|————————————Node:identifier Text: bi
+|———————————Node:, Text: ,
+|———————————Node:string_literal Text: "%02x "
+|————————————Node:" Text: "
+|————————————Node:string_content Text: %02x 
+|————————————Node:" Text: "
+|———————————Node:, Text: ,
+|———————————Node:identifier Text: d
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:if_statement Text: if (mqttClient.beginPublish(TOPIC_PREFIX "can/raw/recv/", bi, false)) {
+            mqttClient.write((uint8_t*)buf, bi);
+            mqttClient.endPublish();
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (mqttClient.beginPublish(TOPIC_PREFIX "can/raw/recv/", bi, false))
+|———————Node:( Text: (
+|———————Node:call_expression Text: mqttClient.beginPublish(TOPIC_PREFIX "can/raw/recv/", bi, false)
+|————————Node:field_expression Text: mqttClient.beginPublish
+|—————————Node:identifier Text: mqttClient
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: beginPublish
+|————————Node:argument_list Text: (TOPIC_PREFIX "can/raw/recv/", bi, false)
+|—————————Node:( Text: (
+|—————————Node:concatenated_string Text: TOPIC_PREFIX "can/raw/recv/"
+|——————————Node:identifier Text: TOPIC_PREFIX
+|——————————Node:string_literal Text: "can/raw/recv/"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: can/raw/recv/
+|———————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: bi
+|—————————Node:, Text: ,
+|—————————Node:false Text: false
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            mqttClient.write((uint8_t*)buf, bi);
+            mqttClient.endPublish();
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: mqttClient.write((uint8_t*)buf, bi);
+|————————Node:call_expression Text: mqttClient.write((uint8_t*)buf, bi)
+|—————————Node:field_expression Text: mqttClient.write
+|——————————Node:identifier Text: mqttClient
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: write
+|—————————Node:argument_list Text: ((uint8_t*)buf, bi)
+|——————————Node:( Text: (
+|——————————Node:cast_expression Text: (uint8_t*)buf
+|———————————Node:( Text: (
+|———————————Node:type_descriptor Text: uint8_t*
+|————————————Node:primitive_type Text: uint8_t
+|————————————Node:abstract_pointer_declarator Text: *
+|—————————————Node:* Text: *
+|———————————Node:) Text: )
+|———————————Node:identifier Text: buf
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: bi
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: mqttClient.endPublish();
+|————————Node:call_expression Text: mqttClient.endPublish()
+|—————————Node:field_expression Text: mqttClient.endPublish
+|——————————Node:identifier Text: mqttClient
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: endPublish
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:function_definition Text: void logamaticCan::checkErrors() {
+    static unsigned long last_check = 0;
+    unsigned long now = millis();
+    if (now - last_check < 5000) {
+        return;
+    }
+    last_check = now;
+    int tec = CAN.readTEC();
+    int rec = CAN.readREC();
+    int eflg = CAN.readEFLG();
+    const int recv_ov_bit0 = 0x40;
+    const int recv_ov_bit1 = 0x80;
+    const int recv_ov_bits = recv_ov_bit0 | recv_ov_bit1;
+
+    if (eflg & recv_ov_bits) {
+        _recv_overflows++;
+        CAN.clearEFLG();
+    }
+    if (tec != _tec || rec != _rec || eflg != _eflg) {
+        char buf[32];
+        int l = snprintf(buf, sizeof(buf), "EFLG:%x TEC:%x REC:%x ROF:%u", eflg, tec, rec, _recv_overflows);
+        mqttClient.beginPublish(TOPIC_PREFIX "can/error/regs", l, true);
+        mqttClient.write((uint8_t*)buf, l);
+        mqttClient.endPublish();
+    }
+    _tec = tec;
+    _rec = rec;
+    _eflg = eflg;
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: logamaticCan::checkErrors()
+|———Node:qualified_identifier Text: logamaticCan::checkErrors
+|————Node:namespace_identifier Text: logamaticCan
+|————Node::: Text: ::
+|————Node:identifier Text: checkErrors
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    static unsigned long last_check = 0;
+    unsigned long now = millis();
+    if (now - last_check < 5000) {
+        return;
+    }
+    last_check = now;
+    int tec = CAN.readTEC();
+    int rec = CAN.readREC();
+    int eflg = CAN.readEFLG();
+    const int recv_ov_bit0 = 0x40;
+    const int recv_ov_bit1 = 0x80;
+    const int recv_ov_bits = recv_ov_bit0 | recv_ov_bit1;
+
+    if (eflg & recv_ov_bits) {
+        _recv_overflows++;
+        CAN.clearEFLG();
+    }
+    if (tec != _tec || rec != _rec || eflg != _eflg) {
+        char buf[32];
+        int l = snprintf(buf, sizeof(buf), "EFLG:%x TEC:%x REC:%x ROF:%u", eflg, tec, rec, _recv_overflows);
+        mqttClient.beginPublish(TOPIC_PREFIX "can/error/regs", l, true);
+        mqttClient.write((uint8_t*)buf, l);
+        mqttClient.endPublish();
+    }
+    _tec = tec;
+    _rec = rec;
+    _eflg = eflg;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: static unsigned long last_check = 0;
+|————Node:storage_class_specifier Text: static
+|—————Node:static Text: static
+|————Node:sized_type_specifier Text: unsigned long
+|—————Node:unsigned Text: unsigned
+|—————Node:long Text: long
+|————Node:init_declarator Text: last_check = 0
+|—————Node:identifier Text: last_check
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: unsigned long now = millis();
+|————Node:sized_type_specifier Text: unsigned long
+|—————Node:unsigned Text: unsigned
+|—————Node:long Text: long
+|————Node:init_declarator Text: now = millis()
+|—————Node:identifier Text: now
+|—————Node:= Text: =
+|—————Node:call_expression Text: millis()
+|——————Node:identifier Text: millis
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (now - last_check < 5000) {
+        return;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (now - last_check < 5000)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: now - last_check < 5000
+|——————Node:binary_expression Text: now - last_check
+|———————Node:identifier Text: now
+|———————Node:- Text: -
+|———————Node:identifier Text: last_check
+|——————Node:< Text: <
+|——————Node:number_literal Text: 5000
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        return;
+    }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return;
+|——————Node:return Text: return
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: last_check = now;
+|————Node:assignment_expression Text: last_check = now
+|—————Node:identifier Text: last_check
+|—————Node:= Text: =
+|—————Node:identifier Text: now
+|————Node:; Text: ;
+|———Node:declaration Text: int tec = CAN.readTEC();
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: tec = CAN.readTEC()
+|—————Node:identifier Text: tec
+|—————Node:= Text: =
+|—————Node:call_expression Text: CAN.readTEC()
+|——————Node:field_expression Text: CAN.readTEC
+|———————Node:identifier Text: CAN
+|———————Node:. Text: .
+|———————Node:field_identifier Text: readTEC
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: int rec = CAN.readREC();
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: rec = CAN.readREC()
+|—————Node:identifier Text: rec
+|—————Node:= Text: =
+|—————Node:call_expression Text: CAN.readREC()
+|——————Node:field_expression Text: CAN.readREC
+|———————Node:identifier Text: CAN
+|———————Node:. Text: .
+|———————Node:field_identifier Text: readREC
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: int eflg = CAN.readEFLG();
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: eflg = CAN.readEFLG()
+|—————Node:identifier Text: eflg
+|—————Node:= Text: =
+|—————Node:call_expression Text: CAN.readEFLG()
+|——————Node:field_expression Text: CAN.readEFLG
+|———————Node:identifier Text: CAN
+|———————Node:. Text: .
+|———————Node:field_identifier Text: readEFLG
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: const int recv_ov_bit0 = 0x40;
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: recv_ov_bit0 = 0x40
+|—————Node:identifier Text: recv_ov_bit0
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x40
+|————Node:; Text: ;
+|———Node:declaration Text: const int recv_ov_bit1 = 0x80;
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: recv_ov_bit1 = 0x80
+|—————Node:identifier Text: recv_ov_bit1
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x80
+|————Node:; Text: ;
+|———Node:declaration Text: const int recv_ov_bits = recv_ov_bit0 | recv_ov_bit1;
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: recv_ov_bits = recv_ov_bit0 | recv_ov_bit1
+|—————Node:identifier Text: recv_ov_bits
+|—————Node:= Text: =
+|—————Node:binary_expression Text: recv_ov_bit0 | recv_ov_bit1
+|——————Node:identifier Text: recv_ov_bit0
+|——————Node:| Text: |
+|——————Node:identifier Text: recv_ov_bit1
+|————Node:; Text: ;
+|———Node:if_statement Text: if (eflg & recv_ov_bits) {
+        _recv_overflows++;
+        CAN.clearEFLG();
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (eflg & recv_ov_bits)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: eflg & recv_ov_bits
+|——————Node:identifier Text: eflg
+|——————Node:& Text: &
+|——————Node:identifier Text: recv_ov_bits
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        _recv_overflows++;
+        CAN.clearEFLG();
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: _recv_overflows++;
+|——————Node:update_expression Text: _recv_overflows++
+|———————Node:identifier Text: _recv_overflows
+|———————Node:++ Text: ++
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: CAN.clearEFLG();
+|——————Node:call_expression Text: CAN.clearEFLG()
+|———————Node:field_expression Text: CAN.clearEFLG
+|————————Node:identifier Text: CAN
+|————————Node:. Text: .
+|————————Node:field_identifier Text: clearEFLG
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if (tec != _tec || rec != _rec || eflg != _eflg) {
+        char buf[32];
+        int l = snprintf(buf, sizeof(buf), "EFLG:%x TEC:%x REC:%x ROF:%u", eflg, tec, rec, _recv_overflows);
+        mqttClient.beginPublish(TOPIC_PREFIX "can/error/regs", l, true);
+        mqttClient.write((uint8_t*)buf, l);
+        mqttClient.endPublish();
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (tec != _tec || rec != _rec || eflg != _eflg)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: tec != _tec || rec != _rec || eflg != _eflg
+|——————Node:binary_expression Text: tec != _tec || rec != _rec
+|———————Node:binary_expression Text: tec != _tec
+|————————Node:identifier Text: tec
+|————————Node:!= Text: !=
+|————————Node:identifier Text: _tec
+|———————Node:|| Text: ||
+|———————Node:binary_expression Text: rec != _rec
+|————————Node:identifier Text: rec
+|————————Node:!= Text: !=
+|————————Node:identifier Text: _rec
+|——————Node:|| Text: ||
+|——————Node:binary_expression Text: eflg != _eflg
+|———————Node:identifier Text: eflg
+|———————Node:!= Text: !=
+|———————Node:identifier Text: _eflg
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        char buf[32];
+        int l = snprintf(buf, sizeof(buf), "EFLG:%x TEC:%x REC:%x ROF:%u", eflg, tec, rec, _recv_overflows);
+        mqttClient.beginPublish(TOPIC_PREFIX "can/error/regs", l, true);
+        mqttClient.write((uint8_t*)buf, l);
+        mqttClient.endPublish();
+    }
+|—————Node:{ Text: {
+|—————Node:declaration Text: char buf[32];
+|——————Node:primitive_type Text: char
+|——————Node:array_declarator Text: buf[32]
+|———————Node:identifier Text: buf
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 32
+|———————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:declaration Text: int l = snprintf(buf, sizeof(buf), "EFLG:%x TEC:%x REC:%x ROF:%u", eflg, tec, rec, _recv_overflows);
+|——————Node:primitive_type Text: int
+|——————Node:init_declarator Text: l = snprintf(buf, sizeof(buf), "EFLG:%x TEC:%x REC:%x ROF:%u", eflg, tec, rec, _recv_overflows)
+|———————Node:identifier Text: l
+|———————Node:= Text: =
+|———————Node:call_expression Text: snprintf(buf, sizeof(buf), "EFLG:%x TEC:%x REC:%x ROF:%u", eflg, tec, rec, _recv_overflows)
+|————————Node:identifier Text: snprintf
+|————————Node:argument_list Text: (buf, sizeof(buf), "EFLG:%x TEC:%x REC:%x ROF:%u", eflg, tec, rec, _recv_overflows)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: buf
+|—————————Node:, Text: ,
+|—————————Node:sizeof_expression Text: sizeof(buf)
+|——————————Node:sizeof Text: sizeof
+|——————————Node:parenthesized_expression Text: (buf)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: buf
+|———————————Node:) Text: )
+|—————————Node:, Text: ,
+|—————————Node:string_literal Text: "EFLG:%x TEC:%x REC:%x ROF:%u"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: EFLG:%x TEC:%x REC:%x ROF:%u
+|——————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: eflg
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: tec
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: rec
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: _recv_overflows
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: mqttClient.beginPublish(TOPIC_PREFIX "can/error/regs", l, true);
+|——————Node:call_expression Text: mqttClient.beginPublish(TOPIC_PREFIX "can/error/regs", l, true)
+|———————Node:field_expression Text: mqttClient.beginPublish
+|————————Node:identifier Text: mqttClient
+|————————Node:. Text: .
+|————————Node:field_identifier Text: beginPublish
+|———————Node:argument_list Text: (TOPIC_PREFIX "can/error/regs", l, true)
+|————————Node:( Text: (
+|————————Node:concatenated_string Text: TOPIC_PREFIX "can/error/regs"
+|—————————Node:identifier Text: TOPIC_PREFIX
+|—————————Node:string_literal Text: "can/error/regs"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: can/error/regs
+|——————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:identifier Text: l
+|————————Node:, Text: ,
+|————————Node:true Text: true
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: mqttClient.write((uint8_t*)buf, l);
+|——————Node:call_expression Text: mqttClient.write((uint8_t*)buf, l)
+|———————Node:field_expression Text: mqttClient.write
+|————————Node:identifier Text: mqttClient
+|————————Node:. Text: .
+|————————Node:field_identifier Text: write
+|———————Node:argument_list Text: ((uint8_t*)buf, l)
+|————————Node:( Text: (
+|————————Node:cast_expression Text: (uint8_t*)buf
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint8_t*
+|——————————Node:primitive_type Text: uint8_t
+|——————————Node:abstract_pointer_declarator Text: *
+|———————————Node:* Text: *
+|—————————Node:) Text: )
+|—————————Node:identifier Text: buf
+|————————Node:, Text: ,
+|————————Node:identifier Text: l
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: mqttClient.endPublish();
+|——————Node:call_expression Text: mqttClient.endPublish()
+|———————Node:field_expression Text: mqttClient.endPublish
+|————————Node:identifier Text: mqttClient
+|————————Node:. Text: .
+|————————Node:field_identifier Text: endPublish
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: _tec = tec;
+|————Node:assignment_expression Text: _tec = tec
+|—————Node:identifier Text: _tec
+|—————Node:= Text: =
+|—————Node:identifier Text: tec
+|————Node:; Text: ;
+|———Node:expression_statement Text: _rec = rec;
+|————Node:assignment_expression Text: _rec = rec
+|—————Node:identifier Text: _rec
+|—————Node:= Text: =
+|—————Node:identifier Text: rec
+|————Node:; Text: ;
+|———Node:expression_statement Text: _eflg = eflg;
+|————Node:assignment_expression Text: _eflg = eflg
+|—————Node:identifier Text: _eflg
+|—————Node:= Text: =
+|—————Node:identifier Text: eflg
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void logamaticCan::loop() {
+    handleRecv();
+    checkErrors();
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: logamaticCan::loop()
+|———Node:qualified_identifier Text: logamaticCan::loop
+|————Node:namespace_identifier Text: logamaticCan
+|————Node::: Text: ::
+|————Node:identifier Text: loop
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    handleRecv();
+    checkErrors();
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: handleRecv();
+|————Node:call_expression Text: handleRecv()
+|—————Node:identifier Text: handleRecv
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: checkErrors();
+|————Node:call_expression Text: checkErrors()
+|—————Node:identifier Text: checkErrors
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:declaration Text: logamaticCan LogamaticCAN;
+|——Node:type_identifier Text: logamaticCan
+|——Node:identifier Text: LogamaticCAN
+|——Node:; Text: ;

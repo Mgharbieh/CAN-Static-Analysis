@@ -1,0 +1,460 @@
+socketcan-wio-include\can.h
+
+|Node:translation_unit
+|—Node:preproc_ifdef Text: #ifndef CAN_H
+#define CAN_H
+
+#define CANBUS_ERR 1
+#define CANBUS_WARN 2
+#define CANBUS_INFO 3
+
+// TODO allow DEBUG_LEVEL to be configured outside of library
+#define DEBUG_LEVEL CANBUS_INFO
+
+#include <stdint.h>
+#include <linux/can.h>
+
+namespace wlp {
+    class canbus {
+    public:
+        canbus(const char *ifname);
+        ~canbus();
+
+        // Initialize
+        bool begin();
+
+        // Send a CAN frame
+        bool send(uint32_t id, uint8_t *arr, uint8_t len, bool id_ext = true);
+
+        // Send a CAN remote request
+        bool request(uint32_t id, uint8_t len, bool id_ext = true);
+
+        // Receive a CAN frame
+        bool recv(uint32_t *id, uint8_t *data = NULL, uint8_t *len = NULL, bool *remote_req = NULL, bool *id_ext = NULL);
+
+        // Set CAN filter
+        bool filter(can_filter *filters, size_t nfilters);
+    private:
+        template<int level>
+        void canbus_log(const char *msg);
+
+        void canbus_errno(const char *msg);
+
+        bool check_id(uint32_t id, bool id_ext);
+
+        const char *ifname;
+        int can_sockfd;
+    };
+}
+
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: CAN_H
+|——Node:preproc_def Text: #define CAN_H
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CAN_H
+|——Node:preproc_def Text: #define CANBUS_ERR 1
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CANBUS_ERR
+|———Node:preproc_arg Text: 1
+|——Node:preproc_def Text: #define CANBUS_WARN 2
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CANBUS_WARN
+|———Node:preproc_arg Text: 2
+|——Node:preproc_def Text: #define CANBUS_INFO 3
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CANBUS_INFO
+|———Node:preproc_arg Text: 3
+|——Node:comment Text: // TODO allow DEBUG_LEVEL to be configured outside of library
+|——Node:preproc_def Text: #define DEBUG_LEVEL CANBUS_INFO
+
+|———Node:#define Text: #define
+|———Node:identifier Text: DEBUG_LEVEL
+|———Node:preproc_arg Text: CANBUS_INFO
+|——Node:preproc_include Text: #include <stdint.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <stdint.h>
+|——Node:preproc_include Text: #include <linux/can.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <linux/can.h>
+|——Node:function_definition Text: namespace wlp {
+    class canbus {
+    public:
+        canbus(const char *ifname);
+        ~canbus();
+
+        // Initialize
+        bool begin();
+
+        // Send a CAN frame
+        bool send(uint32_t id, uint8_t *arr, uint8_t len, bool id_ext = true);
+
+        // Send a CAN remote request
+        bool request(uint32_t id, uint8_t len, bool id_ext = true);
+
+        // Receive a CAN frame
+        bool recv(uint32_t *id, uint8_t *data = NULL, uint8_t *len = NULL, bool *remote_req = NULL, bool *id_ext = NULL);
+
+        // Set CAN filter
+        bool filter(can_filter *filters, size_t nfilters);
+    private:
+        template<int level>
+        void canbus_log(const char *msg);
+
+        void canbus_errno(const char *msg);
+
+        bool check_id(uint32_t id, bool id_ext);
+
+        const char *ifname;
+        int can_sockfd;
+    };
+}
+|———Node:type_identifier Text: namespace
+|———Node:identifier Text: wlp
+|———Node:compound_statement Text: {
+    class canbus {
+    public:
+        canbus(const char *ifname);
+        ~canbus();
+
+        // Initialize
+        bool begin();
+
+        // Send a CAN frame
+        bool send(uint32_t id, uint8_t *arr, uint8_t len, bool id_ext = true);
+
+        // Send a CAN remote request
+        bool request(uint32_t id, uint8_t len, bool id_ext = true);
+
+        // Receive a CAN frame
+        bool recv(uint32_t *id, uint8_t *data = NULL, uint8_t *len = NULL, bool *remote_req = NULL, bool *id_ext = NULL);
+
+        // Set CAN filter
+        bool filter(can_filter *filters, size_t nfilters);
+    private:
+        template<int level>
+        void canbus_log(const char *msg);
+
+        void canbus_errno(const char *msg);
+
+        bool check_id(uint32_t id, bool id_ext);
+
+        const char *ifname;
+        int can_sockfd;
+    };
+}
+|————Node:{ Text: {
+|————Node:function_definition Text: class canbus {
+    public:
+        canbus(const char *ifname);
+        ~canbus();
+
+        // Initialize
+        bool begin();
+
+        // Send a CAN frame
+        bool send(uint32_t id, uint8_t *arr, uint8_t len, bool id_ext = true);
+
+        // Send a CAN remote request
+        bool request(uint32_t id, uint8_t len, bool id_ext = true);
+
+        // Receive a CAN frame
+        bool recv(uint32_t *id, uint8_t *data = NULL, uint8_t *len = NULL, bool *remote_req = NULL, bool *id_ext = NULL);
+
+        // Set CAN filter
+        bool filter(can_filter *filters, size_t nfilters);
+    private:
+        template<int level>
+        void canbus_log(const char *msg);
+
+        void canbus_errno(const char *msg);
+
+        bool check_id(uint32_t id, bool id_ext);
+
+        const char *ifname;
+        int can_sockfd;
+    }
+|—————Node:type_identifier Text: class
+|—————Node:identifier Text: canbus
+|—————Node:compound_statement Text: {
+    public:
+        canbus(const char *ifname);
+        ~canbus();
+
+        // Initialize
+        bool begin();
+
+        // Send a CAN frame
+        bool send(uint32_t id, uint8_t *arr, uint8_t len, bool id_ext = true);
+
+        // Send a CAN remote request
+        bool request(uint32_t id, uint8_t len, bool id_ext = true);
+
+        // Receive a CAN frame
+        bool recv(uint32_t *id, uint8_t *data = NULL, uint8_t *len = NULL, bool *remote_req = NULL, bool *id_ext = NULL);
+
+        // Set CAN filter
+        bool filter(can_filter *filters, size_t nfilters);
+    private:
+        template<int level>
+        void canbus_log(const char *msg);
+
+        void canbus_errno(const char *msg);
+
+        bool check_id(uint32_t id, bool id_ext);
+
+        const char *ifname;
+        int can_sockfd;
+    }
+|——————Node:{ Text: {
+|——————Node:labeled_statement Text: public:
+        canbus(const char *ifname);
+|———————Node:statement_identifier Text: public
+|———————Node:: Text: :
+|———————Node:declaration Text: canbus(const char *ifname);
+|————————Node:macro_type_specifier Text: canbus(const char *ifname)
+|—————————Node:identifier Text: canbus
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: const char *
+|——————————Node:type_qualifier Text: const
+|———————————Node:const Text: const
+|——————————Node:primitive_type Text: char
+|——————————Node:abstract_pointer_declarator Text: *
+|———————————Node:* Text: *
+|—————————Node:ERROR Text: ifname
+|——————————Node:identifier Text: ifname
+|—————————Node:) Text: )
+|————————Node:identifier Text: 
+|————————Node:; Text: ;
+|——————Node:expression_statement Text: ~canbus();
+|———————Node:unary_expression Text: ~canbus()
+|————————Node:~ Text: ~
+|————————Node:call_expression Text: canbus()
+|—————————Node:identifier Text: canbus
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:comment Text: // Initialize
+|——————Node:declaration Text: bool begin();
+|———————Node:primitive_type Text: bool
+|———————Node:function_declarator Text: begin()
+|————————Node:identifier Text: begin
+|————————Node:parameter_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:comment Text: // Send a CAN frame
+|——————Node:declaration Text: bool send(uint32_t id, uint8_t *arr, uint8_t len, bool id_ext = true);
+|———————Node:primitive_type Text: bool
+|———————Node:init_declarator Text: send(uint32_t id, uint8_t *arr, uint8_t len, bool id_ext = true
+|————————Node:function_declarator Text: send(uint32_t id, uint8_t *arr, uint8_t len, bool id_ext
+|—————————Node:identifier Text: send
+|—————————Node:parameter_list Text: (uint32_t id, uint8_t *arr, uint8_t len, bool id_ext
+|——————————Node:( Text: (
+|——————————Node:parameter_declaration Text: uint32_t id
+|———————————Node:primitive_type Text: uint32_t
+|———————————Node:identifier Text: id
+|——————————Node:, Text: ,
+|——————————Node:parameter_declaration Text: uint8_t *arr
+|———————————Node:primitive_type Text: uint8_t
+|———————————Node:pointer_declarator Text: *arr
+|————————————Node:* Text: *
+|————————————Node:identifier Text: arr
+|——————————Node:, Text: ,
+|——————————Node:parameter_declaration Text: uint8_t len
+|———————————Node:primitive_type Text: uint8_t
+|———————————Node:identifier Text: len
+|——————————Node:, Text: ,
+|——————————Node:parameter_declaration Text: bool id_ext
+|———————————Node:primitive_type Text: bool
+|———————————Node:identifier Text: id_ext
+|——————————Node:) Text: 
+|————————Node:= Text: =
+|————————Node:true Text: true
+|———————Node:ERROR Text: )
+|————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:comment Text: // Send a CAN remote request
+|——————Node:declaration Text: bool request(uint32_t id, uint8_t len, bool id_ext = true);
+|———————Node:primitive_type Text: bool
+|———————Node:init_declarator Text: request(uint32_t id, uint8_t len, bool id_ext = true
+|————————Node:function_declarator Text: request(uint32_t id, uint8_t len, bool id_ext
+|—————————Node:identifier Text: request
+|—————————Node:parameter_list Text: (uint32_t id, uint8_t len, bool id_ext
+|——————————Node:( Text: (
+|——————————Node:parameter_declaration Text: uint32_t id
+|———————————Node:primitive_type Text: uint32_t
+|———————————Node:identifier Text: id
+|——————————Node:, Text: ,
+|——————————Node:parameter_declaration Text: uint8_t len
+|———————————Node:primitive_type Text: uint8_t
+|———————————Node:identifier Text: len
+|——————————Node:, Text: ,
+|——————————Node:parameter_declaration Text: bool id_ext
+|———————————Node:primitive_type Text: bool
+|———————————Node:identifier Text: id_ext
+|——————————Node:) Text: 
+|————————Node:= Text: =
+|————————Node:true Text: true
+|———————Node:ERROR Text: )
+|————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:comment Text: // Receive a CAN frame
+|——————Node:declaration Text: bool recv(uint32_t *id, uint8_t *data = NULL, uint8_t *len = NULL, bool *remote_req = NULL, bool *id_ext = NULL);
+|———————Node:primitive_type Text: bool
+|———————Node:init_declarator Text: recv(uint32_t *id, uint8_t *data = NULL
+|————————Node:function_declarator Text: recv(uint32_t *id, uint8_t *data
+|—————————Node:identifier Text: recv
+|—————————Node:parameter_list Text: (uint32_t *id, uint8_t *data
+|——————————Node:( Text: (
+|——————————Node:parameter_declaration Text: uint32_t *id
+|———————————Node:primitive_type Text: uint32_t
+|———————————Node:pointer_declarator Text: *id
+|————————————Node:* Text: *
+|————————————Node:identifier Text: id
+|——————————Node:, Text: ,
+|——————————Node:parameter_declaration Text: uint8_t *data
+|———————————Node:primitive_type Text: uint8_t
+|———————————Node:pointer_declarator Text: *data
+|————————————Node:* Text: *
+|————————————Node:identifier Text: data
+|——————————Node:) Text: 
+|————————Node:= Text: =
+|————————Node:null Text: NULL
+|—————————Node:NULL Text: NULL
+|———————Node:, Text: ,
+|———————Node:ERROR Text: uint8_t
+|————————Node:identifier Text: uint8_t
+|———————Node:init_declarator Text: *len = NULL
+|————————Node:pointer_declarator Text: *len
+|—————————Node:* Text: *
+|—————————Node:identifier Text: len
+|————————Node:= Text: =
+|————————Node:null Text: NULL
+|—————————Node:NULL Text: NULL
+|———————Node:, Text: ,
+|———————Node:ERROR Text: bool
+|————————Node:identifier Text: bool
+|———————Node:init_declarator Text: *remote_req = NULL
+|————————Node:pointer_declarator Text: *remote_req
+|—————————Node:* Text: *
+|—————————Node:identifier Text: remote_req
+|————————Node:= Text: =
+|————————Node:null Text: NULL
+|—————————Node:NULL Text: NULL
+|———————Node:, Text: ,
+|———————Node:ERROR Text: bool
+|————————Node:identifier Text: bool
+|———————Node:init_declarator Text: *id_ext = NULL
+|————————Node:pointer_declarator Text: *id_ext
+|—————————Node:* Text: *
+|—————————Node:identifier Text: id_ext
+|————————Node:= Text: =
+|————————Node:null Text: NULL
+|—————————Node:NULL Text: NULL
+|———————Node:ERROR Text: )
+|————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:comment Text: // Set CAN filter
+|——————Node:declaration Text: bool filter(can_filter *filters, size_t nfilters);
+|———————Node:primitive_type Text: bool
+|———————Node:function_declarator Text: filter(can_filter *filters, size_t nfilters)
+|————————Node:identifier Text: filter
+|————————Node:parameter_list Text: (can_filter *filters, size_t nfilters)
+|—————————Node:( Text: (
+|—————————Node:parameter_declaration Text: can_filter *filters
+|——————————Node:type_identifier Text: can_filter
+|——————————Node:pointer_declarator Text: *filters
+|———————————Node:* Text: *
+|———————————Node:identifier Text: filters
+|—————————Node:, Text: ,
+|—————————Node:parameter_declaration Text: size_t nfilters
+|——————————Node:primitive_type Text: size_t
+|——————————Node:identifier Text: nfilters
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:labeled_statement Text: private:
+        template<int level>
+        void
+|———————Node:statement_identifier Text: private
+|———————Node:: Text: :
+|———————Node:expression_statement Text: template<int level>
+        void
+|————————Node:binary_expression Text: template<int level>
+        void
+|—————————Node:binary_expression Text: template<int level
+|——————————Node:identifier Text: template
+|——————————Node:< Text: <
+|——————————Node:ERROR Text: int
+|———————————Node:identifier Text: int
+|——————————Node:identifier Text: level
+|—————————Node:> Text: >
+|—————————Node:identifier Text: void
+|————————Node:; Text: 
+|——————Node:macro_type_specifier Text: canbus_log(const char *msg)
+|———————Node:identifier Text: canbus_log
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: const char *
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: char
+|————————Node:abstract_pointer_declarator Text: *
+|—————————Node:* Text: *
+|———————Node:ERROR Text: msg
+|————————Node:identifier Text: msg
+|———————Node:) Text: )
+|——————Node:; Text: ;
+|——————Node:declaration Text: void canbus_errno(const char *msg);
+|———————Node:primitive_type Text: void
+|———————Node:function_declarator Text: canbus_errno(const char *msg)
+|————————Node:identifier Text: canbus_errno
+|————————Node:parameter_list Text: (const char *msg)
+|—————————Node:( Text: (
+|—————————Node:parameter_declaration Text: const char *msg
+|——————————Node:type_qualifier Text: const
+|———————————Node:const Text: const
+|——————————Node:primitive_type Text: char
+|——————————Node:pointer_declarator Text: *msg
+|———————————Node:* Text: *
+|———————————Node:identifier Text: msg
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:declaration Text: bool check_id(uint32_t id, bool id_ext);
+|———————Node:primitive_type Text: bool
+|———————Node:function_declarator Text: check_id(uint32_t id, bool id_ext)
+|————————Node:identifier Text: check_id
+|————————Node:parameter_list Text: (uint32_t id, bool id_ext)
+|—————————Node:( Text: (
+|—————————Node:parameter_declaration Text: uint32_t id
+|——————————Node:primitive_type Text: uint32_t
+|——————————Node:identifier Text: id
+|—————————Node:, Text: ,
+|—————————Node:parameter_declaration Text: bool id_ext
+|——————————Node:primitive_type Text: bool
+|——————————Node:identifier Text: id_ext
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:declaration Text: const char *ifname;
+|———————Node:type_qualifier Text: const
+|————————Node:const Text: const
+|———————Node:primitive_type Text: char
+|———————Node:pointer_declarator Text: *ifname
+|————————Node:* Text: *
+|————————Node:identifier Text: ifname
+|———————Node:; Text: ;
+|——————Node:declaration Text: int can_sockfd;
+|———————Node:primitive_type Text: int
+|———————Node:identifier Text: can_sockfd
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:#endif Text: #endif

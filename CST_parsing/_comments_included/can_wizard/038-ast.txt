@@ -1,0 +1,1451 @@
+can_wizard-main\can.c
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include "can.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "can.h"
+|———Node:" Text: "
+|———Node:string_content Text: can.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "esp_err.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "esp_err.h"
+|———Node:" Text: "
+|———Node:string_content Text: esp_err.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "esp_log.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "esp_log.h"
+|———Node:" Text: "
+|———Node:string_content Text: esp_log.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "freertos/portmacro.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "freertos/portmacro.h"
+|———Node:" Text: "
+|———Node:string_content Text: freertos/portmacro.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "freertos/projdefs.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "freertos/projdefs.h"
+|———Node:" Text: "
+|———Node:string_content Text: freertos/projdefs.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "sdkconfig.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "sdkconfig.h"
+|———Node:" Text: "
+|———Node:string_content Text: sdkconfig.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include <stddef.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <stddef.h>
+|—Node:preproc_include Text: #include <stdio.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <stdio.h>
+|—Node:preproc_include Text: #include <string.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <string.h>
+|—Node:preproc_include Text: #include "freertos/ringbuf.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "freertos/ringbuf.h"
+|———Node:" Text: "
+|———Node:string_content Text: freertos/ringbuf.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "xvprintf.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "xvprintf.h"
+|———Node:" Text: "
+|———Node:string_content Text: xvprintf.h
+|———Node:" Text: "
+|—Node:declaration Text: bool is_error_passive = false;
+|——Node:primitive_type Text: bool
+|——Node:init_declarator Text: is_error_passive = false
+|———Node:identifier Text: is_error_passive
+|———Node:= Text: =
+|———Node:false Text: false
+|——Node:; Text: ;
+|—Node:declaration Text: bool auto_recovery = false;
+|——Node:primitive_type Text: bool
+|——Node:init_declarator Text: auto_recovery = false
+|———Node:identifier Text: auto_recovery
+|———Node:= Text: =
+|———Node:false Text: false
+|——Node:; Text: ;
+|—Node:declaration Text: SemaphoreHandle_t can_mutex;
+|——Node:type_identifier Text: SemaphoreHandle_t
+|——Node:identifier Text: can_mutex
+|——Node:; Text: ;
+|—Node:declaration Text: volatile can_status_t curr_can_state = { 0 };
+|——Node:type_qualifier Text: volatile
+|———Node:volatile Text: volatile
+|——Node:type_identifier Text: can_status_t
+|——Node:init_declarator Text: curr_can_state = { 0 }
+|———Node:identifier Text: curr_can_state
+|———Node:= Text: =
+|———Node:initializer_list Text: { 0 }
+|————Node:{ Text: {
+|————Node:number_literal Text: 0
+|————Node:} Text: }
+|——Node:; Text: ;
+|—Node:function_definition Text: static can_status_t get_can_state() {
+    can_status_t result;
+    twai_status_info_t status = { 0 };
+    esp_err_t res = twai_get_status_info(&status);
+    if (res != ESP_OK) {
+        result.state = CAN_NOT_INSTALLED;
+        return result;
+    }
+    result.msgs_to_rx = status.msgs_to_rx;
+    result.msgs_to_tx = status.msgs_to_tx;
+    result.arb_lost_count = status.arb_lost_count;
+    result.bus_error_count = status.bus_error_count;
+    result.tx_error_counter = status.tx_error_counter;
+    result.rx_error_counter = status.rx_error_counter;
+    result.tx_failed_count = status.tx_failed_count;
+    result.rx_missed_count = status.rx_missed_count;
+    result.rx_overrun_count = status.rx_overrun_count;
+    switch (status.state) {
+        case TWAI_STATE_STOPPED:
+            result.state = CAN_STOPPED;
+            break;
+        case TWAI_STATE_BUS_OFF:
+            result.state = CAN_BUF_OFF;
+            break;
+        case TWAI_STATE_RECOVERING:
+            result.state = CAN_RECOVERING;
+            break;
+        default:
+            if (is_error_passive) result.state = CAN_ERROR_PASSIVE;
+            else result.state = CAN_ERROR_ACTIVE;
+            break;
+    }
+    return result;
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:type_identifier Text: can_status_t
+|——Node:function_declarator Text: get_can_state()
+|———Node:identifier Text: get_can_state
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    can_status_t result;
+    twai_status_info_t status = { 0 };
+    esp_err_t res = twai_get_status_info(&status);
+    if (res != ESP_OK) {
+        result.state = CAN_NOT_INSTALLED;
+        return result;
+    }
+    result.msgs_to_rx = status.msgs_to_rx;
+    result.msgs_to_tx = status.msgs_to_tx;
+    result.arb_lost_count = status.arb_lost_count;
+    result.bus_error_count = status.bus_error_count;
+    result.tx_error_counter = status.tx_error_counter;
+    result.rx_error_counter = status.rx_error_counter;
+    result.tx_failed_count = status.tx_failed_count;
+    result.rx_missed_count = status.rx_missed_count;
+    result.rx_overrun_count = status.rx_overrun_count;
+    switch (status.state) {
+        case TWAI_STATE_STOPPED:
+            result.state = CAN_STOPPED;
+            break;
+        case TWAI_STATE_BUS_OFF:
+            result.state = CAN_BUF_OFF;
+            break;
+        case TWAI_STATE_RECOVERING:
+            result.state = CAN_RECOVERING;
+            break;
+        default:
+            if (is_error_passive) result.state = CAN_ERROR_PASSIVE;
+            else result.state = CAN_ERROR_ACTIVE;
+            break;
+    }
+    return result;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: can_status_t result;
+|————Node:type_identifier Text: can_status_t
+|————Node:identifier Text: result
+|————Node:; Text: ;
+|———Node:declaration Text: twai_status_info_t status = { 0 };
+|————Node:type_identifier Text: twai_status_info_t
+|————Node:init_declarator Text: status = { 0 }
+|—————Node:identifier Text: status
+|—————Node:= Text: =
+|—————Node:initializer_list Text: { 0 }
+|——————Node:{ Text: {
+|——————Node:number_literal Text: 0
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:declaration Text: esp_err_t res = twai_get_status_info(&status);
+|————Node:type_identifier Text: esp_err_t
+|————Node:init_declarator Text: res = twai_get_status_info(&status)
+|—————Node:identifier Text: res
+|—————Node:= Text: =
+|—————Node:call_expression Text: twai_get_status_info(&status)
+|——————Node:identifier Text: twai_get_status_info
+|——————Node:argument_list Text: (&status)
+|———————Node:( Text: (
+|———————Node:pointer_expression Text: &status
+|————————Node:& Text: &
+|————————Node:identifier Text: status
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (res != ESP_OK) {
+        result.state = CAN_NOT_INSTALLED;
+        return result;
+    }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (res != ESP_OK)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: res != ESP_OK
+|——————Node:identifier Text: res
+|——————Node:!= Text: !=
+|——————Node:identifier Text: ESP_OK
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        result.state = CAN_NOT_INSTALLED;
+        return result;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: result.state = CAN_NOT_INSTALLED;
+|——————Node:assignment_expression Text: result.state = CAN_NOT_INSTALLED
+|———————Node:field_expression Text: result.state
+|————————Node:identifier Text: result
+|————————Node:. Text: .
+|————————Node:field_identifier Text: state
+|———————Node:= Text: =
+|———————Node:identifier Text: CAN_NOT_INSTALLED
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return result;
+|——————Node:return Text: return
+|——————Node:identifier Text: result
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: result.msgs_to_rx = status.msgs_to_rx;
+|————Node:assignment_expression Text: result.msgs_to_rx = status.msgs_to_rx
+|—————Node:field_expression Text: result.msgs_to_rx
+|——————Node:identifier Text: result
+|——————Node:. Text: .
+|——————Node:field_identifier Text: msgs_to_rx
+|—————Node:= Text: =
+|—————Node:field_expression Text: status.msgs_to_rx
+|——————Node:identifier Text: status
+|——————Node:. Text: .
+|——————Node:field_identifier Text: msgs_to_rx
+|————Node:; Text: ;
+|———Node:expression_statement Text: result.msgs_to_tx = status.msgs_to_tx;
+|————Node:assignment_expression Text: result.msgs_to_tx = status.msgs_to_tx
+|—————Node:field_expression Text: result.msgs_to_tx
+|——————Node:identifier Text: result
+|——————Node:. Text: .
+|——————Node:field_identifier Text: msgs_to_tx
+|—————Node:= Text: =
+|—————Node:field_expression Text: status.msgs_to_tx
+|——————Node:identifier Text: status
+|——————Node:. Text: .
+|——————Node:field_identifier Text: msgs_to_tx
+|————Node:; Text: ;
+|———Node:expression_statement Text: result.arb_lost_count = status.arb_lost_count;
+|————Node:assignment_expression Text: result.arb_lost_count = status.arb_lost_count
+|—————Node:field_expression Text: result.arb_lost_count
+|——————Node:identifier Text: result
+|——————Node:. Text: .
+|——————Node:field_identifier Text: arb_lost_count
+|—————Node:= Text: =
+|—————Node:field_expression Text: status.arb_lost_count
+|——————Node:identifier Text: status
+|——————Node:. Text: .
+|——————Node:field_identifier Text: arb_lost_count
+|————Node:; Text: ;
+|———Node:expression_statement Text: result.bus_error_count = status.bus_error_count;
+|————Node:assignment_expression Text: result.bus_error_count = status.bus_error_count
+|—————Node:field_expression Text: result.bus_error_count
+|——————Node:identifier Text: result
+|——————Node:. Text: .
+|——————Node:field_identifier Text: bus_error_count
+|—————Node:= Text: =
+|—————Node:field_expression Text: status.bus_error_count
+|——————Node:identifier Text: status
+|——————Node:. Text: .
+|——————Node:field_identifier Text: bus_error_count
+|————Node:; Text: ;
+|———Node:expression_statement Text: result.tx_error_counter = status.tx_error_counter;
+|————Node:assignment_expression Text: result.tx_error_counter = status.tx_error_counter
+|—————Node:field_expression Text: result.tx_error_counter
+|——————Node:identifier Text: result
+|——————Node:. Text: .
+|——————Node:field_identifier Text: tx_error_counter
+|—————Node:= Text: =
+|—————Node:field_expression Text: status.tx_error_counter
+|——————Node:identifier Text: status
+|——————Node:. Text: .
+|——————Node:field_identifier Text: tx_error_counter
+|————Node:; Text: ;
+|———Node:expression_statement Text: result.rx_error_counter = status.rx_error_counter;
+|————Node:assignment_expression Text: result.rx_error_counter = status.rx_error_counter
+|—————Node:field_expression Text: result.rx_error_counter
+|——————Node:identifier Text: result
+|——————Node:. Text: .
+|——————Node:field_identifier Text: rx_error_counter
+|—————Node:= Text: =
+|—————Node:field_expression Text: status.rx_error_counter
+|——————Node:identifier Text: status
+|——————Node:. Text: .
+|——————Node:field_identifier Text: rx_error_counter
+|————Node:; Text: ;
+|———Node:expression_statement Text: result.tx_failed_count = status.tx_failed_count;
+|————Node:assignment_expression Text: result.tx_failed_count = status.tx_failed_count
+|—————Node:field_expression Text: result.tx_failed_count
+|——————Node:identifier Text: result
+|——————Node:. Text: .
+|——————Node:field_identifier Text: tx_failed_count
+|—————Node:= Text: =
+|—————Node:field_expression Text: status.tx_failed_count
+|——————Node:identifier Text: status
+|——————Node:. Text: .
+|——————Node:field_identifier Text: tx_failed_count
+|————Node:; Text: ;
+|———Node:expression_statement Text: result.rx_missed_count = status.rx_missed_count;
+|————Node:assignment_expression Text: result.rx_missed_count = status.rx_missed_count
+|—————Node:field_expression Text: result.rx_missed_count
+|——————Node:identifier Text: result
+|——————Node:. Text: .
+|——————Node:field_identifier Text: rx_missed_count
+|—————Node:= Text: =
+|—————Node:field_expression Text: status.rx_missed_count
+|——————Node:identifier Text: status
+|——————Node:. Text: .
+|——————Node:field_identifier Text: rx_missed_count
+|————Node:; Text: ;
+|———Node:expression_statement Text: result.rx_overrun_count = status.rx_overrun_count;
+|————Node:assignment_expression Text: result.rx_overrun_count = status.rx_overrun_count
+|—————Node:field_expression Text: result.rx_overrun_count
+|——————Node:identifier Text: result
+|——————Node:. Text: .
+|——————Node:field_identifier Text: rx_overrun_count
+|—————Node:= Text: =
+|—————Node:field_expression Text: status.rx_overrun_count
+|——————Node:identifier Text: status
+|——————Node:. Text: .
+|——————Node:field_identifier Text: rx_overrun_count
+|————Node:; Text: ;
+|———Node:switch_statement Text: switch (status.state) {
+        case TWAI_STATE_STOPPED:
+            result.state = CAN_STOPPED;
+            break;
+        case TWAI_STATE_BUS_OFF:
+            result.state = CAN_BUF_OFF;
+            break;
+        case TWAI_STATE_RECOVERING:
+            result.state = CAN_RECOVERING;
+            break;
+        default:
+            if (is_error_passive) result.state = CAN_ERROR_PASSIVE;
+            else result.state = CAN_ERROR_ACTIVE;
+            break;
+    }
+|————Node:switch Text: switch
+|————Node:parenthesized_expression Text: (status.state)
+|—————Node:( Text: (
+|—————Node:field_expression Text: status.state
+|——————Node:identifier Text: status
+|——————Node:. Text: .
+|——————Node:field_identifier Text: state
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        case TWAI_STATE_STOPPED:
+            result.state = CAN_STOPPED;
+            break;
+        case TWAI_STATE_BUS_OFF:
+            result.state = CAN_BUF_OFF;
+            break;
+        case TWAI_STATE_RECOVERING:
+            result.state = CAN_RECOVERING;
+            break;
+        default:
+            if (is_error_passive) result.state = CAN_ERROR_PASSIVE;
+            else result.state = CAN_ERROR_ACTIVE;
+            break;
+    }
+|—————Node:{ Text: {
+|—————Node:case_statement Text: case TWAI_STATE_STOPPED:
+            result.state = CAN_STOPPED;
+            break;
+|——————Node:case Text: case
+|——————Node:identifier Text: TWAI_STATE_STOPPED
+|——————Node:: Text: :
+|——————Node:expression_statement Text: result.state = CAN_STOPPED;
+|———————Node:assignment_expression Text: result.state = CAN_STOPPED
+|————————Node:field_expression Text: result.state
+|—————————Node:identifier Text: result
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: state
+|————————Node:= Text: =
+|————————Node:identifier Text: CAN_STOPPED
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case TWAI_STATE_BUS_OFF:
+            result.state = CAN_BUF_OFF;
+            break;
+|——————Node:case Text: case
+|——————Node:identifier Text: TWAI_STATE_BUS_OFF
+|——————Node:: Text: :
+|——————Node:expression_statement Text: result.state = CAN_BUF_OFF;
+|———————Node:assignment_expression Text: result.state = CAN_BUF_OFF
+|————————Node:field_expression Text: result.state
+|—————————Node:identifier Text: result
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: state
+|————————Node:= Text: =
+|————————Node:identifier Text: CAN_BUF_OFF
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case TWAI_STATE_RECOVERING:
+            result.state = CAN_RECOVERING;
+            break;
+|——————Node:case Text: case
+|——————Node:identifier Text: TWAI_STATE_RECOVERING
+|——————Node:: Text: :
+|——————Node:expression_statement Text: result.state = CAN_RECOVERING;
+|———————Node:assignment_expression Text: result.state = CAN_RECOVERING
+|————————Node:field_expression Text: result.state
+|—————————Node:identifier Text: result
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: state
+|————————Node:= Text: =
+|————————Node:identifier Text: CAN_RECOVERING
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: default:
+            if (is_error_passive) result.state = CAN_ERROR_PASSIVE;
+            else result.state = CAN_ERROR_ACTIVE;
+            break;
+|——————Node:default Text: default
+|——————Node:: Text: :
+|——————Node:if_statement Text: if (is_error_passive) result.state = CAN_ERROR_PASSIVE;
+            else result.state = CAN_ERROR_ACTIVE;
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (is_error_passive)
+|————————Node:( Text: (
+|————————Node:identifier Text: is_error_passive
+|————————Node:) Text: )
+|———————Node:expression_statement Text: result.state = CAN_ERROR_PASSIVE;
+|————————Node:assignment_expression Text: result.state = CAN_ERROR_PASSIVE
+|—————————Node:field_expression Text: result.state
+|——————————Node:identifier Text: result
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: state
+|—————————Node:= Text: =
+|—————————Node:identifier Text: CAN_ERROR_PASSIVE
+|————————Node:; Text: ;
+|———————Node:else_clause Text: else result.state = CAN_ERROR_ACTIVE;
+|————————Node:else Text: else
+|————————Node:expression_statement Text: result.state = CAN_ERROR_ACTIVE;
+|—————————Node:assignment_expression Text: result.state = CAN_ERROR_ACTIVE
+|——————————Node:field_expression Text: result.state
+|———————————Node:identifier Text: result
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: state
+|——————————Node:= Text: =
+|——————————Node:identifier Text: CAN_ERROR_ACTIVE
+|—————————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return result;
+|————Node:return Text: return
+|————Node:identifier Text: result
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void can_msg_to_str(twai_message_t *can_msg, char *start_str, char *out_str) {
+    char byte_str[3];
+    out_str[0] = '\0';
+    sprintf(out_str, "%scan frame: ID: %08X dlc: %d ", start_str, (int) can_msg->identifier, can_msg->data_length_code);
+    if (can_msg->data_length_code == 0) {
+        strcat(out_str, "(no data)");
+    } else {
+        strcat(out_str, "data: ");
+        for (int i = 0; i < can_msg->data_length_code; i++) {
+            sprintf(byte_str, "%02X", can_msg->data[i]);
+            strcat(out_str, byte_str);
+        }
+    }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: can_msg_to_str(twai_message_t *can_msg, char *start_str, char *out_str)
+|———Node:identifier Text: can_msg_to_str
+|———Node:parameter_list Text: (twai_message_t *can_msg, char *start_str, char *out_str)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: twai_message_t *can_msg
+|—————Node:type_identifier Text: twai_message_t
+|—————Node:pointer_declarator Text: *can_msg
+|——————Node:* Text: *
+|——————Node:identifier Text: can_msg
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: char *start_str
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: *start_str
+|——————Node:* Text: *
+|——————Node:identifier Text: start_str
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: char *out_str
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: *out_str
+|——————Node:* Text: *
+|——————Node:identifier Text: out_str
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    char byte_str[3];
+    out_str[0] = '\0';
+    sprintf(out_str, "%scan frame: ID: %08X dlc: %d ", start_str, (int) can_msg->identifier, can_msg->data_length_code);
+    if (can_msg->data_length_code == 0) {
+        strcat(out_str, "(no data)");
+    } else {
+        strcat(out_str, "data: ");
+        for (int i = 0; i < can_msg->data_length_code; i++) {
+            sprintf(byte_str, "%02X", can_msg->data[i]);
+            strcat(out_str, byte_str);
+        }
+    }
+}
+|———Node:{ Text: {
+|———Node:declaration Text: char byte_str[3];
+|————Node:primitive_type Text: char
+|————Node:array_declarator Text: byte_str[3]
+|—————Node:identifier Text: byte_str
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 3
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:expression_statement Text: out_str[0] = '\0';
+|————Node:assignment_expression Text: out_str[0] = '\0'
+|—————Node:subscript_expression Text: out_str[0]
+|——————Node:identifier Text: out_str
+|——————Node:[ Text: [
+|——————Node:number_literal Text: 0
+|——————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:char_literal Text: '\0'
+|——————Node:' Text: '
+|——————Node:escape_sequence Text: \0
+|——————Node:' Text: '
+|————Node:; Text: ;
+|———Node:expression_statement Text: sprintf(out_str, "%scan frame: ID: %08X dlc: %d ", start_str, (int) can_msg->identifier, can_msg->data_length_code);
+|————Node:call_expression Text: sprintf(out_str, "%scan frame: ID: %08X dlc: %d ", start_str, (int) can_msg->identifier, can_msg->data_length_code)
+|—————Node:identifier Text: sprintf
+|—————Node:argument_list Text: (out_str, "%scan frame: ID: %08X dlc: %d ", start_str, (int) can_msg->identifier, can_msg->data_length_code)
+|——————Node:( Text: (
+|——————Node:identifier Text: out_str
+|——————Node:, Text: ,
+|——————Node:string_literal Text: "%scan frame: ID: %08X dlc: %d "
+|———————Node:" Text: "
+|———————Node:string_content Text: %scan frame: ID: %08X dlc: %d 
+|———————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:identifier Text: start_str
+|——————Node:, Text: ,
+|——————Node:cast_expression Text: (int) can_msg->identifier
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: int
+|————————Node:primitive_type Text: int
+|———————Node:) Text: )
+|———————Node:field_expression Text: can_msg->identifier
+|————————Node:identifier Text: can_msg
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: identifier
+|——————Node:, Text: ,
+|——————Node:field_expression Text: can_msg->data_length_code
+|———————Node:identifier Text: can_msg
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: data_length_code
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (can_msg->data_length_code == 0) {
+        strcat(out_str, "(no data)");
+    } else {
+        strcat(out_str, "data: ");
+        for (int i = 0; i < can_msg->data_length_code; i++) {
+            sprintf(byte_str, "%02X", can_msg->data[i]);
+            strcat(out_str, byte_str);
+        }
+    }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (can_msg->data_length_code == 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: can_msg->data_length_code == 0
+|——————Node:field_expression Text: can_msg->data_length_code
+|———————Node:identifier Text: can_msg
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: data_length_code
+|——————Node:== Text: ==
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        strcat(out_str, "(no data)");
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: strcat(out_str, "(no data)");
+|——————Node:call_expression Text: strcat(out_str, "(no data)")
+|———————Node:identifier Text: strcat
+|———————Node:argument_list Text: (out_str, "(no data)")
+|————————Node:( Text: (
+|————————Node:identifier Text: out_str
+|————————Node:, Text: ,
+|————————Node:string_literal Text: "(no data)"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: (no data)
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else {
+        strcat(out_str, "data: ");
+        for (int i = 0; i < can_msg->data_length_code; i++) {
+            sprintf(byte_str, "%02X", can_msg->data[i]);
+            strcat(out_str, byte_str);
+        }
+    }
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+        strcat(out_str, "data: ");
+        for (int i = 0; i < can_msg->data_length_code; i++) {
+            sprintf(byte_str, "%02X", can_msg->data[i]);
+            strcat(out_str, byte_str);
+        }
+    }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: strcat(out_str, "data: ");
+|———————Node:call_expression Text: strcat(out_str, "data: ")
+|————————Node:identifier Text: strcat
+|————————Node:argument_list Text: (out_str, "data: ")
+|—————————Node:( Text: (
+|—————————Node:identifier Text: out_str
+|—————————Node:, Text: ,
+|—————————Node:string_literal Text: "data: "
+|——————————Node:" Text: "
+|——————————Node:string_content Text: data: 
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:for_statement Text: for (int i = 0; i < can_msg->data_length_code; i++) {
+            sprintf(byte_str, "%02X", can_msg->data[i]);
+            strcat(out_str, byte_str);
+        }
+|———————Node:for Text: for
+|———————Node:( Text: (
+|———————Node:declaration Text: int i = 0;
+|————————Node:primitive_type Text: int
+|————————Node:init_declarator Text: i = 0
+|—————————Node:identifier Text: i
+|—————————Node:= Text: =
+|—————————Node:number_literal Text: 0
+|————————Node:; Text: ;
+|———————Node:binary_expression Text: i < can_msg->data_length_code
+|————————Node:identifier Text: i
+|————————Node:< Text: <
+|————————Node:field_expression Text: can_msg->data_length_code
+|—————————Node:identifier Text: can_msg
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: data_length_code
+|———————Node:; Text: ;
+|———————Node:update_expression Text: i++
+|————————Node:identifier Text: i
+|————————Node:++ Text: ++
+|———————Node:) Text: )
+|———————Node:compound_statement Text: {
+            sprintf(byte_str, "%02X", can_msg->data[i]);
+            strcat(out_str, byte_str);
+        }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: sprintf(byte_str, "%02X", can_msg->data[i]);
+|—————————Node:call_expression Text: sprintf(byte_str, "%02X", can_msg->data[i])
+|——————————Node:identifier Text: sprintf
+|——————————Node:argument_list Text: (byte_str, "%02X", can_msg->data[i])
+|———————————Node:( Text: (
+|———————————Node:identifier Text: byte_str
+|———————————Node:, Text: ,
+|———————————Node:string_literal Text: "%02X"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: %02X
+|————————————Node:" Text: "
+|———————————Node:, Text: ,
+|———————————Node:subscript_expression Text: can_msg->data[i]
+|————————————Node:field_expression Text: can_msg->data
+|—————————————Node:identifier Text: can_msg
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: data
+|————————————Node:[ Text: [
+|————————————Node:identifier Text: i
+|————————————Node:] Text: ]
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:expression_statement Text: strcat(out_str, byte_str);
+|—————————Node:call_expression Text: strcat(out_str, byte_str)
+|——————————Node:identifier Text: strcat
+|——————————Node:argument_list Text: (out_str, byte_str)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: out_str
+|———————————Node:, Text: ,
+|———————————Node:identifier Text: byte_str
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:} Text: }
+|———Node:} Text: }
+|—Node:comment Text: // TODO: add software filtering
+|—Node:function_definition Text: void can_task(void* arg) {
+    static const TickType_t can_task_timeout = pdMS_TO_TICKS(200);
+    uint32_t alerts = 0;
+    esp_err_t ret = ESP_OK;
+    BaseType_t sem_res;
+    can_mutex = xSemaphoreCreateMutex();
+    twai_message_t rx_msg;
+    char data_bytes_str[70];
+    for (;;) { // A Task shall never return or exit.
+        if (twai_read_alerts(&alerts, 0) == ESP_OK) {
+            if (alerts & TWAI_ALERT_ERR_ACTIVE) {
+                is_error_passive = false;
+            }
+            if (alerts & TWAI_ALERT_ERR_PASS) {
+                is_error_passive = true;
+            }
+            if (alerts & TWAI_ALERT_BUS_ERROR) {
+                print_w_clr_time("CAN error!", LOG_COLOR_RED, false);
+            }
+            if (alerts & TWAI_ALERT_BUS_OFF) {
+                print_w_clr_time("CAN went bus-off!", LOG_COLOR_RED, false);
+                if (auto_recovery) {
+                    print_w_clr_time("Initiating auto-recovery...", LOG_COLOR_GREEN, false);
+                    twai_initiate_recovery();
+                }
+            }
+            if (alerts & TWAI_ALERT_BUS_RECOVERED) {
+                print_w_clr_time("CAN recovered!", LOG_COLOR_BLUE, false);
+                if (auto_recovery) {
+                    print_w_clr_time("Starting CAN...", LOG_COLOR_GREEN, false);
+                    ESP_ERROR_CHECK(twai_start());
+                    is_error_passive = false;
+                }
+            }
+        }
+        curr_can_state = get_can_state();
+        sem_res = xSemaphoreTake(can_mutex, 0);
+        if (sem_res == pdTRUE) {
+            while ((ret = twai_receive(&rx_msg, can_task_timeout)) == ESP_OK) {
+                can_msg_to_str(&rx_msg, "recv ", data_bytes_str); 
+                print_w_clr_time(data_bytes_str, LOG_COLOR_BLUE, false);
+            }
+            xSemaphoreGive(can_mutex);
+            vTaskDelay(1);
+        }
+        if (sem_res != pdTRUE || ret == ESP_ERR_INVALID_STATE || ret == ESP_ERR_NOT_SUPPORTED) {
+            vTaskDelay(can_task_timeout);
+        }
+    }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: can_task(void* arg)
+|———Node:identifier Text: can_task
+|———Node:parameter_list Text: (void* arg)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void* arg
+|—————Node:primitive_type Text: void
+|—————Node:pointer_declarator Text: * arg
+|——————Node:* Text: *
+|——————Node:identifier Text: arg
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    static const TickType_t can_task_timeout = pdMS_TO_TICKS(200);
+    uint32_t alerts = 0;
+    esp_err_t ret = ESP_OK;
+    BaseType_t sem_res;
+    can_mutex = xSemaphoreCreateMutex();
+    twai_message_t rx_msg;
+    char data_bytes_str[70];
+    for (;;) { // A Task shall never return or exit.
+        if (twai_read_alerts(&alerts, 0) == ESP_OK) {
+            if (alerts & TWAI_ALERT_ERR_ACTIVE) {
+                is_error_passive = false;
+            }
+            if (alerts & TWAI_ALERT_ERR_PASS) {
+                is_error_passive = true;
+            }
+            if (alerts & TWAI_ALERT_BUS_ERROR) {
+                print_w_clr_time("CAN error!", LOG_COLOR_RED, false);
+            }
+            if (alerts & TWAI_ALERT_BUS_OFF) {
+                print_w_clr_time("CAN went bus-off!", LOG_COLOR_RED, false);
+                if (auto_recovery) {
+                    print_w_clr_time("Initiating auto-recovery...", LOG_COLOR_GREEN, false);
+                    twai_initiate_recovery();
+                }
+            }
+            if (alerts & TWAI_ALERT_BUS_RECOVERED) {
+                print_w_clr_time("CAN recovered!", LOG_COLOR_BLUE, false);
+                if (auto_recovery) {
+                    print_w_clr_time("Starting CAN...", LOG_COLOR_GREEN, false);
+                    ESP_ERROR_CHECK(twai_start());
+                    is_error_passive = false;
+                }
+            }
+        }
+        curr_can_state = get_can_state();
+        sem_res = xSemaphoreTake(can_mutex, 0);
+        if (sem_res == pdTRUE) {
+            while ((ret = twai_receive(&rx_msg, can_task_timeout)) == ESP_OK) {
+                can_msg_to_str(&rx_msg, "recv ", data_bytes_str); 
+                print_w_clr_time(data_bytes_str, LOG_COLOR_BLUE, false);
+            }
+            xSemaphoreGive(can_mutex);
+            vTaskDelay(1);
+        }
+        if (sem_res != pdTRUE || ret == ESP_ERR_INVALID_STATE || ret == ESP_ERR_NOT_SUPPORTED) {
+            vTaskDelay(can_task_timeout);
+        }
+    }
+}
+|———Node:{ Text: {
+|———Node:declaration Text: static const TickType_t can_task_timeout = pdMS_TO_TICKS(200);
+|————Node:storage_class_specifier Text: static
+|—————Node:static Text: static
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:type_identifier Text: TickType_t
+|————Node:init_declarator Text: can_task_timeout = pdMS_TO_TICKS(200)
+|—————Node:identifier Text: can_task_timeout
+|—————Node:= Text: =
+|—————Node:call_expression Text: pdMS_TO_TICKS(200)
+|——————Node:identifier Text: pdMS_TO_TICKS
+|——————Node:argument_list Text: (200)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 200
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: uint32_t alerts = 0;
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: alerts = 0
+|—————Node:identifier Text: alerts
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: esp_err_t ret = ESP_OK;
+|————Node:type_identifier Text: esp_err_t
+|————Node:init_declarator Text: ret = ESP_OK
+|—————Node:identifier Text: ret
+|—————Node:= Text: =
+|—————Node:identifier Text: ESP_OK
+|————Node:; Text: ;
+|———Node:declaration Text: BaseType_t sem_res;
+|————Node:type_identifier Text: BaseType_t
+|————Node:identifier Text: sem_res
+|————Node:; Text: ;
+|———Node:expression_statement Text: can_mutex = xSemaphoreCreateMutex();
+|————Node:assignment_expression Text: can_mutex = xSemaphoreCreateMutex()
+|—————Node:identifier Text: can_mutex
+|—————Node:= Text: =
+|—————Node:call_expression Text: xSemaphoreCreateMutex()
+|——————Node:identifier Text: xSemaphoreCreateMutex
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: twai_message_t rx_msg;
+|————Node:type_identifier Text: twai_message_t
+|————Node:identifier Text: rx_msg
+|————Node:; Text: ;
+|———Node:declaration Text: char data_bytes_str[70];
+|————Node:primitive_type Text: char
+|————Node:array_declarator Text: data_bytes_str[70]
+|—————Node:identifier Text: data_bytes_str
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 70
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:for_statement Text: for (;;) { // A Task shall never return or exit.
+        if (twai_read_alerts(&alerts, 0) == ESP_OK) {
+            if (alerts & TWAI_ALERT_ERR_ACTIVE) {
+                is_error_passive = false;
+            }
+            if (alerts & TWAI_ALERT_ERR_PASS) {
+                is_error_passive = true;
+            }
+            if (alerts & TWAI_ALERT_BUS_ERROR) {
+                print_w_clr_time("CAN error!", LOG_COLOR_RED, false);
+            }
+            if (alerts & TWAI_ALERT_BUS_OFF) {
+                print_w_clr_time("CAN went bus-off!", LOG_COLOR_RED, false);
+                if (auto_recovery) {
+                    print_w_clr_time("Initiating auto-recovery...", LOG_COLOR_GREEN, false);
+                    twai_initiate_recovery();
+                }
+            }
+            if (alerts & TWAI_ALERT_BUS_RECOVERED) {
+                print_w_clr_time("CAN recovered!", LOG_COLOR_BLUE, false);
+                if (auto_recovery) {
+                    print_w_clr_time("Starting CAN...", LOG_COLOR_GREEN, false);
+                    ESP_ERROR_CHECK(twai_start());
+                    is_error_passive = false;
+                }
+            }
+        }
+        curr_can_state = get_can_state();
+        sem_res = xSemaphoreTake(can_mutex, 0);
+        if (sem_res == pdTRUE) {
+            while ((ret = twai_receive(&rx_msg, can_task_timeout)) == ESP_OK) {
+                can_msg_to_str(&rx_msg, "recv ", data_bytes_str); 
+                print_w_clr_time(data_bytes_str, LOG_COLOR_BLUE, false);
+            }
+            xSemaphoreGive(can_mutex);
+            vTaskDelay(1);
+        }
+        if (sem_res != pdTRUE || ret == ESP_ERR_INVALID_STATE || ret == ESP_ERR_NOT_SUPPORTED) {
+            vTaskDelay(can_task_timeout);
+        }
+    }
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:; Text: ;
+|————Node:; Text: ;
+|————Node:) Text: )
+|————Node:compound_statement Text: { // A Task shall never return or exit.
+        if (twai_read_alerts(&alerts, 0) == ESP_OK) {
+            if (alerts & TWAI_ALERT_ERR_ACTIVE) {
+                is_error_passive = false;
+            }
+            if (alerts & TWAI_ALERT_ERR_PASS) {
+                is_error_passive = true;
+            }
+            if (alerts & TWAI_ALERT_BUS_ERROR) {
+                print_w_clr_time("CAN error!", LOG_COLOR_RED, false);
+            }
+            if (alerts & TWAI_ALERT_BUS_OFF) {
+                print_w_clr_time("CAN went bus-off!", LOG_COLOR_RED, false);
+                if (auto_recovery) {
+                    print_w_clr_time("Initiating auto-recovery...", LOG_COLOR_GREEN, false);
+                    twai_initiate_recovery();
+                }
+            }
+            if (alerts & TWAI_ALERT_BUS_RECOVERED) {
+                print_w_clr_time("CAN recovered!", LOG_COLOR_BLUE, false);
+                if (auto_recovery) {
+                    print_w_clr_time("Starting CAN...", LOG_COLOR_GREEN, false);
+                    ESP_ERROR_CHECK(twai_start());
+                    is_error_passive = false;
+                }
+            }
+        }
+        curr_can_state = get_can_state();
+        sem_res = xSemaphoreTake(can_mutex, 0);
+        if (sem_res == pdTRUE) {
+            while ((ret = twai_receive(&rx_msg, can_task_timeout)) == ESP_OK) {
+                can_msg_to_str(&rx_msg, "recv ", data_bytes_str); 
+                print_w_clr_time(data_bytes_str, LOG_COLOR_BLUE, false);
+            }
+            xSemaphoreGive(can_mutex);
+            vTaskDelay(1);
+        }
+        if (sem_res != pdTRUE || ret == ESP_ERR_INVALID_STATE || ret == ESP_ERR_NOT_SUPPORTED) {
+            vTaskDelay(can_task_timeout);
+        }
+    }
+|—————Node:{ Text: {
+|—————Node:comment Text: // A Task shall never return or exit.
+|—————Node:if_statement Text: if (twai_read_alerts(&alerts, 0) == ESP_OK) {
+            if (alerts & TWAI_ALERT_ERR_ACTIVE) {
+                is_error_passive = false;
+            }
+            if (alerts & TWAI_ALERT_ERR_PASS) {
+                is_error_passive = true;
+            }
+            if (alerts & TWAI_ALERT_BUS_ERROR) {
+                print_w_clr_time("CAN error!", LOG_COLOR_RED, false);
+            }
+            if (alerts & TWAI_ALERT_BUS_OFF) {
+                print_w_clr_time("CAN went bus-off!", LOG_COLOR_RED, false);
+                if (auto_recovery) {
+                    print_w_clr_time("Initiating auto-recovery...", LOG_COLOR_GREEN, false);
+                    twai_initiate_recovery();
+                }
+            }
+            if (alerts & TWAI_ALERT_BUS_RECOVERED) {
+                print_w_clr_time("CAN recovered!", LOG_COLOR_BLUE, false);
+                if (auto_recovery) {
+                    print_w_clr_time("Starting CAN...", LOG_COLOR_GREEN, false);
+                    ESP_ERROR_CHECK(twai_start());
+                    is_error_passive = false;
+                }
+            }
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (twai_read_alerts(&alerts, 0) == ESP_OK)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: twai_read_alerts(&alerts, 0) == ESP_OK
+|————————Node:call_expression Text: twai_read_alerts(&alerts, 0)
+|—————————Node:identifier Text: twai_read_alerts
+|—————————Node:argument_list Text: (&alerts, 0)
+|——————————Node:( Text: (
+|——————————Node:pointer_expression Text: &alerts
+|———————————Node:& Text: &
+|———————————Node:identifier Text: alerts
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0
+|——————————Node:) Text: )
+|————————Node:== Text: ==
+|————————Node:identifier Text: ESP_OK
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            if (alerts & TWAI_ALERT_ERR_ACTIVE) {
+                is_error_passive = false;
+            }
+            if (alerts & TWAI_ALERT_ERR_PASS) {
+                is_error_passive = true;
+            }
+            if (alerts & TWAI_ALERT_BUS_ERROR) {
+                print_w_clr_time("CAN error!", LOG_COLOR_RED, false);
+            }
+            if (alerts & TWAI_ALERT_BUS_OFF) {
+                print_w_clr_time("CAN went bus-off!", LOG_COLOR_RED, false);
+                if (auto_recovery) {
+                    print_w_clr_time("Initiating auto-recovery...", LOG_COLOR_GREEN, false);
+                    twai_initiate_recovery();
+                }
+            }
+            if (alerts & TWAI_ALERT_BUS_RECOVERED) {
+                print_w_clr_time("CAN recovered!", LOG_COLOR_BLUE, false);
+                if (auto_recovery) {
+                    print_w_clr_time("Starting CAN...", LOG_COLOR_GREEN, false);
+                    ESP_ERROR_CHECK(twai_start());
+                    is_error_passive = false;
+                }
+            }
+        }
+|———————Node:{ Text: {
+|———————Node:if_statement Text: if (alerts & TWAI_ALERT_ERR_ACTIVE) {
+                is_error_passive = false;
+            }
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (alerts & TWAI_ALERT_ERR_ACTIVE)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: alerts & TWAI_ALERT_ERR_ACTIVE
+|——————————Node:identifier Text: alerts
+|——————————Node:& Text: &
+|——————————Node:identifier Text: TWAI_ALERT_ERR_ACTIVE
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                is_error_passive = false;
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: is_error_passive = false;
+|——————————Node:assignment_expression Text: is_error_passive = false
+|———————————Node:identifier Text: is_error_passive
+|———————————Node:= Text: =
+|———————————Node:false Text: false
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:if_statement Text: if (alerts & TWAI_ALERT_ERR_PASS) {
+                is_error_passive = true;
+            }
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (alerts & TWAI_ALERT_ERR_PASS)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: alerts & TWAI_ALERT_ERR_PASS
+|——————————Node:identifier Text: alerts
+|——————————Node:& Text: &
+|——————————Node:identifier Text: TWAI_ALERT_ERR_PASS
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                is_error_passive = true;
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: is_error_passive = true;
+|——————————Node:assignment_expression Text: is_error_passive = true
+|———————————Node:identifier Text: is_error_passive
+|———————————Node:= Text: =
+|———————————Node:true Text: true
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:if_statement Text: if (alerts & TWAI_ALERT_BUS_ERROR) {
+                print_w_clr_time("CAN error!", LOG_COLOR_RED, false);
+            }
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (alerts & TWAI_ALERT_BUS_ERROR)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: alerts & TWAI_ALERT_BUS_ERROR
+|——————————Node:identifier Text: alerts
+|——————————Node:& Text: &
+|——————————Node:identifier Text: TWAI_ALERT_BUS_ERROR
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                print_w_clr_time("CAN error!", LOG_COLOR_RED, false);
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: print_w_clr_time("CAN error!", LOG_COLOR_RED, false);
+|——————————Node:call_expression Text: print_w_clr_time("CAN error!", LOG_COLOR_RED, false)
+|———————————Node:identifier Text: print_w_clr_time
+|———————————Node:argument_list Text: ("CAN error!", LOG_COLOR_RED, false)
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "CAN error!"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: CAN error!
+|—————————————Node:" Text: "
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: LOG_COLOR_RED
+|————————————Node:, Text: ,
+|————————————Node:false Text: false
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:if_statement Text: if (alerts & TWAI_ALERT_BUS_OFF) {
+                print_w_clr_time("CAN went bus-off!", LOG_COLOR_RED, false);
+                if (auto_recovery) {
+                    print_w_clr_time("Initiating auto-recovery...", LOG_COLOR_GREEN, false);
+                    twai_initiate_recovery();
+                }
+            }
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (alerts & TWAI_ALERT_BUS_OFF)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: alerts & TWAI_ALERT_BUS_OFF
+|——————————Node:identifier Text: alerts
+|——————————Node:& Text: &
+|——————————Node:identifier Text: TWAI_ALERT_BUS_OFF
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                print_w_clr_time("CAN went bus-off!", LOG_COLOR_RED, false);
+                if (auto_recovery) {
+                    print_w_clr_time("Initiating auto-recovery...", LOG_COLOR_GREEN, false);
+                    twai_initiate_recovery();
+                }
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: print_w_clr_time("CAN went bus-off!", LOG_COLOR_RED, false);
+|——————————Node:call_expression Text: print_w_clr_time("CAN went bus-off!", LOG_COLOR_RED, false)
+|———————————Node:identifier Text: print_w_clr_time
+|———————————Node:argument_list Text: ("CAN went bus-off!", LOG_COLOR_RED, false)
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "CAN went bus-off!"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: CAN went bus-off!
+|—————————————Node:" Text: "
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: LOG_COLOR_RED
+|————————————Node:, Text: ,
+|————————————Node:false Text: false
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:if_statement Text: if (auto_recovery) {
+                    print_w_clr_time("Initiating auto-recovery...", LOG_COLOR_GREEN, false);
+                    twai_initiate_recovery();
+                }
+|——————————Node:if Text: if
+|——————————Node:parenthesized_expression Text: (auto_recovery)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: auto_recovery
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+                    print_w_clr_time("Initiating auto-recovery...", LOG_COLOR_GREEN, false);
+                    twai_initiate_recovery();
+                }
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: print_w_clr_time("Initiating auto-recovery...", LOG_COLOR_GREEN, false);
+|————————————Node:call_expression Text: print_w_clr_time("Initiating auto-recovery...", LOG_COLOR_GREEN, false)
+|—————————————Node:identifier Text: print_w_clr_time
+|—————————————Node:argument_list Text: ("Initiating auto-recovery...", LOG_COLOR_GREEN, false)
+|——————————————Node:( Text: (
+|——————————————Node:string_literal Text: "Initiating auto-recovery..."
+|———————————————Node:" Text: "
+|———————————————Node:string_content Text: Initiating auto-recovery...
+|———————————————Node:" Text: "
+|——————————————Node:, Text: ,
+|——————————————Node:identifier Text: LOG_COLOR_GREEN
+|——————————————Node:, Text: ,
+|——————————————Node:false Text: false
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:expression_statement Text: twai_initiate_recovery();
+|————————————Node:call_expression Text: twai_initiate_recovery()
+|—————————————Node:identifier Text: twai_initiate_recovery
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|—————————Node:} Text: }
+|———————Node:if_statement Text: if (alerts & TWAI_ALERT_BUS_RECOVERED) {
+                print_w_clr_time("CAN recovered!", LOG_COLOR_BLUE, false);
+                if (auto_recovery) {
+                    print_w_clr_time("Starting CAN...", LOG_COLOR_GREEN, false);
+                    ESP_ERROR_CHECK(twai_start());
+                    is_error_passive = false;
+                }
+            }
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (alerts & TWAI_ALERT_BUS_RECOVERED)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: alerts & TWAI_ALERT_BUS_RECOVERED
+|——————————Node:identifier Text: alerts
+|——————————Node:& Text: &
+|——————————Node:identifier Text: TWAI_ALERT_BUS_RECOVERED
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                print_w_clr_time("CAN recovered!", LOG_COLOR_BLUE, false);
+                if (auto_recovery) {
+                    print_w_clr_time("Starting CAN...", LOG_COLOR_GREEN, false);
+                    ESP_ERROR_CHECK(twai_start());
+                    is_error_passive = false;
+                }
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: print_w_clr_time("CAN recovered!", LOG_COLOR_BLUE, false);
+|——————————Node:call_expression Text: print_w_clr_time("CAN recovered!", LOG_COLOR_BLUE, false)
+|———————————Node:identifier Text: print_w_clr_time
+|———————————Node:argument_list Text: ("CAN recovered!", LOG_COLOR_BLUE, false)
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "CAN recovered!"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: CAN recovered!
+|—————————————Node:" Text: "
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: LOG_COLOR_BLUE
+|————————————Node:, Text: ,
+|————————————Node:false Text: false
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:if_statement Text: if (auto_recovery) {
+                    print_w_clr_time("Starting CAN...", LOG_COLOR_GREEN, false);
+                    ESP_ERROR_CHECK(twai_start());
+                    is_error_passive = false;
+                }
+|——————————Node:if Text: if
+|——————————Node:parenthesized_expression Text: (auto_recovery)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: auto_recovery
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+                    print_w_clr_time("Starting CAN...", LOG_COLOR_GREEN, false);
+                    ESP_ERROR_CHECK(twai_start());
+                    is_error_passive = false;
+                }
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: print_w_clr_time("Starting CAN...", LOG_COLOR_GREEN, false);
+|————————————Node:call_expression Text: print_w_clr_time("Starting CAN...", LOG_COLOR_GREEN, false)
+|—————————————Node:identifier Text: print_w_clr_time
+|—————————————Node:argument_list Text: ("Starting CAN...", LOG_COLOR_GREEN, false)
+|——————————————Node:( Text: (
+|——————————————Node:string_literal Text: "Starting CAN..."
+|———————————————Node:" Text: "
+|———————————————Node:string_content Text: Starting CAN...
+|———————————————Node:" Text: "
+|——————————————Node:, Text: ,
+|——————————————Node:identifier Text: LOG_COLOR_GREEN
+|——————————————Node:, Text: ,
+|——————————————Node:false Text: false
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:expression_statement Text: ESP_ERROR_CHECK(twai_start());
+|————————————Node:call_expression Text: ESP_ERROR_CHECK(twai_start())
+|—————————————Node:identifier Text: ESP_ERROR_CHECK
+|—————————————Node:argument_list Text: (twai_start())
+|——————————————Node:( Text: (
+|——————————————Node:call_expression Text: twai_start()
+|———————————————Node:identifier Text: twai_start
+|———————————————Node:argument_list Text: ()
+|————————————————Node:( Text: (
+|————————————————Node:) Text: )
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:expression_statement Text: is_error_passive = false;
+|————————————Node:assignment_expression Text: is_error_passive = false
+|—————————————Node:identifier Text: is_error_passive
+|—————————————Node:= Text: =
+|—————————————Node:false Text: false
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|—————Node:expression_statement Text: curr_can_state = get_can_state();
+|——————Node:assignment_expression Text: curr_can_state = get_can_state()
+|———————Node:identifier Text: curr_can_state
+|———————Node:= Text: =
+|———————Node:call_expression Text: get_can_state()
+|————————Node:identifier Text: get_can_state
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: sem_res = xSemaphoreTake(can_mutex, 0);
+|——————Node:assignment_expression Text: sem_res = xSemaphoreTake(can_mutex, 0)
+|———————Node:identifier Text: sem_res
+|———————Node:= Text: =
+|———————Node:call_expression Text: xSemaphoreTake(can_mutex, 0)
+|————————Node:identifier Text: xSemaphoreTake
+|————————Node:argument_list Text: (can_mutex, 0)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: can_mutex
+|—————————Node:, Text: ,
+|—————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if (sem_res == pdTRUE) {
+            while ((ret = twai_receive(&rx_msg, can_task_timeout)) == ESP_OK) {
+                can_msg_to_str(&rx_msg, "recv ", data_bytes_str); 
+                print_w_clr_time(data_bytes_str, LOG_COLOR_BLUE, false);
+            }
+            xSemaphoreGive(can_mutex);
+            vTaskDelay(1);
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (sem_res == pdTRUE)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: sem_res == pdTRUE
+|————————Node:identifier Text: sem_res
+|————————Node:== Text: ==
+|————————Node:identifier Text: pdTRUE
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            while ((ret = twai_receive(&rx_msg, can_task_timeout)) == ESP_OK) {
+                can_msg_to_str(&rx_msg, "recv ", data_bytes_str); 
+                print_w_clr_time(data_bytes_str, LOG_COLOR_BLUE, false);
+            }
+            xSemaphoreGive(can_mutex);
+            vTaskDelay(1);
+        }
+|———————Node:{ Text: {
+|———————Node:while_statement Text: while ((ret = twai_receive(&rx_msg, can_task_timeout)) == ESP_OK) {
+                can_msg_to_str(&rx_msg, "recv ", data_bytes_str); 
+                print_w_clr_time(data_bytes_str, LOG_COLOR_BLUE, false);
+            }
+|————————Node:while Text: while
+|————————Node:parenthesized_expression Text: ((ret = twai_receive(&rx_msg, can_task_timeout)) == ESP_OK)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: (ret = twai_receive(&rx_msg, can_task_timeout)) == ESP_OK
+|——————————Node:parenthesized_expression Text: (ret = twai_receive(&rx_msg, can_task_timeout))
+|———————————Node:( Text: (
+|———————————Node:assignment_expression Text: ret = twai_receive(&rx_msg, can_task_timeout)
+|————————————Node:identifier Text: ret
+|————————————Node:= Text: =
+|————————————Node:call_expression Text: twai_receive(&rx_msg, can_task_timeout)
+|—————————————Node:identifier Text: twai_receive
+|—————————————Node:argument_list Text: (&rx_msg, can_task_timeout)
+|——————————————Node:( Text: (
+|——————————————Node:pointer_expression Text: &rx_msg
+|———————————————Node:& Text: &
+|———————————————Node:identifier Text: rx_msg
+|——————————————Node:, Text: ,
+|——————————————Node:identifier Text: can_task_timeout
+|——————————————Node:) Text: )
+|———————————Node:) Text: )
+|——————————Node:== Text: ==
+|——————————Node:identifier Text: ESP_OK
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                can_msg_to_str(&rx_msg, "recv ", data_bytes_str); 
+                print_w_clr_time(data_bytes_str, LOG_COLOR_BLUE, false);
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: can_msg_to_str(&rx_msg, "recv ", data_bytes_str);
+|——————————Node:call_expression Text: can_msg_to_str(&rx_msg, "recv ", data_bytes_str)
+|———————————Node:identifier Text: can_msg_to_str
+|———————————Node:argument_list Text: (&rx_msg, "recv ", data_bytes_str)
+|————————————Node:( Text: (
+|————————————Node:pointer_expression Text: &rx_msg
+|—————————————Node:& Text: &
+|—————————————Node:identifier Text: rx_msg
+|————————————Node:, Text: ,
+|————————————Node:string_literal Text: "recv "
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: recv 
+|—————————————Node:" Text: "
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: data_bytes_str
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: print_w_clr_time(data_bytes_str, LOG_COLOR_BLUE, false);
+|——————————Node:call_expression Text: print_w_clr_time(data_bytes_str, LOG_COLOR_BLUE, false)
+|———————————Node:identifier Text: print_w_clr_time
+|———————————Node:argument_list Text: (data_bytes_str, LOG_COLOR_BLUE, false)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: data_bytes_str
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: LOG_COLOR_BLUE
+|————————————Node:, Text: ,
+|————————————Node:false Text: false
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:expression_statement Text: xSemaphoreGive(can_mutex);
+|————————Node:call_expression Text: xSemaphoreGive(can_mutex)
+|—————————Node:identifier Text: xSemaphoreGive
+|—————————Node:argument_list Text: (can_mutex)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: can_mutex
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: vTaskDelay(1);
+|————————Node:call_expression Text: vTaskDelay(1)
+|—————————Node:identifier Text: vTaskDelay
+|—————————Node:argument_list Text: (1)
+|——————————Node:( Text: (
+|——————————Node:number_literal Text: 1
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:if_statement Text: if (sem_res != pdTRUE || ret == ESP_ERR_INVALID_STATE || ret == ESP_ERR_NOT_SUPPORTED) {
+            vTaskDelay(can_task_timeout);
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (sem_res != pdTRUE || ret == ESP_ERR_INVALID_STATE || ret == ESP_ERR_NOT_SUPPORTED)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: sem_res != pdTRUE || ret == ESP_ERR_INVALID_STATE || ret == ESP_ERR_NOT_SUPPORTED
+|————————Node:binary_expression Text: sem_res != pdTRUE || ret == ESP_ERR_INVALID_STATE
+|—————————Node:binary_expression Text: sem_res != pdTRUE
+|——————————Node:identifier Text: sem_res
+|——————————Node:!= Text: !=
+|——————————Node:identifier Text: pdTRUE
+|—————————Node:|| Text: ||
+|—————————Node:binary_expression Text: ret == ESP_ERR_INVALID_STATE
+|——————————Node:identifier Text: ret
+|——————————Node:== Text: ==
+|——————————Node:identifier Text: ESP_ERR_INVALID_STATE
+|————————Node:|| Text: ||
+|————————Node:binary_expression Text: ret == ESP_ERR_NOT_SUPPORTED
+|—————————Node:identifier Text: ret
+|—————————Node:== Text: ==
+|—————————Node:identifier Text: ESP_ERR_NOT_SUPPORTED
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            vTaskDelay(can_task_timeout);
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: vTaskDelay(can_task_timeout);
+|————————Node:call_expression Text: vTaskDelay(can_task_timeout)
+|—————————Node:identifier Text: vTaskDelay
+|—————————Node:argument_list Text: (can_task_timeout)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: can_task_timeout
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:} Text: }

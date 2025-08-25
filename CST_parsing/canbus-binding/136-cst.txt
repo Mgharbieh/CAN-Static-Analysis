@@ -1,0 +1,2503 @@
+canbus-binding-low-can-binding\can\can-encoder.cpp
+
+|Node:translation_unit
+|—Node:comment
+|—Node:preproc_include Text: #include "can-encoder.hpp"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "can-encoder.hpp"
+|———Node:" Text: "
+|———Node:string_content Text: can-encoder.hpp
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "canutil/write.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "canutil/write.h"
+|———Node:" Text: "
+|———Node:string_content Text: canutil/write.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "../utils/openxc-utils.hpp"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "../utils/openxc-utils.hpp"
+|———Node:" Text: "
+|———Node:string_content Text: ../utils/openxc-utils.hpp
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "message-definition.hpp"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "message-definition.hpp"
+|———Node:" Text: "
+|———Node:string_content Text: message-definition.hpp
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "../utils/converter.hpp"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "../utils/converter.hpp"
+|———Node:" Text: "
+|———Node:string_content Text: ../utils/converter.hpp
+|———Node:" Text: "
+|—Node:comment
+|—Node:function_definition Text: void encoder_t::encode_data(std::shared_ptr<signal_t> sig, std::vector<uint8_t> &data, bool filter, bool factor, bool offset)
+{
+	uint32_t bit_size = sig->get_bit_size();
+	uint32_t bit_position = sig->get_bit_position();
+	int new_start_byte = 0;
+	int new_end_byte = 0;
+	int new_start_bit_tmp = 0;
+	int new_end_bit = 0;
+
+	converter_t::signal_to_bits_bytes(bit_position, bit_size, new_start_byte, new_end_byte, new_start_bit_tmp, new_end_bit);
+
+	int len_signal_bytes_tmp = new_end_byte - new_start_byte + 1;
+
+	uint8_t len_signal_bytes = 0;
+	if(len_signal_bytes_tmp > 255)
+	{
+		AFB_ERROR("Error signal %s too long",sig->get_name().c_str());
+	}
+	else
+	{
+		len_signal_bytes = (uint8_t) len_signal_bytes_tmp;
+	}
+
+	uint8_t new_start_bit = 0;
+	if(new_start_bit_tmp > 255)
+	{
+		AFB_ERROR("Error signal %s too long",sig->get_name().c_str());
+	}
+	else
+	{
+		new_start_bit = (uint8_t) new_start_bit_tmp;
+	}
+
+	uint8_t new_bit_size = 0;
+	if(bit_size > 255)
+	{
+		AFB_ERROR("Error signal %s to long bit size",sig->get_name().c_str());
+	}
+	else
+	{
+		new_bit_size = (uint8_t) bit_size;
+	}
+
+	uint8_t data_signal[len_signal_bytes] = {0};
+	float factor_v = 1;
+	if(factor)
+	{
+		factor_v = sig->get_factor();
+	}
+
+	float offset_v = 0;
+	if(factor)
+	{
+		offset_v = sig->get_offset();
+	}
+
+	if(filter)
+	{
+		uint8_t tmp = 0;
+		int j=0;
+		for(int i=0;i<new_bit_size;i++)
+		{
+			int mask = 0x80 >> ((i%8)+new_start_bit);
+
+			uint8_t mask_v = 0;
+			if(mask > 255)
+			{
+				AFB_ERROR("Error mask too large");
+			}
+			else
+			{
+				mask_v = (uint8_t) mask;
+			}
+			tmp = tmp|mask_v;
+
+			if(i%8 == 7)
+			{
+				data_signal[j] = tmp;
+				tmp = 0;
+				j++;
+			}
+		}
+		data_signal[j]=tmp;
+	}
+	else
+	{
+		bitfield_encode_float(	sig->get_last_value(),
+						new_start_bit,
+						new_bit_size,
+						factor_v,
+						offset_v,
+						data_signal,
+						len_signal_bytes);
+	}
+
+	for(size_t i = new_start_byte; i <= new_end_byte ; i++)
+	{
+		data[i] = data[i] | data_signal[i-new_start_byte];
+	}
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: encoder_t::encode_data(std::shared_ptr<signal_t> sig, std::vector<uint8_t> &data, bool filter, bool factor, bool offset)
+|———Node:qualified_identifier Text: encoder_t::encode_data
+|————Node:namespace_identifier Text: encoder_t
+|————Node::: Text: ::
+|————Node:identifier Text: encode_data
+|———Node:parameter_list Text: (std::shared_ptr<signal_t> sig, std::vector<uint8_t> &data, bool filter, bool factor, bool offset)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: std::shared_ptr<signal_t> sig
+|—————Node:qualified_identifier Text: std::shared_ptr<signal_t>
+|——————Node:namespace_identifier Text: std
+|——————Node::: Text: ::
+|——————Node:template_type Text: shared_ptr<signal_t>
+|———————Node:type_identifier Text: shared_ptr
+|———————Node:template_argument_list Text: <signal_t>
+|————————Node:< Text: <
+|————————Node:type_descriptor Text: signal_t
+|—————————Node:type_identifier Text: signal_t
+|————————Node:> Text: >
+|—————Node:identifier Text: sig
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: std::vector<uint8_t> &data
+|—————Node:qualified_identifier Text: std::vector<uint8_t>
+|——————Node:namespace_identifier Text: std
+|——————Node::: Text: ::
+|——————Node:template_type Text: vector<uint8_t>
+|———————Node:type_identifier Text: vector
+|———————Node:template_argument_list Text: <uint8_t>
+|————————Node:< Text: <
+|————————Node:type_descriptor Text: uint8_t
+|—————————Node:primitive_type Text: uint8_t
+|————————Node:> Text: >
+|—————Node:reference_declarator Text: &data
+|——————Node:& Text: &
+|——————Node:identifier Text: data
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: bool filter
+|—————Node:primitive_type Text: bool
+|—————Node:identifier Text: filter
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: bool factor
+|—————Node:primitive_type Text: bool
+|—————Node:identifier Text: factor
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: bool offset
+|—————Node:primitive_type Text: bool
+|—————Node:identifier Text: offset
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	uint32_t bit_size = sig->get_bit_size();
+	uint32_t bit_position = sig->get_bit_position();
+	int new_start_byte = 0;
+	int new_end_byte = 0;
+	int new_start_bit_tmp = 0;
+	int new_end_bit = 0;
+
+	converter_t::signal_to_bits_bytes(bit_position, bit_size, new_start_byte, new_end_byte, new_start_bit_tmp, new_end_bit);
+
+	int len_signal_bytes_tmp = new_end_byte - new_start_byte + 1;
+
+	uint8_t len_signal_bytes = 0;
+	if(len_signal_bytes_tmp > 255)
+	{
+		AFB_ERROR("Error signal %s too long",sig->get_name().c_str());
+	}
+	else
+	{
+		len_signal_bytes = (uint8_t) len_signal_bytes_tmp;
+	}
+
+	uint8_t new_start_bit = 0;
+	if(new_start_bit_tmp > 255)
+	{
+		AFB_ERROR("Error signal %s too long",sig->get_name().c_str());
+	}
+	else
+	{
+		new_start_bit = (uint8_t) new_start_bit_tmp;
+	}
+
+	uint8_t new_bit_size = 0;
+	if(bit_size > 255)
+	{
+		AFB_ERROR("Error signal %s to long bit size",sig->get_name().c_str());
+	}
+	else
+	{
+		new_bit_size = (uint8_t) bit_size;
+	}
+
+	uint8_t data_signal[len_signal_bytes] = {0};
+	float factor_v = 1;
+	if(factor)
+	{
+		factor_v = sig->get_factor();
+	}
+
+	float offset_v = 0;
+	if(factor)
+	{
+		offset_v = sig->get_offset();
+	}
+
+	if(filter)
+	{
+		uint8_t tmp = 0;
+		int j=0;
+		for(int i=0;i<new_bit_size;i++)
+		{
+			int mask = 0x80 >> ((i%8)+new_start_bit);
+
+			uint8_t mask_v = 0;
+			if(mask > 255)
+			{
+				AFB_ERROR("Error mask too large");
+			}
+			else
+			{
+				mask_v = (uint8_t) mask;
+			}
+			tmp = tmp|mask_v;
+
+			if(i%8 == 7)
+			{
+				data_signal[j] = tmp;
+				tmp = 0;
+				j++;
+			}
+		}
+		data_signal[j]=tmp;
+	}
+	else
+	{
+		bitfield_encode_float(	sig->get_last_value(),
+						new_start_bit,
+						new_bit_size,
+						factor_v,
+						offset_v,
+						data_signal,
+						len_signal_bytes);
+	}
+
+	for(size_t i = new_start_byte; i <= new_end_byte ; i++)
+	{
+		data[i] = data[i] | data_signal[i-new_start_byte];
+	}
+}
+|———Node:{ Text: {
+|———Node:declaration Text: uint32_t bit_size = sig->get_bit_size();
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: bit_size = sig->get_bit_size()
+|—————Node:identifier Text: bit_size
+|—————Node:= Text: =
+|—————Node:call_expression Text: sig->get_bit_size()
+|——————Node:field_expression Text: sig->get_bit_size
+|———————Node:identifier Text: sig
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: get_bit_size
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: uint32_t bit_position = sig->get_bit_position();
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: bit_position = sig->get_bit_position()
+|—————Node:identifier Text: bit_position
+|—————Node:= Text: =
+|—————Node:call_expression Text: sig->get_bit_position()
+|——————Node:field_expression Text: sig->get_bit_position
+|———————Node:identifier Text: sig
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: get_bit_position
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: int new_start_byte = 0;
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: new_start_byte = 0
+|—————Node:identifier Text: new_start_byte
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: int new_end_byte = 0;
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: new_end_byte = 0
+|—————Node:identifier Text: new_end_byte
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: int new_start_bit_tmp = 0;
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: new_start_bit_tmp = 0
+|—————Node:identifier Text: new_start_bit_tmp
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: int new_end_bit = 0;
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: new_end_bit = 0
+|—————Node:identifier Text: new_end_bit
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: converter_t::signal_to_bits_bytes(bit_position, bit_size, new_start_byte, new_end_byte, new_start_bit_tmp, new_end_bit);
+|————Node:call_expression Text: converter_t::signal_to_bits_bytes(bit_position, bit_size, new_start_byte, new_end_byte, new_start_bit_tmp, new_end_bit)
+|—————Node:qualified_identifier Text: converter_t::signal_to_bits_bytes
+|——————Node:namespace_identifier Text: converter_t
+|——————Node::: Text: ::
+|——————Node:identifier Text: signal_to_bits_bytes
+|—————Node:argument_list Text: (bit_position, bit_size, new_start_byte, new_end_byte, new_start_bit_tmp, new_end_bit)
+|——————Node:( Text: (
+|——————Node:identifier Text: bit_position
+|——————Node:, Text: ,
+|——————Node:identifier Text: bit_size
+|——————Node:, Text: ,
+|——————Node:identifier Text: new_start_byte
+|——————Node:, Text: ,
+|——————Node:identifier Text: new_end_byte
+|——————Node:, Text: ,
+|——————Node:identifier Text: new_start_bit_tmp
+|——————Node:, Text: ,
+|——————Node:identifier Text: new_end_bit
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: int len_signal_bytes_tmp = new_end_byte - new_start_byte + 1;
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: len_signal_bytes_tmp = new_end_byte - new_start_byte + 1
+|—————Node:identifier Text: len_signal_bytes_tmp
+|—————Node:= Text: =
+|—————Node:binary_expression Text: new_end_byte - new_start_byte + 1
+|——————Node:binary_expression Text: new_end_byte - new_start_byte
+|———————Node:identifier Text: new_end_byte
+|———————Node:- Text: -
+|———————Node:identifier Text: new_start_byte
+|——————Node:+ Text: +
+|——————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:declaration Text: uint8_t len_signal_bytes = 0;
+|————Node:primitive_type Text: uint8_t
+|————Node:init_declarator Text: len_signal_bytes = 0
+|—————Node:identifier Text: len_signal_bytes
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:if_statement Text: if(len_signal_bytes_tmp > 255)
+	{
+		AFB_ERROR("Error signal %s too long",sig->get_name().c_str());
+	}
+	else
+	{
+		len_signal_bytes = (uint8_t) len_signal_bytes_tmp;
+	}
+|————Node:if Text: if
+|————Node:condition_clause Text: (len_signal_bytes_tmp > 255)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: len_signal_bytes_tmp > 255
+|——————Node:identifier Text: len_signal_bytes_tmp
+|——————Node:> Text: >
+|——————Node:number_literal Text: 255
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+		AFB_ERROR("Error signal %s too long",sig->get_name().c_str());
+	}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: AFB_ERROR("Error signal %s too long",sig->get_name().c_str());
+|——————Node:call_expression Text: AFB_ERROR("Error signal %s too long",sig->get_name().c_str())
+|———————Node:identifier Text: AFB_ERROR
+|———————Node:argument_list Text: ("Error signal %s too long",sig->get_name().c_str())
+|————————Node:( Text: (
+|————————Node:string_literal Text: "Error signal %s too long"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: Error signal %s too long
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:call_expression Text: sig->get_name().c_str()
+|—————————Node:field_expression Text: sig->get_name().c_str
+|——————————Node:call_expression Text: sig->get_name()
+|———————————Node:field_expression Text: sig->get_name
+|————————————Node:identifier Text: sig
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: get_name
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: c_str
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else
+	{
+		len_signal_bytes = (uint8_t) len_signal_bytes_tmp;
+	}
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+		len_signal_bytes = (uint8_t) len_signal_bytes_tmp;
+	}
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: len_signal_bytes = (uint8_t) len_signal_bytes_tmp;
+|———————Node:assignment_expression Text: len_signal_bytes = (uint8_t) len_signal_bytes_tmp
+|————————Node:identifier Text: len_signal_bytes
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (uint8_t) len_signal_bytes_tmp
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint8_t
+|——————————Node:primitive_type Text: uint8_t
+|—————————Node:) Text: )
+|—————————Node:identifier Text: len_signal_bytes_tmp
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:declaration Text: uint8_t new_start_bit = 0;
+|————Node:primitive_type Text: uint8_t
+|————Node:init_declarator Text: new_start_bit = 0
+|—————Node:identifier Text: new_start_bit
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:if_statement Text: if(new_start_bit_tmp > 255)
+	{
+		AFB_ERROR("Error signal %s too long",sig->get_name().c_str());
+	}
+	else
+	{
+		new_start_bit = (uint8_t) new_start_bit_tmp;
+	}
+|————Node:if Text: if
+|————Node:condition_clause Text: (new_start_bit_tmp > 255)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: new_start_bit_tmp > 255
+|——————Node:identifier Text: new_start_bit_tmp
+|——————Node:> Text: >
+|——————Node:number_literal Text: 255
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+		AFB_ERROR("Error signal %s too long",sig->get_name().c_str());
+	}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: AFB_ERROR("Error signal %s too long",sig->get_name().c_str());
+|——————Node:call_expression Text: AFB_ERROR("Error signal %s too long",sig->get_name().c_str())
+|———————Node:identifier Text: AFB_ERROR
+|———————Node:argument_list Text: ("Error signal %s too long",sig->get_name().c_str())
+|————————Node:( Text: (
+|————————Node:string_literal Text: "Error signal %s too long"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: Error signal %s too long
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:call_expression Text: sig->get_name().c_str()
+|—————————Node:field_expression Text: sig->get_name().c_str
+|——————————Node:call_expression Text: sig->get_name()
+|———————————Node:field_expression Text: sig->get_name
+|————————————Node:identifier Text: sig
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: get_name
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: c_str
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else
+	{
+		new_start_bit = (uint8_t) new_start_bit_tmp;
+	}
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+		new_start_bit = (uint8_t) new_start_bit_tmp;
+	}
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: new_start_bit = (uint8_t) new_start_bit_tmp;
+|———————Node:assignment_expression Text: new_start_bit = (uint8_t) new_start_bit_tmp
+|————————Node:identifier Text: new_start_bit
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (uint8_t) new_start_bit_tmp
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint8_t
+|——————————Node:primitive_type Text: uint8_t
+|—————————Node:) Text: )
+|—————————Node:identifier Text: new_start_bit_tmp
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:declaration Text: uint8_t new_bit_size = 0;
+|————Node:primitive_type Text: uint8_t
+|————Node:init_declarator Text: new_bit_size = 0
+|—————Node:identifier Text: new_bit_size
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:if_statement Text: if(bit_size > 255)
+	{
+		AFB_ERROR("Error signal %s to long bit size",sig->get_name().c_str());
+	}
+	else
+	{
+		new_bit_size = (uint8_t) bit_size;
+	}
+|————Node:if Text: if
+|————Node:condition_clause Text: (bit_size > 255)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: bit_size > 255
+|——————Node:identifier Text: bit_size
+|——————Node:> Text: >
+|——————Node:number_literal Text: 255
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+		AFB_ERROR("Error signal %s to long bit size",sig->get_name().c_str());
+	}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: AFB_ERROR("Error signal %s to long bit size",sig->get_name().c_str());
+|——————Node:call_expression Text: AFB_ERROR("Error signal %s to long bit size",sig->get_name().c_str())
+|———————Node:identifier Text: AFB_ERROR
+|———————Node:argument_list Text: ("Error signal %s to long bit size",sig->get_name().c_str())
+|————————Node:( Text: (
+|————————Node:string_literal Text: "Error signal %s to long bit size"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: Error signal %s to long bit size
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:call_expression Text: sig->get_name().c_str()
+|—————————Node:field_expression Text: sig->get_name().c_str
+|——————————Node:call_expression Text: sig->get_name()
+|———————————Node:field_expression Text: sig->get_name
+|————————————Node:identifier Text: sig
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: get_name
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: c_str
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else
+	{
+		new_bit_size = (uint8_t) bit_size;
+	}
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+		new_bit_size = (uint8_t) bit_size;
+	}
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: new_bit_size = (uint8_t) bit_size;
+|———————Node:assignment_expression Text: new_bit_size = (uint8_t) bit_size
+|————————Node:identifier Text: new_bit_size
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (uint8_t) bit_size
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint8_t
+|——————————Node:primitive_type Text: uint8_t
+|—————————Node:) Text: )
+|—————————Node:identifier Text: bit_size
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:declaration Text: uint8_t data_signal[len_signal_bytes] = {0};
+|————Node:primitive_type Text: uint8_t
+|————Node:init_declarator Text: data_signal[len_signal_bytes] = {0}
+|—————Node:array_declarator Text: data_signal[len_signal_bytes]
+|——————Node:identifier Text: data_signal
+|——————Node:[ Text: [
+|——————Node:identifier Text: len_signal_bytes
+|——————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:initializer_list Text: {0}
+|——————Node:{ Text: {
+|——————Node:number_literal Text: 0
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:declaration Text: float factor_v = 1;
+|————Node:primitive_type Text: float
+|————Node:init_declarator Text: factor_v = 1
+|—————Node:identifier Text: factor_v
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:if_statement Text: if(factor)
+	{
+		factor_v = sig->get_factor();
+	}
+|————Node:if Text: if
+|————Node:condition_clause Text: (factor)
+|—————Node:( Text: (
+|—————Node:identifier Text: factor
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+		factor_v = sig->get_factor();
+	}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: factor_v = sig->get_factor();
+|——————Node:assignment_expression Text: factor_v = sig->get_factor()
+|———————Node:identifier Text: factor_v
+|———————Node:= Text: =
+|———————Node:call_expression Text: sig->get_factor()
+|————————Node:field_expression Text: sig->get_factor
+|—————————Node:identifier Text: sig
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: get_factor
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:declaration Text: float offset_v = 0;
+|————Node:primitive_type Text: float
+|————Node:init_declarator Text: offset_v = 0
+|—————Node:identifier Text: offset_v
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:if_statement Text: if(factor)
+	{
+		offset_v = sig->get_offset();
+	}
+|————Node:if Text: if
+|————Node:condition_clause Text: (factor)
+|—————Node:( Text: (
+|—————Node:identifier Text: factor
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+		offset_v = sig->get_offset();
+	}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: offset_v = sig->get_offset();
+|——————Node:assignment_expression Text: offset_v = sig->get_offset()
+|———————Node:identifier Text: offset_v
+|———————Node:= Text: =
+|———————Node:call_expression Text: sig->get_offset()
+|————————Node:field_expression Text: sig->get_offset
+|—————————Node:identifier Text: sig
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: get_offset
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if(filter)
+	{
+		uint8_t tmp = 0;
+		int j=0;
+		for(int i=0;i<new_bit_size;i++)
+		{
+			int mask = 0x80 >> ((i%8)+new_start_bit);
+
+			uint8_t mask_v = 0;
+			if(mask > 255)
+			{
+				AFB_ERROR("Error mask too large");
+			}
+			else
+			{
+				mask_v = (uint8_t) mask;
+			}
+			tmp = tmp|mask_v;
+
+			if(i%8 == 7)
+			{
+				data_signal[j] = tmp;
+				tmp = 0;
+				j++;
+			}
+		}
+		data_signal[j]=tmp;
+	}
+	else
+	{
+		bitfield_encode_float(	sig->get_last_value(),
+						new_start_bit,
+						new_bit_size,
+						factor_v,
+						offset_v,
+						data_signal,
+						len_signal_bytes);
+	}
+|————Node:if Text: if
+|————Node:condition_clause Text: (filter)
+|—————Node:( Text: (
+|—————Node:identifier Text: filter
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+		uint8_t tmp = 0;
+		int j=0;
+		for(int i=0;i<new_bit_size;i++)
+		{
+			int mask = 0x80 >> ((i%8)+new_start_bit);
+
+			uint8_t mask_v = 0;
+			if(mask > 255)
+			{
+				AFB_ERROR("Error mask too large");
+			}
+			else
+			{
+				mask_v = (uint8_t) mask;
+			}
+			tmp = tmp|mask_v;
+
+			if(i%8 == 7)
+			{
+				data_signal[j] = tmp;
+				tmp = 0;
+				j++;
+			}
+		}
+		data_signal[j]=tmp;
+	}
+|—————Node:{ Text: {
+|—————Node:declaration Text: uint8_t tmp = 0;
+|——————Node:primitive_type Text: uint8_t
+|——————Node:init_declarator Text: tmp = 0
+|———————Node:identifier Text: tmp
+|———————Node:= Text: =
+|———————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:declaration Text: int j=0;
+|——————Node:primitive_type Text: int
+|——————Node:init_declarator Text: j=0
+|———————Node:identifier Text: j
+|———————Node:= Text: =
+|———————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:for_statement Text: for(int i=0;i<new_bit_size;i++)
+		{
+			int mask = 0x80 >> ((i%8)+new_start_bit);
+
+			uint8_t mask_v = 0;
+			if(mask > 255)
+			{
+				AFB_ERROR("Error mask too large");
+			}
+			else
+			{
+				mask_v = (uint8_t) mask;
+			}
+			tmp = tmp|mask_v;
+
+			if(i%8 == 7)
+			{
+				data_signal[j] = tmp;
+				tmp = 0;
+				j++;
+			}
+		}
+|——————Node:for Text: for
+|——————Node:( Text: (
+|——————Node:declaration Text: int i=0;
+|———————Node:primitive_type Text: int
+|———————Node:init_declarator Text: i=0
+|————————Node:identifier Text: i
+|————————Node:= Text: =
+|————————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:binary_expression Text: i<new_bit_size
+|———————Node:identifier Text: i
+|———————Node:< Text: <
+|———————Node:identifier Text: new_bit_size
+|——————Node:; Text: ;
+|——————Node:update_expression Text: i++
+|———————Node:identifier Text: i
+|———————Node:++ Text: ++
+|——————Node:) Text: )
+|——————Node:compound_statement Text: {
+			int mask = 0x80 >> ((i%8)+new_start_bit);
+
+			uint8_t mask_v = 0;
+			if(mask > 255)
+			{
+				AFB_ERROR("Error mask too large");
+			}
+			else
+			{
+				mask_v = (uint8_t) mask;
+			}
+			tmp = tmp|mask_v;
+
+			if(i%8 == 7)
+			{
+				data_signal[j] = tmp;
+				tmp = 0;
+				j++;
+			}
+		}
+|———————Node:{ Text: {
+|———————Node:declaration Text: int mask = 0x80 >> ((i%8)+new_start_bit);
+|————————Node:primitive_type Text: int
+|————————Node:init_declarator Text: mask = 0x80 >> ((i%8)+new_start_bit)
+|—————————Node:identifier Text: mask
+|—————————Node:= Text: =
+|—————————Node:binary_expression Text: 0x80 >> ((i%8)+new_start_bit)
+|——————————Node:number_literal Text: 0x80
+|——————————Node:>> Text: >>
+|——————————Node:parenthesized_expression Text: ((i%8)+new_start_bit)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: (i%8)+new_start_bit
+|————————————Node:parenthesized_expression Text: (i%8)
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: i%8
+|——————————————Node:identifier Text: i
+|——————————————Node:% Text: %
+|——————————————Node:number_literal Text: 8
+|—————————————Node:) Text: )
+|————————————Node:+ Text: +
+|————————————Node:identifier Text: new_start_bit
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:declaration Text: uint8_t mask_v = 0;
+|————————Node:primitive_type Text: uint8_t
+|————————Node:init_declarator Text: mask_v = 0
+|—————————Node:identifier Text: mask_v
+|—————————Node:= Text: =
+|—————————Node:number_literal Text: 0
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if(mask > 255)
+			{
+				AFB_ERROR("Error mask too large");
+			}
+			else
+			{
+				mask_v = (uint8_t) mask;
+			}
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (mask > 255)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: mask > 255
+|——————————Node:identifier Text: mask
+|——————————Node:> Text: >
+|——————————Node:number_literal Text: 255
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+				AFB_ERROR("Error mask too large");
+			}
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: AFB_ERROR("Error mask too large");
+|——————————Node:call_expression Text: AFB_ERROR("Error mask too large")
+|———————————Node:identifier Text: AFB_ERROR
+|———————————Node:argument_list Text: ("Error mask too large")
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "Error mask too large"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: Error mask too large
+|—————————————Node:" Text: "
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|————————Node:else_clause Text: else
+			{
+				mask_v = (uint8_t) mask;
+			}
+|—————————Node:else Text: else
+|—————————Node:compound_statement Text: {
+				mask_v = (uint8_t) mask;
+			}
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: mask_v = (uint8_t) mask;
+|———————————Node:assignment_expression Text: mask_v = (uint8_t) mask
+|————————————Node:identifier Text: mask_v
+|————————————Node:= Text: =
+|————————————Node:cast_expression Text: (uint8_t) mask
+|—————————————Node:( Text: (
+|—————————————Node:type_descriptor Text: uint8_t
+|——————————————Node:primitive_type Text: uint8_t
+|—————————————Node:) Text: )
+|—————————————Node:identifier Text: mask
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|———————Node:expression_statement Text: tmp = tmp|mask_v;
+|————————Node:assignment_expression Text: tmp = tmp|mask_v
+|—————————Node:identifier Text: tmp
+|—————————Node:= Text: =
+|—————————Node:binary_expression Text: tmp|mask_v
+|——————————Node:identifier Text: tmp
+|——————————Node:| Text: |
+|——————————Node:identifier Text: mask_v
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if(i%8 == 7)
+			{
+				data_signal[j] = tmp;
+				tmp = 0;
+				j++;
+			}
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (i%8 == 7)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: i%8 == 7
+|——————————Node:binary_expression Text: i%8
+|———————————Node:identifier Text: i
+|———————————Node:% Text: %
+|———————————Node:number_literal Text: 8
+|——————————Node:== Text: ==
+|——————————Node:number_literal Text: 7
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+				data_signal[j] = tmp;
+				tmp = 0;
+				j++;
+			}
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: data_signal[j] = tmp;
+|——————————Node:assignment_expression Text: data_signal[j] = tmp
+|———————————Node:subscript_expression Text: data_signal[j]
+|————————————Node:identifier Text: data_signal
+|————————————Node:subscript_argument_list Text: [j]
+|—————————————Node:[ Text: [
+|—————————————Node:identifier Text: j
+|—————————————Node:] Text: ]
+|———————————Node:= Text: =
+|———————————Node:identifier Text: tmp
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: tmp = 0;
+|——————————Node:assignment_expression Text: tmp = 0
+|———————————Node:identifier Text: tmp
+|———————————Node:= Text: =
+|———————————Node:number_literal Text: 0
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: j++;
+|——————————Node:update_expression Text: j++
+|———————————Node:identifier Text: j
+|———————————Node:++ Text: ++
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|—————Node:expression_statement Text: data_signal[j]=tmp;
+|——————Node:assignment_expression Text: data_signal[j]=tmp
+|———————Node:subscript_expression Text: data_signal[j]
+|————————Node:identifier Text: data_signal
+|————————Node:subscript_argument_list Text: [j]
+|—————————Node:[ Text: [
+|—————————Node:identifier Text: j
+|—————————Node:] Text: ]
+|———————Node:= Text: =
+|———————Node:identifier Text: tmp
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else
+	{
+		bitfield_encode_float(	sig->get_last_value(),
+						new_start_bit,
+						new_bit_size,
+						factor_v,
+						offset_v,
+						data_signal,
+						len_signal_bytes);
+	}
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+		bitfield_encode_float(	sig->get_last_value(),
+						new_start_bit,
+						new_bit_size,
+						factor_v,
+						offset_v,
+						data_signal,
+						len_signal_bytes);
+	}
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: bitfield_encode_float(	sig->get_last_value(),
+						new_start_bit,
+						new_bit_size,
+						factor_v,
+						offset_v,
+						data_signal,
+						len_signal_bytes);
+|———————Node:call_expression Text: bitfield_encode_float(	sig->get_last_value(),
+						new_start_bit,
+						new_bit_size,
+						factor_v,
+						offset_v,
+						data_signal,
+						len_signal_bytes)
+|————————Node:identifier Text: bitfield_encode_float
+|————————Node:argument_list Text: (	sig->get_last_value(),
+						new_start_bit,
+						new_bit_size,
+						factor_v,
+						offset_v,
+						data_signal,
+						len_signal_bytes)
+|—————————Node:( Text: (
+|—————————Node:call_expression Text: sig->get_last_value()
+|——————————Node:field_expression Text: sig->get_last_value
+|———————————Node:identifier Text: sig
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: get_last_value
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: new_start_bit
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: new_bit_size
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: factor_v
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: offset_v
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: data_signal
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: len_signal_bytes
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:for_statement Text: for(size_t i = new_start_byte; i <= new_end_byte ; i++)
+	{
+		data[i] = data[i] | data_signal[i-new_start_byte];
+	}
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:declaration Text: size_t i = new_start_byte;
+|—————Node:primitive_type Text: size_t
+|—————Node:init_declarator Text: i = new_start_byte
+|——————Node:identifier Text: i
+|——————Node:= Text: =
+|——————Node:identifier Text: new_start_byte
+|—————Node:; Text: ;
+|————Node:binary_expression Text: i <= new_end_byte
+|—————Node:identifier Text: i
+|—————Node:<= Text: <=
+|—————Node:identifier Text: new_end_byte
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+		data[i] = data[i] | data_signal[i-new_start_byte];
+	}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: data[i] = data[i] | data_signal[i-new_start_byte];
+|——————Node:assignment_expression Text: data[i] = data[i] | data_signal[i-new_start_byte]
+|———————Node:subscript_expression Text: data[i]
+|————————Node:identifier Text: data
+|————————Node:subscript_argument_list Text: [i]
+|—————————Node:[ Text: [
+|—————————Node:identifier Text: i
+|—————————Node:] Text: ]
+|———————Node:= Text: =
+|———————Node:binary_expression Text: data[i] | data_signal[i-new_start_byte]
+|————————Node:subscript_expression Text: data[i]
+|—————————Node:identifier Text: data
+|—————————Node:subscript_argument_list Text: [i]
+|——————————Node:[ Text: [
+|——————————Node:identifier Text: i
+|——————————Node:] Text: ]
+|————————Node:| Text: |
+|————————Node:subscript_expression Text: data_signal[i-new_start_byte]
+|—————————Node:identifier Text: data_signal
+|—————————Node:subscript_argument_list Text: [i-new_start_byte]
+|——————————Node:[ Text: [
+|——————————Node:binary_expression Text: i-new_start_byte
+|———————————Node:identifier Text: i
+|———————————Node:- Text: -
+|———————————Node:identifier Text: new_start_byte
+|——————————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: message_t* encoder_t::build_frame(const std::shared_ptr<signal_t>& signal, uint64_t value, message_t *message, bool factor, bool offset)
+{
+	signal->set_last_value((float)value);
+	std::vector<uint8_t> data;
+	for(int i = 0; i<message->get_length();i++)
+	{
+		data.push_back(0);
+	}
+
+	for(const auto& sig: signal->get_message()->get_signals())
+	{
+		encode_data(sig,data,false,factor,offset);
+	}
+	message->set_data(data);
+	return message;
+}
+|——Node:type_identifier Text: message_t
+|——Node:pointer_declarator Text: * encoder_t::build_frame(const std::shared_ptr<signal_t>& signal, uint64_t value, message_t *message, bool factor, bool offset)
+|———Node:* Text: *
+|———Node:function_declarator Text: encoder_t::build_frame(const std::shared_ptr<signal_t>& signal, uint64_t value, message_t *message, bool factor, bool offset)
+|————Node:qualified_identifier Text: encoder_t::build_frame
+|—————Node:namespace_identifier Text: encoder_t
+|—————Node::: Text: ::
+|—————Node:identifier Text: build_frame
+|————Node:parameter_list Text: (const std::shared_ptr<signal_t>& signal, uint64_t value, message_t *message, bool factor, bool offset)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const std::shared_ptr<signal_t>& signal
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:qualified_identifier Text: std::shared_ptr<signal_t>
+|———————Node:namespace_identifier Text: std
+|———————Node::: Text: ::
+|———————Node:template_type Text: shared_ptr<signal_t>
+|————————Node:type_identifier Text: shared_ptr
+|————————Node:template_argument_list Text: <signal_t>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: signal_t
+|——————————Node:type_identifier Text: signal_t
+|—————————Node:> Text: >
+|——————Node:reference_declarator Text: & signal
+|———————Node:& Text: &
+|———————Node:identifier Text: signal
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint64_t value
+|——————Node:primitive_type Text: uint64_t
+|——————Node:identifier Text: value
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: message_t *message
+|——————Node:type_identifier Text: message_t
+|——————Node:pointer_declarator Text: *message
+|———————Node:* Text: *
+|———————Node:identifier Text: message
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: bool factor
+|——————Node:primitive_type Text: bool
+|——————Node:identifier Text: factor
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: bool offset
+|——————Node:primitive_type Text: bool
+|——————Node:identifier Text: offset
+|—————Node:) Text: )
+|——Node:compound_statement Text: {
+	signal->set_last_value((float)value);
+	std::vector<uint8_t> data;
+	for(int i = 0; i<message->get_length();i++)
+	{
+		data.push_back(0);
+	}
+
+	for(const auto& sig: signal->get_message()->get_signals())
+	{
+		encode_data(sig,data,false,factor,offset);
+	}
+	message->set_data(data);
+	return message;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: signal->set_last_value((float)value);
+|————Node:call_expression Text: signal->set_last_value((float)value)
+|—————Node:field_expression Text: signal->set_last_value
+|——————Node:identifier Text: signal
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: set_last_value
+|—————Node:argument_list Text: ((float)value)
+|——————Node:( Text: (
+|——————Node:cast_expression Text: (float)value
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: float
+|————————Node:primitive_type Text: float
+|———————Node:) Text: )
+|———————Node:identifier Text: value
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: std::vector<uint8_t> data;
+|————Node:qualified_identifier Text: std::vector<uint8_t>
+|—————Node:namespace_identifier Text: std
+|—————Node::: Text: ::
+|—————Node:template_type Text: vector<uint8_t>
+|——————Node:type_identifier Text: vector
+|——————Node:template_argument_list Text: <uint8_t>
+|———————Node:< Text: <
+|———————Node:type_descriptor Text: uint8_t
+|————————Node:primitive_type Text: uint8_t
+|———————Node:> Text: >
+|————Node:identifier Text: data
+|————Node:; Text: ;
+|———Node:for_statement Text: for(int i = 0; i<message->get_length();i++)
+	{
+		data.push_back(0);
+	}
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:declaration Text: int i = 0;
+|—————Node:primitive_type Text: int
+|—————Node:init_declarator Text: i = 0
+|——————Node:identifier Text: i
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:binary_expression Text: i<message->get_length()
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:call_expression Text: message->get_length()
+|——————Node:field_expression Text: message->get_length
+|———————Node:identifier Text: message
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: get_length
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+		data.push_back(0);
+	}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: data.push_back(0);
+|——————Node:call_expression Text: data.push_back(0)
+|———————Node:field_expression Text: data.push_back
+|————————Node:identifier Text: data
+|————————Node:. Text: .
+|————————Node:field_identifier Text: push_back
+|———————Node:argument_list Text: (0)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 0
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:for_range_loop Text: for(const auto& sig: signal->get_message()->get_signals())
+	{
+		encode_data(sig,data,false,factor,offset);
+	}
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:placeholder_type_specifier Text: auto
+|—————Node:auto Text: auto
+|————Node:reference_declarator Text: & sig
+|—————Node:& Text: &
+|—————Node:identifier Text: sig
+|————Node:: Text: :
+|————Node:call_expression Text: signal->get_message()->get_signals()
+|—————Node:field_expression Text: signal->get_message()->get_signals
+|——————Node:call_expression Text: signal->get_message()
+|———————Node:field_expression Text: signal->get_message
+|————————Node:identifier Text: signal
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: get_message
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: get_signals
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+		encode_data(sig,data,false,factor,offset);
+	}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: encode_data(sig,data,false,factor,offset);
+|——————Node:call_expression Text: encode_data(sig,data,false,factor,offset)
+|———————Node:identifier Text: encode_data
+|———————Node:argument_list Text: (sig,data,false,factor,offset)
+|————————Node:( Text: (
+|————————Node:identifier Text: sig
+|————————Node:, Text: ,
+|————————Node:identifier Text: data
+|————————Node:, Text: ,
+|————————Node:false Text: false
+|————————Node:, Text: ,
+|————————Node:identifier Text: factor
+|————————Node:, Text: ,
+|————————Node:identifier Text: offset
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: message->set_data(data);
+|————Node:call_expression Text: message->set_data(data)
+|—————Node:field_expression Text: message->set_data
+|——————Node:identifier Text: message
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: set_data
+|—————Node:argument_list Text: (data)
+|——————Node:( Text: (
+|——————Node:identifier Text: data
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return message;
+|————Node:return Text: return
+|————Node:identifier Text: message
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: message_t* encoder_t::build_message(const std::shared_ptr<signal_t>& signal, uint64_t value, bool factor, bool offset)
+{
+	message_t *message;
+	std::vector<uint8_t> data;
+	if(signal->get_message()->is_fd())
+	{
+		message = new can_message_t( CANFD_MAX_DLEN,
+									 signal->get_message()->get_id(),
+									 CANFD_MAX_DLEN,
+									 false,
+									 signal->get_message()->get_flags(),
+									 data,
+									 0);
+
+		return build_frame(signal,value,message, factor, offset);
+	}
+#ifdef USE_FEATURE_J1939
+	else if(signal->get_message()->is_j1939())
+	{
+		message = new j1939_message_t( signal->get_message()->get_length(),
+									   data,
+									   0,
+									   J1939_NO_NAME,
+									   signal->get_message()->get_id(),
+									   J1939_NO_ADDR);
+		return build_frame(signal,value,message, factor, offset);
+	}
+#endif
+	else
+	{
+		message = new can_message_t(CAN_MAX_DLEN,
+									signal->get_message()->get_id(),
+									CAN_MAX_DLEN,
+									false,
+									signal->get_message()->get_flags(),
+									data,
+									0);
+		return build_frame(signal,value,message, factor, offset);
+	}
+|——Node:type_identifier Text: message_t
+|——Node:pointer_declarator Text: * encoder_t::build_message(const std::shared_ptr<signal_t>& signal, uint64_t value, bool factor, bool offset)
+|———Node:* Text: *
+|———Node:function_declarator Text: encoder_t::build_message(const std::shared_ptr<signal_t>& signal, uint64_t value, bool factor, bool offset)
+|————Node:qualified_identifier Text: encoder_t::build_message
+|—————Node:namespace_identifier Text: encoder_t
+|—————Node::: Text: ::
+|—————Node:identifier Text: build_message
+|————Node:parameter_list Text: (const std::shared_ptr<signal_t>& signal, uint64_t value, bool factor, bool offset)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const std::shared_ptr<signal_t>& signal
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:qualified_identifier Text: std::shared_ptr<signal_t>
+|———————Node:namespace_identifier Text: std
+|———————Node::: Text: ::
+|———————Node:template_type Text: shared_ptr<signal_t>
+|————————Node:type_identifier Text: shared_ptr
+|————————Node:template_argument_list Text: <signal_t>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: signal_t
+|——————————Node:type_identifier Text: signal_t
+|—————————Node:> Text: >
+|——————Node:reference_declarator Text: & signal
+|———————Node:& Text: &
+|———————Node:identifier Text: signal
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint64_t value
+|——————Node:primitive_type Text: uint64_t
+|——————Node:identifier Text: value
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: bool factor
+|——————Node:primitive_type Text: bool
+|——————Node:identifier Text: factor
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: bool offset
+|——————Node:primitive_type Text: bool
+|——————Node:identifier Text: offset
+|—————Node:) Text: )
+|——Node:compound_statement Text: {
+	message_t *message;
+	std::vector<uint8_t> data;
+	if(signal->get_message()->is_fd())
+	{
+		message = new can_message_t( CANFD_MAX_DLEN,
+									 signal->get_message()->get_id(),
+									 CANFD_MAX_DLEN,
+									 false,
+									 signal->get_message()->get_flags(),
+									 data,
+									 0);
+
+		return build_frame(signal,value,message, factor, offset);
+	}
+#ifdef USE_FEATURE_J1939
+	else if(signal->get_message()->is_j1939())
+	{
+		message = new j1939_message_t( signal->get_message()->get_length(),
+									   data,
+									   0,
+									   J1939_NO_NAME,
+									   signal->get_message()->get_id(),
+									   J1939_NO_ADDR);
+		return build_frame(signal,value,message, factor, offset);
+	}
+#endif
+	else
+	{
+		message = new can_message_t(CAN_MAX_DLEN,
+									signal->get_message()->get_id(),
+									CAN_MAX_DLEN,
+									false,
+									signal->get_message()->get_flags(),
+									data,
+									0);
+		return build_frame(signal,value,message, factor, offset);
+	}
+|———Node:{ Text: {
+|———Node:declaration Text: message_t *message;
+|————Node:type_identifier Text: message_t
+|————Node:pointer_declarator Text: *message
+|—————Node:* Text: *
+|—————Node:identifier Text: message
+|————Node:; Text: ;
+|———Node:declaration Text: std::vector<uint8_t> data;
+|————Node:qualified_identifier Text: std::vector<uint8_t>
+|—————Node:namespace_identifier Text: std
+|—————Node::: Text: ::
+|—————Node:template_type Text: vector<uint8_t>
+|——————Node:type_identifier Text: vector
+|——————Node:template_argument_list Text: <uint8_t>
+|———————Node:< Text: <
+|———————Node:type_descriptor Text: uint8_t
+|————————Node:primitive_type Text: uint8_t
+|———————Node:> Text: >
+|————Node:identifier Text: data
+|————Node:; Text: ;
+|———Node:if_statement Text: if(signal->get_message()->is_fd())
+	{
+		message = new can_message_t( CANFD_MAX_DLEN,
+									 signal->get_message()->get_id(),
+									 CANFD_MAX_DLEN,
+									 false,
+									 signal->get_message()->get_flags(),
+									 data,
+									 0);
+
+		return build_frame(signal,value,message, factor, offset);
+	}
+|————Node:if Text: if
+|————Node:condition_clause Text: (signal->get_message()->is_fd())
+|—————Node:( Text: (
+|—————Node:call_expression Text: signal->get_message()->is_fd()
+|——————Node:field_expression Text: signal->get_message()->is_fd
+|———————Node:call_expression Text: signal->get_message()
+|————————Node:field_expression Text: signal->get_message
+|—————————Node:identifier Text: signal
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: get_message
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: is_fd
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+		message = new can_message_t( CANFD_MAX_DLEN,
+									 signal->get_message()->get_id(),
+									 CANFD_MAX_DLEN,
+									 false,
+									 signal->get_message()->get_flags(),
+									 data,
+									 0);
+
+		return build_frame(signal,value,message, factor, offset);
+	}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: message = new can_message_t( CANFD_MAX_DLEN,
+									 signal->get_message()->get_id(),
+									 CANFD_MAX_DLEN,
+									 false,
+									 signal->get_message()->get_flags(),
+									 data,
+									 0);
+|——————Node:assignment_expression Text: message = new can_message_t( CANFD_MAX_DLEN,
+									 signal->get_message()->get_id(),
+									 CANFD_MAX_DLEN,
+									 false,
+									 signal->get_message()->get_flags(),
+									 data,
+									 0)
+|———————Node:identifier Text: message
+|———————Node:= Text: =
+|———————Node:new_expression Text: new can_message_t( CANFD_MAX_DLEN,
+									 signal->get_message()->get_id(),
+									 CANFD_MAX_DLEN,
+									 false,
+									 signal->get_message()->get_flags(),
+									 data,
+									 0)
+|————————Node:new Text: new
+|————————Node:type_identifier Text: can_message_t
+|————————Node:argument_list Text: ( CANFD_MAX_DLEN,
+									 signal->get_message()->get_id(),
+									 CANFD_MAX_DLEN,
+									 false,
+									 signal->get_message()->get_flags(),
+									 data,
+									 0)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: CANFD_MAX_DLEN
+|—————————Node:, Text: ,
+|—————————Node:call_expression Text: signal->get_message()->get_id()
+|——————————Node:field_expression Text: signal->get_message()->get_id
+|———————————Node:call_expression Text: signal->get_message()
+|————————————Node:field_expression Text: signal->get_message
+|—————————————Node:identifier Text: signal
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: get_message
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: get_id
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: CANFD_MAX_DLEN
+|—————————Node:, Text: ,
+|—————————Node:false Text: false
+|—————————Node:, Text: ,
+|—————————Node:call_expression Text: signal->get_message()->get_flags()
+|——————————Node:field_expression Text: signal->get_message()->get_flags
+|———————————Node:call_expression Text: signal->get_message()
+|————————————Node:field_expression Text: signal->get_message
+|—————————————Node:identifier Text: signal
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: get_message
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: get_flags
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: data
+|—————————Node:, Text: ,
+|—————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return build_frame(signal,value,message, factor, offset);
+|——————Node:return Text: return
+|——————Node:call_expression Text: build_frame(signal,value,message, factor, offset)
+|———————Node:identifier Text: build_frame
+|———————Node:argument_list Text: (signal,value,message, factor, offset)
+|————————Node:( Text: (
+|————————Node:identifier Text: signal
+|————————Node:, Text: ,
+|————————Node:identifier Text: value
+|————————Node:, Text: ,
+|————————Node:identifier Text: message
+|————————Node:, Text: ,
+|————————Node:identifier Text: factor
+|————————Node:, Text: ,
+|————————Node:identifier Text: offset
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:preproc_ifdef Text: #ifdef USE_FEATURE_J1939
+	else if(signal->get_message()->is_j1939())
+	{
+		message = new j1939_message_t( signal->get_message()->get_length(),
+									   data,
+									   0,
+									   J1939_NO_NAME,
+									   signal->get_message()->get_id(),
+									   J1939_NO_ADDR);
+		return build_frame(signal,value,message, factor, offset);
+	}
+#endif
+|————Node:#ifdef Text: #ifdef
+|————Node:identifier Text: USE_FEATURE_J1939
+|————Node:declaration Text: else if(signal->get_message()->is_j1939())
+|—————Node:type_identifier Text: else
+|—————Node:init_declarator Text: if(signal->get_message()->is_j1939())
+|——————Node:identifier Text: if
+|——————Node:argument_list Text: (signal->get_message()->is_j1939())
+|———————Node:( Text: (
+|———————Node:call_expression Text: signal->get_message()->is_j1939()
+|————————Node:field_expression Text: signal->get_message()->is_j1939
+|—————————Node:call_expression Text: signal->get_message()
+|——————————Node:field_expression Text: signal->get_message
+|———————————Node:identifier Text: signal
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: get_message
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: is_j1939
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|—————Node:; Text: 
+|————Node:compound_statement Text: {
+		message = new j1939_message_t( signal->get_message()->get_length(),
+									   data,
+									   0,
+									   J1939_NO_NAME,
+									   signal->get_message()->get_id(),
+									   J1939_NO_ADDR);
+		return build_frame(signal,value,message, factor, offset);
+	}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: message = new j1939_message_t( signal->get_message()->get_length(),
+									   data,
+									   0,
+									   J1939_NO_NAME,
+									   signal->get_message()->get_id(),
+									   J1939_NO_ADDR);
+|——————Node:assignment_expression Text: message = new j1939_message_t( signal->get_message()->get_length(),
+									   data,
+									   0,
+									   J1939_NO_NAME,
+									   signal->get_message()->get_id(),
+									   J1939_NO_ADDR)
+|———————Node:identifier Text: message
+|———————Node:= Text: =
+|———————Node:new_expression Text: new j1939_message_t( signal->get_message()->get_length(),
+									   data,
+									   0,
+									   J1939_NO_NAME,
+									   signal->get_message()->get_id(),
+									   J1939_NO_ADDR)
+|————————Node:new Text: new
+|————————Node:type_identifier Text: j1939_message_t
+|————————Node:argument_list Text: ( signal->get_message()->get_length(),
+									   data,
+									   0,
+									   J1939_NO_NAME,
+									   signal->get_message()->get_id(),
+									   J1939_NO_ADDR)
+|—————————Node:( Text: (
+|—————————Node:call_expression Text: signal->get_message()->get_length()
+|——————————Node:field_expression Text: signal->get_message()->get_length
+|———————————Node:call_expression Text: signal->get_message()
+|————————————Node:field_expression Text: signal->get_message
+|—————————————Node:identifier Text: signal
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: get_message
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: get_length
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: data
+|—————————Node:, Text: ,
+|—————————Node:number_literal Text: 0
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: J1939_NO_NAME
+|—————————Node:, Text: ,
+|—————————Node:call_expression Text: signal->get_message()->get_id()
+|——————————Node:field_expression Text: signal->get_message()->get_id
+|———————————Node:call_expression Text: signal->get_message()
+|————————————Node:field_expression Text: signal->get_message
+|—————————————Node:identifier Text: signal
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: get_message
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: get_id
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: J1939_NO_ADDR
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return build_frame(signal,value,message, factor, offset);
+|——————Node:return Text: return
+|——————Node:call_expression Text: build_frame(signal,value,message, factor, offset)
+|———————Node:identifier Text: build_frame
+|———————Node:argument_list Text: (signal,value,message, factor, offset)
+|————————Node:( Text: (
+|————————Node:identifier Text: signal
+|————————Node:, Text: ,
+|————————Node:identifier Text: value
+|————————Node:, Text: ,
+|————————Node:identifier Text: message
+|————————Node:, Text: ,
+|————————Node:identifier Text: factor
+|————————Node:, Text: ,
+|————————Node:identifier Text: offset
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:#endif Text: #endif
+|———Node:expression_statement Text: else
+	{
+		message = new can_message_t(CAN_MAX_DLEN,
+									signal->get_message()->get_id(),
+									CAN_MAX_DLEN,
+									false,
+									signal->get_message()->get_flags(),
+									data,
+									0);
+|————Node:compound_literal_expression Text: else
+	{
+		message = new can_message_t(CAN_MAX_DLEN,
+									signal->get_message()->get_id(),
+									CAN_MAX_DLEN,
+									false,
+									signal->get_message()->get_flags(),
+									data,
+									0)
+|—————Node:type_identifier Text: else
+|—————Node:initializer_list Text: {
+		message = new can_message_t(CAN_MAX_DLEN,
+									signal->get_message()->get_id(),
+									CAN_MAX_DLEN,
+									false,
+									signal->get_message()->get_flags(),
+									data,
+									0)
+|——————Node:{ Text: {
+|——————Node:assignment_expression Text: message = new can_message_t(CAN_MAX_DLEN,
+									signal->get_message()->get_id(),
+									CAN_MAX_DLEN,
+									false,
+									signal->get_message()->get_flags(),
+									data,
+									0)
+|———————Node:identifier Text: message
+|———————Node:= Text: =
+|———————Node:new_expression Text: new can_message_t(CAN_MAX_DLEN,
+									signal->get_message()->get_id(),
+									CAN_MAX_DLEN,
+									false,
+									signal->get_message()->get_flags(),
+									data,
+									0)
+|————————Node:new Text: new
+|————————Node:type_identifier Text: can_message_t
+|————————Node:argument_list Text: (CAN_MAX_DLEN,
+									signal->get_message()->get_id(),
+									CAN_MAX_DLEN,
+									false,
+									signal->get_message()->get_flags(),
+									data,
+									0)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: CAN_MAX_DLEN
+|—————————Node:, Text: ,
+|—————————Node:call_expression Text: signal->get_message()->get_id()
+|——————————Node:field_expression Text: signal->get_message()->get_id
+|———————————Node:call_expression Text: signal->get_message()
+|————————————Node:field_expression Text: signal->get_message
+|—————————————Node:identifier Text: signal
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: get_message
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: get_id
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: CAN_MAX_DLEN
+|—————————Node:, Text: ,
+|—————————Node:false Text: false
+|—————————Node:, Text: ,
+|—————————Node:call_expression Text: signal->get_message()->get_flags()
+|——————————Node:field_expression Text: signal->get_message()->get_flags
+|———————————Node:call_expression Text: signal->get_message()
+|————————————Node:field_expression Text: signal->get_message
+|—————————————Node:identifier Text: signal
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: get_message
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: get_flags
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: data
+|—————————Node:, Text: ,
+|—————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|——————Node:} Text: 
+|————Node:; Text: ;
+|———Node:return_statement Text: return build_frame(signal,value,message, factor, offset);
+|————Node:return Text: return
+|————Node:call_expression Text: build_frame(signal,value,message, factor, offset)
+|—————Node:identifier Text: build_frame
+|—————Node:argument_list Text: (signal,value,message, factor, offset)
+|——————Node:( Text: (
+|——————Node:identifier Text: signal
+|——————Node:, Text: ,
+|——————Node:identifier Text: value
+|——————Node:, Text: ,
+|——————Node:identifier Text: message
+|——————Node:, Text: ,
+|——————Node:identifier Text: factor
+|——————Node:, Text: ,
+|——————Node:identifier Text: offset
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:ERROR Text: }
+|——Node:} Text: }
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:function_definition Text: uint64_t encoder_t::encode_boolean(const signal_t& signal, bool value, bool* send)
+{
+	return encode_number(signal, float(value), send);
+}
+|——Node:primitive_type Text: uint64_t
+|——Node:function_declarator Text: encoder_t::encode_boolean(const signal_t& signal, bool value, bool* send)
+|———Node:qualified_identifier Text: encoder_t::encode_boolean
+|————Node:namespace_identifier Text: encoder_t
+|————Node::: Text: ::
+|————Node:identifier Text: encode_boolean
+|———Node:parameter_list Text: (const signal_t& signal, bool value, bool* send)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: const signal_t& signal
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:type_identifier Text: signal_t
+|—————Node:reference_declarator Text: & signal
+|——————Node:& Text: &
+|——————Node:identifier Text: signal
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: bool value
+|—————Node:primitive_type Text: bool
+|—————Node:identifier Text: value
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: bool* send
+|—————Node:primitive_type Text: bool
+|—————Node:pointer_declarator Text: * send
+|——————Node:* Text: *
+|——————Node:identifier Text: send
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	return encode_number(signal, float(value), send);
+}
+|———Node:{ Text: {
+|———Node:return_statement Text: return encode_number(signal, float(value), send);
+|————Node:return Text: return
+|————Node:call_expression Text: encode_number(signal, float(value), send)
+|—————Node:identifier Text: encode_number
+|—————Node:argument_list Text: (signal, float(value), send)
+|——————Node:( Text: (
+|——————Node:identifier Text: signal
+|——————Node:, Text: ,
+|——————Node:call_expression Text: float(value)
+|———————Node:primitive_type Text: float
+|———————Node:argument_list Text: (value)
+|————————Node:( Text: (
+|————————Node:identifier Text: value
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:identifier Text: send
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:function_definition Text: uint64_t encoder_t::encode_number(const signal_t& signal, float value, bool* send)
+{
+	return float_to_fixed_point(value, signal.get_factor(), signal.get_offset());
+}
+|——Node:primitive_type Text: uint64_t
+|——Node:function_declarator Text: encoder_t::encode_number(const signal_t& signal, float value, bool* send)
+|———Node:qualified_identifier Text: encoder_t::encode_number
+|————Node:namespace_identifier Text: encoder_t
+|————Node::: Text: ::
+|————Node:identifier Text: encode_number
+|———Node:parameter_list Text: (const signal_t& signal, float value, bool* send)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: const signal_t& signal
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:type_identifier Text: signal_t
+|—————Node:reference_declarator Text: & signal
+|——————Node:& Text: &
+|——————Node:identifier Text: signal
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: float value
+|—————Node:primitive_type Text: float
+|—————Node:identifier Text: value
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: bool* send
+|—————Node:primitive_type Text: bool
+|—————Node:pointer_declarator Text: * send
+|——————Node:* Text: *
+|——————Node:identifier Text: send
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	return float_to_fixed_point(value, signal.get_factor(), signal.get_offset());
+}
+|———Node:{ Text: {
+|———Node:return_statement Text: return float_to_fixed_point(value, signal.get_factor(), signal.get_offset());
+|————Node:return Text: return
+|————Node:call_expression Text: float_to_fixed_point(value, signal.get_factor(), signal.get_offset())
+|—————Node:identifier Text: float_to_fixed_point
+|—————Node:argument_list Text: (value, signal.get_factor(), signal.get_offset())
+|——————Node:( Text: (
+|——————Node:identifier Text: value
+|——————Node:, Text: ,
+|——————Node:call_expression Text: signal.get_factor()
+|———————Node:field_expression Text: signal.get_factor
+|————————Node:identifier Text: signal
+|————————Node:. Text: .
+|————————Node:field_identifier Text: get_factor
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:call_expression Text: signal.get_offset()
+|———————Node:field_expression Text: signal.get_offset
+|————————Node:identifier Text: signal
+|————————Node:. Text: .
+|————————Node:field_identifier Text: get_offset
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:function_definition Text: uint64_t encoder_t::encode_state(const signal_t& signal, const std::string& state, bool* send)
+{
+	uint64_t value = 0;
+	if(state == "")
+	{
+		AFB_DEBUG("Can't write state of "" -- not sending");
+		*send = false;
+	}
+	else
+	{
+		uint64_t signal_state = signal.get_states(state);
+		if(signal_state != -1) {
+			value = signal_state;
+		} else {
+			AFB_DEBUG("Couldn't find a valid signal state for %s", state.c_str());
+			*send = false;
+		}
+	}
+	return value;
+}
+|——Node:primitive_type Text: uint64_t
+|——Node:function_declarator Text: encoder_t::encode_state(const signal_t& signal, const std::string& state, bool* send)
+|———Node:qualified_identifier Text: encoder_t::encode_state
+|————Node:namespace_identifier Text: encoder_t
+|————Node::: Text: ::
+|————Node:identifier Text: encode_state
+|———Node:parameter_list Text: (const signal_t& signal, const std::string& state, bool* send)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: const signal_t& signal
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:type_identifier Text: signal_t
+|—————Node:reference_declarator Text: & signal
+|——————Node:& Text: &
+|——————Node:identifier Text: signal
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: const std::string& state
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:qualified_identifier Text: std::string
+|——————Node:namespace_identifier Text: std
+|——————Node::: Text: ::
+|——————Node:type_identifier Text: string
+|—————Node:reference_declarator Text: & state
+|——————Node:& Text: &
+|——————Node:identifier Text: state
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: bool* send
+|—————Node:primitive_type Text: bool
+|—————Node:pointer_declarator Text: * send
+|——————Node:* Text: *
+|——————Node:identifier Text: send
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	uint64_t value = 0;
+	if(state == "")
+	{
+		AFB_DEBUG("Can't write state of "" -- not sending");
+		*send = false;
+	}
+	else
+	{
+		uint64_t signal_state = signal.get_states(state);
+		if(signal_state != -1) {
+			value = signal_state;
+		} else {
+			AFB_DEBUG("Couldn't find a valid signal state for %s", state.c_str());
+			*send = false;
+		}
+	}
+	return value;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: uint64_t value = 0;
+|————Node:primitive_type Text: uint64_t
+|————Node:init_declarator Text: value = 0
+|—————Node:identifier Text: value
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:if_statement Text: if(state == "")
+	{
+		AFB_DEBUG("Can't write state of "" -- not sending");
+		*send = false;
+	}
+	else
+	{
+		uint64_t signal_state = signal.get_states(state);
+		if(signal_state != -1) {
+			value = signal_state;
+		} else {
+			AFB_DEBUG("Couldn't find a valid signal state for %s", state.c_str());
+			*send = false;
+		}
+	}
+|————Node:if Text: if
+|————Node:condition_clause Text: (state == "")
+|—————Node:( Text: (
+|—————Node:binary_expression Text: state == ""
+|——————Node:identifier Text: state
+|——————Node:== Text: ==
+|——————Node:string_literal Text: ""
+|———————Node:" Text: "
+|———————Node:" Text: "
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+		AFB_DEBUG("Can't write state of "" -- not sending");
+		*send = false;
+	}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: AFB_DEBUG("Can't write state of "" -- not sending");
+|——————Node:call_expression Text: AFB_DEBUG("Can't write state of "" -- not sending")
+|———————Node:identifier Text: AFB_DEBUG
+|———————Node:argument_list Text: ("Can't write state of "" -- not sending")
+|————————Node:( Text: (
+|————————Node:concatenated_string Text: "Can't write state of "" -- not sending"
+|—————————Node:string_literal Text: "Can't write state of "
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Can't write state of 
+|——————————Node:" Text: "
+|—————————Node:string_literal Text: " -- not sending"
+|——————————Node:" Text: "
+|——————————Node:string_content Text:  -- not sending
+|——————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: *send = false;
+|——————Node:assignment_expression Text: *send = false
+|———————Node:pointer_expression Text: *send
+|————————Node:* Text: *
+|————————Node:identifier Text: send
+|———————Node:= Text: =
+|———————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else
+	{
+		uint64_t signal_state = signal.get_states(state);
+		if(signal_state != -1) {
+			value = signal_state;
+		} else {
+			AFB_DEBUG("Couldn't find a valid signal state for %s", state.c_str());
+			*send = false;
+		}
+	}
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+		uint64_t signal_state = signal.get_states(state);
+		if(signal_state != -1) {
+			value = signal_state;
+		} else {
+			AFB_DEBUG("Couldn't find a valid signal state for %s", state.c_str());
+			*send = false;
+		}
+	}
+|——————Node:{ Text: {
+|——————Node:declaration Text: uint64_t signal_state = signal.get_states(state);
+|———————Node:primitive_type Text: uint64_t
+|———————Node:init_declarator Text: signal_state = signal.get_states(state)
+|————————Node:identifier Text: signal_state
+|————————Node:= Text: =
+|————————Node:call_expression Text: signal.get_states(state)
+|—————————Node:field_expression Text: signal.get_states
+|——————————Node:identifier Text: signal
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: get_states
+|—————————Node:argument_list Text: (state)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: state
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if(signal_state != -1) {
+			value = signal_state;
+		} else {
+			AFB_DEBUG("Couldn't find a valid signal state for %s", state.c_str());
+			*send = false;
+		}
+|———————Node:if Text: if
+|———————Node:condition_clause Text: (signal_state != -1)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: signal_state != -1
+|—————————Node:identifier Text: signal_state
+|—————————Node:!= Text: !=
+|—————————Node:number_literal Text: -1
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+			value = signal_state;
+		}
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: value = signal_state;
+|—————————Node:assignment_expression Text: value = signal_state
+|——————————Node:identifier Text: value
+|——————————Node:= Text: =
+|——————————Node:identifier Text: signal_state
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———————Node:else_clause Text: else {
+			AFB_DEBUG("Couldn't find a valid signal state for %s", state.c_str());
+			*send = false;
+		}
+|————————Node:else Text: else
+|————————Node:compound_statement Text: {
+			AFB_DEBUG("Couldn't find a valid signal state for %s", state.c_str());
+			*send = false;
+		}
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: AFB_DEBUG("Couldn't find a valid signal state for %s", state.c_str());
+|——————————Node:call_expression Text: AFB_DEBUG("Couldn't find a valid signal state for %s", state.c_str())
+|———————————Node:identifier Text: AFB_DEBUG
+|———————————Node:argument_list Text: ("Couldn't find a valid signal state for %s", state.c_str())
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "Couldn't find a valid signal state for %s"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: Couldn't find a valid signal state for %s
+|—————————————Node:" Text: "
+|————————————Node:, Text: ,
+|————————————Node:call_expression Text: state.c_str()
+|—————————————Node:field_expression Text: state.c_str
+|——————————————Node:identifier Text: state
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: c_str
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: *send = false;
+|——————————Node:assignment_expression Text: *send = false
+|———————————Node:pointer_expression Text: *send
+|————————————Node:* Text: *
+|————————————Node:identifier Text: send
+|———————————Node:= Text: =
+|———————————Node:false Text: false
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|——————Node:} Text: }
+|———Node:return_statement Text: return value;
+|————Node:return Text: return
+|————Node:identifier Text: value
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:function_definition Text: uint64_t encoder_t::encode_DynamicField( signal_t& signal, const openxc_DynamicField& field, bool* send)
+{
+	uint64_t value = 0;
+	switch(field.type) {
+		case openxc_DynamicField_Type_STRING:
+			value = encode_state(signal, field.string_value, send);
+			break;
+		case openxc_DynamicField_Type_NUM:
+			value = encode_number(signal, (float)field.numeric_value, send);
+			break;
+		case openxc_DynamicField_Type_BOOL:
+			value = encode_boolean(signal, field.boolean_value, send);
+			break;
+		default:
+			AFB_DEBUG("Dynamic field didn't have a value, can't encode");
+			*send = false;
+			break;
+	}
+	return value;
+}
+|——Node:primitive_type Text: uint64_t
+|——Node:function_declarator Text: encoder_t::encode_DynamicField( signal_t& signal, const openxc_DynamicField& field, bool* send)
+|———Node:qualified_identifier Text: encoder_t::encode_DynamicField
+|————Node:namespace_identifier Text: encoder_t
+|————Node::: Text: ::
+|————Node:identifier Text: encode_DynamicField
+|———Node:parameter_list Text: ( signal_t& signal, const openxc_DynamicField& field, bool* send)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: signal_t& signal
+|—————Node:type_identifier Text: signal_t
+|—————Node:reference_declarator Text: & signal
+|——————Node:& Text: &
+|——————Node:identifier Text: signal
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: const openxc_DynamicField& field
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:type_identifier Text: openxc_DynamicField
+|—————Node:reference_declarator Text: & field
+|——————Node:& Text: &
+|——————Node:identifier Text: field
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: bool* send
+|—————Node:primitive_type Text: bool
+|—————Node:pointer_declarator Text: * send
+|——————Node:* Text: *
+|——————Node:identifier Text: send
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	uint64_t value = 0;
+	switch(field.type) {
+		case openxc_DynamicField_Type_STRING:
+			value = encode_state(signal, field.string_value, send);
+			break;
+		case openxc_DynamicField_Type_NUM:
+			value = encode_number(signal, (float)field.numeric_value, send);
+			break;
+		case openxc_DynamicField_Type_BOOL:
+			value = encode_boolean(signal, field.boolean_value, send);
+			break;
+		default:
+			AFB_DEBUG("Dynamic field didn't have a value, can't encode");
+			*send = false;
+			break;
+	}
+	return value;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: uint64_t value = 0;
+|————Node:primitive_type Text: uint64_t
+|————Node:init_declarator Text: value = 0
+|—————Node:identifier Text: value
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:switch_statement Text: switch(field.type) {
+		case openxc_DynamicField_Type_STRING:
+			value = encode_state(signal, field.string_value, send);
+			break;
+		case openxc_DynamicField_Type_NUM:
+			value = encode_number(signal, (float)field.numeric_value, send);
+			break;
+		case openxc_DynamicField_Type_BOOL:
+			value = encode_boolean(signal, field.boolean_value, send);
+			break;
+		default:
+			AFB_DEBUG("Dynamic field didn't have a value, can't encode");
+			*send = false;
+			break;
+	}
+|————Node:switch Text: switch
+|————Node:condition_clause Text: (field.type)
+|—————Node:( Text: (
+|—————Node:field_expression Text: field.type
+|——————Node:identifier Text: field
+|——————Node:. Text: .
+|——————Node:field_identifier Text: type
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+		case openxc_DynamicField_Type_STRING:
+			value = encode_state(signal, field.string_value, send);
+			break;
+		case openxc_DynamicField_Type_NUM:
+			value = encode_number(signal, (float)field.numeric_value, send);
+			break;
+		case openxc_DynamicField_Type_BOOL:
+			value = encode_boolean(signal, field.boolean_value, send);
+			break;
+		default:
+			AFB_DEBUG("Dynamic field didn't have a value, can't encode");
+			*send = false;
+			break;
+	}
+|—————Node:{ Text: {
+|—————Node:case_statement Text: case openxc_DynamicField_Type_STRING:
+			value = encode_state(signal, field.string_value, send);
+			break;
+|——————Node:case Text: case
+|——————Node:identifier Text: openxc_DynamicField_Type_STRING
+|——————Node:: Text: :
+|——————Node:expression_statement Text: value = encode_state(signal, field.string_value, send);
+|———————Node:assignment_expression Text: value = encode_state(signal, field.string_value, send)
+|————————Node:identifier Text: value
+|————————Node:= Text: =
+|————————Node:call_expression Text: encode_state(signal, field.string_value, send)
+|—————————Node:identifier Text: encode_state
+|—————————Node:argument_list Text: (signal, field.string_value, send)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: signal
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: field.string_value
+|———————————Node:identifier Text: field
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: string_value
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: send
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case openxc_DynamicField_Type_NUM:
+			value = encode_number(signal, (float)field.numeric_value, send);
+			break;
+|——————Node:case Text: case
+|——————Node:identifier Text: openxc_DynamicField_Type_NUM
+|——————Node:: Text: :
+|——————Node:expression_statement Text: value = encode_number(signal, (float)field.numeric_value, send);
+|———————Node:assignment_expression Text: value = encode_number(signal, (float)field.numeric_value, send)
+|————————Node:identifier Text: value
+|————————Node:= Text: =
+|————————Node:call_expression Text: encode_number(signal, (float)field.numeric_value, send)
+|—————————Node:identifier Text: encode_number
+|—————————Node:argument_list Text: (signal, (float)field.numeric_value, send)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: signal
+|——————————Node:, Text: ,
+|——————————Node:cast_expression Text: (float)field.numeric_value
+|———————————Node:( Text: (
+|———————————Node:type_descriptor Text: float
+|————————————Node:primitive_type Text: float
+|———————————Node:) Text: )
+|———————————Node:field_expression Text: field.numeric_value
+|————————————Node:identifier Text: field
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: numeric_value
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: send
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case openxc_DynamicField_Type_BOOL:
+			value = encode_boolean(signal, field.boolean_value, send);
+			break;
+|——————Node:case Text: case
+|——————Node:identifier Text: openxc_DynamicField_Type_BOOL
+|——————Node:: Text: :
+|——————Node:expression_statement Text: value = encode_boolean(signal, field.boolean_value, send);
+|———————Node:assignment_expression Text: value = encode_boolean(signal, field.boolean_value, send)
+|————————Node:identifier Text: value
+|————————Node:= Text: =
+|————————Node:call_expression Text: encode_boolean(signal, field.boolean_value, send)
+|—————————Node:identifier Text: encode_boolean
+|—————————Node:argument_list Text: (signal, field.boolean_value, send)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: signal
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: field.boolean_value
+|———————————Node:identifier Text: field
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: boolean_value
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: send
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: default:
+			AFB_DEBUG("Dynamic field didn't have a value, can't encode");
+			*send = false;
+			break;
+|——————Node:default Text: default
+|——————Node:: Text: :
+|——————Node:expression_statement Text: AFB_DEBUG("Dynamic field didn't have a value, can't encode");
+|———————Node:call_expression Text: AFB_DEBUG("Dynamic field didn't have a value, can't encode")
+|————————Node:identifier Text: AFB_DEBUG
+|————————Node:argument_list Text: ("Dynamic field didn't have a value, can't encode")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Dynamic field didn't have a value, can't encode"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Dynamic field didn't have a value, can't encode
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: *send = false;
+|———————Node:assignment_expression Text: *send = false
+|————————Node:pointer_expression Text: *send
+|—————————Node:* Text: *
+|—————————Node:identifier Text: send
+|————————Node:= Text: =
+|————————Node:false Text: false
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return value;
+|————Node:return Text: return
+|————Node:identifier Text: value
+|————Node:; Text: ;
+|———Node:} Text: }

@@ -1,0 +1,2221 @@
+esp32-can-iot-Coding\fw\test\TestMain.cpp
+
+|Node:translation_unit
+|—Node:comment Text: /***************************************************************************************************
+  (c) NewTec GmbH 2020   -   www.newtec.de
+  $URL: https://github.com/NewTec-GmbH/esp32-can-iot $
+***************************************************************************************************/
+|—Node:comment Text: /**
+@addtogroup Testing
+@{
+@file       TestMain.h
+
+Main Test entry point
+
+* @}
+***************************************************************************************************/
+|—Node:comment Text: /* INCLUDES ***************************************************************************************/
+|—Node:preproc_include Text: #include <unity.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <unity.h>
+|—Node:preproc_include Text: #include <stdio.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <stdio.h>
+|—Node:preproc_include Text: #include <stdlib.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <stdlib.h>
+|—Node:preproc_include Text: #include <Lawicel.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <Lawicel.h>
+|—Node:preproc_include Text: #include <Arduino.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <Arduino.h>
+|—Node:preproc_include Text: #include <Print.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <Print.h>
+|—Node:preproc_include Text: #include <WString.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <WString.h>
+|—Node:preproc_include Text: #include <math.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <math.h>
+|—Node:preproc_include Text: #include <cmath>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <cmath>
+|—Node:preproc_include Text: #include "test_serial_adapter.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "test_serial_adapter.h"
+|———Node:" Text: "
+|———Node:string_content Text: test_serial_adapter.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "test_can_adapter.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "test_can_adapter.h"
+|———Node:" Text: "
+|———Node:string_content Text: test_can_adapter.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "test_nvm_adapter.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "test_nvm_adapter.h"
+|———Node:" Text: "
+|———Node:string_content Text: test_nvm_adapter.h
+|———Node:" Text: "
+|—Node:declaration Text: testSerial testingSerialAdapter;
+|——Node:type_identifier Text: testSerial
+|——Node:identifier Text: testingSerialAdapter
+|——Node:; Text: ;
+|—Node:declaration Text: testCAN testingCANAdapter;
+|——Node:type_identifier Text: testCAN
+|——Node:identifier Text: testingCANAdapter
+|——Node:; Text: ;
+|—Node:declaration Text: testNVM testingNVMAdapter;
+|——Node:type_identifier Text: testNVM
+|——Node:identifier Text: testingNVMAdapter
+|——Node:; Text: ;
+|—Node:declaration Text: Lawicel ProtocolTest(&testingSerialAdapter, &testingCANAdapter, &testingNVMAdapter);
+|——Node:type_identifier Text: Lawicel
+|——Node:init_declarator Text: ProtocolTest(&testingSerialAdapter, &testingCANAdapter, &testingNVMAdapter)
+|———Node:identifier Text: ProtocolTest
+|———Node:argument_list Text: (&testingSerialAdapter, &testingCANAdapter, &testingNVMAdapter)
+|————Node:( Text: (
+|————Node:pointer_expression Text: &testingSerialAdapter
+|—————Node:& Text: &
+|—————Node:identifier Text: testingSerialAdapter
+|————Node:, Text: ,
+|————Node:pointer_expression Text: &testingCANAdapter
+|—————Node:& Text: &
+|—————Node:identifier Text: testingCANAdapter
+|————Node:, Text: ,
+|————Node:pointer_expression Text: &testingNVMAdapter
+|—————Node:& Text: &
+|—————Node:identifier Text: testingNVMAdapter
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:function_definition Text: void test_can_baudrate(void)
+{
+  testingSerialAdapter.writeInput("S0");
+  ProtocolTest.handler();
+  TEST_ASSERT_EQUAL(10E3, testingCANAdapter.getBaudrate());
+
+  testingSerialAdapter.writeInput("S1");
+  ProtocolTest.handler();
+  TEST_ASSERT_EQUAL(20E3, testingCANAdapter.getBaudrate());
+
+  testingSerialAdapter.writeInput("S2");
+  ProtocolTest.handler();
+  TEST_ASSERT_EQUAL(50E3, testingCANAdapter.getBaudrate());
+
+  testingSerialAdapter.writeInput("S3");
+  ProtocolTest.handler();
+  TEST_ASSERT_EQUAL(100E3, testingCANAdapter.getBaudrate());
+
+  testingSerialAdapter.writeInput("S4");
+  ProtocolTest.handler();
+  TEST_ASSERT_EQUAL(125E3, testingCANAdapter.getBaudrate());
+
+  testingSerialAdapter.writeInput("S5");
+  ProtocolTest.handler();
+  TEST_ASSERT_EQUAL(250E3, testingCANAdapter.getBaudrate());
+
+  testingSerialAdapter.writeInput("S6");
+  ProtocolTest.handler();
+  TEST_ASSERT_EQUAL(500E3, testingCANAdapter.getBaudrate());
+
+  testingSerialAdapter.writeInput("S7");
+  ProtocolTest.handler();
+  TEST_ASSERT_EQUAL(800E3, testingCANAdapter.getBaudrate());
+
+  testingSerialAdapter.writeInput("S8");
+  ProtocolTest.handler();
+  TEST_ASSERT_EQUAL(1000E3, testingCANAdapter.getBaudrate());
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: test_can_baudrate(void)
+|———Node:identifier Text: test_can_baudrate
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  testingSerialAdapter.writeInput("S0");
+  ProtocolTest.handler();
+  TEST_ASSERT_EQUAL(10E3, testingCANAdapter.getBaudrate());
+
+  testingSerialAdapter.writeInput("S1");
+  ProtocolTest.handler();
+  TEST_ASSERT_EQUAL(20E3, testingCANAdapter.getBaudrate());
+
+  testingSerialAdapter.writeInput("S2");
+  ProtocolTest.handler();
+  TEST_ASSERT_EQUAL(50E3, testingCANAdapter.getBaudrate());
+
+  testingSerialAdapter.writeInput("S3");
+  ProtocolTest.handler();
+  TEST_ASSERT_EQUAL(100E3, testingCANAdapter.getBaudrate());
+
+  testingSerialAdapter.writeInput("S4");
+  ProtocolTest.handler();
+  TEST_ASSERT_EQUAL(125E3, testingCANAdapter.getBaudrate());
+
+  testingSerialAdapter.writeInput("S5");
+  ProtocolTest.handler();
+  TEST_ASSERT_EQUAL(250E3, testingCANAdapter.getBaudrate());
+
+  testingSerialAdapter.writeInput("S6");
+  ProtocolTest.handler();
+  TEST_ASSERT_EQUAL(500E3, testingCANAdapter.getBaudrate());
+
+  testingSerialAdapter.writeInput("S7");
+  ProtocolTest.handler();
+  TEST_ASSERT_EQUAL(800E3, testingCANAdapter.getBaudrate());
+
+  testingSerialAdapter.writeInput("S8");
+  ProtocolTest.handler();
+  TEST_ASSERT_EQUAL(1000E3, testingCANAdapter.getBaudrate());
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("S0");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("S0")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("S0")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "S0"
+|———————Node:" Text: "
+|———————Node:string_content Text: S0
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ProtocolTest.handler();
+|————Node:call_expression Text: ProtocolTest.handler()
+|—————Node:field_expression Text: ProtocolTest.handler
+|——————Node:identifier Text: ProtocolTest
+|——————Node:. Text: .
+|——————Node:field_identifier Text: handler
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(10E3, testingCANAdapter.getBaudrate());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(10E3, testingCANAdapter.getBaudrate())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (10E3, testingCANAdapter.getBaudrate())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 10E3
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getBaudrate()
+|———————Node:field_expression Text: testingCANAdapter.getBaudrate
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getBaudrate
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("S1");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("S1")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("S1")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "S1"
+|———————Node:" Text: "
+|———————Node:string_content Text: S1
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ProtocolTest.handler();
+|————Node:call_expression Text: ProtocolTest.handler()
+|—————Node:field_expression Text: ProtocolTest.handler
+|——————Node:identifier Text: ProtocolTest
+|——————Node:. Text: .
+|——————Node:field_identifier Text: handler
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(20E3, testingCANAdapter.getBaudrate());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(20E3, testingCANAdapter.getBaudrate())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (20E3, testingCANAdapter.getBaudrate())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 20E3
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getBaudrate()
+|———————Node:field_expression Text: testingCANAdapter.getBaudrate
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getBaudrate
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("S2");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("S2")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("S2")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "S2"
+|———————Node:" Text: "
+|———————Node:string_content Text: S2
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ProtocolTest.handler();
+|————Node:call_expression Text: ProtocolTest.handler()
+|—————Node:field_expression Text: ProtocolTest.handler
+|——————Node:identifier Text: ProtocolTest
+|——————Node:. Text: .
+|——————Node:field_identifier Text: handler
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(50E3, testingCANAdapter.getBaudrate());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(50E3, testingCANAdapter.getBaudrate())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (50E3, testingCANAdapter.getBaudrate())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 50E3
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getBaudrate()
+|———————Node:field_expression Text: testingCANAdapter.getBaudrate
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getBaudrate
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("S3");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("S3")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("S3")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "S3"
+|———————Node:" Text: "
+|———————Node:string_content Text: S3
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ProtocolTest.handler();
+|————Node:call_expression Text: ProtocolTest.handler()
+|—————Node:field_expression Text: ProtocolTest.handler
+|——————Node:identifier Text: ProtocolTest
+|——————Node:. Text: .
+|——————Node:field_identifier Text: handler
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(100E3, testingCANAdapter.getBaudrate());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(100E3, testingCANAdapter.getBaudrate())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (100E3, testingCANAdapter.getBaudrate())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 100E3
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getBaudrate()
+|———————Node:field_expression Text: testingCANAdapter.getBaudrate
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getBaudrate
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("S4");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("S4")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("S4")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "S4"
+|———————Node:" Text: "
+|———————Node:string_content Text: S4
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ProtocolTest.handler();
+|————Node:call_expression Text: ProtocolTest.handler()
+|—————Node:field_expression Text: ProtocolTest.handler
+|——————Node:identifier Text: ProtocolTest
+|——————Node:. Text: .
+|——————Node:field_identifier Text: handler
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(125E3, testingCANAdapter.getBaudrate());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(125E3, testingCANAdapter.getBaudrate())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (125E3, testingCANAdapter.getBaudrate())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 125E3
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getBaudrate()
+|———————Node:field_expression Text: testingCANAdapter.getBaudrate
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getBaudrate
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("S5");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("S5")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("S5")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "S5"
+|———————Node:" Text: "
+|———————Node:string_content Text: S5
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ProtocolTest.handler();
+|————Node:call_expression Text: ProtocolTest.handler()
+|—————Node:field_expression Text: ProtocolTest.handler
+|——————Node:identifier Text: ProtocolTest
+|——————Node:. Text: .
+|——————Node:field_identifier Text: handler
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(250E3, testingCANAdapter.getBaudrate());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(250E3, testingCANAdapter.getBaudrate())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (250E3, testingCANAdapter.getBaudrate())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 250E3
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getBaudrate()
+|———————Node:field_expression Text: testingCANAdapter.getBaudrate
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getBaudrate
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("S6");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("S6")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("S6")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "S6"
+|———————Node:" Text: "
+|———————Node:string_content Text: S6
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ProtocolTest.handler();
+|————Node:call_expression Text: ProtocolTest.handler()
+|—————Node:field_expression Text: ProtocolTest.handler
+|——————Node:identifier Text: ProtocolTest
+|——————Node:. Text: .
+|——————Node:field_identifier Text: handler
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(500E3, testingCANAdapter.getBaudrate());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(500E3, testingCANAdapter.getBaudrate())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (500E3, testingCANAdapter.getBaudrate())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 500E3
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getBaudrate()
+|———————Node:field_expression Text: testingCANAdapter.getBaudrate
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getBaudrate
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("S7");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("S7")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("S7")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "S7"
+|———————Node:" Text: "
+|———————Node:string_content Text: S7
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ProtocolTest.handler();
+|————Node:call_expression Text: ProtocolTest.handler()
+|—————Node:field_expression Text: ProtocolTest.handler
+|——————Node:identifier Text: ProtocolTest
+|——————Node:. Text: .
+|——————Node:field_identifier Text: handler
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(800E3, testingCANAdapter.getBaudrate());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(800E3, testingCANAdapter.getBaudrate())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (800E3, testingCANAdapter.getBaudrate())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 800E3
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getBaudrate()
+|———————Node:field_expression Text: testingCANAdapter.getBaudrate
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getBaudrate
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("S8");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("S8")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("S8")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "S8"
+|———————Node:" Text: "
+|———————Node:string_content Text: S8
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ProtocolTest.handler();
+|————Node:call_expression Text: ProtocolTest.handler()
+|—————Node:field_expression Text: ProtocolTest.handler
+|——————Node:identifier Text: ProtocolTest
+|——————Node:. Text: .
+|——————Node:field_identifier Text: handler
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(1000E3, testingCANAdapter.getBaudrate());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(1000E3, testingCANAdapter.getBaudrate())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (1000E3, testingCANAdapter.getBaudrate())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 1000E3
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getBaudrate()
+|———————Node:field_expression Text: testingCANAdapter.getBaudrate
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getBaudrate
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void test_can_btr(void)
+{
+  testingSerialAdapter.writeInput("s0000");
+  TEST_ASSERT_TRUE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(0x00, testingCANAdapter.m_BTR0);
+  TEST_ASSERT_EQUAL(0x00, testingCANAdapter.m_BTR1);
+
+  testingSerialAdapter.writeInput("s031C");
+  TEST_ASSERT_TRUE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(0x03, testingCANAdapter.m_BTR0);
+  TEST_ASSERT_EQUAL(0x1C, testingCANAdapter.m_BTR1);
+
+  testingSerialAdapter.writeInput("sFFFF");
+  TEST_ASSERT_TRUE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(0xFF, testingCANAdapter.m_BTR0);
+  TEST_ASSERT_EQUAL(0xFF, testingCANAdapter.m_BTR1);
+
+  testingSerialAdapter.writeInput("s00000");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+
+  testingSerialAdapter.writeInput("s000");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: test_can_btr(void)
+|———Node:identifier Text: test_can_btr
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  testingSerialAdapter.writeInput("s0000");
+  TEST_ASSERT_TRUE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(0x00, testingCANAdapter.m_BTR0);
+  TEST_ASSERT_EQUAL(0x00, testingCANAdapter.m_BTR1);
+
+  testingSerialAdapter.writeInput("s031C");
+  TEST_ASSERT_TRUE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(0x03, testingCANAdapter.m_BTR0);
+  TEST_ASSERT_EQUAL(0x1C, testingCANAdapter.m_BTR1);
+
+  testingSerialAdapter.writeInput("sFFFF");
+  TEST_ASSERT_TRUE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(0xFF, testingCANAdapter.m_BTR0);
+  TEST_ASSERT_EQUAL(0xFF, testingCANAdapter.m_BTR1);
+
+  testingSerialAdapter.writeInput("s00000");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+
+  testingSerialAdapter.writeInput("s000");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("s0000");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("s0000")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("s0000")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "s0000"
+|———————Node:" Text: "
+|———————Node:string_content Text: s0000
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_TRUE(ProtocolTest.handler());
+|————Node:call_expression Text: TEST_ASSERT_TRUE(ProtocolTest.handler())
+|—————Node:identifier Text: TEST_ASSERT_TRUE
+|—————Node:argument_list Text: (ProtocolTest.handler())
+|——————Node:( Text: (
+|——————Node:call_expression Text: ProtocolTest.handler()
+|———————Node:field_expression Text: ProtocolTest.handler
+|————————Node:identifier Text: ProtocolTest
+|————————Node:. Text: .
+|————————Node:field_identifier Text: handler
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(0x00, testingCANAdapter.m_BTR0);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(0x00, testingCANAdapter.m_BTR0)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (0x00, testingCANAdapter.m_BTR0)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0x00
+|——————Node:, Text: ,
+|——————Node:field_expression Text: testingCANAdapter.m_BTR0
+|———————Node:identifier Text: testingCANAdapter
+|———————Node:. Text: .
+|———————Node:field_identifier Text: m_BTR0
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(0x00, testingCANAdapter.m_BTR1);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(0x00, testingCANAdapter.m_BTR1)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (0x00, testingCANAdapter.m_BTR1)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0x00
+|——————Node:, Text: ,
+|——————Node:field_expression Text: testingCANAdapter.m_BTR1
+|———————Node:identifier Text: testingCANAdapter
+|———————Node:. Text: .
+|———————Node:field_identifier Text: m_BTR1
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("s031C");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("s031C")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("s031C")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "s031C"
+|———————Node:" Text: "
+|———————Node:string_content Text: s031C
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_TRUE(ProtocolTest.handler());
+|————Node:call_expression Text: TEST_ASSERT_TRUE(ProtocolTest.handler())
+|—————Node:identifier Text: TEST_ASSERT_TRUE
+|—————Node:argument_list Text: (ProtocolTest.handler())
+|——————Node:( Text: (
+|——————Node:call_expression Text: ProtocolTest.handler()
+|———————Node:field_expression Text: ProtocolTest.handler
+|————————Node:identifier Text: ProtocolTest
+|————————Node:. Text: .
+|————————Node:field_identifier Text: handler
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(0x03, testingCANAdapter.m_BTR0);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(0x03, testingCANAdapter.m_BTR0)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (0x03, testingCANAdapter.m_BTR0)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0x03
+|——————Node:, Text: ,
+|——————Node:field_expression Text: testingCANAdapter.m_BTR0
+|———————Node:identifier Text: testingCANAdapter
+|———————Node:. Text: .
+|———————Node:field_identifier Text: m_BTR0
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(0x1C, testingCANAdapter.m_BTR1);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(0x1C, testingCANAdapter.m_BTR1)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (0x1C, testingCANAdapter.m_BTR1)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0x1C
+|——————Node:, Text: ,
+|——————Node:field_expression Text: testingCANAdapter.m_BTR1
+|———————Node:identifier Text: testingCANAdapter
+|———————Node:. Text: .
+|———————Node:field_identifier Text: m_BTR1
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("sFFFF");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("sFFFF")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("sFFFF")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "sFFFF"
+|———————Node:" Text: "
+|———————Node:string_content Text: sFFFF
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_TRUE(ProtocolTest.handler());
+|————Node:call_expression Text: TEST_ASSERT_TRUE(ProtocolTest.handler())
+|—————Node:identifier Text: TEST_ASSERT_TRUE
+|—————Node:argument_list Text: (ProtocolTest.handler())
+|——————Node:( Text: (
+|——————Node:call_expression Text: ProtocolTest.handler()
+|———————Node:field_expression Text: ProtocolTest.handler
+|————————Node:identifier Text: ProtocolTest
+|————————Node:. Text: .
+|————————Node:field_identifier Text: handler
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(0xFF, testingCANAdapter.m_BTR0);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(0xFF, testingCANAdapter.m_BTR0)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (0xFF, testingCANAdapter.m_BTR0)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0xFF
+|——————Node:, Text: ,
+|——————Node:field_expression Text: testingCANAdapter.m_BTR0
+|———————Node:identifier Text: testingCANAdapter
+|———————Node:. Text: .
+|———————Node:field_identifier Text: m_BTR0
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(0xFF, testingCANAdapter.m_BTR1);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(0xFF, testingCANAdapter.m_BTR1)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (0xFF, testingCANAdapter.m_BTR1)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0xFF
+|——————Node:, Text: ,
+|——————Node:field_expression Text: testingCANAdapter.m_BTR1
+|———————Node:identifier Text: testingCANAdapter
+|———————Node:. Text: .
+|———————Node:field_identifier Text: m_BTR1
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("s00000");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("s00000")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("s00000")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "s00000"
+|———————Node:" Text: "
+|———————Node:string_content Text: s00000
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_FALSE(ProtocolTest.handler());
+|————Node:call_expression Text: TEST_ASSERT_FALSE(ProtocolTest.handler())
+|—————Node:identifier Text: TEST_ASSERT_FALSE
+|—————Node:argument_list Text: (ProtocolTest.handler())
+|——————Node:( Text: (
+|——————Node:call_expression Text: ProtocolTest.handler()
+|———————Node:field_expression Text: ProtocolTest.handler
+|————————Node:identifier Text: ProtocolTest
+|————————Node:. Text: .
+|————————Node:field_identifier Text: handler
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("s000");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("s000")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("s000")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "s000"
+|———————Node:" Text: "
+|———————Node:string_content Text: s000
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_FALSE(ProtocolTest.handler());
+|————Node:call_expression Text: TEST_ASSERT_FALSE(ProtocolTest.handler())
+|—————Node:identifier Text: TEST_ASSERT_FALSE
+|—————Node:argument_list Text: (ProtocolTest.handler())
+|——————Node:( Text: (
+|——————Node:call_expression Text: ProtocolTest.handler()
+|———————Node:field_expression Text: ProtocolTest.handler
+|————————Node:identifier Text: ProtocolTest
+|————————Node:. Text: .
+|————————Node:field_identifier Text: handler
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void test_can_open_normal(void)
+{
+  testingCANAdapter.m_currentstate = CANInterface::CLOSED;
+  testingSerialAdapter.writeInput("O");
+  TEST_ASSERT_TRUE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(1, testingCANAdapter.getChannelState());
+
+  testingCANAdapter.m_currentstate = CANInterface::CLOSED;
+  testingSerialAdapter.writeInput("O0");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(0, testingCANAdapter.getChannelState());
+
+  testingCANAdapter.m_currentstate = CANInterface::NORMAL;
+  testingSerialAdapter.writeInput("O");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(1, testingCANAdapter.getChannelState());
+
+  testingCANAdapter.m_currentstate = CANInterface::LISTEN_ONLY;
+  testingSerialAdapter.writeInput("O");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(2, testingCANAdapter.getChannelState());
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: test_can_open_normal(void)
+|———Node:identifier Text: test_can_open_normal
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  testingCANAdapter.m_currentstate = CANInterface::CLOSED;
+  testingSerialAdapter.writeInput("O");
+  TEST_ASSERT_TRUE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(1, testingCANAdapter.getChannelState());
+
+  testingCANAdapter.m_currentstate = CANInterface::CLOSED;
+  testingSerialAdapter.writeInput("O0");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(0, testingCANAdapter.getChannelState());
+
+  testingCANAdapter.m_currentstate = CANInterface::NORMAL;
+  testingSerialAdapter.writeInput("O");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(1, testingCANAdapter.getChannelState());
+
+  testingCANAdapter.m_currentstate = CANInterface::LISTEN_ONLY;
+  testingSerialAdapter.writeInput("O");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(2, testingCANAdapter.getChannelState());
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: testingCANAdapter.m_currentstate = CANInterface::CLOSED;
+|————Node:assignment_expression Text: testingCANAdapter.m_currentstate = CANInterface::CLOSED
+|—————Node:field_expression Text: testingCANAdapter.m_currentstate
+|——————Node:identifier Text: testingCANAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_currentstate
+|—————Node:= Text: =
+|—————Node:qualified_identifier Text: CANInterface::CLOSED
+|——————Node:namespace_identifier Text: CANInterface
+|——————Node::: Text: ::
+|——————Node:identifier Text: CLOSED
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("O");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("O")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("O")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "O"
+|———————Node:" Text: "
+|———————Node:string_content Text: O
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_TRUE(ProtocolTest.handler());
+|————Node:call_expression Text: TEST_ASSERT_TRUE(ProtocolTest.handler())
+|—————Node:identifier Text: TEST_ASSERT_TRUE
+|—————Node:argument_list Text: (ProtocolTest.handler())
+|——————Node:( Text: (
+|——————Node:call_expression Text: ProtocolTest.handler()
+|———————Node:field_expression Text: ProtocolTest.handler
+|————————Node:identifier Text: ProtocolTest
+|————————Node:. Text: .
+|————————Node:field_identifier Text: handler
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(1, testingCANAdapter.getChannelState());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(1, testingCANAdapter.getChannelState())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (1, testingCANAdapter.getChannelState())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 1
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getChannelState()
+|———————Node:field_expression Text: testingCANAdapter.getChannelState
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getChannelState
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingCANAdapter.m_currentstate = CANInterface::CLOSED;
+|————Node:assignment_expression Text: testingCANAdapter.m_currentstate = CANInterface::CLOSED
+|—————Node:field_expression Text: testingCANAdapter.m_currentstate
+|——————Node:identifier Text: testingCANAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_currentstate
+|—————Node:= Text: =
+|—————Node:qualified_identifier Text: CANInterface::CLOSED
+|——————Node:namespace_identifier Text: CANInterface
+|——————Node::: Text: ::
+|——————Node:identifier Text: CLOSED
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("O0");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("O0")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("O0")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "O0"
+|———————Node:" Text: "
+|———————Node:string_content Text: O0
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_FALSE(ProtocolTest.handler());
+|————Node:call_expression Text: TEST_ASSERT_FALSE(ProtocolTest.handler())
+|—————Node:identifier Text: TEST_ASSERT_FALSE
+|—————Node:argument_list Text: (ProtocolTest.handler())
+|——————Node:( Text: (
+|——————Node:call_expression Text: ProtocolTest.handler()
+|———————Node:field_expression Text: ProtocolTest.handler
+|————————Node:identifier Text: ProtocolTest
+|————————Node:. Text: .
+|————————Node:field_identifier Text: handler
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(0, testingCANAdapter.getChannelState());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(0, testingCANAdapter.getChannelState())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (0, testingCANAdapter.getChannelState())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getChannelState()
+|———————Node:field_expression Text: testingCANAdapter.getChannelState
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getChannelState
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingCANAdapter.m_currentstate = CANInterface::NORMAL;
+|————Node:assignment_expression Text: testingCANAdapter.m_currentstate = CANInterface::NORMAL
+|—————Node:field_expression Text: testingCANAdapter.m_currentstate
+|——————Node:identifier Text: testingCANAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_currentstate
+|—————Node:= Text: =
+|—————Node:qualified_identifier Text: CANInterface::NORMAL
+|——————Node:namespace_identifier Text: CANInterface
+|——————Node::: Text: ::
+|——————Node:identifier Text: NORMAL
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("O");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("O")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("O")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "O"
+|———————Node:" Text: "
+|———————Node:string_content Text: O
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_FALSE(ProtocolTest.handler());
+|————Node:call_expression Text: TEST_ASSERT_FALSE(ProtocolTest.handler())
+|—————Node:identifier Text: TEST_ASSERT_FALSE
+|—————Node:argument_list Text: (ProtocolTest.handler())
+|——————Node:( Text: (
+|——————Node:call_expression Text: ProtocolTest.handler()
+|———————Node:field_expression Text: ProtocolTest.handler
+|————————Node:identifier Text: ProtocolTest
+|————————Node:. Text: .
+|————————Node:field_identifier Text: handler
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(1, testingCANAdapter.getChannelState());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(1, testingCANAdapter.getChannelState())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (1, testingCANAdapter.getChannelState())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 1
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getChannelState()
+|———————Node:field_expression Text: testingCANAdapter.getChannelState
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getChannelState
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingCANAdapter.m_currentstate = CANInterface::LISTEN_ONLY;
+|————Node:assignment_expression Text: testingCANAdapter.m_currentstate = CANInterface::LISTEN_ONLY
+|—————Node:field_expression Text: testingCANAdapter.m_currentstate
+|——————Node:identifier Text: testingCANAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_currentstate
+|—————Node:= Text: =
+|—————Node:qualified_identifier Text: CANInterface::LISTEN_ONLY
+|——————Node:namespace_identifier Text: CANInterface
+|——————Node::: Text: ::
+|——————Node:identifier Text: LISTEN_ONLY
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("O");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("O")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("O")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "O"
+|———————Node:" Text: "
+|———————Node:string_content Text: O
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_FALSE(ProtocolTest.handler());
+|————Node:call_expression Text: TEST_ASSERT_FALSE(ProtocolTest.handler())
+|—————Node:identifier Text: TEST_ASSERT_FALSE
+|—————Node:argument_list Text: (ProtocolTest.handler())
+|——————Node:( Text: (
+|——————Node:call_expression Text: ProtocolTest.handler()
+|———————Node:field_expression Text: ProtocolTest.handler
+|————————Node:identifier Text: ProtocolTest
+|————————Node:. Text: .
+|————————Node:field_identifier Text: handler
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(2, testingCANAdapter.getChannelState());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(2, testingCANAdapter.getChannelState())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (2, testingCANAdapter.getChannelState())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 2
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getChannelState()
+|———————Node:field_expression Text: testingCANAdapter.getChannelState
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getChannelState
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void test_can_open_listen_only(void)
+{
+  testingCANAdapter.m_currentstate = CANInterface::CLOSED;
+  testingSerialAdapter.writeInput("L");
+  TEST_ASSERT_TRUE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(2, testingCANAdapter.getChannelState());
+
+  testingCANAdapter.m_currentstate = CANInterface::CLOSED;
+  testingSerialAdapter.writeInput("L0");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(0, testingCANAdapter.getChannelState());
+
+  testingCANAdapter.m_currentstate = CANInterface::NORMAL;
+  testingSerialAdapter.writeInput("L");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(1, testingCANAdapter.getChannelState());
+
+  testingCANAdapter.m_currentstate = CANInterface::LISTEN_ONLY;
+  testingSerialAdapter.writeInput("L");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(2, testingCANAdapter.getChannelState());
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: test_can_open_listen_only(void)
+|———Node:identifier Text: test_can_open_listen_only
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  testingCANAdapter.m_currentstate = CANInterface::CLOSED;
+  testingSerialAdapter.writeInput("L");
+  TEST_ASSERT_TRUE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(2, testingCANAdapter.getChannelState());
+
+  testingCANAdapter.m_currentstate = CANInterface::CLOSED;
+  testingSerialAdapter.writeInput("L0");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(0, testingCANAdapter.getChannelState());
+
+  testingCANAdapter.m_currentstate = CANInterface::NORMAL;
+  testingSerialAdapter.writeInput("L");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(1, testingCANAdapter.getChannelState());
+
+  testingCANAdapter.m_currentstate = CANInterface::LISTEN_ONLY;
+  testingSerialAdapter.writeInput("L");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(2, testingCANAdapter.getChannelState());
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: testingCANAdapter.m_currentstate = CANInterface::CLOSED;
+|————Node:assignment_expression Text: testingCANAdapter.m_currentstate = CANInterface::CLOSED
+|—————Node:field_expression Text: testingCANAdapter.m_currentstate
+|——————Node:identifier Text: testingCANAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_currentstate
+|—————Node:= Text: =
+|—————Node:qualified_identifier Text: CANInterface::CLOSED
+|——————Node:namespace_identifier Text: CANInterface
+|——————Node::: Text: ::
+|——————Node:identifier Text: CLOSED
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("L");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("L")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("L")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "L"
+|———————Node:" Text: "
+|———————Node:string_content Text: L
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_TRUE(ProtocolTest.handler());
+|————Node:call_expression Text: TEST_ASSERT_TRUE(ProtocolTest.handler())
+|—————Node:identifier Text: TEST_ASSERT_TRUE
+|—————Node:argument_list Text: (ProtocolTest.handler())
+|——————Node:( Text: (
+|——————Node:call_expression Text: ProtocolTest.handler()
+|———————Node:field_expression Text: ProtocolTest.handler
+|————————Node:identifier Text: ProtocolTest
+|————————Node:. Text: .
+|————————Node:field_identifier Text: handler
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(2, testingCANAdapter.getChannelState());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(2, testingCANAdapter.getChannelState())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (2, testingCANAdapter.getChannelState())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 2
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getChannelState()
+|———————Node:field_expression Text: testingCANAdapter.getChannelState
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getChannelState
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingCANAdapter.m_currentstate = CANInterface::CLOSED;
+|————Node:assignment_expression Text: testingCANAdapter.m_currentstate = CANInterface::CLOSED
+|—————Node:field_expression Text: testingCANAdapter.m_currentstate
+|——————Node:identifier Text: testingCANAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_currentstate
+|—————Node:= Text: =
+|—————Node:qualified_identifier Text: CANInterface::CLOSED
+|——————Node:namespace_identifier Text: CANInterface
+|——————Node::: Text: ::
+|——————Node:identifier Text: CLOSED
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("L0");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("L0")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("L0")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "L0"
+|———————Node:" Text: "
+|———————Node:string_content Text: L0
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_FALSE(ProtocolTest.handler());
+|————Node:call_expression Text: TEST_ASSERT_FALSE(ProtocolTest.handler())
+|—————Node:identifier Text: TEST_ASSERT_FALSE
+|—————Node:argument_list Text: (ProtocolTest.handler())
+|——————Node:( Text: (
+|——————Node:call_expression Text: ProtocolTest.handler()
+|———————Node:field_expression Text: ProtocolTest.handler
+|————————Node:identifier Text: ProtocolTest
+|————————Node:. Text: .
+|————————Node:field_identifier Text: handler
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(0, testingCANAdapter.getChannelState());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(0, testingCANAdapter.getChannelState())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (0, testingCANAdapter.getChannelState())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getChannelState()
+|———————Node:field_expression Text: testingCANAdapter.getChannelState
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getChannelState
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingCANAdapter.m_currentstate = CANInterface::NORMAL;
+|————Node:assignment_expression Text: testingCANAdapter.m_currentstate = CANInterface::NORMAL
+|—————Node:field_expression Text: testingCANAdapter.m_currentstate
+|——————Node:identifier Text: testingCANAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_currentstate
+|—————Node:= Text: =
+|—————Node:qualified_identifier Text: CANInterface::NORMAL
+|——————Node:namespace_identifier Text: CANInterface
+|——————Node::: Text: ::
+|——————Node:identifier Text: NORMAL
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("L");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("L")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("L")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "L"
+|———————Node:" Text: "
+|———————Node:string_content Text: L
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_FALSE(ProtocolTest.handler());
+|————Node:call_expression Text: TEST_ASSERT_FALSE(ProtocolTest.handler())
+|—————Node:identifier Text: TEST_ASSERT_FALSE
+|—————Node:argument_list Text: (ProtocolTest.handler())
+|——————Node:( Text: (
+|——————Node:call_expression Text: ProtocolTest.handler()
+|———————Node:field_expression Text: ProtocolTest.handler
+|————————Node:identifier Text: ProtocolTest
+|————————Node:. Text: .
+|————————Node:field_identifier Text: handler
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(1, testingCANAdapter.getChannelState());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(1, testingCANAdapter.getChannelState())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (1, testingCANAdapter.getChannelState())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 1
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getChannelState()
+|———————Node:field_expression Text: testingCANAdapter.getChannelState
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getChannelState
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingCANAdapter.m_currentstate = CANInterface::LISTEN_ONLY;
+|————Node:assignment_expression Text: testingCANAdapter.m_currentstate = CANInterface::LISTEN_ONLY
+|—————Node:field_expression Text: testingCANAdapter.m_currentstate
+|——————Node:identifier Text: testingCANAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_currentstate
+|—————Node:= Text: =
+|—————Node:qualified_identifier Text: CANInterface::LISTEN_ONLY
+|——————Node:namespace_identifier Text: CANInterface
+|——————Node::: Text: ::
+|——————Node:identifier Text: LISTEN_ONLY
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("L");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("L")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("L")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "L"
+|———————Node:" Text: "
+|———————Node:string_content Text: L
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_FALSE(ProtocolTest.handler());
+|————Node:call_expression Text: TEST_ASSERT_FALSE(ProtocolTest.handler())
+|—————Node:identifier Text: TEST_ASSERT_FALSE
+|—————Node:argument_list Text: (ProtocolTest.handler())
+|——————Node:( Text: (
+|——————Node:call_expression Text: ProtocolTest.handler()
+|———————Node:field_expression Text: ProtocolTest.handler
+|————————Node:identifier Text: ProtocolTest
+|————————Node:. Text: .
+|————————Node:field_identifier Text: handler
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(2, testingCANAdapter.getChannelState());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(2, testingCANAdapter.getChannelState())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (2, testingCANAdapter.getChannelState())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 2
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getChannelState()
+|———————Node:field_expression Text: testingCANAdapter.getChannelState
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getChannelState
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void test_can_close(void)
+{
+  testingCANAdapter.m_currentstate = CANInterface::NORMAL;
+  testingSerialAdapter.writeInput("C");
+  TEST_ASSERT_TRUE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(0, testingCANAdapter.getChannelState());
+
+  testingCANAdapter.setState(CANInterface::LISTEN_ONLY);
+  testingSerialAdapter.writeInput("C");
+  TEST_ASSERT_TRUE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(0, testingCANAdapter.getChannelState());
+
+  testingCANAdapter.m_currentstate = CANInterface::NORMAL;
+  testingSerialAdapter.writeInput("C0");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(1, testingCANAdapter.getChannelState());
+
+  testingCANAdapter.m_currentstate = CANInterface::LISTEN_ONLY;
+  testingSerialAdapter.writeInput("L0");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(2, testingCANAdapter.getChannelState());
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: test_can_close(void)
+|———Node:identifier Text: test_can_close
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  testingCANAdapter.m_currentstate = CANInterface::NORMAL;
+  testingSerialAdapter.writeInput("C");
+  TEST_ASSERT_TRUE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(0, testingCANAdapter.getChannelState());
+
+  testingCANAdapter.setState(CANInterface::LISTEN_ONLY);
+  testingSerialAdapter.writeInput("C");
+  TEST_ASSERT_TRUE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(0, testingCANAdapter.getChannelState());
+
+  testingCANAdapter.m_currentstate = CANInterface::NORMAL;
+  testingSerialAdapter.writeInput("C0");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(1, testingCANAdapter.getChannelState());
+
+  testingCANAdapter.m_currentstate = CANInterface::LISTEN_ONLY;
+  testingSerialAdapter.writeInput("L0");
+  TEST_ASSERT_FALSE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL(2, testingCANAdapter.getChannelState());
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: testingCANAdapter.m_currentstate = CANInterface::NORMAL;
+|————Node:assignment_expression Text: testingCANAdapter.m_currentstate = CANInterface::NORMAL
+|—————Node:field_expression Text: testingCANAdapter.m_currentstate
+|——————Node:identifier Text: testingCANAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_currentstate
+|—————Node:= Text: =
+|—————Node:qualified_identifier Text: CANInterface::NORMAL
+|——————Node:namespace_identifier Text: CANInterface
+|——————Node::: Text: ::
+|——————Node:identifier Text: NORMAL
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("C");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("C")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("C")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "C"
+|———————Node:" Text: "
+|———————Node:string_content Text: C
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_TRUE(ProtocolTest.handler());
+|————Node:call_expression Text: TEST_ASSERT_TRUE(ProtocolTest.handler())
+|—————Node:identifier Text: TEST_ASSERT_TRUE
+|—————Node:argument_list Text: (ProtocolTest.handler())
+|——————Node:( Text: (
+|——————Node:call_expression Text: ProtocolTest.handler()
+|———————Node:field_expression Text: ProtocolTest.handler
+|————————Node:identifier Text: ProtocolTest
+|————————Node:. Text: .
+|————————Node:field_identifier Text: handler
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(0, testingCANAdapter.getChannelState());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(0, testingCANAdapter.getChannelState())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (0, testingCANAdapter.getChannelState())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getChannelState()
+|———————Node:field_expression Text: testingCANAdapter.getChannelState
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getChannelState
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingCANAdapter.setState(CANInterface::LISTEN_ONLY);
+|————Node:call_expression Text: testingCANAdapter.setState(CANInterface::LISTEN_ONLY)
+|—————Node:field_expression Text: testingCANAdapter.setState
+|——————Node:identifier Text: testingCANAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: setState
+|—————Node:argument_list Text: (CANInterface::LISTEN_ONLY)
+|——————Node:( Text: (
+|——————Node:qualified_identifier Text: CANInterface::LISTEN_ONLY
+|———————Node:namespace_identifier Text: CANInterface
+|———————Node::: Text: ::
+|———————Node:identifier Text: LISTEN_ONLY
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("C");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("C")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("C")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "C"
+|———————Node:" Text: "
+|———————Node:string_content Text: C
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_TRUE(ProtocolTest.handler());
+|————Node:call_expression Text: TEST_ASSERT_TRUE(ProtocolTest.handler())
+|—————Node:identifier Text: TEST_ASSERT_TRUE
+|—————Node:argument_list Text: (ProtocolTest.handler())
+|——————Node:( Text: (
+|——————Node:call_expression Text: ProtocolTest.handler()
+|———————Node:field_expression Text: ProtocolTest.handler
+|————————Node:identifier Text: ProtocolTest
+|————————Node:. Text: .
+|————————Node:field_identifier Text: handler
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(0, testingCANAdapter.getChannelState());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(0, testingCANAdapter.getChannelState())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (0, testingCANAdapter.getChannelState())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getChannelState()
+|———————Node:field_expression Text: testingCANAdapter.getChannelState
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getChannelState
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingCANAdapter.m_currentstate = CANInterface::NORMAL;
+|————Node:assignment_expression Text: testingCANAdapter.m_currentstate = CANInterface::NORMAL
+|—————Node:field_expression Text: testingCANAdapter.m_currentstate
+|——————Node:identifier Text: testingCANAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_currentstate
+|—————Node:= Text: =
+|—————Node:qualified_identifier Text: CANInterface::NORMAL
+|——————Node:namespace_identifier Text: CANInterface
+|——————Node::: Text: ::
+|——————Node:identifier Text: NORMAL
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("C0");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("C0")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("C0")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "C0"
+|———————Node:" Text: "
+|———————Node:string_content Text: C0
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_FALSE(ProtocolTest.handler());
+|————Node:call_expression Text: TEST_ASSERT_FALSE(ProtocolTest.handler())
+|—————Node:identifier Text: TEST_ASSERT_FALSE
+|—————Node:argument_list Text: (ProtocolTest.handler())
+|——————Node:( Text: (
+|——————Node:call_expression Text: ProtocolTest.handler()
+|———————Node:field_expression Text: ProtocolTest.handler
+|————————Node:identifier Text: ProtocolTest
+|————————Node:. Text: .
+|————————Node:field_identifier Text: handler
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(1, testingCANAdapter.getChannelState());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(1, testingCANAdapter.getChannelState())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (1, testingCANAdapter.getChannelState())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 1
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getChannelState()
+|———————Node:field_expression Text: testingCANAdapter.getChannelState
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getChannelState
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingCANAdapter.m_currentstate = CANInterface::LISTEN_ONLY;
+|————Node:assignment_expression Text: testingCANAdapter.m_currentstate = CANInterface::LISTEN_ONLY
+|—————Node:field_expression Text: testingCANAdapter.m_currentstate
+|——————Node:identifier Text: testingCANAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_currentstate
+|—————Node:= Text: =
+|—————Node:qualified_identifier Text: CANInterface::LISTEN_ONLY
+|——————Node:namespace_identifier Text: CANInterface
+|——————Node::: Text: ::
+|——————Node:identifier Text: LISTEN_ONLY
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("L0");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("L0")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("L0")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "L0"
+|———————Node:" Text: "
+|———————Node:string_content Text: L0
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_FALSE(ProtocolTest.handler());
+|————Node:call_expression Text: TEST_ASSERT_FALSE(ProtocolTest.handler())
+|—————Node:identifier Text: TEST_ASSERT_FALSE
+|—————Node:argument_list Text: (ProtocolTest.handler())
+|——————Node:( Text: (
+|——————Node:call_expression Text: ProtocolTest.handler()
+|———————Node:field_expression Text: ProtocolTest.handler
+|————————Node:identifier Text: ProtocolTest
+|————————Node:. Text: .
+|————————Node:field_identifier Text: handler
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(2, testingCANAdapter.getChannelState());
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(2, testingCANAdapter.getChannelState())
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (2, testingCANAdapter.getChannelState())
+|——————Node:( Text: (
+|——————Node:number_literal Text: 2
+|——————Node:, Text: ,
+|——————Node:call_expression Text: testingCANAdapter.getChannelState()
+|———————Node:field_expression Text: testingCANAdapter.getChannelState
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: getChannelState
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void test_tx_std(void)
+{
+  testingCANAdapter.m_currentstate = CANInterface::NORMAL;
+  testingSerialAdapter.writeInput("t0000");
+  TEST_ASSERT_TRUE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL_UINT32(0x000, testingCANAdapter.m_outputFrame.ID);
+  TEST_ASSERT_EQUAL_UINT8(0, testingCANAdapter.m_outputFrame.DLC);
+  TEST_ASSERT_FALSE(testingCANAdapter.m_outputFrame.Extended);
+  TEST_ASSERT_FALSE(testingCANAdapter.m_outputFrame.RTR);
+  
+  TEST_ASSERT_EQUAL_UINT8(0, testingCANAdapter.m_outputFrame.Data[0]);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: test_tx_std(void)
+|———Node:identifier Text: test_tx_std
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  testingCANAdapter.m_currentstate = CANInterface::NORMAL;
+  testingSerialAdapter.writeInput("t0000");
+  TEST_ASSERT_TRUE(ProtocolTest.handler());
+  TEST_ASSERT_EQUAL_UINT32(0x000, testingCANAdapter.m_outputFrame.ID);
+  TEST_ASSERT_EQUAL_UINT8(0, testingCANAdapter.m_outputFrame.DLC);
+  TEST_ASSERT_FALSE(testingCANAdapter.m_outputFrame.Extended);
+  TEST_ASSERT_FALSE(testingCANAdapter.m_outputFrame.RTR);
+  
+  TEST_ASSERT_EQUAL_UINT8(0, testingCANAdapter.m_outputFrame.Data[0]);
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: testingCANAdapter.m_currentstate = CANInterface::NORMAL;
+|————Node:assignment_expression Text: testingCANAdapter.m_currentstate = CANInterface::NORMAL
+|—————Node:field_expression Text: testingCANAdapter.m_currentstate
+|——————Node:identifier Text: testingCANAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_currentstate
+|—————Node:= Text: =
+|—————Node:qualified_identifier Text: CANInterface::NORMAL
+|——————Node:namespace_identifier Text: CANInterface
+|——————Node::: Text: ::
+|——————Node:identifier Text: NORMAL
+|————Node:; Text: ;
+|———Node:expression_statement Text: testingSerialAdapter.writeInput("t0000");
+|————Node:call_expression Text: testingSerialAdapter.writeInput("t0000")
+|—————Node:field_expression Text: testingSerialAdapter.writeInput
+|——————Node:identifier Text: testingSerialAdapter
+|——————Node:. Text: .
+|——————Node:field_identifier Text: writeInput
+|—————Node:argument_list Text: ("t0000")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "t0000"
+|———————Node:" Text: "
+|———————Node:string_content Text: t0000
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_TRUE(ProtocolTest.handler());
+|————Node:call_expression Text: TEST_ASSERT_TRUE(ProtocolTest.handler())
+|—————Node:identifier Text: TEST_ASSERT_TRUE
+|—————Node:argument_list Text: (ProtocolTest.handler())
+|——————Node:( Text: (
+|——————Node:call_expression Text: ProtocolTest.handler()
+|———————Node:field_expression Text: ProtocolTest.handler
+|————————Node:identifier Text: ProtocolTest
+|————————Node:. Text: .
+|————————Node:field_identifier Text: handler
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_UINT32(0x000, testingCANAdapter.m_outputFrame.ID);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_UINT32(0x000, testingCANAdapter.m_outputFrame.ID)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_UINT32
+|—————Node:argument_list Text: (0x000, testingCANAdapter.m_outputFrame.ID)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0x000
+|——————Node:, Text: ,
+|——————Node:field_expression Text: testingCANAdapter.m_outputFrame.ID
+|———————Node:field_expression Text: testingCANAdapter.m_outputFrame
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: m_outputFrame
+|———————Node:. Text: .
+|———————Node:field_identifier Text: ID
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_UINT8(0, testingCANAdapter.m_outputFrame.DLC);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_UINT8(0, testingCANAdapter.m_outputFrame.DLC)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_UINT8
+|—————Node:argument_list Text: (0, testingCANAdapter.m_outputFrame.DLC)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:field_expression Text: testingCANAdapter.m_outputFrame.DLC
+|———————Node:field_expression Text: testingCANAdapter.m_outputFrame
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: m_outputFrame
+|———————Node:. Text: .
+|———————Node:field_identifier Text: DLC
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_FALSE(testingCANAdapter.m_outputFrame.Extended);
+|————Node:call_expression Text: TEST_ASSERT_FALSE(testingCANAdapter.m_outputFrame.Extended)
+|—————Node:identifier Text: TEST_ASSERT_FALSE
+|—————Node:argument_list Text: (testingCANAdapter.m_outputFrame.Extended)
+|——————Node:( Text: (
+|——————Node:field_expression Text: testingCANAdapter.m_outputFrame.Extended
+|———————Node:field_expression Text: testingCANAdapter.m_outputFrame
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: m_outputFrame
+|———————Node:. Text: .
+|———————Node:field_identifier Text: Extended
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_FALSE(testingCANAdapter.m_outputFrame.RTR);
+|————Node:call_expression Text: TEST_ASSERT_FALSE(testingCANAdapter.m_outputFrame.RTR)
+|—————Node:identifier Text: TEST_ASSERT_FALSE
+|—————Node:argument_list Text: (testingCANAdapter.m_outputFrame.RTR)
+|——————Node:( Text: (
+|——————Node:field_expression Text: testingCANAdapter.m_outputFrame.RTR
+|———————Node:field_expression Text: testingCANAdapter.m_outputFrame
+|————————Node:identifier Text: testingCANAdapter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: m_outputFrame
+|———————Node:. Text: .
+|———————Node:field_identifier Text: RTR
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_UINT8(0, testingCANAdapter.m_outputFrame.Data[0]);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_UINT8(0, testingCANAdapter.m_outputFrame.Data[0])
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_UINT8
+|—————Node:argument_list Text: (0, testingCANAdapter.m_outputFrame.Data[0])
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:subscript_expression Text: testingCANAdapter.m_outputFrame.Data[0]
+|———————Node:field_expression Text: testingCANAdapter.m_outputFrame.Data
+|————————Node:field_expression Text: testingCANAdapter.m_outputFrame
+|—————————Node:identifier Text: testingCANAdapter
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: m_outputFrame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: Data
+|———————Node:subscript_argument_list Text: [0]
+|————————Node:[ Text: [
+|————————Node:number_literal Text: 0
+|————————Node:] Text: ]
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void test_tx_ext(void)
+{
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: test_tx_ext(void)
+|———Node:identifier Text: test_tx_ext
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:function_definition Text: void test_tx_std_rtr(void)
+{
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: test_tx_std_rtr(void)
+|———Node:identifier Text: test_tx_std_rtr
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:function_definition Text: void test_tx_ext_rtr(void)
+{
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: test_tx_ext_rtr(void)
+|———Node:identifier Text: test_tx_ext_rtr
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:function_definition Text: void test_filter_mode(void)
+{
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: test_filter_mode(void)
+|———Node:identifier Text: test_filter_mode
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:function_definition Text: void test_acn_register(void)
+{
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: test_acn_register(void)
+|———Node:identifier Text: test_acn_register
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:function_definition Text: void test_amn_register(void)
+{
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: test_amn_register(void)
+|———Node:identifier Text: test_amn_register
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:function_definition Text: void test_serial_baudrate(void)
+{
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: test_serial_baudrate(void)
+|———Node:identifier Text: test_serial_baudrate
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:function_definition Text: void test_version(void)
+{
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: test_version(void)
+|———Node:identifier Text: test_version
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:function_definition Text: void test_serialnumber(void)
+{
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: test_serialnumber(void)
+|———Node:identifier Text: test_serialnumber
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:function_definition Text: void test_timestamp(void)
+{
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: test_timestamp(void)
+|———Node:identifier Text: test_timestamp
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:function_definition Text: void test_autostart(void)
+{
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: test_autostart(void)
+|———Node:identifier Text: test_autostart
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:function_definition Text: int main(int argc, char **argv)
+{
+  
+
+  UNITY_BEGIN();
+  RUN_TEST(test_can_baudrate);
+  RUN_TEST(test_can_btr);
+  RUN_TEST(test_can_open_normal);
+  RUN_TEST(test_can_open_listen_only);
+  RUN_TEST(test_can_close);
+  RUN_TEST(test_tx_std);
+  RUN_TEST(test_tx_ext);
+  RUN_TEST(test_tx_std_rtr);
+  RUN_TEST(test_tx_ext_rtr);
+  RUN_TEST(test_acn_register);
+  RUN_TEST(test_amn_register);
+  RUN_TEST(test_serial_baudrate);
+  RUN_TEST(test_version);
+  RUN_TEST(test_serialnumber);
+  RUN_TEST(test_timestamp);
+  RUN_TEST(test_autostart);
+  return UNITY_END();
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: main(int argc, char **argv)
+|———Node:identifier Text: main
+|———Node:parameter_list Text: (int argc, char **argv)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: int argc
+|—————Node:primitive_type Text: int
+|—————Node:identifier Text: argc
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: char **argv
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: **argv
+|——————Node:* Text: *
+|——————Node:pointer_declarator Text: *argv
+|———————Node:* Text: *
+|———————Node:identifier Text: argv
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  
+
+  UNITY_BEGIN();
+  RUN_TEST(test_can_baudrate);
+  RUN_TEST(test_can_btr);
+  RUN_TEST(test_can_open_normal);
+  RUN_TEST(test_can_open_listen_only);
+  RUN_TEST(test_can_close);
+  RUN_TEST(test_tx_std);
+  RUN_TEST(test_tx_ext);
+  RUN_TEST(test_tx_std_rtr);
+  RUN_TEST(test_tx_ext_rtr);
+  RUN_TEST(test_acn_register);
+  RUN_TEST(test_amn_register);
+  RUN_TEST(test_serial_baudrate);
+  RUN_TEST(test_version);
+  RUN_TEST(test_serialnumber);
+  RUN_TEST(test_timestamp);
+  RUN_TEST(test_autostart);
+  return UNITY_END();
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: UNITY_BEGIN();
+|————Node:call_expression Text: UNITY_BEGIN()
+|—————Node:identifier Text: UNITY_BEGIN
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(test_can_baudrate);
+|————Node:call_expression Text: RUN_TEST(test_can_baudrate)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (test_can_baudrate)
+|——————Node:( Text: (
+|——————Node:identifier Text: test_can_baudrate
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(test_can_btr);
+|————Node:call_expression Text: RUN_TEST(test_can_btr)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (test_can_btr)
+|——————Node:( Text: (
+|——————Node:identifier Text: test_can_btr
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(test_can_open_normal);
+|————Node:call_expression Text: RUN_TEST(test_can_open_normal)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (test_can_open_normal)
+|——————Node:( Text: (
+|——————Node:identifier Text: test_can_open_normal
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(test_can_open_listen_only);
+|————Node:call_expression Text: RUN_TEST(test_can_open_listen_only)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (test_can_open_listen_only)
+|——————Node:( Text: (
+|——————Node:identifier Text: test_can_open_listen_only
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(test_can_close);
+|————Node:call_expression Text: RUN_TEST(test_can_close)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (test_can_close)
+|——————Node:( Text: (
+|——————Node:identifier Text: test_can_close
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(test_tx_std);
+|————Node:call_expression Text: RUN_TEST(test_tx_std)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (test_tx_std)
+|——————Node:( Text: (
+|——————Node:identifier Text: test_tx_std
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(test_tx_ext);
+|————Node:call_expression Text: RUN_TEST(test_tx_ext)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (test_tx_ext)
+|——————Node:( Text: (
+|——————Node:identifier Text: test_tx_ext
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(test_tx_std_rtr);
+|————Node:call_expression Text: RUN_TEST(test_tx_std_rtr)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (test_tx_std_rtr)
+|——————Node:( Text: (
+|——————Node:identifier Text: test_tx_std_rtr
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(test_tx_ext_rtr);
+|————Node:call_expression Text: RUN_TEST(test_tx_ext_rtr)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (test_tx_ext_rtr)
+|——————Node:( Text: (
+|——————Node:identifier Text: test_tx_ext_rtr
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(test_acn_register);
+|————Node:call_expression Text: RUN_TEST(test_acn_register)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (test_acn_register)
+|——————Node:( Text: (
+|——————Node:identifier Text: test_acn_register
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(test_amn_register);
+|————Node:call_expression Text: RUN_TEST(test_amn_register)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (test_amn_register)
+|——————Node:( Text: (
+|——————Node:identifier Text: test_amn_register
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(test_serial_baudrate);
+|————Node:call_expression Text: RUN_TEST(test_serial_baudrate)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (test_serial_baudrate)
+|——————Node:( Text: (
+|——————Node:identifier Text: test_serial_baudrate
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(test_version);
+|————Node:call_expression Text: RUN_TEST(test_version)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (test_version)
+|——————Node:( Text: (
+|——————Node:identifier Text: test_version
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(test_serialnumber);
+|————Node:call_expression Text: RUN_TEST(test_serialnumber)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (test_serialnumber)
+|——————Node:( Text: (
+|——————Node:identifier Text: test_serialnumber
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(test_timestamp);
+|————Node:call_expression Text: RUN_TEST(test_timestamp)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (test_timestamp)
+|——————Node:( Text: (
+|——————Node:identifier Text: test_timestamp
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(test_autostart);
+|————Node:call_expression Text: RUN_TEST(test_autostart)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (test_autostart)
+|——————Node:( Text: (
+|——————Node:identifier Text: test_autostart
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return UNITY_END();
+|————Node:return Text: return
+|————Node:call_expression Text: UNITY_END()
+|—————Node:identifier Text: UNITY_END
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }

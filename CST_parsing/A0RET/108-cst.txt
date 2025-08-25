@@ -1,0 +1,3506 @@
+A0RET-wifi.cpp
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include "config.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "config.h"
+|———Node:" Text: "
+|———Node:string_content Text: config.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "wifi.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "wifi.h"
+|———Node:" Text: "
+|———Node:string_content Text: wifi.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "gvret_comm.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "gvret_comm.h"
+|———Node:" Text: "
+|———Node:string_content Text: gvret_comm.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "SerialConsole.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "SerialConsole.h"
+|———Node:" Text: "
+|———Node:string_content Text: SerialConsole.h
+|———Node:" Text: "
+|—Node:declaration Text: static IPAddress broadcastAddr(255,255,255,255);
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:type_identifier Text: IPAddress
+|——Node:init_declarator Text: broadcastAddr(255,255,255,255)
+|———Node:identifier Text: broadcastAddr
+|———Node:argument_list Text: (255,255,255,255)
+|————Node:( Text: (
+|————Node:number_literal Text: 255
+|————Node:, Text: ,
+|————Node:number_literal Text: 255
+|————Node:, Text: ,
+|————Node:number_literal Text: 255
+|————Node:, Text: ,
+|————Node:number_literal Text: 255
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:function_definition Text: WiFiManager::WiFiManager()
+{
+    lastBroadcast = 0;
+}
+|——Node:function_declarator Text: WiFiManager::WiFiManager()
+|———Node:qualified_identifier Text: WiFiManager::WiFiManager
+|————Node:namespace_identifier Text: WiFiManager
+|————Node::: Text: ::
+|————Node:identifier Text: WiFiManager
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    lastBroadcast = 0;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: lastBroadcast = 0;
+|————Node:assignment_expression Text: lastBroadcast = 0
+|—————Node:identifier Text: lastBroadcast
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void WiFiManager::setup()
+{
+    if (settings.wifiMode == 1) //connect to an AP
+    {        
+        WiFi.mode(WIFI_STA);
+        WiFi.begin((const char *)settings.SSID, (const char *)settings.WPA2Key);
+
+        WiFiEventId_t eventID = WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info) 
+        {
+           Serial.print("WiFi lost connection. Reason: ");
+           Serial.println(info.disconnected.reason);
+           SysSettings.isWifiConnected = false;
+           if (info.disconnected.reason == 202) 
+           {
+              Serial.println("Connection failed, rebooting to fix it.");
+              esp_sleep_enable_timer_wakeup(10);
+              esp_deep_sleep_start();
+              delay(100);
+           }
+        }, WiFiEvent_t::SYSTEM_EVENT_STA_DISCONNECTED);
+    }
+    if (settings.wifiMode == 2) //BE an AP
+    {
+        WiFi.mode(WIFI_AP);
+        WiFi.softAP((const char *)settings.SSID, (const char *)settings.WPA2Key);
+    }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: WiFiManager::setup()
+|———Node:qualified_identifier Text: WiFiManager::setup
+|————Node:namespace_identifier Text: WiFiManager
+|————Node::: Text: ::
+|————Node:identifier Text: setup
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if (settings.wifiMode == 1) //connect to an AP
+    {        
+        WiFi.mode(WIFI_STA);
+        WiFi.begin((const char *)settings.SSID, (const char *)settings.WPA2Key);
+
+        WiFiEventId_t eventID = WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info) 
+        {
+           Serial.print("WiFi lost connection. Reason: ");
+           Serial.println(info.disconnected.reason);
+           SysSettings.isWifiConnected = false;
+           if (info.disconnected.reason == 202) 
+           {
+              Serial.println("Connection failed, rebooting to fix it.");
+              esp_sleep_enable_timer_wakeup(10);
+              esp_deep_sleep_start();
+              delay(100);
+           }
+        }, WiFiEvent_t::SYSTEM_EVENT_STA_DISCONNECTED);
+    }
+    if (settings.wifiMode == 2) //BE an AP
+    {
+        WiFi.mode(WIFI_AP);
+        WiFi.softAP((const char *)settings.SSID, (const char *)settings.WPA2Key);
+    }
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (settings.wifiMode == 1) //connect to an AP
+    {        
+        WiFi.mode(WIFI_STA);
+        WiFi.begin((const char *)settings.SSID, (const char *)settings.WPA2Key);
+
+        WiFiEventId_t eventID = WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info) 
+        {
+           Serial.print("WiFi lost connection. Reason: ");
+           Serial.println(info.disconnected.reason);
+           SysSettings.isWifiConnected = false;
+           if (info.disconnected.reason == 202) 
+           {
+              Serial.println("Connection failed, rebooting to fix it.");
+              esp_sleep_enable_timer_wakeup(10);
+              esp_deep_sleep_start();
+              delay(100);
+           }
+        }, WiFiEvent_t::SYSTEM_EVENT_STA_DISCONNECTED);
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (settings.wifiMode == 1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: settings.wifiMode == 1
+|——————Node:field_expression Text: settings.wifiMode
+|———————Node:identifier Text: settings
+|———————Node:. Text: .
+|———————Node:field_identifier Text: wifiMode
+|——————Node:== Text: ==
+|——————Node:number_literal Text: 1
+|—————Node:) Text: )
+|————Node:comment
+|————Node:compound_statement Text: {        
+        WiFi.mode(WIFI_STA);
+        WiFi.begin((const char *)settings.SSID, (const char *)settings.WPA2Key);
+
+        WiFiEventId_t eventID = WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info) 
+        {
+           Serial.print("WiFi lost connection. Reason: ");
+           Serial.println(info.disconnected.reason);
+           SysSettings.isWifiConnected = false;
+           if (info.disconnected.reason == 202) 
+           {
+              Serial.println("Connection failed, rebooting to fix it.");
+              esp_sleep_enable_timer_wakeup(10);
+              esp_deep_sleep_start();
+              delay(100);
+           }
+        }, WiFiEvent_t::SYSTEM_EVENT_STA_DISCONNECTED);
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: WiFi.mode(WIFI_STA);
+|——————Node:call_expression Text: WiFi.mode(WIFI_STA)
+|———————Node:field_expression Text: WiFi.mode
+|————————Node:identifier Text: WiFi
+|————————Node:. Text: .
+|————————Node:field_identifier Text: mode
+|———————Node:argument_list Text: (WIFI_STA)
+|————————Node:( Text: (
+|————————Node:identifier Text: WIFI_STA
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: WiFi.begin((const char *)settings.SSID, (const char *)settings.WPA2Key);
+|——————Node:call_expression Text: WiFi.begin((const char *)settings.SSID, (const char *)settings.WPA2Key)
+|———————Node:field_expression Text: WiFi.begin
+|————————Node:identifier Text: WiFi
+|————————Node:. Text: .
+|————————Node:field_identifier Text: begin
+|———————Node:argument_list Text: ((const char *)settings.SSID, (const char *)settings.WPA2Key)
+|————————Node:( Text: (
+|————————Node:cast_expression Text: (const char *)settings.SSID
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: const char *
+|——————————Node:type_qualifier Text: const
+|———————————Node:const Text: const
+|——————————Node:primitive_type Text: char
+|——————————Node:abstract_pointer_declarator Text: *
+|———————————Node:* Text: *
+|—————————Node:) Text: )
+|—————————Node:field_expression Text: settings.SSID
+|——————————Node:identifier Text: settings
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: SSID
+|————————Node:, Text: ,
+|————————Node:cast_expression Text: (const char *)settings.WPA2Key
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: const char *
+|——————————Node:type_qualifier Text: const
+|———————————Node:const Text: const
+|——————————Node:primitive_type Text: char
+|——————————Node:abstract_pointer_declarator Text: *
+|———————————Node:* Text: *
+|—————————Node:) Text: )
+|—————————Node:field_expression Text: settings.WPA2Key
+|——————————Node:identifier Text: settings
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: WPA2Key
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: WiFiEventId_t eventID = WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info) 
+        {
+           Serial.print("WiFi lost connection. Reason: ");
+           Serial.println(info.disconnected.reason);
+           SysSettings.isWifiConnected = false;
+           if (info.disconnected.reason == 202) 
+           {
+              Serial.println("Connection failed, rebooting to fix it.");
+              esp_sleep_enable_timer_wakeup(10);
+              esp_deep_sleep_start();
+              delay(100);
+           }
+        }, WiFiEvent_t::SYSTEM_EVENT_STA_DISCONNECTED);
+|——————Node:type_identifier Text: WiFiEventId_t
+|——————Node:init_declarator Text: eventID = WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info) 
+        {
+           Serial.print("WiFi lost connection. Reason: ");
+           Serial.println(info.disconnected.reason);
+           SysSettings.isWifiConnected = false;
+           if (info.disconnected.reason == 202) 
+           {
+              Serial.println("Connection failed, rebooting to fix it.");
+              esp_sleep_enable_timer_wakeup(10);
+              esp_deep_sleep_start();
+              delay(100);
+           }
+        }, WiFiEvent_t::SYSTEM_EVENT_STA_DISCONNECTED)
+|———————Node:identifier Text: eventID
+|———————Node:= Text: =
+|———————Node:call_expression Text: WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info) 
+        {
+           Serial.print("WiFi lost connection. Reason: ");
+           Serial.println(info.disconnected.reason);
+           SysSettings.isWifiConnected = false;
+           if (info.disconnected.reason == 202) 
+           {
+              Serial.println("Connection failed, rebooting to fix it.");
+              esp_sleep_enable_timer_wakeup(10);
+              esp_deep_sleep_start();
+              delay(100);
+           }
+        }, WiFiEvent_t::SYSTEM_EVENT_STA_DISCONNECTED)
+|————————Node:field_expression Text: WiFi.onEvent
+|—————————Node:identifier Text: WiFi
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: onEvent
+|————————Node:argument_list Text: ([](WiFiEvent_t event, WiFiEventInfo_t info) 
+        {
+           Serial.print("WiFi lost connection. Reason: ");
+           Serial.println(info.disconnected.reason);
+           SysSettings.isWifiConnected = false;
+           if (info.disconnected.reason == 202) 
+           {
+              Serial.println("Connection failed, rebooting to fix it.");
+              esp_sleep_enable_timer_wakeup(10);
+              esp_deep_sleep_start();
+              delay(100);
+           }
+        }, WiFiEvent_t::SYSTEM_EVENT_STA_DISCONNECTED)
+|—————————Node:( Text: (
+|—————————Node:lambda_expression Text: [](WiFiEvent_t event, WiFiEventInfo_t info) 
+        {
+           Serial.print("WiFi lost connection. Reason: ");
+           Serial.println(info.disconnected.reason);
+           SysSettings.isWifiConnected = false;
+           if (info.disconnected.reason == 202) 
+           {
+              Serial.println("Connection failed, rebooting to fix it.");
+              esp_sleep_enable_timer_wakeup(10);
+              esp_deep_sleep_start();
+              delay(100);
+           }
+        }
+|——————————Node:lambda_capture_specifier Text: []
+|———————————Node:[ Text: [
+|———————————Node:] Text: ]
+|——————————Node:abstract_function_declarator Text: (WiFiEvent_t event, WiFiEventInfo_t info)
+|———————————Node:parameter_list Text: (WiFiEvent_t event, WiFiEventInfo_t info)
+|————————————Node:( Text: (
+|————————————Node:parameter_declaration Text: WiFiEvent_t event
+|—————————————Node:type_identifier Text: WiFiEvent_t
+|—————————————Node:identifier Text: event
+|————————————Node:, Text: ,
+|————————————Node:parameter_declaration Text: WiFiEventInfo_t info
+|—————————————Node:type_identifier Text: WiFiEventInfo_t
+|—————————————Node:identifier Text: info
+|————————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+           Serial.print("WiFi lost connection. Reason: ");
+           Serial.println(info.disconnected.reason);
+           SysSettings.isWifiConnected = false;
+           if (info.disconnected.reason == 202) 
+           {
+              Serial.println("Connection failed, rebooting to fix it.");
+              esp_sleep_enable_timer_wakeup(10);
+              esp_deep_sleep_start();
+              delay(100);
+           }
+        }
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: Serial.print("WiFi lost connection. Reason: ");
+|————————————Node:call_expression Text: Serial.print("WiFi lost connection. Reason: ")
+|—————————————Node:field_expression Text: Serial.print
+|——————————————Node:identifier Text: Serial
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: print
+|—————————————Node:argument_list Text: ("WiFi lost connection. Reason: ")
+|——————————————Node:( Text: (
+|——————————————Node:string_literal Text: "WiFi lost connection. Reason: "
+|———————————————Node:" Text: "
+|———————————————Node:string_content Text: WiFi lost connection. Reason: 
+|———————————————Node:" Text: "
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:expression_statement Text: Serial.println(info.disconnected.reason);
+|————————————Node:call_expression Text: Serial.println(info.disconnected.reason)
+|—————————————Node:field_expression Text: Serial.println
+|——————————————Node:identifier Text: Serial
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: println
+|—————————————Node:argument_list Text: (info.disconnected.reason)
+|——————————————Node:( Text: (
+|——————————————Node:field_expression Text: info.disconnected.reason
+|———————————————Node:field_expression Text: info.disconnected
+|————————————————Node:identifier Text: info
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: disconnected
+|———————————————Node:. Text: .
+|———————————————Node:field_identifier Text: reason
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:expression_statement Text: SysSettings.isWifiConnected = false;
+|————————————Node:assignment_expression Text: SysSettings.isWifiConnected = false
+|—————————————Node:field_expression Text: SysSettings.isWifiConnected
+|——————————————Node:identifier Text: SysSettings
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: isWifiConnected
+|—————————————Node:= Text: =
+|—————————————Node:false Text: false
+|————————————Node:; Text: ;
+|———————————Node:if_statement Text: if (info.disconnected.reason == 202) 
+           {
+              Serial.println("Connection failed, rebooting to fix it.");
+              esp_sleep_enable_timer_wakeup(10);
+              esp_deep_sleep_start();
+              delay(100);
+           }
+|————————————Node:if Text: if
+|————————————Node:condition_clause Text: (info.disconnected.reason == 202)
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: info.disconnected.reason == 202
+|——————————————Node:field_expression Text: info.disconnected.reason
+|———————————————Node:field_expression Text: info.disconnected
+|————————————————Node:identifier Text: info
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: disconnected
+|———————————————Node:. Text: .
+|———————————————Node:field_identifier Text: reason
+|——————————————Node:== Text: ==
+|——————————————Node:number_literal Text: 202
+|—————————————Node:) Text: )
+|————————————Node:compound_statement Text: {
+              Serial.println("Connection failed, rebooting to fix it.");
+              esp_sleep_enable_timer_wakeup(10);
+              esp_deep_sleep_start();
+              delay(100);
+           }
+|—————————————Node:{ Text: {
+|—————————————Node:expression_statement Text: Serial.println("Connection failed, rebooting to fix it.");
+|——————————————Node:call_expression Text: Serial.println("Connection failed, rebooting to fix it.")
+|———————————————Node:field_expression Text: Serial.println
+|————————————————Node:identifier Text: Serial
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: println
+|———————————————Node:argument_list Text: ("Connection failed, rebooting to fix it.")
+|————————————————Node:( Text: (
+|————————————————Node:string_literal Text: "Connection failed, rebooting to fix it."
+|—————————————————Node:" Text: "
+|—————————————————Node:string_content Text: Connection failed, rebooting to fix it.
+|—————————————————Node:" Text: "
+|————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:expression_statement Text: esp_sleep_enable_timer_wakeup(10);
+|——————————————Node:call_expression Text: esp_sleep_enable_timer_wakeup(10)
+|———————————————Node:identifier Text: esp_sleep_enable_timer_wakeup
+|———————————————Node:argument_list Text: (10)
+|————————————————Node:( Text: (
+|————————————————Node:number_literal Text: 10
+|————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:expression_statement Text: esp_deep_sleep_start();
+|——————————————Node:call_expression Text: esp_deep_sleep_start()
+|———————————————Node:identifier Text: esp_deep_sleep_start
+|———————————————Node:argument_list Text: ()
+|————————————————Node:( Text: (
+|————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:expression_statement Text: delay(100);
+|——————————————Node:call_expression Text: delay(100)
+|———————————————Node:identifier Text: delay
+|———————————————Node:argument_list Text: (100)
+|————————————————Node:( Text: (
+|————————————————Node:number_literal Text: 100
+|————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:} Text: }
+|———————————Node:} Text: }
+|—————————Node:, Text: ,
+|—————————Node:qualified_identifier Text: WiFiEvent_t::SYSTEM_EVENT_STA_DISCONNECTED
+|——————————Node:namespace_identifier Text: WiFiEvent_t
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: SYSTEM_EVENT_STA_DISCONNECTED
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if (settings.wifiMode == 2) //BE an AP
+    {
+        WiFi.mode(WIFI_AP);
+        WiFi.softAP((const char *)settings.SSID, (const char *)settings.WPA2Key);
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (settings.wifiMode == 2)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: settings.wifiMode == 2
+|——————Node:field_expression Text: settings.wifiMode
+|———————Node:identifier Text: settings
+|———————Node:. Text: .
+|———————Node:field_identifier Text: wifiMode
+|——————Node:== Text: ==
+|——————Node:number_literal Text: 2
+|—————Node:) Text: )
+|————Node:comment
+|————Node:compound_statement Text: {
+        WiFi.mode(WIFI_AP);
+        WiFi.softAP((const char *)settings.SSID, (const char *)settings.WPA2Key);
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: WiFi.mode(WIFI_AP);
+|——————Node:call_expression Text: WiFi.mode(WIFI_AP)
+|———————Node:field_expression Text: WiFi.mode
+|————————Node:identifier Text: WiFi
+|————————Node:. Text: .
+|————————Node:field_identifier Text: mode
+|———————Node:argument_list Text: (WIFI_AP)
+|————————Node:( Text: (
+|————————Node:identifier Text: WIFI_AP
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: WiFi.softAP((const char *)settings.SSID, (const char *)settings.WPA2Key);
+|——————Node:call_expression Text: WiFi.softAP((const char *)settings.SSID, (const char *)settings.WPA2Key)
+|———————Node:field_expression Text: WiFi.softAP
+|————————Node:identifier Text: WiFi
+|————————Node:. Text: .
+|————————Node:field_identifier Text: softAP
+|———————Node:argument_list Text: ((const char *)settings.SSID, (const char *)settings.WPA2Key)
+|————————Node:( Text: (
+|————————Node:cast_expression Text: (const char *)settings.SSID
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: const char *
+|——————————Node:type_qualifier Text: const
+|———————————Node:const Text: const
+|——————————Node:primitive_type Text: char
+|——————————Node:abstract_pointer_declarator Text: *
+|———————————Node:* Text: *
+|—————————Node:) Text: )
+|—————————Node:field_expression Text: settings.SSID
+|——————————Node:identifier Text: settings
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: SSID
+|————————Node:, Text: ,
+|————————Node:cast_expression Text: (const char *)settings.WPA2Key
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: const char *
+|——————————Node:type_qualifier Text: const
+|———————————Node:const Text: const
+|——————————Node:primitive_type Text: char
+|——————————Node:abstract_pointer_declarator Text: *
+|———————————Node:* Text: *
+|—————————Node:) Text: )
+|—————————Node:field_expression Text: settings.WPA2Key
+|——————————Node:identifier Text: settings
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: WPA2Key
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:function_definition Text: void WiFiManager::loop()
+{
+    boolean needServerInit = false; 
+    int i;    
+
+    if (settings.wifiMode > 0)
+    {
+        if (!SysSettings.isWifiConnected)
+        {
+            if (WiFi.isConnected())
+            {
+                Serial.print("Wifi now connected to SSID ");
+                Serial.println((const char *)settings.SSID);
+                Serial.print("IP address: ");
+                Serial.println(WiFi.localIP());
+                Serial.print("RSSI: ");
+                Serial.println(WiFi.RSSI());
+                needServerInit = true;
+            }
+            if (settings.wifiMode == 2)
+            {
+                Serial.print("Wifi setup as SSID ");
+                Serial.println((const char *)settings.SSID);
+                Serial.print("IP address: ");
+                Serial.println(WiFi.softAPIP());
+                needServerInit = true;
+            }
+            if (needServerInit)
+            {
+                SysSettings.isWifiConnected = true;
+                wifiServer.begin(23); //setup as a telnet server
+                wifiServer.setNoDelay(true);                    
+                ArduinoOTA.setPort(3232);
+                ArduinoOTA.setHostname("A0RET");
+                // No authentication by default
+                //ArduinoOTA.setPassword("admin");
+                
+                ArduinoOTA
+                   .onStart([]() {
+                      String type;
+                      if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+
+                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                      Serial.println("Start updating " + type);
+                   })
+                   .onEnd([]() {
+                      Serial.println("\nEnd");
+                   })
+                   .onProgress([](unsigned int progress, unsigned int total) {
+                       Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+                   })
+                   .onError([](ota_error_t error) {
+                      Serial.printf("Error[%u]: ", error);
+                      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+                      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+                      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+                      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+                   });
+                   
+                ArduinoOTA.begin();
+            }
+        }
+        else
+        {
+            if (WiFi.isConnected() || settings.wifiMode == 2)
+            {
+                if (wifiServer.hasClient())
+                {
+                    for(i = 0; i < MAX_CLIENTS; i++)
+                    {
+                        if (!SysSettings.clientNodes[i] || !SysSettings.clientNodes[i].connected())
+                        {
+                            if (SysSettings.clientNodes[i]) SysSettings.clientNodes[i].stop();
+                            SysSettings.clientNodes[i] = wifiServer.available();
+                            if (!SysSettings.clientNodes[i]) Serial.println("Couldn't accept client connection!");
+                            else 
+                            {
+                                Serial.print("New client: ");
+                                Serial.print(i); Serial.print(' ');
+                                Serial.println(SysSettings.clientNodes[i].remoteIP());
+                            }
+                        }
+                    }
+                    if (i >= MAX_CLIENTS) {
+                        //no free/disconnected spot so reject
+                        wifiServer.available().stop();
+                    }
+                }
+
+                //check clients for data
+                for(i = 0; i < MAX_CLIENTS; i++){
+                    if (SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected())
+                    {
+                        if(SysSettings.clientNodes[i].available())
+                        {
+                            //get data from the telnet client and push it to input processing
+                            while(SysSettings.clientNodes[i].available()) 
+                            {
+                                uint8_t inByt;
+                                inByt = SysSettings.clientNodes[i].read();
+                                SysSettings.isWifiActive = true;
+                                //Serial.write(inByt); //echo to serial - just for debugging. Don't leave this on!
+                                wifiGVRET.processIncomingByte(inByt);
+                            }
+                        }
+                    }
+                    else {
+                        if (SysSettings.clientNodes[i]) {
+                            SysSettings.clientNodes[i].stop();
+                        }
+                    }
+                }                    
+            }
+            else 
+            {
+                if (settings.wifiMode == 1)
+                {
+                    Serial.println("WiFi disconnected. Bummer!");
+                    SysSettings.isWifiConnected = false;
+                    SysSettings.isWifiActive = false;
+                }
+            }
+        }
+    }
+
+    if (SysSettings.isWifiConnected && ((micros() - lastBroadcast) > 1000000ul) ) //every second send out a broadcast ping
+    {
+        uint8_t buff[4] = {0x1C,0xEF,0xAC,0xED};
+        lastBroadcast = micros();
+        wifiUDPServer.beginPacket(broadcastAddr, 17222);
+        wifiUDPServer.write(buff, 4);
+        wifiUDPServer.endPacket();
+    }
+
+    ArduinoOTA.handle();
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: WiFiManager::loop()
+|———Node:qualified_identifier Text: WiFiManager::loop
+|————Node:namespace_identifier Text: WiFiManager
+|————Node::: Text: ::
+|————Node:identifier Text: loop
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    boolean needServerInit = false; 
+    int i;    
+
+    if (settings.wifiMode > 0)
+    {
+        if (!SysSettings.isWifiConnected)
+        {
+            if (WiFi.isConnected())
+            {
+                Serial.print("Wifi now connected to SSID ");
+                Serial.println((const char *)settings.SSID);
+                Serial.print("IP address: ");
+                Serial.println(WiFi.localIP());
+                Serial.print("RSSI: ");
+                Serial.println(WiFi.RSSI());
+                needServerInit = true;
+            }
+            if (settings.wifiMode == 2)
+            {
+                Serial.print("Wifi setup as SSID ");
+                Serial.println((const char *)settings.SSID);
+                Serial.print("IP address: ");
+                Serial.println(WiFi.softAPIP());
+                needServerInit = true;
+            }
+            if (needServerInit)
+            {
+                SysSettings.isWifiConnected = true;
+                wifiServer.begin(23); //setup as a telnet server
+                wifiServer.setNoDelay(true);                    
+                ArduinoOTA.setPort(3232);
+                ArduinoOTA.setHostname("A0RET");
+                // No authentication by default
+                //ArduinoOTA.setPassword("admin");
+                
+                ArduinoOTA
+                   .onStart([]() {
+                      String type;
+                      if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+
+                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                      Serial.println("Start updating " + type);
+                   })
+                   .onEnd([]() {
+                      Serial.println("\nEnd");
+                   })
+                   .onProgress([](unsigned int progress, unsigned int total) {
+                       Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+                   })
+                   .onError([](ota_error_t error) {
+                      Serial.printf("Error[%u]: ", error);
+                      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+                      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+                      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+                      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+                   });
+                   
+                ArduinoOTA.begin();
+            }
+        }
+        else
+        {
+            if (WiFi.isConnected() || settings.wifiMode == 2)
+            {
+                if (wifiServer.hasClient())
+                {
+                    for(i = 0; i < MAX_CLIENTS; i++)
+                    {
+                        if (!SysSettings.clientNodes[i] || !SysSettings.clientNodes[i].connected())
+                        {
+                            if (SysSettings.clientNodes[i]) SysSettings.clientNodes[i].stop();
+                            SysSettings.clientNodes[i] = wifiServer.available();
+                            if (!SysSettings.clientNodes[i]) Serial.println("Couldn't accept client connection!");
+                            else 
+                            {
+                                Serial.print("New client: ");
+                                Serial.print(i); Serial.print(' ');
+                                Serial.println(SysSettings.clientNodes[i].remoteIP());
+                            }
+                        }
+                    }
+                    if (i >= MAX_CLIENTS) {
+                        //no free/disconnected spot so reject
+                        wifiServer.available().stop();
+                    }
+                }
+
+                //check clients for data
+                for(i = 0; i < MAX_CLIENTS; i++){
+                    if (SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected())
+                    {
+                        if(SysSettings.clientNodes[i].available())
+                        {
+                            //get data from the telnet client and push it to input processing
+                            while(SysSettings.clientNodes[i].available()) 
+                            {
+                                uint8_t inByt;
+                                inByt = SysSettings.clientNodes[i].read();
+                                SysSettings.isWifiActive = true;
+                                //Serial.write(inByt); //echo to serial - just for debugging. Don't leave this on!
+                                wifiGVRET.processIncomingByte(inByt);
+                            }
+                        }
+                    }
+                    else {
+                        if (SysSettings.clientNodes[i]) {
+                            SysSettings.clientNodes[i].stop();
+                        }
+                    }
+                }                    
+            }
+            else 
+            {
+                if (settings.wifiMode == 1)
+                {
+                    Serial.println("WiFi disconnected. Bummer!");
+                    SysSettings.isWifiConnected = false;
+                    SysSettings.isWifiActive = false;
+                }
+            }
+        }
+    }
+
+    if (SysSettings.isWifiConnected && ((micros() - lastBroadcast) > 1000000ul) ) //every second send out a broadcast ping
+    {
+        uint8_t buff[4] = {0x1C,0xEF,0xAC,0xED};
+        lastBroadcast = micros();
+        wifiUDPServer.beginPacket(broadcastAddr, 17222);
+        wifiUDPServer.write(buff, 4);
+        wifiUDPServer.endPacket();
+    }
+
+    ArduinoOTA.handle();
+}
+|———Node:{ Text: {
+|———Node:declaration Text: boolean needServerInit = false;
+|————Node:type_identifier Text: boolean
+|————Node:init_declarator Text: needServerInit = false
+|—————Node:identifier Text: needServerInit
+|—————Node:= Text: =
+|—————Node:false Text: false
+|————Node:; Text: ;
+|———Node:declaration Text: int i;
+|————Node:primitive_type Text: int
+|————Node:identifier Text: i
+|————Node:; Text: ;
+|———Node:if_statement Text: if (settings.wifiMode > 0)
+    {
+        if (!SysSettings.isWifiConnected)
+        {
+            if (WiFi.isConnected())
+            {
+                Serial.print("Wifi now connected to SSID ");
+                Serial.println((const char *)settings.SSID);
+                Serial.print("IP address: ");
+                Serial.println(WiFi.localIP());
+                Serial.print("RSSI: ");
+                Serial.println(WiFi.RSSI());
+                needServerInit = true;
+            }
+            if (settings.wifiMode == 2)
+            {
+                Serial.print("Wifi setup as SSID ");
+                Serial.println((const char *)settings.SSID);
+                Serial.print("IP address: ");
+                Serial.println(WiFi.softAPIP());
+                needServerInit = true;
+            }
+            if (needServerInit)
+            {
+                SysSettings.isWifiConnected = true;
+                wifiServer.begin(23); //setup as a telnet server
+                wifiServer.setNoDelay(true);                    
+                ArduinoOTA.setPort(3232);
+                ArduinoOTA.setHostname("A0RET");
+                // No authentication by default
+                //ArduinoOTA.setPassword("admin");
+                
+                ArduinoOTA
+                   .onStart([]() {
+                      String type;
+                      if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+
+                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                      Serial.println("Start updating " + type);
+                   })
+                   .onEnd([]() {
+                      Serial.println("\nEnd");
+                   })
+                   .onProgress([](unsigned int progress, unsigned int total) {
+                       Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+                   })
+                   .onError([](ota_error_t error) {
+                      Serial.printf("Error[%u]: ", error);
+                      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+                      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+                      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+                      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+                   });
+                   
+                ArduinoOTA.begin();
+            }
+        }
+        else
+        {
+            if (WiFi.isConnected() || settings.wifiMode == 2)
+            {
+                if (wifiServer.hasClient())
+                {
+                    for(i = 0; i < MAX_CLIENTS; i++)
+                    {
+                        if (!SysSettings.clientNodes[i] || !SysSettings.clientNodes[i].connected())
+                        {
+                            if (SysSettings.clientNodes[i]) SysSettings.clientNodes[i].stop();
+                            SysSettings.clientNodes[i] = wifiServer.available();
+                            if (!SysSettings.clientNodes[i]) Serial.println("Couldn't accept client connection!");
+                            else 
+                            {
+                                Serial.print("New client: ");
+                                Serial.print(i); Serial.print(' ');
+                                Serial.println(SysSettings.clientNodes[i].remoteIP());
+                            }
+                        }
+                    }
+                    if (i >= MAX_CLIENTS) {
+                        //no free/disconnected spot so reject
+                        wifiServer.available().stop();
+                    }
+                }
+
+                //check clients for data
+                for(i = 0; i < MAX_CLIENTS; i++){
+                    if (SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected())
+                    {
+                        if(SysSettings.clientNodes[i].available())
+                        {
+                            //get data from the telnet client and push it to input processing
+                            while(SysSettings.clientNodes[i].available()) 
+                            {
+                                uint8_t inByt;
+                                inByt = SysSettings.clientNodes[i].read();
+                                SysSettings.isWifiActive = true;
+                                //Serial.write(inByt); //echo to serial - just for debugging. Don't leave this on!
+                                wifiGVRET.processIncomingByte(inByt);
+                            }
+                        }
+                    }
+                    else {
+                        if (SysSettings.clientNodes[i]) {
+                            SysSettings.clientNodes[i].stop();
+                        }
+                    }
+                }                    
+            }
+            else 
+            {
+                if (settings.wifiMode == 1)
+                {
+                    Serial.println("WiFi disconnected. Bummer!");
+                    SysSettings.isWifiConnected = false;
+                    SysSettings.isWifiActive = false;
+                }
+            }
+        }
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (settings.wifiMode > 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: settings.wifiMode > 0
+|——————Node:field_expression Text: settings.wifiMode
+|———————Node:identifier Text: settings
+|———————Node:. Text: .
+|———————Node:field_identifier Text: wifiMode
+|——————Node:> Text: >
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        if (!SysSettings.isWifiConnected)
+        {
+            if (WiFi.isConnected())
+            {
+                Serial.print("Wifi now connected to SSID ");
+                Serial.println((const char *)settings.SSID);
+                Serial.print("IP address: ");
+                Serial.println(WiFi.localIP());
+                Serial.print("RSSI: ");
+                Serial.println(WiFi.RSSI());
+                needServerInit = true;
+            }
+            if (settings.wifiMode == 2)
+            {
+                Serial.print("Wifi setup as SSID ");
+                Serial.println((const char *)settings.SSID);
+                Serial.print("IP address: ");
+                Serial.println(WiFi.softAPIP());
+                needServerInit = true;
+            }
+            if (needServerInit)
+            {
+                SysSettings.isWifiConnected = true;
+                wifiServer.begin(23); //setup as a telnet server
+                wifiServer.setNoDelay(true);                    
+                ArduinoOTA.setPort(3232);
+                ArduinoOTA.setHostname("A0RET");
+                // No authentication by default
+                //ArduinoOTA.setPassword("admin");
+                
+                ArduinoOTA
+                   .onStart([]() {
+                      String type;
+                      if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+
+                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                      Serial.println("Start updating " + type);
+                   })
+                   .onEnd([]() {
+                      Serial.println("\nEnd");
+                   })
+                   .onProgress([](unsigned int progress, unsigned int total) {
+                       Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+                   })
+                   .onError([](ota_error_t error) {
+                      Serial.printf("Error[%u]: ", error);
+                      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+                      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+                      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+                      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+                   });
+                   
+                ArduinoOTA.begin();
+            }
+        }
+        else
+        {
+            if (WiFi.isConnected() || settings.wifiMode == 2)
+            {
+                if (wifiServer.hasClient())
+                {
+                    for(i = 0; i < MAX_CLIENTS; i++)
+                    {
+                        if (!SysSettings.clientNodes[i] || !SysSettings.clientNodes[i].connected())
+                        {
+                            if (SysSettings.clientNodes[i]) SysSettings.clientNodes[i].stop();
+                            SysSettings.clientNodes[i] = wifiServer.available();
+                            if (!SysSettings.clientNodes[i]) Serial.println("Couldn't accept client connection!");
+                            else 
+                            {
+                                Serial.print("New client: ");
+                                Serial.print(i); Serial.print(' ');
+                                Serial.println(SysSettings.clientNodes[i].remoteIP());
+                            }
+                        }
+                    }
+                    if (i >= MAX_CLIENTS) {
+                        //no free/disconnected spot so reject
+                        wifiServer.available().stop();
+                    }
+                }
+
+                //check clients for data
+                for(i = 0; i < MAX_CLIENTS; i++){
+                    if (SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected())
+                    {
+                        if(SysSettings.clientNodes[i].available())
+                        {
+                            //get data from the telnet client and push it to input processing
+                            while(SysSettings.clientNodes[i].available()) 
+                            {
+                                uint8_t inByt;
+                                inByt = SysSettings.clientNodes[i].read();
+                                SysSettings.isWifiActive = true;
+                                //Serial.write(inByt); //echo to serial - just for debugging. Don't leave this on!
+                                wifiGVRET.processIncomingByte(inByt);
+                            }
+                        }
+                    }
+                    else {
+                        if (SysSettings.clientNodes[i]) {
+                            SysSettings.clientNodes[i].stop();
+                        }
+                    }
+                }                    
+            }
+            else 
+            {
+                if (settings.wifiMode == 1)
+                {
+                    Serial.println("WiFi disconnected. Bummer!");
+                    SysSettings.isWifiConnected = false;
+                    SysSettings.isWifiActive = false;
+                }
+            }
+        }
+    }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if (!SysSettings.isWifiConnected)
+        {
+            if (WiFi.isConnected())
+            {
+                Serial.print("Wifi now connected to SSID ");
+                Serial.println((const char *)settings.SSID);
+                Serial.print("IP address: ");
+                Serial.println(WiFi.localIP());
+                Serial.print("RSSI: ");
+                Serial.println(WiFi.RSSI());
+                needServerInit = true;
+            }
+            if (settings.wifiMode == 2)
+            {
+                Serial.print("Wifi setup as SSID ");
+                Serial.println((const char *)settings.SSID);
+                Serial.print("IP address: ");
+                Serial.println(WiFi.softAPIP());
+                needServerInit = true;
+            }
+            if (needServerInit)
+            {
+                SysSettings.isWifiConnected = true;
+                wifiServer.begin(23); //setup as a telnet server
+                wifiServer.setNoDelay(true);                    
+                ArduinoOTA.setPort(3232);
+                ArduinoOTA.setHostname("A0RET");
+                // No authentication by default
+                //ArduinoOTA.setPassword("admin");
+                
+                ArduinoOTA
+                   .onStart([]() {
+                      String type;
+                      if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+
+                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                      Serial.println("Start updating " + type);
+                   })
+                   .onEnd([]() {
+                      Serial.println("\nEnd");
+                   })
+                   .onProgress([](unsigned int progress, unsigned int total) {
+                       Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+                   })
+                   .onError([](ota_error_t error) {
+                      Serial.printf("Error[%u]: ", error);
+                      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+                      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+                      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+                      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+                   });
+                   
+                ArduinoOTA.begin();
+            }
+        }
+        else
+        {
+            if (WiFi.isConnected() || settings.wifiMode == 2)
+            {
+                if (wifiServer.hasClient())
+                {
+                    for(i = 0; i < MAX_CLIENTS; i++)
+                    {
+                        if (!SysSettings.clientNodes[i] || !SysSettings.clientNodes[i].connected())
+                        {
+                            if (SysSettings.clientNodes[i]) SysSettings.clientNodes[i].stop();
+                            SysSettings.clientNodes[i] = wifiServer.available();
+                            if (!SysSettings.clientNodes[i]) Serial.println("Couldn't accept client connection!");
+                            else 
+                            {
+                                Serial.print("New client: ");
+                                Serial.print(i); Serial.print(' ');
+                                Serial.println(SysSettings.clientNodes[i].remoteIP());
+                            }
+                        }
+                    }
+                    if (i >= MAX_CLIENTS) {
+                        //no free/disconnected spot so reject
+                        wifiServer.available().stop();
+                    }
+                }
+
+                //check clients for data
+                for(i = 0; i < MAX_CLIENTS; i++){
+                    if (SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected())
+                    {
+                        if(SysSettings.clientNodes[i].available())
+                        {
+                            //get data from the telnet client and push it to input processing
+                            while(SysSettings.clientNodes[i].available()) 
+                            {
+                                uint8_t inByt;
+                                inByt = SysSettings.clientNodes[i].read();
+                                SysSettings.isWifiActive = true;
+                                //Serial.write(inByt); //echo to serial - just for debugging. Don't leave this on!
+                                wifiGVRET.processIncomingByte(inByt);
+                            }
+                        }
+                    }
+                    else {
+                        if (SysSettings.clientNodes[i]) {
+                            SysSettings.clientNodes[i].stop();
+                        }
+                    }
+                }                    
+            }
+            else 
+            {
+                if (settings.wifiMode == 1)
+                {
+                    Serial.println("WiFi disconnected. Bummer!");
+                    SysSettings.isWifiConnected = false;
+                    SysSettings.isWifiActive = false;
+                }
+            }
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (!SysSettings.isWifiConnected)
+|———————Node:( Text: (
+|———————Node:unary_expression Text: !SysSettings.isWifiConnected
+|————————Node:! Text: !
+|————————Node:field_expression Text: SysSettings.isWifiConnected
+|—————————Node:identifier Text: SysSettings
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: isWifiConnected
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            if (WiFi.isConnected())
+            {
+                Serial.print("Wifi now connected to SSID ");
+                Serial.println((const char *)settings.SSID);
+                Serial.print("IP address: ");
+                Serial.println(WiFi.localIP());
+                Serial.print("RSSI: ");
+                Serial.println(WiFi.RSSI());
+                needServerInit = true;
+            }
+            if (settings.wifiMode == 2)
+            {
+                Serial.print("Wifi setup as SSID ");
+                Serial.println((const char *)settings.SSID);
+                Serial.print("IP address: ");
+                Serial.println(WiFi.softAPIP());
+                needServerInit = true;
+            }
+            if (needServerInit)
+            {
+                SysSettings.isWifiConnected = true;
+                wifiServer.begin(23); //setup as a telnet server
+                wifiServer.setNoDelay(true);                    
+                ArduinoOTA.setPort(3232);
+                ArduinoOTA.setHostname("A0RET");
+                // No authentication by default
+                //ArduinoOTA.setPassword("admin");
+                
+                ArduinoOTA
+                   .onStart([]() {
+                      String type;
+                      if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+
+                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                      Serial.println("Start updating " + type);
+                   })
+                   .onEnd([]() {
+                      Serial.println("\nEnd");
+                   })
+                   .onProgress([](unsigned int progress, unsigned int total) {
+                       Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+                   })
+                   .onError([](ota_error_t error) {
+                      Serial.printf("Error[%u]: ", error);
+                      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+                      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+                      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+                      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+                   });
+                   
+                ArduinoOTA.begin();
+            }
+        }
+|———————Node:{ Text: {
+|———————Node:if_statement Text: if (WiFi.isConnected())
+            {
+                Serial.print("Wifi now connected to SSID ");
+                Serial.println((const char *)settings.SSID);
+                Serial.print("IP address: ");
+                Serial.println(WiFi.localIP());
+                Serial.print("RSSI: ");
+                Serial.println(WiFi.RSSI());
+                needServerInit = true;
+            }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (WiFi.isConnected())
+|—————————Node:( Text: (
+|—————————Node:call_expression Text: WiFi.isConnected()
+|——————————Node:field_expression Text: WiFi.isConnected
+|———————————Node:identifier Text: WiFi
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: isConnected
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                Serial.print("Wifi now connected to SSID ");
+                Serial.println((const char *)settings.SSID);
+                Serial.print("IP address: ");
+                Serial.println(WiFi.localIP());
+                Serial.print("RSSI: ");
+                Serial.println(WiFi.RSSI());
+                needServerInit = true;
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: Serial.print("Wifi now connected to SSID ");
+|——————————Node:call_expression Text: Serial.print("Wifi now connected to SSID ")
+|———————————Node:field_expression Text: Serial.print
+|————————————Node:identifier Text: Serial
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: print
+|———————————Node:argument_list Text: ("Wifi now connected to SSID ")
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "Wifi now connected to SSID "
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: Wifi now connected to SSID 
+|—————————————Node:" Text: "
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: Serial.println((const char *)settings.SSID);
+|——————————Node:call_expression Text: Serial.println((const char *)settings.SSID)
+|———————————Node:field_expression Text: Serial.println
+|————————————Node:identifier Text: Serial
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: println
+|———————————Node:argument_list Text: ((const char *)settings.SSID)
+|————————————Node:( Text: (
+|————————————Node:cast_expression Text: (const char *)settings.SSID
+|—————————————Node:( Text: (
+|—————————————Node:type_descriptor Text: const char *
+|——————————————Node:type_qualifier Text: const
+|———————————————Node:const Text: const
+|——————————————Node:primitive_type Text: char
+|——————————————Node:abstract_pointer_declarator Text: *
+|———————————————Node:* Text: *
+|—————————————Node:) Text: )
+|—————————————Node:field_expression Text: settings.SSID
+|——————————————Node:identifier Text: settings
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: SSID
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: Serial.print("IP address: ");
+|——————————Node:call_expression Text: Serial.print("IP address: ")
+|———————————Node:field_expression Text: Serial.print
+|————————————Node:identifier Text: Serial
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: print
+|———————————Node:argument_list Text: ("IP address: ")
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "IP address: "
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: IP address: 
+|—————————————Node:" Text: "
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: Serial.println(WiFi.localIP());
+|——————————Node:call_expression Text: Serial.println(WiFi.localIP())
+|———————————Node:field_expression Text: Serial.println
+|————————————Node:identifier Text: Serial
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: println
+|———————————Node:argument_list Text: (WiFi.localIP())
+|————————————Node:( Text: (
+|————————————Node:call_expression Text: WiFi.localIP()
+|—————————————Node:field_expression Text: WiFi.localIP
+|——————————————Node:identifier Text: WiFi
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: localIP
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: Serial.print("RSSI: ");
+|——————————Node:call_expression Text: Serial.print("RSSI: ")
+|———————————Node:field_expression Text: Serial.print
+|————————————Node:identifier Text: Serial
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: print
+|———————————Node:argument_list Text: ("RSSI: ")
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "RSSI: "
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: RSSI: 
+|—————————————Node:" Text: "
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: Serial.println(WiFi.RSSI());
+|——————————Node:call_expression Text: Serial.println(WiFi.RSSI())
+|———————————Node:field_expression Text: Serial.println
+|————————————Node:identifier Text: Serial
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: println
+|———————————Node:argument_list Text: (WiFi.RSSI())
+|————————————Node:( Text: (
+|————————————Node:call_expression Text: WiFi.RSSI()
+|—————————————Node:field_expression Text: WiFi.RSSI
+|——————————————Node:identifier Text: WiFi
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: RSSI
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: needServerInit = true;
+|——————————Node:assignment_expression Text: needServerInit = true
+|———————————Node:identifier Text: needServerInit
+|———————————Node:= Text: =
+|———————————Node:true Text: true
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:if_statement Text: if (settings.wifiMode == 2)
+            {
+                Serial.print("Wifi setup as SSID ");
+                Serial.println((const char *)settings.SSID);
+                Serial.print("IP address: ");
+                Serial.println(WiFi.softAPIP());
+                needServerInit = true;
+            }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (settings.wifiMode == 2)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: settings.wifiMode == 2
+|——————————Node:field_expression Text: settings.wifiMode
+|———————————Node:identifier Text: settings
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: wifiMode
+|——————————Node:== Text: ==
+|——————————Node:number_literal Text: 2
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                Serial.print("Wifi setup as SSID ");
+                Serial.println((const char *)settings.SSID);
+                Serial.print("IP address: ");
+                Serial.println(WiFi.softAPIP());
+                needServerInit = true;
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: Serial.print("Wifi setup as SSID ");
+|——————————Node:call_expression Text: Serial.print("Wifi setup as SSID ")
+|———————————Node:field_expression Text: Serial.print
+|————————————Node:identifier Text: Serial
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: print
+|———————————Node:argument_list Text: ("Wifi setup as SSID ")
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "Wifi setup as SSID "
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: Wifi setup as SSID 
+|—————————————Node:" Text: "
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: Serial.println((const char *)settings.SSID);
+|——————————Node:call_expression Text: Serial.println((const char *)settings.SSID)
+|———————————Node:field_expression Text: Serial.println
+|————————————Node:identifier Text: Serial
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: println
+|———————————Node:argument_list Text: ((const char *)settings.SSID)
+|————————————Node:( Text: (
+|————————————Node:cast_expression Text: (const char *)settings.SSID
+|—————————————Node:( Text: (
+|—————————————Node:type_descriptor Text: const char *
+|——————————————Node:type_qualifier Text: const
+|———————————————Node:const Text: const
+|——————————————Node:primitive_type Text: char
+|——————————————Node:abstract_pointer_declarator Text: *
+|———————————————Node:* Text: *
+|—————————————Node:) Text: )
+|—————————————Node:field_expression Text: settings.SSID
+|——————————————Node:identifier Text: settings
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: SSID
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: Serial.print("IP address: ");
+|——————————Node:call_expression Text: Serial.print("IP address: ")
+|———————————Node:field_expression Text: Serial.print
+|————————————Node:identifier Text: Serial
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: print
+|———————————Node:argument_list Text: ("IP address: ")
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "IP address: "
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: IP address: 
+|—————————————Node:" Text: "
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: Serial.println(WiFi.softAPIP());
+|——————————Node:call_expression Text: Serial.println(WiFi.softAPIP())
+|———————————Node:field_expression Text: Serial.println
+|————————————Node:identifier Text: Serial
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: println
+|———————————Node:argument_list Text: (WiFi.softAPIP())
+|————————————Node:( Text: (
+|————————————Node:call_expression Text: WiFi.softAPIP()
+|—————————————Node:field_expression Text: WiFi.softAPIP
+|——————————————Node:identifier Text: WiFi
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: softAPIP
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: needServerInit = true;
+|——————————Node:assignment_expression Text: needServerInit = true
+|———————————Node:identifier Text: needServerInit
+|———————————Node:= Text: =
+|———————————Node:true Text: true
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:if_statement Text: if (needServerInit)
+            {
+                SysSettings.isWifiConnected = true;
+                wifiServer.begin(23); //setup as a telnet server
+                wifiServer.setNoDelay(true);                    
+                ArduinoOTA.setPort(3232);
+                ArduinoOTA.setHostname("A0RET");
+                // No authentication by default
+                //ArduinoOTA.setPassword("admin");
+                
+                ArduinoOTA
+                   .onStart([]() {
+                      String type;
+                      if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+
+                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                      Serial.println("Start updating " + type);
+                   })
+                   .onEnd([]() {
+                      Serial.println("\nEnd");
+                   })
+                   .onProgress([](unsigned int progress, unsigned int total) {
+                       Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+                   })
+                   .onError([](ota_error_t error) {
+                      Serial.printf("Error[%u]: ", error);
+                      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+                      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+                      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+                      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+                   });
+                   
+                ArduinoOTA.begin();
+            }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (needServerInit)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: needServerInit
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                SysSettings.isWifiConnected = true;
+                wifiServer.begin(23); //setup as a telnet server
+                wifiServer.setNoDelay(true);                    
+                ArduinoOTA.setPort(3232);
+                ArduinoOTA.setHostname("A0RET");
+                // No authentication by default
+                //ArduinoOTA.setPassword("admin");
+                
+                ArduinoOTA
+                   .onStart([]() {
+                      String type;
+                      if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+
+                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                      Serial.println("Start updating " + type);
+                   })
+                   .onEnd([]() {
+                      Serial.println("\nEnd");
+                   })
+                   .onProgress([](unsigned int progress, unsigned int total) {
+                       Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+                   })
+                   .onError([](ota_error_t error) {
+                      Serial.printf("Error[%u]: ", error);
+                      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+                      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+                      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+                      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+                   });
+                   
+                ArduinoOTA.begin();
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: SysSettings.isWifiConnected = true;
+|——————————Node:assignment_expression Text: SysSettings.isWifiConnected = true
+|———————————Node:field_expression Text: SysSettings.isWifiConnected
+|————————————Node:identifier Text: SysSettings
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: isWifiConnected
+|———————————Node:= Text: =
+|———————————Node:true Text: true
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: wifiServer.begin(23);
+|——————————Node:call_expression Text: wifiServer.begin(23)
+|———————————Node:field_expression Text: wifiServer.begin
+|————————————Node:identifier Text: wifiServer
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: begin
+|———————————Node:argument_list Text: (23)
+|————————————Node:( Text: (
+|————————————Node:number_literal Text: 23
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:comment
+|—————————Node:expression_statement Text: wifiServer.setNoDelay(true);
+|——————————Node:call_expression Text: wifiServer.setNoDelay(true)
+|———————————Node:field_expression Text: wifiServer.setNoDelay
+|————————————Node:identifier Text: wifiServer
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: setNoDelay
+|———————————Node:argument_list Text: (true)
+|————————————Node:( Text: (
+|————————————Node:true Text: true
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: ArduinoOTA.setPort(3232);
+|——————————Node:call_expression Text: ArduinoOTA.setPort(3232)
+|———————————Node:field_expression Text: ArduinoOTA.setPort
+|————————————Node:identifier Text: ArduinoOTA
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: setPort
+|———————————Node:argument_list Text: (3232)
+|————————————Node:( Text: (
+|————————————Node:number_literal Text: 3232
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: ArduinoOTA.setHostname("A0RET");
+|——————————Node:call_expression Text: ArduinoOTA.setHostname("A0RET")
+|———————————Node:field_expression Text: ArduinoOTA.setHostname
+|————————————Node:identifier Text: ArduinoOTA
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: setHostname
+|———————————Node:argument_list Text: ("A0RET")
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "A0RET"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: A0RET
+|—————————————Node:" Text: "
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:comment
+|—————————Node:comment
+|—————————Node:expression_statement Text: ArduinoOTA
+                   .onStart([]() {
+                      String type;
+                      if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+
+                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                      Serial.println("Start updating " + type);
+                   })
+                   .onEnd([]() {
+                      Serial.println("\nEnd");
+                   })
+                   .onProgress([](unsigned int progress, unsigned int total) {
+                       Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+                   })
+                   .onError([](ota_error_t error) {
+                      Serial.printf("Error[%u]: ", error);
+                      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+                      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+                      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+                      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+                   });
+|——————————Node:call_expression Text: ArduinoOTA
+                   .onStart([]() {
+                      String type;
+                      if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+
+                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                      Serial.println("Start updating " + type);
+                   })
+                   .onEnd([]() {
+                      Serial.println("\nEnd");
+                   })
+                   .onProgress([](unsigned int progress, unsigned int total) {
+                       Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+                   })
+                   .onError([](ota_error_t error) {
+                      Serial.printf("Error[%u]: ", error);
+                      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+                      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+                      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+                      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+                   })
+|———————————Node:field_expression Text: ArduinoOTA
+                   .onStart([]() {
+                      String type;
+                      if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+
+                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                      Serial.println("Start updating " + type);
+                   })
+                   .onEnd([]() {
+                      Serial.println("\nEnd");
+                   })
+                   .onProgress([](unsigned int progress, unsigned int total) {
+                       Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+                   })
+                   .onError
+|————————————Node:call_expression Text: ArduinoOTA
+                   .onStart([]() {
+                      String type;
+                      if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+
+                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                      Serial.println("Start updating " + type);
+                   })
+                   .onEnd([]() {
+                      Serial.println("\nEnd");
+                   })
+                   .onProgress([](unsigned int progress, unsigned int total) {
+                       Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+                   })
+|—————————————Node:field_expression Text: ArduinoOTA
+                   .onStart([]() {
+                      String type;
+                      if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+
+                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                      Serial.println("Start updating " + type);
+                   })
+                   .onEnd([]() {
+                      Serial.println("\nEnd");
+                   })
+                   .onProgress
+|——————————————Node:call_expression Text: ArduinoOTA
+                   .onStart([]() {
+                      String type;
+                      if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+
+                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                      Serial.println("Start updating " + type);
+                   })
+                   .onEnd([]() {
+                      Serial.println("\nEnd");
+                   })
+|———————————————Node:field_expression Text: ArduinoOTA
+                   .onStart([]() {
+                      String type;
+                      if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+
+                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                      Serial.println("Start updating " + type);
+                   })
+                   .onEnd
+|————————————————Node:call_expression Text: ArduinoOTA
+                   .onStart([]() {
+                      String type;
+                      if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+
+                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                      Serial.println("Start updating " + type);
+                   })
+|—————————————————Node:field_expression Text: ArduinoOTA
+                   .onStart
+|——————————————————Node:identifier Text: ArduinoOTA
+|——————————————————Node:. Text: .
+|——————————————————Node:field_identifier Text: onStart
+|—————————————————Node:argument_list Text: ([]() {
+                      String type;
+                      if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+
+                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                      Serial.println("Start updating " + type);
+                   })
+|——————————————————Node:( Text: (
+|——————————————————Node:lambda_expression Text: []() {
+                      String type;
+                      if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+
+                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                      Serial.println("Start updating " + type);
+                   }
+|———————————————————Node:lambda_capture_specifier Text: []
+|————————————————————Node:[ Text: [
+|————————————————————Node:] Text: ]
+|———————————————————Node:abstract_function_declarator Text: ()
+|————————————————————Node:parameter_list Text: ()
+|—————————————————————Node:( Text: (
+|—————————————————————Node:) Text: )
+|———————————————————Node:compound_statement Text: {
+                      String type;
+                      if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+
+                      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+                      Serial.println("Start updating " + type);
+                   }
+|————————————————————Node:{ Text: {
+|————————————————————Node:declaration Text: String type;
+|—————————————————————Node:type_identifier Text: String
+|—————————————————————Node:identifier Text: type
+|—————————————————————Node:; Text: ;
+|————————————————————Node:if_statement Text: if (ArduinoOTA.getCommand() == U_FLASH)
+                         type = "sketch";
+                      else // U_SPIFFS
+                         type = "filesystem";
+|—————————————————————Node:if Text: if
+|—————————————————————Node:condition_clause Text: (ArduinoOTA.getCommand() == U_FLASH)
+|——————————————————————Node:( Text: (
+|——————————————————————Node:binary_expression Text: ArduinoOTA.getCommand() == U_FLASH
+|———————————————————————Node:call_expression Text: ArduinoOTA.getCommand()
+|————————————————————————Node:field_expression Text: ArduinoOTA.getCommand
+|—————————————————————————Node:identifier Text: ArduinoOTA
+|—————————————————————————Node:. Text: .
+|—————————————————————————Node:field_identifier Text: getCommand
+|————————————————————————Node:argument_list Text: ()
+|—————————————————————————Node:( Text: (
+|—————————————————————————Node:) Text: )
+|———————————————————————Node:== Text: ==
+|———————————————————————Node:identifier Text: U_FLASH
+|——————————————————————Node:) Text: )
+|—————————————————————Node:expression_statement Text: type = "sketch";
+|——————————————————————Node:assignment_expression Text: type = "sketch"
+|———————————————————————Node:identifier Text: type
+|———————————————————————Node:= Text: =
+|———————————————————————Node:string_literal Text: "sketch"
+|————————————————————————Node:" Text: "
+|————————————————————————Node:string_content Text: sketch
+|————————————————————————Node:" Text: "
+|——————————————————————Node:; Text: ;
+|—————————————————————Node:else_clause Text: else // U_SPIFFS
+                         type = "filesystem";
+|——————————————————————Node:else Text: else
+|——————————————————————Node:comment
+|——————————————————————Node:expression_statement Text: type = "filesystem";
+|———————————————————————Node:assignment_expression Text: type = "filesystem"
+|————————————————————————Node:identifier Text: type
+|————————————————————————Node:= Text: =
+|————————————————————————Node:string_literal Text: "filesystem"
+|—————————————————————————Node:" Text: "
+|—————————————————————————Node:string_content Text: filesystem
+|—————————————————————————Node:" Text: "
+|———————————————————————Node:; Text: ;
+|————————————————————Node:comment
+|————————————————————Node:expression_statement Text: Serial.println("Start updating " + type);
+|—————————————————————Node:call_expression Text: Serial.println("Start updating " + type)
+|——————————————————————Node:field_expression Text: Serial.println
+|———————————————————————Node:identifier Text: Serial
+|———————————————————————Node:. Text: .
+|———————————————————————Node:field_identifier Text: println
+|——————————————————————Node:argument_list Text: ("Start updating " + type)
+|———————————————————————Node:( Text: (
+|———————————————————————Node:binary_expression Text: "Start updating " + type
+|————————————————————————Node:string_literal Text: "Start updating "
+|—————————————————————————Node:" Text: "
+|—————————————————————————Node:string_content Text: Start updating 
+|—————————————————————————Node:" Text: "
+|————————————————————————Node:+ Text: +
+|————————————————————————Node:identifier Text: type
+|———————————————————————Node:) Text: )
+|—————————————————————Node:; Text: ;
+|————————————————————Node:} Text: }
+|——————————————————Node:) Text: )
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: onEnd
+|———————————————Node:argument_list Text: ([]() {
+                      Serial.println("\nEnd");
+                   })
+|————————————————Node:( Text: (
+|————————————————Node:lambda_expression Text: []() {
+                      Serial.println("\nEnd");
+                   }
+|—————————————————Node:lambda_capture_specifier Text: []
+|——————————————————Node:[ Text: [
+|——————————————————Node:] Text: ]
+|—————————————————Node:abstract_function_declarator Text: ()
+|——————————————————Node:parameter_list Text: ()
+|———————————————————Node:( Text: (
+|———————————————————Node:) Text: )
+|—————————————————Node:compound_statement Text: {
+                      Serial.println("\nEnd");
+                   }
+|——————————————————Node:{ Text: {
+|——————————————————Node:expression_statement Text: Serial.println("\nEnd");
+|———————————————————Node:call_expression Text: Serial.println("\nEnd")
+|————————————————————Node:field_expression Text: Serial.println
+|—————————————————————Node:identifier Text: Serial
+|—————————————————————Node:. Text: .
+|—————————————————————Node:field_identifier Text: println
+|————————————————————Node:argument_list Text: ("\nEnd")
+|—————————————————————Node:( Text: (
+|—————————————————————Node:string_literal Text: "\nEnd"
+|——————————————————————Node:" Text: "
+|——————————————————————Node:escape_sequence Text: \n
+|——————————————————————Node:string_content Text: End
+|——————————————————————Node:" Text: "
+|—————————————————————Node:) Text: )
+|———————————————————Node:; Text: ;
+|——————————————————Node:} Text: }
+|————————————————Node:) Text: )
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: onProgress
+|—————————————Node:argument_list Text: ([](unsigned int progress, unsigned int total) {
+                       Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+                   })
+|——————————————Node:( Text: (
+|——————————————Node:lambda_expression Text: [](unsigned int progress, unsigned int total) {
+                       Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+                   }
+|———————————————Node:lambda_capture_specifier Text: []
+|————————————————Node:[ Text: [
+|————————————————Node:] Text: ]
+|———————————————Node:abstract_function_declarator Text: (unsigned int progress, unsigned int total)
+|————————————————Node:parameter_list Text: (unsigned int progress, unsigned int total)
+|—————————————————Node:( Text: (
+|—————————————————Node:parameter_declaration Text: unsigned int progress
+|——————————————————Node:sized_type_specifier Text: unsigned int
+|———————————————————Node:unsigned Text: unsigned
+|———————————————————Node:primitive_type Text: int
+|——————————————————Node:identifier Text: progress
+|—————————————————Node:, Text: ,
+|—————————————————Node:parameter_declaration Text: unsigned int total
+|——————————————————Node:sized_type_specifier Text: unsigned int
+|———————————————————Node:unsigned Text: unsigned
+|———————————————————Node:primitive_type Text: int
+|——————————————————Node:identifier Text: total
+|—————————————————Node:) Text: )
+|———————————————Node:compound_statement Text: {
+                       Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+                   }
+|————————————————Node:{ Text: {
+|————————————————Node:expression_statement Text: Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+|—————————————————Node:call_expression Text: Serial.printf("Progress: %u%%\r", (progress / (total / 100)))
+|——————————————————Node:field_expression Text: Serial.printf
+|———————————————————Node:identifier Text: Serial
+|———————————————————Node:. Text: .
+|———————————————————Node:field_identifier Text: printf
+|——————————————————Node:argument_list Text: ("Progress: %u%%\r", (progress / (total / 100)))
+|———————————————————Node:( Text: (
+|———————————————————Node:string_literal Text: "Progress: %u%%\r"
+|————————————————————Node:" Text: "
+|————————————————————Node:string_content Text: Progress: %u%%
+|————————————————————Node:escape_sequence Text: \r
+|————————————————————Node:" Text: "
+|———————————————————Node:, Text: ,
+|———————————————————Node:parenthesized_expression Text: (progress / (total / 100))
+|————————————————————Node:( Text: (
+|————————————————————Node:binary_expression Text: progress / (total / 100)
+|—————————————————————Node:identifier Text: progress
+|—————————————————————Node:/ Text: /
+|—————————————————————Node:parenthesized_expression Text: (total / 100)
+|——————————————————————Node:( Text: (
+|——————————————————————Node:binary_expression Text: total / 100
+|———————————————————————Node:identifier Text: total
+|———————————————————————Node:/ Text: /
+|———————————————————————Node:number_literal Text: 100
+|——————————————————————Node:) Text: )
+|————————————————————Node:) Text: )
+|———————————————————Node:) Text: )
+|—————————————————Node:; Text: ;
+|————————————————Node:} Text: }
+|——————————————Node:) Text: )
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: onError
+|———————————Node:argument_list Text: ([](ota_error_t error) {
+                      Serial.printf("Error[%u]: ", error);
+                      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+                      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+                      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+                      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+                   })
+|————————————Node:( Text: (
+|————————————Node:lambda_expression Text: [](ota_error_t error) {
+                      Serial.printf("Error[%u]: ", error);
+                      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+                      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+                      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+                      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+                   }
+|—————————————Node:lambda_capture_specifier Text: []
+|——————————————Node:[ Text: [
+|——————————————Node:] Text: ]
+|—————————————Node:abstract_function_declarator Text: (ota_error_t error)
+|——————————————Node:parameter_list Text: (ota_error_t error)
+|———————————————Node:( Text: (
+|———————————————Node:parameter_declaration Text: ota_error_t error
+|————————————————Node:type_identifier Text: ota_error_t
+|————————————————Node:identifier Text: error
+|———————————————Node:) Text: )
+|—————————————Node:compound_statement Text: {
+                      Serial.printf("Error[%u]: ", error);
+                      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+                      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+                      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+                      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+                   }
+|——————————————Node:{ Text: {
+|——————————————Node:expression_statement Text: Serial.printf("Error[%u]: ", error);
+|———————————————Node:call_expression Text: Serial.printf("Error[%u]: ", error)
+|————————————————Node:field_expression Text: Serial.printf
+|—————————————————Node:identifier Text: Serial
+|—————————————————Node:. Text: .
+|—————————————————Node:field_identifier Text: printf
+|————————————————Node:argument_list Text: ("Error[%u]: ", error)
+|—————————————————Node:( Text: (
+|—————————————————Node:string_literal Text: "Error[%u]: "
+|——————————————————Node:" Text: "
+|——————————————————Node:string_content Text: Error[%u]: 
+|——————————————————Node:" Text: "
+|—————————————————Node:, Text: ,
+|—————————————————Node:identifier Text: error
+|—————————————————Node:) Text: )
+|———————————————Node:; Text: ;
+|——————————————Node:if_statement Text: if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+                      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+                      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+                      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+|———————————————Node:if Text: if
+|———————————————Node:condition_clause Text: (error == OTA_AUTH_ERROR)
+|————————————————Node:( Text: (
+|————————————————Node:binary_expression Text: error == OTA_AUTH_ERROR
+|—————————————————Node:identifier Text: error
+|—————————————————Node:== Text: ==
+|—————————————————Node:identifier Text: OTA_AUTH_ERROR
+|————————————————Node:) Text: )
+|———————————————Node:expression_statement Text: Serial.println("Auth Failed");
+|————————————————Node:call_expression Text: Serial.println("Auth Failed")
+|—————————————————Node:field_expression Text: Serial.println
+|——————————————————Node:identifier Text: Serial
+|——————————————————Node:. Text: .
+|——————————————————Node:field_identifier Text: println
+|—————————————————Node:argument_list Text: ("Auth Failed")
+|——————————————————Node:( Text: (
+|——————————————————Node:string_literal Text: "Auth Failed"
+|———————————————————Node:" Text: "
+|———————————————————Node:string_content Text: Auth Failed
+|———————————————————Node:" Text: "
+|——————————————————Node:) Text: )
+|————————————————Node:; Text: ;
+|———————————————Node:else_clause Text: else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+                      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+                      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+|————————————————Node:else Text: else
+|————————————————Node:if_statement Text: if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+                      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+                      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+|—————————————————Node:if Text: if
+|—————————————————Node:condition_clause Text: (error == OTA_BEGIN_ERROR)
+|——————————————————Node:( Text: (
+|——————————————————Node:binary_expression Text: error == OTA_BEGIN_ERROR
+|———————————————————Node:identifier Text: error
+|———————————————————Node:== Text: ==
+|———————————————————Node:identifier Text: OTA_BEGIN_ERROR
+|——————————————————Node:) Text: )
+|—————————————————Node:expression_statement Text: Serial.println("Begin Failed");
+|——————————————————Node:call_expression Text: Serial.println("Begin Failed")
+|———————————————————Node:field_expression Text: Serial.println
+|————————————————————Node:identifier Text: Serial
+|————————————————————Node:. Text: .
+|————————————————————Node:field_identifier Text: println
+|———————————————————Node:argument_list Text: ("Begin Failed")
+|————————————————————Node:( Text: (
+|————————————————————Node:string_literal Text: "Begin Failed"
+|—————————————————————Node:" Text: "
+|—————————————————————Node:string_content Text: Begin Failed
+|—————————————————————Node:" Text: "
+|————————————————————Node:) Text: )
+|——————————————————Node:; Text: ;
+|—————————————————Node:else_clause Text: else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+                      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+|——————————————————Node:else Text: else
+|——————————————————Node:if_statement Text: if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+                      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+|———————————————————Node:if Text: if
+|———————————————————Node:condition_clause Text: (error == OTA_CONNECT_ERROR)
+|————————————————————Node:( Text: (
+|————————————————————Node:binary_expression Text: error == OTA_CONNECT_ERROR
+|—————————————————————Node:identifier Text: error
+|—————————————————————Node:== Text: ==
+|—————————————————————Node:identifier Text: OTA_CONNECT_ERROR
+|————————————————————Node:) Text: )
+|———————————————————Node:expression_statement Text: Serial.println("Connect Failed");
+|————————————————————Node:call_expression Text: Serial.println("Connect Failed")
+|—————————————————————Node:field_expression Text: Serial.println
+|——————————————————————Node:identifier Text: Serial
+|——————————————————————Node:. Text: .
+|——————————————————————Node:field_identifier Text: println
+|—————————————————————Node:argument_list Text: ("Connect Failed")
+|——————————————————————Node:( Text: (
+|——————————————————————Node:string_literal Text: "Connect Failed"
+|———————————————————————Node:" Text: "
+|———————————————————————Node:string_content Text: Connect Failed
+|———————————————————————Node:" Text: "
+|——————————————————————Node:) Text: )
+|————————————————————Node:; Text: ;
+|———————————————————Node:else_clause Text: else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+|————————————————————Node:else Text: else
+|————————————————————Node:if_statement Text: if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+                      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+|—————————————————————Node:if Text: if
+|—————————————————————Node:condition_clause Text: (error == OTA_RECEIVE_ERROR)
+|——————————————————————Node:( Text: (
+|——————————————————————Node:binary_expression Text: error == OTA_RECEIVE_ERROR
+|———————————————————————Node:identifier Text: error
+|———————————————————————Node:== Text: ==
+|———————————————————————Node:identifier Text: OTA_RECEIVE_ERROR
+|——————————————————————Node:) Text: )
+|—————————————————————Node:expression_statement Text: Serial.println("Receive Failed");
+|——————————————————————Node:call_expression Text: Serial.println("Receive Failed")
+|———————————————————————Node:field_expression Text: Serial.println
+|————————————————————————Node:identifier Text: Serial
+|————————————————————————Node:. Text: .
+|————————————————————————Node:field_identifier Text: println
+|———————————————————————Node:argument_list Text: ("Receive Failed")
+|————————————————————————Node:( Text: (
+|————————————————————————Node:string_literal Text: "Receive Failed"
+|—————————————————————————Node:" Text: "
+|—————————————————————————Node:string_content Text: Receive Failed
+|—————————————————————————Node:" Text: "
+|————————————————————————Node:) Text: )
+|——————————————————————Node:; Text: ;
+|—————————————————————Node:else_clause Text: else if (error == OTA_END_ERROR) Serial.println("End Failed");
+|——————————————————————Node:else Text: else
+|——————————————————————Node:if_statement Text: if (error == OTA_END_ERROR) Serial.println("End Failed");
+|———————————————————————Node:if Text: if
+|———————————————————————Node:condition_clause Text: (error == OTA_END_ERROR)
+|————————————————————————Node:( Text: (
+|————————————————————————Node:binary_expression Text: error == OTA_END_ERROR
+|—————————————————————————Node:identifier Text: error
+|—————————————————————————Node:== Text: ==
+|—————————————————————————Node:identifier Text: OTA_END_ERROR
+|————————————————————————Node:) Text: )
+|———————————————————————Node:expression_statement Text: Serial.println("End Failed");
+|————————————————————————Node:call_expression Text: Serial.println("End Failed")
+|—————————————————————————Node:field_expression Text: Serial.println
+|——————————————————————————Node:identifier Text: Serial
+|——————————————————————————Node:. Text: .
+|——————————————————————————Node:field_identifier Text: println
+|—————————————————————————Node:argument_list Text: ("End Failed")
+|——————————————————————————Node:( Text: (
+|——————————————————————————Node:string_literal Text: "End Failed"
+|———————————————————————————Node:" Text: "
+|———————————————————————————Node:string_content Text: End Failed
+|———————————————————————————Node:" Text: "
+|——————————————————————————Node:) Text: )
+|————————————————————————Node:; Text: ;
+|——————————————Node:} Text: }
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: ArduinoOTA.begin();
+|——————————Node:call_expression Text: ArduinoOTA.begin()
+|———————————Node:field_expression Text: ArduinoOTA.begin
+|————————————Node:identifier Text: ArduinoOTA
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: begin
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|——————Node:else_clause Text: else
+        {
+            if (WiFi.isConnected() || settings.wifiMode == 2)
+            {
+                if (wifiServer.hasClient())
+                {
+                    for(i = 0; i < MAX_CLIENTS; i++)
+                    {
+                        if (!SysSettings.clientNodes[i] || !SysSettings.clientNodes[i].connected())
+                        {
+                            if (SysSettings.clientNodes[i]) SysSettings.clientNodes[i].stop();
+                            SysSettings.clientNodes[i] = wifiServer.available();
+                            if (!SysSettings.clientNodes[i]) Serial.println("Couldn't accept client connection!");
+                            else 
+                            {
+                                Serial.print("New client: ");
+                                Serial.print(i); Serial.print(' ');
+                                Serial.println(SysSettings.clientNodes[i].remoteIP());
+                            }
+                        }
+                    }
+                    if (i >= MAX_CLIENTS) {
+                        //no free/disconnected spot so reject
+                        wifiServer.available().stop();
+                    }
+                }
+
+                //check clients for data
+                for(i = 0; i < MAX_CLIENTS; i++){
+                    if (SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected())
+                    {
+                        if(SysSettings.clientNodes[i].available())
+                        {
+                            //get data from the telnet client and push it to input processing
+                            while(SysSettings.clientNodes[i].available()) 
+                            {
+                                uint8_t inByt;
+                                inByt = SysSettings.clientNodes[i].read();
+                                SysSettings.isWifiActive = true;
+                                //Serial.write(inByt); //echo to serial - just for debugging. Don't leave this on!
+                                wifiGVRET.processIncomingByte(inByt);
+                            }
+                        }
+                    }
+                    else {
+                        if (SysSettings.clientNodes[i]) {
+                            SysSettings.clientNodes[i].stop();
+                        }
+                    }
+                }                    
+            }
+            else 
+            {
+                if (settings.wifiMode == 1)
+                {
+                    Serial.println("WiFi disconnected. Bummer!");
+                    SysSettings.isWifiConnected = false;
+                    SysSettings.isWifiActive = false;
+                }
+            }
+        }
+|———————Node:else Text: else
+|———————Node:compound_statement Text: {
+            if (WiFi.isConnected() || settings.wifiMode == 2)
+            {
+                if (wifiServer.hasClient())
+                {
+                    for(i = 0; i < MAX_CLIENTS; i++)
+                    {
+                        if (!SysSettings.clientNodes[i] || !SysSettings.clientNodes[i].connected())
+                        {
+                            if (SysSettings.clientNodes[i]) SysSettings.clientNodes[i].stop();
+                            SysSettings.clientNodes[i] = wifiServer.available();
+                            if (!SysSettings.clientNodes[i]) Serial.println("Couldn't accept client connection!");
+                            else 
+                            {
+                                Serial.print("New client: ");
+                                Serial.print(i); Serial.print(' ');
+                                Serial.println(SysSettings.clientNodes[i].remoteIP());
+                            }
+                        }
+                    }
+                    if (i >= MAX_CLIENTS) {
+                        //no free/disconnected spot so reject
+                        wifiServer.available().stop();
+                    }
+                }
+
+                //check clients for data
+                for(i = 0; i < MAX_CLIENTS; i++){
+                    if (SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected())
+                    {
+                        if(SysSettings.clientNodes[i].available())
+                        {
+                            //get data from the telnet client and push it to input processing
+                            while(SysSettings.clientNodes[i].available()) 
+                            {
+                                uint8_t inByt;
+                                inByt = SysSettings.clientNodes[i].read();
+                                SysSettings.isWifiActive = true;
+                                //Serial.write(inByt); //echo to serial - just for debugging. Don't leave this on!
+                                wifiGVRET.processIncomingByte(inByt);
+                            }
+                        }
+                    }
+                    else {
+                        if (SysSettings.clientNodes[i]) {
+                            SysSettings.clientNodes[i].stop();
+                        }
+                    }
+                }                    
+            }
+            else 
+            {
+                if (settings.wifiMode == 1)
+                {
+                    Serial.println("WiFi disconnected. Bummer!");
+                    SysSettings.isWifiConnected = false;
+                    SysSettings.isWifiActive = false;
+                }
+            }
+        }
+|————————Node:{ Text: {
+|————————Node:if_statement Text: if (WiFi.isConnected() || settings.wifiMode == 2)
+            {
+                if (wifiServer.hasClient())
+                {
+                    for(i = 0; i < MAX_CLIENTS; i++)
+                    {
+                        if (!SysSettings.clientNodes[i] || !SysSettings.clientNodes[i].connected())
+                        {
+                            if (SysSettings.clientNodes[i]) SysSettings.clientNodes[i].stop();
+                            SysSettings.clientNodes[i] = wifiServer.available();
+                            if (!SysSettings.clientNodes[i]) Serial.println("Couldn't accept client connection!");
+                            else 
+                            {
+                                Serial.print("New client: ");
+                                Serial.print(i); Serial.print(' ');
+                                Serial.println(SysSettings.clientNodes[i].remoteIP());
+                            }
+                        }
+                    }
+                    if (i >= MAX_CLIENTS) {
+                        //no free/disconnected spot so reject
+                        wifiServer.available().stop();
+                    }
+                }
+
+                //check clients for data
+                for(i = 0; i < MAX_CLIENTS; i++){
+                    if (SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected())
+                    {
+                        if(SysSettings.clientNodes[i].available())
+                        {
+                            //get data from the telnet client and push it to input processing
+                            while(SysSettings.clientNodes[i].available()) 
+                            {
+                                uint8_t inByt;
+                                inByt = SysSettings.clientNodes[i].read();
+                                SysSettings.isWifiActive = true;
+                                //Serial.write(inByt); //echo to serial - just for debugging. Don't leave this on!
+                                wifiGVRET.processIncomingByte(inByt);
+                            }
+                        }
+                    }
+                    else {
+                        if (SysSettings.clientNodes[i]) {
+                            SysSettings.clientNodes[i].stop();
+                        }
+                    }
+                }                    
+            }
+            else 
+            {
+                if (settings.wifiMode == 1)
+                {
+                    Serial.println("WiFi disconnected. Bummer!");
+                    SysSettings.isWifiConnected = false;
+                    SysSettings.isWifiActive = false;
+                }
+            }
+|—————————Node:if Text: if
+|—————————Node:condition_clause Text: (WiFi.isConnected() || settings.wifiMode == 2)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: WiFi.isConnected() || settings.wifiMode == 2
+|———————————Node:call_expression Text: WiFi.isConnected()
+|————————————Node:field_expression Text: WiFi.isConnected
+|—————————————Node:identifier Text: WiFi
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: isConnected
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:|| Text: ||
+|———————————Node:binary_expression Text: settings.wifiMode == 2
+|————————————Node:field_expression Text: settings.wifiMode
+|—————————————Node:identifier Text: settings
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: wifiMode
+|————————————Node:== Text: ==
+|————————————Node:number_literal Text: 2
+|——————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+                if (wifiServer.hasClient())
+                {
+                    for(i = 0; i < MAX_CLIENTS; i++)
+                    {
+                        if (!SysSettings.clientNodes[i] || !SysSettings.clientNodes[i].connected())
+                        {
+                            if (SysSettings.clientNodes[i]) SysSettings.clientNodes[i].stop();
+                            SysSettings.clientNodes[i] = wifiServer.available();
+                            if (!SysSettings.clientNodes[i]) Serial.println("Couldn't accept client connection!");
+                            else 
+                            {
+                                Serial.print("New client: ");
+                                Serial.print(i); Serial.print(' ');
+                                Serial.println(SysSettings.clientNodes[i].remoteIP());
+                            }
+                        }
+                    }
+                    if (i >= MAX_CLIENTS) {
+                        //no free/disconnected spot so reject
+                        wifiServer.available().stop();
+                    }
+                }
+
+                //check clients for data
+                for(i = 0; i < MAX_CLIENTS; i++){
+                    if (SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected())
+                    {
+                        if(SysSettings.clientNodes[i].available())
+                        {
+                            //get data from the telnet client and push it to input processing
+                            while(SysSettings.clientNodes[i].available()) 
+                            {
+                                uint8_t inByt;
+                                inByt = SysSettings.clientNodes[i].read();
+                                SysSettings.isWifiActive = true;
+                                //Serial.write(inByt); //echo to serial - just for debugging. Don't leave this on!
+                                wifiGVRET.processIncomingByte(inByt);
+                            }
+                        }
+                    }
+                    else {
+                        if (SysSettings.clientNodes[i]) {
+                            SysSettings.clientNodes[i].stop();
+                        }
+                    }
+                }                    
+            }
+|——————————Node:{ Text: {
+|——————————Node:if_statement Text: if (wifiServer.hasClient())
+                {
+                    for(i = 0; i < MAX_CLIENTS; i++)
+                    {
+                        if (!SysSettings.clientNodes[i] || !SysSettings.clientNodes[i].connected())
+                        {
+                            if (SysSettings.clientNodes[i]) SysSettings.clientNodes[i].stop();
+                            SysSettings.clientNodes[i] = wifiServer.available();
+                            if (!SysSettings.clientNodes[i]) Serial.println("Couldn't accept client connection!");
+                            else 
+                            {
+                                Serial.print("New client: ");
+                                Serial.print(i); Serial.print(' ');
+                                Serial.println(SysSettings.clientNodes[i].remoteIP());
+                            }
+                        }
+                    }
+                    if (i >= MAX_CLIENTS) {
+                        //no free/disconnected spot so reject
+                        wifiServer.available().stop();
+                    }
+                }
+|———————————Node:if Text: if
+|———————————Node:condition_clause Text: (wifiServer.hasClient())
+|————————————Node:( Text: (
+|————————————Node:call_expression Text: wifiServer.hasClient()
+|—————————————Node:field_expression Text: wifiServer.hasClient
+|——————————————Node:identifier Text: wifiServer
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: hasClient
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:) Text: )
+|———————————Node:compound_statement Text: {
+                    for(i = 0; i < MAX_CLIENTS; i++)
+                    {
+                        if (!SysSettings.clientNodes[i] || !SysSettings.clientNodes[i].connected())
+                        {
+                            if (SysSettings.clientNodes[i]) SysSettings.clientNodes[i].stop();
+                            SysSettings.clientNodes[i] = wifiServer.available();
+                            if (!SysSettings.clientNodes[i]) Serial.println("Couldn't accept client connection!");
+                            else 
+                            {
+                                Serial.print("New client: ");
+                                Serial.print(i); Serial.print(' ');
+                                Serial.println(SysSettings.clientNodes[i].remoteIP());
+                            }
+                        }
+                    }
+                    if (i >= MAX_CLIENTS) {
+                        //no free/disconnected spot so reject
+                        wifiServer.available().stop();
+                    }
+                }
+|————————————Node:{ Text: {
+|————————————Node:for_statement Text: for(i = 0; i < MAX_CLIENTS; i++)
+                    {
+                        if (!SysSettings.clientNodes[i] || !SysSettings.clientNodes[i].connected())
+                        {
+                            if (SysSettings.clientNodes[i]) SysSettings.clientNodes[i].stop();
+                            SysSettings.clientNodes[i] = wifiServer.available();
+                            if (!SysSettings.clientNodes[i]) Serial.println("Couldn't accept client connection!");
+                            else 
+                            {
+                                Serial.print("New client: ");
+                                Serial.print(i); Serial.print(' ');
+                                Serial.println(SysSettings.clientNodes[i].remoteIP());
+                            }
+                        }
+                    }
+|—————————————Node:for Text: for
+|—————————————Node:( Text: (
+|—————————————Node:assignment_expression Text: i = 0
+|——————————————Node:identifier Text: i
+|——————————————Node:= Text: =
+|——————————————Node:number_literal Text: 0
+|—————————————Node:; Text: ;
+|—————————————Node:binary_expression Text: i < MAX_CLIENTS
+|——————————————Node:identifier Text: i
+|——————————————Node:< Text: <
+|——————————————Node:identifier Text: MAX_CLIENTS
+|—————————————Node:; Text: ;
+|—————————————Node:update_expression Text: i++
+|——————————————Node:identifier Text: i
+|——————————————Node:++ Text: ++
+|—————————————Node:) Text: )
+|—————————————Node:compound_statement Text: {
+                        if (!SysSettings.clientNodes[i] || !SysSettings.clientNodes[i].connected())
+                        {
+                            if (SysSettings.clientNodes[i]) SysSettings.clientNodes[i].stop();
+                            SysSettings.clientNodes[i] = wifiServer.available();
+                            if (!SysSettings.clientNodes[i]) Serial.println("Couldn't accept client connection!");
+                            else 
+                            {
+                                Serial.print("New client: ");
+                                Serial.print(i); Serial.print(' ');
+                                Serial.println(SysSettings.clientNodes[i].remoteIP());
+                            }
+                        }
+                    }
+|——————————————Node:{ Text: {
+|——————————————Node:if_statement Text: if (!SysSettings.clientNodes[i] || !SysSettings.clientNodes[i].connected())
+                        {
+                            if (SysSettings.clientNodes[i]) SysSettings.clientNodes[i].stop();
+                            SysSettings.clientNodes[i] = wifiServer.available();
+                            if (!SysSettings.clientNodes[i]) Serial.println("Couldn't accept client connection!");
+                            else 
+                            {
+                                Serial.print("New client: ");
+                                Serial.print(i); Serial.print(' ');
+                                Serial.println(SysSettings.clientNodes[i].remoteIP());
+                            }
+                        }
+|———————————————Node:if Text: if
+|———————————————Node:condition_clause Text: (!SysSettings.clientNodes[i] || !SysSettings.clientNodes[i].connected())
+|————————————————Node:( Text: (
+|————————————————Node:binary_expression Text: !SysSettings.clientNodes[i] || !SysSettings.clientNodes[i].connected()
+|—————————————————Node:unary_expression Text: !SysSettings.clientNodes[i]
+|——————————————————Node:! Text: !
+|——————————————————Node:subscript_expression Text: SysSettings.clientNodes[i]
+|———————————————————Node:field_expression Text: SysSettings.clientNodes
+|————————————————————Node:identifier Text: SysSettings
+|————————————————————Node:. Text: .
+|————————————————————Node:field_identifier Text: clientNodes
+|———————————————————Node:subscript_argument_list Text: [i]
+|————————————————————Node:[ Text: [
+|————————————————————Node:identifier Text: i
+|————————————————————Node:] Text: ]
+|—————————————————Node:|| Text: ||
+|—————————————————Node:unary_expression Text: !SysSettings.clientNodes[i].connected()
+|——————————————————Node:! Text: !
+|——————————————————Node:call_expression Text: SysSettings.clientNodes[i].connected()
+|———————————————————Node:field_expression Text: SysSettings.clientNodes[i].connected
+|————————————————————Node:subscript_expression Text: SysSettings.clientNodes[i]
+|—————————————————————Node:field_expression Text: SysSettings.clientNodes
+|——————————————————————Node:identifier Text: SysSettings
+|——————————————————————Node:. Text: .
+|——————————————————————Node:field_identifier Text: clientNodes
+|—————————————————————Node:subscript_argument_list Text: [i]
+|——————————————————————Node:[ Text: [
+|——————————————————————Node:identifier Text: i
+|——————————————————————Node:] Text: ]
+|————————————————————Node:. Text: .
+|————————————————————Node:field_identifier Text: connected
+|———————————————————Node:argument_list Text: ()
+|————————————————————Node:( Text: (
+|————————————————————Node:) Text: )
+|————————————————Node:) Text: )
+|———————————————Node:compound_statement Text: {
+                            if (SysSettings.clientNodes[i]) SysSettings.clientNodes[i].stop();
+                            SysSettings.clientNodes[i] = wifiServer.available();
+                            if (!SysSettings.clientNodes[i]) Serial.println("Couldn't accept client connection!");
+                            else 
+                            {
+                                Serial.print("New client: ");
+                                Serial.print(i); Serial.print(' ');
+                                Serial.println(SysSettings.clientNodes[i].remoteIP());
+                            }
+                        }
+|————————————————Node:{ Text: {
+|————————————————Node:if_statement Text: if (SysSettings.clientNodes[i]) SysSettings.clientNodes[i].stop();
+|—————————————————Node:if Text: if
+|—————————————————Node:condition_clause Text: (SysSettings.clientNodes[i])
+|——————————————————Node:( Text: (
+|——————————————————Node:subscript_expression Text: SysSettings.clientNodes[i]
+|———————————————————Node:field_expression Text: SysSettings.clientNodes
+|————————————————————Node:identifier Text: SysSettings
+|————————————————————Node:. Text: .
+|————————————————————Node:field_identifier Text: clientNodes
+|———————————————————Node:subscript_argument_list Text: [i]
+|————————————————————Node:[ Text: [
+|————————————————————Node:identifier Text: i
+|————————————————————Node:] Text: ]
+|——————————————————Node:) Text: )
+|—————————————————Node:expression_statement Text: SysSettings.clientNodes[i].stop();
+|——————————————————Node:call_expression Text: SysSettings.clientNodes[i].stop()
+|———————————————————Node:field_expression Text: SysSettings.clientNodes[i].stop
+|————————————————————Node:subscript_expression Text: SysSettings.clientNodes[i]
+|—————————————————————Node:field_expression Text: SysSettings.clientNodes
+|——————————————————————Node:identifier Text: SysSettings
+|——————————————————————Node:. Text: .
+|——————————————————————Node:field_identifier Text: clientNodes
+|—————————————————————Node:subscript_argument_list Text: [i]
+|——————————————————————Node:[ Text: [
+|——————————————————————Node:identifier Text: i
+|——————————————————————Node:] Text: ]
+|————————————————————Node:. Text: .
+|————————————————————Node:field_identifier Text: stop
+|———————————————————Node:argument_list Text: ()
+|————————————————————Node:( Text: (
+|————————————————————Node:) Text: )
+|——————————————————Node:; Text: ;
+|————————————————Node:expression_statement Text: SysSettings.clientNodes[i] = wifiServer.available();
+|—————————————————Node:assignment_expression Text: SysSettings.clientNodes[i] = wifiServer.available()
+|——————————————————Node:subscript_expression Text: SysSettings.clientNodes[i]
+|———————————————————Node:field_expression Text: SysSettings.clientNodes
+|————————————————————Node:identifier Text: SysSettings
+|————————————————————Node:. Text: .
+|————————————————————Node:field_identifier Text: clientNodes
+|———————————————————Node:subscript_argument_list Text: [i]
+|————————————————————Node:[ Text: [
+|————————————————————Node:identifier Text: i
+|————————————————————Node:] Text: ]
+|——————————————————Node:= Text: =
+|——————————————————Node:call_expression Text: wifiServer.available()
+|———————————————————Node:field_expression Text: wifiServer.available
+|————————————————————Node:identifier Text: wifiServer
+|————————————————————Node:. Text: .
+|————————————————————Node:field_identifier Text: available
+|———————————————————Node:argument_list Text: ()
+|————————————————————Node:( Text: (
+|————————————————————Node:) Text: )
+|—————————————————Node:; Text: ;
+|————————————————Node:if_statement Text: if (!SysSettings.clientNodes[i]) Serial.println("Couldn't accept client connection!");
+                            else 
+                            {
+                                Serial.print("New client: ");
+                                Serial.print(i); Serial.print(' ');
+                                Serial.println(SysSettings.clientNodes[i].remoteIP());
+                            }
+|—————————————————Node:if Text: if
+|—————————————————Node:condition_clause Text: (!SysSettings.clientNodes[i])
+|——————————————————Node:( Text: (
+|——————————————————Node:unary_expression Text: !SysSettings.clientNodes[i]
+|———————————————————Node:! Text: !
+|———————————————————Node:subscript_expression Text: SysSettings.clientNodes[i]
+|————————————————————Node:field_expression Text: SysSettings.clientNodes
+|—————————————————————Node:identifier Text: SysSettings
+|—————————————————————Node:. Text: .
+|—————————————————————Node:field_identifier Text: clientNodes
+|————————————————————Node:subscript_argument_list Text: [i]
+|—————————————————————Node:[ Text: [
+|—————————————————————Node:identifier Text: i
+|—————————————————————Node:] Text: ]
+|——————————————————Node:) Text: )
+|—————————————————Node:expression_statement Text: Serial.println("Couldn't accept client connection!");
+|——————————————————Node:call_expression Text: Serial.println("Couldn't accept client connection!")
+|———————————————————Node:field_expression Text: Serial.println
+|————————————————————Node:identifier Text: Serial
+|————————————————————Node:. Text: .
+|————————————————————Node:field_identifier Text: println
+|———————————————————Node:argument_list Text: ("Couldn't accept client connection!")
+|————————————————————Node:( Text: (
+|————————————————————Node:string_literal Text: "Couldn't accept client connection!"
+|—————————————————————Node:" Text: "
+|—————————————————————Node:string_content Text: Couldn't accept client connection!
+|—————————————————————Node:" Text: "
+|————————————————————Node:) Text: )
+|——————————————————Node:; Text: ;
+|—————————————————Node:else_clause Text: else 
+                            {
+                                Serial.print("New client: ");
+                                Serial.print(i); Serial.print(' ');
+                                Serial.println(SysSettings.clientNodes[i].remoteIP());
+                            }
+|——————————————————Node:else Text: else
+|——————————————————Node:compound_statement Text: {
+                                Serial.print("New client: ");
+                                Serial.print(i); Serial.print(' ');
+                                Serial.println(SysSettings.clientNodes[i].remoteIP());
+                            }
+|———————————————————Node:{ Text: {
+|———————————————————Node:expression_statement Text: Serial.print("New client: ");
+|————————————————————Node:call_expression Text: Serial.print("New client: ")
+|—————————————————————Node:field_expression Text: Serial.print
+|——————————————————————Node:identifier Text: Serial
+|——————————————————————Node:. Text: .
+|——————————————————————Node:field_identifier Text: print
+|—————————————————————Node:argument_list Text: ("New client: ")
+|——————————————————————Node:( Text: (
+|——————————————————————Node:string_literal Text: "New client: "
+|———————————————————————Node:" Text: "
+|———————————————————————Node:string_content Text: New client: 
+|———————————————————————Node:" Text: "
+|——————————————————————Node:) Text: )
+|————————————————————Node:; Text: ;
+|———————————————————Node:expression_statement Text: Serial.print(i);
+|————————————————————Node:call_expression Text: Serial.print(i)
+|—————————————————————Node:field_expression Text: Serial.print
+|——————————————————————Node:identifier Text: Serial
+|——————————————————————Node:. Text: .
+|——————————————————————Node:field_identifier Text: print
+|—————————————————————Node:argument_list Text: (i)
+|——————————————————————Node:( Text: (
+|——————————————————————Node:identifier Text: i
+|——————————————————————Node:) Text: )
+|————————————————————Node:; Text: ;
+|———————————————————Node:expression_statement Text: Serial.print(' ');
+|————————————————————Node:call_expression Text: Serial.print(' ')
+|—————————————————————Node:field_expression Text: Serial.print
+|——————————————————————Node:identifier Text: Serial
+|——————————————————————Node:. Text: .
+|——————————————————————Node:field_identifier Text: print
+|—————————————————————Node:argument_list Text: (' ')
+|——————————————————————Node:( Text: (
+|——————————————————————Node:char_literal Text: ' '
+|———————————————————————Node:' Text: '
+|———————————————————————Node:character Text:  
+|———————————————————————Node:' Text: '
+|——————————————————————Node:) Text: )
+|————————————————————Node:; Text: ;
+|———————————————————Node:expression_statement Text: Serial.println(SysSettings.clientNodes[i].remoteIP());
+|————————————————————Node:call_expression Text: Serial.println(SysSettings.clientNodes[i].remoteIP())
+|—————————————————————Node:field_expression Text: Serial.println
+|——————————————————————Node:identifier Text: Serial
+|——————————————————————Node:. Text: .
+|——————————————————————Node:field_identifier Text: println
+|—————————————————————Node:argument_list Text: (SysSettings.clientNodes[i].remoteIP())
+|——————————————————————Node:( Text: (
+|——————————————————————Node:call_expression Text: SysSettings.clientNodes[i].remoteIP()
+|———————————————————————Node:field_expression Text: SysSettings.clientNodes[i].remoteIP
+|————————————————————————Node:subscript_expression Text: SysSettings.clientNodes[i]
+|—————————————————————————Node:field_expression Text: SysSettings.clientNodes
+|——————————————————————————Node:identifier Text: SysSettings
+|——————————————————————————Node:. Text: .
+|——————————————————————————Node:field_identifier Text: clientNodes
+|—————————————————————————Node:subscript_argument_list Text: [i]
+|——————————————————————————Node:[ Text: [
+|——————————————————————————Node:identifier Text: i
+|——————————————————————————Node:] Text: ]
+|————————————————————————Node:. Text: .
+|————————————————————————Node:field_identifier Text: remoteIP
+|———————————————————————Node:argument_list Text: ()
+|————————————————————————Node:( Text: (
+|————————————————————————Node:) Text: )
+|——————————————————————Node:) Text: )
+|————————————————————Node:; Text: ;
+|———————————————————Node:} Text: }
+|————————————————Node:} Text: }
+|——————————————Node:} Text: }
+|————————————Node:if_statement Text: if (i >= MAX_CLIENTS) {
+                        //no free/disconnected spot so reject
+                        wifiServer.available().stop();
+                    }
+|—————————————Node:if Text: if
+|—————————————Node:condition_clause Text: (i >= MAX_CLIENTS)
+|——————————————Node:( Text: (
+|——————————————Node:binary_expression Text: i >= MAX_CLIENTS
+|———————————————Node:identifier Text: i
+|———————————————Node:>= Text: >=
+|———————————————Node:identifier Text: MAX_CLIENTS
+|——————————————Node:) Text: )
+|—————————————Node:compound_statement Text: {
+                        //no free/disconnected spot so reject
+                        wifiServer.available().stop();
+                    }
+|——————————————Node:{ Text: {
+|——————————————Node:comment
+|——————————————Node:expression_statement Text: wifiServer.available().stop();
+|———————————————Node:call_expression Text: wifiServer.available().stop()
+|————————————————Node:field_expression Text: wifiServer.available().stop
+|—————————————————Node:call_expression Text: wifiServer.available()
+|——————————————————Node:field_expression Text: wifiServer.available
+|———————————————————Node:identifier Text: wifiServer
+|———————————————————Node:. Text: .
+|———————————————————Node:field_identifier Text: available
+|——————————————————Node:argument_list Text: ()
+|———————————————————Node:( Text: (
+|———————————————————Node:) Text: )
+|—————————————————Node:. Text: .
+|—————————————————Node:field_identifier Text: stop
+|————————————————Node:argument_list Text: ()
+|—————————————————Node:( Text: (
+|—————————————————Node:) Text: )
+|———————————————Node:; Text: ;
+|——————————————Node:} Text: }
+|————————————Node:} Text: }
+|——————————Node:comment
+|——————————Node:for_statement Text: for(i = 0; i < MAX_CLIENTS; i++){
+                    if (SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected())
+                    {
+                        if(SysSettings.clientNodes[i].available())
+                        {
+                            //get data from the telnet client and push it to input processing
+                            while(SysSettings.clientNodes[i].available()) 
+                            {
+                                uint8_t inByt;
+                                inByt = SysSettings.clientNodes[i].read();
+                                SysSettings.isWifiActive = true;
+                                //Serial.write(inByt); //echo to serial - just for debugging. Don't leave this on!
+                                wifiGVRET.processIncomingByte(inByt);
+                            }
+                        }
+                    }
+                    else {
+                        if (SysSettings.clientNodes[i]) {
+                            SysSettings.clientNodes[i].stop();
+                        }
+                    }
+                }
+|———————————Node:for Text: for
+|———————————Node:( Text: (
+|———————————Node:assignment_expression Text: i = 0
+|————————————Node:identifier Text: i
+|————————————Node:= Text: =
+|————————————Node:number_literal Text: 0
+|———————————Node:; Text: ;
+|———————————Node:binary_expression Text: i < MAX_CLIENTS
+|————————————Node:identifier Text: i
+|————————————Node:< Text: <
+|————————————Node:identifier Text: MAX_CLIENTS
+|———————————Node:; Text: ;
+|———————————Node:update_expression Text: i++
+|————————————Node:identifier Text: i
+|————————————Node:++ Text: ++
+|———————————Node:) Text: )
+|———————————Node:compound_statement Text: {
+                    if (SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected())
+                    {
+                        if(SysSettings.clientNodes[i].available())
+                        {
+                            //get data from the telnet client and push it to input processing
+                            while(SysSettings.clientNodes[i].available()) 
+                            {
+                                uint8_t inByt;
+                                inByt = SysSettings.clientNodes[i].read();
+                                SysSettings.isWifiActive = true;
+                                //Serial.write(inByt); //echo to serial - just for debugging. Don't leave this on!
+                                wifiGVRET.processIncomingByte(inByt);
+                            }
+                        }
+                    }
+                    else {
+                        if (SysSettings.clientNodes[i]) {
+                            SysSettings.clientNodes[i].stop();
+                        }
+                    }
+                }
+|————————————Node:{ Text: {
+|————————————Node:if_statement Text: if (SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected())
+                    {
+                        if(SysSettings.clientNodes[i].available())
+                        {
+                            //get data from the telnet client and push it to input processing
+                            while(SysSettings.clientNodes[i].available()) 
+                            {
+                                uint8_t inByt;
+                                inByt = SysSettings.clientNodes[i].read();
+                                SysSettings.isWifiActive = true;
+                                //Serial.write(inByt); //echo to serial - just for debugging. Don't leave this on!
+                                wifiGVRET.processIncomingByte(inByt);
+                            }
+                        }
+                    }
+                    else {
+                        if (SysSettings.clientNodes[i]) {
+                            SysSettings.clientNodes[i].stop();
+                        }
+                    }
+|—————————————Node:if Text: if
+|—————————————Node:condition_clause Text: (SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected())
+|——————————————Node:( Text: (
+|——————————————Node:binary_expression Text: SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected()
+|———————————————Node:subscript_expression Text: SysSettings.clientNodes[i]
+|————————————————Node:field_expression Text: SysSettings.clientNodes
+|—————————————————Node:identifier Text: SysSettings
+|—————————————————Node:. Text: .
+|—————————————————Node:field_identifier Text: clientNodes
+|————————————————Node:subscript_argument_list Text: [i]
+|—————————————————Node:[ Text: [
+|—————————————————Node:identifier Text: i
+|—————————————————Node:] Text: ]
+|———————————————Node:&& Text: &&
+|———————————————Node:call_expression Text: SysSettings.clientNodes[i].connected()
+|————————————————Node:field_expression Text: SysSettings.clientNodes[i].connected
+|—————————————————Node:subscript_expression Text: SysSettings.clientNodes[i]
+|——————————————————Node:field_expression Text: SysSettings.clientNodes
+|———————————————————Node:identifier Text: SysSettings
+|———————————————————Node:. Text: .
+|———————————————————Node:field_identifier Text: clientNodes
+|——————————————————Node:subscript_argument_list Text: [i]
+|———————————————————Node:[ Text: [
+|———————————————————Node:identifier Text: i
+|———————————————————Node:] Text: ]
+|—————————————————Node:. Text: .
+|—————————————————Node:field_identifier Text: connected
+|————————————————Node:argument_list Text: ()
+|—————————————————Node:( Text: (
+|—————————————————Node:) Text: )
+|——————————————Node:) Text: )
+|—————————————Node:compound_statement Text: {
+                        if(SysSettings.clientNodes[i].available())
+                        {
+                            //get data from the telnet client and push it to input processing
+                            while(SysSettings.clientNodes[i].available()) 
+                            {
+                                uint8_t inByt;
+                                inByt = SysSettings.clientNodes[i].read();
+                                SysSettings.isWifiActive = true;
+                                //Serial.write(inByt); //echo to serial - just for debugging. Don't leave this on!
+                                wifiGVRET.processIncomingByte(inByt);
+                            }
+                        }
+                    }
+|——————————————Node:{ Text: {
+|——————————————Node:if_statement Text: if(SysSettings.clientNodes[i].available())
+                        {
+                            //get data from the telnet client and push it to input processing
+                            while(SysSettings.clientNodes[i].available()) 
+                            {
+                                uint8_t inByt;
+                                inByt = SysSettings.clientNodes[i].read();
+                                SysSettings.isWifiActive = true;
+                                //Serial.write(inByt); //echo to serial - just for debugging. Don't leave this on!
+                                wifiGVRET.processIncomingByte(inByt);
+                            }
+                        }
+|———————————————Node:if Text: if
+|———————————————Node:condition_clause Text: (SysSettings.clientNodes[i].available())
+|————————————————Node:( Text: (
+|————————————————Node:call_expression Text: SysSettings.clientNodes[i].available()
+|—————————————————Node:field_expression Text: SysSettings.clientNodes[i].available
+|——————————————————Node:subscript_expression Text: SysSettings.clientNodes[i]
+|———————————————————Node:field_expression Text: SysSettings.clientNodes
+|————————————————————Node:identifier Text: SysSettings
+|————————————————————Node:. Text: .
+|————————————————————Node:field_identifier Text: clientNodes
+|———————————————————Node:subscript_argument_list Text: [i]
+|————————————————————Node:[ Text: [
+|————————————————————Node:identifier Text: i
+|————————————————————Node:] Text: ]
+|——————————————————Node:. Text: .
+|——————————————————Node:field_identifier Text: available
+|—————————————————Node:argument_list Text: ()
+|——————————————————Node:( Text: (
+|——————————————————Node:) Text: )
+|————————————————Node:) Text: )
+|———————————————Node:compound_statement Text: {
+                            //get data from the telnet client and push it to input processing
+                            while(SysSettings.clientNodes[i].available()) 
+                            {
+                                uint8_t inByt;
+                                inByt = SysSettings.clientNodes[i].read();
+                                SysSettings.isWifiActive = true;
+                                //Serial.write(inByt); //echo to serial - just for debugging. Don't leave this on!
+                                wifiGVRET.processIncomingByte(inByt);
+                            }
+                        }
+|————————————————Node:{ Text: {
+|————————————————Node:comment
+|————————————————Node:while_statement Text: while(SysSettings.clientNodes[i].available()) 
+                            {
+                                uint8_t inByt;
+                                inByt = SysSettings.clientNodes[i].read();
+                                SysSettings.isWifiActive = true;
+                                //Serial.write(inByt); //echo to serial - just for debugging. Don't leave this on!
+                                wifiGVRET.processIncomingByte(inByt);
+                            }
+|—————————————————Node:while Text: while
+|—————————————————Node:condition_clause Text: (SysSettings.clientNodes[i].available())
+|——————————————————Node:( Text: (
+|——————————————————Node:call_expression Text: SysSettings.clientNodes[i].available()
+|———————————————————Node:field_expression Text: SysSettings.clientNodes[i].available
+|————————————————————Node:subscript_expression Text: SysSettings.clientNodes[i]
+|—————————————————————Node:field_expression Text: SysSettings.clientNodes
+|——————————————————————Node:identifier Text: SysSettings
+|——————————————————————Node:. Text: .
+|——————————————————————Node:field_identifier Text: clientNodes
+|—————————————————————Node:subscript_argument_list Text: [i]
+|——————————————————————Node:[ Text: [
+|——————————————————————Node:identifier Text: i
+|——————————————————————Node:] Text: ]
+|————————————————————Node:. Text: .
+|————————————————————Node:field_identifier Text: available
+|———————————————————Node:argument_list Text: ()
+|————————————————————Node:( Text: (
+|————————————————————Node:) Text: )
+|——————————————————Node:) Text: )
+|—————————————————Node:compound_statement Text: {
+                                uint8_t inByt;
+                                inByt = SysSettings.clientNodes[i].read();
+                                SysSettings.isWifiActive = true;
+                                //Serial.write(inByt); //echo to serial - just for debugging. Don't leave this on!
+                                wifiGVRET.processIncomingByte(inByt);
+                            }
+|——————————————————Node:{ Text: {
+|——————————————————Node:declaration Text: uint8_t inByt;
+|———————————————————Node:primitive_type Text: uint8_t
+|———————————————————Node:identifier Text: inByt
+|———————————————————Node:; Text: ;
+|——————————————————Node:expression_statement Text: inByt = SysSettings.clientNodes[i].read();
+|———————————————————Node:assignment_expression Text: inByt = SysSettings.clientNodes[i].read()
+|————————————————————Node:identifier Text: inByt
+|————————————————————Node:= Text: =
+|————————————————————Node:call_expression Text: SysSettings.clientNodes[i].read()
+|—————————————————————Node:field_expression Text: SysSettings.clientNodes[i].read
+|——————————————————————Node:subscript_expression Text: SysSettings.clientNodes[i]
+|———————————————————————Node:field_expression Text: SysSettings.clientNodes
+|————————————————————————Node:identifier Text: SysSettings
+|————————————————————————Node:. Text: .
+|————————————————————————Node:field_identifier Text: clientNodes
+|———————————————————————Node:subscript_argument_list Text: [i]
+|————————————————————————Node:[ Text: [
+|————————————————————————Node:identifier Text: i
+|————————————————————————Node:] Text: ]
+|——————————————————————Node:. Text: .
+|——————————————————————Node:field_identifier Text: read
+|—————————————————————Node:argument_list Text: ()
+|——————————————————————Node:( Text: (
+|——————————————————————Node:) Text: )
+|———————————————————Node:; Text: ;
+|——————————————————Node:expression_statement Text: SysSettings.isWifiActive = true;
+|———————————————————Node:assignment_expression Text: SysSettings.isWifiActive = true
+|————————————————————Node:field_expression Text: SysSettings.isWifiActive
+|—————————————————————Node:identifier Text: SysSettings
+|—————————————————————Node:. Text: .
+|—————————————————————Node:field_identifier Text: isWifiActive
+|————————————————————Node:= Text: =
+|————————————————————Node:true Text: true
+|———————————————————Node:; Text: ;
+|——————————————————Node:comment
+|——————————————————Node:expression_statement Text: wifiGVRET.processIncomingByte(inByt);
+|———————————————————Node:call_expression Text: wifiGVRET.processIncomingByte(inByt)
+|————————————————————Node:field_expression Text: wifiGVRET.processIncomingByte
+|—————————————————————Node:identifier Text: wifiGVRET
+|—————————————————————Node:. Text: .
+|—————————————————————Node:field_identifier Text: processIncomingByte
+|————————————————————Node:argument_list Text: (inByt)
+|—————————————————————Node:( Text: (
+|—————————————————————Node:identifier Text: inByt
+|—————————————————————Node:) Text: )
+|———————————————————Node:; Text: ;
+|——————————————————Node:} Text: }
+|————————————————Node:} Text: }
+|——————————————Node:} Text: }
+|—————————————Node:else_clause Text: else {
+                        if (SysSettings.clientNodes[i]) {
+                            SysSettings.clientNodes[i].stop();
+                        }
+                    }
+|——————————————Node:else Text: else
+|——————————————Node:compound_statement Text: {
+                        if (SysSettings.clientNodes[i]) {
+                            SysSettings.clientNodes[i].stop();
+                        }
+                    }
+|———————————————Node:{ Text: {
+|———————————————Node:if_statement Text: if (SysSettings.clientNodes[i]) {
+                            SysSettings.clientNodes[i].stop();
+                        }
+|————————————————Node:if Text: if
+|————————————————Node:condition_clause Text: (SysSettings.clientNodes[i])
+|—————————————————Node:( Text: (
+|—————————————————Node:subscript_expression Text: SysSettings.clientNodes[i]
+|——————————————————Node:field_expression Text: SysSettings.clientNodes
+|———————————————————Node:identifier Text: SysSettings
+|———————————————————Node:. Text: .
+|———————————————————Node:field_identifier Text: clientNodes
+|——————————————————Node:subscript_argument_list Text: [i]
+|———————————————————Node:[ Text: [
+|———————————————————Node:identifier Text: i
+|———————————————————Node:] Text: ]
+|—————————————————Node:) Text: )
+|————————————————Node:compound_statement Text: {
+                            SysSettings.clientNodes[i].stop();
+                        }
+|—————————————————Node:{ Text: {
+|—————————————————Node:expression_statement Text: SysSettings.clientNodes[i].stop();
+|——————————————————Node:call_expression Text: SysSettings.clientNodes[i].stop()
+|———————————————————Node:field_expression Text: SysSettings.clientNodes[i].stop
+|————————————————————Node:subscript_expression Text: SysSettings.clientNodes[i]
+|—————————————————————Node:field_expression Text: SysSettings.clientNodes
+|——————————————————————Node:identifier Text: SysSettings
+|——————————————————————Node:. Text: .
+|——————————————————————Node:field_identifier Text: clientNodes
+|—————————————————————Node:subscript_argument_list Text: [i]
+|——————————————————————Node:[ Text: [
+|——————————————————————Node:identifier Text: i
+|——————————————————————Node:] Text: ]
+|————————————————————Node:. Text: .
+|————————————————————Node:field_identifier Text: stop
+|———————————————————Node:argument_list Text: ()
+|————————————————————Node:( Text: (
+|————————————————————Node:) Text: )
+|——————————————————Node:; Text: ;
+|—————————————————Node:} Text: }
+|———————————————Node:} Text: }
+|————————————Node:} Text: }
+|——————————Node:} Text: }
+|—————————Node:else_clause Text: else 
+            {
+                if (settings.wifiMode == 1)
+                {
+                    Serial.println("WiFi disconnected. Bummer!");
+                    SysSettings.isWifiConnected = false;
+                    SysSettings.isWifiActive = false;
+                }
+            }
+|——————————Node:else Text: else
+|——————————Node:compound_statement Text: {
+                if (settings.wifiMode == 1)
+                {
+                    Serial.println("WiFi disconnected. Bummer!");
+                    SysSettings.isWifiConnected = false;
+                    SysSettings.isWifiActive = false;
+                }
+            }
+|———————————Node:{ Text: {
+|———————————Node:if_statement Text: if (settings.wifiMode == 1)
+                {
+                    Serial.println("WiFi disconnected. Bummer!");
+                    SysSettings.isWifiConnected = false;
+                    SysSettings.isWifiActive = false;
+                }
+|————————————Node:if Text: if
+|————————————Node:condition_clause Text: (settings.wifiMode == 1)
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: settings.wifiMode == 1
+|——————————————Node:field_expression Text: settings.wifiMode
+|———————————————Node:identifier Text: settings
+|———————————————Node:. Text: .
+|———————————————Node:field_identifier Text: wifiMode
+|——————————————Node:== Text: ==
+|——————————————Node:number_literal Text: 1
+|—————————————Node:) Text: )
+|————————————Node:compound_statement Text: {
+                    Serial.println("WiFi disconnected. Bummer!");
+                    SysSettings.isWifiConnected = false;
+                    SysSettings.isWifiActive = false;
+                }
+|—————————————Node:{ Text: {
+|—————————————Node:expression_statement Text: Serial.println("WiFi disconnected. Bummer!");
+|——————————————Node:call_expression Text: Serial.println("WiFi disconnected. Bummer!")
+|———————————————Node:field_expression Text: Serial.println
+|————————————————Node:identifier Text: Serial
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: println
+|———————————————Node:argument_list Text: ("WiFi disconnected. Bummer!")
+|————————————————Node:( Text: (
+|————————————————Node:string_literal Text: "WiFi disconnected. Bummer!"
+|—————————————————Node:" Text: "
+|—————————————————Node:string_content Text: WiFi disconnected. Bummer!
+|—————————————————Node:" Text: "
+|————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:expression_statement Text: SysSettings.isWifiConnected = false;
+|——————————————Node:assignment_expression Text: SysSettings.isWifiConnected = false
+|———————————————Node:field_expression Text: SysSettings.isWifiConnected
+|————————————————Node:identifier Text: SysSettings
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: isWifiConnected
+|———————————————Node:= Text: =
+|———————————————Node:false Text: false
+|——————————————Node:; Text: ;
+|—————————————Node:expression_statement Text: SysSettings.isWifiActive = false;
+|——————————————Node:assignment_expression Text: SysSettings.isWifiActive = false
+|———————————————Node:field_expression Text: SysSettings.isWifiActive
+|————————————————Node:identifier Text: SysSettings
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: isWifiActive
+|———————————————Node:= Text: =
+|———————————————Node:false Text: false
+|——————————————Node:; Text: ;
+|—————————————Node:} Text: }
+|———————————Node:} Text: }
+|————————Node:} Text: }
+|—————Node:} Text: }
+|———Node:if_statement Text: if (SysSettings.isWifiConnected && ((micros() - lastBroadcast) > 1000000ul) ) //every second send out a broadcast ping
+    {
+        uint8_t buff[4] = {0x1C,0xEF,0xAC,0xED};
+        lastBroadcast = micros();
+        wifiUDPServer.beginPacket(broadcastAddr, 17222);
+        wifiUDPServer.write(buff, 4);
+        wifiUDPServer.endPacket();
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (SysSettings.isWifiConnected && ((micros() - lastBroadcast) > 1000000ul) )
+|—————Node:( Text: (
+|—————Node:binary_expression Text: SysSettings.isWifiConnected && ((micros() - lastBroadcast) > 1000000ul)
+|——————Node:field_expression Text: SysSettings.isWifiConnected
+|———————Node:identifier Text: SysSettings
+|———————Node:. Text: .
+|———————Node:field_identifier Text: isWifiConnected
+|——————Node:&& Text: &&
+|——————Node:parenthesized_expression Text: ((micros() - lastBroadcast) > 1000000ul)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: (micros() - lastBroadcast) > 1000000ul
+|————————Node:parenthesized_expression Text: (micros() - lastBroadcast)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: micros() - lastBroadcast
+|——————————Node:call_expression Text: micros()
+|———————————Node:identifier Text: micros
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:- Text: -
+|——————————Node:identifier Text: lastBroadcast
+|—————————Node:) Text: )
+|————————Node:> Text: >
+|————————Node:number_literal Text: 1000000ul
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:comment
+|————Node:compound_statement Text: {
+        uint8_t buff[4] = {0x1C,0xEF,0xAC,0xED};
+        lastBroadcast = micros();
+        wifiUDPServer.beginPacket(broadcastAddr, 17222);
+        wifiUDPServer.write(buff, 4);
+        wifiUDPServer.endPacket();
+    }
+|—————Node:{ Text: {
+|—————Node:declaration Text: uint8_t buff[4] = {0x1C,0xEF,0xAC,0xED};
+|——————Node:primitive_type Text: uint8_t
+|——————Node:init_declarator Text: buff[4] = {0x1C,0xEF,0xAC,0xED}
+|———————Node:array_declarator Text: buff[4]
+|————————Node:identifier Text: buff
+|————————Node:[ Text: [
+|————————Node:number_literal Text: 4
+|————————Node:] Text: ]
+|———————Node:= Text: =
+|———————Node:initializer_list Text: {0x1C,0xEF,0xAC,0xED}
+|————————Node:{ Text: {
+|————————Node:number_literal Text: 0x1C
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 0xEF
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 0xAC
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 0xED
+|————————Node:} Text: }
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: lastBroadcast = micros();
+|——————Node:assignment_expression Text: lastBroadcast = micros()
+|———————Node:identifier Text: lastBroadcast
+|———————Node:= Text: =
+|———————Node:call_expression Text: micros()
+|————————Node:identifier Text: micros
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: wifiUDPServer.beginPacket(broadcastAddr, 17222);
+|——————Node:call_expression Text: wifiUDPServer.beginPacket(broadcastAddr, 17222)
+|———————Node:field_expression Text: wifiUDPServer.beginPacket
+|————————Node:identifier Text: wifiUDPServer
+|————————Node:. Text: .
+|————————Node:field_identifier Text: beginPacket
+|———————Node:argument_list Text: (broadcastAddr, 17222)
+|————————Node:( Text: (
+|————————Node:identifier Text: broadcastAddr
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 17222
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: wifiUDPServer.write(buff, 4);
+|——————Node:call_expression Text: wifiUDPServer.write(buff, 4)
+|———————Node:field_expression Text: wifiUDPServer.write
+|————————Node:identifier Text: wifiUDPServer
+|————————Node:. Text: .
+|————————Node:field_identifier Text: write
+|———————Node:argument_list Text: (buff, 4)
+|————————Node:( Text: (
+|————————Node:identifier Text: buff
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 4
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: wifiUDPServer.endPacket();
+|——————Node:call_expression Text: wifiUDPServer.endPacket()
+|———————Node:field_expression Text: wifiUDPServer.endPacket
+|————————Node:identifier Text: wifiUDPServer
+|————————Node:. Text: .
+|————————Node:field_identifier Text: endPacket
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: ArduinoOTA.handle();
+|————Node:call_expression Text: ArduinoOTA.handle()
+|—————Node:field_expression Text: ArduinoOTA.handle
+|——————Node:identifier Text: ArduinoOTA
+|——————Node:. Text: .
+|——————Node:field_identifier Text: handle
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void WiFiManager::sendBufferedData()
+{
+    for(int i = 0; i < MAX_CLIENTS; i++)
+    {
+        size_t wifiLength = wifiGVRET.numAvailableBytes();
+        uint8_t* buff = wifiGVRET.getBufferedBytes();
+        if (SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected())
+        {
+            SysSettings.clientNodes[i].write(buff, wifiLength);
+        }
+    }
+    wifiGVRET.clearBufferedBytes();
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: WiFiManager::sendBufferedData()
+|———Node:qualified_identifier Text: WiFiManager::sendBufferedData
+|————Node:namespace_identifier Text: WiFiManager
+|————Node::: Text: ::
+|————Node:identifier Text: sendBufferedData
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    for(int i = 0; i < MAX_CLIENTS; i++)
+    {
+        size_t wifiLength = wifiGVRET.numAvailableBytes();
+        uint8_t* buff = wifiGVRET.getBufferedBytes();
+        if (SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected())
+        {
+            SysSettings.clientNodes[i].write(buff, wifiLength);
+        }
+    }
+    wifiGVRET.clearBufferedBytes();
+}
+|———Node:{ Text: {
+|———Node:for_statement Text: for(int i = 0; i < MAX_CLIENTS; i++)
+    {
+        size_t wifiLength = wifiGVRET.numAvailableBytes();
+        uint8_t* buff = wifiGVRET.getBufferedBytes();
+        if (SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected())
+        {
+            SysSettings.clientNodes[i].write(buff, wifiLength);
+        }
+    }
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:declaration Text: int i = 0;
+|—————Node:primitive_type Text: int
+|—————Node:init_declarator Text: i = 0
+|——————Node:identifier Text: i
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:binary_expression Text: i < MAX_CLIENTS
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:identifier Text: MAX_CLIENTS
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+        size_t wifiLength = wifiGVRET.numAvailableBytes();
+        uint8_t* buff = wifiGVRET.getBufferedBytes();
+        if (SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected())
+        {
+            SysSettings.clientNodes[i].write(buff, wifiLength);
+        }
+    }
+|—————Node:{ Text: {
+|—————Node:declaration Text: size_t wifiLength = wifiGVRET.numAvailableBytes();
+|——————Node:primitive_type Text: size_t
+|——————Node:init_declarator Text: wifiLength = wifiGVRET.numAvailableBytes()
+|———————Node:identifier Text: wifiLength
+|———————Node:= Text: =
+|———————Node:call_expression Text: wifiGVRET.numAvailableBytes()
+|————————Node:field_expression Text: wifiGVRET.numAvailableBytes
+|—————————Node:identifier Text: wifiGVRET
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: numAvailableBytes
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: uint8_t* buff = wifiGVRET.getBufferedBytes();
+|——————Node:primitive_type Text: uint8_t
+|——————Node:init_declarator Text: * buff = wifiGVRET.getBufferedBytes()
+|———————Node:pointer_declarator Text: * buff
+|————————Node:* Text: *
+|————————Node:identifier Text: buff
+|———————Node:= Text: =
+|———————Node:call_expression Text: wifiGVRET.getBufferedBytes()
+|————————Node:field_expression Text: wifiGVRET.getBufferedBytes
+|—————————Node:identifier Text: wifiGVRET
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: getBufferedBytes
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if (SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected())
+        {
+            SysSettings.clientNodes[i].write(buff, wifiLength);
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected())
+|———————Node:( Text: (
+|———————Node:binary_expression Text: SysSettings.clientNodes[i] && SysSettings.clientNodes[i].connected()
+|————————Node:subscript_expression Text: SysSettings.clientNodes[i]
+|—————————Node:field_expression Text: SysSettings.clientNodes
+|——————————Node:identifier Text: SysSettings
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: clientNodes
+|—————————Node:subscript_argument_list Text: [i]
+|——————————Node:[ Text: [
+|——————————Node:identifier Text: i
+|——————————Node:] Text: ]
+|————————Node:&& Text: &&
+|————————Node:call_expression Text: SysSettings.clientNodes[i].connected()
+|—————————Node:field_expression Text: SysSettings.clientNodes[i].connected
+|——————————Node:subscript_expression Text: SysSettings.clientNodes[i]
+|———————————Node:field_expression Text: SysSettings.clientNodes
+|————————————Node:identifier Text: SysSettings
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: clientNodes
+|———————————Node:subscript_argument_list Text: [i]
+|————————————Node:[ Text: [
+|————————————Node:identifier Text: i
+|————————————Node:] Text: ]
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: connected
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            SysSettings.clientNodes[i].write(buff, wifiLength);
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: SysSettings.clientNodes[i].write(buff, wifiLength);
+|————————Node:call_expression Text: SysSettings.clientNodes[i].write(buff, wifiLength)
+|—————————Node:field_expression Text: SysSettings.clientNodes[i].write
+|——————————Node:subscript_expression Text: SysSettings.clientNodes[i]
+|———————————Node:field_expression Text: SysSettings.clientNodes
+|————————————Node:identifier Text: SysSettings
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: clientNodes
+|———————————Node:subscript_argument_list Text: [i]
+|————————————Node:[ Text: [
+|————————————Node:identifier Text: i
+|————————————Node:] Text: ]
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: write
+|—————————Node:argument_list Text: (buff, wifiLength)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: buff
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: wifiLength
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:expression_statement Text: wifiGVRET.clearBufferedBytes();
+|————Node:call_expression Text: wifiGVRET.clearBufferedBytes()
+|—————Node:field_expression Text: wifiGVRET.clearBufferedBytes
+|——————Node:identifier Text: wifiGVRET
+|——————Node:. Text: .
+|——————Node:field_identifier Text: clearBufferedBytes
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }

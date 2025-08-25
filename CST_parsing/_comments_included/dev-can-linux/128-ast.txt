@@ -1,0 +1,2411 @@
+dev-can-linux-src\include\resmgr.h
+
+|Node:translation_unit
+|—Node:comment Text: /*
+ * \file    resmgr.h
+ *
+ * Copyright (C) 2022 Deniz Eren <deniz.eren@outlook.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+|—Node:preproc_ifdef Text: #ifndef SRC_RESMGR_H_
+#define SRC_RESMGR_H_
+
+#include <pci/pci.h>
+#include <session.h>
+
+#include <drivers/net/can/sja1000/sja1000.h>
+
+struct can_ocb;
+
+#if CONFIG_QNX_RESMGR_THREAD_POOL == 1
+/*
+ * Define THREAD_POOL_PARAM_T so that we can avoid compiler warnings
+ */
+#define THREAD_POOL_PARAM_T dispatch_context_t
+#endif
+
+/*
+ * Extending the OCB the attribute structure
+ */
+#define IOFUNC_OCB_T struct can_ocb
+
+#include <sys/iofunc.h>
+
+#include <sys/resmgr.h>
+#include <sys/dispatch.h>
+#include <sys/can_dcmd.h>
+#include <sys/neutrino.h>
+
+#define MAX_NAME_SIZE (IFNAMSIZ*2) // e.g. /dev/can1/rx0
+
+
+/*
+ * Instead of netlink interface we introduce this more specific and
+ * simplified user settings. Note that the user in this context is not
+ * necessarily the network layer. In the case of QNX dev-can-* drivers
+ * the user is specifically a resource manager driver.
+ */
+struct user_dev_setup {
+    struct can_bittiming bittiming;
+    struct can_bittiming data_bittiming;
+    struct can_btr_t {  /* Special feature to force btr0 and btr1 to specific */
+        u8 btr0;        /* values needed for some applications. */
+        u8 btr1;
+    } can_btr;
+    struct can_ctrlmode ctrlmode;
+    int restart_ms;
+    struct can_tdc tdc;
+    u16 termination;
+
+    bool set_bittiming;
+    bool set_data_bittiming;
+    bool set_btr;       /* Special feature */
+    bool set_ctrlmode;
+    bool set_restart_ms;
+    bool set_restart;
+    bool set_tdc;
+    bool set_termination;
+};
+
+/*
+ *  struct resmgr_ops - resource manager link operations
+ *
+ *  @changelink:      Function for changing parameters of an existing device
+ *  @get_xstats_size: Function to calculate required room for dumping device
+ *                    specific statistics
+ *  @fill_xstats:     Function to dump device specific statistics
+ */
+struct resmgr_ops {
+    int     (*changelink)(struct net_device* dev, struct user_dev_setup* user,
+                          struct netlink_ext_ack *extack);
+
+    size_t  (*get_xstats_size)(const struct net_device* dev);
+
+    int     (*fill_xstats)(struct sk_buff* skb, const struct net_device* dev);
+};
+
+typedef struct blocked_client {
+    struct blocked_client *prev, *next;
+
+    int rcvid; // resmgr_msg_again() entry; -1 when no blocking client
+} blocked_client_t;
+
+/*
+ * Extended OCB structure
+ */
+typedef struct can_ocb {
+    iofunc_ocb_t core;
+
+    struct can_resmgr* resmgr;
+
+    int session_index;
+    client_session_t *session;
+
+    struct rx_t {
+        pthread_t thread;
+        pthread_mutex_t mutex;
+        pthread_cond_t cond;
+
+        blocked_client_t* blocked_clients;
+
+        queue_t* queue;
+
+        char* read_buffer;
+        size_t read_size;
+        size_t nbytes, offset;
+    } rx;
+} can_ocb_t;
+
+typedef enum channel_type {
+    RX_CHANNEL = 0,
+    TX_CHANNEL
+} channel_type_t;
+
+typedef struct can_resmgr {
+    struct can_resmgr *prev, *next;
+
+    device_session_t* device_session;
+    struct driver_selection* driver_selection;
+    int is_extended_mid; // Only applicable for read and write functions not
+                         // used for direct devctl send/receive functionality.
+
+    char name[MAX_NAME_SIZE];
+    channel_type_t channel_type;
+
+    dispatch_t* dispatch;
+    resmgr_attr_t resmgr_attr;
+    iofunc_attr_t iofunc_attr;
+
+#if CONFIG_QNX_RESMGR_THREAD_POOL == 1
+    thread_pool_attr_t thread_pool_attr;
+    thread_pool_t* thread_pool;
+#elif CONFIG_QNX_RESMGR_SINGLE_THREAD == 1
+    dispatch_context_t* dispatch_context;
+    pthread_attr_t dispatch_thread_attr;
+    pthread_t dispatch_thread;
+#endif
+
+    int id;
+
+    iofunc_mount_t mount;
+    iofunc_funcs_t mount_funcs;
+
+    uint32_t latency_limit_ms;  /* Maximum allowed latency in milliseconds */
+    uint32_t mid;               /* CAN message identifier */
+    uint32_t mfilter;           /* CAN message filter */
+    uint32_t prio;              /* CAN priority - not used */
+
+    int shutdown;
+} can_resmgr_t;
+
+
+static inline void store_resmgr (can_resmgr_t** root, can_resmgr_t* r) {
+    if (*root == NULL) {
+        *root = r;
+        r->prev = r->next = NULL;
+        return;
+    }
+
+    can_resmgr_t* last = *root;
+
+    while (last->next != NULL) {
+        last = last->next;
+    }
+
+    last->next = r;
+    r->prev = last;
+    r->next = NULL;
+}
+
+static inline can_resmgr_t* get_resmgr (can_resmgr_t** root, int id) {
+    can_resmgr_t* location = *root;
+
+    while (location != NULL) {
+        if (location->id == id) {
+            return location;
+        }
+
+        location = location->next;
+    }
+
+    return NULL;
+}
+
+static inline void free_all_resmgrs (can_resmgr_t** root) {
+    while (*root != NULL) {
+        can_resmgr_t* next = (*root)->next;
+
+        free(*root);
+
+        *root = next;
+    }
+}
+
+static inline void store_blocked_client (
+        blocked_client_t** root, blocked_client_t* r)
+{
+    if (*root == NULL) {
+        *root = r;
+        r->prev = r->next = NULL;
+        return;
+    }
+
+    blocked_client_t* last = *root;
+
+    while (last->next != NULL) {
+        last = last->next;
+    }
+
+    last->next = r;
+    r->prev = last;
+    r->next = NULL;
+}
+
+static inline blocked_client_t* get_blocked_client (
+        blocked_client_t** root, int rcvid)
+{
+    blocked_client_t* location = *root;
+
+    while (location != NULL) {
+        if (location->rcvid == rcvid) {
+            return location;
+        }
+
+        location = location->next;
+    }
+
+    return NULL;
+}
+
+static inline void remove_blocked_client (blocked_client_t** root, int rcvid) {
+    blocked_client_t* location = *root;
+
+    while (location != NULL) {
+        if (location->rcvid == rcvid) {
+            if (location->prev == NULL) {
+                *root = location->next;
+                if (*root != NULL) {
+                    (*root)->prev = NULL;
+                }
+            }
+            else {
+                location->prev->next = location->next;
+
+                if (location->next) {
+                    location->next->prev = location->prev;
+                }
+            }
+
+            blocked_client_t* next = NULL;
+
+            if (location != NULL) {
+                next = location->next;
+            }
+
+            free(location);
+
+            location = next;
+        }
+        else {
+            location = location->next;
+        }
+    }
+}
+
+static inline void free_all_blocked_clients (blocked_client_t** root) {
+    while (*root != NULL) {
+        blocked_client_t* next = (*root)->next;
+
+        free(*root);
+
+        *root = next;
+    }
+}
+
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: SRC_RESMGR_H_
+|——Node:preproc_def Text: #define SRC_RESMGR_H_
+
+|———Node:#define Text: #define
+|———Node:identifier Text: SRC_RESMGR_H_
+|——Node:preproc_include Text: #include <pci/pci.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <pci/pci.h>
+|——Node:preproc_include Text: #include <session.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <session.h>
+|——Node:preproc_include Text: #include <drivers/net/can/sja1000/sja1000.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <drivers/net/can/sja1000/sja1000.h>
+|——Node:struct_specifier Text: struct can_ocb
+|———Node:struct Text: struct
+|———Node:type_identifier Text: can_ocb
+|——Node:; Text: ;
+|——Node:preproc_if Text: #if CONFIG_QNX_RESMGR_THREAD_POOL == 1
+/*
+ * Define THREAD_POOL_PARAM_T so that we can avoid compiler warnings
+ */
+#define THREAD_POOL_PARAM_T dispatch_context_t
+#endif
+|———Node:#if Text: #if
+|———Node:binary_expression Text: CONFIG_QNX_RESMGR_THREAD_POOL == 1
+|————Node:identifier Text: CONFIG_QNX_RESMGR_THREAD_POOL
+|————Node:== Text: ==
+|————Node:number_literal Text: 1
+|———Node:
+ Text: 
+
+|———Node:comment Text: /*
+ * Define THREAD_POOL_PARAM_T so that we can avoid compiler warnings
+ */
+|———Node:preproc_def Text: #define THREAD_POOL_PARAM_T dispatch_context_t
+
+|————Node:#define Text: #define
+|————Node:identifier Text: THREAD_POOL_PARAM_T
+|————Node:preproc_arg Text: dispatch_context_t
+|———Node:#endif Text: #endif
+|——Node:comment Text: /*
+ * Extending the OCB the attribute structure
+ */
+|——Node:preproc_def Text: #define IOFUNC_OCB_T struct can_ocb
+
+|———Node:#define Text: #define
+|———Node:identifier Text: IOFUNC_OCB_T
+|———Node:preproc_arg Text: struct can_ocb
+|——Node:preproc_include Text: #include <sys/iofunc.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <sys/iofunc.h>
+|——Node:preproc_include Text: #include <sys/resmgr.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <sys/resmgr.h>
+|——Node:preproc_include Text: #include <sys/dispatch.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <sys/dispatch.h>
+|——Node:preproc_include Text: #include <sys/can_dcmd.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <sys/can_dcmd.h>
+|——Node:preproc_include Text: #include <sys/neutrino.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <sys/neutrino.h>
+|——Node:preproc_def Text: #define MAX_NAME_SIZE (IFNAMSIZ*2) // e.g. /dev/can1/rx0
+
+|———Node:#define Text: #define
+|———Node:identifier Text: MAX_NAME_SIZE
+|———Node:preproc_arg Text: (IFNAMSIZ*2) // e.g. /dev/can1/rx0
+|——Node:comment Text: /*
+ * Instead of netlink interface we introduce this more specific and
+ * simplified user settings. Note that the user in this context is not
+ * necessarily the network layer. In the case of QNX dev-can-* drivers
+ * the user is specifically a resource manager driver.
+ */
+|——Node:struct_specifier Text: struct user_dev_setup {
+    struct can_bittiming bittiming;
+    struct can_bittiming data_bittiming;
+    struct can_btr_t {  /* Special feature to force btr0 and btr1 to specific */
+        u8 btr0;        /* values needed for some applications. */
+        u8 btr1;
+    } can_btr;
+    struct can_ctrlmode ctrlmode;
+    int restart_ms;
+    struct can_tdc tdc;
+    u16 termination;
+
+    bool set_bittiming;
+    bool set_data_bittiming;
+    bool set_btr;       /* Special feature */
+    bool set_ctrlmode;
+    bool set_restart_ms;
+    bool set_restart;
+    bool set_tdc;
+    bool set_termination;
+}
+|———Node:struct Text: struct
+|———Node:type_identifier Text: user_dev_setup
+|———Node:field_declaration_list Text: {
+    struct can_bittiming bittiming;
+    struct can_bittiming data_bittiming;
+    struct can_btr_t {  /* Special feature to force btr0 and btr1 to specific */
+        u8 btr0;        /* values needed for some applications. */
+        u8 btr1;
+    } can_btr;
+    struct can_ctrlmode ctrlmode;
+    int restart_ms;
+    struct can_tdc tdc;
+    u16 termination;
+
+    bool set_bittiming;
+    bool set_data_bittiming;
+    bool set_btr;       /* Special feature */
+    bool set_ctrlmode;
+    bool set_restart_ms;
+    bool set_restart;
+    bool set_tdc;
+    bool set_termination;
+}
+|————Node:{ Text: {
+|————Node:field_declaration Text: struct can_bittiming bittiming;
+|—————Node:struct_specifier Text: struct can_bittiming
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_bittiming
+|—————Node:field_identifier Text: bittiming
+|—————Node:; Text: ;
+|————Node:field_declaration Text: struct can_bittiming data_bittiming;
+|—————Node:struct_specifier Text: struct can_bittiming
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_bittiming
+|—————Node:field_identifier Text: data_bittiming
+|—————Node:; Text: ;
+|————Node:field_declaration Text: struct can_btr_t {  /* Special feature to force btr0 and btr1 to specific */
+        u8 btr0;        /* values needed for some applications. */
+        u8 btr1;
+    } can_btr;
+|—————Node:struct_specifier Text: struct can_btr_t {  /* Special feature to force btr0 and btr1 to specific */
+        u8 btr0;        /* values needed for some applications. */
+        u8 btr1;
+    }
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_btr_t
+|——————Node:field_declaration_list Text: {  /* Special feature to force btr0 and btr1 to specific */
+        u8 btr0;        /* values needed for some applications. */
+        u8 btr1;
+    }
+|———————Node:{ Text: {
+|———————Node:comment Text: /* Special feature to force btr0 and btr1 to specific */
+|———————Node:field_declaration Text: u8 btr0;
+|————————Node:type_identifier Text: u8
+|————————Node:field_identifier Text: btr0
+|————————Node:; Text: ;
+|———————Node:comment Text: /* values needed for some applications. */
+|———————Node:field_declaration Text: u8 btr1;
+|————————Node:type_identifier Text: u8
+|————————Node:field_identifier Text: btr1
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:field_identifier Text: can_btr
+|—————Node:; Text: ;
+|————Node:field_declaration Text: struct can_ctrlmode ctrlmode;
+|—————Node:struct_specifier Text: struct can_ctrlmode
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_ctrlmode
+|—————Node:field_identifier Text: ctrlmode
+|—————Node:; Text: ;
+|————Node:field_declaration Text: int restart_ms;
+|—————Node:primitive_type Text: int
+|—————Node:field_identifier Text: restart_ms
+|—————Node:; Text: ;
+|————Node:field_declaration Text: struct can_tdc tdc;
+|—————Node:struct_specifier Text: struct can_tdc
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_tdc
+|—————Node:field_identifier Text: tdc
+|—————Node:; Text: ;
+|————Node:field_declaration Text: u16 termination;
+|—————Node:type_identifier Text: u16
+|—————Node:field_identifier Text: termination
+|—————Node:; Text: ;
+|————Node:field_declaration Text: bool set_bittiming;
+|—————Node:primitive_type Text: bool
+|—————Node:field_identifier Text: set_bittiming
+|—————Node:; Text: ;
+|————Node:field_declaration Text: bool set_data_bittiming;
+|—————Node:primitive_type Text: bool
+|—————Node:field_identifier Text: set_data_bittiming
+|—————Node:; Text: ;
+|————Node:field_declaration Text: bool set_btr;
+|—————Node:primitive_type Text: bool
+|—————Node:field_identifier Text: set_btr
+|—————Node:; Text: ;
+|————Node:comment Text: /* Special feature */
+|————Node:field_declaration Text: bool set_ctrlmode;
+|—————Node:primitive_type Text: bool
+|—————Node:field_identifier Text: set_ctrlmode
+|—————Node:; Text: ;
+|————Node:field_declaration Text: bool set_restart_ms;
+|—————Node:primitive_type Text: bool
+|—————Node:field_identifier Text: set_restart_ms
+|—————Node:; Text: ;
+|————Node:field_declaration Text: bool set_restart;
+|—————Node:primitive_type Text: bool
+|—————Node:field_identifier Text: set_restart
+|—————Node:; Text: ;
+|————Node:field_declaration Text: bool set_tdc;
+|—————Node:primitive_type Text: bool
+|—————Node:field_identifier Text: set_tdc
+|—————Node:; Text: ;
+|————Node:field_declaration Text: bool set_termination;
+|—————Node:primitive_type Text: bool
+|—————Node:field_identifier Text: set_termination
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:; Text: ;
+|——Node:comment Text: /*
+ *  struct resmgr_ops - resource manager link operations
+ *
+ *  @changelink:      Function for changing parameters of an existing device
+ *  @get_xstats_size: Function to calculate required room for dumping device
+ *                    specific statistics
+ *  @fill_xstats:     Function to dump device specific statistics
+ */
+|——Node:struct_specifier Text: struct resmgr_ops {
+    int     (*changelink)(struct net_device* dev, struct user_dev_setup* user,
+                          struct netlink_ext_ack *extack);
+
+    size_t  (*get_xstats_size)(const struct net_device* dev);
+
+    int     (*fill_xstats)(struct sk_buff* skb, const struct net_device* dev);
+}
+|———Node:struct Text: struct
+|———Node:type_identifier Text: resmgr_ops
+|———Node:field_declaration_list Text: {
+    int     (*changelink)(struct net_device* dev, struct user_dev_setup* user,
+                          struct netlink_ext_ack *extack);
+
+    size_t  (*get_xstats_size)(const struct net_device* dev);
+
+    int     (*fill_xstats)(struct sk_buff* skb, const struct net_device* dev);
+}
+|————Node:{ Text: {
+|————Node:field_declaration Text: int     (*changelink)(struct net_device* dev, struct user_dev_setup* user,
+                          struct netlink_ext_ack *extack);
+|—————Node:primitive_type Text: int
+|—————Node:function_declarator Text: (*changelink)(struct net_device* dev, struct user_dev_setup* user,
+                          struct netlink_ext_ack *extack)
+|——————Node:parenthesized_declarator Text: (*changelink)
+|———————Node:( Text: (
+|———————Node:pointer_declarator Text: *changelink
+|————————Node:* Text: *
+|————————Node:field_identifier Text: changelink
+|———————Node:) Text: )
+|——————Node:parameter_list Text: (struct net_device* dev, struct user_dev_setup* user,
+                          struct netlink_ext_ack *extack)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: struct net_device* dev
+|————————Node:struct_specifier Text: struct net_device
+|—————————Node:struct Text: struct
+|—————————Node:type_identifier Text: net_device
+|————————Node:pointer_declarator Text: * dev
+|—————————Node:* Text: *
+|—————————Node:identifier Text: dev
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: struct user_dev_setup* user
+|————————Node:struct_specifier Text: struct user_dev_setup
+|—————————Node:struct Text: struct
+|—————————Node:type_identifier Text: user_dev_setup
+|————————Node:pointer_declarator Text: * user
+|—————————Node:* Text: *
+|—————————Node:identifier Text: user
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: struct netlink_ext_ack *extack
+|————————Node:struct_specifier Text: struct netlink_ext_ack
+|—————————Node:struct Text: struct
+|—————————Node:type_identifier Text: netlink_ext_ack
+|————————Node:pointer_declarator Text: *extack
+|—————————Node:* Text: *
+|—————————Node:identifier Text: extack
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:field_declaration Text: size_t  (*get_xstats_size)(const struct net_device* dev);
+|—————Node:primitive_type Text: size_t
+|—————Node:function_declarator Text: (*get_xstats_size)(const struct net_device* dev)
+|——————Node:parenthesized_declarator Text: (*get_xstats_size)
+|———————Node:( Text: (
+|———————Node:pointer_declarator Text: *get_xstats_size
+|————————Node:* Text: *
+|————————Node:field_identifier Text: get_xstats_size
+|———————Node:) Text: )
+|——————Node:parameter_list Text: (const struct net_device* dev)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const struct net_device* dev
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:struct_specifier Text: struct net_device
+|—————————Node:struct Text: struct
+|—————————Node:type_identifier Text: net_device
+|————————Node:pointer_declarator Text: * dev
+|—————————Node:* Text: *
+|—————————Node:identifier Text: dev
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:field_declaration Text: int     (*fill_xstats)(struct sk_buff* skb, const struct net_device* dev);
+|—————Node:primitive_type Text: int
+|—————Node:function_declarator Text: (*fill_xstats)(struct sk_buff* skb, const struct net_device* dev)
+|——————Node:parenthesized_declarator Text: (*fill_xstats)
+|———————Node:( Text: (
+|———————Node:pointer_declarator Text: *fill_xstats
+|————————Node:* Text: *
+|————————Node:field_identifier Text: fill_xstats
+|———————Node:) Text: )
+|——————Node:parameter_list Text: (struct sk_buff* skb, const struct net_device* dev)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: struct sk_buff* skb
+|————————Node:struct_specifier Text: struct sk_buff
+|—————————Node:struct Text: struct
+|—————————Node:type_identifier Text: sk_buff
+|————————Node:pointer_declarator Text: * skb
+|—————————Node:* Text: *
+|—————————Node:identifier Text: skb
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const struct net_device* dev
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:struct_specifier Text: struct net_device
+|—————————Node:struct Text: struct
+|—————————Node:type_identifier Text: net_device
+|————————Node:pointer_declarator Text: * dev
+|—————————Node:* Text: *
+|—————————Node:identifier Text: dev
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:; Text: ;
+|——Node:type_definition Text: typedef struct blocked_client {
+    struct blocked_client *prev, *next;
+
+    int rcvid; // resmgr_msg_again() entry; -1 when no blocking client
+} blocked_client_t;
+|———Node:typedef Text: typedef
+|———Node:struct_specifier Text: struct blocked_client {
+    struct blocked_client *prev, *next;
+
+    int rcvid; // resmgr_msg_again() entry; -1 when no blocking client
+}
+|————Node:struct Text: struct
+|————Node:type_identifier Text: blocked_client
+|————Node:field_declaration_list Text: {
+    struct blocked_client *prev, *next;
+
+    int rcvid; // resmgr_msg_again() entry; -1 when no blocking client
+}
+|—————Node:{ Text: {
+|—————Node:field_declaration Text: struct blocked_client *prev, *next;
+|——————Node:struct_specifier Text: struct blocked_client
+|———————Node:struct Text: struct
+|———————Node:type_identifier Text: blocked_client
+|——————Node:pointer_declarator Text: *prev
+|———————Node:* Text: *
+|———————Node:field_identifier Text: prev
+|——————Node:, Text: ,
+|——————Node:pointer_declarator Text: *next
+|———————Node:* Text: *
+|———————Node:field_identifier Text: next
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: int rcvid;
+|——————Node:primitive_type Text: int
+|——————Node:field_identifier Text: rcvid
+|——————Node:; Text: ;
+|—————Node:comment Text: // resmgr_msg_again() entry; -1 when no blocking client
+|—————Node:} Text: }
+|———Node:type_identifier Text: blocked_client_t
+|———Node:; Text: ;
+|——Node:comment Text: /*
+ * Extended OCB structure
+ */
+|——Node:type_definition Text: typedef struct can_ocb {
+    iofunc_ocb_t core;
+
+    struct can_resmgr* resmgr;
+
+    int session_index;
+    client_session_t *session;
+
+    struct rx_t {
+        pthread_t thread;
+        pthread_mutex_t mutex;
+        pthread_cond_t cond;
+
+        blocked_client_t* blocked_clients;
+
+        queue_t* queue;
+
+        char* read_buffer;
+        size_t read_size;
+        size_t nbytes, offset;
+    } rx;
+} can_ocb_t;
+|———Node:typedef Text: typedef
+|———Node:struct_specifier Text: struct can_ocb {
+    iofunc_ocb_t core;
+
+    struct can_resmgr* resmgr;
+
+    int session_index;
+    client_session_t *session;
+
+    struct rx_t {
+        pthread_t thread;
+        pthread_mutex_t mutex;
+        pthread_cond_t cond;
+
+        blocked_client_t* blocked_clients;
+
+        queue_t* queue;
+
+        char* read_buffer;
+        size_t read_size;
+        size_t nbytes, offset;
+    } rx;
+}
+|————Node:struct Text: struct
+|————Node:type_identifier Text: can_ocb
+|————Node:field_declaration_list Text: {
+    iofunc_ocb_t core;
+
+    struct can_resmgr* resmgr;
+
+    int session_index;
+    client_session_t *session;
+
+    struct rx_t {
+        pthread_t thread;
+        pthread_mutex_t mutex;
+        pthread_cond_t cond;
+
+        blocked_client_t* blocked_clients;
+
+        queue_t* queue;
+
+        char* read_buffer;
+        size_t read_size;
+        size_t nbytes, offset;
+    } rx;
+}
+|—————Node:{ Text: {
+|—————Node:field_declaration Text: iofunc_ocb_t core;
+|——————Node:type_identifier Text: iofunc_ocb_t
+|——————Node:field_identifier Text: core
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: struct can_resmgr* resmgr;
+|——————Node:struct_specifier Text: struct can_resmgr
+|———————Node:struct Text: struct
+|———————Node:type_identifier Text: can_resmgr
+|——————Node:pointer_declarator Text: * resmgr
+|———————Node:* Text: *
+|———————Node:field_identifier Text: resmgr
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: int session_index;
+|——————Node:primitive_type Text: int
+|——————Node:field_identifier Text: session_index
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: client_session_t *session;
+|——————Node:type_identifier Text: client_session_t
+|——————Node:pointer_declarator Text: *session
+|———————Node:* Text: *
+|———————Node:field_identifier Text: session
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: struct rx_t {
+        pthread_t thread;
+        pthread_mutex_t mutex;
+        pthread_cond_t cond;
+
+        blocked_client_t* blocked_clients;
+
+        queue_t* queue;
+
+        char* read_buffer;
+        size_t read_size;
+        size_t nbytes, offset;
+    } rx;
+|——————Node:struct_specifier Text: struct rx_t {
+        pthread_t thread;
+        pthread_mutex_t mutex;
+        pthread_cond_t cond;
+
+        blocked_client_t* blocked_clients;
+
+        queue_t* queue;
+
+        char* read_buffer;
+        size_t read_size;
+        size_t nbytes, offset;
+    }
+|———————Node:struct Text: struct
+|———————Node:type_identifier Text: rx_t
+|———————Node:field_declaration_list Text: {
+        pthread_t thread;
+        pthread_mutex_t mutex;
+        pthread_cond_t cond;
+
+        blocked_client_t* blocked_clients;
+
+        queue_t* queue;
+
+        char* read_buffer;
+        size_t read_size;
+        size_t nbytes, offset;
+    }
+|————————Node:{ Text: {
+|————————Node:field_declaration Text: pthread_t thread;
+|—————————Node:type_identifier Text: pthread_t
+|—————————Node:field_identifier Text: thread
+|—————————Node:; Text: ;
+|————————Node:field_declaration Text: pthread_mutex_t mutex;
+|—————————Node:type_identifier Text: pthread_mutex_t
+|—————————Node:field_identifier Text: mutex
+|—————————Node:; Text: ;
+|————————Node:field_declaration Text: pthread_cond_t cond;
+|—————————Node:type_identifier Text: pthread_cond_t
+|—————————Node:field_identifier Text: cond
+|—————————Node:; Text: ;
+|————————Node:field_declaration Text: blocked_client_t* blocked_clients;
+|—————————Node:type_identifier Text: blocked_client_t
+|—————————Node:pointer_declarator Text: * blocked_clients
+|——————————Node:* Text: *
+|——————————Node:field_identifier Text: blocked_clients
+|—————————Node:; Text: ;
+|————————Node:field_declaration Text: queue_t* queue;
+|—————————Node:type_identifier Text: queue_t
+|—————————Node:pointer_declarator Text: * queue
+|——————————Node:* Text: *
+|——————————Node:field_identifier Text: queue
+|—————————Node:; Text: ;
+|————————Node:field_declaration Text: char* read_buffer;
+|—————————Node:primitive_type Text: char
+|—————————Node:pointer_declarator Text: * read_buffer
+|——————————Node:* Text: *
+|——————————Node:field_identifier Text: read_buffer
+|—————————Node:; Text: ;
+|————————Node:field_declaration Text: size_t read_size;
+|—————————Node:primitive_type Text: size_t
+|—————————Node:field_identifier Text: read_size
+|—————————Node:; Text: ;
+|————————Node:field_declaration Text: size_t nbytes, offset;
+|—————————Node:primitive_type Text: size_t
+|—————————Node:field_identifier Text: nbytes
+|—————————Node:, Text: ,
+|—————————Node:field_identifier Text: offset
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:field_identifier Text: rx
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:type_identifier Text: can_ocb_t
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef enum channel_type {
+    RX_CHANNEL = 0,
+    TX_CHANNEL
+} channel_type_t;
+|———Node:typedef Text: typedef
+|———Node:enum_specifier Text: enum channel_type {
+    RX_CHANNEL = 0,
+    TX_CHANNEL
+}
+|————Node:enum Text: enum
+|————Node:type_identifier Text: channel_type
+|————Node:enumerator_list Text: {
+    RX_CHANNEL = 0,
+    TX_CHANNEL
+}
+|—————Node:{ Text: {
+|—————Node:enumerator Text: RX_CHANNEL = 0
+|——————Node:identifier Text: RX_CHANNEL
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:, Text: ,
+|—————Node:enumerator Text: TX_CHANNEL
+|——————Node:identifier Text: TX_CHANNEL
+|—————Node:} Text: }
+|———Node:type_identifier Text: channel_type_t
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef struct can_resmgr {
+    struct can_resmgr *prev, *next;
+
+    device_session_t* device_session;
+    struct driver_selection* driver_selection;
+    int is_extended_mid; // Only applicable for read and write functions not
+                         // used for direct devctl send/receive functionality.
+
+    char name[MAX_NAME_SIZE];
+    channel_type_t channel_type;
+
+    dispatch_t* dispatch;
+    resmgr_attr_t resmgr_attr;
+    iofunc_attr_t iofunc_attr;
+
+#if CONFIG_QNX_RESMGR_THREAD_POOL == 1
+    thread_pool_attr_t thread_pool_attr;
+    thread_pool_t* thread_pool;
+#elif CONFIG_QNX_RESMGR_SINGLE_THREAD == 1
+    dispatch_context_t* dispatch_context;
+    pthread_attr_t dispatch_thread_attr;
+    pthread_t dispatch_thread;
+#endif
+
+    int id;
+
+    iofunc_mount_t mount;
+    iofunc_funcs_t mount_funcs;
+
+    uint32_t latency_limit_ms;  /* Maximum allowed latency in milliseconds */
+    uint32_t mid;               /* CAN message identifier */
+    uint32_t mfilter;           /* CAN message filter */
+    uint32_t prio;              /* CAN priority - not used */
+
+    int shutdown;
+} can_resmgr_t;
+|———Node:typedef Text: typedef
+|———Node:struct_specifier Text: struct can_resmgr {
+    struct can_resmgr *prev, *next;
+
+    device_session_t* device_session;
+    struct driver_selection* driver_selection;
+    int is_extended_mid; // Only applicable for read and write functions not
+                         // used for direct devctl send/receive functionality.
+
+    char name[MAX_NAME_SIZE];
+    channel_type_t channel_type;
+
+    dispatch_t* dispatch;
+    resmgr_attr_t resmgr_attr;
+    iofunc_attr_t iofunc_attr;
+
+#if CONFIG_QNX_RESMGR_THREAD_POOL == 1
+    thread_pool_attr_t thread_pool_attr;
+    thread_pool_t* thread_pool;
+#elif CONFIG_QNX_RESMGR_SINGLE_THREAD == 1
+    dispatch_context_t* dispatch_context;
+    pthread_attr_t dispatch_thread_attr;
+    pthread_t dispatch_thread;
+#endif
+
+    int id;
+
+    iofunc_mount_t mount;
+    iofunc_funcs_t mount_funcs;
+
+    uint32_t latency_limit_ms;  /* Maximum allowed latency in milliseconds */
+    uint32_t mid;               /* CAN message identifier */
+    uint32_t mfilter;           /* CAN message filter */
+    uint32_t prio;              /* CAN priority - not used */
+
+    int shutdown;
+}
+|————Node:struct Text: struct
+|————Node:type_identifier Text: can_resmgr
+|————Node:field_declaration_list Text: {
+    struct can_resmgr *prev, *next;
+
+    device_session_t* device_session;
+    struct driver_selection* driver_selection;
+    int is_extended_mid; // Only applicable for read and write functions not
+                         // used for direct devctl send/receive functionality.
+
+    char name[MAX_NAME_SIZE];
+    channel_type_t channel_type;
+
+    dispatch_t* dispatch;
+    resmgr_attr_t resmgr_attr;
+    iofunc_attr_t iofunc_attr;
+
+#if CONFIG_QNX_RESMGR_THREAD_POOL == 1
+    thread_pool_attr_t thread_pool_attr;
+    thread_pool_t* thread_pool;
+#elif CONFIG_QNX_RESMGR_SINGLE_THREAD == 1
+    dispatch_context_t* dispatch_context;
+    pthread_attr_t dispatch_thread_attr;
+    pthread_t dispatch_thread;
+#endif
+
+    int id;
+
+    iofunc_mount_t mount;
+    iofunc_funcs_t mount_funcs;
+
+    uint32_t latency_limit_ms;  /* Maximum allowed latency in milliseconds */
+    uint32_t mid;               /* CAN message identifier */
+    uint32_t mfilter;           /* CAN message filter */
+    uint32_t prio;              /* CAN priority - not used */
+
+    int shutdown;
+}
+|—————Node:{ Text: {
+|—————Node:field_declaration Text: struct can_resmgr *prev, *next;
+|——————Node:struct_specifier Text: struct can_resmgr
+|———————Node:struct Text: struct
+|———————Node:type_identifier Text: can_resmgr
+|——————Node:pointer_declarator Text: *prev
+|———————Node:* Text: *
+|———————Node:field_identifier Text: prev
+|——————Node:, Text: ,
+|——————Node:pointer_declarator Text: *next
+|———————Node:* Text: *
+|———————Node:field_identifier Text: next
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: device_session_t* device_session;
+|——————Node:type_identifier Text: device_session_t
+|——————Node:pointer_declarator Text: * device_session
+|———————Node:* Text: *
+|———————Node:field_identifier Text: device_session
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: struct driver_selection* driver_selection;
+|——————Node:struct_specifier Text: struct driver_selection
+|———————Node:struct Text: struct
+|———————Node:type_identifier Text: driver_selection
+|——————Node:pointer_declarator Text: * driver_selection
+|———————Node:* Text: *
+|———————Node:field_identifier Text: driver_selection
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: int is_extended_mid;
+|——————Node:primitive_type Text: int
+|——————Node:field_identifier Text: is_extended_mid
+|——————Node:; Text: ;
+|—————Node:comment Text: // Only applicable for read and write functions not
+|—————Node:comment Text: // used for direct devctl send/receive functionality.
+|—————Node:field_declaration Text: char name[MAX_NAME_SIZE];
+|——————Node:primitive_type Text: char
+|——————Node:array_declarator Text: name[MAX_NAME_SIZE]
+|———————Node:field_identifier Text: name
+|———————Node:[ Text: [
+|———————Node:identifier Text: MAX_NAME_SIZE
+|———————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: channel_type_t channel_type;
+|——————Node:type_identifier Text: channel_type_t
+|——————Node:field_identifier Text: channel_type
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: dispatch_t* dispatch;
+|——————Node:type_identifier Text: dispatch_t
+|——————Node:pointer_declarator Text: * dispatch
+|———————Node:* Text: *
+|———————Node:field_identifier Text: dispatch
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: resmgr_attr_t resmgr_attr;
+|——————Node:type_identifier Text: resmgr_attr_t
+|——————Node:field_identifier Text: resmgr_attr
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: iofunc_attr_t iofunc_attr;
+|——————Node:type_identifier Text: iofunc_attr_t
+|——————Node:field_identifier Text: iofunc_attr
+|——————Node:; Text: ;
+|—————Node:preproc_if Text: #if CONFIG_QNX_RESMGR_THREAD_POOL == 1
+    thread_pool_attr_t thread_pool_attr;
+    thread_pool_t* thread_pool;
+#elif CONFIG_QNX_RESMGR_SINGLE_THREAD == 1
+    dispatch_context_t* dispatch_context;
+    pthread_attr_t dispatch_thread_attr;
+    pthread_t dispatch_thread;
+#endif
+|——————Node:#if Text: #if
+|——————Node:binary_expression Text: CONFIG_QNX_RESMGR_THREAD_POOL == 1
+|———————Node:identifier Text: CONFIG_QNX_RESMGR_THREAD_POOL
+|———————Node:== Text: ==
+|———————Node:number_literal Text: 1
+|——————Node:
+ Text: 
+
+|——————Node:field_declaration Text: thread_pool_attr_t thread_pool_attr;
+|———————Node:type_identifier Text: thread_pool_attr_t
+|———————Node:field_identifier Text: thread_pool_attr
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: thread_pool_t* thread_pool;
+|———————Node:type_identifier Text: thread_pool_t
+|———————Node:pointer_declarator Text: * thread_pool
+|————————Node:* Text: *
+|————————Node:field_identifier Text: thread_pool
+|———————Node:; Text: ;
+|——————Node:preproc_elif Text: #elif CONFIG_QNX_RESMGR_SINGLE_THREAD == 1
+    dispatch_context_t* dispatch_context;
+    pthread_attr_t dispatch_thread_attr;
+    pthread_t dispatch_thread;
+|———————Node:#elif Text: #elif
+|———————Node:binary_expression Text: CONFIG_QNX_RESMGR_SINGLE_THREAD == 1
+|————————Node:identifier Text: CONFIG_QNX_RESMGR_SINGLE_THREAD
+|————————Node:== Text: ==
+|————————Node:number_literal Text: 1
+|———————Node:
+ Text: 
+
+|———————Node:field_declaration Text: dispatch_context_t* dispatch_context;
+|————————Node:type_identifier Text: dispatch_context_t
+|————————Node:pointer_declarator Text: * dispatch_context
+|—————————Node:* Text: *
+|—————————Node:field_identifier Text: dispatch_context
+|————————Node:; Text: ;
+|———————Node:field_declaration Text: pthread_attr_t dispatch_thread_attr;
+|————————Node:type_identifier Text: pthread_attr_t
+|————————Node:field_identifier Text: dispatch_thread_attr
+|————————Node:; Text: ;
+|———————Node:field_declaration Text: pthread_t dispatch_thread;
+|————————Node:type_identifier Text: pthread_t
+|————————Node:field_identifier Text: dispatch_thread
+|————————Node:; Text: ;
+|——————Node:#endif Text: #endif
+|—————Node:field_declaration Text: int id;
+|——————Node:primitive_type Text: int
+|——————Node:field_identifier Text: id
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: iofunc_mount_t mount;
+|——————Node:type_identifier Text: iofunc_mount_t
+|——————Node:field_identifier Text: mount
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: iofunc_funcs_t mount_funcs;
+|——————Node:type_identifier Text: iofunc_funcs_t
+|——————Node:field_identifier Text: mount_funcs
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: uint32_t latency_limit_ms;
+|——————Node:primitive_type Text: uint32_t
+|——————Node:field_identifier Text: latency_limit_ms
+|——————Node:; Text: ;
+|—————Node:comment Text: /* Maximum allowed latency in milliseconds */
+|—————Node:field_declaration Text: uint32_t mid;
+|——————Node:primitive_type Text: uint32_t
+|——————Node:field_identifier Text: mid
+|——————Node:; Text: ;
+|—————Node:comment Text: /* CAN message identifier */
+|—————Node:field_declaration Text: uint32_t mfilter;
+|——————Node:primitive_type Text: uint32_t
+|——————Node:field_identifier Text: mfilter
+|——————Node:; Text: ;
+|—————Node:comment Text: /* CAN message filter */
+|—————Node:field_declaration Text: uint32_t prio;
+|——————Node:primitive_type Text: uint32_t
+|——————Node:field_identifier Text: prio
+|——————Node:; Text: ;
+|—————Node:comment Text: /* CAN priority - not used */
+|—————Node:field_declaration Text: int shutdown;
+|——————Node:primitive_type Text: int
+|——————Node:field_identifier Text: shutdown
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:type_identifier Text: can_resmgr_t
+|———Node:; Text: ;
+|——Node:function_definition Text: static inline void store_resmgr (can_resmgr_t** root, can_resmgr_t* r) {
+    if (*root == NULL) {
+        *root = r;
+        r->prev = r->next = NULL;
+        return;
+    }
+
+    can_resmgr_t* last = *root;
+
+    while (last->next != NULL) {
+        last = last->next;
+    }
+
+    last->next = r;
+    r->prev = last;
+    r->next = NULL;
+}
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:storage_class_specifier Text: inline
+|————Node:inline Text: inline
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: store_resmgr (can_resmgr_t** root, can_resmgr_t* r)
+|————Node:identifier Text: store_resmgr
+|————Node:parameter_list Text: (can_resmgr_t** root, can_resmgr_t* r)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: can_resmgr_t** root
+|——————Node:type_identifier Text: can_resmgr_t
+|——————Node:pointer_declarator Text: ** root
+|———————Node:* Text: *
+|———————Node:pointer_declarator Text: * root
+|————————Node:* Text: *
+|————————Node:identifier Text: root
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: can_resmgr_t* r
+|——————Node:type_identifier Text: can_resmgr_t
+|——————Node:pointer_declarator Text: * r
+|———————Node:* Text: *
+|———————Node:identifier Text: r
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+    if (*root == NULL) {
+        *root = r;
+        r->prev = r->next = NULL;
+        return;
+    }
+
+    can_resmgr_t* last = *root;
+
+    while (last->next != NULL) {
+        last = last->next;
+    }
+
+    last->next = r;
+    r->prev = last;
+    r->next = NULL;
+}
+|————Node:{ Text: {
+|————Node:if_statement Text: if (*root == NULL) {
+        *root = r;
+        r->prev = r->next = NULL;
+        return;
+    }
+|—————Node:if Text: if
+|—————Node:parenthesized_expression Text: (*root == NULL)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: *root == NULL
+|———————Node:pointer_expression Text: *root
+|————————Node:* Text: *
+|————————Node:identifier Text: root
+|———————Node:== Text: ==
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+        *root = r;
+        r->prev = r->next = NULL;
+        return;
+    }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: *root = r;
+|———————Node:assignment_expression Text: *root = r
+|————————Node:pointer_expression Text: *root
+|—————————Node:* Text: *
+|—————————Node:identifier Text: root
+|————————Node:= Text: =
+|————————Node:identifier Text: r
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: r->prev = r->next = NULL;
+|———————Node:assignment_expression Text: r->prev = r->next = NULL
+|————————Node:field_expression Text: r->prev
+|—————————Node:identifier Text: r
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: prev
+|————————Node:= Text: =
+|————————Node:assignment_expression Text: r->next = NULL
+|—————————Node:field_expression Text: r->next
+|——————————Node:identifier Text: r
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: next
+|—————————Node:= Text: =
+|—————————Node:null Text: NULL
+|——————————Node:NULL Text: NULL
+|———————Node:; Text: ;
+|——————Node:return_statement Text: return;
+|———————Node:return Text: return
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:declaration Text: can_resmgr_t* last = *root;
+|—————Node:type_identifier Text: can_resmgr_t
+|—————Node:init_declarator Text: * last = *root
+|——————Node:pointer_declarator Text: * last
+|———————Node:* Text: *
+|———————Node:identifier Text: last
+|——————Node:= Text: =
+|——————Node:pointer_expression Text: *root
+|———————Node:* Text: *
+|———————Node:identifier Text: root
+|—————Node:; Text: ;
+|————Node:while_statement Text: while (last->next != NULL) {
+        last = last->next;
+    }
+|—————Node:while Text: while
+|—————Node:parenthesized_expression Text: (last->next != NULL)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: last->next != NULL
+|———————Node:field_expression Text: last->next
+|————————Node:identifier Text: last
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: next
+|———————Node:!= Text: !=
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+        last = last->next;
+    }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: last = last->next;
+|———————Node:assignment_expression Text: last = last->next
+|————————Node:identifier Text: last
+|————————Node:= Text: =
+|————————Node:field_expression Text: last->next
+|—————————Node:identifier Text: last
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: next
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: last->next = r;
+|—————Node:assignment_expression Text: last->next = r
+|——————Node:field_expression Text: last->next
+|———————Node:identifier Text: last
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: next
+|——————Node:= Text: =
+|——————Node:identifier Text: r
+|—————Node:; Text: ;
+|————Node:expression_statement Text: r->prev = last;
+|—————Node:assignment_expression Text: r->prev = last
+|——————Node:field_expression Text: r->prev
+|———————Node:identifier Text: r
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: prev
+|——————Node:= Text: =
+|——————Node:identifier Text: last
+|—————Node:; Text: ;
+|————Node:expression_statement Text: r->next = NULL;
+|—————Node:assignment_expression Text: r->next = NULL
+|——————Node:field_expression Text: r->next
+|———————Node:identifier Text: r
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: next
+|——————Node:= Text: =
+|——————Node:null Text: NULL
+|———————Node:NULL Text: NULL
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: static inline can_resmgr_t* get_resmgr (can_resmgr_t** root, int id) {
+    can_resmgr_t* location = *root;
+
+    while (location != NULL) {
+        if (location->id == id) {
+            return location;
+        }
+
+        location = location->next;
+    }
+
+    return NULL;
+}
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:storage_class_specifier Text: inline
+|————Node:inline Text: inline
+|———Node:type_identifier Text: can_resmgr_t
+|———Node:pointer_declarator Text: * get_resmgr (can_resmgr_t** root, int id)
+|————Node:* Text: *
+|————Node:function_declarator Text: get_resmgr (can_resmgr_t** root, int id)
+|—————Node:identifier Text: get_resmgr
+|—————Node:parameter_list Text: (can_resmgr_t** root, int id)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: can_resmgr_t** root
+|———————Node:type_identifier Text: can_resmgr_t
+|———————Node:pointer_declarator Text: ** root
+|————————Node:* Text: *
+|————————Node:pointer_declarator Text: * root
+|—————————Node:* Text: *
+|—————————Node:identifier Text: root
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: int id
+|———————Node:primitive_type Text: int
+|———————Node:identifier Text: id
+|——————Node:) Text: )
+|———Node:compound_statement Text: {
+    can_resmgr_t* location = *root;
+
+    while (location != NULL) {
+        if (location->id == id) {
+            return location;
+        }
+
+        location = location->next;
+    }
+
+    return NULL;
+}
+|————Node:{ Text: {
+|————Node:declaration Text: can_resmgr_t* location = *root;
+|—————Node:type_identifier Text: can_resmgr_t
+|—————Node:init_declarator Text: * location = *root
+|——————Node:pointer_declarator Text: * location
+|———————Node:* Text: *
+|———————Node:identifier Text: location
+|——————Node:= Text: =
+|——————Node:pointer_expression Text: *root
+|———————Node:* Text: *
+|———————Node:identifier Text: root
+|—————Node:; Text: ;
+|————Node:while_statement Text: while (location != NULL) {
+        if (location->id == id) {
+            return location;
+        }
+
+        location = location->next;
+    }
+|—————Node:while Text: while
+|—————Node:parenthesized_expression Text: (location != NULL)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: location != NULL
+|———————Node:identifier Text: location
+|———————Node:!= Text: !=
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+        if (location->id == id) {
+            return location;
+        }
+
+        location = location->next;
+    }
+|——————Node:{ Text: {
+|——————Node:if_statement Text: if (location->id == id) {
+            return location;
+        }
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (location->id == id)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: location->id == id
+|—————————Node:field_expression Text: location->id
+|——————————Node:identifier Text: location
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: id
+|—————————Node:== Text: ==
+|—————————Node:identifier Text: id
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+            return location;
+        }
+|————————Node:{ Text: {
+|————————Node:return_statement Text: return location;
+|—————————Node:return Text: return
+|—————————Node:identifier Text: location
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:expression_statement Text: location = location->next;
+|———————Node:assignment_expression Text: location = location->next
+|————————Node:identifier Text: location
+|————————Node:= Text: =
+|————————Node:field_expression Text: location->next
+|—————————Node:identifier Text: location
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: next
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:return_statement Text: return NULL;
+|—————Node:return Text: return
+|—————Node:null Text: NULL
+|——————Node:NULL Text: NULL
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: static inline void free_all_resmgrs (can_resmgr_t** root) {
+    while (*root != NULL) {
+        can_resmgr_t* next = (*root)->next;
+
+        free(*root);
+
+        *root = next;
+    }
+}
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:storage_class_specifier Text: inline
+|————Node:inline Text: inline
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: free_all_resmgrs (can_resmgr_t** root)
+|————Node:identifier Text: free_all_resmgrs
+|————Node:parameter_list Text: (can_resmgr_t** root)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: can_resmgr_t** root
+|——————Node:type_identifier Text: can_resmgr_t
+|——————Node:pointer_declarator Text: ** root
+|———————Node:* Text: *
+|———————Node:pointer_declarator Text: * root
+|————————Node:* Text: *
+|————————Node:identifier Text: root
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+    while (*root != NULL) {
+        can_resmgr_t* next = (*root)->next;
+
+        free(*root);
+
+        *root = next;
+    }
+}
+|————Node:{ Text: {
+|————Node:while_statement Text: while (*root != NULL) {
+        can_resmgr_t* next = (*root)->next;
+
+        free(*root);
+
+        *root = next;
+    }
+|—————Node:while Text: while
+|—————Node:parenthesized_expression Text: (*root != NULL)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: *root != NULL
+|———————Node:pointer_expression Text: *root
+|————————Node:* Text: *
+|————————Node:identifier Text: root
+|———————Node:!= Text: !=
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+        can_resmgr_t* next = (*root)->next;
+
+        free(*root);
+
+        *root = next;
+    }
+|——————Node:{ Text: {
+|——————Node:declaration Text: can_resmgr_t* next = (*root)->next;
+|———————Node:type_identifier Text: can_resmgr_t
+|———————Node:init_declarator Text: * next = (*root)->next
+|————————Node:pointer_declarator Text: * next
+|—————————Node:* Text: *
+|—————————Node:identifier Text: next
+|————————Node:= Text: =
+|————————Node:field_expression Text: (*root)->next
+|—————————Node:parenthesized_expression Text: (*root)
+|——————————Node:( Text: (
+|——————————Node:pointer_expression Text: *root
+|———————————Node:* Text: *
+|———————————Node:identifier Text: root
+|——————————Node:) Text: )
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: next
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: free(*root);
+|———————Node:call_expression Text: free(*root)
+|————————Node:identifier Text: free
+|————————Node:argument_list Text: (*root)
+|—————————Node:( Text: (
+|—————————Node:pointer_expression Text: *root
+|——————————Node:* Text: *
+|——————————Node:identifier Text: root
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: *root = next;
+|———————Node:assignment_expression Text: *root = next
+|————————Node:pointer_expression Text: *root
+|—————————Node:* Text: *
+|—————————Node:identifier Text: root
+|————————Node:= Text: =
+|————————Node:identifier Text: next
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:} Text: }
+|——Node:function_definition Text: static inline void store_blocked_client (
+        blocked_client_t** root, blocked_client_t* r)
+{
+    if (*root == NULL) {
+        *root = r;
+        r->prev = r->next = NULL;
+        return;
+    }
+
+    blocked_client_t* last = *root;
+
+    while (last->next != NULL) {
+        last = last->next;
+    }
+
+    last->next = r;
+    r->prev = last;
+    r->next = NULL;
+}
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:storage_class_specifier Text: inline
+|————Node:inline Text: inline
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: store_blocked_client (
+        blocked_client_t** root, blocked_client_t* r)
+|————Node:identifier Text: store_blocked_client
+|————Node:parameter_list Text: (
+        blocked_client_t** root, blocked_client_t* r)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: blocked_client_t** root
+|——————Node:type_identifier Text: blocked_client_t
+|——————Node:pointer_declarator Text: ** root
+|———————Node:* Text: *
+|———————Node:pointer_declarator Text: * root
+|————————Node:* Text: *
+|————————Node:identifier Text: root
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: blocked_client_t* r
+|——————Node:type_identifier Text: blocked_client_t
+|——————Node:pointer_declarator Text: * r
+|———————Node:* Text: *
+|———————Node:identifier Text: r
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+    if (*root == NULL) {
+        *root = r;
+        r->prev = r->next = NULL;
+        return;
+    }
+
+    blocked_client_t* last = *root;
+
+    while (last->next != NULL) {
+        last = last->next;
+    }
+
+    last->next = r;
+    r->prev = last;
+    r->next = NULL;
+}
+|————Node:{ Text: {
+|————Node:if_statement Text: if (*root == NULL) {
+        *root = r;
+        r->prev = r->next = NULL;
+        return;
+    }
+|—————Node:if Text: if
+|—————Node:parenthesized_expression Text: (*root == NULL)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: *root == NULL
+|———————Node:pointer_expression Text: *root
+|————————Node:* Text: *
+|————————Node:identifier Text: root
+|———————Node:== Text: ==
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+        *root = r;
+        r->prev = r->next = NULL;
+        return;
+    }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: *root = r;
+|———————Node:assignment_expression Text: *root = r
+|————————Node:pointer_expression Text: *root
+|—————————Node:* Text: *
+|—————————Node:identifier Text: root
+|————————Node:= Text: =
+|————————Node:identifier Text: r
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: r->prev = r->next = NULL;
+|———————Node:assignment_expression Text: r->prev = r->next = NULL
+|————————Node:field_expression Text: r->prev
+|—————————Node:identifier Text: r
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: prev
+|————————Node:= Text: =
+|————————Node:assignment_expression Text: r->next = NULL
+|—————————Node:field_expression Text: r->next
+|——————————Node:identifier Text: r
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: next
+|—————————Node:= Text: =
+|—————————Node:null Text: NULL
+|——————————Node:NULL Text: NULL
+|———————Node:; Text: ;
+|——————Node:return_statement Text: return;
+|———————Node:return Text: return
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:declaration Text: blocked_client_t* last = *root;
+|—————Node:type_identifier Text: blocked_client_t
+|—————Node:init_declarator Text: * last = *root
+|——————Node:pointer_declarator Text: * last
+|———————Node:* Text: *
+|———————Node:identifier Text: last
+|——————Node:= Text: =
+|——————Node:pointer_expression Text: *root
+|———————Node:* Text: *
+|———————Node:identifier Text: root
+|—————Node:; Text: ;
+|————Node:while_statement Text: while (last->next != NULL) {
+        last = last->next;
+    }
+|—————Node:while Text: while
+|—————Node:parenthesized_expression Text: (last->next != NULL)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: last->next != NULL
+|———————Node:field_expression Text: last->next
+|————————Node:identifier Text: last
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: next
+|———————Node:!= Text: !=
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+        last = last->next;
+    }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: last = last->next;
+|———————Node:assignment_expression Text: last = last->next
+|————————Node:identifier Text: last
+|————————Node:= Text: =
+|————————Node:field_expression Text: last->next
+|—————————Node:identifier Text: last
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: next
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: last->next = r;
+|—————Node:assignment_expression Text: last->next = r
+|——————Node:field_expression Text: last->next
+|———————Node:identifier Text: last
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: next
+|——————Node:= Text: =
+|——————Node:identifier Text: r
+|—————Node:; Text: ;
+|————Node:expression_statement Text: r->prev = last;
+|—————Node:assignment_expression Text: r->prev = last
+|——————Node:field_expression Text: r->prev
+|———————Node:identifier Text: r
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: prev
+|——————Node:= Text: =
+|——————Node:identifier Text: last
+|—————Node:; Text: ;
+|————Node:expression_statement Text: r->next = NULL;
+|—————Node:assignment_expression Text: r->next = NULL
+|——————Node:field_expression Text: r->next
+|———————Node:identifier Text: r
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: next
+|——————Node:= Text: =
+|——————Node:null Text: NULL
+|———————Node:NULL Text: NULL
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: static inline blocked_client_t* get_blocked_client (
+        blocked_client_t** root, int rcvid)
+{
+    blocked_client_t* location = *root;
+
+    while (location != NULL) {
+        if (location->rcvid == rcvid) {
+            return location;
+        }
+
+        location = location->next;
+    }
+
+    return NULL;
+}
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:storage_class_specifier Text: inline
+|————Node:inline Text: inline
+|———Node:type_identifier Text: blocked_client_t
+|———Node:pointer_declarator Text: * get_blocked_client (
+        blocked_client_t** root, int rcvid)
+|————Node:* Text: *
+|————Node:function_declarator Text: get_blocked_client (
+        blocked_client_t** root, int rcvid)
+|—————Node:identifier Text: get_blocked_client
+|—————Node:parameter_list Text: (
+        blocked_client_t** root, int rcvid)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: blocked_client_t** root
+|———————Node:type_identifier Text: blocked_client_t
+|———————Node:pointer_declarator Text: ** root
+|————————Node:* Text: *
+|————————Node:pointer_declarator Text: * root
+|—————————Node:* Text: *
+|—————————Node:identifier Text: root
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: int rcvid
+|———————Node:primitive_type Text: int
+|———————Node:identifier Text: rcvid
+|——————Node:) Text: )
+|———Node:compound_statement Text: {
+    blocked_client_t* location = *root;
+
+    while (location != NULL) {
+        if (location->rcvid == rcvid) {
+            return location;
+        }
+
+        location = location->next;
+    }
+
+    return NULL;
+}
+|————Node:{ Text: {
+|————Node:declaration Text: blocked_client_t* location = *root;
+|—————Node:type_identifier Text: blocked_client_t
+|—————Node:init_declarator Text: * location = *root
+|——————Node:pointer_declarator Text: * location
+|———————Node:* Text: *
+|———————Node:identifier Text: location
+|——————Node:= Text: =
+|——————Node:pointer_expression Text: *root
+|———————Node:* Text: *
+|———————Node:identifier Text: root
+|—————Node:; Text: ;
+|————Node:while_statement Text: while (location != NULL) {
+        if (location->rcvid == rcvid) {
+            return location;
+        }
+
+        location = location->next;
+    }
+|—————Node:while Text: while
+|—————Node:parenthesized_expression Text: (location != NULL)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: location != NULL
+|———————Node:identifier Text: location
+|———————Node:!= Text: !=
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+        if (location->rcvid == rcvid) {
+            return location;
+        }
+
+        location = location->next;
+    }
+|——————Node:{ Text: {
+|——————Node:if_statement Text: if (location->rcvid == rcvid) {
+            return location;
+        }
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (location->rcvid == rcvid)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: location->rcvid == rcvid
+|—————————Node:field_expression Text: location->rcvid
+|——————————Node:identifier Text: location
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: rcvid
+|—————————Node:== Text: ==
+|—————————Node:identifier Text: rcvid
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+            return location;
+        }
+|————————Node:{ Text: {
+|————————Node:return_statement Text: return location;
+|—————————Node:return Text: return
+|—————————Node:identifier Text: location
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:expression_statement Text: location = location->next;
+|———————Node:assignment_expression Text: location = location->next
+|————————Node:identifier Text: location
+|————————Node:= Text: =
+|————————Node:field_expression Text: location->next
+|—————————Node:identifier Text: location
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: next
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:return_statement Text: return NULL;
+|—————Node:return Text: return
+|—————Node:null Text: NULL
+|——————Node:NULL Text: NULL
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: static inline void remove_blocked_client (blocked_client_t** root, int rcvid) {
+    blocked_client_t* location = *root;
+
+    while (location != NULL) {
+        if (location->rcvid == rcvid) {
+            if (location->prev == NULL) {
+                *root = location->next;
+                if (*root != NULL) {
+                    (*root)->prev = NULL;
+                }
+            }
+            else {
+                location->prev->next = location->next;
+
+                if (location->next) {
+                    location->next->prev = location->prev;
+                }
+            }
+
+            blocked_client_t* next = NULL;
+
+            if (location != NULL) {
+                next = location->next;
+            }
+
+            free(location);
+
+            location = next;
+        }
+        else {
+            location = location->next;
+        }
+    }
+}
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:storage_class_specifier Text: inline
+|————Node:inline Text: inline
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: remove_blocked_client (blocked_client_t** root, int rcvid)
+|————Node:identifier Text: remove_blocked_client
+|————Node:parameter_list Text: (blocked_client_t** root, int rcvid)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: blocked_client_t** root
+|——————Node:type_identifier Text: blocked_client_t
+|——————Node:pointer_declarator Text: ** root
+|———————Node:* Text: *
+|———————Node:pointer_declarator Text: * root
+|————————Node:* Text: *
+|————————Node:identifier Text: root
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: int rcvid
+|——————Node:primitive_type Text: int
+|——————Node:identifier Text: rcvid
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+    blocked_client_t* location = *root;
+
+    while (location != NULL) {
+        if (location->rcvid == rcvid) {
+            if (location->prev == NULL) {
+                *root = location->next;
+                if (*root != NULL) {
+                    (*root)->prev = NULL;
+                }
+            }
+            else {
+                location->prev->next = location->next;
+
+                if (location->next) {
+                    location->next->prev = location->prev;
+                }
+            }
+
+            blocked_client_t* next = NULL;
+
+            if (location != NULL) {
+                next = location->next;
+            }
+
+            free(location);
+
+            location = next;
+        }
+        else {
+            location = location->next;
+        }
+    }
+}
+|————Node:{ Text: {
+|————Node:declaration Text: blocked_client_t* location = *root;
+|—————Node:type_identifier Text: blocked_client_t
+|—————Node:init_declarator Text: * location = *root
+|——————Node:pointer_declarator Text: * location
+|———————Node:* Text: *
+|———————Node:identifier Text: location
+|——————Node:= Text: =
+|——————Node:pointer_expression Text: *root
+|———————Node:* Text: *
+|———————Node:identifier Text: root
+|—————Node:; Text: ;
+|————Node:while_statement Text: while (location != NULL) {
+        if (location->rcvid == rcvid) {
+            if (location->prev == NULL) {
+                *root = location->next;
+                if (*root != NULL) {
+                    (*root)->prev = NULL;
+                }
+            }
+            else {
+                location->prev->next = location->next;
+
+                if (location->next) {
+                    location->next->prev = location->prev;
+                }
+            }
+
+            blocked_client_t* next = NULL;
+
+            if (location != NULL) {
+                next = location->next;
+            }
+
+            free(location);
+
+            location = next;
+        }
+        else {
+            location = location->next;
+        }
+    }
+|—————Node:while Text: while
+|—————Node:parenthesized_expression Text: (location != NULL)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: location != NULL
+|———————Node:identifier Text: location
+|———————Node:!= Text: !=
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+        if (location->rcvid == rcvid) {
+            if (location->prev == NULL) {
+                *root = location->next;
+                if (*root != NULL) {
+                    (*root)->prev = NULL;
+                }
+            }
+            else {
+                location->prev->next = location->next;
+
+                if (location->next) {
+                    location->next->prev = location->prev;
+                }
+            }
+
+            blocked_client_t* next = NULL;
+
+            if (location != NULL) {
+                next = location->next;
+            }
+
+            free(location);
+
+            location = next;
+        }
+        else {
+            location = location->next;
+        }
+    }
+|——————Node:{ Text: {
+|——————Node:if_statement Text: if (location->rcvid == rcvid) {
+            if (location->prev == NULL) {
+                *root = location->next;
+                if (*root != NULL) {
+                    (*root)->prev = NULL;
+                }
+            }
+            else {
+                location->prev->next = location->next;
+
+                if (location->next) {
+                    location->next->prev = location->prev;
+                }
+            }
+
+            blocked_client_t* next = NULL;
+
+            if (location != NULL) {
+                next = location->next;
+            }
+
+            free(location);
+
+            location = next;
+        }
+        else {
+            location = location->next;
+        }
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (location->rcvid == rcvid)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: location->rcvid == rcvid
+|—————————Node:field_expression Text: location->rcvid
+|——————————Node:identifier Text: location
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: rcvid
+|—————————Node:== Text: ==
+|—————————Node:identifier Text: rcvid
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+            if (location->prev == NULL) {
+                *root = location->next;
+                if (*root != NULL) {
+                    (*root)->prev = NULL;
+                }
+            }
+            else {
+                location->prev->next = location->next;
+
+                if (location->next) {
+                    location->next->prev = location->prev;
+                }
+            }
+
+            blocked_client_t* next = NULL;
+
+            if (location != NULL) {
+                next = location->next;
+            }
+
+            free(location);
+
+            location = next;
+        }
+|————————Node:{ Text: {
+|————————Node:if_statement Text: if (location->prev == NULL) {
+                *root = location->next;
+                if (*root != NULL) {
+                    (*root)->prev = NULL;
+                }
+            }
+            else {
+                location->prev->next = location->next;
+
+                if (location->next) {
+                    location->next->prev = location->prev;
+                }
+            }
+|—————————Node:if Text: if
+|—————————Node:parenthesized_expression Text: (location->prev == NULL)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: location->prev == NULL
+|———————————Node:field_expression Text: location->prev
+|————————————Node:identifier Text: location
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: prev
+|———————————Node:== Text: ==
+|———————————Node:null Text: NULL
+|————————————Node:NULL Text: NULL
+|——————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+                *root = location->next;
+                if (*root != NULL) {
+                    (*root)->prev = NULL;
+                }
+            }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: *root = location->next;
+|———————————Node:assignment_expression Text: *root = location->next
+|————————————Node:pointer_expression Text: *root
+|—————————————Node:* Text: *
+|—————————————Node:identifier Text: root
+|————————————Node:= Text: =
+|————————————Node:field_expression Text: location->next
+|—————————————Node:identifier Text: location
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: next
+|———————————Node:; Text: ;
+|——————————Node:if_statement Text: if (*root != NULL) {
+                    (*root)->prev = NULL;
+                }
+|———————————Node:if Text: if
+|———————————Node:parenthesized_expression Text: (*root != NULL)
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: *root != NULL
+|—————————————Node:pointer_expression Text: *root
+|——————————————Node:* Text: *
+|——————————————Node:identifier Text: root
+|—————————————Node:!= Text: !=
+|—————————————Node:null Text: NULL
+|——————————————Node:NULL Text: NULL
+|————————————Node:) Text: )
+|———————————Node:compound_statement Text: {
+                    (*root)->prev = NULL;
+                }
+|————————————Node:{ Text: {
+|————————————Node:expression_statement Text: (*root)->prev = NULL;
+|—————————————Node:assignment_expression Text: (*root)->prev = NULL
+|——————————————Node:field_expression Text: (*root)->prev
+|———————————————Node:parenthesized_expression Text: (*root)
+|————————————————Node:( Text: (
+|————————————————Node:pointer_expression Text: *root
+|—————————————————Node:* Text: *
+|—————————————————Node:identifier Text: root
+|————————————————Node:) Text: )
+|———————————————Node:-> Text: ->
+|———————————————Node:field_identifier Text: prev
+|——————————————Node:= Text: =
+|——————————————Node:null Text: NULL
+|———————————————Node:NULL Text: NULL
+|—————————————Node:; Text: ;
+|————————————Node:} Text: }
+|——————————Node:} Text: }
+|—————————Node:else_clause Text: else {
+                location->prev->next = location->next;
+
+                if (location->next) {
+                    location->next->prev = location->prev;
+                }
+            }
+|——————————Node:else Text: else
+|——————————Node:compound_statement Text: {
+                location->prev->next = location->next;
+
+                if (location->next) {
+                    location->next->prev = location->prev;
+                }
+            }
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: location->prev->next = location->next;
+|————————————Node:assignment_expression Text: location->prev->next = location->next
+|—————————————Node:field_expression Text: location->prev->next
+|——————————————Node:field_expression Text: location->prev
+|———————————————Node:identifier Text: location
+|———————————————Node:-> Text: ->
+|———————————————Node:field_identifier Text: prev
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: next
+|—————————————Node:= Text: =
+|—————————————Node:field_expression Text: location->next
+|——————————————Node:identifier Text: location
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: next
+|————————————Node:; Text: ;
+|———————————Node:if_statement Text: if (location->next) {
+                    location->next->prev = location->prev;
+                }
+|————————————Node:if Text: if
+|————————————Node:parenthesized_expression Text: (location->next)
+|—————————————Node:( Text: (
+|—————————————Node:field_expression Text: location->next
+|——————————————Node:identifier Text: location
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: next
+|—————————————Node:) Text: )
+|————————————Node:compound_statement Text: {
+                    location->next->prev = location->prev;
+                }
+|—————————————Node:{ Text: {
+|—————————————Node:expression_statement Text: location->next->prev = location->prev;
+|——————————————Node:assignment_expression Text: location->next->prev = location->prev
+|———————————————Node:field_expression Text: location->next->prev
+|————————————————Node:field_expression Text: location->next
+|—————————————————Node:identifier Text: location
+|—————————————————Node:-> Text: ->
+|—————————————————Node:field_identifier Text: next
+|————————————————Node:-> Text: ->
+|————————————————Node:field_identifier Text: prev
+|———————————————Node:= Text: =
+|———————————————Node:field_expression Text: location->prev
+|————————————————Node:identifier Text: location
+|————————————————Node:-> Text: ->
+|————————————————Node:field_identifier Text: prev
+|——————————————Node:; Text: ;
+|—————————————Node:} Text: }
+|———————————Node:} Text: }
+|————————Node:declaration Text: blocked_client_t* next = NULL;
+|—————————Node:type_identifier Text: blocked_client_t
+|—————————Node:init_declarator Text: * next = NULL
+|——————————Node:pointer_declarator Text: * next
+|———————————Node:* Text: *
+|———————————Node:identifier Text: next
+|——————————Node:= Text: =
+|——————————Node:null Text: NULL
+|———————————Node:NULL Text: NULL
+|—————————Node:; Text: ;
+|————————Node:if_statement Text: if (location != NULL) {
+                next = location->next;
+            }
+|—————————Node:if Text: if
+|—————————Node:parenthesized_expression Text: (location != NULL)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: location != NULL
+|———————————Node:identifier Text: location
+|———————————Node:!= Text: !=
+|———————————Node:null Text: NULL
+|————————————Node:NULL Text: NULL
+|——————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+                next = location->next;
+            }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: next = location->next;
+|———————————Node:assignment_expression Text: next = location->next
+|————————————Node:identifier Text: next
+|————————————Node:= Text: =
+|————————————Node:field_expression Text: location->next
+|—————————————Node:identifier Text: location
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: next
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|————————Node:expression_statement Text: free(location);
+|—————————Node:call_expression Text: free(location)
+|——————————Node:identifier Text: free
+|——————————Node:argument_list Text: (location)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: location
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:expression_statement Text: location = next;
+|—————————Node:assignment_expression Text: location = next
+|——————————Node:identifier Text: location
+|——————————Node:= Text: =
+|——————————Node:identifier Text: next
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———————Node:else_clause Text: else {
+            location = location->next;
+        }
+|————————Node:else Text: else
+|————————Node:compound_statement Text: {
+            location = location->next;
+        }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: location = location->next;
+|——————————Node:assignment_expression Text: location = location->next
+|———————————Node:identifier Text: location
+|———————————Node:= Text: =
+|———————————Node:field_expression Text: location->next
+|————————————Node:identifier Text: location
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: next
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|——————Node:} Text: }
+|————Node:} Text: }
+|——Node:function_definition Text: static inline void free_all_blocked_clients (blocked_client_t** root) {
+    while (*root != NULL) {
+        blocked_client_t* next = (*root)->next;
+
+        free(*root);
+
+        *root = next;
+    }
+}
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:storage_class_specifier Text: inline
+|————Node:inline Text: inline
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: free_all_blocked_clients (blocked_client_t** root)
+|————Node:identifier Text: free_all_blocked_clients
+|————Node:parameter_list Text: (blocked_client_t** root)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: blocked_client_t** root
+|——————Node:type_identifier Text: blocked_client_t
+|——————Node:pointer_declarator Text: ** root
+|———————Node:* Text: *
+|———————Node:pointer_declarator Text: * root
+|————————Node:* Text: *
+|————————Node:identifier Text: root
+|—————Node:) Text: )
+|———Node:compound_statement Text: {
+    while (*root != NULL) {
+        blocked_client_t* next = (*root)->next;
+
+        free(*root);
+
+        *root = next;
+    }
+}
+|————Node:{ Text: {
+|————Node:while_statement Text: while (*root != NULL) {
+        blocked_client_t* next = (*root)->next;
+
+        free(*root);
+
+        *root = next;
+    }
+|—————Node:while Text: while
+|—————Node:parenthesized_expression Text: (*root != NULL)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: *root != NULL
+|———————Node:pointer_expression Text: *root
+|————————Node:* Text: *
+|————————Node:identifier Text: root
+|———————Node:!= Text: !=
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+        blocked_client_t* next = (*root)->next;
+
+        free(*root);
+
+        *root = next;
+    }
+|——————Node:{ Text: {
+|——————Node:declaration Text: blocked_client_t* next = (*root)->next;
+|———————Node:type_identifier Text: blocked_client_t
+|———————Node:init_declarator Text: * next = (*root)->next
+|————————Node:pointer_declarator Text: * next
+|—————————Node:* Text: *
+|—————————Node:identifier Text: next
+|————————Node:= Text: =
+|————————Node:field_expression Text: (*root)->next
+|—————————Node:parenthesized_expression Text: (*root)
+|——————————Node:( Text: (
+|——————————Node:pointer_expression Text: *root
+|———————————Node:* Text: *
+|———————————Node:identifier Text: root
+|——————————Node:) Text: )
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: next
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: free(*root);
+|———————Node:call_expression Text: free(*root)
+|————————Node:identifier Text: free
+|————————Node:argument_list Text: (*root)
+|—————————Node:( Text: (
+|—————————Node:pointer_expression Text: *root
+|——————————Node:* Text: *
+|——————————Node:identifier Text: root
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: *root = next;
+|———————Node:assignment_expression Text: *root = next
+|————————Node:pointer_expression Text: *root
+|—————————Node:* Text: *
+|—————————Node:identifier Text: root
+|————————Node:= Text: =
+|————————Node:identifier Text: next
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:} Text: }
+|——Node:#endif Text: #endif
+|—Node:comment Text: /* SRC_RESMGR_H_ */

@@ -1,0 +1,292 @@
+J1939-Framework-CAN\Backends\PeakCan\PeakCanReceiver.h
+
+|Node:translation_unit
+|—Node:comment
+|—Node:preproc_ifdef Text: #ifndef BACKENDS_PEAKCAN_PEAKCANRECEIVER_H_
+#define BACKENDS_PEAKCAN_PEAKCANRECEIVER_H_
+
+#include "../../CommonCanReceiver.h"
+
+#include "PeakCanSymbols.h"
+
+namespace Can {
+namespace PeakCan {
+
+class PeakCanReceiver : public CommonCanReceiver {
+
+private:
+	TPCANHandle mCurrentHandle;
+	int mReadFd;
+protected:
+	/*ICanReceiver implementation*/
+	bool _initialize(const std::string& interface) override;
+	bool finalize(const std::string& interface) override;
+	void sniff(u32 timeout) override;
+
+
+public:
+	PeakCanReceiver();
+	virtual ~PeakCanReceiver();
+
+};
+
+} /* namespace PeakCan */
+} /* namespace Can */
+
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: BACKENDS_PEAKCAN_PEAKCANRECEIVER_H_
+|——Node:preproc_def Text: #define BACKENDS_PEAKCAN_PEAKCANRECEIVER_H_
+
+|———Node:#define Text: #define
+|———Node:identifier Text: BACKENDS_PEAKCAN_PEAKCANRECEIVER_H_
+|——Node:preproc_include Text: #include "../../CommonCanReceiver.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "../../CommonCanReceiver.h"
+|————Node:" Text: "
+|————Node:string_content Text: ../../CommonCanReceiver.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "PeakCanSymbols.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "PeakCanSymbols.h"
+|————Node:" Text: "
+|————Node:string_content Text: PeakCanSymbols.h
+|————Node:" Text: "
+|——Node:function_definition Text: namespace Can {
+namespace PeakCan {
+
+class PeakCanReceiver : public CommonCanReceiver {
+
+private:
+	TPCANHandle mCurrentHandle;
+	int mReadFd;
+protected:
+	/*ICanReceiver implementation*/
+	bool _initialize(const std::string& interface) override;
+	bool finalize(const std::string& interface) override;
+	void sniff(u32 timeout) override;
+
+
+public:
+	PeakCanReceiver();
+	virtual ~PeakCanReceiver();
+
+};
+
+} /* namespace PeakCan */
+}
+|———Node:type_identifier Text: namespace
+|———Node:identifier Text: Can
+|———Node:compound_statement Text: {
+namespace PeakCan {
+
+class PeakCanReceiver : public CommonCanReceiver {
+
+private:
+	TPCANHandle mCurrentHandle;
+	int mReadFd;
+protected:
+	/*ICanReceiver implementation*/
+	bool _initialize(const std::string& interface) override;
+	bool finalize(const std::string& interface) override;
+	void sniff(u32 timeout) override;
+
+
+public:
+	PeakCanReceiver();
+	virtual ~PeakCanReceiver();
+
+};
+
+} /* namespace PeakCan */
+}
+|————Node:{ Text: {
+|————Node:function_definition Text: namespace PeakCan {
+
+class PeakCanReceiver : public CommonCanReceiver {
+
+private:
+	TPCANHandle mCurrentHandle;
+	int mReadFd;
+protected:
+	/*ICanReceiver implementation*/
+	bool _initialize(const std::string& interface) override;
+	bool finalize(const std::string& interface) override;
+	void sniff(u32 timeout) override;
+
+
+public:
+	PeakCanReceiver();
+	virtual ~PeakCanReceiver();
+
+};
+
+}
+|—————Node:type_identifier Text: namespace
+|—————Node:identifier Text: PeakCan
+|—————Node:compound_statement Text: {
+
+class PeakCanReceiver : public CommonCanReceiver {
+
+private:
+	TPCANHandle mCurrentHandle;
+	int mReadFd;
+protected:
+	/*ICanReceiver implementation*/
+	bool _initialize(const std::string& interface) override;
+	bool finalize(const std::string& interface) override;
+	void sniff(u32 timeout) override;
+
+
+public:
+	PeakCanReceiver();
+	virtual ~PeakCanReceiver();
+
+};
+
+}
+|——————Node:{ Text: {
+|——————Node:function_definition Text: class PeakCanReceiver : public CommonCanReceiver {
+
+private:
+	TPCANHandle mCurrentHandle;
+	int mReadFd;
+protected:
+	/*ICanReceiver implementation*/
+	bool _initialize(const std::string& interface) override;
+	bool finalize(const std::string& interface) override;
+	void sniff(u32 timeout) override;
+
+
+public:
+	PeakCanReceiver();
+	virtual ~PeakCanReceiver();
+
+}
+|———————Node:type_identifier Text: class
+|———————Node:ERROR Text: PeakCanReceiver : public
+|————————Node:identifier Text: PeakCanReceiver
+|————————Node:: Text: :
+|————————Node:identifier Text: public
+|———————Node:identifier Text: CommonCanReceiver
+|———————Node:compound_statement Text: {
+
+private:
+	TPCANHandle mCurrentHandle;
+	int mReadFd;
+protected:
+	/*ICanReceiver implementation*/
+	bool _initialize(const std::string& interface) override;
+	bool finalize(const std::string& interface) override;
+	void sniff(u32 timeout) override;
+
+
+public:
+	PeakCanReceiver();
+	virtual ~PeakCanReceiver();
+
+}
+|————————Node:{ Text: {
+|————————Node:labeled_statement Text: private:
+	TPCANHandle mCurrentHandle;
+|—————————Node:statement_identifier Text: private
+|—————————Node:: Text: :
+|—————————Node:declaration Text: TPCANHandle mCurrentHandle;
+|——————————Node:type_identifier Text: TPCANHandle
+|——————————Node:identifier Text: mCurrentHandle
+|——————————Node:; Text: ;
+|————————Node:declaration Text: int mReadFd;
+|—————————Node:primitive_type Text: int
+|—————————Node:identifier Text: mReadFd
+|—————————Node:; Text: ;
+|————————Node:labeled_statement Text: protected:
+	/*ICanReceiver implementation*/
+	bool _initialize(const std::string& interface) override;
+|—————————Node:statement_identifier Text: protected
+|—————————Node:: Text: :
+|—————————Node:comment
+|—————————Node:ERROR Text: bool _initialize(const std::string& interface) override
+|——————————Node:primitive_type Text: bool
+|——————————Node:function_declarator Text: _initialize(const std::string& interface) override
+|———————————Node:identifier Text: _initialize
+|———————————Node:parameter_list Text: (const std::string& interface)
+|————————————Node:( Text: (
+|————————————Node:parameter_declaration Text: const std::string& interface
+|—————————————Node:type_qualifier Text: const
+|——————————————Node:const Text: const
+|—————————————Node:type_identifier Text: std
+|—————————————Node:ERROR Text: ::string&
+|——————————————Node:: Text: :
+|——————————————Node:: Text: :
+|——————————————Node:identifier Text: string
+|——————————————Node:& Text: &
+|—————————————Node:identifier Text: interface
+|————————————Node:) Text: )
+|———————————Node:identifier Text: override
+|—————————Node:expression_statement Text: ;
+|——————————Node:; Text: ;
+|————————Node:ERROR Text: bool finalize(const std::string& interface) override
+|—————————Node:primitive_type Text: bool
+|—————————Node:function_declarator Text: finalize(const std::string& interface) override
+|——————————Node:identifier Text: finalize
+|——————————Node:parameter_list Text: (const std::string& interface)
+|———————————Node:( Text: (
+|———————————Node:parameter_declaration Text: const std::string& interface
+|————————————Node:type_qualifier Text: const
+|—————————————Node:const Text: const
+|————————————Node:type_identifier Text: std
+|————————————Node:ERROR Text: ::string&
+|—————————————Node:: Text: :
+|—————————————Node:: Text: :
+|—————————————Node:identifier Text: string
+|—————————————Node:& Text: &
+|————————————Node:identifier Text: interface
+|———————————Node:) Text: )
+|——————————Node:identifier Text: override
+|————————Node:expression_statement Text: ;
+|—————————Node:; Text: ;
+|————————Node:ERROR Text: void sniff(u32 timeout) override
+|—————————Node:primitive_type Text: void
+|—————————Node:function_declarator Text: sniff(u32 timeout) override
+|——————————Node:identifier Text: sniff
+|——————————Node:parameter_list Text: (u32 timeout)
+|———————————Node:( Text: (
+|———————————Node:parameter_declaration Text: u32 timeout
+|————————————Node:type_identifier Text: u32
+|————————————Node:identifier Text: timeout
+|———————————Node:) Text: )
+|——————————Node:identifier Text: override
+|————————Node:expression_statement Text: ;
+|—————————Node:; Text: ;
+|————————Node:labeled_statement Text: public:
+	PeakCanReceiver();
+|—————————Node:statement_identifier Text: public
+|—————————Node:: Text: :
+|—————————Node:expression_statement Text: PeakCanReceiver();
+|——————————Node:call_expression Text: PeakCanReceiver()
+|———————————Node:identifier Text: PeakCanReceiver
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|————————Node:declaration Text: virtual ~PeakCanReceiver();
+|—————————Node:type_identifier Text: virtual
+|—————————Node:ERROR Text: ~
+|——————————Node:~ Text: ~
+|—————————Node:function_declarator Text: PeakCanReceiver()
+|——————————Node:identifier Text: PeakCanReceiver
+|——————————Node:parameter_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:expression_statement Text: ;
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:comment
+|————Node:} Text: }
+|——Node:comment
+|——Node:#endif Text: #endif
+|—Node:comment

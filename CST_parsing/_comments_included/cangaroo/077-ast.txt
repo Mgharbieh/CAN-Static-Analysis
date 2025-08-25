@@ -1,0 +1,983 @@
+cangaroo-src\model\CanMessage.h
+
+|Node:translation_unit
+|—Node:comment Text: /*
+
+  Copyright (c) 2015, 2016 Hubert Denkmair <hubert@denkmair.de>
+
+  This file is part of cangaroo.
+
+  cangaroo is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 2 of the License, or
+  (at your option) any later version.
+
+  cangaroo is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with cangaroo.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+|—Node:preproc_ifdef Text: #ifndef BASE_CANMESSAGE_H_
+#define BASE_CANMESSAGE_H_
+#include <stdint.h>
+#include <sys/time.h>
+
+#include <QString>
+#include <driver/CanDriver.h>
+
+class CanMessage {
+public:
+	CanMessage();
+	CanMessage(uint32_t can_id);
+    CanMessage(const CanMessage &msg);
+    void cloneFrom(const CanMessage &msg);
+
+	uint32_t getRawId() const;
+	void setRawId(const uint32_t raw_id);
+
+	uint32_t getId() const;
+	void setId(const uint32_t id);
+
+	bool isExtended() const;
+	void setExtended(const bool isExtended);
+
+	bool isRTR() const;
+	void setRTR(const bool isRTR);
+
+	bool isErrorFrame() const;
+	void setErrorFrame(const bool isErrorFrame);
+
+    CanInterfaceId getInterfaceId() const;
+    void setInterfaceId(CanInterfaceId interface);
+
+	uint8_t getLength() const;
+	void setLength(const uint8_t dlc);
+
+	uint8_t getByte(const uint8_t index) const;
+	void setByte(const uint8_t index, const uint8_t value);
+
+    uint64_t getU64() const;
+    uint64_t extractRawSignal(uint8_t start_bit, const uint8_t length, const bool isBigEndian) const;
+
+	void setData(const uint8_t d0);
+	void setData(const uint8_t d0, const uint8_t d1);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5, const uint8_t d6);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5, const uint8_t d6, const uint8_t d7);
+
+    struct timeval getTimestamp() const;
+    void setTimestamp(const struct timeval timestamp);
+
+    double getFloatTimestamp() const;
+
+    QString getIdString() const;
+    QString getDataHexString() const;
+
+private:
+	uint32_t _raw_id;
+    uint8_t _dlc;
+    CanInterfaceId _interface;
+    union {
+		uint8_t _u8[8];
+		uint16_t _u16[4];
+		uint32_t _u32[2];
+		uint64_t _u64;
+	};
+    struct timeval _timestamp;
+
+};
+
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: BASE_CANMESSAGE_H_
+|——Node:preproc_def Text: #define BASE_CANMESSAGE_H_
+
+|———Node:#define Text: #define
+|———Node:identifier Text: BASE_CANMESSAGE_H_
+|——Node:preproc_include Text: #include <stdint.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <stdint.h>
+|——Node:preproc_include Text: #include <sys/time.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <sys/time.h>
+|——Node:preproc_include Text: #include <QString>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <QString>
+|——Node:preproc_include Text: #include <driver/CanDriver.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <driver/CanDriver.h>
+|——Node:function_definition Text: class CanMessage {
+public:
+	CanMessage();
+	CanMessage(uint32_t can_id);
+    CanMessage(const CanMessage &msg);
+    void cloneFrom(const CanMessage &msg);
+
+	uint32_t getRawId() const;
+	void setRawId(const uint32_t raw_id);
+
+	uint32_t getId() const;
+	void setId(const uint32_t id);
+
+	bool isExtended() const;
+	void setExtended(const bool isExtended);
+
+	bool isRTR() const;
+	void setRTR(const bool isRTR);
+
+	bool isErrorFrame() const;
+	void setErrorFrame(const bool isErrorFrame);
+
+    CanInterfaceId getInterfaceId() const;
+    void setInterfaceId(CanInterfaceId interface);
+
+	uint8_t getLength() const;
+	void setLength(const uint8_t dlc);
+
+	uint8_t getByte(const uint8_t index) const;
+	void setByte(const uint8_t index, const uint8_t value);
+
+    uint64_t getU64() const;
+    uint64_t extractRawSignal(uint8_t start_bit, const uint8_t length, const bool isBigEndian) const;
+
+	void setData(const uint8_t d0);
+	void setData(const uint8_t d0, const uint8_t d1);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5, const uint8_t d6);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5, const uint8_t d6, const uint8_t d7);
+
+    struct timeval getTimestamp() const;
+    void setTimestamp(const struct timeval timestamp);
+
+    double getFloatTimestamp() const;
+
+    QString getIdString() const;
+    QString getDataHexString() const;
+
+private:
+	uint32_t _raw_id;
+    uint8_t _dlc;
+    CanInterfaceId _interface;
+    union {
+		uint8_t _u8[8];
+		uint16_t _u16[4];
+		uint32_t _u32[2];
+		uint64_t _u64;
+	};
+    struct timeval _timestamp;
+
+}
+|———Node:type_identifier Text: class
+|———Node:identifier Text: CanMessage
+|———Node:compound_statement Text: {
+public:
+	CanMessage();
+	CanMessage(uint32_t can_id);
+    CanMessage(const CanMessage &msg);
+    void cloneFrom(const CanMessage &msg);
+
+	uint32_t getRawId() const;
+	void setRawId(const uint32_t raw_id);
+
+	uint32_t getId() const;
+	void setId(const uint32_t id);
+
+	bool isExtended() const;
+	void setExtended(const bool isExtended);
+
+	bool isRTR() const;
+	void setRTR(const bool isRTR);
+
+	bool isErrorFrame() const;
+	void setErrorFrame(const bool isErrorFrame);
+
+    CanInterfaceId getInterfaceId() const;
+    void setInterfaceId(CanInterfaceId interface);
+
+	uint8_t getLength() const;
+	void setLength(const uint8_t dlc);
+
+	uint8_t getByte(const uint8_t index) const;
+	void setByte(const uint8_t index, const uint8_t value);
+
+    uint64_t getU64() const;
+    uint64_t extractRawSignal(uint8_t start_bit, const uint8_t length, const bool isBigEndian) const;
+
+	void setData(const uint8_t d0);
+	void setData(const uint8_t d0, const uint8_t d1);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5, const uint8_t d6);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5, const uint8_t d6, const uint8_t d7);
+
+    struct timeval getTimestamp() const;
+    void setTimestamp(const struct timeval timestamp);
+
+    double getFloatTimestamp() const;
+
+    QString getIdString() const;
+    QString getDataHexString() const;
+
+private:
+	uint32_t _raw_id;
+    uint8_t _dlc;
+    CanInterfaceId _interface;
+    union {
+		uint8_t _u8[8];
+		uint16_t _u16[4];
+		uint32_t _u32[2];
+		uint64_t _u64;
+	};
+    struct timeval _timestamp;
+
+}
+|————Node:{ Text: {
+|————Node:labeled_statement Text: public:
+	CanMessage();
+|—————Node:statement_identifier Text: public
+|—————Node:: Text: :
+|—————Node:expression_statement Text: CanMessage();
+|——————Node:call_expression Text: CanMessage()
+|———————Node:identifier Text: CanMessage
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|————Node:macro_type_specifier Text: CanMessage(uint32_t can_id)
+|—————Node:identifier Text: CanMessage
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: uint32_t
+|——————Node:primitive_type Text: uint32_t
+|—————Node:ERROR Text: can_id
+|——————Node:identifier Text: can_id
+|—————Node:) Text: )
+|————Node:; Text: ;
+|————Node:macro_type_specifier Text: CanMessage(const CanMessage &msg)
+|—————Node:identifier Text: CanMessage
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: const CanMessage
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: CanMessage
+|—————Node:ERROR Text: &msg
+|——————Node:& Text: &
+|——————Node:identifier Text: msg
+|—————Node:) Text: )
+|————Node:; Text: ;
+|————Node:declaration Text: void cloneFrom(const CanMessage &msg);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: cloneFrom(const CanMessage &msg)
+|——————Node:identifier Text: cloneFrom
+|——————Node:parameter_list Text: (const CanMessage &msg)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const CanMessage &msg
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: CanMessage
+|————————Node:ERROR Text: &
+|—————————Node:& Text: &
+|————————Node:identifier Text: msg
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:ERROR Text: uint32_t getRawId() const;
+	void setRawId(const uint32_t raw_id);
+
+	uint32_t getId() const;
+	void setId(const uint32_t id);
+
+	bool isExtended() const;
+	void setExtended(const bool isExtended);
+
+	bool isRTR() const;
+	void setRTR(const bool isRTR);
+
+	bool isErrorFrame() const;
+	void setErrorFrame(const bool isErrorFrame);
+
+    CanInterfaceId getInterfaceId() const;
+    void setInterfaceId(CanInterfaceId interface);
+
+	uint8_t getLength() const;
+	void setLength(const uint8_t dlc);
+
+	uint8_t getByte(const uint8_t index) const;
+	void setByte(const uint8_t index, const uint8_t value);
+
+    uint64_t getU64() const;
+    uint64_t extractRawSignal(uint8_t start_bit, const uint8_t length, const bool isBigEndian) const;
+
+	void setData(const uint8_t d0);
+	void setData(const uint8_t d0, const uint8_t d1);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5, const uint8_t d6);
+	void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5, const uint8_t d6, const uint8_t d7);
+
+    struct timeval getTimestamp() const;
+    void setTimestamp(const struct timeval timestamp);
+
+    double getFloatTimestamp() const;
+
+    QString getIdString() const;
+    QString getDataHexString() const;
+
+private:
+	uint32_t _raw_id;
+    uint8_t _dlc;
+    CanInterfaceId _interface;
+    union {
+		uint8_t _u8[8];
+		uint16_t _u16[4];
+		uint32_t _u32[2];
+		uint64_t _u64;
+	};
+    struct timeval _timestamp;
+|—————Node:primitive_type Text: uint32_t
+|—————Node:function_declarator Text: getRawId()
+|——————Node:identifier Text: getRawId
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:declaration Text: const;
+	void setRawId(const uint32_t raw_id);
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:ERROR Text: ;
+|———————Node:; Text: ;
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: setRawId(const uint32_t raw_id)
+|———————Node:identifier Text: setRawId
+|———————Node:parameter_list Text: (const uint32_t raw_id)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const uint32_t raw_id
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint32_t
+|—————————Node:identifier Text: raw_id
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:ERROR Text: uint32_t getId() const;
+|——————Node:primitive_type Text: uint32_t
+|——————Node:function_declarator Text: getId() const
+|———————Node:identifier Text: getId
+|———————Node:parameter_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|———————Node:identifier Text: const
+|——————Node:; Text: ;
+|—————Node:declaration Text: void setId(const uint32_t id);
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: setId(const uint32_t id)
+|———————Node:identifier Text: setId
+|———————Node:parameter_list Text: (const uint32_t id)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const uint32_t id
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint32_t
+|—————————Node:identifier Text: id
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:ERROR Text: bool isExtended() const;
+|——————Node:primitive_type Text: bool
+|——————Node:function_declarator Text: isExtended() const
+|———————Node:identifier Text: isExtended
+|———————Node:parameter_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|———————Node:identifier Text: const
+|——————Node:; Text: ;
+|—————Node:declaration Text: void setExtended(const bool isExtended);
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: setExtended(const bool isExtended)
+|———————Node:identifier Text: setExtended
+|———————Node:parameter_list Text: (const bool isExtended)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const bool isExtended
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: bool
+|—————————Node:identifier Text: isExtended
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:ERROR Text: bool isRTR() const;
+|——————Node:primitive_type Text: bool
+|——————Node:function_declarator Text: isRTR() const
+|———————Node:identifier Text: isRTR
+|———————Node:parameter_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|———————Node:identifier Text: const
+|——————Node:; Text: ;
+|—————Node:declaration Text: void setRTR(const bool isRTR);
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: setRTR(const bool isRTR)
+|———————Node:identifier Text: setRTR
+|———————Node:parameter_list Text: (const bool isRTR)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const bool isRTR
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: bool
+|—————————Node:identifier Text: isRTR
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:ERROR Text: bool isErrorFrame() const;
+|——————Node:primitive_type Text: bool
+|——————Node:function_declarator Text: isErrorFrame() const
+|———————Node:identifier Text: isErrorFrame
+|———————Node:parameter_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|———————Node:identifier Text: const
+|——————Node:; Text: ;
+|—————Node:declaration Text: void setErrorFrame(const bool isErrorFrame);
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: setErrorFrame(const bool isErrorFrame)
+|———————Node:identifier Text: setErrorFrame
+|———————Node:parameter_list Text: (const bool isErrorFrame)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const bool isErrorFrame
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: bool
+|—————————Node:identifier Text: isErrorFrame
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:ERROR Text: CanInterfaceId getInterfaceId() const;
+|——————Node:type_identifier Text: CanInterfaceId
+|——————Node:function_declarator Text: getInterfaceId() const
+|———————Node:identifier Text: getInterfaceId
+|———————Node:parameter_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|———————Node:identifier Text: const
+|——————Node:; Text: ;
+|—————Node:declaration Text: void setInterfaceId(CanInterfaceId interface);
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: setInterfaceId(CanInterfaceId interface)
+|———————Node:identifier Text: setInterfaceId
+|———————Node:parameter_list Text: (CanInterfaceId interface)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: CanInterfaceId interface
+|—————————Node:type_identifier Text: CanInterfaceId
+|—————————Node:identifier Text: interface
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:ERROR Text: uint8_t getLength() const;
+|——————Node:primitive_type Text: uint8_t
+|——————Node:function_declarator Text: getLength() const
+|———————Node:identifier Text: getLength
+|———————Node:parameter_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|———————Node:identifier Text: const
+|——————Node:; Text: ;
+|—————Node:declaration Text: void setLength(const uint8_t dlc);
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: setLength(const uint8_t dlc)
+|———————Node:identifier Text: setLength
+|———————Node:parameter_list Text: (const uint8_t dlc)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const uint8_t dlc
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: dlc
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:ERROR Text: uint8_t getByte(const uint8_t index) const;
+|——————Node:primitive_type Text: uint8_t
+|——————Node:function_declarator Text: getByte(const uint8_t index) const
+|———————Node:identifier Text: getByte
+|———————Node:parameter_list Text: (const uint8_t index)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const uint8_t index
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: index
+|————————Node:) Text: )
+|———————Node:identifier Text: const
+|——————Node:; Text: ;
+|—————Node:declaration Text: void setByte(const uint8_t index, const uint8_t value);
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: setByte(const uint8_t index, const uint8_t value)
+|———————Node:identifier Text: setByte
+|———————Node:parameter_list Text: (const uint8_t index, const uint8_t value)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const uint8_t index
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: index
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t value
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: value
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:ERROR Text: uint64_t getU64() const;
+    uint64_t extractRawSignal(uint8_t start_bit, const uint8_t length, const bool isBigEndian) const;
+|——————Node:primitive_type Text: uint64_t
+|——————Node:function_declarator Text: getU64() const
+|———————Node:identifier Text: getU64
+|———————Node:parameter_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|———————Node:identifier Text: const
+|——————Node:; Text: ;
+|——————Node:primitive_type Text: uint64_t
+|——————Node:function_declarator Text: extractRawSignal(uint8_t start_bit, const uint8_t length, const bool isBigEndian) const
+|———————Node:identifier Text: extractRawSignal
+|———————Node:parameter_list Text: (uint8_t start_bit, const uint8_t length, const bool isBigEndian)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: uint8_t start_bit
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: start_bit
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t length
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: length
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const bool isBigEndian
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: bool
+|—————————Node:identifier Text: isBigEndian
+|————————Node:) Text: )
+|———————Node:identifier Text: const
+|——————Node:; Text: ;
+|—————Node:declaration Text: void setData(const uint8_t d0);
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: setData(const uint8_t d0)
+|———————Node:identifier Text: setData
+|———————Node:parameter_list Text: (const uint8_t d0)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const uint8_t d0
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d0
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: void setData(const uint8_t d0, const uint8_t d1);
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: setData(const uint8_t d0, const uint8_t d1)
+|———————Node:identifier Text: setData
+|———————Node:parameter_list Text: (const uint8_t d0, const uint8_t d1)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const uint8_t d0
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d0
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d1
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d1
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2);
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: setData(const uint8_t d0, const uint8_t d1, const uint8_t d2)
+|———————Node:identifier Text: setData
+|———————Node:parameter_list Text: (const uint8_t d0, const uint8_t d1, const uint8_t d2)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const uint8_t d0
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d0
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d1
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d1
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d2
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d2
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3);
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3)
+|———————Node:identifier Text: setData
+|———————Node:parameter_list Text: (const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const uint8_t d0
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d0
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d1
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d1
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d2
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d2
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d3
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d3
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4);
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4)
+|———————Node:identifier Text: setData
+|———————Node:parameter_list Text: (const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const uint8_t d0
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d0
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d1
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d1
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d2
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d2
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d3
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d3
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d4
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d4
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5);
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5)
+|———————Node:identifier Text: setData
+|———————Node:parameter_list Text: (const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const uint8_t d0
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d0
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d1
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d1
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d2
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d2
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d3
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d3
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d4
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d4
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d5
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d5
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5, const uint8_t d6);
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5, const uint8_t d6)
+|———————Node:identifier Text: setData
+|———————Node:parameter_list Text: (const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5, const uint8_t d6)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const uint8_t d0
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d0
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d1
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d1
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d2
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d2
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d3
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d3
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d4
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d4
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d5
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d5
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d6
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d6
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: void setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5, const uint8_t d6, const uint8_t d7);
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: setData(const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5, const uint8_t d6, const uint8_t d7)
+|———————Node:identifier Text: setData
+|———————Node:parameter_list Text: (const uint8_t d0, const uint8_t d1, const uint8_t d2, const uint8_t d3, const uint8_t d4, const uint8_t d5, const uint8_t d6, const uint8_t d7)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const uint8_t d0
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d0
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d1
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d1
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d2
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d2
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d3
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d3
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d4
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d4
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d5
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d5
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d6
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d6
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const uint8_t d7
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:identifier Text: d7
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:ERROR Text: struct timeval getTimestamp() const;
+|——————Node:struct_specifier Text: struct timeval
+|———————Node:struct Text: struct
+|———————Node:type_identifier Text: timeval
+|——————Node:function_declarator Text: getTimestamp() const
+|———————Node:identifier Text: getTimestamp
+|———————Node:parameter_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|———————Node:identifier Text: const
+|——————Node:; Text: ;
+|—————Node:declaration Text: void setTimestamp(const struct timeval timestamp);
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: setTimestamp(const struct timeval timestamp)
+|———————Node:identifier Text: setTimestamp
+|———————Node:parameter_list Text: (const struct timeval timestamp)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const struct timeval timestamp
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:struct_specifier Text: struct timeval
+|——————————Node:struct Text: struct
+|——————————Node:type_identifier Text: timeval
+|—————————Node:identifier Text: timestamp
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: double getFloatTimestamp() const;
+
+    QString getIdString() const;
+    QString getDataHexString() const;
+
+private:
+	uint32_t _raw_id;
+|——————Node:primitive_type Text: double
+|——————Node:ERROR Text: getFloatTimestamp() const;
+
+    QString getIdString() const;
+    QString getDataHexString() const;
+
+private:
+	uint32_t
+|———————Node:function_declarator Text: getFloatTimestamp() const
+|————————Node:identifier Text: getFloatTimestamp
+|————————Node:parameter_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|————————Node:identifier Text: const
+|———————Node:; Text: ;
+|———————Node:identifier Text: QString
+|———————Node:function_declarator Text: getIdString() const
+|————————Node:identifier Text: getIdString
+|————————Node:parameter_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|————————Node:identifier Text: const
+|———————Node:; Text: ;
+|———————Node:identifier Text: QString
+|———————Node:function_declarator Text: getDataHexString() const
+|————————Node:identifier Text: getDataHexString
+|————————Node:parameter_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|————————Node:identifier Text: const
+|———————Node:; Text: ;
+|———————Node:identifier Text: private
+|———————Node:: Text: :
+|———————Node:primitive_type Text: uint32_t
+|——————Node:identifier Text: _raw_id
+|——————Node:; Text: ;
+|—————Node:declaration Text: uint8_t _dlc;
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: _dlc
+|——————Node:; Text: ;
+|—————Node:declaration Text: CanInterfaceId _interface;
+|——————Node:type_identifier Text: CanInterfaceId
+|——————Node:identifier Text: _interface
+|——————Node:; Text: ;
+|—————Node:declaration Text: union {
+		uint8_t _u8[8];
+		uint16_t _u16[4];
+		uint32_t _u32[2];
+		uint64_t _u64;
+	};
+|——————Node:union_specifier Text: union {
+		uint8_t _u8[8];
+		uint16_t _u16[4];
+		uint32_t _u32[2];
+		uint64_t _u64;
+	}
+|———————Node:union Text: union
+|———————Node:field_declaration_list Text: {
+		uint8_t _u8[8];
+		uint16_t _u16[4];
+		uint32_t _u32[2];
+		uint64_t _u64;
+	}
+|————————Node:{ Text: {
+|————————Node:field_declaration Text: uint8_t _u8[8];
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:array_declarator Text: _u8[8]
+|——————————Node:field_identifier Text: _u8
+|——————————Node:[ Text: [
+|——————————Node:number_literal Text: 8
+|——————————Node:] Text: ]
+|—————————Node:; Text: ;
+|————————Node:field_declaration Text: uint16_t _u16[4];
+|—————————Node:primitive_type Text: uint16_t
+|—————————Node:array_declarator Text: _u16[4]
+|——————————Node:field_identifier Text: _u16
+|——————————Node:[ Text: [
+|——————————Node:number_literal Text: 4
+|——————————Node:] Text: ]
+|—————————Node:; Text: ;
+|————————Node:field_declaration Text: uint32_t _u32[2];
+|—————————Node:primitive_type Text: uint32_t
+|—————————Node:array_declarator Text: _u32[2]
+|——————————Node:field_identifier Text: _u32
+|——————————Node:[ Text: [
+|——————————Node:number_literal Text: 2
+|——————————Node:] Text: ]
+|—————————Node:; Text: ;
+|————————Node:field_declaration Text: uint64_t _u64;
+|—————————Node:primitive_type Text: uint64_t
+|—————————Node:field_identifier Text: _u64
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:identifier Text: 
+|——————Node:; Text: ;
+|—————Node:declaration Text: struct timeval _timestamp;
+|——————Node:struct_specifier Text: struct timeval
+|———————Node:struct Text: struct
+|———————Node:type_identifier Text: timeval
+|——————Node:identifier Text: _timestamp
+|——————Node:; Text: ;
+|————Node:} Text: }
+|——Node:expression_statement Text: ;
+|———Node:; Text: ;
+|——Node:#endif Text: #endif
+|—Node:comment Text: /* BASE_CANMESSAGE_H_ */

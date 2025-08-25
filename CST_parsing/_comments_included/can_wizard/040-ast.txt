@@ -1,0 +1,4334 @@
+can_wizard-main\cmd_can.c
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include "cmd_can.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "cmd_can.h"
+|———Node:" Text: "
+|———Node:string_content Text: cmd_can.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "can.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "can.h"
+|———Node:" Text: "
+|———Node:string_content Text: can.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "esp_err.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "esp_err.h"
+|———Node:" Text: "
+|———Node:string_content Text: esp_err.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "esp_log.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "esp_log.h"
+|———Node:" Text: "
+|———Node:string_content Text: esp_log.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "hal/twai_types.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "hal/twai_types.h"
+|———Node:" Text: "
+|———Node:string_content Text: hal/twai_types.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "inttypes.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "inttypes.h"
+|———Node:" Text: "
+|———Node:string_content Text: inttypes.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "freertos/projdefs.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "freertos/projdefs.h"
+|———Node:" Text: "
+|———Node:string_content Text: freertos/projdefs.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "string.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "string.h"
+|———Node:" Text: "
+|———Node:string_content Text: string.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "esp_console.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "esp_console.h"
+|———Node:" Text: "
+|———Node:string_content Text: esp_console.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "argtable3/argtable3.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "argtable3/argtable3.h"
+|———Node:" Text: "
+|———Node:string_content Text: argtable3/argtable3.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "xvprintf.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "xvprintf.h"
+|———Node:" Text: "
+|———Node:string_content Text: xvprintf.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include <stddef.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <stddef.h>
+|—Node:preproc_include Text: #include <stdio.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <stdio.h>
+|—Node:preproc_include Text: #include <ctype.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <ctype.h>
+|—Node:declaration Text: static void register_cansend(void);
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: register_cansend(void)
+|———Node:identifier Text: register_cansend
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:declaration Text: static void register_canup(void);
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: register_canup(void)
+|———Node:identifier Text: register_canup
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:declaration Text: static void register_candown(void);
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: register_candown(void)
+|———Node:identifier Text: register_candown
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:declaration Text: static void register_canstats(void);
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: register_canstats(void)
+|———Node:identifier Text: register_canstats
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:declaration Text: static void register_canstart(void);
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: register_canstart(void)
+|———Node:identifier Text: register_canstart
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:declaration Text: static void register_canrecover(void);
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: register_canrecover(void)
+|———Node:identifier Text: register_canrecover
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:function_definition Text: void register_can_commands(void) {
+    register_cansend();
+    register_canup();
+    register_candown();
+    register_canstats();
+    register_canstart();
+    register_canrecover();
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: register_can_commands(void)
+|———Node:identifier Text: register_can_commands
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    register_cansend();
+    register_canup();
+    register_candown();
+    register_canstats();
+    register_canstart();
+    register_canrecover();
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: register_cansend();
+|————Node:call_expression Text: register_cansend()
+|—————Node:identifier Text: register_cansend
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: register_canup();
+|————Node:call_expression Text: register_canup()
+|—————Node:identifier Text: register_canup
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: register_candown();
+|————Node:call_expression Text: register_candown()
+|—————Node:identifier Text: register_candown
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: register_canstats();
+|————Node:call_expression Text: register_canstats()
+|—————Node:identifier Text: register_canstats
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: register_canstart();
+|————Node:call_expression Text: register_canstart()
+|—————Node:identifier Text: register_canstart
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: register_canrecover();
+|————Node:call_expression Text: register_canrecover()
+|—————Node:identifier Text: register_canrecover
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:declaration Text: static struct {
+    struct arg_str *message;
+    struct arg_end *end;
+} cansend_args;
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:struct_specifier Text: struct {
+    struct arg_str *message;
+    struct arg_end *end;
+}
+|———Node:struct Text: struct
+|———Node:field_declaration_list Text: {
+    struct arg_str *message;
+    struct arg_end *end;
+}
+|————Node:{ Text: {
+|————Node:field_declaration Text: struct arg_str *message;
+|—————Node:struct_specifier Text: struct arg_str
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: arg_str
+|—————Node:pointer_declarator Text: *message
+|——————Node:* Text: *
+|——————Node:field_identifier Text: message
+|—————Node:; Text: ;
+|————Node:field_declaration Text: struct arg_end *end;
+|—————Node:struct_specifier Text: struct arg_end
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: arg_end
+|—————Node:pointer_declarator Text: *end
+|——————Node:* Text: *
+|——————Node:field_identifier Text: end
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:identifier Text: cansend_args
+|——Node:; Text: ;
+|—Node:declaration Text: static struct {
+    struct arg_int *speed;
+    struct arg_str *filters;
+    struct arg_lit *autorecover;
+    struct arg_str *mode;
+    struct arg_end *end;
+} canup_args;
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:struct_specifier Text: struct {
+    struct arg_int *speed;
+    struct arg_str *filters;
+    struct arg_lit *autorecover;
+    struct arg_str *mode;
+    struct arg_end *end;
+}
+|———Node:struct Text: struct
+|———Node:field_declaration_list Text: {
+    struct arg_int *speed;
+    struct arg_str *filters;
+    struct arg_lit *autorecover;
+    struct arg_str *mode;
+    struct arg_end *end;
+}
+|————Node:{ Text: {
+|————Node:field_declaration Text: struct arg_int *speed;
+|—————Node:struct_specifier Text: struct arg_int
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: arg_int
+|—————Node:pointer_declarator Text: *speed
+|——————Node:* Text: *
+|——————Node:field_identifier Text: speed
+|—————Node:; Text: ;
+|————Node:field_declaration Text: struct arg_str *filters;
+|—————Node:struct_specifier Text: struct arg_str
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: arg_str
+|—————Node:pointer_declarator Text: *filters
+|——————Node:* Text: *
+|——————Node:field_identifier Text: filters
+|—————Node:; Text: ;
+|————Node:field_declaration Text: struct arg_lit *autorecover;
+|—————Node:struct_specifier Text: struct arg_lit
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: arg_lit
+|—————Node:pointer_declarator Text: *autorecover
+|——————Node:* Text: *
+|——————Node:field_identifier Text: autorecover
+|—————Node:; Text: ;
+|————Node:field_declaration Text: struct arg_str *mode;
+|—————Node:struct_specifier Text: struct arg_str
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: arg_str
+|—————Node:pointer_declarator Text: *mode
+|——————Node:* Text: *
+|——————Node:field_identifier Text: mode
+|—————Node:; Text: ;
+|————Node:field_declaration Text: struct arg_end *end;
+|—————Node:struct_specifier Text: struct arg_end
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: arg_end
+|—————Node:pointer_declarator Text: *end
+|——————Node:* Text: *
+|——————Node:field_identifier Text: end
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:identifier Text: canup_args
+|——Node:; Text: ;
+|—Node:function_definition Text: static int send_can_frame(int argc, char **argv) {
+    twai_message_t msg = {.extd = 1};
+    char printf_str[70];
+    int nerrors = arg_parse(argc, argv, (void **) &cansend_args);
+    if (nerrors != 0) {
+        arg_print_errors(stderr, cansend_args.end, argv[0]);
+        return 1;
+    }
+    const char *can_msg_ptr = cansend_args.message->sval[0];
+    char *can_msg_str_buf = strdup(can_msg_ptr);
+    char *id_substr = strtok(can_msg_str_buf, "#");
+    char *data_substr = strtok(NULL, "#");
+    if ((id_substr == NULL) || (strtok(NULL, "#") != NULL)) goto invalid_args;
+    int id_l = strlen(id_substr);
+    int dt_l = data_substr == NULL ? 0 : strlen(data_substr);
+    if ((id_l > 8) || (dt_l > 16) || (id_l % 2) || (dt_l % 2)) goto invalid_args;
+    for (int i = 0; i < id_l; i++) if(!isxdigit((int) id_substr[i])) goto invalid_args;
+    for (int i = 0; i < dt_l; i++) if(!isxdigit((int) data_substr[i])) goto invalid_args;
+    int msg_id;
+    if (sscanf(id_substr, "%X", &msg_id) < 1) goto invalid_args;
+    for (int i = 0; i < (dt_l / 2); i++) {
+        char *byte_to_parse = malloc(3);
+        strncpy(byte_to_parse, data_substr + i * 2, 2);
+        int num;
+        int res = sscanf(byte_to_parse, "%X", &num);
+        free(byte_to_parse);
+        if (res < 1) goto invalid_args;
+        msg.data[i] = num;
+    }
+    msg.data_length_code = dt_l / 2;
+    msg.identifier = msg_id;
+    esp_err_t res = twai_transmit(&msg, pdMS_TO_TICKS(1000));
+    switch(res) {
+        case ESP_OK:
+            can_msg_to_str(&msg, "sent ", printf_str);
+            print_w_clr_time(printf_str, NULL, true);
+            break;
+        case ESP_ERR_TIMEOUT:
+            print_w_clr_time("Timeout!", LOG_COLOR_RED, true);
+            break;
+        case ESP_ERR_NOT_SUPPORTED:
+            print_w_clr_time("Can't sent in Listen-Only mode!", LOG_COLOR_RED, true);
+            break;
+        default:
+            print_w_clr_time("Invalid state!", LOG_COLOR_RED, true);
+            break;
+    }
+    free(can_msg_str_buf);
+    return 0;
+invalid_args:
+    printf("Invalid arguments!\n");
+    free(can_msg_str_buf);
+    return 1;
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: send_can_frame(int argc, char **argv)
+|———Node:identifier Text: send_can_frame
+|———Node:parameter_list Text: (int argc, char **argv)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: int argc
+|—————Node:primitive_type Text: int
+|—————Node:identifier Text: argc
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: char **argv
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: **argv
+|——————Node:* Text: *
+|——————Node:pointer_declarator Text: *argv
+|———————Node:* Text: *
+|———————Node:identifier Text: argv
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    twai_message_t msg = {.extd = 1};
+    char printf_str[70];
+    int nerrors = arg_parse(argc, argv, (void **) &cansend_args);
+    if (nerrors != 0) {
+        arg_print_errors(stderr, cansend_args.end, argv[0]);
+        return 1;
+    }
+    const char *can_msg_ptr = cansend_args.message->sval[0];
+    char *can_msg_str_buf = strdup(can_msg_ptr);
+    char *id_substr = strtok(can_msg_str_buf, "#");
+    char *data_substr = strtok(NULL, "#");
+    if ((id_substr == NULL) || (strtok(NULL, "#") != NULL)) goto invalid_args;
+    int id_l = strlen(id_substr);
+    int dt_l = data_substr == NULL ? 0 : strlen(data_substr);
+    if ((id_l > 8) || (dt_l > 16) || (id_l % 2) || (dt_l % 2)) goto invalid_args;
+    for (int i = 0; i < id_l; i++) if(!isxdigit((int) id_substr[i])) goto invalid_args;
+    for (int i = 0; i < dt_l; i++) if(!isxdigit((int) data_substr[i])) goto invalid_args;
+    int msg_id;
+    if (sscanf(id_substr, "%X", &msg_id) < 1) goto invalid_args;
+    for (int i = 0; i < (dt_l / 2); i++) {
+        char *byte_to_parse = malloc(3);
+        strncpy(byte_to_parse, data_substr + i * 2, 2);
+        int num;
+        int res = sscanf(byte_to_parse, "%X", &num);
+        free(byte_to_parse);
+        if (res < 1) goto invalid_args;
+        msg.data[i] = num;
+    }
+    msg.data_length_code = dt_l / 2;
+    msg.identifier = msg_id;
+    esp_err_t res = twai_transmit(&msg, pdMS_TO_TICKS(1000));
+    switch(res) {
+        case ESP_OK:
+            can_msg_to_str(&msg, "sent ", printf_str);
+            print_w_clr_time(printf_str, NULL, true);
+            break;
+        case ESP_ERR_TIMEOUT:
+            print_w_clr_time("Timeout!", LOG_COLOR_RED, true);
+            break;
+        case ESP_ERR_NOT_SUPPORTED:
+            print_w_clr_time("Can't sent in Listen-Only mode!", LOG_COLOR_RED, true);
+            break;
+        default:
+            print_w_clr_time("Invalid state!", LOG_COLOR_RED, true);
+            break;
+    }
+    free(can_msg_str_buf);
+    return 0;
+invalid_args:
+    printf("Invalid arguments!\n");
+    free(can_msg_str_buf);
+    return 1;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: twai_message_t msg = {.extd = 1};
+|————Node:type_identifier Text: twai_message_t
+|————Node:init_declarator Text: msg = {.extd = 1}
+|—————Node:identifier Text: msg
+|—————Node:= Text: =
+|—————Node:initializer_list Text: {.extd = 1}
+|——————Node:{ Text: {
+|——————Node:initializer_pair Text: .extd = 1
+|———————Node:field_designator Text: .extd
+|————————Node:. Text: .
+|————————Node:field_identifier Text: extd
+|———————Node:= Text: =
+|———————Node:number_literal Text: 1
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:declaration Text: char printf_str[70];
+|————Node:primitive_type Text: char
+|————Node:array_declarator Text: printf_str[70]
+|—————Node:identifier Text: printf_str
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 70
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:declaration Text: int nerrors = arg_parse(argc, argv, (void **) &cansend_args);
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: nerrors = arg_parse(argc, argv, (void **) &cansend_args)
+|—————Node:identifier Text: nerrors
+|—————Node:= Text: =
+|—————Node:call_expression Text: arg_parse(argc, argv, (void **) &cansend_args)
+|——————Node:identifier Text: arg_parse
+|——————Node:argument_list Text: (argc, argv, (void **) &cansend_args)
+|———————Node:( Text: (
+|———————Node:identifier Text: argc
+|———————Node:, Text: ,
+|———————Node:identifier Text: argv
+|———————Node:, Text: ,
+|———————Node:cast_expression Text: (void **) &cansend_args
+|————————Node:( Text: (
+|————————Node:type_descriptor Text: void **
+|—————————Node:primitive_type Text: void
+|—————————Node:abstract_pointer_declarator Text: **
+|——————————Node:* Text: *
+|——————————Node:abstract_pointer_declarator Text: *
+|———————————Node:* Text: *
+|————————Node:) Text: )
+|————————Node:pointer_expression Text: &cansend_args
+|—————————Node:& Text: &
+|—————————Node:identifier Text: cansend_args
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (nerrors != 0) {
+        arg_print_errors(stderr, cansend_args.end, argv[0]);
+        return 1;
+    }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (nerrors != 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: nerrors != 0
+|——————Node:identifier Text: nerrors
+|——————Node:!= Text: !=
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        arg_print_errors(stderr, cansend_args.end, argv[0]);
+        return 1;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: arg_print_errors(stderr, cansend_args.end, argv[0]);
+|——————Node:call_expression Text: arg_print_errors(stderr, cansend_args.end, argv[0])
+|———————Node:identifier Text: arg_print_errors
+|———————Node:argument_list Text: (stderr, cansend_args.end, argv[0])
+|————————Node:( Text: (
+|————————Node:identifier Text: stderr
+|————————Node:, Text: ,
+|————————Node:field_expression Text: cansend_args.end
+|—————————Node:identifier Text: cansend_args
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: end
+|————————Node:, Text: ,
+|————————Node:subscript_expression Text: argv[0]
+|—————————Node:identifier Text: argv
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 0
+|—————————Node:] Text: ]
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return 1;
+|——————Node:return Text: return
+|——————Node:number_literal Text: 1
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:declaration Text: const char *can_msg_ptr = cansend_args.message->sval[0];
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:primitive_type Text: char
+|————Node:init_declarator Text: *can_msg_ptr = cansend_args.message->sval[0]
+|—————Node:pointer_declarator Text: *can_msg_ptr
+|——————Node:* Text: *
+|——————Node:identifier Text: can_msg_ptr
+|—————Node:= Text: =
+|—————Node:subscript_expression Text: cansend_args.message->sval[0]
+|——————Node:field_expression Text: cansend_args.message->sval
+|———————Node:field_expression Text: cansend_args.message
+|————————Node:identifier Text: cansend_args
+|————————Node:. Text: .
+|————————Node:field_identifier Text: message
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: sval
+|——————Node:[ Text: [
+|——————Node:number_literal Text: 0
+|——————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:declaration Text: char *can_msg_str_buf = strdup(can_msg_ptr);
+|————Node:primitive_type Text: char
+|————Node:init_declarator Text: *can_msg_str_buf = strdup(can_msg_ptr)
+|—————Node:pointer_declarator Text: *can_msg_str_buf
+|——————Node:* Text: *
+|——————Node:identifier Text: can_msg_str_buf
+|—————Node:= Text: =
+|—————Node:call_expression Text: strdup(can_msg_ptr)
+|——————Node:identifier Text: strdup
+|——————Node:argument_list Text: (can_msg_ptr)
+|———————Node:( Text: (
+|———————Node:identifier Text: can_msg_ptr
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: char *id_substr = strtok(can_msg_str_buf, "#");
+|————Node:primitive_type Text: char
+|————Node:init_declarator Text: *id_substr = strtok(can_msg_str_buf, "#")
+|—————Node:pointer_declarator Text: *id_substr
+|——————Node:* Text: *
+|——————Node:identifier Text: id_substr
+|—————Node:= Text: =
+|—————Node:call_expression Text: strtok(can_msg_str_buf, "#")
+|——————Node:identifier Text: strtok
+|——————Node:argument_list Text: (can_msg_str_buf, "#")
+|———————Node:( Text: (
+|———————Node:identifier Text: can_msg_str_buf
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "#"
+|————————Node:" Text: "
+|————————Node:string_content Text: #
+|————————Node:" Text: "
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: char *data_substr = strtok(NULL, "#");
+|————Node:primitive_type Text: char
+|————Node:init_declarator Text: *data_substr = strtok(NULL, "#")
+|—————Node:pointer_declarator Text: *data_substr
+|——————Node:* Text: *
+|——————Node:identifier Text: data_substr
+|—————Node:= Text: =
+|—————Node:call_expression Text: strtok(NULL, "#")
+|——————Node:identifier Text: strtok
+|——————Node:argument_list Text: (NULL, "#")
+|———————Node:( Text: (
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "#"
+|————————Node:" Text: "
+|————————Node:string_content Text: #
+|————————Node:" Text: "
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if ((id_substr == NULL) || (strtok(NULL, "#") != NULL)) goto invalid_args;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: ((id_substr == NULL) || (strtok(NULL, "#") != NULL))
+|—————Node:( Text: (
+|—————Node:binary_expression Text: (id_substr == NULL) || (strtok(NULL, "#") != NULL)
+|——————Node:parenthesized_expression Text: (id_substr == NULL)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: id_substr == NULL
+|————————Node:identifier Text: id_substr
+|————————Node:== Text: ==
+|————————Node:null Text: NULL
+|—————————Node:NULL Text: NULL
+|———————Node:) Text: )
+|——————Node:|| Text: ||
+|——————Node:parenthesized_expression Text: (strtok(NULL, "#") != NULL)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: strtok(NULL, "#") != NULL
+|————————Node:call_expression Text: strtok(NULL, "#")
+|—————————Node:identifier Text: strtok
+|—————————Node:argument_list Text: (NULL, "#")
+|——————————Node:( Text: (
+|——————————Node:null Text: NULL
+|———————————Node:NULL Text: NULL
+|——————————Node:, Text: ,
+|——————————Node:string_literal Text: "#"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: #
+|———————————Node:" Text: "
+|——————————Node:) Text: )
+|————————Node:!= Text: !=
+|————————Node:null Text: NULL
+|—————————Node:NULL Text: NULL
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:goto_statement Text: goto invalid_args;
+|—————Node:goto Text: goto
+|—————Node:statement_identifier Text: invalid_args
+|—————Node:; Text: ;
+|———Node:declaration Text: int id_l = strlen(id_substr);
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: id_l = strlen(id_substr)
+|—————Node:identifier Text: id_l
+|—————Node:= Text: =
+|—————Node:call_expression Text: strlen(id_substr)
+|——————Node:identifier Text: strlen
+|——————Node:argument_list Text: (id_substr)
+|———————Node:( Text: (
+|———————Node:identifier Text: id_substr
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: int dt_l = data_substr == NULL ? 0 : strlen(data_substr);
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: dt_l = data_substr == NULL ? 0 : strlen(data_substr)
+|—————Node:identifier Text: dt_l
+|—————Node:= Text: =
+|—————Node:conditional_expression Text: data_substr == NULL ? 0 : strlen(data_substr)
+|——————Node:binary_expression Text: data_substr == NULL
+|———————Node:identifier Text: data_substr
+|———————Node:== Text: ==
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|——————Node:? Text: ?
+|——————Node:number_literal Text: 0
+|——————Node:: Text: :
+|——————Node:call_expression Text: strlen(data_substr)
+|———————Node:identifier Text: strlen
+|———————Node:argument_list Text: (data_substr)
+|————————Node:( Text: (
+|————————Node:identifier Text: data_substr
+|————————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if ((id_l > 8) || (dt_l > 16) || (id_l % 2) || (dt_l % 2)) goto invalid_args;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: ((id_l > 8) || (dt_l > 16) || (id_l % 2) || (dt_l % 2))
+|—————Node:( Text: (
+|—————Node:binary_expression Text: (id_l > 8) || (dt_l > 16) || (id_l % 2) || (dt_l % 2)
+|——————Node:binary_expression Text: (id_l > 8) || (dt_l > 16) || (id_l % 2)
+|———————Node:binary_expression Text: (id_l > 8) || (dt_l > 16)
+|————————Node:parenthesized_expression Text: (id_l > 8)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: id_l > 8
+|——————————Node:identifier Text: id_l
+|——————————Node:> Text: >
+|——————————Node:number_literal Text: 8
+|—————————Node:) Text: )
+|————————Node:|| Text: ||
+|————————Node:parenthesized_expression Text: (dt_l > 16)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: dt_l > 16
+|——————————Node:identifier Text: dt_l
+|——————————Node:> Text: >
+|——————————Node:number_literal Text: 16
+|—————————Node:) Text: )
+|———————Node:|| Text: ||
+|———————Node:parenthesized_expression Text: (id_l % 2)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: id_l % 2
+|—————————Node:identifier Text: id_l
+|—————————Node:% Text: %
+|—————————Node:number_literal Text: 2
+|————————Node:) Text: )
+|——————Node:|| Text: ||
+|——————Node:parenthesized_expression Text: (dt_l % 2)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: dt_l % 2
+|————————Node:identifier Text: dt_l
+|————————Node:% Text: %
+|————————Node:number_literal Text: 2
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:goto_statement Text: goto invalid_args;
+|—————Node:goto Text: goto
+|—————Node:statement_identifier Text: invalid_args
+|—————Node:; Text: ;
+|———Node:for_statement Text: for (int i = 0; i < id_l; i++) if(!isxdigit((int) id_substr[i])) goto invalid_args;
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:declaration Text: int i = 0;
+|—————Node:primitive_type Text: int
+|—————Node:init_declarator Text: i = 0
+|——————Node:identifier Text: i
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:binary_expression Text: i < id_l
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:identifier Text: id_l
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:if_statement Text: if(!isxdigit((int) id_substr[i])) goto invalid_args;
+|—————Node:if Text: if
+|—————Node:parenthesized_expression Text: (!isxdigit((int) id_substr[i]))
+|——————Node:( Text: (
+|——————Node:unary_expression Text: !isxdigit((int) id_substr[i])
+|———————Node:! Text: !
+|———————Node:call_expression Text: isxdigit((int) id_substr[i])
+|————————Node:identifier Text: isxdigit
+|————————Node:argument_list Text: ((int) id_substr[i])
+|—————————Node:( Text: (
+|—————————Node:cast_expression Text: (int) id_substr[i]
+|——————————Node:( Text: (
+|——————————Node:type_descriptor Text: int
+|———————————Node:primitive_type Text: int
+|——————————Node:) Text: )
+|——————————Node:subscript_expression Text: id_substr[i]
+|———————————Node:identifier Text: id_substr
+|———————————Node:[ Text: [
+|———————————Node:identifier Text: i
+|———————————Node:] Text: ]
+|—————————Node:) Text: )
+|——————Node:) Text: )
+|—————Node:goto_statement Text: goto invalid_args;
+|——————Node:goto Text: goto
+|——————Node:statement_identifier Text: invalid_args
+|——————Node:; Text: ;
+|———Node:for_statement Text: for (int i = 0; i < dt_l; i++) if(!isxdigit((int) data_substr[i])) goto invalid_args;
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:declaration Text: int i = 0;
+|—————Node:primitive_type Text: int
+|—————Node:init_declarator Text: i = 0
+|——————Node:identifier Text: i
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:binary_expression Text: i < dt_l
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:identifier Text: dt_l
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:if_statement Text: if(!isxdigit((int) data_substr[i])) goto invalid_args;
+|—————Node:if Text: if
+|—————Node:parenthesized_expression Text: (!isxdigit((int) data_substr[i]))
+|——————Node:( Text: (
+|——————Node:unary_expression Text: !isxdigit((int) data_substr[i])
+|———————Node:! Text: !
+|———————Node:call_expression Text: isxdigit((int) data_substr[i])
+|————————Node:identifier Text: isxdigit
+|————————Node:argument_list Text: ((int) data_substr[i])
+|—————————Node:( Text: (
+|—————————Node:cast_expression Text: (int) data_substr[i]
+|——————————Node:( Text: (
+|——————————Node:type_descriptor Text: int
+|———————————Node:primitive_type Text: int
+|——————————Node:) Text: )
+|——————————Node:subscript_expression Text: data_substr[i]
+|———————————Node:identifier Text: data_substr
+|———————————Node:[ Text: [
+|———————————Node:identifier Text: i
+|———————————Node:] Text: ]
+|—————————Node:) Text: )
+|——————Node:) Text: )
+|—————Node:goto_statement Text: goto invalid_args;
+|——————Node:goto Text: goto
+|——————Node:statement_identifier Text: invalid_args
+|——————Node:; Text: ;
+|———Node:declaration Text: int msg_id;
+|————Node:primitive_type Text: int
+|————Node:identifier Text: msg_id
+|————Node:; Text: ;
+|———Node:if_statement Text: if (sscanf(id_substr, "%X", &msg_id) < 1) goto invalid_args;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (sscanf(id_substr, "%X", &msg_id) < 1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: sscanf(id_substr, "%X", &msg_id) < 1
+|——————Node:call_expression Text: sscanf(id_substr, "%X", &msg_id)
+|———————Node:identifier Text: sscanf
+|———————Node:argument_list Text: (id_substr, "%X", &msg_id)
+|————————Node:( Text: (
+|————————Node:identifier Text: id_substr
+|————————Node:, Text: ,
+|————————Node:string_literal Text: "%X"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: %X
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:pointer_expression Text: &msg_id
+|—————————Node:& Text: &
+|—————————Node:identifier Text: msg_id
+|————————Node:) Text: )
+|——————Node:< Text: <
+|——————Node:number_literal Text: 1
+|—————Node:) Text: )
+|————Node:goto_statement Text: goto invalid_args;
+|—————Node:goto Text: goto
+|—————Node:statement_identifier Text: invalid_args
+|—————Node:; Text: ;
+|———Node:for_statement Text: for (int i = 0; i < (dt_l / 2); i++) {
+        char *byte_to_parse = malloc(3);
+        strncpy(byte_to_parse, data_substr + i * 2, 2);
+        int num;
+        int res = sscanf(byte_to_parse, "%X", &num);
+        free(byte_to_parse);
+        if (res < 1) goto invalid_args;
+        msg.data[i] = num;
+    }
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:declaration Text: int i = 0;
+|—————Node:primitive_type Text: int
+|—————Node:init_declarator Text: i = 0
+|——————Node:identifier Text: i
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:binary_expression Text: i < (dt_l / 2)
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:parenthesized_expression Text: (dt_l / 2)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: dt_l / 2
+|———————Node:identifier Text: dt_l
+|———————Node:/ Text: /
+|———————Node:number_literal Text: 2
+|——————Node:) Text: )
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+        char *byte_to_parse = malloc(3);
+        strncpy(byte_to_parse, data_substr + i * 2, 2);
+        int num;
+        int res = sscanf(byte_to_parse, "%X", &num);
+        free(byte_to_parse);
+        if (res < 1) goto invalid_args;
+        msg.data[i] = num;
+    }
+|—————Node:{ Text: {
+|—————Node:declaration Text: char *byte_to_parse = malloc(3);
+|——————Node:primitive_type Text: char
+|——————Node:init_declarator Text: *byte_to_parse = malloc(3)
+|———————Node:pointer_declarator Text: *byte_to_parse
+|————————Node:* Text: *
+|————————Node:identifier Text: byte_to_parse
+|———————Node:= Text: =
+|———————Node:call_expression Text: malloc(3)
+|————————Node:identifier Text: malloc
+|————————Node:argument_list Text: (3)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 3
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: strncpy(byte_to_parse, data_substr + i * 2, 2);
+|——————Node:call_expression Text: strncpy(byte_to_parse, data_substr + i * 2, 2)
+|———————Node:identifier Text: strncpy
+|———————Node:argument_list Text: (byte_to_parse, data_substr + i * 2, 2)
+|————————Node:( Text: (
+|————————Node:identifier Text: byte_to_parse
+|————————Node:, Text: ,
+|————————Node:binary_expression Text: data_substr + i * 2
+|—————————Node:identifier Text: data_substr
+|—————————Node:+ Text: +
+|—————————Node:binary_expression Text: i * 2
+|——————————Node:identifier Text: i
+|——————————Node:* Text: *
+|——————————Node:number_literal Text: 2
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 2
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: int num;
+|——————Node:primitive_type Text: int
+|——————Node:identifier Text: num
+|——————Node:; Text: ;
+|—————Node:declaration Text: int res = sscanf(byte_to_parse, "%X", &num);
+|——————Node:primitive_type Text: int
+|——————Node:init_declarator Text: res = sscanf(byte_to_parse, "%X", &num)
+|———————Node:identifier Text: res
+|———————Node:= Text: =
+|———————Node:call_expression Text: sscanf(byte_to_parse, "%X", &num)
+|————————Node:identifier Text: sscanf
+|————————Node:argument_list Text: (byte_to_parse, "%X", &num)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: byte_to_parse
+|—————————Node:, Text: ,
+|—————————Node:string_literal Text: "%X"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: %X
+|——————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:pointer_expression Text: &num
+|——————————Node:& Text: &
+|——————————Node:identifier Text: num
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: free(byte_to_parse);
+|——————Node:call_expression Text: free(byte_to_parse)
+|———————Node:identifier Text: free
+|———————Node:argument_list Text: (byte_to_parse)
+|————————Node:( Text: (
+|————————Node:identifier Text: byte_to_parse
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if (res < 1) goto invalid_args;
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (res < 1)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: res < 1
+|————————Node:identifier Text: res
+|————————Node:< Text: <
+|————————Node:number_literal Text: 1
+|———————Node:) Text: )
+|——————Node:goto_statement Text: goto invalid_args;
+|———————Node:goto Text: goto
+|———————Node:statement_identifier Text: invalid_args
+|———————Node:; Text: ;
+|—————Node:expression_statement Text: msg.data[i] = num;
+|——————Node:assignment_expression Text: msg.data[i] = num
+|———————Node:subscript_expression Text: msg.data[i]
+|————————Node:field_expression Text: msg.data
+|—————————Node:identifier Text: msg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: data
+|————————Node:[ Text: [
+|————————Node:identifier Text: i
+|————————Node:] Text: ]
+|———————Node:= Text: =
+|———————Node:identifier Text: num
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: msg.data_length_code = dt_l / 2;
+|————Node:assignment_expression Text: msg.data_length_code = dt_l / 2
+|—————Node:field_expression Text: msg.data_length_code
+|——————Node:identifier Text: msg
+|——————Node:. Text: .
+|——————Node:field_identifier Text: data_length_code
+|—————Node:= Text: =
+|—————Node:binary_expression Text: dt_l / 2
+|——————Node:identifier Text: dt_l
+|——————Node:/ Text: /
+|——————Node:number_literal Text: 2
+|————Node:; Text: ;
+|———Node:expression_statement Text: msg.identifier = msg_id;
+|————Node:assignment_expression Text: msg.identifier = msg_id
+|—————Node:field_expression Text: msg.identifier
+|——————Node:identifier Text: msg
+|——————Node:. Text: .
+|——————Node:field_identifier Text: identifier
+|—————Node:= Text: =
+|—————Node:identifier Text: msg_id
+|————Node:; Text: ;
+|———Node:declaration Text: esp_err_t res = twai_transmit(&msg, pdMS_TO_TICKS(1000));
+|————Node:type_identifier Text: esp_err_t
+|————Node:init_declarator Text: res = twai_transmit(&msg, pdMS_TO_TICKS(1000))
+|—————Node:identifier Text: res
+|—————Node:= Text: =
+|—————Node:call_expression Text: twai_transmit(&msg, pdMS_TO_TICKS(1000))
+|——————Node:identifier Text: twai_transmit
+|——————Node:argument_list Text: (&msg, pdMS_TO_TICKS(1000))
+|———————Node:( Text: (
+|———————Node:pointer_expression Text: &msg
+|————————Node:& Text: &
+|————————Node:identifier Text: msg
+|———————Node:, Text: ,
+|———————Node:call_expression Text: pdMS_TO_TICKS(1000)
+|————————Node:identifier Text: pdMS_TO_TICKS
+|————————Node:argument_list Text: (1000)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 1000
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:switch_statement Text: switch(res) {
+        case ESP_OK:
+            can_msg_to_str(&msg, "sent ", printf_str);
+            print_w_clr_time(printf_str, NULL, true);
+            break;
+        case ESP_ERR_TIMEOUT:
+            print_w_clr_time("Timeout!", LOG_COLOR_RED, true);
+            break;
+        case ESP_ERR_NOT_SUPPORTED:
+            print_w_clr_time("Can't sent in Listen-Only mode!", LOG_COLOR_RED, true);
+            break;
+        default:
+            print_w_clr_time("Invalid state!", LOG_COLOR_RED, true);
+            break;
+    }
+|————Node:switch Text: switch
+|————Node:parenthesized_expression Text: (res)
+|—————Node:( Text: (
+|—————Node:identifier Text: res
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        case ESP_OK:
+            can_msg_to_str(&msg, "sent ", printf_str);
+            print_w_clr_time(printf_str, NULL, true);
+            break;
+        case ESP_ERR_TIMEOUT:
+            print_w_clr_time("Timeout!", LOG_COLOR_RED, true);
+            break;
+        case ESP_ERR_NOT_SUPPORTED:
+            print_w_clr_time("Can't sent in Listen-Only mode!", LOG_COLOR_RED, true);
+            break;
+        default:
+            print_w_clr_time("Invalid state!", LOG_COLOR_RED, true);
+            break;
+    }
+|—————Node:{ Text: {
+|—————Node:case_statement Text: case ESP_OK:
+            can_msg_to_str(&msg, "sent ", printf_str);
+            print_w_clr_time(printf_str, NULL, true);
+            break;
+|——————Node:case Text: case
+|——————Node:identifier Text: ESP_OK
+|——————Node:: Text: :
+|——————Node:expression_statement Text: can_msg_to_str(&msg, "sent ", printf_str);
+|———————Node:call_expression Text: can_msg_to_str(&msg, "sent ", printf_str)
+|————————Node:identifier Text: can_msg_to_str
+|————————Node:argument_list Text: (&msg, "sent ", printf_str)
+|—————————Node:( Text: (
+|—————————Node:pointer_expression Text: &msg
+|——————————Node:& Text: &
+|——————————Node:identifier Text: msg
+|—————————Node:, Text: ,
+|—————————Node:string_literal Text: "sent "
+|——————————Node:" Text: "
+|——————————Node:string_content Text: sent 
+|——————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: printf_str
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: print_w_clr_time(printf_str, NULL, true);
+|———————Node:call_expression Text: print_w_clr_time(printf_str, NULL, true)
+|————————Node:identifier Text: print_w_clr_time
+|————————Node:argument_list Text: (printf_str, NULL, true)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: printf_str
+|—————————Node:, Text: ,
+|—————————Node:null Text: NULL
+|——————————Node:NULL Text: NULL
+|—————————Node:, Text: ,
+|—————————Node:true Text: true
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case ESP_ERR_TIMEOUT:
+            print_w_clr_time("Timeout!", LOG_COLOR_RED, true);
+            break;
+|——————Node:case Text: case
+|——————Node:identifier Text: ESP_ERR_TIMEOUT
+|——————Node:: Text: :
+|——————Node:expression_statement Text: print_w_clr_time("Timeout!", LOG_COLOR_RED, true);
+|———————Node:call_expression Text: print_w_clr_time("Timeout!", LOG_COLOR_RED, true)
+|————————Node:identifier Text: print_w_clr_time
+|————————Node:argument_list Text: ("Timeout!", LOG_COLOR_RED, true)
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Timeout!"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Timeout!
+|——————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: LOG_COLOR_RED
+|—————————Node:, Text: ,
+|—————————Node:true Text: true
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case ESP_ERR_NOT_SUPPORTED:
+            print_w_clr_time("Can't sent in Listen-Only mode!", LOG_COLOR_RED, true);
+            break;
+|——————Node:case Text: case
+|——————Node:identifier Text: ESP_ERR_NOT_SUPPORTED
+|——————Node:: Text: :
+|——————Node:expression_statement Text: print_w_clr_time("Can't sent in Listen-Only mode!", LOG_COLOR_RED, true);
+|———————Node:call_expression Text: print_w_clr_time("Can't sent in Listen-Only mode!", LOG_COLOR_RED, true)
+|————————Node:identifier Text: print_w_clr_time
+|————————Node:argument_list Text: ("Can't sent in Listen-Only mode!", LOG_COLOR_RED, true)
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Can't sent in Listen-Only mode!"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Can't sent in Listen-Only mode!
+|——————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: LOG_COLOR_RED
+|—————————Node:, Text: ,
+|—————————Node:true Text: true
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: default:
+            print_w_clr_time("Invalid state!", LOG_COLOR_RED, true);
+            break;
+|——————Node:default Text: default
+|——————Node:: Text: :
+|——————Node:expression_statement Text: print_w_clr_time("Invalid state!", LOG_COLOR_RED, true);
+|———————Node:call_expression Text: print_w_clr_time("Invalid state!", LOG_COLOR_RED, true)
+|————————Node:identifier Text: print_w_clr_time
+|————————Node:argument_list Text: ("Invalid state!", LOG_COLOR_RED, true)
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Invalid state!"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Invalid state!
+|——————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: LOG_COLOR_RED
+|—————————Node:, Text: ,
+|—————————Node:true Text: true
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: free(can_msg_str_buf);
+|————Node:call_expression Text: free(can_msg_str_buf)
+|—————Node:identifier Text: free
+|—————Node:argument_list Text: (can_msg_str_buf)
+|——————Node:( Text: (
+|——————Node:identifier Text: can_msg_str_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:labeled_statement Text: invalid_args:
+    printf("Invalid arguments!\n");
+|————Node:statement_identifier Text: invalid_args
+|————Node:: Text: :
+|————Node:expression_statement Text: printf("Invalid arguments!\n");
+|—————Node:call_expression Text: printf("Invalid arguments!\n")
+|——————Node:identifier Text: printf
+|——————Node:argument_list Text: ("Invalid arguments!\n")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "Invalid arguments!\n"
+|————————Node:" Text: "
+|————————Node:string_content Text: Invalid arguments!
+|————————Node:escape_sequence Text: \n
+|————————Node:" Text: "
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:expression_statement Text: free(can_msg_str_buf);
+|————Node:call_expression Text: free(can_msg_str_buf)
+|—————Node:identifier Text: free
+|—————Node:argument_list Text: (can_msg_str_buf)
+|——————Node:( Text: (
+|——————Node:identifier Text: can_msg_str_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return 1;
+|————Node:return Text: return
+|————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: static int canrecover(int argc, char **argv) {
+    esp_err_t res = twai_initiate_recovery();
+    if (res == ESP_OK) print_w_clr_time("Started CAN recovery.", LOG_COLOR_GREEN, true);
+    else if (curr_can_state.state == CAN_NOT_INSTALLED) print_w_clr_time("CAN driver is not installed!", LOG_COLOR_RED, true);
+    else print_w_clr_time("Can't start recovery - not in bus-off state!", LOG_COLOR_RED, true);
+    return 0;
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: canrecover(int argc, char **argv)
+|———Node:identifier Text: canrecover
+|———Node:parameter_list Text: (int argc, char **argv)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: int argc
+|—————Node:primitive_type Text: int
+|—————Node:identifier Text: argc
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: char **argv
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: **argv
+|——————Node:* Text: *
+|——————Node:pointer_declarator Text: *argv
+|———————Node:* Text: *
+|———————Node:identifier Text: argv
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    esp_err_t res = twai_initiate_recovery();
+    if (res == ESP_OK) print_w_clr_time("Started CAN recovery.", LOG_COLOR_GREEN, true);
+    else if (curr_can_state.state == CAN_NOT_INSTALLED) print_w_clr_time("CAN driver is not installed!", LOG_COLOR_RED, true);
+    else print_w_clr_time("Can't start recovery - not in bus-off state!", LOG_COLOR_RED, true);
+    return 0;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: esp_err_t res = twai_initiate_recovery();
+|————Node:type_identifier Text: esp_err_t
+|————Node:init_declarator Text: res = twai_initiate_recovery()
+|—————Node:identifier Text: res
+|—————Node:= Text: =
+|—————Node:call_expression Text: twai_initiate_recovery()
+|——————Node:identifier Text: twai_initiate_recovery
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (res == ESP_OK) print_w_clr_time("Started CAN recovery.", LOG_COLOR_GREEN, true);
+    else if (curr_can_state.state == CAN_NOT_INSTALLED) print_w_clr_time("CAN driver is not installed!", LOG_COLOR_RED, true);
+    else print_w_clr_time("Can't start recovery - not in bus-off state!", LOG_COLOR_RED, true);
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (res == ESP_OK)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: res == ESP_OK
+|——————Node:identifier Text: res
+|——————Node:== Text: ==
+|——————Node:identifier Text: ESP_OK
+|—————Node:) Text: )
+|————Node:expression_statement Text: print_w_clr_time("Started CAN recovery.", LOG_COLOR_GREEN, true);
+|—————Node:call_expression Text: print_w_clr_time("Started CAN recovery.", LOG_COLOR_GREEN, true)
+|——————Node:identifier Text: print_w_clr_time
+|——————Node:argument_list Text: ("Started CAN recovery.", LOG_COLOR_GREEN, true)
+|———————Node:( Text: (
+|———————Node:string_literal Text: "Started CAN recovery."
+|————————Node:" Text: "
+|————————Node:string_content Text: Started CAN recovery.
+|————————Node:" Text: "
+|———————Node:, Text: ,
+|———————Node:identifier Text: LOG_COLOR_GREEN
+|———————Node:, Text: ,
+|———————Node:true Text: true
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:else_clause Text: else if (curr_can_state.state == CAN_NOT_INSTALLED) print_w_clr_time("CAN driver is not installed!", LOG_COLOR_RED, true);
+    else print_w_clr_time("Can't start recovery - not in bus-off state!", LOG_COLOR_RED, true);
+|—————Node:else Text: else
+|—————Node:if_statement Text: if (curr_can_state.state == CAN_NOT_INSTALLED) print_w_clr_time("CAN driver is not installed!", LOG_COLOR_RED, true);
+    else print_w_clr_time("Can't start recovery - not in bus-off state!", LOG_COLOR_RED, true);
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (curr_can_state.state == CAN_NOT_INSTALLED)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: curr_can_state.state == CAN_NOT_INSTALLED
+|————————Node:field_expression Text: curr_can_state.state
+|—————————Node:identifier Text: curr_can_state
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: state
+|————————Node:== Text: ==
+|————————Node:identifier Text: CAN_NOT_INSTALLED
+|———————Node:) Text: )
+|——————Node:expression_statement Text: print_w_clr_time("CAN driver is not installed!", LOG_COLOR_RED, true);
+|———————Node:call_expression Text: print_w_clr_time("CAN driver is not installed!", LOG_COLOR_RED, true)
+|————————Node:identifier Text: print_w_clr_time
+|————————Node:argument_list Text: ("CAN driver is not installed!", LOG_COLOR_RED, true)
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "CAN driver is not installed!"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: CAN driver is not installed!
+|——————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: LOG_COLOR_RED
+|—————————Node:, Text: ,
+|—————————Node:true Text: true
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:else_clause Text: else print_w_clr_time("Can't start recovery - not in bus-off state!", LOG_COLOR_RED, true);
+|———————Node:else Text: else
+|———————Node:expression_statement Text: print_w_clr_time("Can't start recovery - not in bus-off state!", LOG_COLOR_RED, true);
+|————————Node:call_expression Text: print_w_clr_time("Can't start recovery - not in bus-off state!", LOG_COLOR_RED, true)
+|—————————Node:identifier Text: print_w_clr_time
+|—————————Node:argument_list Text: ("Can't start recovery - not in bus-off state!", LOG_COLOR_RED, true)
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "Can't start recovery - not in bus-off state!"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: Can't start recovery - not in bus-off state!
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: LOG_COLOR_RED
+|——————————Node:, Text: ,
+|——————————Node:true Text: true
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:declaration Text: static const char* can_states_str[] = {
+    "not installed",
+    "stopped",
+    "error active",
+    "error passive",
+    "bus off",
+    "recovering"
+};
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:type_qualifier Text: const
+|———Node:const Text: const
+|——Node:primitive_type Text: char
+|——Node:init_declarator Text: * can_states_str[] = {
+    "not installed",
+    "stopped",
+    "error active",
+    "error passive",
+    "bus off",
+    "recovering"
+}
+|———Node:pointer_declarator Text: * can_states_str[]
+|————Node:* Text: *
+|————Node:array_declarator Text: can_states_str[]
+|—————Node:identifier Text: can_states_str
+|—————Node:[ Text: [
+|—————Node:] Text: ]
+|———Node:= Text: =
+|———Node:initializer_list Text: {
+    "not installed",
+    "stopped",
+    "error active",
+    "error passive",
+    "bus off",
+    "recovering"
+}
+|————Node:{ Text: {
+|————Node:string_literal Text: "not installed"
+|—————Node:" Text: "
+|—————Node:string_content Text: not installed
+|—————Node:" Text: "
+|————Node:, Text: ,
+|————Node:string_literal Text: "stopped"
+|—————Node:" Text: "
+|—————Node:string_content Text: stopped
+|—————Node:" Text: "
+|————Node:, Text: ,
+|————Node:string_literal Text: "error active"
+|—————Node:" Text: "
+|—————Node:string_content Text: error active
+|—————Node:" Text: "
+|————Node:, Text: ,
+|————Node:string_literal Text: "error passive"
+|—————Node:" Text: "
+|—————Node:string_content Text: error passive
+|—————Node:" Text: "
+|————Node:, Text: ,
+|————Node:string_literal Text: "bus off"
+|—————Node:" Text: "
+|—————Node:string_content Text: bus off
+|—————Node:" Text: "
+|————Node:, Text: ,
+|————Node:string_literal Text: "recovering"
+|—————Node:" Text: "
+|—————Node:string_content Text: recovering
+|—————Node:" Text: "
+|————Node:} Text: }
+|——Node:; Text: ;
+|—Node:function_definition Text: static int canstats(int argc, char **argv) {
+    if (curr_can_state.state == CAN_NOT_INSTALLED) {
+        printf("CAN driver is not installed!\n");
+        return 0;
+    } else {
+        const char *state_str = can_states_str[curr_can_state.state];
+        printf("status: %s\n", state_str);
+        printf("TX Err Counter: %" PRIu32 "\n", curr_can_state.tx_error_counter);
+        printf("RX Err Counter: %" PRIu32 "\n", curr_can_state.rx_error_counter);
+        printf("Failed transmit: %" PRIu32 "\n", curr_can_state.tx_failed_count);
+        printf("Arbitration lost times: %" PRIu32 "\n", curr_can_state.arb_lost_count);
+        printf("Bus-off count: %" PRIu32 "\n", curr_can_state.bus_error_count);
+    }
+    return 0;
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: canstats(int argc, char **argv)
+|———Node:identifier Text: canstats
+|———Node:parameter_list Text: (int argc, char **argv)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: int argc
+|—————Node:primitive_type Text: int
+|—————Node:identifier Text: argc
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: char **argv
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: **argv
+|——————Node:* Text: *
+|——————Node:pointer_declarator Text: *argv
+|———————Node:* Text: *
+|———————Node:identifier Text: argv
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if (curr_can_state.state == CAN_NOT_INSTALLED) {
+        printf("CAN driver is not installed!\n");
+        return 0;
+    } else {
+        const char *state_str = can_states_str[curr_can_state.state];
+        printf("status: %s\n", state_str);
+        printf("TX Err Counter: %" PRIu32 "\n", curr_can_state.tx_error_counter);
+        printf("RX Err Counter: %" PRIu32 "\n", curr_can_state.rx_error_counter);
+        printf("Failed transmit: %" PRIu32 "\n", curr_can_state.tx_failed_count);
+        printf("Arbitration lost times: %" PRIu32 "\n", curr_can_state.arb_lost_count);
+        printf("Bus-off count: %" PRIu32 "\n", curr_can_state.bus_error_count);
+    }
+    return 0;
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (curr_can_state.state == CAN_NOT_INSTALLED) {
+        printf("CAN driver is not installed!\n");
+        return 0;
+    } else {
+        const char *state_str = can_states_str[curr_can_state.state];
+        printf("status: %s\n", state_str);
+        printf("TX Err Counter: %" PRIu32 "\n", curr_can_state.tx_error_counter);
+        printf("RX Err Counter: %" PRIu32 "\n", curr_can_state.rx_error_counter);
+        printf("Failed transmit: %" PRIu32 "\n", curr_can_state.tx_failed_count);
+        printf("Arbitration lost times: %" PRIu32 "\n", curr_can_state.arb_lost_count);
+        printf("Bus-off count: %" PRIu32 "\n", curr_can_state.bus_error_count);
+    }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (curr_can_state.state == CAN_NOT_INSTALLED)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: curr_can_state.state == CAN_NOT_INSTALLED
+|——————Node:field_expression Text: curr_can_state.state
+|———————Node:identifier Text: curr_can_state
+|———————Node:. Text: .
+|———————Node:field_identifier Text: state
+|——————Node:== Text: ==
+|——————Node:identifier Text: CAN_NOT_INSTALLED
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        printf("CAN driver is not installed!\n");
+        return 0;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: printf("CAN driver is not installed!\n");
+|——————Node:call_expression Text: printf("CAN driver is not installed!\n")
+|———————Node:identifier Text: printf
+|———————Node:argument_list Text: ("CAN driver is not installed!\n")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "CAN driver is not installed!\n"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: CAN driver is not installed!
+|—————————Node:escape_sequence Text: \n
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return 0;
+|——————Node:return Text: return
+|——————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else {
+        const char *state_str = can_states_str[curr_can_state.state];
+        printf("status: %s\n", state_str);
+        printf("TX Err Counter: %" PRIu32 "\n", curr_can_state.tx_error_counter);
+        printf("RX Err Counter: %" PRIu32 "\n", curr_can_state.rx_error_counter);
+        printf("Failed transmit: %" PRIu32 "\n", curr_can_state.tx_failed_count);
+        printf("Arbitration lost times: %" PRIu32 "\n", curr_can_state.arb_lost_count);
+        printf("Bus-off count: %" PRIu32 "\n", curr_can_state.bus_error_count);
+    }
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+        const char *state_str = can_states_str[curr_can_state.state];
+        printf("status: %s\n", state_str);
+        printf("TX Err Counter: %" PRIu32 "\n", curr_can_state.tx_error_counter);
+        printf("RX Err Counter: %" PRIu32 "\n", curr_can_state.rx_error_counter);
+        printf("Failed transmit: %" PRIu32 "\n", curr_can_state.tx_failed_count);
+        printf("Arbitration lost times: %" PRIu32 "\n", curr_can_state.arb_lost_count);
+        printf("Bus-off count: %" PRIu32 "\n", curr_can_state.bus_error_count);
+    }
+|——————Node:{ Text: {
+|——————Node:declaration Text: const char *state_str = can_states_str[curr_can_state.state];
+|———————Node:type_qualifier Text: const
+|————————Node:const Text: const
+|———————Node:primitive_type Text: char
+|———————Node:init_declarator Text: *state_str = can_states_str[curr_can_state.state]
+|————————Node:pointer_declarator Text: *state_str
+|—————————Node:* Text: *
+|—————————Node:identifier Text: state_str
+|————————Node:= Text: =
+|————————Node:subscript_expression Text: can_states_str[curr_can_state.state]
+|—————————Node:identifier Text: can_states_str
+|—————————Node:[ Text: [
+|—————————Node:field_expression Text: curr_can_state.state
+|——————————Node:identifier Text: curr_can_state
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: state
+|—————————Node:] Text: ]
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: printf("status: %s\n", state_str);
+|———————Node:call_expression Text: printf("status: %s\n", state_str)
+|————————Node:identifier Text: printf
+|————————Node:argument_list Text: ("status: %s\n", state_str)
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "status: %s\n"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: status: %s
+|——————————Node:escape_sequence Text: \n
+|——————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: state_str
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: printf("TX Err Counter: %" PRIu32 "\n", curr_can_state.tx_error_counter);
+|———————Node:call_expression Text: printf("TX Err Counter: %" PRIu32 "\n", curr_can_state.tx_error_counter)
+|————————Node:identifier Text: printf
+|————————Node:argument_list Text: ("TX Err Counter: %" PRIu32 "\n", curr_can_state.tx_error_counter)
+|—————————Node:( Text: (
+|—————————Node:concatenated_string Text: "TX Err Counter: %" PRIu32 "\n"
+|——————————Node:string_literal Text: "TX Err Counter: %"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: TX Err Counter: %
+|———————————Node:" Text: "
+|——————————Node:identifier Text: PRIu32
+|——————————Node:string_literal Text: "\n"
+|———————————Node:" Text: "
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:field_expression Text: curr_can_state.tx_error_counter
+|——————————Node:identifier Text: curr_can_state
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: tx_error_counter
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: printf("RX Err Counter: %" PRIu32 "\n", curr_can_state.rx_error_counter);
+|———————Node:call_expression Text: printf("RX Err Counter: %" PRIu32 "\n", curr_can_state.rx_error_counter)
+|————————Node:identifier Text: printf
+|————————Node:argument_list Text: ("RX Err Counter: %" PRIu32 "\n", curr_can_state.rx_error_counter)
+|—————————Node:( Text: (
+|—————————Node:concatenated_string Text: "RX Err Counter: %" PRIu32 "\n"
+|——————————Node:string_literal Text: "RX Err Counter: %"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: RX Err Counter: %
+|———————————Node:" Text: "
+|——————————Node:identifier Text: PRIu32
+|——————————Node:string_literal Text: "\n"
+|———————————Node:" Text: "
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:field_expression Text: curr_can_state.rx_error_counter
+|——————————Node:identifier Text: curr_can_state
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: rx_error_counter
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: printf("Failed transmit: %" PRIu32 "\n", curr_can_state.tx_failed_count);
+|———————Node:call_expression Text: printf("Failed transmit: %" PRIu32 "\n", curr_can_state.tx_failed_count)
+|————————Node:identifier Text: printf
+|————————Node:argument_list Text: ("Failed transmit: %" PRIu32 "\n", curr_can_state.tx_failed_count)
+|—————————Node:( Text: (
+|—————————Node:concatenated_string Text: "Failed transmit: %" PRIu32 "\n"
+|——————————Node:string_literal Text: "Failed transmit: %"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: Failed transmit: %
+|———————————Node:" Text: "
+|——————————Node:identifier Text: PRIu32
+|——————————Node:string_literal Text: "\n"
+|———————————Node:" Text: "
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:field_expression Text: curr_can_state.tx_failed_count
+|——————————Node:identifier Text: curr_can_state
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: tx_failed_count
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: printf("Arbitration lost times: %" PRIu32 "\n", curr_can_state.arb_lost_count);
+|———————Node:call_expression Text: printf("Arbitration lost times: %" PRIu32 "\n", curr_can_state.arb_lost_count)
+|————————Node:identifier Text: printf
+|————————Node:argument_list Text: ("Arbitration lost times: %" PRIu32 "\n", curr_can_state.arb_lost_count)
+|—————————Node:( Text: (
+|—————————Node:concatenated_string Text: "Arbitration lost times: %" PRIu32 "\n"
+|——————————Node:string_literal Text: "Arbitration lost times: %"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: Arbitration lost times: %
+|———————————Node:" Text: "
+|——————————Node:identifier Text: PRIu32
+|——————————Node:string_literal Text: "\n"
+|———————————Node:" Text: "
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:field_expression Text: curr_can_state.arb_lost_count
+|——————————Node:identifier Text: curr_can_state
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: arb_lost_count
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: printf("Bus-off count: %" PRIu32 "\n", curr_can_state.bus_error_count);
+|———————Node:call_expression Text: printf("Bus-off count: %" PRIu32 "\n", curr_can_state.bus_error_count)
+|————————Node:identifier Text: printf
+|————————Node:argument_list Text: ("Bus-off count: %" PRIu32 "\n", curr_can_state.bus_error_count)
+|—————————Node:( Text: (
+|—————————Node:concatenated_string Text: "Bus-off count: %" PRIu32 "\n"
+|——————————Node:string_literal Text: "Bus-off count: %"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: Bus-off count: %
+|———————————Node:" Text: "
+|——————————Node:identifier Text: PRIu32
+|——————————Node:string_literal Text: "\n"
+|———————————Node:" Text: "
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:field_expression Text: curr_can_state.bus_error_count
+|——————————Node:identifier Text: curr_can_state
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: bus_error_count
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:declaration Text: static const char* can_modes[] = {
+    "normal",
+    "no_ack",
+    "listen_only",
+};
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:type_qualifier Text: const
+|———Node:const Text: const
+|——Node:primitive_type Text: char
+|——Node:init_declarator Text: * can_modes[] = {
+    "normal",
+    "no_ack",
+    "listen_only",
+}
+|———Node:pointer_declarator Text: * can_modes[]
+|————Node:* Text: *
+|————Node:array_declarator Text: can_modes[]
+|—————Node:identifier Text: can_modes
+|—————Node:[ Text: [
+|—————Node:] Text: ]
+|———Node:= Text: =
+|———Node:initializer_list Text: {
+    "normal",
+    "no_ack",
+    "listen_only",
+}
+|————Node:{ Text: {
+|————Node:string_literal Text: "normal"
+|—————Node:" Text: "
+|—————Node:string_content Text: normal
+|—————Node:" Text: "
+|————Node:, Text: ,
+|————Node:string_literal Text: "no_ack"
+|—————Node:" Text: "
+|—————Node:string_content Text: no_ack
+|—————Node:" Text: "
+|————Node:, Text: ,
+|————Node:string_literal Text: "listen_only"
+|—————Node:" Text: "
+|—————Node:string_content Text: listen_only
+|—————Node:" Text: "
+|————Node:, Text: ,
+|————Node:} Text: }
+|——Node:; Text: ;
+|—Node:function_definition Text: static int canup(int argc, char **argv) {
+    esp_err_t res;
+    static twai_timing_config_t t_config;
+    twai_general_config_t gen_cfg = default_g_config;
+    // TODO: add CAN filtering
+    twai_filter_config_t f_config = {.acceptance_code = 0, .acceptance_mask = 0xFFFFFFFF, .single_filter = true};
+    esp_log_level_t prev_gpio_lvl = esp_log_level_get("gpio");
+    int nerrors = arg_parse(argc, argv, (void **) &canup_args);
+    if (nerrors != 0) {
+        arg_print_errors(stderr, canup_args.end, argv[0]);
+        return 1;
+    }
+    int mode = 0;
+    if (canup_args.mode->count) {
+        const char* mode_str = canup_args.mode->sval[0];
+        while (mode < 4) {
+            if (mode == 3) {
+                print_w_clr_time("Unsupported mode!", LOG_COLOR_RED, true);
+                return 1;
+            }
+            if (memcmp(mode_str, can_modes[mode], strlen(mode_str)) == 0) break;
+            mode++;
+        }
+    }
+    switch(mode) {
+        case 1:
+            gen_cfg.mode = TWAI_MODE_NO_ACK;
+            print_w_clr_time("Starting CAN in No Ack Mode...", LOG_COLOR_BLUE, true);
+            break;
+        case 2:
+            gen_cfg.mode = TWAI_MODE_LISTEN_ONLY;
+            print_w_clr_time("Starting CAN in Listen Only Mode...", LOG_COLOR_BLUE, true);
+            break;
+        default: //0
+            print_w_clr_time("Starting CAN in Normal Mode...", LOG_COLOR_BLUE, true);
+            break;
+    }
+    switch (canup_args.speed->ival[0]) {
+        case 1000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_1KBITS();
+            break;
+        case 5000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_5KBITS();
+            break;
+        case 10000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_10KBITS();
+            break;
+        case 12500:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_12_5KBITS();
+            break;
+        case 16000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_16KBITS();
+            break;
+        case 20000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_20KBITS();
+            break;
+        case 25000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_25KBITS();
+            break;
+        case 50000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_50KBITS();
+            break;
+        case 100000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_100KBITS();
+            break;
+        case 125000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_125KBITS();
+            break;
+        case 250000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_250KBITS();
+            break;
+        case 500000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_500KBITS();
+            break;
+        case 800000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_800KBITS();
+            break;
+        case 1000000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_1MBITS();
+            break;
+        default:
+            print_w_clr_time("Unsupported speed!", LOG_COLOR_RED, true);
+            return 1;
+    }
+    xSemaphoreTake(can_mutex, portMAX_DELAY);
+    esp_log_level_set("gpio", ESP_LOG_ERROR);
+    res = twai_driver_install(&gen_cfg, &t_config, &f_config);
+    if (res == ESP_OK) {
+        print_w_clr_time("CAN driver installed", LOG_COLOR_BLUE, true);
+        if (canup_args.autorecover->count) {
+            print_w_clr_time("Auto recovery is enabled!", LOG_COLOR_PURPLE, true);
+            auto_recovery = true;
+        } else auto_recovery = false;
+    } else if (res == ESP_ERR_INVALID_STATE) {
+        print_w_clr_time("Driver is already installed!", LOG_COLOR_BROWN, true);
+        goto free_exit;
+    } else {
+        print_w_clr_time("Couldn't install CAN driver! Rebooting...", LOG_COLOR_RED, true);
+        esp_restart();
+    }
+    ESP_ERROR_CHECK(twai_start());
+    is_error_passive = false;
+    print_w_clr_time("CAN driver started", LOG_COLOR_BLUE, true);
+free_exit:
+    xSemaphoreGive(can_mutex);
+    esp_log_level_set("gpio", prev_gpio_lvl);
+    return 0;
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: canup(int argc, char **argv)
+|———Node:identifier Text: canup
+|———Node:parameter_list Text: (int argc, char **argv)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: int argc
+|—————Node:primitive_type Text: int
+|—————Node:identifier Text: argc
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: char **argv
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: **argv
+|——————Node:* Text: *
+|——————Node:pointer_declarator Text: *argv
+|———————Node:* Text: *
+|———————Node:identifier Text: argv
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    esp_err_t res;
+    static twai_timing_config_t t_config;
+    twai_general_config_t gen_cfg = default_g_config;
+    // TODO: add CAN filtering
+    twai_filter_config_t f_config = {.acceptance_code = 0, .acceptance_mask = 0xFFFFFFFF, .single_filter = true};
+    esp_log_level_t prev_gpio_lvl = esp_log_level_get("gpio");
+    int nerrors = arg_parse(argc, argv, (void **) &canup_args);
+    if (nerrors != 0) {
+        arg_print_errors(stderr, canup_args.end, argv[0]);
+        return 1;
+    }
+    int mode = 0;
+    if (canup_args.mode->count) {
+        const char* mode_str = canup_args.mode->sval[0];
+        while (mode < 4) {
+            if (mode == 3) {
+                print_w_clr_time("Unsupported mode!", LOG_COLOR_RED, true);
+                return 1;
+            }
+            if (memcmp(mode_str, can_modes[mode], strlen(mode_str)) == 0) break;
+            mode++;
+        }
+    }
+    switch(mode) {
+        case 1:
+            gen_cfg.mode = TWAI_MODE_NO_ACK;
+            print_w_clr_time("Starting CAN in No Ack Mode...", LOG_COLOR_BLUE, true);
+            break;
+        case 2:
+            gen_cfg.mode = TWAI_MODE_LISTEN_ONLY;
+            print_w_clr_time("Starting CAN in Listen Only Mode...", LOG_COLOR_BLUE, true);
+            break;
+        default: //0
+            print_w_clr_time("Starting CAN in Normal Mode...", LOG_COLOR_BLUE, true);
+            break;
+    }
+    switch (canup_args.speed->ival[0]) {
+        case 1000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_1KBITS();
+            break;
+        case 5000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_5KBITS();
+            break;
+        case 10000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_10KBITS();
+            break;
+        case 12500:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_12_5KBITS();
+            break;
+        case 16000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_16KBITS();
+            break;
+        case 20000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_20KBITS();
+            break;
+        case 25000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_25KBITS();
+            break;
+        case 50000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_50KBITS();
+            break;
+        case 100000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_100KBITS();
+            break;
+        case 125000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_125KBITS();
+            break;
+        case 250000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_250KBITS();
+            break;
+        case 500000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_500KBITS();
+            break;
+        case 800000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_800KBITS();
+            break;
+        case 1000000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_1MBITS();
+            break;
+        default:
+            print_w_clr_time("Unsupported speed!", LOG_COLOR_RED, true);
+            return 1;
+    }
+    xSemaphoreTake(can_mutex, portMAX_DELAY);
+    esp_log_level_set("gpio", ESP_LOG_ERROR);
+    res = twai_driver_install(&gen_cfg, &t_config, &f_config);
+    if (res == ESP_OK) {
+        print_w_clr_time("CAN driver installed", LOG_COLOR_BLUE, true);
+        if (canup_args.autorecover->count) {
+            print_w_clr_time("Auto recovery is enabled!", LOG_COLOR_PURPLE, true);
+            auto_recovery = true;
+        } else auto_recovery = false;
+    } else if (res == ESP_ERR_INVALID_STATE) {
+        print_w_clr_time("Driver is already installed!", LOG_COLOR_BROWN, true);
+        goto free_exit;
+    } else {
+        print_w_clr_time("Couldn't install CAN driver! Rebooting...", LOG_COLOR_RED, true);
+        esp_restart();
+    }
+    ESP_ERROR_CHECK(twai_start());
+    is_error_passive = false;
+    print_w_clr_time("CAN driver started", LOG_COLOR_BLUE, true);
+free_exit:
+    xSemaphoreGive(can_mutex);
+    esp_log_level_set("gpio", prev_gpio_lvl);
+    return 0;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: esp_err_t res;
+|————Node:type_identifier Text: esp_err_t
+|————Node:identifier Text: res
+|————Node:; Text: ;
+|———Node:declaration Text: static twai_timing_config_t t_config;
+|————Node:storage_class_specifier Text: static
+|—————Node:static Text: static
+|————Node:type_identifier Text: twai_timing_config_t
+|————Node:identifier Text: t_config
+|————Node:; Text: ;
+|———Node:declaration Text: twai_general_config_t gen_cfg = default_g_config;
+|————Node:type_identifier Text: twai_general_config_t
+|————Node:init_declarator Text: gen_cfg = default_g_config
+|—————Node:identifier Text: gen_cfg
+|—————Node:= Text: =
+|—————Node:identifier Text: default_g_config
+|————Node:; Text: ;
+|———Node:comment Text: // TODO: add CAN filtering
+|———Node:declaration Text: twai_filter_config_t f_config = {.acceptance_code = 0, .acceptance_mask = 0xFFFFFFFF, .single_filter = true};
+|————Node:type_identifier Text: twai_filter_config_t
+|————Node:init_declarator Text: f_config = {.acceptance_code = 0, .acceptance_mask = 0xFFFFFFFF, .single_filter = true}
+|—————Node:identifier Text: f_config
+|—————Node:= Text: =
+|—————Node:initializer_list Text: {.acceptance_code = 0, .acceptance_mask = 0xFFFFFFFF, .single_filter = true}
+|——————Node:{ Text: {
+|——————Node:initializer_pair Text: .acceptance_code = 0
+|———————Node:field_designator Text: .acceptance_code
+|————————Node:. Text: .
+|————————Node:field_identifier Text: acceptance_code
+|———————Node:= Text: =
+|———————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .acceptance_mask = 0xFFFFFFFF
+|———————Node:field_designator Text: .acceptance_mask
+|————————Node:. Text: .
+|————————Node:field_identifier Text: acceptance_mask
+|———————Node:= Text: =
+|———————Node:number_literal Text: 0xFFFFFFFF
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .single_filter = true
+|———————Node:field_designator Text: .single_filter
+|————————Node:. Text: .
+|————————Node:field_identifier Text: single_filter
+|———————Node:= Text: =
+|———————Node:true Text: true
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:declaration Text: esp_log_level_t prev_gpio_lvl = esp_log_level_get("gpio");
+|————Node:type_identifier Text: esp_log_level_t
+|————Node:init_declarator Text: prev_gpio_lvl = esp_log_level_get("gpio")
+|—————Node:identifier Text: prev_gpio_lvl
+|—————Node:= Text: =
+|—————Node:call_expression Text: esp_log_level_get("gpio")
+|——————Node:identifier Text: esp_log_level_get
+|——————Node:argument_list Text: ("gpio")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "gpio"
+|————————Node:" Text: "
+|————————Node:string_content Text: gpio
+|————————Node:" Text: "
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: int nerrors = arg_parse(argc, argv, (void **) &canup_args);
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: nerrors = arg_parse(argc, argv, (void **) &canup_args)
+|—————Node:identifier Text: nerrors
+|—————Node:= Text: =
+|—————Node:call_expression Text: arg_parse(argc, argv, (void **) &canup_args)
+|——————Node:identifier Text: arg_parse
+|——————Node:argument_list Text: (argc, argv, (void **) &canup_args)
+|———————Node:( Text: (
+|———————Node:identifier Text: argc
+|———————Node:, Text: ,
+|———————Node:identifier Text: argv
+|———————Node:, Text: ,
+|———————Node:cast_expression Text: (void **) &canup_args
+|————————Node:( Text: (
+|————————Node:type_descriptor Text: void **
+|—————————Node:primitive_type Text: void
+|—————————Node:abstract_pointer_declarator Text: **
+|——————————Node:* Text: *
+|——————————Node:abstract_pointer_declarator Text: *
+|———————————Node:* Text: *
+|————————Node:) Text: )
+|————————Node:pointer_expression Text: &canup_args
+|—————————Node:& Text: &
+|—————————Node:identifier Text: canup_args
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (nerrors != 0) {
+        arg_print_errors(stderr, canup_args.end, argv[0]);
+        return 1;
+    }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (nerrors != 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: nerrors != 0
+|——————Node:identifier Text: nerrors
+|——————Node:!= Text: !=
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        arg_print_errors(stderr, canup_args.end, argv[0]);
+        return 1;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: arg_print_errors(stderr, canup_args.end, argv[0]);
+|——————Node:call_expression Text: arg_print_errors(stderr, canup_args.end, argv[0])
+|———————Node:identifier Text: arg_print_errors
+|———————Node:argument_list Text: (stderr, canup_args.end, argv[0])
+|————————Node:( Text: (
+|————————Node:identifier Text: stderr
+|————————Node:, Text: ,
+|————————Node:field_expression Text: canup_args.end
+|—————————Node:identifier Text: canup_args
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: end
+|————————Node:, Text: ,
+|————————Node:subscript_expression Text: argv[0]
+|—————————Node:identifier Text: argv
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 0
+|—————————Node:] Text: ]
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return 1;
+|——————Node:return Text: return
+|——————Node:number_literal Text: 1
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:declaration Text: int mode = 0;
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: mode = 0
+|—————Node:identifier Text: mode
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:if_statement Text: if (canup_args.mode->count) {
+        const char* mode_str = canup_args.mode->sval[0];
+        while (mode < 4) {
+            if (mode == 3) {
+                print_w_clr_time("Unsupported mode!", LOG_COLOR_RED, true);
+                return 1;
+            }
+            if (memcmp(mode_str, can_modes[mode], strlen(mode_str)) == 0) break;
+            mode++;
+        }
+    }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (canup_args.mode->count)
+|—————Node:( Text: (
+|—————Node:field_expression Text: canup_args.mode->count
+|——————Node:field_expression Text: canup_args.mode
+|———————Node:identifier Text: canup_args
+|———————Node:. Text: .
+|———————Node:field_identifier Text: mode
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: count
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        const char* mode_str = canup_args.mode->sval[0];
+        while (mode < 4) {
+            if (mode == 3) {
+                print_w_clr_time("Unsupported mode!", LOG_COLOR_RED, true);
+                return 1;
+            }
+            if (memcmp(mode_str, can_modes[mode], strlen(mode_str)) == 0) break;
+            mode++;
+        }
+    }
+|—————Node:{ Text: {
+|—————Node:declaration Text: const char* mode_str = canup_args.mode->sval[0];
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: char
+|——————Node:init_declarator Text: * mode_str = canup_args.mode->sval[0]
+|———————Node:pointer_declarator Text: * mode_str
+|————————Node:* Text: *
+|————————Node:identifier Text: mode_str
+|———————Node:= Text: =
+|———————Node:subscript_expression Text: canup_args.mode->sval[0]
+|————————Node:field_expression Text: canup_args.mode->sval
+|—————————Node:field_expression Text: canup_args.mode
+|——————————Node:identifier Text: canup_args
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: mode
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: sval
+|————————Node:[ Text: [
+|————————Node:number_literal Text: 0
+|————————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:while_statement Text: while (mode < 4) {
+            if (mode == 3) {
+                print_w_clr_time("Unsupported mode!", LOG_COLOR_RED, true);
+                return 1;
+            }
+            if (memcmp(mode_str, can_modes[mode], strlen(mode_str)) == 0) break;
+            mode++;
+        }
+|——————Node:while Text: while
+|——————Node:parenthesized_expression Text: (mode < 4)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: mode < 4
+|————————Node:identifier Text: mode
+|————————Node:< Text: <
+|————————Node:number_literal Text: 4
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            if (mode == 3) {
+                print_w_clr_time("Unsupported mode!", LOG_COLOR_RED, true);
+                return 1;
+            }
+            if (memcmp(mode_str, can_modes[mode], strlen(mode_str)) == 0) break;
+            mode++;
+        }
+|———————Node:{ Text: {
+|———————Node:if_statement Text: if (mode == 3) {
+                print_w_clr_time("Unsupported mode!", LOG_COLOR_RED, true);
+                return 1;
+            }
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (mode == 3)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: mode == 3
+|——————————Node:identifier Text: mode
+|——————————Node:== Text: ==
+|——————————Node:number_literal Text: 3
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                print_w_clr_time("Unsupported mode!", LOG_COLOR_RED, true);
+                return 1;
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: print_w_clr_time("Unsupported mode!", LOG_COLOR_RED, true);
+|——————————Node:call_expression Text: print_w_clr_time("Unsupported mode!", LOG_COLOR_RED, true)
+|———————————Node:identifier Text: print_w_clr_time
+|———————————Node:argument_list Text: ("Unsupported mode!", LOG_COLOR_RED, true)
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "Unsupported mode!"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: Unsupported mode!
+|—————————————Node:" Text: "
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: LOG_COLOR_RED
+|————————————Node:, Text: ,
+|————————————Node:true Text: true
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:return_statement Text: return 1;
+|——————————Node:return Text: return
+|——————————Node:number_literal Text: 1
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:if_statement Text: if (memcmp(mode_str, can_modes[mode], strlen(mode_str)) == 0) break;
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (memcmp(mode_str, can_modes[mode], strlen(mode_str)) == 0)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: memcmp(mode_str, can_modes[mode], strlen(mode_str)) == 0
+|——————————Node:call_expression Text: memcmp(mode_str, can_modes[mode], strlen(mode_str))
+|———————————Node:identifier Text: memcmp
+|———————————Node:argument_list Text: (mode_str, can_modes[mode], strlen(mode_str))
+|————————————Node:( Text: (
+|————————————Node:identifier Text: mode_str
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: can_modes[mode]
+|—————————————Node:identifier Text: can_modes
+|—————————————Node:[ Text: [
+|—————————————Node:identifier Text: mode
+|—————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:call_expression Text: strlen(mode_str)
+|—————————————Node:identifier Text: strlen
+|—————————————Node:argument_list Text: (mode_str)
+|——————————————Node:( Text: (
+|——————————————Node:identifier Text: mode_str
+|——————————————Node:) Text: )
+|————————————Node:) Text: )
+|——————————Node:== Text: ==
+|——————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|————————Node:break_statement Text: break;
+|—————————Node:break Text: break
+|—————————Node:; Text: ;
+|———————Node:expression_statement Text: mode++;
+|————————Node:update_expression Text: mode++
+|—————————Node:identifier Text: mode
+|—————————Node:++ Text: ++
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:switch_statement Text: switch(mode) {
+        case 1:
+            gen_cfg.mode = TWAI_MODE_NO_ACK;
+            print_w_clr_time("Starting CAN in No Ack Mode...", LOG_COLOR_BLUE, true);
+            break;
+        case 2:
+            gen_cfg.mode = TWAI_MODE_LISTEN_ONLY;
+            print_w_clr_time("Starting CAN in Listen Only Mode...", LOG_COLOR_BLUE, true);
+            break;
+        default: //0
+            print_w_clr_time("Starting CAN in Normal Mode...", LOG_COLOR_BLUE, true);
+            break;
+    }
+|————Node:switch Text: switch
+|————Node:parenthesized_expression Text: (mode)
+|—————Node:( Text: (
+|—————Node:identifier Text: mode
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        case 1:
+            gen_cfg.mode = TWAI_MODE_NO_ACK;
+            print_w_clr_time("Starting CAN in No Ack Mode...", LOG_COLOR_BLUE, true);
+            break;
+        case 2:
+            gen_cfg.mode = TWAI_MODE_LISTEN_ONLY;
+            print_w_clr_time("Starting CAN in Listen Only Mode...", LOG_COLOR_BLUE, true);
+            break;
+        default: //0
+            print_w_clr_time("Starting CAN in Normal Mode...", LOG_COLOR_BLUE, true);
+            break;
+    }
+|—————Node:{ Text: {
+|—————Node:case_statement Text: case 1:
+            gen_cfg.mode = TWAI_MODE_NO_ACK;
+            print_w_clr_time("Starting CAN in No Ack Mode...", LOG_COLOR_BLUE, true);
+            break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 1
+|——————Node:: Text: :
+|——————Node:expression_statement Text: gen_cfg.mode = TWAI_MODE_NO_ACK;
+|———————Node:assignment_expression Text: gen_cfg.mode = TWAI_MODE_NO_ACK
+|————————Node:field_expression Text: gen_cfg.mode
+|—————————Node:identifier Text: gen_cfg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: mode
+|————————Node:= Text: =
+|————————Node:identifier Text: TWAI_MODE_NO_ACK
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: print_w_clr_time("Starting CAN in No Ack Mode...", LOG_COLOR_BLUE, true);
+|———————Node:call_expression Text: print_w_clr_time("Starting CAN in No Ack Mode...", LOG_COLOR_BLUE, true)
+|————————Node:identifier Text: print_w_clr_time
+|————————Node:argument_list Text: ("Starting CAN in No Ack Mode...", LOG_COLOR_BLUE, true)
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Starting CAN in No Ack Mode..."
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Starting CAN in No Ack Mode...
+|——————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: LOG_COLOR_BLUE
+|—————————Node:, Text: ,
+|—————————Node:true Text: true
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 2:
+            gen_cfg.mode = TWAI_MODE_LISTEN_ONLY;
+            print_w_clr_time("Starting CAN in Listen Only Mode...", LOG_COLOR_BLUE, true);
+            break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 2
+|——————Node:: Text: :
+|——————Node:expression_statement Text: gen_cfg.mode = TWAI_MODE_LISTEN_ONLY;
+|———————Node:assignment_expression Text: gen_cfg.mode = TWAI_MODE_LISTEN_ONLY
+|————————Node:field_expression Text: gen_cfg.mode
+|—————————Node:identifier Text: gen_cfg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: mode
+|————————Node:= Text: =
+|————————Node:identifier Text: TWAI_MODE_LISTEN_ONLY
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: print_w_clr_time("Starting CAN in Listen Only Mode...", LOG_COLOR_BLUE, true);
+|———————Node:call_expression Text: print_w_clr_time("Starting CAN in Listen Only Mode...", LOG_COLOR_BLUE, true)
+|————————Node:identifier Text: print_w_clr_time
+|————————Node:argument_list Text: ("Starting CAN in Listen Only Mode...", LOG_COLOR_BLUE, true)
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Starting CAN in Listen Only Mode..."
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Starting CAN in Listen Only Mode...
+|——————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: LOG_COLOR_BLUE
+|—————————Node:, Text: ,
+|—————————Node:true Text: true
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: default: //0
+            print_w_clr_time("Starting CAN in Normal Mode...", LOG_COLOR_BLUE, true);
+            break;
+|——————Node:default Text: default
+|——————Node:: Text: :
+|——————Node:comment Text: //0
+|——————Node:expression_statement Text: print_w_clr_time("Starting CAN in Normal Mode...", LOG_COLOR_BLUE, true);
+|———————Node:call_expression Text: print_w_clr_time("Starting CAN in Normal Mode...", LOG_COLOR_BLUE, true)
+|————————Node:identifier Text: print_w_clr_time
+|————————Node:argument_list Text: ("Starting CAN in Normal Mode...", LOG_COLOR_BLUE, true)
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Starting CAN in Normal Mode..."
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Starting CAN in Normal Mode...
+|——————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: LOG_COLOR_BLUE
+|—————————Node:, Text: ,
+|—————————Node:true Text: true
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:switch_statement Text: switch (canup_args.speed->ival[0]) {
+        case 1000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_1KBITS();
+            break;
+        case 5000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_5KBITS();
+            break;
+        case 10000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_10KBITS();
+            break;
+        case 12500:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_12_5KBITS();
+            break;
+        case 16000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_16KBITS();
+            break;
+        case 20000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_20KBITS();
+            break;
+        case 25000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_25KBITS();
+            break;
+        case 50000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_50KBITS();
+            break;
+        case 100000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_100KBITS();
+            break;
+        case 125000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_125KBITS();
+            break;
+        case 250000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_250KBITS();
+            break;
+        case 500000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_500KBITS();
+            break;
+        case 800000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_800KBITS();
+            break;
+        case 1000000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_1MBITS();
+            break;
+        default:
+            print_w_clr_time("Unsupported speed!", LOG_COLOR_RED, true);
+            return 1;
+    }
+|————Node:switch Text: switch
+|————Node:parenthesized_expression Text: (canup_args.speed->ival[0])
+|—————Node:( Text: (
+|—————Node:subscript_expression Text: canup_args.speed->ival[0]
+|——————Node:field_expression Text: canup_args.speed->ival
+|———————Node:field_expression Text: canup_args.speed
+|————————Node:identifier Text: canup_args
+|————————Node:. Text: .
+|————————Node:field_identifier Text: speed
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: ival
+|——————Node:[ Text: [
+|——————Node:number_literal Text: 0
+|——————Node:] Text: ]
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        case 1000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_1KBITS();
+            break;
+        case 5000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_5KBITS();
+            break;
+        case 10000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_10KBITS();
+            break;
+        case 12500:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_12_5KBITS();
+            break;
+        case 16000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_16KBITS();
+            break;
+        case 20000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_20KBITS();
+            break;
+        case 25000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_25KBITS();
+            break;
+        case 50000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_50KBITS();
+            break;
+        case 100000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_100KBITS();
+            break;
+        case 125000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_125KBITS();
+            break;
+        case 250000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_250KBITS();
+            break;
+        case 500000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_500KBITS();
+            break;
+        case 800000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_800KBITS();
+            break;
+        case 1000000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_1MBITS();
+            break;
+        default:
+            print_w_clr_time("Unsupported speed!", LOG_COLOR_RED, true);
+            return 1;
+    }
+|—————Node:{ Text: {
+|—————Node:case_statement Text: case 1000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_1KBITS();
+            break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 1000
+|——————Node:: Text: :
+|——————Node:expression_statement Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_1KBITS();
+|———————Node:assignment_expression Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_1KBITS()
+|————————Node:identifier Text: t_config
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (twai_timing_config_t) TWAI_TIMING_CONFIG_1KBITS()
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: twai_timing_config_t
+|——————————Node:type_identifier Text: twai_timing_config_t
+|—————————Node:) Text: )
+|—————————Node:call_expression Text: TWAI_TIMING_CONFIG_1KBITS()
+|——————————Node:identifier Text: TWAI_TIMING_CONFIG_1KBITS
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 5000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_5KBITS();
+            break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 5000
+|——————Node:: Text: :
+|——————Node:expression_statement Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_5KBITS();
+|———————Node:assignment_expression Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_5KBITS()
+|————————Node:identifier Text: t_config
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (twai_timing_config_t) TWAI_TIMING_CONFIG_5KBITS()
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: twai_timing_config_t
+|——————————Node:type_identifier Text: twai_timing_config_t
+|—————————Node:) Text: )
+|—————————Node:call_expression Text: TWAI_TIMING_CONFIG_5KBITS()
+|——————————Node:identifier Text: TWAI_TIMING_CONFIG_5KBITS
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 10000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_10KBITS();
+            break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 10000
+|——————Node:: Text: :
+|——————Node:expression_statement Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_10KBITS();
+|———————Node:assignment_expression Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_10KBITS()
+|————————Node:identifier Text: t_config
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (twai_timing_config_t) TWAI_TIMING_CONFIG_10KBITS()
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: twai_timing_config_t
+|——————————Node:type_identifier Text: twai_timing_config_t
+|—————————Node:) Text: )
+|—————————Node:call_expression Text: TWAI_TIMING_CONFIG_10KBITS()
+|——————————Node:identifier Text: TWAI_TIMING_CONFIG_10KBITS
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 12500:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_12_5KBITS();
+            break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 12500
+|——————Node:: Text: :
+|——————Node:expression_statement Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_12_5KBITS();
+|———————Node:assignment_expression Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_12_5KBITS()
+|————————Node:identifier Text: t_config
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (twai_timing_config_t) TWAI_TIMING_CONFIG_12_5KBITS()
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: twai_timing_config_t
+|——————————Node:type_identifier Text: twai_timing_config_t
+|—————————Node:) Text: )
+|—————————Node:call_expression Text: TWAI_TIMING_CONFIG_12_5KBITS()
+|——————————Node:identifier Text: TWAI_TIMING_CONFIG_12_5KBITS
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 16000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_16KBITS();
+            break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 16000
+|——————Node:: Text: :
+|——————Node:expression_statement Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_16KBITS();
+|———————Node:assignment_expression Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_16KBITS()
+|————————Node:identifier Text: t_config
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (twai_timing_config_t) TWAI_TIMING_CONFIG_16KBITS()
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: twai_timing_config_t
+|——————————Node:type_identifier Text: twai_timing_config_t
+|—————————Node:) Text: )
+|—————————Node:call_expression Text: TWAI_TIMING_CONFIG_16KBITS()
+|——————————Node:identifier Text: TWAI_TIMING_CONFIG_16KBITS
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 20000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_20KBITS();
+            break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 20000
+|——————Node:: Text: :
+|——————Node:expression_statement Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_20KBITS();
+|———————Node:assignment_expression Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_20KBITS()
+|————————Node:identifier Text: t_config
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (twai_timing_config_t) TWAI_TIMING_CONFIG_20KBITS()
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: twai_timing_config_t
+|——————————Node:type_identifier Text: twai_timing_config_t
+|—————————Node:) Text: )
+|—————————Node:call_expression Text: TWAI_TIMING_CONFIG_20KBITS()
+|——————————Node:identifier Text: TWAI_TIMING_CONFIG_20KBITS
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 25000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_25KBITS();
+            break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 25000
+|——————Node:: Text: :
+|——————Node:expression_statement Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_25KBITS();
+|———————Node:assignment_expression Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_25KBITS()
+|————————Node:identifier Text: t_config
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (twai_timing_config_t) TWAI_TIMING_CONFIG_25KBITS()
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: twai_timing_config_t
+|——————————Node:type_identifier Text: twai_timing_config_t
+|—————————Node:) Text: )
+|—————————Node:call_expression Text: TWAI_TIMING_CONFIG_25KBITS()
+|——————————Node:identifier Text: TWAI_TIMING_CONFIG_25KBITS
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 50000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_50KBITS();
+            break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 50000
+|——————Node:: Text: :
+|——————Node:expression_statement Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_50KBITS();
+|———————Node:assignment_expression Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_50KBITS()
+|————————Node:identifier Text: t_config
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (twai_timing_config_t) TWAI_TIMING_CONFIG_50KBITS()
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: twai_timing_config_t
+|——————————Node:type_identifier Text: twai_timing_config_t
+|—————————Node:) Text: )
+|—————————Node:call_expression Text: TWAI_TIMING_CONFIG_50KBITS()
+|——————————Node:identifier Text: TWAI_TIMING_CONFIG_50KBITS
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 100000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_100KBITS();
+            break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 100000
+|——————Node:: Text: :
+|——————Node:expression_statement Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_100KBITS();
+|———————Node:assignment_expression Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_100KBITS()
+|————————Node:identifier Text: t_config
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (twai_timing_config_t) TWAI_TIMING_CONFIG_100KBITS()
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: twai_timing_config_t
+|——————————Node:type_identifier Text: twai_timing_config_t
+|—————————Node:) Text: )
+|—————————Node:call_expression Text: TWAI_TIMING_CONFIG_100KBITS()
+|——————————Node:identifier Text: TWAI_TIMING_CONFIG_100KBITS
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 125000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_125KBITS();
+            break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 125000
+|——————Node:: Text: :
+|——————Node:expression_statement Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_125KBITS();
+|———————Node:assignment_expression Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_125KBITS()
+|————————Node:identifier Text: t_config
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (twai_timing_config_t) TWAI_TIMING_CONFIG_125KBITS()
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: twai_timing_config_t
+|——————————Node:type_identifier Text: twai_timing_config_t
+|—————————Node:) Text: )
+|—————————Node:call_expression Text: TWAI_TIMING_CONFIG_125KBITS()
+|——————————Node:identifier Text: TWAI_TIMING_CONFIG_125KBITS
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 250000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_250KBITS();
+            break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 250000
+|——————Node:: Text: :
+|——————Node:expression_statement Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_250KBITS();
+|———————Node:assignment_expression Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_250KBITS()
+|————————Node:identifier Text: t_config
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (twai_timing_config_t) TWAI_TIMING_CONFIG_250KBITS()
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: twai_timing_config_t
+|——————————Node:type_identifier Text: twai_timing_config_t
+|—————————Node:) Text: )
+|—————————Node:call_expression Text: TWAI_TIMING_CONFIG_250KBITS()
+|——————————Node:identifier Text: TWAI_TIMING_CONFIG_250KBITS
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 500000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_500KBITS();
+            break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 500000
+|——————Node:: Text: :
+|——————Node:expression_statement Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_500KBITS();
+|———————Node:assignment_expression Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_500KBITS()
+|————————Node:identifier Text: t_config
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (twai_timing_config_t) TWAI_TIMING_CONFIG_500KBITS()
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: twai_timing_config_t
+|——————————Node:type_identifier Text: twai_timing_config_t
+|—————————Node:) Text: )
+|—————————Node:call_expression Text: TWAI_TIMING_CONFIG_500KBITS()
+|——————————Node:identifier Text: TWAI_TIMING_CONFIG_500KBITS
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 800000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_800KBITS();
+            break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 800000
+|——————Node:: Text: :
+|——————Node:expression_statement Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_800KBITS();
+|———————Node:assignment_expression Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_800KBITS()
+|————————Node:identifier Text: t_config
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (twai_timing_config_t) TWAI_TIMING_CONFIG_800KBITS()
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: twai_timing_config_t
+|——————————Node:type_identifier Text: twai_timing_config_t
+|—————————Node:) Text: )
+|—————————Node:call_expression Text: TWAI_TIMING_CONFIG_800KBITS()
+|——————————Node:identifier Text: TWAI_TIMING_CONFIG_800KBITS
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case 1000000:
+            t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_1MBITS();
+            break;
+|——————Node:case Text: case
+|——————Node:number_literal Text: 1000000
+|——————Node:: Text: :
+|——————Node:expression_statement Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_1MBITS();
+|———————Node:assignment_expression Text: t_config = (twai_timing_config_t) TWAI_TIMING_CONFIG_1MBITS()
+|————————Node:identifier Text: t_config
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (twai_timing_config_t) TWAI_TIMING_CONFIG_1MBITS()
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: twai_timing_config_t
+|——————————Node:type_identifier Text: twai_timing_config_t
+|—————————Node:) Text: )
+|—————————Node:call_expression Text: TWAI_TIMING_CONFIG_1MBITS()
+|——————————Node:identifier Text: TWAI_TIMING_CONFIG_1MBITS
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: default:
+            print_w_clr_time("Unsupported speed!", LOG_COLOR_RED, true);
+            return 1;
+|——————Node:default Text: default
+|——————Node:: Text: :
+|——————Node:expression_statement Text: print_w_clr_time("Unsupported speed!", LOG_COLOR_RED, true);
+|———————Node:call_expression Text: print_w_clr_time("Unsupported speed!", LOG_COLOR_RED, true)
+|————————Node:identifier Text: print_w_clr_time
+|————————Node:argument_list Text: ("Unsupported speed!", LOG_COLOR_RED, true)
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Unsupported speed!"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Unsupported speed!
+|——————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: LOG_COLOR_RED
+|—————————Node:, Text: ,
+|—————————Node:true Text: true
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:return_statement Text: return 1;
+|———————Node:return Text: return
+|———————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: xSemaphoreTake(can_mutex, portMAX_DELAY);
+|————Node:call_expression Text: xSemaphoreTake(can_mutex, portMAX_DELAY)
+|—————Node:identifier Text: xSemaphoreTake
+|—————Node:argument_list Text: (can_mutex, portMAX_DELAY)
+|——————Node:( Text: (
+|——————Node:identifier Text: can_mutex
+|——————Node:, Text: ,
+|——————Node:identifier Text: portMAX_DELAY
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: esp_log_level_set("gpio", ESP_LOG_ERROR);
+|————Node:call_expression Text: esp_log_level_set("gpio", ESP_LOG_ERROR)
+|—————Node:identifier Text: esp_log_level_set
+|—————Node:argument_list Text: ("gpio", ESP_LOG_ERROR)
+|——————Node:( Text: (
+|——————Node:string_literal Text: "gpio"
+|———————Node:" Text: "
+|———————Node:string_content Text: gpio
+|———————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:identifier Text: ESP_LOG_ERROR
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: res = twai_driver_install(&gen_cfg, &t_config, &f_config);
+|————Node:assignment_expression Text: res = twai_driver_install(&gen_cfg, &t_config, &f_config)
+|—————Node:identifier Text: res
+|—————Node:= Text: =
+|—————Node:call_expression Text: twai_driver_install(&gen_cfg, &t_config, &f_config)
+|——————Node:identifier Text: twai_driver_install
+|——————Node:argument_list Text: (&gen_cfg, &t_config, &f_config)
+|———————Node:( Text: (
+|———————Node:pointer_expression Text: &gen_cfg
+|————————Node:& Text: &
+|————————Node:identifier Text: gen_cfg
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &t_config
+|————————Node:& Text: &
+|————————Node:identifier Text: t_config
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &f_config
+|————————Node:& Text: &
+|————————Node:identifier Text: f_config
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (res == ESP_OK) {
+        print_w_clr_time("CAN driver installed", LOG_COLOR_BLUE, true);
+        if (canup_args.autorecover->count) {
+            print_w_clr_time("Auto recovery is enabled!", LOG_COLOR_PURPLE, true);
+            auto_recovery = true;
+        } else auto_recovery = false;
+    } else if (res == ESP_ERR_INVALID_STATE) {
+        print_w_clr_time("Driver is already installed!", LOG_COLOR_BROWN, true);
+        goto free_exit;
+    } else {
+        print_w_clr_time("Couldn't install CAN driver! Rebooting...", LOG_COLOR_RED, true);
+        esp_restart();
+    }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (res == ESP_OK)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: res == ESP_OK
+|——————Node:identifier Text: res
+|——————Node:== Text: ==
+|——————Node:identifier Text: ESP_OK
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        print_w_clr_time("CAN driver installed", LOG_COLOR_BLUE, true);
+        if (canup_args.autorecover->count) {
+            print_w_clr_time("Auto recovery is enabled!", LOG_COLOR_PURPLE, true);
+            auto_recovery = true;
+        } else auto_recovery = false;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: print_w_clr_time("CAN driver installed", LOG_COLOR_BLUE, true);
+|——————Node:call_expression Text: print_w_clr_time("CAN driver installed", LOG_COLOR_BLUE, true)
+|———————Node:identifier Text: print_w_clr_time
+|———————Node:argument_list Text: ("CAN driver installed", LOG_COLOR_BLUE, true)
+|————————Node:( Text: (
+|————————Node:string_literal Text: "CAN driver installed"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: CAN driver installed
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:identifier Text: LOG_COLOR_BLUE
+|————————Node:, Text: ,
+|————————Node:true Text: true
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if (canup_args.autorecover->count) {
+            print_w_clr_time("Auto recovery is enabled!", LOG_COLOR_PURPLE, true);
+            auto_recovery = true;
+        } else auto_recovery = false;
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (canup_args.autorecover->count)
+|———————Node:( Text: (
+|———————Node:field_expression Text: canup_args.autorecover->count
+|————————Node:field_expression Text: canup_args.autorecover
+|—————————Node:identifier Text: canup_args
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: autorecover
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: count
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            print_w_clr_time("Auto recovery is enabled!", LOG_COLOR_PURPLE, true);
+            auto_recovery = true;
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: print_w_clr_time("Auto recovery is enabled!", LOG_COLOR_PURPLE, true);
+|————————Node:call_expression Text: print_w_clr_time("Auto recovery is enabled!", LOG_COLOR_PURPLE, true)
+|—————————Node:identifier Text: print_w_clr_time
+|—————————Node:argument_list Text: ("Auto recovery is enabled!", LOG_COLOR_PURPLE, true)
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "Auto recovery is enabled!"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: Auto recovery is enabled!
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: LOG_COLOR_PURPLE
+|——————————Node:, Text: ,
+|——————————Node:true Text: true
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: auto_recovery = true;
+|————————Node:assignment_expression Text: auto_recovery = true
+|—————————Node:identifier Text: auto_recovery
+|—————————Node:= Text: =
+|—————————Node:true Text: true
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|——————Node:else_clause Text: else auto_recovery = false;
+|———————Node:else Text: else
+|———————Node:expression_statement Text: auto_recovery = false;
+|————————Node:assignment_expression Text: auto_recovery = false
+|—————————Node:identifier Text: auto_recovery
+|—————————Node:= Text: =
+|—————————Node:false Text: false
+|————————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else if (res == ESP_ERR_INVALID_STATE) {
+        print_w_clr_time("Driver is already installed!", LOG_COLOR_BROWN, true);
+        goto free_exit;
+    } else {
+        print_w_clr_time("Couldn't install CAN driver! Rebooting...", LOG_COLOR_RED, true);
+        esp_restart();
+    }
+|—————Node:else Text: else
+|—————Node:if_statement Text: if (res == ESP_ERR_INVALID_STATE) {
+        print_w_clr_time("Driver is already installed!", LOG_COLOR_BROWN, true);
+        goto free_exit;
+    } else {
+        print_w_clr_time("Couldn't install CAN driver! Rebooting...", LOG_COLOR_RED, true);
+        esp_restart();
+    }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (res == ESP_ERR_INVALID_STATE)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: res == ESP_ERR_INVALID_STATE
+|————————Node:identifier Text: res
+|————————Node:== Text: ==
+|————————Node:identifier Text: ESP_ERR_INVALID_STATE
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+        print_w_clr_time("Driver is already installed!", LOG_COLOR_BROWN, true);
+        goto free_exit;
+    }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: print_w_clr_time("Driver is already installed!", LOG_COLOR_BROWN, true);
+|————————Node:call_expression Text: print_w_clr_time("Driver is already installed!", LOG_COLOR_BROWN, true)
+|—————————Node:identifier Text: print_w_clr_time
+|—————————Node:argument_list Text: ("Driver is already installed!", LOG_COLOR_BROWN, true)
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "Driver is already installed!"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: Driver is already installed!
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: LOG_COLOR_BROWN
+|——————————Node:, Text: ,
+|——————————Node:true Text: true
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:goto_statement Text: goto free_exit;
+|————————Node:goto Text: goto
+|————————Node:statement_identifier Text: free_exit
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|——————Node:else_clause Text: else {
+        print_w_clr_time("Couldn't install CAN driver! Rebooting...", LOG_COLOR_RED, true);
+        esp_restart();
+    }
+|———————Node:else Text: else
+|———————Node:compound_statement Text: {
+        print_w_clr_time("Couldn't install CAN driver! Rebooting...", LOG_COLOR_RED, true);
+        esp_restart();
+    }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: print_w_clr_time("Couldn't install CAN driver! Rebooting...", LOG_COLOR_RED, true);
+|—————————Node:call_expression Text: print_w_clr_time("Couldn't install CAN driver! Rebooting...", LOG_COLOR_RED, true)
+|——————————Node:identifier Text: print_w_clr_time
+|——————————Node:argument_list Text: ("Couldn't install CAN driver! Rebooting...", LOG_COLOR_RED, true)
+|———————————Node:( Text: (
+|———————————Node:string_literal Text: "Couldn't install CAN driver! Rebooting..."
+|————————————Node:" Text: "
+|————————————Node:string_content Text: Couldn't install CAN driver! Rebooting...
+|————————————Node:" Text: "
+|———————————Node:, Text: ,
+|———————————Node:identifier Text: LOG_COLOR_RED
+|———————————Node:, Text: ,
+|———————————Node:true Text: true
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:expression_statement Text: esp_restart();
+|—————————Node:call_expression Text: esp_restart()
+|——————————Node:identifier Text: esp_restart
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———Node:expression_statement Text: ESP_ERROR_CHECK(twai_start());
+|————Node:call_expression Text: ESP_ERROR_CHECK(twai_start())
+|—————Node:identifier Text: ESP_ERROR_CHECK
+|—————Node:argument_list Text: (twai_start())
+|——————Node:( Text: (
+|——————Node:call_expression Text: twai_start()
+|———————Node:identifier Text: twai_start
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: is_error_passive = false;
+|————Node:assignment_expression Text: is_error_passive = false
+|—————Node:identifier Text: is_error_passive
+|—————Node:= Text: =
+|—————Node:false Text: false
+|————Node:; Text: ;
+|———Node:expression_statement Text: print_w_clr_time("CAN driver started", LOG_COLOR_BLUE, true);
+|————Node:call_expression Text: print_w_clr_time("CAN driver started", LOG_COLOR_BLUE, true)
+|—————Node:identifier Text: print_w_clr_time
+|—————Node:argument_list Text: ("CAN driver started", LOG_COLOR_BLUE, true)
+|——————Node:( Text: (
+|——————Node:string_literal Text: "CAN driver started"
+|———————Node:" Text: "
+|———————Node:string_content Text: CAN driver started
+|———————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:identifier Text: LOG_COLOR_BLUE
+|——————Node:, Text: ,
+|——————Node:true Text: true
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:labeled_statement Text: free_exit:
+    xSemaphoreGive(can_mutex);
+|————Node:statement_identifier Text: free_exit
+|————Node:: Text: :
+|————Node:expression_statement Text: xSemaphoreGive(can_mutex);
+|—————Node:call_expression Text: xSemaphoreGive(can_mutex)
+|——————Node:identifier Text: xSemaphoreGive
+|——————Node:argument_list Text: (can_mutex)
+|———————Node:( Text: (
+|———————Node:identifier Text: can_mutex
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:expression_statement Text: esp_log_level_set("gpio", prev_gpio_lvl);
+|————Node:call_expression Text: esp_log_level_set("gpio", prev_gpio_lvl)
+|—————Node:identifier Text: esp_log_level_set
+|—————Node:argument_list Text: ("gpio", prev_gpio_lvl)
+|——————Node:( Text: (
+|——————Node:string_literal Text: "gpio"
+|———————Node:" Text: "
+|———————Node:string_content Text: gpio
+|———————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:identifier Text: prev_gpio_lvl
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: static int canstart(int argc, char **argv) {
+    xSemaphoreTake(can_mutex, portMAX_DELAY);
+    esp_err_t res = twai_start();
+    if (res == ESP_OK) {
+        print_w_clr_time("CAN driver started", LOG_COLOR_GREEN, true);
+        is_error_passive = false;
+    } else print_w_clr_time("Driver is not in stopped state, or is not installed.", LOG_COLOR_RED, true);
+    xSemaphoreGive(can_mutex);
+    return 0;
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: canstart(int argc, char **argv)
+|———Node:identifier Text: canstart
+|———Node:parameter_list Text: (int argc, char **argv)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: int argc
+|—————Node:primitive_type Text: int
+|—————Node:identifier Text: argc
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: char **argv
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: **argv
+|——————Node:* Text: *
+|——————Node:pointer_declarator Text: *argv
+|———————Node:* Text: *
+|———————Node:identifier Text: argv
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    xSemaphoreTake(can_mutex, portMAX_DELAY);
+    esp_err_t res = twai_start();
+    if (res == ESP_OK) {
+        print_w_clr_time("CAN driver started", LOG_COLOR_GREEN, true);
+        is_error_passive = false;
+    } else print_w_clr_time("Driver is not in stopped state, or is not installed.", LOG_COLOR_RED, true);
+    xSemaphoreGive(can_mutex);
+    return 0;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: xSemaphoreTake(can_mutex, portMAX_DELAY);
+|————Node:call_expression Text: xSemaphoreTake(can_mutex, portMAX_DELAY)
+|—————Node:identifier Text: xSemaphoreTake
+|—————Node:argument_list Text: (can_mutex, portMAX_DELAY)
+|——————Node:( Text: (
+|——————Node:identifier Text: can_mutex
+|——————Node:, Text: ,
+|——————Node:identifier Text: portMAX_DELAY
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: esp_err_t res = twai_start();
+|————Node:type_identifier Text: esp_err_t
+|————Node:init_declarator Text: res = twai_start()
+|—————Node:identifier Text: res
+|—————Node:= Text: =
+|—————Node:call_expression Text: twai_start()
+|——————Node:identifier Text: twai_start
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (res == ESP_OK) {
+        print_w_clr_time("CAN driver started", LOG_COLOR_GREEN, true);
+        is_error_passive = false;
+    } else print_w_clr_time("Driver is not in stopped state, or is not installed.", LOG_COLOR_RED, true);
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (res == ESP_OK)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: res == ESP_OK
+|——————Node:identifier Text: res
+|——————Node:== Text: ==
+|——————Node:identifier Text: ESP_OK
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        print_w_clr_time("CAN driver started", LOG_COLOR_GREEN, true);
+        is_error_passive = false;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: print_w_clr_time("CAN driver started", LOG_COLOR_GREEN, true);
+|——————Node:call_expression Text: print_w_clr_time("CAN driver started", LOG_COLOR_GREEN, true)
+|———————Node:identifier Text: print_w_clr_time
+|———————Node:argument_list Text: ("CAN driver started", LOG_COLOR_GREEN, true)
+|————————Node:( Text: (
+|————————Node:string_literal Text: "CAN driver started"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: CAN driver started
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:identifier Text: LOG_COLOR_GREEN
+|————————Node:, Text: ,
+|————————Node:true Text: true
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: is_error_passive = false;
+|——————Node:assignment_expression Text: is_error_passive = false
+|———————Node:identifier Text: is_error_passive
+|———————Node:= Text: =
+|———————Node:false Text: false
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else print_w_clr_time("Driver is not in stopped state, or is not installed.", LOG_COLOR_RED, true);
+|—————Node:else Text: else
+|—————Node:expression_statement Text: print_w_clr_time("Driver is not in stopped state, or is not installed.", LOG_COLOR_RED, true);
+|——————Node:call_expression Text: print_w_clr_time("Driver is not in stopped state, or is not installed.", LOG_COLOR_RED, true)
+|———————Node:identifier Text: print_w_clr_time
+|———————Node:argument_list Text: ("Driver is not in stopped state, or is not installed.", LOG_COLOR_RED, true)
+|————————Node:( Text: (
+|————————Node:string_literal Text: "Driver is not in stopped state, or is not installed."
+|—————————Node:" Text: "
+|—————————Node:string_content Text: Driver is not in stopped state, or is not installed.
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:identifier Text: LOG_COLOR_RED
+|————————Node:, Text: ,
+|————————Node:true Text: true
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|———Node:expression_statement Text: xSemaphoreGive(can_mutex);
+|————Node:call_expression Text: xSemaphoreGive(can_mutex)
+|—————Node:identifier Text: xSemaphoreGive
+|—————Node:argument_list Text: (can_mutex)
+|——————Node:( Text: (
+|——————Node:identifier Text: can_mutex
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: static int candown(int argc, char **argv) {
+    xSemaphoreTake(can_mutex, portMAX_DELAY);
+    if (curr_can_state.state != CAN_BUF_OFF) {
+        esp_err_t res = twai_stop();
+        if (res == ESP_OK) print_w_clr_time("CAN was stopped.", LOG_COLOR_GREEN, true);
+        else {
+            print_w_clr_time("Driver is not in running state, or is not installed.", LOG_COLOR_RED, true);
+            xSemaphoreGive(can_mutex);
+            return 1;
+        }
+    }
+    ESP_ERROR_CHECK(twai_driver_uninstall());
+    xSemaphoreGive(can_mutex);
+    return 0;
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: candown(int argc, char **argv)
+|———Node:identifier Text: candown
+|———Node:parameter_list Text: (int argc, char **argv)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: int argc
+|—————Node:primitive_type Text: int
+|—————Node:identifier Text: argc
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: char **argv
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: **argv
+|——————Node:* Text: *
+|——————Node:pointer_declarator Text: *argv
+|———————Node:* Text: *
+|———————Node:identifier Text: argv
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    xSemaphoreTake(can_mutex, portMAX_DELAY);
+    if (curr_can_state.state != CAN_BUF_OFF) {
+        esp_err_t res = twai_stop();
+        if (res == ESP_OK) print_w_clr_time("CAN was stopped.", LOG_COLOR_GREEN, true);
+        else {
+            print_w_clr_time("Driver is not in running state, or is not installed.", LOG_COLOR_RED, true);
+            xSemaphoreGive(can_mutex);
+            return 1;
+        }
+    }
+    ESP_ERROR_CHECK(twai_driver_uninstall());
+    xSemaphoreGive(can_mutex);
+    return 0;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: xSemaphoreTake(can_mutex, portMAX_DELAY);
+|————Node:call_expression Text: xSemaphoreTake(can_mutex, portMAX_DELAY)
+|—————Node:identifier Text: xSemaphoreTake
+|—————Node:argument_list Text: (can_mutex, portMAX_DELAY)
+|——————Node:( Text: (
+|——————Node:identifier Text: can_mutex
+|——————Node:, Text: ,
+|——————Node:identifier Text: portMAX_DELAY
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (curr_can_state.state != CAN_BUF_OFF) {
+        esp_err_t res = twai_stop();
+        if (res == ESP_OK) print_w_clr_time("CAN was stopped.", LOG_COLOR_GREEN, true);
+        else {
+            print_w_clr_time("Driver is not in running state, or is not installed.", LOG_COLOR_RED, true);
+            xSemaphoreGive(can_mutex);
+            return 1;
+        }
+    }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (curr_can_state.state != CAN_BUF_OFF)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: curr_can_state.state != CAN_BUF_OFF
+|——————Node:field_expression Text: curr_can_state.state
+|———————Node:identifier Text: curr_can_state
+|———————Node:. Text: .
+|———————Node:field_identifier Text: state
+|——————Node:!= Text: !=
+|——————Node:identifier Text: CAN_BUF_OFF
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        esp_err_t res = twai_stop();
+        if (res == ESP_OK) print_w_clr_time("CAN was stopped.", LOG_COLOR_GREEN, true);
+        else {
+            print_w_clr_time("Driver is not in running state, or is not installed.", LOG_COLOR_RED, true);
+            xSemaphoreGive(can_mutex);
+            return 1;
+        }
+    }
+|—————Node:{ Text: {
+|—————Node:declaration Text: esp_err_t res = twai_stop();
+|——————Node:type_identifier Text: esp_err_t
+|——————Node:init_declarator Text: res = twai_stop()
+|———————Node:identifier Text: res
+|———————Node:= Text: =
+|———————Node:call_expression Text: twai_stop()
+|————————Node:identifier Text: twai_stop
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if (res == ESP_OK) print_w_clr_time("CAN was stopped.", LOG_COLOR_GREEN, true);
+        else {
+            print_w_clr_time("Driver is not in running state, or is not installed.", LOG_COLOR_RED, true);
+            xSemaphoreGive(can_mutex);
+            return 1;
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (res == ESP_OK)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: res == ESP_OK
+|————————Node:identifier Text: res
+|————————Node:== Text: ==
+|————————Node:identifier Text: ESP_OK
+|———————Node:) Text: )
+|——————Node:expression_statement Text: print_w_clr_time("CAN was stopped.", LOG_COLOR_GREEN, true);
+|———————Node:call_expression Text: print_w_clr_time("CAN was stopped.", LOG_COLOR_GREEN, true)
+|————————Node:identifier Text: print_w_clr_time
+|————————Node:argument_list Text: ("CAN was stopped.", LOG_COLOR_GREEN, true)
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "CAN was stopped."
+|——————————Node:" Text: "
+|——————————Node:string_content Text: CAN was stopped.
+|——————————Node:" Text: "
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: LOG_COLOR_GREEN
+|—————————Node:, Text: ,
+|—————————Node:true Text: true
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:else_clause Text: else {
+            print_w_clr_time("Driver is not in running state, or is not installed.", LOG_COLOR_RED, true);
+            xSemaphoreGive(can_mutex);
+            return 1;
+        }
+|———————Node:else Text: else
+|———————Node:compound_statement Text: {
+            print_w_clr_time("Driver is not in running state, or is not installed.", LOG_COLOR_RED, true);
+            xSemaphoreGive(can_mutex);
+            return 1;
+        }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: print_w_clr_time("Driver is not in running state, or is not installed.", LOG_COLOR_RED, true);
+|—————————Node:call_expression Text: print_w_clr_time("Driver is not in running state, or is not installed.", LOG_COLOR_RED, true)
+|——————————Node:identifier Text: print_w_clr_time
+|——————————Node:argument_list Text: ("Driver is not in running state, or is not installed.", LOG_COLOR_RED, true)
+|———————————Node:( Text: (
+|———————————Node:string_literal Text: "Driver is not in running state, or is not installed."
+|————————————Node:" Text: "
+|————————————Node:string_content Text: Driver is not in running state, or is not installed.
+|————————————Node:" Text: "
+|———————————Node:, Text: ,
+|———————————Node:identifier Text: LOG_COLOR_RED
+|———————————Node:, Text: ,
+|———————————Node:true Text: true
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:expression_statement Text: xSemaphoreGive(can_mutex);
+|—————————Node:call_expression Text: xSemaphoreGive(can_mutex)
+|——————————Node:identifier Text: xSemaphoreGive
+|——————————Node:argument_list Text: (can_mutex)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: can_mutex
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:return_statement Text: return 1;
+|—————————Node:return Text: return
+|—————————Node:number_literal Text: 1
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|—————Node:} Text: }
+|———Node:expression_statement Text: ESP_ERROR_CHECK(twai_driver_uninstall());
+|————Node:call_expression Text: ESP_ERROR_CHECK(twai_driver_uninstall())
+|—————Node:identifier Text: ESP_ERROR_CHECK
+|—————Node:argument_list Text: (twai_driver_uninstall())
+|——————Node:( Text: (
+|——————Node:call_expression Text: twai_driver_uninstall()
+|———————Node:identifier Text: twai_driver_uninstall
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: xSemaphoreGive(can_mutex);
+|————Node:call_expression Text: xSemaphoreGive(can_mutex)
+|—————Node:identifier Text: xSemaphoreGive
+|—————Node:argument_list Text: (can_mutex)
+|——————Node:( Text: (
+|——————Node:identifier Text: can_mutex
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: static void register_cansend(void) {
+    
+    cansend_args.message = arg_str1(NULL, NULL, "ID#data", "Message to send, ID and data bytes, all in hex. # is the delimiter.");
+    cansend_args.end = arg_end(2);
+
+    const esp_console_cmd_t cmd = {
+        .command = "cansend",
+        .help = "Send a can message to the bus, example: cansend 00008C03#02",
+        .hint = NULL,
+        .func = &send_can_frame,
+        .argtable = &cansend_args,
+    };
+    ESP_ERROR_CHECK( esp_console_cmd_register(&cmd) );
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: register_cansend(void)
+|———Node:identifier Text: register_cansend
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    
+    cansend_args.message = arg_str1(NULL, NULL, "ID#data", "Message to send, ID and data bytes, all in hex. # is the delimiter.");
+    cansend_args.end = arg_end(2);
+
+    const esp_console_cmd_t cmd = {
+        .command = "cansend",
+        .help = "Send a can message to the bus, example: cansend 00008C03#02",
+        .hint = NULL,
+        .func = &send_can_frame,
+        .argtable = &cansend_args,
+    };
+    ESP_ERROR_CHECK( esp_console_cmd_register(&cmd) );
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: cansend_args.message = arg_str1(NULL, NULL, "ID#data", "Message to send, ID and data bytes, all in hex. # is the delimiter.");
+|————Node:assignment_expression Text: cansend_args.message = arg_str1(NULL, NULL, "ID#data", "Message to send, ID and data bytes, all in hex. # is the delimiter.")
+|—————Node:field_expression Text: cansend_args.message
+|——————Node:identifier Text: cansend_args
+|——————Node:. Text: .
+|——————Node:field_identifier Text: message
+|—————Node:= Text: =
+|—————Node:call_expression Text: arg_str1(NULL, NULL, "ID#data", "Message to send, ID and data bytes, all in hex. # is the delimiter.")
+|——————Node:identifier Text: arg_str1
+|——————Node:argument_list Text: (NULL, NULL, "ID#data", "Message to send, ID and data bytes, all in hex. # is the delimiter.")
+|———————Node:( Text: (
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|———————Node:, Text: ,
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "ID#data"
+|————————Node:" Text: "
+|————————Node:string_content Text: ID#data
+|————————Node:" Text: "
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "Message to send, ID and data bytes, all in hex. # is the delimiter."
+|————————Node:" Text: "
+|————————Node:string_content Text: Message to send, ID and data bytes, all in hex. # is the delimiter.
+|————————Node:" Text: "
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cansend_args.end = arg_end(2);
+|————Node:assignment_expression Text: cansend_args.end = arg_end(2)
+|—————Node:field_expression Text: cansend_args.end
+|——————Node:identifier Text: cansend_args
+|——————Node:. Text: .
+|——————Node:field_identifier Text: end
+|—————Node:= Text: =
+|—————Node:call_expression Text: arg_end(2)
+|——————Node:identifier Text: arg_end
+|——————Node:argument_list Text: (2)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 2
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: const esp_console_cmd_t cmd = {
+        .command = "cansend",
+        .help = "Send a can message to the bus, example: cansend 00008C03#02",
+        .hint = NULL,
+        .func = &send_can_frame,
+        .argtable = &cansend_args,
+    };
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:type_identifier Text: esp_console_cmd_t
+|————Node:init_declarator Text: cmd = {
+        .command = "cansend",
+        .help = "Send a can message to the bus, example: cansend 00008C03#02",
+        .hint = NULL,
+        .func = &send_can_frame,
+        .argtable = &cansend_args,
+    }
+|—————Node:identifier Text: cmd
+|—————Node:= Text: =
+|—————Node:initializer_list Text: {
+        .command = "cansend",
+        .help = "Send a can message to the bus, example: cansend 00008C03#02",
+        .hint = NULL,
+        .func = &send_can_frame,
+        .argtable = &cansend_args,
+    }
+|——————Node:{ Text: {
+|——————Node:initializer_pair Text: .command = "cansend"
+|———————Node:field_designator Text: .command
+|————————Node:. Text: .
+|————————Node:field_identifier Text: command
+|———————Node:= Text: =
+|———————Node:string_literal Text: "cansend"
+|————————Node:" Text: "
+|————————Node:string_content Text: cansend
+|————————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .help = "Send a can message to the bus, example: cansend 00008C03#02"
+|———————Node:field_designator Text: .help
+|————————Node:. Text: .
+|————————Node:field_identifier Text: help
+|———————Node:= Text: =
+|———————Node:string_literal Text: "Send a can message to the bus, example: cansend 00008C03#02"
+|————————Node:" Text: "
+|————————Node:string_content Text: Send a can message to the bus, example: cansend 00008C03#02
+|————————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .hint = NULL
+|———————Node:field_designator Text: .hint
+|————————Node:. Text: .
+|————————Node:field_identifier Text: hint
+|———————Node:= Text: =
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .func = &send_can_frame
+|———————Node:field_designator Text: .func
+|————————Node:. Text: .
+|————————Node:field_identifier Text: func
+|———————Node:= Text: =
+|———————Node:pointer_expression Text: &send_can_frame
+|————————Node:& Text: &
+|————————Node:identifier Text: send_can_frame
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .argtable = &cansend_args
+|———————Node:field_designator Text: .argtable
+|————————Node:. Text: .
+|————————Node:field_identifier Text: argtable
+|———————Node:= Text: =
+|———————Node:pointer_expression Text: &cansend_args
+|————————Node:& Text: &
+|————————Node:identifier Text: cansend_args
+|——————Node:, Text: ,
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:expression_statement Text: ESP_ERROR_CHECK( esp_console_cmd_register(&cmd) );
+|————Node:call_expression Text: ESP_ERROR_CHECK( esp_console_cmd_register(&cmd) )
+|—————Node:identifier Text: ESP_ERROR_CHECK
+|—————Node:argument_list Text: ( esp_console_cmd_register(&cmd) )
+|——————Node:( Text: (
+|——————Node:call_expression Text: esp_console_cmd_register(&cmd)
+|———————Node:identifier Text: esp_console_cmd_register
+|———————Node:argument_list Text: (&cmd)
+|————————Node:( Text: (
+|————————Node:pointer_expression Text: &cmd
+|—————————Node:& Text: &
+|—————————Node:identifier Text: cmd
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: static void register_canup(void) {
+
+    canup_args.speed = arg_int1(NULL, NULL, "<speed>", "CAN bus speed, in bps. See help for supported speeds.");
+    canup_args.mode = arg_str0("m", "mode", "<normal|no_ack|listen_only>", "Set CAN mode. Normal (default), No Ack (for self-testing) or Listen Only (to prevent transmitting, for monitoring).");
+    canup_args.filters = arg_str0("f", "filters", "<filters>", "CAN filters to receive only selected frames.");
+    canup_args.autorecover = arg_lit0("r", "auto-recovery", "Set to enable auto-recovery of CAN bus if case of bus-off event");
+    canup_args.end = arg_end(4);
+
+    const esp_console_cmd_t cmd = {
+        .command = "canup",
+        .help = "Install can drivers and start can interface. Used right after board start or during runtime for changing CAN configuration. Supported speeds: 1mbits, 800kbits, 500kbits, 250kbits, 125kbits, 100kbits, 50kbits, 25kbits, 20kbits, 16kbits, 12.5kbits, 10kbits, 5kbits, 1kbits.",
+        .hint = NULL,
+        .func = &canup,
+        .argtable = &canup_args,
+    };
+    ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: register_canup(void)
+|———Node:identifier Text: register_canup
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+
+    canup_args.speed = arg_int1(NULL, NULL, "<speed>", "CAN bus speed, in bps. See help for supported speeds.");
+    canup_args.mode = arg_str0("m", "mode", "<normal|no_ack|listen_only>", "Set CAN mode. Normal (default), No Ack (for self-testing) or Listen Only (to prevent transmitting, for monitoring).");
+    canup_args.filters = arg_str0("f", "filters", "<filters>", "CAN filters to receive only selected frames.");
+    canup_args.autorecover = arg_lit0("r", "auto-recovery", "Set to enable auto-recovery of CAN bus if case of bus-off event");
+    canup_args.end = arg_end(4);
+
+    const esp_console_cmd_t cmd = {
+        .command = "canup",
+        .help = "Install can drivers and start can interface. Used right after board start or during runtime for changing CAN configuration. Supported speeds: 1mbits, 800kbits, 500kbits, 250kbits, 125kbits, 100kbits, 50kbits, 25kbits, 20kbits, 16kbits, 12.5kbits, 10kbits, 5kbits, 1kbits.",
+        .hint = NULL,
+        .func = &canup,
+        .argtable = &canup_args,
+    };
+    ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: canup_args.speed = arg_int1(NULL, NULL, "<speed>", "CAN bus speed, in bps. See help for supported speeds.");
+|————Node:assignment_expression Text: canup_args.speed = arg_int1(NULL, NULL, "<speed>", "CAN bus speed, in bps. See help for supported speeds.")
+|—————Node:field_expression Text: canup_args.speed
+|——————Node:identifier Text: canup_args
+|——————Node:. Text: .
+|——————Node:field_identifier Text: speed
+|—————Node:= Text: =
+|—————Node:call_expression Text: arg_int1(NULL, NULL, "<speed>", "CAN bus speed, in bps. See help for supported speeds.")
+|——————Node:identifier Text: arg_int1
+|——————Node:argument_list Text: (NULL, NULL, "<speed>", "CAN bus speed, in bps. See help for supported speeds.")
+|———————Node:( Text: (
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|———————Node:, Text: ,
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "<speed>"
+|————————Node:" Text: "
+|————————Node:string_content Text: <speed>
+|————————Node:" Text: "
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "CAN bus speed, in bps. See help for supported speeds."
+|————————Node:" Text: "
+|————————Node:string_content Text: CAN bus speed, in bps. See help for supported speeds.
+|————————Node:" Text: "
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: canup_args.mode = arg_str0("m", "mode", "<normal|no_ack|listen_only>", "Set CAN mode. Normal (default), No Ack (for self-testing) or Listen Only (to prevent transmitting, for monitoring).");
+|————Node:assignment_expression Text: canup_args.mode = arg_str0("m", "mode", "<normal|no_ack|listen_only>", "Set CAN mode. Normal (default), No Ack (for self-testing) or Listen Only (to prevent transmitting, for monitoring).")
+|—————Node:field_expression Text: canup_args.mode
+|——————Node:identifier Text: canup_args
+|——————Node:. Text: .
+|——————Node:field_identifier Text: mode
+|—————Node:= Text: =
+|—————Node:call_expression Text: arg_str0("m", "mode", "<normal|no_ack|listen_only>", "Set CAN mode. Normal (default), No Ack (for self-testing) or Listen Only (to prevent transmitting, for monitoring).")
+|——————Node:identifier Text: arg_str0
+|——————Node:argument_list Text: ("m", "mode", "<normal|no_ack|listen_only>", "Set CAN mode. Normal (default), No Ack (for self-testing) or Listen Only (to prevent transmitting, for monitoring).")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "m"
+|————————Node:" Text: "
+|————————Node:string_content Text: m
+|————————Node:" Text: "
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "mode"
+|————————Node:" Text: "
+|————————Node:string_content Text: mode
+|————————Node:" Text: "
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "<normal|no_ack|listen_only>"
+|————————Node:" Text: "
+|————————Node:string_content Text: <normal|no_ack|listen_only>
+|————————Node:" Text: "
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "Set CAN mode. Normal (default), No Ack (for self-testing) or Listen Only (to prevent transmitting, for monitoring)."
+|————————Node:" Text: "
+|————————Node:string_content Text: Set CAN mode. Normal (default), No Ack (for self-testing) or Listen Only (to prevent transmitting, for monitoring).
+|————————Node:" Text: "
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: canup_args.filters = arg_str0("f", "filters", "<filters>", "CAN filters to receive only selected frames.");
+|————Node:assignment_expression Text: canup_args.filters = arg_str0("f", "filters", "<filters>", "CAN filters to receive only selected frames.")
+|—————Node:field_expression Text: canup_args.filters
+|——————Node:identifier Text: canup_args
+|——————Node:. Text: .
+|——————Node:field_identifier Text: filters
+|—————Node:= Text: =
+|—————Node:call_expression Text: arg_str0("f", "filters", "<filters>", "CAN filters to receive only selected frames.")
+|——————Node:identifier Text: arg_str0
+|——————Node:argument_list Text: ("f", "filters", "<filters>", "CAN filters to receive only selected frames.")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "f"
+|————————Node:" Text: "
+|————————Node:string_content Text: f
+|————————Node:" Text: "
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "filters"
+|————————Node:" Text: "
+|————————Node:string_content Text: filters
+|————————Node:" Text: "
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "<filters>"
+|————————Node:" Text: "
+|————————Node:string_content Text: <filters>
+|————————Node:" Text: "
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "CAN filters to receive only selected frames."
+|————————Node:" Text: "
+|————————Node:string_content Text: CAN filters to receive only selected frames.
+|————————Node:" Text: "
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: canup_args.autorecover = arg_lit0("r", "auto-recovery", "Set to enable auto-recovery of CAN bus if case of bus-off event");
+|————Node:assignment_expression Text: canup_args.autorecover = arg_lit0("r", "auto-recovery", "Set to enable auto-recovery of CAN bus if case of bus-off event")
+|—————Node:field_expression Text: canup_args.autorecover
+|——————Node:identifier Text: canup_args
+|——————Node:. Text: .
+|——————Node:field_identifier Text: autorecover
+|—————Node:= Text: =
+|—————Node:call_expression Text: arg_lit0("r", "auto-recovery", "Set to enable auto-recovery of CAN bus if case of bus-off event")
+|——————Node:identifier Text: arg_lit0
+|——————Node:argument_list Text: ("r", "auto-recovery", "Set to enable auto-recovery of CAN bus if case of bus-off event")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "r"
+|————————Node:" Text: "
+|————————Node:string_content Text: r
+|————————Node:" Text: "
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "auto-recovery"
+|————————Node:" Text: "
+|————————Node:string_content Text: auto-recovery
+|————————Node:" Text: "
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "Set to enable auto-recovery of CAN bus if case of bus-off event"
+|————————Node:" Text: "
+|————————Node:string_content Text: Set to enable auto-recovery of CAN bus if case of bus-off event
+|————————Node:" Text: "
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: canup_args.end = arg_end(4);
+|————Node:assignment_expression Text: canup_args.end = arg_end(4)
+|—————Node:field_expression Text: canup_args.end
+|——————Node:identifier Text: canup_args
+|——————Node:. Text: .
+|——————Node:field_identifier Text: end
+|—————Node:= Text: =
+|—————Node:call_expression Text: arg_end(4)
+|——————Node:identifier Text: arg_end
+|——————Node:argument_list Text: (4)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 4
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: const esp_console_cmd_t cmd = {
+        .command = "canup",
+        .help = "Install can drivers and start can interface. Used right after board start or during runtime for changing CAN configuration. Supported speeds: 1mbits, 800kbits, 500kbits, 250kbits, 125kbits, 100kbits, 50kbits, 25kbits, 20kbits, 16kbits, 12.5kbits, 10kbits, 5kbits, 1kbits.",
+        .hint = NULL,
+        .func = &canup,
+        .argtable = &canup_args,
+    };
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:type_identifier Text: esp_console_cmd_t
+|————Node:init_declarator Text: cmd = {
+        .command = "canup",
+        .help = "Install can drivers and start can interface. Used right after board start or during runtime for changing CAN configuration. Supported speeds: 1mbits, 800kbits, 500kbits, 250kbits, 125kbits, 100kbits, 50kbits, 25kbits, 20kbits, 16kbits, 12.5kbits, 10kbits, 5kbits, 1kbits.",
+        .hint = NULL,
+        .func = &canup,
+        .argtable = &canup_args,
+    }
+|—————Node:identifier Text: cmd
+|—————Node:= Text: =
+|—————Node:initializer_list Text: {
+        .command = "canup",
+        .help = "Install can drivers and start can interface. Used right after board start or during runtime for changing CAN configuration. Supported speeds: 1mbits, 800kbits, 500kbits, 250kbits, 125kbits, 100kbits, 50kbits, 25kbits, 20kbits, 16kbits, 12.5kbits, 10kbits, 5kbits, 1kbits.",
+        .hint = NULL,
+        .func = &canup,
+        .argtable = &canup_args,
+    }
+|——————Node:{ Text: {
+|——————Node:initializer_pair Text: .command = "canup"
+|———————Node:field_designator Text: .command
+|————————Node:. Text: .
+|————————Node:field_identifier Text: command
+|———————Node:= Text: =
+|———————Node:string_literal Text: "canup"
+|————————Node:" Text: "
+|————————Node:string_content Text: canup
+|————————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .help = "Install can drivers and start can interface. Used right after board start or during runtime for changing CAN configuration. Supported speeds: 1mbits, 800kbits, 500kbits, 250kbits, 125kbits, 100kbits, 50kbits, 25kbits, 20kbits, 16kbits, 12.5kbits, 10kbits, 5kbits, 1kbits."
+|———————Node:field_designator Text: .help
+|————————Node:. Text: .
+|————————Node:field_identifier Text: help
+|———————Node:= Text: =
+|———————Node:string_literal Text: "Install can drivers and start can interface. Used right after board start or during runtime for changing CAN configuration. Supported speeds: 1mbits, 800kbits, 500kbits, 250kbits, 125kbits, 100kbits, 50kbits, 25kbits, 20kbits, 16kbits, 12.5kbits, 10kbits, 5kbits, 1kbits."
+|————————Node:" Text: "
+|————————Node:string_content Text: Install can drivers and start can interface. Used right after board start or during runtime for changing CAN configuration. Supported speeds: 1mbits, 800kbits, 500kbits, 250kbits, 125kbits, 100kbits, 50kbits, 25kbits, 20kbits, 16kbits, 12.5kbits, 10kbits, 5kbits, 1kbits.
+|————————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .hint = NULL
+|———————Node:field_designator Text: .hint
+|————————Node:. Text: .
+|————————Node:field_identifier Text: hint
+|———————Node:= Text: =
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .func = &canup
+|———————Node:field_designator Text: .func
+|————————Node:. Text: .
+|————————Node:field_identifier Text: func
+|———————Node:= Text: =
+|———————Node:pointer_expression Text: &canup
+|————————Node:& Text: &
+|————————Node:identifier Text: canup
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .argtable = &canup_args
+|———————Node:field_designator Text: .argtable
+|————————Node:. Text: .
+|————————Node:field_identifier Text: argtable
+|———————Node:= Text: =
+|———————Node:pointer_expression Text: &canup_args
+|————————Node:& Text: &
+|————————Node:identifier Text: canup_args
+|——————Node:, Text: ,
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:expression_statement Text: ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
+|————Node:call_expression Text: ESP_ERROR_CHECK(esp_console_cmd_register(&cmd))
+|—————Node:identifier Text: ESP_ERROR_CHECK
+|—————Node:argument_list Text: (esp_console_cmd_register(&cmd))
+|——————Node:( Text: (
+|——————Node:call_expression Text: esp_console_cmd_register(&cmd)
+|———————Node:identifier Text: esp_console_cmd_register
+|———————Node:argument_list Text: (&cmd)
+|————————Node:( Text: (
+|————————Node:pointer_expression Text: &cmd
+|—————————Node:& Text: &
+|—————————Node:identifier Text: cmd
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: static void register_candown(void) {
+    const esp_console_cmd_t cmd = {
+        .command = "candown",
+        .help = "Stop CAN interface and uninstall CAN driver, for example, to install and start with different parameters/filters.",
+        .hint = NULL,
+        .func = &candown,
+    };
+    ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: register_candown(void)
+|———Node:identifier Text: register_candown
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    const esp_console_cmd_t cmd = {
+        .command = "candown",
+        .help = "Stop CAN interface and uninstall CAN driver, for example, to install and start with different parameters/filters.",
+        .hint = NULL,
+        .func = &candown,
+    };
+    ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
+}
+|———Node:{ Text: {
+|———Node:declaration Text: const esp_console_cmd_t cmd = {
+        .command = "candown",
+        .help = "Stop CAN interface and uninstall CAN driver, for example, to install and start with different parameters/filters.",
+        .hint = NULL,
+        .func = &candown,
+    };
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:type_identifier Text: esp_console_cmd_t
+|————Node:init_declarator Text: cmd = {
+        .command = "candown",
+        .help = "Stop CAN interface and uninstall CAN driver, for example, to install and start with different parameters/filters.",
+        .hint = NULL,
+        .func = &candown,
+    }
+|—————Node:identifier Text: cmd
+|—————Node:= Text: =
+|—————Node:initializer_list Text: {
+        .command = "candown",
+        .help = "Stop CAN interface and uninstall CAN driver, for example, to install and start with different parameters/filters.",
+        .hint = NULL,
+        .func = &candown,
+    }
+|——————Node:{ Text: {
+|——————Node:initializer_pair Text: .command = "candown"
+|———————Node:field_designator Text: .command
+|————————Node:. Text: .
+|————————Node:field_identifier Text: command
+|———————Node:= Text: =
+|———————Node:string_literal Text: "candown"
+|————————Node:" Text: "
+|————————Node:string_content Text: candown
+|————————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .help = "Stop CAN interface and uninstall CAN driver, for example, to install and start with different parameters/filters."
+|———————Node:field_designator Text: .help
+|————————Node:. Text: .
+|————————Node:field_identifier Text: help
+|———————Node:= Text: =
+|———————Node:string_literal Text: "Stop CAN interface and uninstall CAN driver, for example, to install and start with different parameters/filters."
+|————————Node:" Text: "
+|————————Node:string_content Text: Stop CAN interface and uninstall CAN driver, for example, to install and start with different parameters/filters.
+|————————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .hint = NULL
+|———————Node:field_designator Text: .hint
+|————————Node:. Text: .
+|————————Node:field_identifier Text: hint
+|———————Node:= Text: =
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .func = &candown
+|———————Node:field_designator Text: .func
+|————————Node:. Text: .
+|————————Node:field_identifier Text: func
+|———————Node:= Text: =
+|———————Node:pointer_expression Text: &candown
+|————————Node:& Text: &
+|————————Node:identifier Text: candown
+|——————Node:, Text: ,
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:expression_statement Text: ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
+|————Node:call_expression Text: ESP_ERROR_CHECK(esp_console_cmd_register(&cmd))
+|—————Node:identifier Text: ESP_ERROR_CHECK
+|—————Node:argument_list Text: (esp_console_cmd_register(&cmd))
+|——————Node:( Text: (
+|——————Node:call_expression Text: esp_console_cmd_register(&cmd)
+|———————Node:identifier Text: esp_console_cmd_register
+|———————Node:argument_list Text: (&cmd)
+|————————Node:( Text: (
+|————————Node:pointer_expression Text: &cmd
+|—————————Node:& Text: &
+|—————————Node:identifier Text: cmd
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: static void register_canstats(void) {
+    const esp_console_cmd_t cmd = {
+        .command = "canstats",
+        .help = "Print CAN statistics.",
+        .hint = NULL,
+        .func = &canstats,
+    };
+    ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: register_canstats(void)
+|———Node:identifier Text: register_canstats
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    const esp_console_cmd_t cmd = {
+        .command = "canstats",
+        .help = "Print CAN statistics.",
+        .hint = NULL,
+        .func = &canstats,
+    };
+    ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
+}
+|———Node:{ Text: {
+|———Node:declaration Text: const esp_console_cmd_t cmd = {
+        .command = "canstats",
+        .help = "Print CAN statistics.",
+        .hint = NULL,
+        .func = &canstats,
+    };
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:type_identifier Text: esp_console_cmd_t
+|————Node:init_declarator Text: cmd = {
+        .command = "canstats",
+        .help = "Print CAN statistics.",
+        .hint = NULL,
+        .func = &canstats,
+    }
+|—————Node:identifier Text: cmd
+|—————Node:= Text: =
+|—————Node:initializer_list Text: {
+        .command = "canstats",
+        .help = "Print CAN statistics.",
+        .hint = NULL,
+        .func = &canstats,
+    }
+|——————Node:{ Text: {
+|——————Node:initializer_pair Text: .command = "canstats"
+|———————Node:field_designator Text: .command
+|————————Node:. Text: .
+|————————Node:field_identifier Text: command
+|———————Node:= Text: =
+|———————Node:string_literal Text: "canstats"
+|————————Node:" Text: "
+|————————Node:string_content Text: canstats
+|————————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .help = "Print CAN statistics."
+|———————Node:field_designator Text: .help
+|————————Node:. Text: .
+|————————Node:field_identifier Text: help
+|———————Node:= Text: =
+|———————Node:string_literal Text: "Print CAN statistics."
+|————————Node:" Text: "
+|————————Node:string_content Text: Print CAN statistics.
+|————————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .hint = NULL
+|———————Node:field_designator Text: .hint
+|————————Node:. Text: .
+|————————Node:field_identifier Text: hint
+|———————Node:= Text: =
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .func = &canstats
+|———————Node:field_designator Text: .func
+|————————Node:. Text: .
+|————————Node:field_identifier Text: func
+|———————Node:= Text: =
+|———————Node:pointer_expression Text: &canstats
+|————————Node:& Text: &
+|————————Node:identifier Text: canstats
+|——————Node:, Text: ,
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:expression_statement Text: ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
+|————Node:call_expression Text: ESP_ERROR_CHECK(esp_console_cmd_register(&cmd))
+|—————Node:identifier Text: ESP_ERROR_CHECK
+|—————Node:argument_list Text: (esp_console_cmd_register(&cmd))
+|——————Node:( Text: (
+|——————Node:call_expression Text: esp_console_cmd_register(&cmd)
+|———————Node:identifier Text: esp_console_cmd_register
+|———————Node:argument_list Text: (&cmd)
+|————————Node:( Text: (
+|————————Node:pointer_expression Text: &cmd
+|—————————Node:& Text: &
+|—————————Node:identifier Text: cmd
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: static void register_canstart(void) {
+    const esp_console_cmd_t cmd = {
+        .command = "canstart",
+        .help = "Start CAN interface, used after bus recovery, otherwise see canup command.",
+        .hint = NULL,
+        .func = &canstart,
+    };
+    ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: register_canstart(void)
+|———Node:identifier Text: register_canstart
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    const esp_console_cmd_t cmd = {
+        .command = "canstart",
+        .help = "Start CAN interface, used after bus recovery, otherwise see canup command.",
+        .hint = NULL,
+        .func = &canstart,
+    };
+    ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
+}
+|———Node:{ Text: {
+|———Node:declaration Text: const esp_console_cmd_t cmd = {
+        .command = "canstart",
+        .help = "Start CAN interface, used after bus recovery, otherwise see canup command.",
+        .hint = NULL,
+        .func = &canstart,
+    };
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:type_identifier Text: esp_console_cmd_t
+|————Node:init_declarator Text: cmd = {
+        .command = "canstart",
+        .help = "Start CAN interface, used after bus recovery, otherwise see canup command.",
+        .hint = NULL,
+        .func = &canstart,
+    }
+|—————Node:identifier Text: cmd
+|—————Node:= Text: =
+|—————Node:initializer_list Text: {
+        .command = "canstart",
+        .help = "Start CAN interface, used after bus recovery, otherwise see canup command.",
+        .hint = NULL,
+        .func = &canstart,
+    }
+|——————Node:{ Text: {
+|——————Node:initializer_pair Text: .command = "canstart"
+|———————Node:field_designator Text: .command
+|————————Node:. Text: .
+|————————Node:field_identifier Text: command
+|———————Node:= Text: =
+|———————Node:string_literal Text: "canstart"
+|————————Node:" Text: "
+|————————Node:string_content Text: canstart
+|————————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .help = "Start CAN interface, used after bus recovery, otherwise see canup command."
+|———————Node:field_designator Text: .help
+|————————Node:. Text: .
+|————————Node:field_identifier Text: help
+|———————Node:= Text: =
+|———————Node:string_literal Text: "Start CAN interface, used after bus recovery, otherwise see canup command."
+|————————Node:" Text: "
+|————————Node:string_content Text: Start CAN interface, used after bus recovery, otherwise see canup command.
+|————————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .hint = NULL
+|———————Node:field_designator Text: .hint
+|————————Node:. Text: .
+|————————Node:field_identifier Text: hint
+|———————Node:= Text: =
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .func = &canstart
+|———————Node:field_designator Text: .func
+|————————Node:. Text: .
+|————————Node:field_identifier Text: func
+|———————Node:= Text: =
+|———————Node:pointer_expression Text: &canstart
+|————————Node:& Text: &
+|————————Node:identifier Text: canstart
+|——————Node:, Text: ,
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:expression_statement Text: ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
+|————Node:call_expression Text: ESP_ERROR_CHECK(esp_console_cmd_register(&cmd))
+|—————Node:identifier Text: ESP_ERROR_CHECK
+|—————Node:argument_list Text: (esp_console_cmd_register(&cmd))
+|——————Node:( Text: (
+|——————Node:call_expression Text: esp_console_cmd_register(&cmd)
+|———————Node:identifier Text: esp_console_cmd_register
+|———————Node:argument_list Text: (&cmd)
+|————————Node:( Text: (
+|————————Node:pointer_expression Text: &cmd
+|—————————Node:& Text: &
+|—————————Node:identifier Text: cmd
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: static void register_canrecover(void) {
+    const esp_console_cmd_t cmd = {
+        .command = "canrecover",
+        .help = "Recover CAN after buf-off. Used when auto-recovery is turned off.",
+        .hint = NULL,
+        .func = &canrecover,
+    };
+    ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: register_canrecover(void)
+|———Node:identifier Text: register_canrecover
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    const esp_console_cmd_t cmd = {
+        .command = "canrecover",
+        .help = "Recover CAN after buf-off. Used when auto-recovery is turned off.",
+        .hint = NULL,
+        .func = &canrecover,
+    };
+    ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
+}
+|———Node:{ Text: {
+|———Node:declaration Text: const esp_console_cmd_t cmd = {
+        .command = "canrecover",
+        .help = "Recover CAN after buf-off. Used when auto-recovery is turned off.",
+        .hint = NULL,
+        .func = &canrecover,
+    };
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:type_identifier Text: esp_console_cmd_t
+|————Node:init_declarator Text: cmd = {
+        .command = "canrecover",
+        .help = "Recover CAN after buf-off. Used when auto-recovery is turned off.",
+        .hint = NULL,
+        .func = &canrecover,
+    }
+|—————Node:identifier Text: cmd
+|—————Node:= Text: =
+|—————Node:initializer_list Text: {
+        .command = "canrecover",
+        .help = "Recover CAN after buf-off. Used when auto-recovery is turned off.",
+        .hint = NULL,
+        .func = &canrecover,
+    }
+|——————Node:{ Text: {
+|——————Node:initializer_pair Text: .command = "canrecover"
+|———————Node:field_designator Text: .command
+|————————Node:. Text: .
+|————————Node:field_identifier Text: command
+|———————Node:= Text: =
+|———————Node:string_literal Text: "canrecover"
+|————————Node:" Text: "
+|————————Node:string_content Text: canrecover
+|————————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .help = "Recover CAN after buf-off. Used when auto-recovery is turned off."
+|———————Node:field_designator Text: .help
+|————————Node:. Text: .
+|————————Node:field_identifier Text: help
+|———————Node:= Text: =
+|———————Node:string_literal Text: "Recover CAN after buf-off. Used when auto-recovery is turned off."
+|————————Node:" Text: "
+|————————Node:string_content Text: Recover CAN after buf-off. Used when auto-recovery is turned off.
+|————————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .hint = NULL
+|———————Node:field_designator Text: .hint
+|————————Node:. Text: .
+|————————Node:field_identifier Text: hint
+|———————Node:= Text: =
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .func = &canrecover
+|———————Node:field_designator Text: .func
+|————————Node:. Text: .
+|————————Node:field_identifier Text: func
+|———————Node:= Text: =
+|———————Node:pointer_expression Text: &canrecover
+|————————Node:& Text: &
+|————————Node:identifier Text: canrecover
+|——————Node:, Text: ,
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:expression_statement Text: ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
+|————Node:call_expression Text: ESP_ERROR_CHECK(esp_console_cmd_register(&cmd))
+|—————Node:identifier Text: ESP_ERROR_CHECK
+|—————Node:argument_list Text: (esp_console_cmd_register(&cmd))
+|——————Node:( Text: (
+|——————Node:call_expression Text: esp_console_cmd_register(&cmd)
+|———————Node:identifier Text: esp_console_cmd_register
+|———————Node:argument_list Text: (&cmd)
+|————————Node:( Text: (
+|————————Node:pointer_expression Text: &cmd
+|—————————Node:& Text: &
+|—————————Node:identifier Text: cmd
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }

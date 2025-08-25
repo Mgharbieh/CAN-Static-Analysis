@@ -1,0 +1,2055 @@
+cansee-src\wifihandler.cpp
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include "wifihandler.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "wifihandler.h"
+|———Node:" Text: "
+|———Node:string_content Text: wifihandler.h
+|———Node:" Text: "
+|—Node:declaration Text: static CS_CONFIG_t *wifi_config;
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:type_identifier Text: CS_CONFIG_t
+|——Node:pointer_declarator Text: *wifi_config
+|———Node:* Text: *
+|———Node:identifier Text: wifi_config
+|——Node:; Text: ;
+|—Node:declaration Text: static void (*wifi_process)();
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: (*wifi_process)()
+|———Node:parenthesized_declarator Text: (*wifi_process)
+|————Node:( Text: (
+|————Node:pointer_declarator Text: *wifi_process
+|—————Node:* Text: *
+|—————Node:identifier Text: wifi_process
+|————Node:) Text: )
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:declaration Text: static boolean wiFiIsActive = false;
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:type_identifier Text: boolean
+|——Node:init_declarator Text: wiFiIsActive = false
+|———Node:identifier Text: wiFiIsActive
+|———Node:= Text: =
+|———Node:false Text: false
+|——Node:; Text: ;
+|—Node:declaration Text: WiFiServer server(35000);
+|——Node:type_identifier Text: WiFiServer
+|——Node:init_declarator Text: server(35000)
+|———Node:identifier Text: server
+|———Node:argument_list Text: (35000)
+|————Node:( Text: (
+|————Node:number_literal Text: 35000
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:declaration Text: WiFiClient serverClients[MAX_SRV_CLIENTS];
+|——Node:type_identifier Text: WiFiClient
+|——Node:array_declarator Text: serverClients[MAX_SRV_CLIENTS]
+|———Node:identifier Text: serverClients
+|———Node:[ Text: [
+|———Node:identifier Text: MAX_SRV_CLIENTS
+|———Node:] Text: ]
+|——Node:; Text: ;
+|—Node:function_definition Text: void wifi_init (CS_CONFIG_t *config, void (*p)()) {
+  wifi_config = config;
+  wifi_process = p;
+  if (!wifi_config->mode_wifi) return;
+  if (wifi_config->mode_bluetooth) {
+    wifi_config->mode_wifi = 0;
+    if (wifi_config->mode_debug) Serial.println ("Wifi can not coexist with Bluetooth and is disabled.");
+  }
+
+  if (wifi_config->mode_wifi == WIFI_SOFTAP) {
+    if (wifi_config->mode_debug) Serial.println("Wifi AP '" + String (wifi_config->ssid_ap) + "' started.");
+    WiFi.softAP (wifi_config->ssid_ap, wifi_config->password_ap);                    // init WiFi access point
+    wiFiIsActive = true;                             // no need to check for active network
+    if (wifi_config->mode_debug) {
+      IPAddress IP = WiFi.softAPIP ();
+      Serial.print ("AP IP address: ");
+      Serial.println (IP);
+    }
+    server.begin ();                                 // start the server
+  } else if (wifi_config->mode_wifi == WIFI_STATION) {
+    if (wifi_config->mode_debug) Serial.println("Wifi ST " + String (wifi_config->ssid_station) + " starting ...");
+    WiFi.begin(wifi_config->ssid_station, wifi_config->password_station);                      // init WiFi station. Cheking is done in main loop
+    server.begin ();                                 // start the server
+  }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: wifi_init (CS_CONFIG_t *config, void (*p)())
+|———Node:identifier Text: wifi_init
+|———Node:parameter_list Text: (CS_CONFIG_t *config, void (*p)())
+|————Node:( Text: (
+|————Node:parameter_declaration Text: CS_CONFIG_t *config
+|—————Node:type_identifier Text: CS_CONFIG_t
+|—————Node:pointer_declarator Text: *config
+|——————Node:* Text: *
+|——————Node:identifier Text: config
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: void (*p)()
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: (*p)()
+|——————Node:parenthesized_declarator Text: (*p)
+|———————Node:( Text: (
+|———————Node:pointer_declarator Text: *p
+|————————Node:* Text: *
+|————————Node:identifier Text: p
+|———————Node:) Text: )
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  wifi_config = config;
+  wifi_process = p;
+  if (!wifi_config->mode_wifi) return;
+  if (wifi_config->mode_bluetooth) {
+    wifi_config->mode_wifi = 0;
+    if (wifi_config->mode_debug) Serial.println ("Wifi can not coexist with Bluetooth and is disabled.");
+  }
+
+  if (wifi_config->mode_wifi == WIFI_SOFTAP) {
+    if (wifi_config->mode_debug) Serial.println("Wifi AP '" + String (wifi_config->ssid_ap) + "' started.");
+    WiFi.softAP (wifi_config->ssid_ap, wifi_config->password_ap);                    // init WiFi access point
+    wiFiIsActive = true;                             // no need to check for active network
+    if (wifi_config->mode_debug) {
+      IPAddress IP = WiFi.softAPIP ();
+      Serial.print ("AP IP address: ");
+      Serial.println (IP);
+    }
+    server.begin ();                                 // start the server
+  } else if (wifi_config->mode_wifi == WIFI_STATION) {
+    if (wifi_config->mode_debug) Serial.println("Wifi ST " + String (wifi_config->ssid_station) + " starting ...");
+    WiFi.begin(wifi_config->ssid_station, wifi_config->password_station);                      // init WiFi station. Cheking is done in main loop
+    server.begin ();                                 // start the server
+  }
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: wifi_config = config;
+|————Node:assignment_expression Text: wifi_config = config
+|—————Node:identifier Text: wifi_config
+|—————Node:= Text: =
+|—————Node:identifier Text: config
+|————Node:; Text: ;
+|———Node:expression_statement Text: wifi_process = p;
+|————Node:assignment_expression Text: wifi_process = p
+|—————Node:identifier Text: wifi_process
+|—————Node:= Text: =
+|—————Node:identifier Text: p
+|————Node:; Text: ;
+|———Node:if_statement Text: if (!wifi_config->mode_wifi) return;
+|————Node:if Text: if
+|————Node:condition_clause Text: (!wifi_config->mode_wifi)
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !wifi_config->mode_wifi
+|——————Node:! Text: !
+|——————Node:field_expression Text: wifi_config->mode_wifi
+|———————Node:identifier Text: wifi_config
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: mode_wifi
+|—————Node:) Text: )
+|————Node:return_statement Text: return;
+|—————Node:return Text: return
+|—————Node:; Text: ;
+|———Node:if_statement Text: if (wifi_config->mode_bluetooth) {
+    wifi_config->mode_wifi = 0;
+    if (wifi_config->mode_debug) Serial.println ("Wifi can not coexist with Bluetooth and is disabled.");
+  }
+|————Node:if Text: if
+|————Node:condition_clause Text: (wifi_config->mode_bluetooth)
+|—————Node:( Text: (
+|—————Node:field_expression Text: wifi_config->mode_bluetooth
+|——————Node:identifier Text: wifi_config
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: mode_bluetooth
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    wifi_config->mode_wifi = 0;
+    if (wifi_config->mode_debug) Serial.println ("Wifi can not coexist with Bluetooth and is disabled.");
+  }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: wifi_config->mode_wifi = 0;
+|——————Node:assignment_expression Text: wifi_config->mode_wifi = 0
+|———————Node:field_expression Text: wifi_config->mode_wifi
+|————————Node:identifier Text: wifi_config
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: mode_wifi
+|———————Node:= Text: =
+|———————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if (wifi_config->mode_debug) Serial.println ("Wifi can not coexist with Bluetooth and is disabled.");
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (wifi_config->mode_debug)
+|———————Node:( Text: (
+|———————Node:field_expression Text: wifi_config->mode_debug
+|————————Node:identifier Text: wifi_config
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: mode_debug
+|———————Node:) Text: )
+|——————Node:expression_statement Text: Serial.println ("Wifi can not coexist with Bluetooth and is disabled.");
+|———————Node:call_expression Text: Serial.println ("Wifi can not coexist with Bluetooth and is disabled.")
+|————————Node:field_expression Text: Serial.println
+|—————————Node:identifier Text: Serial
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: println
+|————————Node:argument_list Text: ("Wifi can not coexist with Bluetooth and is disabled.")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Wifi can not coexist with Bluetooth and is disabled."
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Wifi can not coexist with Bluetooth and is disabled.
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if (wifi_config->mode_wifi == WIFI_SOFTAP) {
+    if (wifi_config->mode_debug) Serial.println("Wifi AP '" + String (wifi_config->ssid_ap) + "' started.");
+    WiFi.softAP (wifi_config->ssid_ap, wifi_config->password_ap);                    // init WiFi access point
+    wiFiIsActive = true;                             // no need to check for active network
+    if (wifi_config->mode_debug) {
+      IPAddress IP = WiFi.softAPIP ();
+      Serial.print ("AP IP address: ");
+      Serial.println (IP);
+    }
+    server.begin ();                                 // start the server
+  } else if (wifi_config->mode_wifi == WIFI_STATION) {
+    if (wifi_config->mode_debug) Serial.println("Wifi ST " + String (wifi_config->ssid_station) + " starting ...");
+    WiFi.begin(wifi_config->ssid_station, wifi_config->password_station);                      // init WiFi station. Cheking is done in main loop
+    server.begin ();                                 // start the server
+  }
+|————Node:if Text: if
+|————Node:condition_clause Text: (wifi_config->mode_wifi == WIFI_SOFTAP)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: wifi_config->mode_wifi == WIFI_SOFTAP
+|——————Node:field_expression Text: wifi_config->mode_wifi
+|———————Node:identifier Text: wifi_config
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: mode_wifi
+|——————Node:== Text: ==
+|——————Node:identifier Text: WIFI_SOFTAP
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    if (wifi_config->mode_debug) Serial.println("Wifi AP '" + String (wifi_config->ssid_ap) + "' started.");
+    WiFi.softAP (wifi_config->ssid_ap, wifi_config->password_ap);                    // init WiFi access point
+    wiFiIsActive = true;                             // no need to check for active network
+    if (wifi_config->mode_debug) {
+      IPAddress IP = WiFi.softAPIP ();
+      Serial.print ("AP IP address: ");
+      Serial.println (IP);
+    }
+    server.begin ();                                 // start the server
+  }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if (wifi_config->mode_debug) Serial.println("Wifi AP '" + String (wifi_config->ssid_ap) + "' started.");
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (wifi_config->mode_debug)
+|———————Node:( Text: (
+|———————Node:field_expression Text: wifi_config->mode_debug
+|————————Node:identifier Text: wifi_config
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: mode_debug
+|———————Node:) Text: )
+|——————Node:expression_statement Text: Serial.println("Wifi AP '" + String (wifi_config->ssid_ap) + "' started.");
+|———————Node:call_expression Text: Serial.println("Wifi AP '" + String (wifi_config->ssid_ap) + "' started.")
+|————————Node:field_expression Text: Serial.println
+|—————————Node:identifier Text: Serial
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: println
+|————————Node:argument_list Text: ("Wifi AP '" + String (wifi_config->ssid_ap) + "' started.")
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: "Wifi AP '" + String (wifi_config->ssid_ap) + "' started."
+|——————————Node:binary_expression Text: "Wifi AP '" + String (wifi_config->ssid_ap)
+|———————————Node:string_literal Text: "Wifi AP '"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: Wifi AP '
+|————————————Node:" Text: "
+|———————————Node:+ Text: +
+|———————————Node:call_expression Text: String (wifi_config->ssid_ap)
+|————————————Node:identifier Text: String
+|————————————Node:argument_list Text: (wifi_config->ssid_ap)
+|—————————————Node:( Text: (
+|—————————————Node:field_expression Text: wifi_config->ssid_ap
+|——————————————Node:identifier Text: wifi_config
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: ssid_ap
+|—————————————Node:) Text: )
+|——————————Node:+ Text: +
+|——————————Node:string_literal Text: "' started."
+|———————————Node:" Text: "
+|———————————Node:string_content Text: ' started.
+|———————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|—————Node:expression_statement Text: WiFi.softAP (wifi_config->ssid_ap, wifi_config->password_ap);
+|——————Node:call_expression Text: WiFi.softAP (wifi_config->ssid_ap, wifi_config->password_ap)
+|———————Node:field_expression Text: WiFi.softAP
+|————————Node:identifier Text: WiFi
+|————————Node:. Text: .
+|————————Node:field_identifier Text: softAP
+|———————Node:argument_list Text: (wifi_config->ssid_ap, wifi_config->password_ap)
+|————————Node:( Text: (
+|————————Node:field_expression Text: wifi_config->ssid_ap
+|—————————Node:identifier Text: wifi_config
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: ssid_ap
+|————————Node:, Text: ,
+|————————Node:field_expression Text: wifi_config->password_ap
+|—————————Node:identifier Text: wifi_config
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: password_ap
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:expression_statement Text: wiFiIsActive = true;
+|——————Node:assignment_expression Text: wiFiIsActive = true
+|———————Node:identifier Text: wiFiIsActive
+|———————Node:= Text: =
+|———————Node:true Text: true
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:if_statement Text: if (wifi_config->mode_debug) {
+      IPAddress IP = WiFi.softAPIP ();
+      Serial.print ("AP IP address: ");
+      Serial.println (IP);
+    }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (wifi_config->mode_debug)
+|———————Node:( Text: (
+|———————Node:field_expression Text: wifi_config->mode_debug
+|————————Node:identifier Text: wifi_config
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: mode_debug
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+      IPAddress IP = WiFi.softAPIP ();
+      Serial.print ("AP IP address: ");
+      Serial.println (IP);
+    }
+|———————Node:{ Text: {
+|———————Node:declaration Text: IPAddress IP = WiFi.softAPIP ();
+|————————Node:type_identifier Text: IPAddress
+|————————Node:init_declarator Text: IP = WiFi.softAPIP ()
+|—————————Node:identifier Text: IP
+|—————————Node:= Text: =
+|—————————Node:call_expression Text: WiFi.softAPIP ()
+|——————————Node:field_expression Text: WiFi.softAPIP
+|———————————Node:identifier Text: WiFi
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: softAPIP
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: Serial.print ("AP IP address: ");
+|————————Node:call_expression Text: Serial.print ("AP IP address: ")
+|—————————Node:field_expression Text: Serial.print
+|——————————Node:identifier Text: Serial
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: print
+|—————————Node:argument_list Text: ("AP IP address: ")
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "AP IP address: "
+|———————————Node:" Text: "
+|———————————Node:string_content Text: AP IP address: 
+|———————————Node:" Text: "
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: Serial.println (IP);
+|————————Node:call_expression Text: Serial.println (IP)
+|—————————Node:field_expression Text: Serial.println
+|——————————Node:identifier Text: Serial
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: println
+|—————————Node:argument_list Text: (IP)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: IP
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:expression_statement Text: server.begin ();
+|——————Node:call_expression Text: server.begin ()
+|———————Node:field_expression Text: server.begin
+|————————Node:identifier Text: server
+|————————Node:. Text: .
+|————————Node:field_identifier Text: begin
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:} Text: }
+|————Node:else_clause Text: else if (wifi_config->mode_wifi == WIFI_STATION) {
+    if (wifi_config->mode_debug) Serial.println("Wifi ST " + String (wifi_config->ssid_station) + " starting ...");
+    WiFi.begin(wifi_config->ssid_station, wifi_config->password_station);                      // init WiFi station. Cheking is done in main loop
+    server.begin ();                                 // start the server
+  }
+|—————Node:else Text: else
+|—————Node:if_statement Text: if (wifi_config->mode_wifi == WIFI_STATION) {
+    if (wifi_config->mode_debug) Serial.println("Wifi ST " + String (wifi_config->ssid_station) + " starting ...");
+    WiFi.begin(wifi_config->ssid_station, wifi_config->password_station);                      // init WiFi station. Cheking is done in main loop
+    server.begin ();                                 // start the server
+  }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (wifi_config->mode_wifi == WIFI_STATION)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: wifi_config->mode_wifi == WIFI_STATION
+|————————Node:field_expression Text: wifi_config->mode_wifi
+|—————————Node:identifier Text: wifi_config
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: mode_wifi
+|————————Node:== Text: ==
+|————————Node:identifier Text: WIFI_STATION
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+    if (wifi_config->mode_debug) Serial.println("Wifi ST " + String (wifi_config->ssid_station) + " starting ...");
+    WiFi.begin(wifi_config->ssid_station, wifi_config->password_station);                      // init WiFi station. Cheking is done in main loop
+    server.begin ();                                 // start the server
+  }
+|———————Node:{ Text: {
+|———————Node:if_statement Text: if (wifi_config->mode_debug) Serial.println("Wifi ST " + String (wifi_config->ssid_station) + " starting ...");
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (wifi_config->mode_debug)
+|—————————Node:( Text: (
+|—————————Node:field_expression Text: wifi_config->mode_debug
+|——————————Node:identifier Text: wifi_config
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: mode_debug
+|—————————Node:) Text: )
+|————————Node:expression_statement Text: Serial.println("Wifi ST " + String (wifi_config->ssid_station) + " starting ...");
+|—————————Node:call_expression Text: Serial.println("Wifi ST " + String (wifi_config->ssid_station) + " starting ...")
+|——————————Node:field_expression Text: Serial.println
+|———————————Node:identifier Text: Serial
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: println
+|——————————Node:argument_list Text: ("Wifi ST " + String (wifi_config->ssid_station) + " starting ...")
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: "Wifi ST " + String (wifi_config->ssid_station) + " starting ..."
+|————————————Node:binary_expression Text: "Wifi ST " + String (wifi_config->ssid_station)
+|—————————————Node:string_literal Text: "Wifi ST "
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: Wifi ST 
+|——————————————Node:" Text: "
+|—————————————Node:+ Text: +
+|—————————————Node:call_expression Text: String (wifi_config->ssid_station)
+|——————————————Node:identifier Text: String
+|——————————————Node:argument_list Text: (wifi_config->ssid_station)
+|———————————————Node:( Text: (
+|———————————————Node:field_expression Text: wifi_config->ssid_station
+|————————————————Node:identifier Text: wifi_config
+|————————————————Node:-> Text: ->
+|————————————————Node:field_identifier Text: ssid_station
+|———————————————Node:) Text: )
+|————————————Node:+ Text: +
+|————————————Node:string_literal Text: " starting ..."
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text:  starting ...
+|—————————————Node:" Text: "
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|———————Node:expression_statement Text: WiFi.begin(wifi_config->ssid_station, wifi_config->password_station);
+|————————Node:call_expression Text: WiFi.begin(wifi_config->ssid_station, wifi_config->password_station)
+|—————————Node:field_expression Text: WiFi.begin
+|——————————Node:identifier Text: WiFi
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: begin
+|—————————Node:argument_list Text: (wifi_config->ssid_station, wifi_config->password_station)
+|——————————Node:( Text: (
+|——————————Node:field_expression Text: wifi_config->ssid_station
+|———————————Node:identifier Text: wifi_config
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: ssid_station
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: wifi_config->password_station
+|———————————Node:identifier Text: wifi_config
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: password_station
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:comment
+|———————Node:expression_statement Text: server.begin ();
+|————————Node:call_expression Text: server.begin ()
+|—————————Node:field_expression Text: server.begin
+|——————————Node:identifier Text: server
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: begin
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:comment
+|———————Node:} Text: }
+|———Node:} Text: }
+|—Node:function_definition Text: void writeOutgoingWiFi (String o) {
+  if (!wifi_config->mode_wifi) return;
+  if (!wiFiIsActive) return;
+  char buf[1024];
+  unsigned int len;
+  // o.replace ("\n", "\n\r");
+  if ((len = o.length()) > 1024) len = 1024;
+  o.toCharArray(buf, len);
+  for (int i = 0; i < MAX_SRV_CLIENTS; i++) {
+    if (serverClients[i] && serverClients[i].connected()) {
+      //serverClients[i].write(o);
+      serverClients[i].write(buf, len);
+      //delay(1);
+    }
+  }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: writeOutgoingWiFi (String o)
+|———Node:identifier Text: writeOutgoingWiFi
+|———Node:parameter_list Text: (String o)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: String o
+|—————Node:type_identifier Text: String
+|—————Node:identifier Text: o
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  if (!wifi_config->mode_wifi) return;
+  if (!wiFiIsActive) return;
+  char buf[1024];
+  unsigned int len;
+  // o.replace ("\n", "\n\r");
+  if ((len = o.length()) > 1024) len = 1024;
+  o.toCharArray(buf, len);
+  for (int i = 0; i < MAX_SRV_CLIENTS; i++) {
+    if (serverClients[i] && serverClients[i].connected()) {
+      //serverClients[i].write(o);
+      serverClients[i].write(buf, len);
+      //delay(1);
+    }
+  }
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (!wifi_config->mode_wifi) return;
+|————Node:if Text: if
+|————Node:condition_clause Text: (!wifi_config->mode_wifi)
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !wifi_config->mode_wifi
+|——————Node:! Text: !
+|——————Node:field_expression Text: wifi_config->mode_wifi
+|———————Node:identifier Text: wifi_config
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: mode_wifi
+|—————Node:) Text: )
+|————Node:return_statement Text: return;
+|—————Node:return Text: return
+|—————Node:; Text: ;
+|———Node:if_statement Text: if (!wiFiIsActive) return;
+|————Node:if Text: if
+|————Node:condition_clause Text: (!wiFiIsActive)
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !wiFiIsActive
+|——————Node:! Text: !
+|——————Node:identifier Text: wiFiIsActive
+|—————Node:) Text: )
+|————Node:return_statement Text: return;
+|—————Node:return Text: return
+|—————Node:; Text: ;
+|———Node:declaration Text: char buf[1024];
+|————Node:primitive_type Text: char
+|————Node:array_declarator Text: buf[1024]
+|—————Node:identifier Text: buf
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 1024
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:declaration Text: unsigned int len;
+|————Node:sized_type_specifier Text: unsigned int
+|—————Node:unsigned Text: unsigned
+|—————Node:primitive_type Text: int
+|————Node:identifier Text: len
+|————Node:; Text: ;
+|———Node:comment
+|———Node:if_statement Text: if ((len = o.length()) > 1024) len = 1024;
+|————Node:if Text: if
+|————Node:condition_clause Text: ((len = o.length()) > 1024)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: (len = o.length()) > 1024
+|——————Node:parenthesized_expression Text: (len = o.length())
+|———————Node:( Text: (
+|———————Node:assignment_expression Text: len = o.length()
+|————————Node:identifier Text: len
+|————————Node:= Text: =
+|————————Node:call_expression Text: o.length()
+|—————————Node:field_expression Text: o.length
+|——————————Node:identifier Text: o
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: length
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:> Text: >
+|——————Node:number_literal Text: 1024
+|—————Node:) Text: )
+|————Node:expression_statement Text: len = 1024;
+|—————Node:assignment_expression Text: len = 1024
+|——————Node:identifier Text: len
+|——————Node:= Text: =
+|——————Node:number_literal Text: 1024
+|—————Node:; Text: ;
+|———Node:expression_statement Text: o.toCharArray(buf, len);
+|————Node:call_expression Text: o.toCharArray(buf, len)
+|—————Node:field_expression Text: o.toCharArray
+|——————Node:identifier Text: o
+|——————Node:. Text: .
+|——————Node:field_identifier Text: toCharArray
+|—————Node:argument_list Text: (buf, len)
+|——————Node:( Text: (
+|——————Node:identifier Text: buf
+|——————Node:, Text: ,
+|——————Node:identifier Text: len
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:for_statement Text: for (int i = 0; i < MAX_SRV_CLIENTS; i++) {
+    if (serverClients[i] && serverClients[i].connected()) {
+      //serverClients[i].write(o);
+      serverClients[i].write(buf, len);
+      //delay(1);
+    }
+  }
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:declaration Text: int i = 0;
+|—————Node:primitive_type Text: int
+|—————Node:init_declarator Text: i = 0
+|——————Node:identifier Text: i
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:binary_expression Text: i < MAX_SRV_CLIENTS
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:identifier Text: MAX_SRV_CLIENTS
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+    if (serverClients[i] && serverClients[i].connected()) {
+      //serverClients[i].write(o);
+      serverClients[i].write(buf, len);
+      //delay(1);
+    }
+  }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if (serverClients[i] && serverClients[i].connected()) {
+      //serverClients[i].write(o);
+      serverClients[i].write(buf, len);
+      //delay(1);
+    }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (serverClients[i] && serverClients[i].connected())
+|———————Node:( Text: (
+|———————Node:binary_expression Text: serverClients[i] && serverClients[i].connected()
+|————————Node:subscript_expression Text: serverClients[i]
+|—————————Node:identifier Text: serverClients
+|—————————Node:subscript_argument_list Text: [i]
+|——————————Node:[ Text: [
+|——————————Node:identifier Text: i
+|——————————Node:] Text: ]
+|————————Node:&& Text: &&
+|————————Node:call_expression Text: serverClients[i].connected()
+|—————————Node:field_expression Text: serverClients[i].connected
+|——————————Node:subscript_expression Text: serverClients[i]
+|———————————Node:identifier Text: serverClients
+|———————————Node:subscript_argument_list Text: [i]
+|————————————Node:[ Text: [
+|————————————Node:identifier Text: i
+|————————————Node:] Text: ]
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: connected
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+      //serverClients[i].write(o);
+      serverClients[i].write(buf, len);
+      //delay(1);
+    }
+|———————Node:{ Text: {
+|———————Node:comment
+|———————Node:expression_statement Text: serverClients[i].write(buf, len);
+|————————Node:call_expression Text: serverClients[i].write(buf, len)
+|—————————Node:field_expression Text: serverClients[i].write
+|——————————Node:subscript_expression Text: serverClients[i]
+|———————————Node:identifier Text: serverClients
+|———————————Node:subscript_argument_list Text: [i]
+|————————————Node:[ Text: [
+|————————————Node:identifier Text: i
+|————————————Node:] Text: ]
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: write
+|—————————Node:argument_list Text: (buf, len)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: buf
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: len
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:comment
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:function_definition Text: void readIncomingWiFi (String &readBuffer) {
+  if (!wifi_config->mode_wifi) return;
+
+  // if in station mode, check if connected and set wiFiActive
+  // if in softap modem wifi is always active
+  if (wifi_config->mode_wifi == WIFI_STATION) {
+    if (WiFi.status() == WL_CONNECTED) {            // check if connected
+      if (!wiFiIsActive) {
+        if (wifi_config->mode_debug) {
+          IPAddress IP = WiFi.localIP ();
+          Serial.print ("IP ST address: ");
+          Serial.println (IP);
+        }
+        wiFiIsActive = true;
+      }
+    } else {
+      if (wiFiIsActive) {
+        wiFiIsActive = false;
+      }
+    }
+  } else if (wifi_config->mode_wifi == WIFI_SOFTAP) {
+    wiFiIsActive = true;
+  }
+  if (!wiFiIsActive) return;
+
+  // at this point in time we can be sure there is operational WiFi
+  uint8_t i;
+  if (server.hasClient()) {                        // check if there are any *NEW* clients
+    for (i = 0; i < MAX_SRV_CLIENTS; i++) {        //if so, find free or disconnected spot
+      if (!serverClients[i] || !serverClients[i].connected()) {
+        if (serverClients[i]) {                    // if not free (so disconnected)
+          serverClients[i].stop();                 // stop the client
+          if (wifi_config->mode_debug) {
+            Serial.print("Disconnected: ");
+            Serial.println(i);
+          }
+        }
+        serverClients[i] = server.available();     // fetch the client
+        if (serverClients[i]) {                    // it should be here
+          if (wifi_config->mode_debug) {
+            Serial.print("New client: ");
+            Serial.print(i); Serial.print(' ');
+            Serial.println(serverClients[i].remoteIP());
+          }
+        } else {                                   // if gone, oh well
+          if (wifi_config->mode_debug) Serial.println("available broken");
+        }
+        break;
+      }
+    }
+    if (i >= MAX_SRV_CLIENTS) {                    //no free/disconnected spot so reject
+      server.available().stop();
+      if (wifi_config->mode_debug) Serial.println("Refused");
+    }
+  }
+
+  // at this point actual connections (new and lost ones) are handled
+  for (i = 0; i < MAX_SRV_CLIENTS; i++) {          // check clients for data
+    if (serverClients[i] && serverClients[i].connected()) {
+      while (serverClients[i].available()) {       // if there is data
+        char ch = serverClients[i].read();         // get it
+        if (ch == '\n' || ch == '\r') {            // buffer / process it
+          if (readBuffer != "") {
+            if (wifi_process) wifi_process();
+            readBuffer = "";
+          }
+        } else {
+          readBuffer += ch;
+        }
+      }
+    } else {                                       // no client, or unconnected
+      if (serverClients[i]) {                      // if there is a client (so unconnected)
+        serverClients[i].stop();                   // stop the client
+        if (wifi_config->mode_debug) {
+          Serial.print("Disconnected: ");
+          Serial.println(i);
+        }
+      }
+    }
+  }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: readIncomingWiFi (String &readBuffer)
+|———Node:identifier Text: readIncomingWiFi
+|———Node:parameter_list Text: (String &readBuffer)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: String &readBuffer
+|—————Node:type_identifier Text: String
+|—————Node:reference_declarator Text: &readBuffer
+|——————Node:& Text: &
+|——————Node:identifier Text: readBuffer
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  if (!wifi_config->mode_wifi) return;
+
+  // if in station mode, check if connected and set wiFiActive
+  // if in softap modem wifi is always active
+  if (wifi_config->mode_wifi == WIFI_STATION) {
+    if (WiFi.status() == WL_CONNECTED) {            // check if connected
+      if (!wiFiIsActive) {
+        if (wifi_config->mode_debug) {
+          IPAddress IP = WiFi.localIP ();
+          Serial.print ("IP ST address: ");
+          Serial.println (IP);
+        }
+        wiFiIsActive = true;
+      }
+    } else {
+      if (wiFiIsActive) {
+        wiFiIsActive = false;
+      }
+    }
+  } else if (wifi_config->mode_wifi == WIFI_SOFTAP) {
+    wiFiIsActive = true;
+  }
+  if (!wiFiIsActive) return;
+
+  // at this point in time we can be sure there is operational WiFi
+  uint8_t i;
+  if (server.hasClient()) {                        // check if there are any *NEW* clients
+    for (i = 0; i < MAX_SRV_CLIENTS; i++) {        //if so, find free or disconnected spot
+      if (!serverClients[i] || !serverClients[i].connected()) {
+        if (serverClients[i]) {                    // if not free (so disconnected)
+          serverClients[i].stop();                 // stop the client
+          if (wifi_config->mode_debug) {
+            Serial.print("Disconnected: ");
+            Serial.println(i);
+          }
+        }
+        serverClients[i] = server.available();     // fetch the client
+        if (serverClients[i]) {                    // it should be here
+          if (wifi_config->mode_debug) {
+            Serial.print("New client: ");
+            Serial.print(i); Serial.print(' ');
+            Serial.println(serverClients[i].remoteIP());
+          }
+        } else {                                   // if gone, oh well
+          if (wifi_config->mode_debug) Serial.println("available broken");
+        }
+        break;
+      }
+    }
+    if (i >= MAX_SRV_CLIENTS) {                    //no free/disconnected spot so reject
+      server.available().stop();
+      if (wifi_config->mode_debug) Serial.println("Refused");
+    }
+  }
+
+  // at this point actual connections (new and lost ones) are handled
+  for (i = 0; i < MAX_SRV_CLIENTS; i++) {          // check clients for data
+    if (serverClients[i] && serverClients[i].connected()) {
+      while (serverClients[i].available()) {       // if there is data
+        char ch = serverClients[i].read();         // get it
+        if (ch == '\n' || ch == '\r') {            // buffer / process it
+          if (readBuffer != "") {
+            if (wifi_process) wifi_process();
+            readBuffer = "";
+          }
+        } else {
+          readBuffer += ch;
+        }
+      }
+    } else {                                       // no client, or unconnected
+      if (serverClients[i]) {                      // if there is a client (so unconnected)
+        serverClients[i].stop();                   // stop the client
+        if (wifi_config->mode_debug) {
+          Serial.print("Disconnected: ");
+          Serial.println(i);
+        }
+      }
+    }
+  }
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (!wifi_config->mode_wifi) return;
+|————Node:if Text: if
+|————Node:condition_clause Text: (!wifi_config->mode_wifi)
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !wifi_config->mode_wifi
+|——————Node:! Text: !
+|——————Node:field_expression Text: wifi_config->mode_wifi
+|———————Node:identifier Text: wifi_config
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: mode_wifi
+|—————Node:) Text: )
+|————Node:return_statement Text: return;
+|—————Node:return Text: return
+|—————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:if_statement Text: if (wifi_config->mode_wifi == WIFI_STATION) {
+    if (WiFi.status() == WL_CONNECTED) {            // check if connected
+      if (!wiFiIsActive) {
+        if (wifi_config->mode_debug) {
+          IPAddress IP = WiFi.localIP ();
+          Serial.print ("IP ST address: ");
+          Serial.println (IP);
+        }
+        wiFiIsActive = true;
+      }
+    } else {
+      if (wiFiIsActive) {
+        wiFiIsActive = false;
+      }
+    }
+  } else if (wifi_config->mode_wifi == WIFI_SOFTAP) {
+    wiFiIsActive = true;
+  }
+|————Node:if Text: if
+|————Node:condition_clause Text: (wifi_config->mode_wifi == WIFI_STATION)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: wifi_config->mode_wifi == WIFI_STATION
+|——————Node:field_expression Text: wifi_config->mode_wifi
+|———————Node:identifier Text: wifi_config
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: mode_wifi
+|——————Node:== Text: ==
+|——————Node:identifier Text: WIFI_STATION
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    if (WiFi.status() == WL_CONNECTED) {            // check if connected
+      if (!wiFiIsActive) {
+        if (wifi_config->mode_debug) {
+          IPAddress IP = WiFi.localIP ();
+          Serial.print ("IP ST address: ");
+          Serial.println (IP);
+        }
+        wiFiIsActive = true;
+      }
+    } else {
+      if (wiFiIsActive) {
+        wiFiIsActive = false;
+      }
+    }
+  }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if (WiFi.status() == WL_CONNECTED) {            // check if connected
+      if (!wiFiIsActive) {
+        if (wifi_config->mode_debug) {
+          IPAddress IP = WiFi.localIP ();
+          Serial.print ("IP ST address: ");
+          Serial.println (IP);
+        }
+        wiFiIsActive = true;
+      }
+    } else {
+      if (wiFiIsActive) {
+        wiFiIsActive = false;
+      }
+    }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (WiFi.status() == WL_CONNECTED)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: WiFi.status() == WL_CONNECTED
+|————————Node:call_expression Text: WiFi.status()
+|—————————Node:field_expression Text: WiFi.status
+|——————————Node:identifier Text: WiFi
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: status
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:== Text: ==
+|————————Node:identifier Text: WL_CONNECTED
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {            // check if connected
+      if (!wiFiIsActive) {
+        if (wifi_config->mode_debug) {
+          IPAddress IP = WiFi.localIP ();
+          Serial.print ("IP ST address: ");
+          Serial.println (IP);
+        }
+        wiFiIsActive = true;
+      }
+    }
+|———————Node:{ Text: {
+|———————Node:comment
+|———————Node:if_statement Text: if (!wiFiIsActive) {
+        if (wifi_config->mode_debug) {
+          IPAddress IP = WiFi.localIP ();
+          Serial.print ("IP ST address: ");
+          Serial.println (IP);
+        }
+        wiFiIsActive = true;
+      }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (!wiFiIsActive)
+|—————————Node:( Text: (
+|—————————Node:unary_expression Text: !wiFiIsActive
+|——————————Node:! Text: !
+|——————————Node:identifier Text: wiFiIsActive
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+        if (wifi_config->mode_debug) {
+          IPAddress IP = WiFi.localIP ();
+          Serial.print ("IP ST address: ");
+          Serial.println (IP);
+        }
+        wiFiIsActive = true;
+      }
+|—————————Node:{ Text: {
+|—————————Node:if_statement Text: if (wifi_config->mode_debug) {
+          IPAddress IP = WiFi.localIP ();
+          Serial.print ("IP ST address: ");
+          Serial.println (IP);
+        }
+|——————————Node:if Text: if
+|——————————Node:condition_clause Text: (wifi_config->mode_debug)
+|———————————Node:( Text: (
+|———————————Node:field_expression Text: wifi_config->mode_debug
+|————————————Node:identifier Text: wifi_config
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: mode_debug
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+          IPAddress IP = WiFi.localIP ();
+          Serial.print ("IP ST address: ");
+          Serial.println (IP);
+        }
+|———————————Node:{ Text: {
+|———————————Node:declaration Text: IPAddress IP = WiFi.localIP ();
+|————————————Node:type_identifier Text: IPAddress
+|————————————Node:init_declarator Text: IP = WiFi.localIP ()
+|—————————————Node:identifier Text: IP
+|—————————————Node:= Text: =
+|—————————————Node:call_expression Text: WiFi.localIP ()
+|——————————————Node:field_expression Text: WiFi.localIP
+|———————————————Node:identifier Text: WiFi
+|———————————————Node:. Text: .
+|———————————————Node:field_identifier Text: localIP
+|——————————————Node:argument_list Text: ()
+|———————————————Node:( Text: (
+|———————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:expression_statement Text: Serial.print ("IP ST address: ");
+|————————————Node:call_expression Text: Serial.print ("IP ST address: ")
+|—————————————Node:field_expression Text: Serial.print
+|——————————————Node:identifier Text: Serial
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: print
+|—————————————Node:argument_list Text: ("IP ST address: ")
+|——————————————Node:( Text: (
+|——————————————Node:string_literal Text: "IP ST address: "
+|———————————————Node:" Text: "
+|———————————————Node:string_content Text: IP ST address: 
+|———————————————Node:" Text: "
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:expression_statement Text: Serial.println (IP);
+|————————————Node:call_expression Text: Serial.println (IP)
+|—————————————Node:field_expression Text: Serial.println
+|——————————————Node:identifier Text: Serial
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: println
+|—————————————Node:argument_list Text: (IP)
+|——————————————Node:( Text: (
+|——————————————Node:identifier Text: IP
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|—————————Node:expression_statement Text: wiFiIsActive = true;
+|——————————Node:assignment_expression Text: wiFiIsActive = true
+|———————————Node:identifier Text: wiFiIsActive
+|———————————Node:= Text: =
+|———————————Node:true Text: true
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|——————Node:else_clause Text: else {
+      if (wiFiIsActive) {
+        wiFiIsActive = false;
+      }
+    }
+|———————Node:else Text: else
+|———————Node:compound_statement Text: {
+      if (wiFiIsActive) {
+        wiFiIsActive = false;
+      }
+    }
+|————————Node:{ Text: {
+|————————Node:if_statement Text: if (wiFiIsActive) {
+        wiFiIsActive = false;
+      }
+|—————————Node:if Text: if
+|—————————Node:condition_clause Text: (wiFiIsActive)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: wiFiIsActive
+|——————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+        wiFiIsActive = false;
+      }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: wiFiIsActive = false;
+|———————————Node:assignment_expression Text: wiFiIsActive = false
+|————————————Node:identifier Text: wiFiIsActive
+|————————————Node:= Text: =
+|————————————Node:false Text: false
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|————————Node:} Text: }
+|—————Node:} Text: }
+|————Node:else_clause Text: else if (wifi_config->mode_wifi == WIFI_SOFTAP) {
+    wiFiIsActive = true;
+  }
+|—————Node:else Text: else
+|—————Node:if_statement Text: if (wifi_config->mode_wifi == WIFI_SOFTAP) {
+    wiFiIsActive = true;
+  }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (wifi_config->mode_wifi == WIFI_SOFTAP)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: wifi_config->mode_wifi == WIFI_SOFTAP
+|————————Node:field_expression Text: wifi_config->mode_wifi
+|—————————Node:identifier Text: wifi_config
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: mode_wifi
+|————————Node:== Text: ==
+|————————Node:identifier Text: WIFI_SOFTAP
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+    wiFiIsActive = true;
+  }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: wiFiIsActive = true;
+|————————Node:assignment_expression Text: wiFiIsActive = true
+|—————————Node:identifier Text: wiFiIsActive
+|—————————Node:= Text: =
+|—————————Node:true Text: true
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|———Node:if_statement Text: if (!wiFiIsActive) return;
+|————Node:if Text: if
+|————Node:condition_clause Text: (!wiFiIsActive)
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !wiFiIsActive
+|——————Node:! Text: !
+|——————Node:identifier Text: wiFiIsActive
+|—————Node:) Text: )
+|————Node:return_statement Text: return;
+|—————Node:return Text: return
+|—————Node:; Text: ;
+|———Node:comment
+|———Node:declaration Text: uint8_t i;
+|————Node:primitive_type Text: uint8_t
+|————Node:identifier Text: i
+|————Node:; Text: ;
+|———Node:if_statement Text: if (server.hasClient()) {                        // check if there are any *NEW* clients
+    for (i = 0; i < MAX_SRV_CLIENTS; i++) {        //if so, find free or disconnected spot
+      if (!serverClients[i] || !serverClients[i].connected()) {
+        if (serverClients[i]) {                    // if not free (so disconnected)
+          serverClients[i].stop();                 // stop the client
+          if (wifi_config->mode_debug) {
+            Serial.print("Disconnected: ");
+            Serial.println(i);
+          }
+        }
+        serverClients[i] = server.available();     // fetch the client
+        if (serverClients[i]) {                    // it should be here
+          if (wifi_config->mode_debug) {
+            Serial.print("New client: ");
+            Serial.print(i); Serial.print(' ');
+            Serial.println(serverClients[i].remoteIP());
+          }
+        } else {                                   // if gone, oh well
+          if (wifi_config->mode_debug) Serial.println("available broken");
+        }
+        break;
+      }
+    }
+    if (i >= MAX_SRV_CLIENTS) {                    //no free/disconnected spot so reject
+      server.available().stop();
+      if (wifi_config->mode_debug) Serial.println("Refused");
+    }
+  }
+|————Node:if Text: if
+|————Node:condition_clause Text: (server.hasClient())
+|—————Node:( Text: (
+|—————Node:call_expression Text: server.hasClient()
+|——————Node:field_expression Text: server.hasClient
+|———————Node:identifier Text: server
+|———————Node:. Text: .
+|———————Node:field_identifier Text: hasClient
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {                        // check if there are any *NEW* clients
+    for (i = 0; i < MAX_SRV_CLIENTS; i++) {        //if so, find free or disconnected spot
+      if (!serverClients[i] || !serverClients[i].connected()) {
+        if (serverClients[i]) {                    // if not free (so disconnected)
+          serverClients[i].stop();                 // stop the client
+          if (wifi_config->mode_debug) {
+            Serial.print("Disconnected: ");
+            Serial.println(i);
+          }
+        }
+        serverClients[i] = server.available();     // fetch the client
+        if (serverClients[i]) {                    // it should be here
+          if (wifi_config->mode_debug) {
+            Serial.print("New client: ");
+            Serial.print(i); Serial.print(' ');
+            Serial.println(serverClients[i].remoteIP());
+          }
+        } else {                                   // if gone, oh well
+          if (wifi_config->mode_debug) Serial.println("available broken");
+        }
+        break;
+      }
+    }
+    if (i >= MAX_SRV_CLIENTS) {                    //no free/disconnected spot so reject
+      server.available().stop();
+      if (wifi_config->mode_debug) Serial.println("Refused");
+    }
+  }
+|—————Node:{ Text: {
+|—————Node:comment
+|—————Node:for_statement Text: for (i = 0; i < MAX_SRV_CLIENTS; i++) {        //if so, find free or disconnected spot
+      if (!serverClients[i] || !serverClients[i].connected()) {
+        if (serverClients[i]) {                    // if not free (so disconnected)
+          serverClients[i].stop();                 // stop the client
+          if (wifi_config->mode_debug) {
+            Serial.print("Disconnected: ");
+            Serial.println(i);
+          }
+        }
+        serverClients[i] = server.available();     // fetch the client
+        if (serverClients[i]) {                    // it should be here
+          if (wifi_config->mode_debug) {
+            Serial.print("New client: ");
+            Serial.print(i); Serial.print(' ');
+            Serial.println(serverClients[i].remoteIP());
+          }
+        } else {                                   // if gone, oh well
+          if (wifi_config->mode_debug) Serial.println("available broken");
+        }
+        break;
+      }
+    }
+|——————Node:for Text: for
+|——————Node:( Text: (
+|——————Node:assignment_expression Text: i = 0
+|———————Node:identifier Text: i
+|———————Node:= Text: =
+|———————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|——————Node:binary_expression Text: i < MAX_SRV_CLIENTS
+|———————Node:identifier Text: i
+|———————Node:< Text: <
+|———————Node:identifier Text: MAX_SRV_CLIENTS
+|——————Node:; Text: ;
+|——————Node:update_expression Text: i++
+|———————Node:identifier Text: i
+|———————Node:++ Text: ++
+|——————Node:) Text: )
+|——————Node:compound_statement Text: {        //if so, find free or disconnected spot
+      if (!serverClients[i] || !serverClients[i].connected()) {
+        if (serverClients[i]) {                    // if not free (so disconnected)
+          serverClients[i].stop();                 // stop the client
+          if (wifi_config->mode_debug) {
+            Serial.print("Disconnected: ");
+            Serial.println(i);
+          }
+        }
+        serverClients[i] = server.available();     // fetch the client
+        if (serverClients[i]) {                    // it should be here
+          if (wifi_config->mode_debug) {
+            Serial.print("New client: ");
+            Serial.print(i); Serial.print(' ');
+            Serial.println(serverClients[i].remoteIP());
+          }
+        } else {                                   // if gone, oh well
+          if (wifi_config->mode_debug) Serial.println("available broken");
+        }
+        break;
+      }
+    }
+|———————Node:{ Text: {
+|———————Node:comment
+|———————Node:if_statement Text: if (!serverClients[i] || !serverClients[i].connected()) {
+        if (serverClients[i]) {                    // if not free (so disconnected)
+          serverClients[i].stop();                 // stop the client
+          if (wifi_config->mode_debug) {
+            Serial.print("Disconnected: ");
+            Serial.println(i);
+          }
+        }
+        serverClients[i] = server.available();     // fetch the client
+        if (serverClients[i]) {                    // it should be here
+          if (wifi_config->mode_debug) {
+            Serial.print("New client: ");
+            Serial.print(i); Serial.print(' ');
+            Serial.println(serverClients[i].remoteIP());
+          }
+        } else {                                   // if gone, oh well
+          if (wifi_config->mode_debug) Serial.println("available broken");
+        }
+        break;
+      }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (!serverClients[i] || !serverClients[i].connected())
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: !serverClients[i] || !serverClients[i].connected()
+|——————————Node:unary_expression Text: !serverClients[i]
+|———————————Node:! Text: !
+|———————————Node:subscript_expression Text: serverClients[i]
+|————————————Node:identifier Text: serverClients
+|————————————Node:subscript_argument_list Text: [i]
+|—————————————Node:[ Text: [
+|—————————————Node:identifier Text: i
+|—————————————Node:] Text: ]
+|——————————Node:|| Text: ||
+|——————————Node:unary_expression Text: !serverClients[i].connected()
+|———————————Node:! Text: !
+|———————————Node:call_expression Text: serverClients[i].connected()
+|————————————Node:field_expression Text: serverClients[i].connected
+|—————————————Node:subscript_expression Text: serverClients[i]
+|——————————————Node:identifier Text: serverClients
+|——————————————Node:subscript_argument_list Text: [i]
+|———————————————Node:[ Text: [
+|———————————————Node:identifier Text: i
+|———————————————Node:] Text: ]
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: connected
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+        if (serverClients[i]) {                    // if not free (so disconnected)
+          serverClients[i].stop();                 // stop the client
+          if (wifi_config->mode_debug) {
+            Serial.print("Disconnected: ");
+            Serial.println(i);
+          }
+        }
+        serverClients[i] = server.available();     // fetch the client
+        if (serverClients[i]) {                    // it should be here
+          if (wifi_config->mode_debug) {
+            Serial.print("New client: ");
+            Serial.print(i); Serial.print(' ');
+            Serial.println(serverClients[i].remoteIP());
+          }
+        } else {                                   // if gone, oh well
+          if (wifi_config->mode_debug) Serial.println("available broken");
+        }
+        break;
+      }
+|—————————Node:{ Text: {
+|—————————Node:if_statement Text: if (serverClients[i]) {                    // if not free (so disconnected)
+          serverClients[i].stop();                 // stop the client
+          if (wifi_config->mode_debug) {
+            Serial.print("Disconnected: ");
+            Serial.println(i);
+          }
+        }
+|——————————Node:if Text: if
+|——————————Node:condition_clause Text: (serverClients[i])
+|———————————Node:( Text: (
+|———————————Node:subscript_expression Text: serverClients[i]
+|————————————Node:identifier Text: serverClients
+|————————————Node:subscript_argument_list Text: [i]
+|—————————————Node:[ Text: [
+|—————————————Node:identifier Text: i
+|—————————————Node:] Text: ]
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {                    // if not free (so disconnected)
+          serverClients[i].stop();                 // stop the client
+          if (wifi_config->mode_debug) {
+            Serial.print("Disconnected: ");
+            Serial.println(i);
+          }
+        }
+|———————————Node:{ Text: {
+|———————————Node:comment
+|———————————Node:expression_statement Text: serverClients[i].stop();
+|————————————Node:call_expression Text: serverClients[i].stop()
+|—————————————Node:field_expression Text: serverClients[i].stop
+|——————————————Node:subscript_expression Text: serverClients[i]
+|———————————————Node:identifier Text: serverClients
+|———————————————Node:subscript_argument_list Text: [i]
+|————————————————Node:[ Text: [
+|————————————————Node:identifier Text: i
+|————————————————Node:] Text: ]
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: stop
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:comment
+|———————————Node:if_statement Text: if (wifi_config->mode_debug) {
+            Serial.print("Disconnected: ");
+            Serial.println(i);
+          }
+|————————————Node:if Text: if
+|————————————Node:condition_clause Text: (wifi_config->mode_debug)
+|—————————————Node:( Text: (
+|—————————————Node:field_expression Text: wifi_config->mode_debug
+|——————————————Node:identifier Text: wifi_config
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: mode_debug
+|—————————————Node:) Text: )
+|————————————Node:compound_statement Text: {
+            Serial.print("Disconnected: ");
+            Serial.println(i);
+          }
+|—————————————Node:{ Text: {
+|—————————————Node:expression_statement Text: Serial.print("Disconnected: ");
+|——————————————Node:call_expression Text: Serial.print("Disconnected: ")
+|———————————————Node:field_expression Text: Serial.print
+|————————————————Node:identifier Text: Serial
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: print
+|———————————————Node:argument_list Text: ("Disconnected: ")
+|————————————————Node:( Text: (
+|————————————————Node:string_literal Text: "Disconnected: "
+|—————————————————Node:" Text: "
+|—————————————————Node:string_content Text: Disconnected: 
+|—————————————————Node:" Text: "
+|————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:expression_statement Text: Serial.println(i);
+|——————————————Node:call_expression Text: Serial.println(i)
+|———————————————Node:field_expression Text: Serial.println
+|————————————————Node:identifier Text: Serial
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: println
+|———————————————Node:argument_list Text: (i)
+|————————————————Node:( Text: (
+|————————————————Node:identifier Text: i
+|————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:} Text: }
+|———————————Node:} Text: }
+|—————————Node:expression_statement Text: serverClients[i] = server.available();
+|——————————Node:assignment_expression Text: serverClients[i] = server.available()
+|———————————Node:subscript_expression Text: serverClients[i]
+|————————————Node:identifier Text: serverClients
+|————————————Node:subscript_argument_list Text: [i]
+|—————————————Node:[ Text: [
+|—————————————Node:identifier Text: i
+|—————————————Node:] Text: ]
+|———————————Node:= Text: =
+|———————————Node:call_expression Text: server.available()
+|————————————Node:field_expression Text: server.available
+|—————————————Node:identifier Text: server
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: available
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:comment
+|—————————Node:if_statement Text: if (serverClients[i]) {                    // it should be here
+          if (wifi_config->mode_debug) {
+            Serial.print("New client: ");
+            Serial.print(i); Serial.print(' ');
+            Serial.println(serverClients[i].remoteIP());
+          }
+        } else {                                   // if gone, oh well
+          if (wifi_config->mode_debug) Serial.println("available broken");
+        }
+|——————————Node:if Text: if
+|——————————Node:condition_clause Text: (serverClients[i])
+|———————————Node:( Text: (
+|———————————Node:subscript_expression Text: serverClients[i]
+|————————————Node:identifier Text: serverClients
+|————————————Node:subscript_argument_list Text: [i]
+|—————————————Node:[ Text: [
+|—————————————Node:identifier Text: i
+|—————————————Node:] Text: ]
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {                    // it should be here
+          if (wifi_config->mode_debug) {
+            Serial.print("New client: ");
+            Serial.print(i); Serial.print(' ');
+            Serial.println(serverClients[i].remoteIP());
+          }
+        }
+|———————————Node:{ Text: {
+|———————————Node:comment
+|———————————Node:if_statement Text: if (wifi_config->mode_debug) {
+            Serial.print("New client: ");
+            Serial.print(i); Serial.print(' ');
+            Serial.println(serverClients[i].remoteIP());
+          }
+|————————————Node:if Text: if
+|————————————Node:condition_clause Text: (wifi_config->mode_debug)
+|—————————————Node:( Text: (
+|—————————————Node:field_expression Text: wifi_config->mode_debug
+|——————————————Node:identifier Text: wifi_config
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: mode_debug
+|—————————————Node:) Text: )
+|————————————Node:compound_statement Text: {
+            Serial.print("New client: ");
+            Serial.print(i); Serial.print(' ');
+            Serial.println(serverClients[i].remoteIP());
+          }
+|—————————————Node:{ Text: {
+|—————————————Node:expression_statement Text: Serial.print("New client: ");
+|——————————————Node:call_expression Text: Serial.print("New client: ")
+|———————————————Node:field_expression Text: Serial.print
+|————————————————Node:identifier Text: Serial
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: print
+|———————————————Node:argument_list Text: ("New client: ")
+|————————————————Node:( Text: (
+|————————————————Node:string_literal Text: "New client: "
+|—————————————————Node:" Text: "
+|—————————————————Node:string_content Text: New client: 
+|—————————————————Node:" Text: "
+|————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:expression_statement Text: Serial.print(i);
+|——————————————Node:call_expression Text: Serial.print(i)
+|———————————————Node:field_expression Text: Serial.print
+|————————————————Node:identifier Text: Serial
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: print
+|———————————————Node:argument_list Text: (i)
+|————————————————Node:( Text: (
+|————————————————Node:identifier Text: i
+|————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:expression_statement Text: Serial.print(' ');
+|——————————————Node:call_expression Text: Serial.print(' ')
+|———————————————Node:field_expression Text: Serial.print
+|————————————————Node:identifier Text: Serial
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: print
+|———————————————Node:argument_list Text: (' ')
+|————————————————Node:( Text: (
+|————————————————Node:char_literal Text: ' '
+|—————————————————Node:' Text: '
+|—————————————————Node:character Text:  
+|—————————————————Node:' Text: '
+|————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:expression_statement Text: Serial.println(serverClients[i].remoteIP());
+|——————————————Node:call_expression Text: Serial.println(serverClients[i].remoteIP())
+|———————————————Node:field_expression Text: Serial.println
+|————————————————Node:identifier Text: Serial
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: println
+|———————————————Node:argument_list Text: (serverClients[i].remoteIP())
+|————————————————Node:( Text: (
+|————————————————Node:call_expression Text: serverClients[i].remoteIP()
+|—————————————————Node:field_expression Text: serverClients[i].remoteIP
+|——————————————————Node:subscript_expression Text: serverClients[i]
+|———————————————————Node:identifier Text: serverClients
+|———————————————————Node:subscript_argument_list Text: [i]
+|————————————————————Node:[ Text: [
+|————————————————————Node:identifier Text: i
+|————————————————————Node:] Text: ]
+|——————————————————Node:. Text: .
+|——————————————————Node:field_identifier Text: remoteIP
+|—————————————————Node:argument_list Text: ()
+|——————————————————Node:( Text: (
+|——————————————————Node:) Text: )
+|————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:} Text: }
+|———————————Node:} Text: }
+|——————————Node:else_clause Text: else {                                   // if gone, oh well
+          if (wifi_config->mode_debug) Serial.println("available broken");
+        }
+|———————————Node:else Text: else
+|———————————Node:compound_statement Text: {                                   // if gone, oh well
+          if (wifi_config->mode_debug) Serial.println("available broken");
+        }
+|————————————Node:{ Text: {
+|————————————Node:comment
+|————————————Node:if_statement Text: if (wifi_config->mode_debug) Serial.println("available broken");
+|—————————————Node:if Text: if
+|—————————————Node:condition_clause Text: (wifi_config->mode_debug)
+|——————————————Node:( Text: (
+|——————————————Node:field_expression Text: wifi_config->mode_debug
+|———————————————Node:identifier Text: wifi_config
+|———————————————Node:-> Text: ->
+|———————————————Node:field_identifier Text: mode_debug
+|——————————————Node:) Text: )
+|—————————————Node:expression_statement Text: Serial.println("available broken");
+|——————————————Node:call_expression Text: Serial.println("available broken")
+|———————————————Node:field_expression Text: Serial.println
+|————————————————Node:identifier Text: Serial
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: println
+|———————————————Node:argument_list Text: ("available broken")
+|————————————————Node:( Text: (
+|————————————————Node:string_literal Text: "available broken"
+|—————————————————Node:" Text: "
+|—————————————————Node:string_content Text: available broken
+|—————————————————Node:" Text: "
+|————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|————————————Node:} Text: }
+|—————————Node:break_statement Text: break;
+|——————————Node:break Text: break
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|—————Node:if_statement Text: if (i >= MAX_SRV_CLIENTS) {                    //no free/disconnected spot so reject
+      server.available().stop();
+      if (wifi_config->mode_debug) Serial.println("Refused");
+    }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (i >= MAX_SRV_CLIENTS)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: i >= MAX_SRV_CLIENTS
+|————————Node:identifier Text: i
+|————————Node:>= Text: >=
+|————————Node:identifier Text: MAX_SRV_CLIENTS
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {                    //no free/disconnected spot so reject
+      server.available().stop();
+      if (wifi_config->mode_debug) Serial.println("Refused");
+    }
+|———————Node:{ Text: {
+|———————Node:comment
+|———————Node:expression_statement Text: server.available().stop();
+|————————Node:call_expression Text: server.available().stop()
+|—————————Node:field_expression Text: server.available().stop
+|——————————Node:call_expression Text: server.available()
+|———————————Node:field_expression Text: server.available
+|————————————Node:identifier Text: server
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: available
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: stop
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if (wifi_config->mode_debug) Serial.println("Refused");
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (wifi_config->mode_debug)
+|—————————Node:( Text: (
+|—————————Node:field_expression Text: wifi_config->mode_debug
+|——————————Node:identifier Text: wifi_config
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: mode_debug
+|—————————Node:) Text: )
+|————————Node:expression_statement Text: Serial.println("Refused");
+|—————————Node:call_expression Text: Serial.println("Refused")
+|——————————Node:field_expression Text: Serial.println
+|———————————Node:identifier Text: Serial
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: println
+|——————————Node:argument_list Text: ("Refused")
+|———————————Node:( Text: (
+|———————————Node:string_literal Text: "Refused"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: Refused
+|————————————Node:" Text: "
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:comment
+|———Node:for_statement Text: for (i = 0; i < MAX_SRV_CLIENTS; i++) {          // check clients for data
+    if (serverClients[i] && serverClients[i].connected()) {
+      while (serverClients[i].available()) {       // if there is data
+        char ch = serverClients[i].read();         // get it
+        if (ch == '\n' || ch == '\r') {            // buffer / process it
+          if (readBuffer != "") {
+            if (wifi_process) wifi_process();
+            readBuffer = "";
+          }
+        } else {
+          readBuffer += ch;
+        }
+      }
+    } else {                                       // no client, or unconnected
+      if (serverClients[i]) {                      // if there is a client (so unconnected)
+        serverClients[i].stop();                   // stop the client
+        if (wifi_config->mode_debug) {
+          Serial.print("Disconnected: ");
+          Serial.println(i);
+        }
+      }
+    }
+  }
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:assignment_expression Text: i = 0
+|—————Node:identifier Text: i
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|————Node:binary_expression Text: i < MAX_SRV_CLIENTS
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:identifier Text: MAX_SRV_CLIENTS
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:compound_statement Text: {          // check clients for data
+    if (serverClients[i] && serverClients[i].connected()) {
+      while (serverClients[i].available()) {       // if there is data
+        char ch = serverClients[i].read();         // get it
+        if (ch == '\n' || ch == '\r') {            // buffer / process it
+          if (readBuffer != "") {
+            if (wifi_process) wifi_process();
+            readBuffer = "";
+          }
+        } else {
+          readBuffer += ch;
+        }
+      }
+    } else {                                       // no client, or unconnected
+      if (serverClients[i]) {                      // if there is a client (so unconnected)
+        serverClients[i].stop();                   // stop the client
+        if (wifi_config->mode_debug) {
+          Serial.print("Disconnected: ");
+          Serial.println(i);
+        }
+      }
+    }
+  }
+|—————Node:{ Text: {
+|—————Node:comment
+|—————Node:if_statement Text: if (serverClients[i] && serverClients[i].connected()) {
+      while (serverClients[i].available()) {       // if there is data
+        char ch = serverClients[i].read();         // get it
+        if (ch == '\n' || ch == '\r') {            // buffer / process it
+          if (readBuffer != "") {
+            if (wifi_process) wifi_process();
+            readBuffer = "";
+          }
+        } else {
+          readBuffer += ch;
+        }
+      }
+    } else {                                       // no client, or unconnected
+      if (serverClients[i]) {                      // if there is a client (so unconnected)
+        serverClients[i].stop();                   // stop the client
+        if (wifi_config->mode_debug) {
+          Serial.print("Disconnected: ");
+          Serial.println(i);
+        }
+      }
+    }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (serverClients[i] && serverClients[i].connected())
+|———————Node:( Text: (
+|———————Node:binary_expression Text: serverClients[i] && serverClients[i].connected()
+|————————Node:subscript_expression Text: serverClients[i]
+|—————————Node:identifier Text: serverClients
+|—————————Node:subscript_argument_list Text: [i]
+|——————————Node:[ Text: [
+|——————————Node:identifier Text: i
+|——————————Node:] Text: ]
+|————————Node:&& Text: &&
+|————————Node:call_expression Text: serverClients[i].connected()
+|—————————Node:field_expression Text: serverClients[i].connected
+|——————————Node:subscript_expression Text: serverClients[i]
+|———————————Node:identifier Text: serverClients
+|———————————Node:subscript_argument_list Text: [i]
+|————————————Node:[ Text: [
+|————————————Node:identifier Text: i
+|————————————Node:] Text: ]
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: connected
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+      while (serverClients[i].available()) {       // if there is data
+        char ch = serverClients[i].read();         // get it
+        if (ch == '\n' || ch == '\r') {            // buffer / process it
+          if (readBuffer != "") {
+            if (wifi_process) wifi_process();
+            readBuffer = "";
+          }
+        } else {
+          readBuffer += ch;
+        }
+      }
+    }
+|———————Node:{ Text: {
+|———————Node:while_statement Text: while (serverClients[i].available()) {       // if there is data
+        char ch = serverClients[i].read();         // get it
+        if (ch == '\n' || ch == '\r') {            // buffer / process it
+          if (readBuffer != "") {
+            if (wifi_process) wifi_process();
+            readBuffer = "";
+          }
+        } else {
+          readBuffer += ch;
+        }
+      }
+|————————Node:while Text: while
+|————————Node:condition_clause Text: (serverClients[i].available())
+|—————————Node:( Text: (
+|—————————Node:call_expression Text: serverClients[i].available()
+|——————————Node:field_expression Text: serverClients[i].available
+|———————————Node:subscript_expression Text: serverClients[i]
+|————————————Node:identifier Text: serverClients
+|————————————Node:subscript_argument_list Text: [i]
+|—————————————Node:[ Text: [
+|—————————————Node:identifier Text: i
+|—————————————Node:] Text: ]
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: available
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {       // if there is data
+        char ch = serverClients[i].read();         // get it
+        if (ch == '\n' || ch == '\r') {            // buffer / process it
+          if (readBuffer != "") {
+            if (wifi_process) wifi_process();
+            readBuffer = "";
+          }
+        } else {
+          readBuffer += ch;
+        }
+      }
+|—————————Node:{ Text: {
+|—————————Node:comment
+|—————————Node:declaration Text: char ch = serverClients[i].read();
+|——————————Node:primitive_type Text: char
+|——————————Node:init_declarator Text: ch = serverClients[i].read()
+|———————————Node:identifier Text: ch
+|———————————Node:= Text: =
+|———————————Node:call_expression Text: serverClients[i].read()
+|————————————Node:field_expression Text: serverClients[i].read
+|—————————————Node:subscript_expression Text: serverClients[i]
+|——————————————Node:identifier Text: serverClients
+|——————————————Node:subscript_argument_list Text: [i]
+|———————————————Node:[ Text: [
+|———————————————Node:identifier Text: i
+|———————————————Node:] Text: ]
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: read
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:comment
+|—————————Node:if_statement Text: if (ch == '\n' || ch == '\r') {            // buffer / process it
+          if (readBuffer != "") {
+            if (wifi_process) wifi_process();
+            readBuffer = "";
+          }
+        } else {
+          readBuffer += ch;
+        }
+|——————————Node:if Text: if
+|——————————Node:condition_clause Text: (ch == '\n' || ch == '\r')
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: ch == '\n' || ch == '\r'
+|————————————Node:binary_expression Text: ch == '\n'
+|—————————————Node:identifier Text: ch
+|—————————————Node:== Text: ==
+|—————————————Node:char_literal Text: '\n'
+|——————————————Node:' Text: '
+|——————————————Node:escape_sequence Text: \n
+|——————————————Node:' Text: '
+|————————————Node:|| Text: ||
+|————————————Node:binary_expression Text: ch == '\r'
+|—————————————Node:identifier Text: ch
+|—————————————Node:== Text: ==
+|—————————————Node:char_literal Text: '\r'
+|——————————————Node:' Text: '
+|——————————————Node:escape_sequence Text: \r
+|——————————————Node:' Text: '
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {            // buffer / process it
+          if (readBuffer != "") {
+            if (wifi_process) wifi_process();
+            readBuffer = "";
+          }
+        }
+|———————————Node:{ Text: {
+|———————————Node:comment
+|———————————Node:if_statement Text: if (readBuffer != "") {
+            if (wifi_process) wifi_process();
+            readBuffer = "";
+          }
+|————————————Node:if Text: if
+|————————————Node:condition_clause Text: (readBuffer != "")
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: readBuffer != ""
+|——————————————Node:identifier Text: readBuffer
+|——————————————Node:!= Text: !=
+|——————————————Node:string_literal Text: ""
+|———————————————Node:" Text: "
+|———————————————Node:" Text: "
+|—————————————Node:) Text: )
+|————————————Node:compound_statement Text: {
+            if (wifi_process) wifi_process();
+            readBuffer = "";
+          }
+|—————————————Node:{ Text: {
+|—————————————Node:if_statement Text: if (wifi_process) wifi_process();
+|——————————————Node:if Text: if
+|——————————————Node:condition_clause Text: (wifi_process)
+|———————————————Node:( Text: (
+|———————————————Node:identifier Text: wifi_process
+|———————————————Node:) Text: )
+|——————————————Node:expression_statement Text: wifi_process();
+|———————————————Node:call_expression Text: wifi_process()
+|————————————————Node:identifier Text: wifi_process
+|————————————————Node:argument_list Text: ()
+|—————————————————Node:( Text: (
+|—————————————————Node:) Text: )
+|———————————————Node:; Text: ;
+|—————————————Node:expression_statement Text: readBuffer = "";
+|——————————————Node:assignment_expression Text: readBuffer = ""
+|———————————————Node:identifier Text: readBuffer
+|———————————————Node:= Text: =
+|———————————————Node:string_literal Text: ""
+|————————————————Node:" Text: "
+|————————————————Node:" Text: "
+|——————————————Node:; Text: ;
+|—————————————Node:} Text: }
+|———————————Node:} Text: }
+|——————————Node:else_clause Text: else {
+          readBuffer += ch;
+        }
+|———————————Node:else Text: else
+|———————————Node:compound_statement Text: {
+          readBuffer += ch;
+        }
+|————————————Node:{ Text: {
+|————————————Node:expression_statement Text: readBuffer += ch;
+|—————————————Node:assignment_expression Text: readBuffer += ch
+|——————————————Node:identifier Text: readBuffer
+|——————————————Node:+= Text: +=
+|——————————————Node:identifier Text: ch
+|—————————————Node:; Text: ;
+|————————————Node:} Text: }
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|——————Node:else_clause Text: else {                                       // no client, or unconnected
+      if (serverClients[i]) {                      // if there is a client (so unconnected)
+        serverClients[i].stop();                   // stop the client
+        if (wifi_config->mode_debug) {
+          Serial.print("Disconnected: ");
+          Serial.println(i);
+        }
+      }
+    }
+|———————Node:else Text: else
+|———————Node:compound_statement Text: {                                       // no client, or unconnected
+      if (serverClients[i]) {                      // if there is a client (so unconnected)
+        serverClients[i].stop();                   // stop the client
+        if (wifi_config->mode_debug) {
+          Serial.print("Disconnected: ");
+          Serial.println(i);
+        }
+      }
+    }
+|————————Node:{ Text: {
+|————————Node:comment
+|————————Node:if_statement Text: if (serverClients[i]) {                      // if there is a client (so unconnected)
+        serverClients[i].stop();                   // stop the client
+        if (wifi_config->mode_debug) {
+          Serial.print("Disconnected: ");
+          Serial.println(i);
+        }
+      }
+|—————————Node:if Text: if
+|—————————Node:condition_clause Text: (serverClients[i])
+|——————————Node:( Text: (
+|——————————Node:subscript_expression Text: serverClients[i]
+|———————————Node:identifier Text: serverClients
+|———————————Node:subscript_argument_list Text: [i]
+|————————————Node:[ Text: [
+|————————————Node:identifier Text: i
+|————————————Node:] Text: ]
+|——————————Node:) Text: )
+|—————————Node:compound_statement Text: {                      // if there is a client (so unconnected)
+        serverClients[i].stop();                   // stop the client
+        if (wifi_config->mode_debug) {
+          Serial.print("Disconnected: ");
+          Serial.println(i);
+        }
+      }
+|——————————Node:{ Text: {
+|——————————Node:comment
+|——————————Node:expression_statement Text: serverClients[i].stop();
+|———————————Node:call_expression Text: serverClients[i].stop()
+|————————————Node:field_expression Text: serverClients[i].stop
+|—————————————Node:subscript_expression Text: serverClients[i]
+|——————————————Node:identifier Text: serverClients
+|——————————————Node:subscript_argument_list Text: [i]
+|———————————————Node:[ Text: [
+|———————————————Node:identifier Text: i
+|———————————————Node:] Text: ]
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: stop
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:comment
+|——————————Node:if_statement Text: if (wifi_config->mode_debug) {
+          Serial.print("Disconnected: ");
+          Serial.println(i);
+        }
+|———————————Node:if Text: if
+|———————————Node:condition_clause Text: (wifi_config->mode_debug)
+|————————————Node:( Text: (
+|————————————Node:field_expression Text: wifi_config->mode_debug
+|—————————————Node:identifier Text: wifi_config
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: mode_debug
+|————————————Node:) Text: )
+|———————————Node:compound_statement Text: {
+          Serial.print("Disconnected: ");
+          Serial.println(i);
+        }
+|————————————Node:{ Text: {
+|————————————Node:expression_statement Text: Serial.print("Disconnected: ");
+|—————————————Node:call_expression Text: Serial.print("Disconnected: ")
+|——————————————Node:field_expression Text: Serial.print
+|———————————————Node:identifier Text: Serial
+|———————————————Node:. Text: .
+|———————————————Node:field_identifier Text: print
+|——————————————Node:argument_list Text: ("Disconnected: ")
+|———————————————Node:( Text: (
+|———————————————Node:string_literal Text: "Disconnected: "
+|————————————————Node:" Text: "
+|————————————————Node:string_content Text: Disconnected: 
+|————————————————Node:" Text: "
+|———————————————Node:) Text: )
+|—————————————Node:; Text: ;
+|————————————Node:expression_statement Text: Serial.println(i);
+|—————————————Node:call_expression Text: Serial.println(i)
+|——————————————Node:field_expression Text: Serial.println
+|———————————————Node:identifier Text: Serial
+|———————————————Node:. Text: .
+|———————————————Node:field_identifier Text: println
+|——————————————Node:argument_list Text: (i)
+|———————————————Node:( Text: (
+|———————————————Node:identifier Text: i
+|———————————————Node:) Text: )
+|—————————————Node:; Text: ;
+|————————————Node:} Text: }
+|——————————Node:} Text: }
+|————————Node:} Text: }
+|—————Node:} Text: }
+|———Node:} Text: }

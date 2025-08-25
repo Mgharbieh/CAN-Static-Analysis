@@ -1,0 +1,313 @@
+an-usb-to-can-adaptor-mcxn947-source\usb_can_adapter.c
+
+|Node:translation_unit
+|—Node:comment
+|—Node:preproc_include Text: #include <stdio.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <stdio.h>
+|—Node:preproc_include Text: #include <stdlib.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <stdlib.h>
+|—Node:comment
+|—Node:preproc_include Text: #include "fsl_device_registers.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "fsl_device_registers.h"
+|———Node:" Text: "
+|———Node:string_content Text: fsl_device_registers.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "fsl_debug_console.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "fsl_debug_console.h"
+|———Node:" Text: "
+|———Node:string_content Text: fsl_debug_console.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "pin_mux.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "pin_mux.h"
+|———Node:" Text: "
+|———Node:string_content Text: pin_mux.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "clock_config.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "clock_config.h"
+|———Node:" Text: "
+|———Node:string_content Text: clock_config.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "board.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "board.h"
+|———Node:" Text: "
+|———Node:string_content Text: board.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "usb_cdc_vcom.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "usb_cdc_vcom.h"
+|———Node:" Text: "
+|———Node:string_content Text: usb_cdc_vcom.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "can_interface.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "can_interface.h"
+|———Node:" Text: "
+|———Node:string_content Text: can_interface.h
+|———Node:" Text: "
+|—Node:preproc_if Text: #if (defined(FSL_FEATURE_SOC_SYSMPU_COUNT) && (FSL_FEATURE_SOC_SYSMPU_COUNT > 0U))
+#include "fsl_sysmpu.h"
+#endif
+|——Node:#if Text: #if
+|——Node:parenthesized_expression Text: (defined(FSL_FEATURE_SOC_SYSMPU_COUNT) && (FSL_FEATURE_SOC_SYSMPU_COUNT > 0U))
+|———Node:( Text: (
+|———Node:binary_expression Text: defined(FSL_FEATURE_SOC_SYSMPU_COUNT) && (FSL_FEATURE_SOC_SYSMPU_COUNT > 0U)
+|————Node:preproc_defined Text: defined(FSL_FEATURE_SOC_SYSMPU_COUNT)
+|—————Node:defined Text: defined
+|—————Node:( Text: (
+|—————Node:identifier Text: FSL_FEATURE_SOC_SYSMPU_COUNT
+|—————Node:) Text: )
+|————Node:&& Text: &&
+|————Node:parenthesized_expression Text: (FSL_FEATURE_SOC_SYSMPU_COUNT > 0U)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: FSL_FEATURE_SOC_SYSMPU_COUNT > 0U
+|——————Node:identifier Text: FSL_FEATURE_SOC_SYSMPU_COUNT
+|——————Node:> Text: >
+|——————Node:number_literal Text: 0U
+|—————Node:) Text: )
+|———Node:) Text: )
+|——Node:
+ Text: 
+
+|——Node:preproc_include Text: #include "fsl_sysmpu.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "fsl_sysmpu.h"
+|————Node:" Text: "
+|————Node:string_content Text: fsl_sysmpu.h
+|————Node:" Text: "
+|——Node:#endif Text: #endif
+|—Node:comment
+|—Node:preproc_include Text: #include "usb_to_can.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "usb_to_can.h"
+|———Node:" Text: "
+|———Node:string_content Text: usb_to_can.h
+|———Node:" Text: "
+|—Node:comment
+|—Node:comment
+|—Node:declaration Text: const usb_to_can_sendfunc_t usb2can_sendfunc =
+{
+  APPUSBCdcSend,
+  APPCanSend,
+};
+|——Node:type_qualifier Text: const
+|———Node:const Text: const
+|——Node:type_identifier Text: usb_to_can_sendfunc_t
+|——Node:init_declarator Text: usb2can_sendfunc =
+{
+  APPUSBCdcSend,
+  APPCanSend,
+}
+|———Node:identifier Text: usb2can_sendfunc
+|———Node:= Text: =
+|———Node:initializer_list Text: {
+  APPUSBCdcSend,
+  APPCanSend,
+}
+|————Node:{ Text: {
+|————Node:identifier Text: APPUSBCdcSend
+|————Node:, Text: ,
+|————Node:identifier Text: APPCanSend
+|————Node:, Text: ,
+|————Node:} Text: }
+|——Node:; Text: ;
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:preproc_if Text: #if defined(__CC_ARM) || (defined(__ARMCC_VERSION)) || defined(__GNUC__)
+int main(void)
+#else
+void main(void)
+#endif
+|——Node:#if Text: #if
+|——Node:binary_expression Text: defined(__CC_ARM) || (defined(__ARMCC_VERSION)) || defined(__GNUC__)
+|———Node:binary_expression Text: defined(__CC_ARM) || (defined(__ARMCC_VERSION))
+|————Node:preproc_defined Text: defined(__CC_ARM)
+|—————Node:defined Text: defined
+|—————Node:( Text: (
+|—————Node:identifier Text: __CC_ARM
+|—————Node:) Text: )
+|————Node:|| Text: ||
+|————Node:parenthesized_expression Text: (defined(__ARMCC_VERSION))
+|—————Node:( Text: (
+|—————Node:preproc_defined Text: defined(__ARMCC_VERSION)
+|——————Node:defined Text: defined
+|——————Node:( Text: (
+|——————Node:identifier Text: __ARMCC_VERSION
+|——————Node:) Text: )
+|—————Node:) Text: )
+|———Node:|| Text: ||
+|———Node:preproc_defined Text: defined(__GNUC__)
+|————Node:defined Text: defined
+|————Node:( Text: (
+|————Node:identifier Text: __GNUC__
+|————Node:) Text: )
+|——Node:
+ Text: 
+
+|——Node:declaration Text: int main(void)
+|———Node:primitive_type Text: int
+|———Node:function_declarator Text: main(void)
+|————Node:identifier Text: main
+|————Node:parameter_list Text: (void)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: void
+|——————Node:primitive_type Text: void
+|—————Node:) Text: )
+|———Node:; Text: 
+|——Node:preproc_else Text: #else
+void main(void)
+|———Node:#else Text: #else
+|———Node:declaration Text: void main(void)
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: main(void)
+|—————Node:identifier Text: main
+|—————Node:parameter_list Text: (void)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: void
+|———————Node:primitive_type Text: void
+|——————Node:) Text: )
+|————Node:; Text: 
+|——Node:#endif Text: #endif
+|—Node:compound_statement Text: {
+  
+    /* Initialize board hardware. */
+    /* attach FRO 12M to FLEXCOMM4 (debug console) */
+    CLOCK_SetClkDiv(kCLOCK_DivFlexcom4Clk, 1u);
+    CLOCK_AttachClk(BOARD_DEBUG_UART_CLK_ATTACH);
+
+
+    BOARD_InitBootPins();
+    BOARD_InitBootClocks();
+    BOARD_InitDebugConsole();
+    CLOCK_SetupExtClocking(BOARD_XTAL0_CLK_HZ);
+
+    /* Initialize USB */
+    APPUSBInit();
+    /* Initialize CAN */
+    APPCanInit();
+    
+    /* Initialize USB to CAN interface */
+    usb_to_can_init(&usb2can_sendfunc);
+
+    while (1)
+    {
+    	AppCANRequestRxTask();
+    }
+}
+|——Node:{ Text: {
+|——Node:comment
+|——Node:comment
+|——Node:expression_statement Text: CLOCK_SetClkDiv(kCLOCK_DivFlexcom4Clk, 1u);
+|———Node:call_expression Text: CLOCK_SetClkDiv(kCLOCK_DivFlexcom4Clk, 1u)
+|————Node:identifier Text: CLOCK_SetClkDiv
+|————Node:argument_list Text: (kCLOCK_DivFlexcom4Clk, 1u)
+|—————Node:( Text: (
+|—————Node:identifier Text: kCLOCK_DivFlexcom4Clk
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 1u
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:expression_statement Text: CLOCK_AttachClk(BOARD_DEBUG_UART_CLK_ATTACH);
+|———Node:call_expression Text: CLOCK_AttachClk(BOARD_DEBUG_UART_CLK_ATTACH)
+|————Node:identifier Text: CLOCK_AttachClk
+|————Node:argument_list Text: (BOARD_DEBUG_UART_CLK_ATTACH)
+|—————Node:( Text: (
+|—————Node:identifier Text: BOARD_DEBUG_UART_CLK_ATTACH
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:expression_statement Text: BOARD_InitBootPins();
+|———Node:call_expression Text: BOARD_InitBootPins()
+|————Node:identifier Text: BOARD_InitBootPins
+|————Node:argument_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:expression_statement Text: BOARD_InitBootClocks();
+|———Node:call_expression Text: BOARD_InitBootClocks()
+|————Node:identifier Text: BOARD_InitBootClocks
+|————Node:argument_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:expression_statement Text: BOARD_InitDebugConsole();
+|———Node:call_expression Text: BOARD_InitDebugConsole()
+|————Node:identifier Text: BOARD_InitDebugConsole
+|————Node:argument_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:expression_statement Text: CLOCK_SetupExtClocking(BOARD_XTAL0_CLK_HZ);
+|———Node:call_expression Text: CLOCK_SetupExtClocking(BOARD_XTAL0_CLK_HZ)
+|————Node:identifier Text: CLOCK_SetupExtClocking
+|————Node:argument_list Text: (BOARD_XTAL0_CLK_HZ)
+|—————Node:( Text: (
+|—————Node:identifier Text: BOARD_XTAL0_CLK_HZ
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:comment
+|——Node:expression_statement Text: APPUSBInit();
+|———Node:call_expression Text: APPUSBInit()
+|————Node:identifier Text: APPUSBInit
+|————Node:argument_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:comment
+|——Node:expression_statement Text: APPCanInit();
+|———Node:call_expression Text: APPCanInit()
+|————Node:identifier Text: APPCanInit
+|————Node:argument_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:comment
+|——Node:expression_statement Text: usb_to_can_init(&usb2can_sendfunc);
+|———Node:call_expression Text: usb_to_can_init(&usb2can_sendfunc)
+|————Node:identifier Text: usb_to_can_init
+|————Node:argument_list Text: (&usb2can_sendfunc)
+|—————Node:( Text: (
+|—————Node:pointer_expression Text: &usb2can_sendfunc
+|——————Node:& Text: &
+|——————Node:identifier Text: usb2can_sendfunc
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:while_statement Text: while (1)
+    {
+    	AppCANRequestRxTask();
+    }
+|———Node:while Text: while
+|———Node:parenthesized_expression Text: (1)
+|————Node:( Text: (
+|————Node:number_literal Text: 1
+|————Node:) Text: )
+|———Node:compound_statement Text: {
+    	AppCANRequestRxTask();
+    }
+|————Node:{ Text: {
+|————Node:expression_statement Text: AppCANRequestRxTask();
+|—————Node:call_expression Text: AppCANRequestRxTask()
+|——————Node:identifier Text: AppCANRequestRxTask
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:} Text: }

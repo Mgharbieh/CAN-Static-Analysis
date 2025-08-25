@@ -1,0 +1,1401 @@
+CANmon-src\canmon.c
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include "canmon.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "canmon.h"
+|———Node:" Text: "
+|———Node:string_content Text: canmon.h
+|———Node:" Text: "
+|—Node:function_definition Text: int
+main(void)
+{
+	uint8_t byte, checksum = 0, sequence = 0, length = 0, index = 0;
+
+	enum {
+		MSG_STATE_START = 1,
+		MSG_STATE_SEQ,
+		MSG_STATE_LENGTH,
+		MSG_STATE_BODY,
+		MSG_STATE_CHECKSUM,
+		MSG_STATE_ERROR,
+		MSG_STATE_COMPLETE
+	} msg_state;
+
+	char message[CM_MSG_MAX_LENGTH];
+	char response[CM_MSG_MAX_LENGTH];
+
+	cm_uart_init();
+
+	sei();
+
+	for (;;) {
+
+		/*********************************************************************** 
+		 * Read Message
+		 **********************************************************************/
+
+		/* Start state machine waiting for start byte */
+		msg_state = MSG_STATE_START;
+
+		/* Run state machine until the received message needs processing */
+		while (msg_state != MSG_STATE_COMPLETE) {
+
+			byte = cm_uart_read();
+
+			if (cm_uart_err == E_UART_RX_BUF_EMPTY) continue;
+
+			switch (msg_state) {
+
+				/* Initial (reset) state, read start byte */
+				case MSG_STATE_START:
+					if (byte == CM_MSG_START) {
+						msg_state = MSG_STATE_SEQ;
+						checksum = CM_MSG_START ^ 0;
+					}
+					break;
+
+				/* Read sequence byte */
+				case MSG_STATE_SEQ:
+					sequence = byte;
+					msg_state = MSG_STATE_LENGTH;
+					checksum ^= byte;
+					break;
+
+				/* Read message length */
+				case MSG_STATE_LENGTH:
+					length = byte;
+
+					if (length > CM_MSG_MAX_LENGTH) {
+						msg_state = MSG_STATE_ERROR;
+					} else {
+						msg_state = MSG_STATE_BODY;
+						index = 0;
+						checksum ^= byte;
+					}
+
+					break;
+
+				/* Read message body bytes */
+				case MSG_STATE_BODY:
+					message[index++] = byte;
+					checksum ^= byte;
+
+					/* Check for ESC -- state machine should be reset */
+					if (byte == CM_MSG_START) msg_state = MSG_STATE_START;
+
+					if (index == length) msg_state = MSG_STATE_CHECKSUM;
+					break;
+
+				/* Read checksum byte */
+				case MSG_STATE_CHECKSUM:
+
+					// TODO: Read and process checksum
+
+					msg_state = MSG_STATE_COMPLETE;
+					break;
+
+				/* Message error */
+				case MSG_STATE_ERROR:
+
+					// TODO: Handle error
+
+					msg_state = MSG_STATE_COMPLETE;
+					break;
+
+				/* Complete, so start processing */
+				case MSG_STATE_COMPLETE:
+					break;
+			}
+		}
+
+
+		/*********************************************************************** 
+		 * Process Message
+		 **********************************************************************/
+
+		switch (message[0]) {
+			case MSG_COMMAND_IDENT:
+				length = 6;
+				strcpy(response, "CANmon");
+				break;
+		}
+
+
+		/*********************************************************************** 
+		 * Send Response
+		 **********************************************************************/
+
+		/* Write start byte */
+		cm_uart_write(CM_MSG_START);
+		checksum = CM_MSG_START ^ 0;
+
+		/* Write sequence number of message this response is for */
+		cm_uart_write(sequence);
+		checksum ^= sequence;
+
+		/* Write response length */
+		cm_uart_write(length);
+		checksum ^= length;
+
+		/* Write response body bytes */
+		for (index = 0; index < length; index++) {
+			cm_uart_write(response[index]);
+			checksum ^= response[index];
+		}
+
+		/* Write response checksum */
+		cm_uart_write(checksum);
+	}
+
+	return 0;
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: main(void)
+|———Node:identifier Text: main
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	uint8_t byte, checksum = 0, sequence = 0, length = 0, index = 0;
+
+	enum {
+		MSG_STATE_START = 1,
+		MSG_STATE_SEQ,
+		MSG_STATE_LENGTH,
+		MSG_STATE_BODY,
+		MSG_STATE_CHECKSUM,
+		MSG_STATE_ERROR,
+		MSG_STATE_COMPLETE
+	} msg_state;
+
+	char message[CM_MSG_MAX_LENGTH];
+	char response[CM_MSG_MAX_LENGTH];
+
+	cm_uart_init();
+
+	sei();
+
+	for (;;) {
+
+		/*********************************************************************** 
+		 * Read Message
+		 **********************************************************************/
+
+		/* Start state machine waiting for start byte */
+		msg_state = MSG_STATE_START;
+
+		/* Run state machine until the received message needs processing */
+		while (msg_state != MSG_STATE_COMPLETE) {
+
+			byte = cm_uart_read();
+
+			if (cm_uart_err == E_UART_RX_BUF_EMPTY) continue;
+
+			switch (msg_state) {
+
+				/* Initial (reset) state, read start byte */
+				case MSG_STATE_START:
+					if (byte == CM_MSG_START) {
+						msg_state = MSG_STATE_SEQ;
+						checksum = CM_MSG_START ^ 0;
+					}
+					break;
+
+				/* Read sequence byte */
+				case MSG_STATE_SEQ:
+					sequence = byte;
+					msg_state = MSG_STATE_LENGTH;
+					checksum ^= byte;
+					break;
+
+				/* Read message length */
+				case MSG_STATE_LENGTH:
+					length = byte;
+
+					if (length > CM_MSG_MAX_LENGTH) {
+						msg_state = MSG_STATE_ERROR;
+					} else {
+						msg_state = MSG_STATE_BODY;
+						index = 0;
+						checksum ^= byte;
+					}
+
+					break;
+
+				/* Read message body bytes */
+				case MSG_STATE_BODY:
+					message[index++] = byte;
+					checksum ^= byte;
+
+					/* Check for ESC -- state machine should be reset */
+					if (byte == CM_MSG_START) msg_state = MSG_STATE_START;
+
+					if (index == length) msg_state = MSG_STATE_CHECKSUM;
+					break;
+
+				/* Read checksum byte */
+				case MSG_STATE_CHECKSUM:
+
+					// TODO: Read and process checksum
+
+					msg_state = MSG_STATE_COMPLETE;
+					break;
+
+				/* Message error */
+				case MSG_STATE_ERROR:
+
+					// TODO: Handle error
+
+					msg_state = MSG_STATE_COMPLETE;
+					break;
+
+				/* Complete, so start processing */
+				case MSG_STATE_COMPLETE:
+					break;
+			}
+		}
+
+
+		/*********************************************************************** 
+		 * Process Message
+		 **********************************************************************/
+
+		switch (message[0]) {
+			case MSG_COMMAND_IDENT:
+				length = 6;
+				strcpy(response, "CANmon");
+				break;
+		}
+
+
+		/*********************************************************************** 
+		 * Send Response
+		 **********************************************************************/
+
+		/* Write start byte */
+		cm_uart_write(CM_MSG_START);
+		checksum = CM_MSG_START ^ 0;
+
+		/* Write sequence number of message this response is for */
+		cm_uart_write(sequence);
+		checksum ^= sequence;
+
+		/* Write response length */
+		cm_uart_write(length);
+		checksum ^= length;
+
+		/* Write response body bytes */
+		for (index = 0; index < length; index++) {
+			cm_uart_write(response[index]);
+			checksum ^= response[index];
+		}
+
+		/* Write response checksum */
+		cm_uart_write(checksum);
+	}
+
+	return 0;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: uint8_t byte, checksum = 0, sequence = 0, length = 0, index = 0;
+|————Node:primitive_type Text: uint8_t
+|————Node:identifier Text: byte
+|————Node:, Text: ,
+|————Node:init_declarator Text: checksum = 0
+|—————Node:identifier Text: checksum
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:, Text: ,
+|————Node:init_declarator Text: sequence = 0
+|—————Node:identifier Text: sequence
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:, Text: ,
+|————Node:init_declarator Text: length = 0
+|—————Node:identifier Text: length
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:, Text: ,
+|————Node:init_declarator Text: index = 0
+|—————Node:identifier Text: index
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: enum {
+		MSG_STATE_START = 1,
+		MSG_STATE_SEQ,
+		MSG_STATE_LENGTH,
+		MSG_STATE_BODY,
+		MSG_STATE_CHECKSUM,
+		MSG_STATE_ERROR,
+		MSG_STATE_COMPLETE
+	} msg_state;
+|————Node:enum_specifier Text: enum {
+		MSG_STATE_START = 1,
+		MSG_STATE_SEQ,
+		MSG_STATE_LENGTH,
+		MSG_STATE_BODY,
+		MSG_STATE_CHECKSUM,
+		MSG_STATE_ERROR,
+		MSG_STATE_COMPLETE
+	}
+|—————Node:enum Text: enum
+|—————Node:enumerator_list Text: {
+		MSG_STATE_START = 1,
+		MSG_STATE_SEQ,
+		MSG_STATE_LENGTH,
+		MSG_STATE_BODY,
+		MSG_STATE_CHECKSUM,
+		MSG_STATE_ERROR,
+		MSG_STATE_COMPLETE
+	}
+|——————Node:{ Text: {
+|——————Node:enumerator Text: MSG_STATE_START = 1
+|———————Node:identifier Text: MSG_STATE_START
+|———————Node:= Text: =
+|———————Node:number_literal Text: 1
+|——————Node:, Text: ,
+|——————Node:enumerator Text: MSG_STATE_SEQ
+|———————Node:identifier Text: MSG_STATE_SEQ
+|——————Node:, Text: ,
+|——————Node:enumerator Text: MSG_STATE_LENGTH
+|———————Node:identifier Text: MSG_STATE_LENGTH
+|——————Node:, Text: ,
+|——————Node:enumerator Text: MSG_STATE_BODY
+|———————Node:identifier Text: MSG_STATE_BODY
+|——————Node:, Text: ,
+|——————Node:enumerator Text: MSG_STATE_CHECKSUM
+|———————Node:identifier Text: MSG_STATE_CHECKSUM
+|——————Node:, Text: ,
+|——————Node:enumerator Text: MSG_STATE_ERROR
+|———————Node:identifier Text: MSG_STATE_ERROR
+|——————Node:, Text: ,
+|——————Node:enumerator Text: MSG_STATE_COMPLETE
+|———————Node:identifier Text: MSG_STATE_COMPLETE
+|——————Node:} Text: }
+|————Node:identifier Text: msg_state
+|————Node:; Text: ;
+|———Node:declaration Text: char message[CM_MSG_MAX_LENGTH];
+|————Node:primitive_type Text: char
+|————Node:array_declarator Text: message[CM_MSG_MAX_LENGTH]
+|—————Node:identifier Text: message
+|—————Node:[ Text: [
+|—————Node:identifier Text: CM_MSG_MAX_LENGTH
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:declaration Text: char response[CM_MSG_MAX_LENGTH];
+|————Node:primitive_type Text: char
+|————Node:array_declarator Text: response[CM_MSG_MAX_LENGTH]
+|—————Node:identifier Text: response
+|—————Node:[ Text: [
+|—————Node:identifier Text: CM_MSG_MAX_LENGTH
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:expression_statement Text: cm_uart_init();
+|————Node:call_expression Text: cm_uart_init()
+|—————Node:identifier Text: cm_uart_init
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: sei();
+|————Node:call_expression Text: sei()
+|—————Node:identifier Text: sei
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:for_statement Text: for (;;) {
+
+		/*********************************************************************** 
+		 * Read Message
+		 **********************************************************************/
+
+		/* Start state machine waiting for start byte */
+		msg_state = MSG_STATE_START;
+
+		/* Run state machine until the received message needs processing */
+		while (msg_state != MSG_STATE_COMPLETE) {
+
+			byte = cm_uart_read();
+
+			if (cm_uart_err == E_UART_RX_BUF_EMPTY) continue;
+
+			switch (msg_state) {
+
+				/* Initial (reset) state, read start byte */
+				case MSG_STATE_START:
+					if (byte == CM_MSG_START) {
+						msg_state = MSG_STATE_SEQ;
+						checksum = CM_MSG_START ^ 0;
+					}
+					break;
+
+				/* Read sequence byte */
+				case MSG_STATE_SEQ:
+					sequence = byte;
+					msg_state = MSG_STATE_LENGTH;
+					checksum ^= byte;
+					break;
+
+				/* Read message length */
+				case MSG_STATE_LENGTH:
+					length = byte;
+
+					if (length > CM_MSG_MAX_LENGTH) {
+						msg_state = MSG_STATE_ERROR;
+					} else {
+						msg_state = MSG_STATE_BODY;
+						index = 0;
+						checksum ^= byte;
+					}
+
+					break;
+
+				/* Read message body bytes */
+				case MSG_STATE_BODY:
+					message[index++] = byte;
+					checksum ^= byte;
+
+					/* Check for ESC -- state machine should be reset */
+					if (byte == CM_MSG_START) msg_state = MSG_STATE_START;
+
+					if (index == length) msg_state = MSG_STATE_CHECKSUM;
+					break;
+
+				/* Read checksum byte */
+				case MSG_STATE_CHECKSUM:
+
+					// TODO: Read and process checksum
+
+					msg_state = MSG_STATE_COMPLETE;
+					break;
+
+				/* Message error */
+				case MSG_STATE_ERROR:
+
+					// TODO: Handle error
+
+					msg_state = MSG_STATE_COMPLETE;
+					break;
+
+				/* Complete, so start processing */
+				case MSG_STATE_COMPLETE:
+					break;
+			}
+		}
+
+
+		/*********************************************************************** 
+		 * Process Message
+		 **********************************************************************/
+
+		switch (message[0]) {
+			case MSG_COMMAND_IDENT:
+				length = 6;
+				strcpy(response, "CANmon");
+				break;
+		}
+
+
+		/*********************************************************************** 
+		 * Send Response
+		 **********************************************************************/
+
+		/* Write start byte */
+		cm_uart_write(CM_MSG_START);
+		checksum = CM_MSG_START ^ 0;
+
+		/* Write sequence number of message this response is for */
+		cm_uart_write(sequence);
+		checksum ^= sequence;
+
+		/* Write response length */
+		cm_uart_write(length);
+		checksum ^= length;
+
+		/* Write response body bytes */
+		for (index = 0; index < length; index++) {
+			cm_uart_write(response[index]);
+			checksum ^= response[index];
+		}
+
+		/* Write response checksum */
+		cm_uart_write(checksum);
+	}
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:; Text: ;
+|————Node:; Text: ;
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+
+		/*********************************************************************** 
+		 * Read Message
+		 **********************************************************************/
+
+		/* Start state machine waiting for start byte */
+		msg_state = MSG_STATE_START;
+
+		/* Run state machine until the received message needs processing */
+		while (msg_state != MSG_STATE_COMPLETE) {
+
+			byte = cm_uart_read();
+
+			if (cm_uart_err == E_UART_RX_BUF_EMPTY) continue;
+
+			switch (msg_state) {
+
+				/* Initial (reset) state, read start byte */
+				case MSG_STATE_START:
+					if (byte == CM_MSG_START) {
+						msg_state = MSG_STATE_SEQ;
+						checksum = CM_MSG_START ^ 0;
+					}
+					break;
+
+				/* Read sequence byte */
+				case MSG_STATE_SEQ:
+					sequence = byte;
+					msg_state = MSG_STATE_LENGTH;
+					checksum ^= byte;
+					break;
+
+				/* Read message length */
+				case MSG_STATE_LENGTH:
+					length = byte;
+
+					if (length > CM_MSG_MAX_LENGTH) {
+						msg_state = MSG_STATE_ERROR;
+					} else {
+						msg_state = MSG_STATE_BODY;
+						index = 0;
+						checksum ^= byte;
+					}
+
+					break;
+
+				/* Read message body bytes */
+				case MSG_STATE_BODY:
+					message[index++] = byte;
+					checksum ^= byte;
+
+					/* Check for ESC -- state machine should be reset */
+					if (byte == CM_MSG_START) msg_state = MSG_STATE_START;
+
+					if (index == length) msg_state = MSG_STATE_CHECKSUM;
+					break;
+
+				/* Read checksum byte */
+				case MSG_STATE_CHECKSUM:
+
+					// TODO: Read and process checksum
+
+					msg_state = MSG_STATE_COMPLETE;
+					break;
+
+				/* Message error */
+				case MSG_STATE_ERROR:
+
+					// TODO: Handle error
+
+					msg_state = MSG_STATE_COMPLETE;
+					break;
+
+				/* Complete, so start processing */
+				case MSG_STATE_COMPLETE:
+					break;
+			}
+		}
+
+
+		/*********************************************************************** 
+		 * Process Message
+		 **********************************************************************/
+
+		switch (message[0]) {
+			case MSG_COMMAND_IDENT:
+				length = 6;
+				strcpy(response, "CANmon");
+				break;
+		}
+
+
+		/*********************************************************************** 
+		 * Send Response
+		 **********************************************************************/
+
+		/* Write start byte */
+		cm_uart_write(CM_MSG_START);
+		checksum = CM_MSG_START ^ 0;
+
+		/* Write sequence number of message this response is for */
+		cm_uart_write(sequence);
+		checksum ^= sequence;
+
+		/* Write response length */
+		cm_uart_write(length);
+		checksum ^= length;
+
+		/* Write response body bytes */
+		for (index = 0; index < length; index++) {
+			cm_uart_write(response[index]);
+			checksum ^= response[index];
+		}
+
+		/* Write response checksum */
+		cm_uart_write(checksum);
+	}
+|—————Node:{ Text: {
+|—————Node:comment
+|—————Node:comment
+|—————Node:expression_statement Text: msg_state = MSG_STATE_START;
+|——————Node:assignment_expression Text: msg_state = MSG_STATE_START
+|———————Node:identifier Text: msg_state
+|———————Node:= Text: =
+|———————Node:identifier Text: MSG_STATE_START
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:while_statement Text: while (msg_state != MSG_STATE_COMPLETE) {
+
+			byte = cm_uart_read();
+
+			if (cm_uart_err == E_UART_RX_BUF_EMPTY) continue;
+
+			switch (msg_state) {
+
+				/* Initial (reset) state, read start byte */
+				case MSG_STATE_START:
+					if (byte == CM_MSG_START) {
+						msg_state = MSG_STATE_SEQ;
+						checksum = CM_MSG_START ^ 0;
+					}
+					break;
+
+				/* Read sequence byte */
+				case MSG_STATE_SEQ:
+					sequence = byte;
+					msg_state = MSG_STATE_LENGTH;
+					checksum ^= byte;
+					break;
+
+				/* Read message length */
+				case MSG_STATE_LENGTH:
+					length = byte;
+
+					if (length > CM_MSG_MAX_LENGTH) {
+						msg_state = MSG_STATE_ERROR;
+					} else {
+						msg_state = MSG_STATE_BODY;
+						index = 0;
+						checksum ^= byte;
+					}
+
+					break;
+
+				/* Read message body bytes */
+				case MSG_STATE_BODY:
+					message[index++] = byte;
+					checksum ^= byte;
+
+					/* Check for ESC -- state machine should be reset */
+					if (byte == CM_MSG_START) msg_state = MSG_STATE_START;
+
+					if (index == length) msg_state = MSG_STATE_CHECKSUM;
+					break;
+
+				/* Read checksum byte */
+				case MSG_STATE_CHECKSUM:
+
+					// TODO: Read and process checksum
+
+					msg_state = MSG_STATE_COMPLETE;
+					break;
+
+				/* Message error */
+				case MSG_STATE_ERROR:
+
+					// TODO: Handle error
+
+					msg_state = MSG_STATE_COMPLETE;
+					break;
+
+				/* Complete, so start processing */
+				case MSG_STATE_COMPLETE:
+					break;
+			}
+		}
+|——————Node:while Text: while
+|——————Node:parenthesized_expression Text: (msg_state != MSG_STATE_COMPLETE)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: msg_state != MSG_STATE_COMPLETE
+|————————Node:identifier Text: msg_state
+|————————Node:!= Text: !=
+|————————Node:identifier Text: MSG_STATE_COMPLETE
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+
+			byte = cm_uart_read();
+
+			if (cm_uart_err == E_UART_RX_BUF_EMPTY) continue;
+
+			switch (msg_state) {
+
+				/* Initial (reset) state, read start byte */
+				case MSG_STATE_START:
+					if (byte == CM_MSG_START) {
+						msg_state = MSG_STATE_SEQ;
+						checksum = CM_MSG_START ^ 0;
+					}
+					break;
+
+				/* Read sequence byte */
+				case MSG_STATE_SEQ:
+					sequence = byte;
+					msg_state = MSG_STATE_LENGTH;
+					checksum ^= byte;
+					break;
+
+				/* Read message length */
+				case MSG_STATE_LENGTH:
+					length = byte;
+
+					if (length > CM_MSG_MAX_LENGTH) {
+						msg_state = MSG_STATE_ERROR;
+					} else {
+						msg_state = MSG_STATE_BODY;
+						index = 0;
+						checksum ^= byte;
+					}
+
+					break;
+
+				/* Read message body bytes */
+				case MSG_STATE_BODY:
+					message[index++] = byte;
+					checksum ^= byte;
+
+					/* Check for ESC -- state machine should be reset */
+					if (byte == CM_MSG_START) msg_state = MSG_STATE_START;
+
+					if (index == length) msg_state = MSG_STATE_CHECKSUM;
+					break;
+
+				/* Read checksum byte */
+				case MSG_STATE_CHECKSUM:
+
+					// TODO: Read and process checksum
+
+					msg_state = MSG_STATE_COMPLETE;
+					break;
+
+				/* Message error */
+				case MSG_STATE_ERROR:
+
+					// TODO: Handle error
+
+					msg_state = MSG_STATE_COMPLETE;
+					break;
+
+				/* Complete, so start processing */
+				case MSG_STATE_COMPLETE:
+					break;
+			}
+		}
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: byte = cm_uart_read();
+|————————Node:assignment_expression Text: byte = cm_uart_read()
+|—————————Node:identifier Text: byte
+|—————————Node:= Text: =
+|—————————Node:call_expression Text: cm_uart_read()
+|——————————Node:identifier Text: cm_uart_read
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if (cm_uart_err == E_UART_RX_BUF_EMPTY) continue;
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (cm_uart_err == E_UART_RX_BUF_EMPTY)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: cm_uart_err == E_UART_RX_BUF_EMPTY
+|——————————Node:identifier Text: cm_uart_err
+|——————————Node:== Text: ==
+|——————————Node:identifier Text: E_UART_RX_BUF_EMPTY
+|—————————Node:) Text: )
+|————————Node:continue_statement Text: continue;
+|—————————Node:continue Text: continue
+|—————————Node:; Text: ;
+|———————Node:switch_statement Text: switch (msg_state) {
+
+				/* Initial (reset) state, read start byte */
+				case MSG_STATE_START:
+					if (byte == CM_MSG_START) {
+						msg_state = MSG_STATE_SEQ;
+						checksum = CM_MSG_START ^ 0;
+					}
+					break;
+
+				/* Read sequence byte */
+				case MSG_STATE_SEQ:
+					sequence = byte;
+					msg_state = MSG_STATE_LENGTH;
+					checksum ^= byte;
+					break;
+
+				/* Read message length */
+				case MSG_STATE_LENGTH:
+					length = byte;
+
+					if (length > CM_MSG_MAX_LENGTH) {
+						msg_state = MSG_STATE_ERROR;
+					} else {
+						msg_state = MSG_STATE_BODY;
+						index = 0;
+						checksum ^= byte;
+					}
+
+					break;
+
+				/* Read message body bytes */
+				case MSG_STATE_BODY:
+					message[index++] = byte;
+					checksum ^= byte;
+
+					/* Check for ESC -- state machine should be reset */
+					if (byte == CM_MSG_START) msg_state = MSG_STATE_START;
+
+					if (index == length) msg_state = MSG_STATE_CHECKSUM;
+					break;
+
+				/* Read checksum byte */
+				case MSG_STATE_CHECKSUM:
+
+					// TODO: Read and process checksum
+
+					msg_state = MSG_STATE_COMPLETE;
+					break;
+
+				/* Message error */
+				case MSG_STATE_ERROR:
+
+					// TODO: Handle error
+
+					msg_state = MSG_STATE_COMPLETE;
+					break;
+
+				/* Complete, so start processing */
+				case MSG_STATE_COMPLETE:
+					break;
+			}
+|————————Node:switch Text: switch
+|————————Node:parenthesized_expression Text: (msg_state)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: msg_state
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+
+				/* Initial (reset) state, read start byte */
+				case MSG_STATE_START:
+					if (byte == CM_MSG_START) {
+						msg_state = MSG_STATE_SEQ;
+						checksum = CM_MSG_START ^ 0;
+					}
+					break;
+
+				/* Read sequence byte */
+				case MSG_STATE_SEQ:
+					sequence = byte;
+					msg_state = MSG_STATE_LENGTH;
+					checksum ^= byte;
+					break;
+
+				/* Read message length */
+				case MSG_STATE_LENGTH:
+					length = byte;
+
+					if (length > CM_MSG_MAX_LENGTH) {
+						msg_state = MSG_STATE_ERROR;
+					} else {
+						msg_state = MSG_STATE_BODY;
+						index = 0;
+						checksum ^= byte;
+					}
+
+					break;
+
+				/* Read message body bytes */
+				case MSG_STATE_BODY:
+					message[index++] = byte;
+					checksum ^= byte;
+
+					/* Check for ESC -- state machine should be reset */
+					if (byte == CM_MSG_START) msg_state = MSG_STATE_START;
+
+					if (index == length) msg_state = MSG_STATE_CHECKSUM;
+					break;
+
+				/* Read checksum byte */
+				case MSG_STATE_CHECKSUM:
+
+					// TODO: Read and process checksum
+
+					msg_state = MSG_STATE_COMPLETE;
+					break;
+
+				/* Message error */
+				case MSG_STATE_ERROR:
+
+					// TODO: Handle error
+
+					msg_state = MSG_STATE_COMPLETE;
+					break;
+
+				/* Complete, so start processing */
+				case MSG_STATE_COMPLETE:
+					break;
+			}
+|—————————Node:{ Text: {
+|—————————Node:comment
+|—————————Node:case_statement Text: case MSG_STATE_START:
+					if (byte == CM_MSG_START) {
+						msg_state = MSG_STATE_SEQ;
+						checksum = CM_MSG_START ^ 0;
+					}
+					break;
+|——————————Node:case Text: case
+|——————————Node:identifier Text: MSG_STATE_START
+|——————————Node:: Text: :
+|——————————Node:if_statement Text: if (byte == CM_MSG_START) {
+						msg_state = MSG_STATE_SEQ;
+						checksum = CM_MSG_START ^ 0;
+					}
+|———————————Node:if Text: if
+|———————————Node:parenthesized_expression Text: (byte == CM_MSG_START)
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: byte == CM_MSG_START
+|—————————————Node:identifier Text: byte
+|—————————————Node:== Text: ==
+|—————————————Node:identifier Text: CM_MSG_START
+|————————————Node:) Text: )
+|———————————Node:compound_statement Text: {
+						msg_state = MSG_STATE_SEQ;
+						checksum = CM_MSG_START ^ 0;
+					}
+|————————————Node:{ Text: {
+|————————————Node:expression_statement Text: msg_state = MSG_STATE_SEQ;
+|—————————————Node:assignment_expression Text: msg_state = MSG_STATE_SEQ
+|——————————————Node:identifier Text: msg_state
+|——————————————Node:= Text: =
+|——————————————Node:identifier Text: MSG_STATE_SEQ
+|—————————————Node:; Text: ;
+|————————————Node:expression_statement Text: checksum = CM_MSG_START ^ 0;
+|—————————————Node:assignment_expression Text: checksum = CM_MSG_START ^ 0
+|——————————————Node:identifier Text: checksum
+|——————————————Node:= Text: =
+|——————————————Node:binary_expression Text: CM_MSG_START ^ 0
+|———————————————Node:identifier Text: CM_MSG_START
+|———————————————Node:^ Text: ^
+|———————————————Node:number_literal Text: 0
+|—————————————Node:; Text: ;
+|————————————Node:} Text: }
+|——————————Node:break_statement Text: break;
+|———————————Node:break Text: break
+|———————————Node:; Text: ;
+|—————————Node:comment
+|—————————Node:case_statement Text: case MSG_STATE_SEQ:
+					sequence = byte;
+					msg_state = MSG_STATE_LENGTH;
+					checksum ^= byte;
+					break;
+|——————————Node:case Text: case
+|——————————Node:identifier Text: MSG_STATE_SEQ
+|——————————Node:: Text: :
+|——————————Node:expression_statement Text: sequence = byte;
+|———————————Node:assignment_expression Text: sequence = byte
+|————————————Node:identifier Text: sequence
+|————————————Node:= Text: =
+|————————————Node:identifier Text: byte
+|———————————Node:; Text: ;
+|——————————Node:expression_statement Text: msg_state = MSG_STATE_LENGTH;
+|———————————Node:assignment_expression Text: msg_state = MSG_STATE_LENGTH
+|————————————Node:identifier Text: msg_state
+|————————————Node:= Text: =
+|————————————Node:identifier Text: MSG_STATE_LENGTH
+|———————————Node:; Text: ;
+|——————————Node:expression_statement Text: checksum ^= byte;
+|———————————Node:assignment_expression Text: checksum ^= byte
+|————————————Node:identifier Text: checksum
+|————————————Node:^= Text: ^=
+|————————————Node:identifier Text: byte
+|———————————Node:; Text: ;
+|——————————Node:break_statement Text: break;
+|———————————Node:break Text: break
+|———————————Node:; Text: ;
+|—————————Node:comment
+|—————————Node:case_statement Text: case MSG_STATE_LENGTH:
+					length = byte;
+
+					if (length > CM_MSG_MAX_LENGTH) {
+						msg_state = MSG_STATE_ERROR;
+					} else {
+						msg_state = MSG_STATE_BODY;
+						index = 0;
+						checksum ^= byte;
+					}
+
+					break;
+|——————————Node:case Text: case
+|——————————Node:identifier Text: MSG_STATE_LENGTH
+|——————————Node:: Text: :
+|——————————Node:expression_statement Text: length = byte;
+|———————————Node:assignment_expression Text: length = byte
+|————————————Node:identifier Text: length
+|————————————Node:= Text: =
+|————————————Node:identifier Text: byte
+|———————————Node:; Text: ;
+|——————————Node:if_statement Text: if (length > CM_MSG_MAX_LENGTH) {
+						msg_state = MSG_STATE_ERROR;
+					} else {
+						msg_state = MSG_STATE_BODY;
+						index = 0;
+						checksum ^= byte;
+					}
+|———————————Node:if Text: if
+|———————————Node:parenthesized_expression Text: (length > CM_MSG_MAX_LENGTH)
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: length > CM_MSG_MAX_LENGTH
+|—————————————Node:identifier Text: length
+|—————————————Node:> Text: >
+|—————————————Node:identifier Text: CM_MSG_MAX_LENGTH
+|————————————Node:) Text: )
+|———————————Node:compound_statement Text: {
+						msg_state = MSG_STATE_ERROR;
+					}
+|————————————Node:{ Text: {
+|————————————Node:expression_statement Text: msg_state = MSG_STATE_ERROR;
+|—————————————Node:assignment_expression Text: msg_state = MSG_STATE_ERROR
+|——————————————Node:identifier Text: msg_state
+|——————————————Node:= Text: =
+|——————————————Node:identifier Text: MSG_STATE_ERROR
+|—————————————Node:; Text: ;
+|————————————Node:} Text: }
+|———————————Node:else_clause Text: else {
+						msg_state = MSG_STATE_BODY;
+						index = 0;
+						checksum ^= byte;
+					}
+|————————————Node:else Text: else
+|————————————Node:compound_statement Text: {
+						msg_state = MSG_STATE_BODY;
+						index = 0;
+						checksum ^= byte;
+					}
+|—————————————Node:{ Text: {
+|—————————————Node:expression_statement Text: msg_state = MSG_STATE_BODY;
+|——————————————Node:assignment_expression Text: msg_state = MSG_STATE_BODY
+|———————————————Node:identifier Text: msg_state
+|———————————————Node:= Text: =
+|———————————————Node:identifier Text: MSG_STATE_BODY
+|——————————————Node:; Text: ;
+|—————————————Node:expression_statement Text: index = 0;
+|——————————————Node:assignment_expression Text: index = 0
+|———————————————Node:identifier Text: index
+|———————————————Node:= Text: =
+|———————————————Node:number_literal Text: 0
+|——————————————Node:; Text: ;
+|—————————————Node:expression_statement Text: checksum ^= byte;
+|——————————————Node:assignment_expression Text: checksum ^= byte
+|———————————————Node:identifier Text: checksum
+|———————————————Node:^= Text: ^=
+|———————————————Node:identifier Text: byte
+|——————————————Node:; Text: ;
+|—————————————Node:} Text: }
+|——————————Node:break_statement Text: break;
+|———————————Node:break Text: break
+|———————————Node:; Text: ;
+|—————————Node:comment
+|—————————Node:case_statement Text: case MSG_STATE_BODY:
+					message[index++] = byte;
+					checksum ^= byte;
+
+					/* Check for ESC -- state machine should be reset */
+					if (byte == CM_MSG_START) msg_state = MSG_STATE_START;
+
+					if (index == length) msg_state = MSG_STATE_CHECKSUM;
+					break;
+|——————————Node:case Text: case
+|——————————Node:identifier Text: MSG_STATE_BODY
+|——————————Node:: Text: :
+|——————————Node:expression_statement Text: message[index++] = byte;
+|———————————Node:assignment_expression Text: message[index++] = byte
+|————————————Node:subscript_expression Text: message[index++]
+|—————————————Node:identifier Text: message
+|—————————————Node:[ Text: [
+|—————————————Node:update_expression Text: index++
+|——————————————Node:identifier Text: index
+|——————————————Node:++ Text: ++
+|—————————————Node:] Text: ]
+|————————————Node:= Text: =
+|————————————Node:identifier Text: byte
+|———————————Node:; Text: ;
+|——————————Node:expression_statement Text: checksum ^= byte;
+|———————————Node:assignment_expression Text: checksum ^= byte
+|————————————Node:identifier Text: checksum
+|————————————Node:^= Text: ^=
+|————————————Node:identifier Text: byte
+|———————————Node:; Text: ;
+|——————————Node:comment
+|——————————Node:if_statement Text: if (byte == CM_MSG_START) msg_state = MSG_STATE_START;
+|———————————Node:if Text: if
+|———————————Node:parenthesized_expression Text: (byte == CM_MSG_START)
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: byte == CM_MSG_START
+|—————————————Node:identifier Text: byte
+|—————————————Node:== Text: ==
+|—————————————Node:identifier Text: CM_MSG_START
+|————————————Node:) Text: )
+|———————————Node:expression_statement Text: msg_state = MSG_STATE_START;
+|————————————Node:assignment_expression Text: msg_state = MSG_STATE_START
+|—————————————Node:identifier Text: msg_state
+|—————————————Node:= Text: =
+|—————————————Node:identifier Text: MSG_STATE_START
+|————————————Node:; Text: ;
+|——————————Node:if_statement Text: if (index == length) msg_state = MSG_STATE_CHECKSUM;
+|———————————Node:if Text: if
+|———————————Node:parenthesized_expression Text: (index == length)
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: index == length
+|—————————————Node:identifier Text: index
+|—————————————Node:== Text: ==
+|—————————————Node:identifier Text: length
+|————————————Node:) Text: )
+|———————————Node:expression_statement Text: msg_state = MSG_STATE_CHECKSUM;
+|————————————Node:assignment_expression Text: msg_state = MSG_STATE_CHECKSUM
+|—————————————Node:identifier Text: msg_state
+|—————————————Node:= Text: =
+|—————————————Node:identifier Text: MSG_STATE_CHECKSUM
+|————————————Node:; Text: ;
+|——————————Node:break_statement Text: break;
+|———————————Node:break Text: break
+|———————————Node:; Text: ;
+|—————————Node:comment
+|—————————Node:case_statement Text: case MSG_STATE_CHECKSUM:
+
+					// TODO: Read and process checksum
+
+					msg_state = MSG_STATE_COMPLETE;
+					break;
+|——————————Node:case Text: case
+|——————————Node:identifier Text: MSG_STATE_CHECKSUM
+|——————————Node:: Text: :
+|——————————Node:comment
+|——————————Node:expression_statement Text: msg_state = MSG_STATE_COMPLETE;
+|———————————Node:assignment_expression Text: msg_state = MSG_STATE_COMPLETE
+|————————————Node:identifier Text: msg_state
+|————————————Node:= Text: =
+|————————————Node:identifier Text: MSG_STATE_COMPLETE
+|———————————Node:; Text: ;
+|——————————Node:break_statement Text: break;
+|———————————Node:break Text: break
+|———————————Node:; Text: ;
+|—————————Node:comment
+|—————————Node:case_statement Text: case MSG_STATE_ERROR:
+
+					// TODO: Handle error
+
+					msg_state = MSG_STATE_COMPLETE;
+					break;
+|——————————Node:case Text: case
+|——————————Node:identifier Text: MSG_STATE_ERROR
+|——————————Node:: Text: :
+|——————————Node:comment
+|——————————Node:expression_statement Text: msg_state = MSG_STATE_COMPLETE;
+|———————————Node:assignment_expression Text: msg_state = MSG_STATE_COMPLETE
+|————————————Node:identifier Text: msg_state
+|————————————Node:= Text: =
+|————————————Node:identifier Text: MSG_STATE_COMPLETE
+|———————————Node:; Text: ;
+|——————————Node:break_statement Text: break;
+|———————————Node:break Text: break
+|———————————Node:; Text: ;
+|—————————Node:comment
+|—————————Node:case_statement Text: case MSG_STATE_COMPLETE:
+					break;
+|——————————Node:case Text: case
+|——————————Node:identifier Text: MSG_STATE_COMPLETE
+|——————————Node:: Text: :
+|——————————Node:break_statement Text: break;
+|———————————Node:break Text: break
+|———————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|—————Node:comment
+|—————Node:switch_statement Text: switch (message[0]) {
+			case MSG_COMMAND_IDENT:
+				length = 6;
+				strcpy(response, "CANmon");
+				break;
+		}
+|——————Node:switch Text: switch
+|——————Node:parenthesized_expression Text: (message[0])
+|———————Node:( Text: (
+|———————Node:subscript_expression Text: message[0]
+|————————Node:identifier Text: message
+|————————Node:[ Text: [
+|————————Node:number_literal Text: 0
+|————————Node:] Text: ]
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+			case MSG_COMMAND_IDENT:
+				length = 6;
+				strcpy(response, "CANmon");
+				break;
+		}
+|———————Node:{ Text: {
+|———————Node:case_statement Text: case MSG_COMMAND_IDENT:
+				length = 6;
+				strcpy(response, "CANmon");
+				break;
+|————————Node:case Text: case
+|————————Node:identifier Text: MSG_COMMAND_IDENT
+|————————Node:: Text: :
+|————————Node:expression_statement Text: length = 6;
+|—————————Node:assignment_expression Text: length = 6
+|——————————Node:identifier Text: length
+|——————————Node:= Text: =
+|——————————Node:number_literal Text: 6
+|—————————Node:; Text: ;
+|————————Node:expression_statement Text: strcpy(response, "CANmon");
+|—————————Node:call_expression Text: strcpy(response, "CANmon")
+|——————————Node:identifier Text: strcpy
+|——————————Node:argument_list Text: (response, "CANmon")
+|———————————Node:( Text: (
+|———————————Node:identifier Text: response
+|———————————Node:, Text: ,
+|———————————Node:string_literal Text: "CANmon"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: CANmon
+|————————————Node:" Text: "
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:break_statement Text: break;
+|—————————Node:break Text: break
+|—————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:comment
+|—————Node:comment
+|—————Node:expression_statement Text: cm_uart_write(CM_MSG_START);
+|——————Node:call_expression Text: cm_uart_write(CM_MSG_START)
+|———————Node:identifier Text: cm_uart_write
+|———————Node:argument_list Text: (CM_MSG_START)
+|————————Node:( Text: (
+|————————Node:identifier Text: CM_MSG_START
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: checksum = CM_MSG_START ^ 0;
+|——————Node:assignment_expression Text: checksum = CM_MSG_START ^ 0
+|———————Node:identifier Text: checksum
+|———————Node:= Text: =
+|———————Node:binary_expression Text: CM_MSG_START ^ 0
+|————————Node:identifier Text: CM_MSG_START
+|————————Node:^ Text: ^
+|————————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:expression_statement Text: cm_uart_write(sequence);
+|——————Node:call_expression Text: cm_uart_write(sequence)
+|———————Node:identifier Text: cm_uart_write
+|———————Node:argument_list Text: (sequence)
+|————————Node:( Text: (
+|————————Node:identifier Text: sequence
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: checksum ^= sequence;
+|——————Node:assignment_expression Text: checksum ^= sequence
+|———————Node:identifier Text: checksum
+|———————Node:^= Text: ^=
+|———————Node:identifier Text: sequence
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:expression_statement Text: cm_uart_write(length);
+|——————Node:call_expression Text: cm_uart_write(length)
+|———————Node:identifier Text: cm_uart_write
+|———————Node:argument_list Text: (length)
+|————————Node:( Text: (
+|————————Node:identifier Text: length
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: checksum ^= length;
+|——————Node:assignment_expression Text: checksum ^= length
+|———————Node:identifier Text: checksum
+|———————Node:^= Text: ^=
+|———————Node:identifier Text: length
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:for_statement Text: for (index = 0; index < length; index++) {
+			cm_uart_write(response[index]);
+			checksum ^= response[index];
+		}
+|——————Node:for Text: for
+|——————Node:( Text: (
+|——————Node:assignment_expression Text: index = 0
+|———————Node:identifier Text: index
+|———————Node:= Text: =
+|———————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|——————Node:binary_expression Text: index < length
+|———————Node:identifier Text: index
+|———————Node:< Text: <
+|———————Node:identifier Text: length
+|——————Node:; Text: ;
+|——————Node:update_expression Text: index++
+|———————Node:identifier Text: index
+|———————Node:++ Text: ++
+|——————Node:) Text: )
+|——————Node:compound_statement Text: {
+			cm_uart_write(response[index]);
+			checksum ^= response[index];
+		}
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: cm_uart_write(response[index]);
+|————————Node:call_expression Text: cm_uart_write(response[index])
+|—————————Node:identifier Text: cm_uart_write
+|—————————Node:argument_list Text: (response[index])
+|——————————Node:( Text: (
+|——————————Node:subscript_expression Text: response[index]
+|———————————Node:identifier Text: response
+|———————————Node:[ Text: [
+|———————————Node:identifier Text: index
+|———————————Node:] Text: ]
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: checksum ^= response[index];
+|————————Node:assignment_expression Text: checksum ^= response[index]
+|—————————Node:identifier Text: checksum
+|—————————Node:^= Text: ^=
+|—————————Node:subscript_expression Text: response[index]
+|——————————Node:identifier Text: response
+|——————————Node:[ Text: [
+|——————————Node:identifier Text: index
+|——————————Node:] Text: ]
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:comment
+|—————Node:expression_statement Text: cm_uart_write(checksum);
+|——————Node:call_expression Text: cm_uart_write(checksum)
+|———————Node:identifier Text: cm_uart_write
+|———————Node:argument_list Text: (checksum)
+|————————Node:( Text: (
+|————————Node:identifier Text: checksum
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }

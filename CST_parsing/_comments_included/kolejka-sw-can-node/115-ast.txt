@@ -1,0 +1,811 @@
+kolejka-sw-can-node-src\bsp\ke06\can_controller.cpp
+
+|Node:translation_unit
+|—Node:comment Text: /*
+ * can_comm.cpp
+ * Copyright (C) 2024 Marcin Osiński <osinski.marcin.r@gmail.com>
+ *
+ * Distributed under terms of the MIT license.
+ */
+|—Node:preproc_include Text: #include "bsp/can_controller.hpp"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "bsp/can_controller.hpp"
+|———Node:" Text: "
+|———Node:string_content Text: bsp/can_controller.hpp
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "vendor/MKE06Z4.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "vendor/MKE06Z4.h"
+|———Node:" Text: "
+|———Node:string_content Text: vendor/MKE06Z4.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "vendor/sdk/fsl_mscan.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "vendor/sdk/fsl_mscan.h"
+|———Node:" Text: "
+|———Node:string_content Text: vendor/sdk/fsl_mscan.h
+|———Node:" Text: "
+|—Node:template_declaration Text: template<>
+BSP::CAN_Ctrl::ControllerDriver<MSCAN_Type>::ControllerDriver(MSCAN_Type* controller,
+                                                              BSP::CAN_Ctrl::BusSpeed busspeed)
+  : controllerBase{ controller }
+  , speed{ busspeed }
+{
+}
+|——Node:template Text: template
+|——Node:template_parameter_list Text: <>
+|———Node:< Text: <
+|———Node:> Text: >
+|——Node:function_definition Text: BSP::CAN_Ctrl::ControllerDriver<MSCAN_Type>::ControllerDriver(MSCAN_Type* controller,
+                                                              BSP::CAN_Ctrl::BusSpeed busspeed)
+  : controllerBase{ controller }
+  , speed{ busspeed }
+{
+}
+|———Node:function_declarator Text: BSP::CAN_Ctrl::ControllerDriver<MSCAN_Type>::ControllerDriver(MSCAN_Type* controller,
+                                                              BSP::CAN_Ctrl::BusSpeed busspeed)
+|————Node:qualified_identifier Text: BSP::CAN_Ctrl::ControllerDriver<MSCAN_Type>::ControllerDriver
+|—————Node:namespace_identifier Text: BSP
+|—————Node::: Text: ::
+|—————Node:qualified_identifier Text: CAN_Ctrl::ControllerDriver<MSCAN_Type>::ControllerDriver
+|——————Node:namespace_identifier Text: CAN_Ctrl
+|——————Node::: Text: ::
+|——————Node:qualified_identifier Text: ControllerDriver<MSCAN_Type>::ControllerDriver
+|———————Node:template_type Text: ControllerDriver<MSCAN_Type>
+|————————Node:type_identifier Text: ControllerDriver
+|————————Node:template_argument_list Text: <MSCAN_Type>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: MSCAN_Type
+|——————————Node:type_identifier Text: MSCAN_Type
+|—————————Node:> Text: >
+|———————Node::: Text: ::
+|———————Node:identifier Text: ControllerDriver
+|————Node:parameter_list Text: (MSCAN_Type* controller,
+                                                              BSP::CAN_Ctrl::BusSpeed busspeed)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: MSCAN_Type* controller
+|——————Node:type_identifier Text: MSCAN_Type
+|——————Node:pointer_declarator Text: * controller
+|———————Node:* Text: *
+|———————Node:identifier Text: controller
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: BSP::CAN_Ctrl::BusSpeed busspeed
+|——————Node:qualified_identifier Text: BSP::CAN_Ctrl::BusSpeed
+|———————Node:namespace_identifier Text: BSP
+|———————Node::: Text: ::
+|———————Node:qualified_identifier Text: CAN_Ctrl::BusSpeed
+|————————Node:namespace_identifier Text: CAN_Ctrl
+|————————Node::: Text: ::
+|————————Node:type_identifier Text: BusSpeed
+|——————Node:identifier Text: busspeed
+|—————Node:) Text: )
+|———Node:field_initializer_list Text: : controllerBase{ controller }
+  , speed{ busspeed }
+|————Node:: Text: :
+|————Node:field_initializer Text: controllerBase{ controller }
+|—————Node:field_identifier Text: controllerBase
+|—————Node:initializer_list Text: { controller }
+|——————Node:{ Text: {
+|——————Node:identifier Text: controller
+|——————Node:} Text: }
+|————Node:, Text: ,
+|————Node:field_initializer Text: speed{ busspeed }
+|—————Node:field_identifier Text: speed
+|—————Node:initializer_list Text: { busspeed }
+|——————Node:{ Text: {
+|——————Node:identifier Text: busspeed
+|——————Node:} Text: }
+|———Node:compound_statement Text: {
+}
+|————Node:{ Text: {
+|————Node:} Text: }
+|—Node:template_declaration Text: template<>
+void
+BSP::CAN_Ctrl::ControllerDriver<MSCAN_Type>::configure(Filter filter, OperationMode mode) const
+{
+    mscan_config_t mscanConfig;
+    MSCAN_GetDefaultConfig(&mscanConfig);
+    mscanConfig.clkSrc = kMSCAN_ClkSrcBus;
+    mscanConfig.baudRate = static_cast<uint32_t>(speed);
+    mscanConfig.filterConfig.filterMode = kMSCAN_Filter32Bit;
+    mscanConfig.filterConfig.u32IDAR0 = filter.acceptanceValue;
+    mscanConfig.filterConfig.u32IDMR0 = filter.maskValue;
+    mscanConfig.filterConfig.u32IDAR1 = filter.acceptanceValue;
+    mscanConfig.filterConfig.u32IDMR1 = filter.maskValue;
+
+    if (mode == BSP::CAN_Ctrl::OperationMode::LISTEN_ONLY) {
+        mscanConfig.enableListen = true;
+    } else if (mode == BSP::CAN_Ctrl::OperationMode::LOOPBACK) {
+        mscanConfig.enableLoopBack = true;
+    }
+
+    MSCAN_Init(this->controllerBase, &mscanConfig, CLOCK_GetBusClkFreq());
+
+    MSCAN_EnableRxInterrupts(this->controllerBase, kMSCAN_RxFullInterruptEnable);
+    EnableIRQ(MSCAN_1_IRQn);
+}
+|——Node:template Text: template
+|——Node:template_parameter_list Text: <>
+|———Node:< Text: <
+|———Node:> Text: >
+|——Node:function_definition Text: void
+BSP::CAN_Ctrl::ControllerDriver<MSCAN_Type>::configure(Filter filter, OperationMode mode) const
+{
+    mscan_config_t mscanConfig;
+    MSCAN_GetDefaultConfig(&mscanConfig);
+    mscanConfig.clkSrc = kMSCAN_ClkSrcBus;
+    mscanConfig.baudRate = static_cast<uint32_t>(speed);
+    mscanConfig.filterConfig.filterMode = kMSCAN_Filter32Bit;
+    mscanConfig.filterConfig.u32IDAR0 = filter.acceptanceValue;
+    mscanConfig.filterConfig.u32IDMR0 = filter.maskValue;
+    mscanConfig.filterConfig.u32IDAR1 = filter.acceptanceValue;
+    mscanConfig.filterConfig.u32IDMR1 = filter.maskValue;
+
+    if (mode == BSP::CAN_Ctrl::OperationMode::LISTEN_ONLY) {
+        mscanConfig.enableListen = true;
+    } else if (mode == BSP::CAN_Ctrl::OperationMode::LOOPBACK) {
+        mscanConfig.enableLoopBack = true;
+    }
+
+    MSCAN_Init(this->controllerBase, &mscanConfig, CLOCK_GetBusClkFreq());
+
+    MSCAN_EnableRxInterrupts(this->controllerBase, kMSCAN_RxFullInterruptEnable);
+    EnableIRQ(MSCAN_1_IRQn);
+}
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: BSP::CAN_Ctrl::ControllerDriver<MSCAN_Type>::configure(Filter filter, OperationMode mode) const
+|————Node:qualified_identifier Text: BSP::CAN_Ctrl::ControllerDriver<MSCAN_Type>::configure
+|—————Node:namespace_identifier Text: BSP
+|—————Node::: Text: ::
+|—————Node:qualified_identifier Text: CAN_Ctrl::ControllerDriver<MSCAN_Type>::configure
+|——————Node:namespace_identifier Text: CAN_Ctrl
+|——————Node::: Text: ::
+|——————Node:qualified_identifier Text: ControllerDriver<MSCAN_Type>::configure
+|———————Node:template_type Text: ControllerDriver<MSCAN_Type>
+|————————Node:type_identifier Text: ControllerDriver
+|————————Node:template_argument_list Text: <MSCAN_Type>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: MSCAN_Type
+|——————————Node:type_identifier Text: MSCAN_Type
+|—————————Node:> Text: >
+|———————Node::: Text: ::
+|———————Node:identifier Text: configure
+|————Node:parameter_list Text: (Filter filter, OperationMode mode)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: Filter filter
+|——————Node:type_identifier Text: Filter
+|——————Node:identifier Text: filter
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: OperationMode mode
+|——————Node:type_identifier Text: OperationMode
+|——————Node:identifier Text: mode
+|—————Node:) Text: )
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|———Node:compound_statement Text: {
+    mscan_config_t mscanConfig;
+    MSCAN_GetDefaultConfig(&mscanConfig);
+    mscanConfig.clkSrc = kMSCAN_ClkSrcBus;
+    mscanConfig.baudRate = static_cast<uint32_t>(speed);
+    mscanConfig.filterConfig.filterMode = kMSCAN_Filter32Bit;
+    mscanConfig.filterConfig.u32IDAR0 = filter.acceptanceValue;
+    mscanConfig.filterConfig.u32IDMR0 = filter.maskValue;
+    mscanConfig.filterConfig.u32IDAR1 = filter.acceptanceValue;
+    mscanConfig.filterConfig.u32IDMR1 = filter.maskValue;
+
+    if (mode == BSP::CAN_Ctrl::OperationMode::LISTEN_ONLY) {
+        mscanConfig.enableListen = true;
+    } else if (mode == BSP::CAN_Ctrl::OperationMode::LOOPBACK) {
+        mscanConfig.enableLoopBack = true;
+    }
+
+    MSCAN_Init(this->controllerBase, &mscanConfig, CLOCK_GetBusClkFreq());
+
+    MSCAN_EnableRxInterrupts(this->controllerBase, kMSCAN_RxFullInterruptEnable);
+    EnableIRQ(MSCAN_1_IRQn);
+}
+|————Node:{ Text: {
+|————Node:declaration Text: mscan_config_t mscanConfig;
+|—————Node:type_identifier Text: mscan_config_t
+|—————Node:identifier Text: mscanConfig
+|—————Node:; Text: ;
+|————Node:expression_statement Text: MSCAN_GetDefaultConfig(&mscanConfig);
+|—————Node:call_expression Text: MSCAN_GetDefaultConfig(&mscanConfig)
+|——————Node:identifier Text: MSCAN_GetDefaultConfig
+|——————Node:argument_list Text: (&mscanConfig)
+|———————Node:( Text: (
+|———————Node:pointer_expression Text: &mscanConfig
+|————————Node:& Text: &
+|————————Node:identifier Text: mscanConfig
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: mscanConfig.clkSrc = kMSCAN_ClkSrcBus;
+|—————Node:assignment_expression Text: mscanConfig.clkSrc = kMSCAN_ClkSrcBus
+|——————Node:field_expression Text: mscanConfig.clkSrc
+|———————Node:identifier Text: mscanConfig
+|———————Node:. Text: .
+|———————Node:field_identifier Text: clkSrc
+|——————Node:= Text: =
+|——————Node:identifier Text: kMSCAN_ClkSrcBus
+|—————Node:; Text: ;
+|————Node:expression_statement Text: mscanConfig.baudRate = static_cast<uint32_t>(speed);
+|—————Node:assignment_expression Text: mscanConfig.baudRate = static_cast<uint32_t>(speed)
+|——————Node:field_expression Text: mscanConfig.baudRate
+|———————Node:identifier Text: mscanConfig
+|———————Node:. Text: .
+|———————Node:field_identifier Text: baudRate
+|——————Node:= Text: =
+|——————Node:call_expression Text: static_cast<uint32_t>(speed)
+|———————Node:template_function Text: static_cast<uint32_t>
+|————————Node:identifier Text: static_cast
+|————————Node:template_argument_list Text: <uint32_t>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: uint32_t
+|——————————Node:primitive_type Text: uint32_t
+|—————————Node:> Text: >
+|———————Node:argument_list Text: (speed)
+|————————Node:( Text: (
+|————————Node:identifier Text: speed
+|————————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: mscanConfig.filterConfig.filterMode = kMSCAN_Filter32Bit;
+|—————Node:assignment_expression Text: mscanConfig.filterConfig.filterMode = kMSCAN_Filter32Bit
+|——————Node:field_expression Text: mscanConfig.filterConfig.filterMode
+|———————Node:field_expression Text: mscanConfig.filterConfig
+|————————Node:identifier Text: mscanConfig
+|————————Node:. Text: .
+|————————Node:field_identifier Text: filterConfig
+|———————Node:. Text: .
+|———————Node:field_identifier Text: filterMode
+|——————Node:= Text: =
+|——————Node:identifier Text: kMSCAN_Filter32Bit
+|—————Node:; Text: ;
+|————Node:expression_statement Text: mscanConfig.filterConfig.u32IDAR0 = filter.acceptanceValue;
+|—————Node:assignment_expression Text: mscanConfig.filterConfig.u32IDAR0 = filter.acceptanceValue
+|——————Node:field_expression Text: mscanConfig.filterConfig.u32IDAR0
+|———————Node:field_expression Text: mscanConfig.filterConfig
+|————————Node:identifier Text: mscanConfig
+|————————Node:. Text: .
+|————————Node:field_identifier Text: filterConfig
+|———————Node:. Text: .
+|———————Node:field_identifier Text: u32IDAR0
+|——————Node:= Text: =
+|——————Node:field_expression Text: filter.acceptanceValue
+|———————Node:identifier Text: filter
+|———————Node:. Text: .
+|———————Node:field_identifier Text: acceptanceValue
+|—————Node:; Text: ;
+|————Node:expression_statement Text: mscanConfig.filterConfig.u32IDMR0 = filter.maskValue;
+|—————Node:assignment_expression Text: mscanConfig.filterConfig.u32IDMR0 = filter.maskValue
+|——————Node:field_expression Text: mscanConfig.filterConfig.u32IDMR0
+|———————Node:field_expression Text: mscanConfig.filterConfig
+|————————Node:identifier Text: mscanConfig
+|————————Node:. Text: .
+|————————Node:field_identifier Text: filterConfig
+|———————Node:. Text: .
+|———————Node:field_identifier Text: u32IDMR0
+|——————Node:= Text: =
+|——————Node:field_expression Text: filter.maskValue
+|———————Node:identifier Text: filter
+|———————Node:. Text: .
+|———————Node:field_identifier Text: maskValue
+|—————Node:; Text: ;
+|————Node:expression_statement Text: mscanConfig.filterConfig.u32IDAR1 = filter.acceptanceValue;
+|—————Node:assignment_expression Text: mscanConfig.filterConfig.u32IDAR1 = filter.acceptanceValue
+|——————Node:field_expression Text: mscanConfig.filterConfig.u32IDAR1
+|———————Node:field_expression Text: mscanConfig.filterConfig
+|————————Node:identifier Text: mscanConfig
+|————————Node:. Text: .
+|————————Node:field_identifier Text: filterConfig
+|———————Node:. Text: .
+|———————Node:field_identifier Text: u32IDAR1
+|——————Node:= Text: =
+|——————Node:field_expression Text: filter.acceptanceValue
+|———————Node:identifier Text: filter
+|———————Node:. Text: .
+|———————Node:field_identifier Text: acceptanceValue
+|—————Node:; Text: ;
+|————Node:expression_statement Text: mscanConfig.filterConfig.u32IDMR1 = filter.maskValue;
+|—————Node:assignment_expression Text: mscanConfig.filterConfig.u32IDMR1 = filter.maskValue
+|——————Node:field_expression Text: mscanConfig.filterConfig.u32IDMR1
+|———————Node:field_expression Text: mscanConfig.filterConfig
+|————————Node:identifier Text: mscanConfig
+|————————Node:. Text: .
+|————————Node:field_identifier Text: filterConfig
+|———————Node:. Text: .
+|———————Node:field_identifier Text: u32IDMR1
+|——————Node:= Text: =
+|——————Node:field_expression Text: filter.maskValue
+|———————Node:identifier Text: filter
+|———————Node:. Text: .
+|———————Node:field_identifier Text: maskValue
+|—————Node:; Text: ;
+|————Node:if_statement Text: if (mode == BSP::CAN_Ctrl::OperationMode::LISTEN_ONLY) {
+        mscanConfig.enableListen = true;
+    } else if (mode == BSP::CAN_Ctrl::OperationMode::LOOPBACK) {
+        mscanConfig.enableLoopBack = true;
+    }
+|—————Node:if Text: if
+|—————Node:condition_clause Text: (mode == BSP::CAN_Ctrl::OperationMode::LISTEN_ONLY)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: mode == BSP::CAN_Ctrl::OperationMode::LISTEN_ONLY
+|———————Node:identifier Text: mode
+|———————Node:== Text: ==
+|———————Node:qualified_identifier Text: BSP::CAN_Ctrl::OperationMode::LISTEN_ONLY
+|————————Node:namespace_identifier Text: BSP
+|————————Node::: Text: ::
+|————————Node:qualified_identifier Text: CAN_Ctrl::OperationMode::LISTEN_ONLY
+|—————————Node:namespace_identifier Text: CAN_Ctrl
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: OperationMode::LISTEN_ONLY
+|——————————Node:namespace_identifier Text: OperationMode
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: LISTEN_ONLY
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+        mscanConfig.enableListen = true;
+    }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: mscanConfig.enableListen = true;
+|———————Node:assignment_expression Text: mscanConfig.enableListen = true
+|————————Node:field_expression Text: mscanConfig.enableListen
+|—————————Node:identifier Text: mscanConfig
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: enableListen
+|————————Node:= Text: =
+|————————Node:true Text: true
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|—————Node:else_clause Text: else if (mode == BSP::CAN_Ctrl::OperationMode::LOOPBACK) {
+        mscanConfig.enableLoopBack = true;
+    }
+|——————Node:else Text: else
+|——————Node:if_statement Text: if (mode == BSP::CAN_Ctrl::OperationMode::LOOPBACK) {
+        mscanConfig.enableLoopBack = true;
+    }
+|———————Node:if Text: if
+|———————Node:condition_clause Text: (mode == BSP::CAN_Ctrl::OperationMode::LOOPBACK)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: mode == BSP::CAN_Ctrl::OperationMode::LOOPBACK
+|—————————Node:identifier Text: mode
+|—————————Node:== Text: ==
+|—————————Node:qualified_identifier Text: BSP::CAN_Ctrl::OperationMode::LOOPBACK
+|——————————Node:namespace_identifier Text: BSP
+|——————————Node::: Text: ::
+|——————————Node:qualified_identifier Text: CAN_Ctrl::OperationMode::LOOPBACK
+|———————————Node:namespace_identifier Text: CAN_Ctrl
+|———————————Node::: Text: ::
+|———————————Node:qualified_identifier Text: OperationMode::LOOPBACK
+|————————————Node:namespace_identifier Text: OperationMode
+|————————————Node::: Text: ::
+|————————————Node:identifier Text: LOOPBACK
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+        mscanConfig.enableLoopBack = true;
+    }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: mscanConfig.enableLoopBack = true;
+|—————————Node:assignment_expression Text: mscanConfig.enableLoopBack = true
+|——————————Node:field_expression Text: mscanConfig.enableLoopBack
+|———————————Node:identifier Text: mscanConfig
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: enableLoopBack
+|——————————Node:= Text: =
+|——————————Node:true Text: true
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|————Node:expression_statement Text: MSCAN_Init(this->controllerBase, &mscanConfig, CLOCK_GetBusClkFreq());
+|—————Node:call_expression Text: MSCAN_Init(this->controllerBase, &mscanConfig, CLOCK_GetBusClkFreq())
+|——————Node:identifier Text: MSCAN_Init
+|——————Node:argument_list Text: (this->controllerBase, &mscanConfig, CLOCK_GetBusClkFreq())
+|———————Node:( Text: (
+|———————Node:field_expression Text: this->controllerBase
+|————————Node:this Text: this
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: controllerBase
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &mscanConfig
+|————————Node:& Text: &
+|————————Node:identifier Text: mscanConfig
+|———————Node:, Text: ,
+|———————Node:call_expression Text: CLOCK_GetBusClkFreq()
+|————————Node:identifier Text: CLOCK_GetBusClkFreq
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: MSCAN_EnableRxInterrupts(this->controllerBase, kMSCAN_RxFullInterruptEnable);
+|—————Node:call_expression Text: MSCAN_EnableRxInterrupts(this->controllerBase, kMSCAN_RxFullInterruptEnable)
+|——————Node:identifier Text: MSCAN_EnableRxInterrupts
+|——————Node:argument_list Text: (this->controllerBase, kMSCAN_RxFullInterruptEnable)
+|———————Node:( Text: (
+|———————Node:field_expression Text: this->controllerBase
+|————————Node:this Text: this
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: controllerBase
+|———————Node:, Text: ,
+|———————Node:identifier Text: kMSCAN_RxFullInterruptEnable
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: EnableIRQ(MSCAN_1_IRQn);
+|—————Node:call_expression Text: EnableIRQ(MSCAN_1_IRQn)
+|——————Node:identifier Text: EnableIRQ
+|——————Node:argument_list Text: (MSCAN_1_IRQn)
+|———————Node:( Text: (
+|———————Node:identifier Text: MSCAN_1_IRQn
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:} Text: }
+|—Node:template_declaration Text: template<>
+void
+BSP::CAN_Ctrl::ControllerDriver<MSCAN_Type>::sendFrame(
+  const BSP::CAN_Ctrl::Frame& frameToSend) const
+{
+    static mscan_frame_t frame{};
+    frame.ID_Type.ID = frameToSend.id;
+    frame.format = kMSCAN_FrameFormatStandard;
+    frame.type = kMSCAN_FrameTypeData;
+
+    frame.DLR = frameToSend.data.size();
+
+    memcpy(frame.DSR, frameToSend.data.data(), frameToSend.data.size());
+
+    MSCAN_TransferSendBlocking(controllerBase, &frame);
+}
+|——Node:template Text: template
+|——Node:template_parameter_list Text: <>
+|———Node:< Text: <
+|———Node:> Text: >
+|——Node:function_definition Text: void
+BSP::CAN_Ctrl::ControllerDriver<MSCAN_Type>::sendFrame(
+  const BSP::CAN_Ctrl::Frame& frameToSend) const
+{
+    static mscan_frame_t frame{};
+    frame.ID_Type.ID = frameToSend.id;
+    frame.format = kMSCAN_FrameFormatStandard;
+    frame.type = kMSCAN_FrameTypeData;
+
+    frame.DLR = frameToSend.data.size();
+
+    memcpy(frame.DSR, frameToSend.data.data(), frameToSend.data.size());
+
+    MSCAN_TransferSendBlocking(controllerBase, &frame);
+}
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: BSP::CAN_Ctrl::ControllerDriver<MSCAN_Type>::sendFrame(
+  const BSP::CAN_Ctrl::Frame& frameToSend) const
+|————Node:qualified_identifier Text: BSP::CAN_Ctrl::ControllerDriver<MSCAN_Type>::sendFrame
+|—————Node:namespace_identifier Text: BSP
+|—————Node::: Text: ::
+|—————Node:qualified_identifier Text: CAN_Ctrl::ControllerDriver<MSCAN_Type>::sendFrame
+|——————Node:namespace_identifier Text: CAN_Ctrl
+|——————Node::: Text: ::
+|——————Node:qualified_identifier Text: ControllerDriver<MSCAN_Type>::sendFrame
+|———————Node:template_type Text: ControllerDriver<MSCAN_Type>
+|————————Node:type_identifier Text: ControllerDriver
+|————————Node:template_argument_list Text: <MSCAN_Type>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: MSCAN_Type
+|——————————Node:type_identifier Text: MSCAN_Type
+|—————————Node:> Text: >
+|———————Node::: Text: ::
+|———————Node:identifier Text: sendFrame
+|————Node:parameter_list Text: (
+  const BSP::CAN_Ctrl::Frame& frameToSend)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const BSP::CAN_Ctrl::Frame& frameToSend
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:qualified_identifier Text: BSP::CAN_Ctrl::Frame
+|———————Node:namespace_identifier Text: BSP
+|———————Node::: Text: ::
+|———————Node:qualified_identifier Text: CAN_Ctrl::Frame
+|————————Node:namespace_identifier Text: CAN_Ctrl
+|————————Node::: Text: ::
+|————————Node:type_identifier Text: Frame
+|——————Node:reference_declarator Text: & frameToSend
+|———————Node:& Text: &
+|———————Node:identifier Text: frameToSend
+|—————Node:) Text: )
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|———Node:compound_statement Text: {
+    static mscan_frame_t frame{};
+    frame.ID_Type.ID = frameToSend.id;
+    frame.format = kMSCAN_FrameFormatStandard;
+    frame.type = kMSCAN_FrameTypeData;
+
+    frame.DLR = frameToSend.data.size();
+
+    memcpy(frame.DSR, frameToSend.data.data(), frameToSend.data.size());
+
+    MSCAN_TransferSendBlocking(controllerBase, &frame);
+}
+|————Node:{ Text: {
+|————Node:declaration Text: static mscan_frame_t frame{};
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:type_identifier Text: mscan_frame_t
+|—————Node:init_declarator Text: frame{}
+|——————Node:identifier Text: frame
+|——————Node:initializer_list Text: {}
+|———————Node:{ Text: {
+|———————Node:} Text: }
+|—————Node:; Text: ;
+|————Node:expression_statement Text: frame.ID_Type.ID = frameToSend.id;
+|—————Node:assignment_expression Text: frame.ID_Type.ID = frameToSend.id
+|——————Node:field_expression Text: frame.ID_Type.ID
+|———————Node:field_expression Text: frame.ID_Type
+|————————Node:identifier Text: frame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: ID_Type
+|———————Node:. Text: .
+|———————Node:field_identifier Text: ID
+|——————Node:= Text: =
+|——————Node:field_expression Text: frameToSend.id
+|———————Node:identifier Text: frameToSend
+|———————Node:. Text: .
+|———————Node:field_identifier Text: id
+|—————Node:; Text: ;
+|————Node:expression_statement Text: frame.format = kMSCAN_FrameFormatStandard;
+|—————Node:assignment_expression Text: frame.format = kMSCAN_FrameFormatStandard
+|——————Node:field_expression Text: frame.format
+|———————Node:identifier Text: frame
+|———————Node:. Text: .
+|———————Node:field_identifier Text: format
+|——————Node:= Text: =
+|——————Node:identifier Text: kMSCAN_FrameFormatStandard
+|—————Node:; Text: ;
+|————Node:expression_statement Text: frame.type = kMSCAN_FrameTypeData;
+|—————Node:assignment_expression Text: frame.type = kMSCAN_FrameTypeData
+|——————Node:field_expression Text: frame.type
+|———————Node:identifier Text: frame
+|———————Node:. Text: .
+|———————Node:field_identifier Text: type
+|——————Node:= Text: =
+|——————Node:identifier Text: kMSCAN_FrameTypeData
+|—————Node:; Text: ;
+|————Node:expression_statement Text: frame.DLR = frameToSend.data.size();
+|—————Node:assignment_expression Text: frame.DLR = frameToSend.data.size()
+|——————Node:field_expression Text: frame.DLR
+|———————Node:identifier Text: frame
+|———————Node:. Text: .
+|———————Node:field_identifier Text: DLR
+|——————Node:= Text: =
+|——————Node:call_expression Text: frameToSend.data.size()
+|———————Node:field_expression Text: frameToSend.data.size
+|————————Node:field_expression Text: frameToSend.data
+|—————————Node:identifier Text: frameToSend
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: data
+|————————Node:. Text: .
+|————————Node:field_identifier Text: size
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: memcpy(frame.DSR, frameToSend.data.data(), frameToSend.data.size());
+|—————Node:call_expression Text: memcpy(frame.DSR, frameToSend.data.data(), frameToSend.data.size())
+|——————Node:identifier Text: memcpy
+|——————Node:argument_list Text: (frame.DSR, frameToSend.data.data(), frameToSend.data.size())
+|———————Node:( Text: (
+|———————Node:field_expression Text: frame.DSR
+|————————Node:identifier Text: frame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: DSR
+|———————Node:, Text: ,
+|———————Node:call_expression Text: frameToSend.data.data()
+|————————Node:field_expression Text: frameToSend.data.data
+|—————————Node:field_expression Text: frameToSend.data
+|——————————Node:identifier Text: frameToSend
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: data
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: data
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:call_expression Text: frameToSend.data.size()
+|————————Node:field_expression Text: frameToSend.data.size
+|—————————Node:field_expression Text: frameToSend.data
+|——————————Node:identifier Text: frameToSend
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: data
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: size
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: MSCAN_TransferSendBlocking(controllerBase, &frame);
+|—————Node:call_expression Text: MSCAN_TransferSendBlocking(controllerBase, &frame)
+|——————Node:identifier Text: MSCAN_TransferSendBlocking
+|——————Node:argument_list Text: (controllerBase, &frame)
+|———————Node:( Text: (
+|———————Node:identifier Text: controllerBase
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &frame
+|————————Node:& Text: &
+|————————Node:identifier Text: frame
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:} Text: }
+|—Node:template_declaration Text: template<>
+[[nodiscard]] BSP::CAN_Ctrl::Frame
+BSP::CAN_Ctrl::ControllerDriver<MSCAN_Type>::readReceivedFrame() const
+{
+    mscan_frame_t mscanFrame{};
+    BSP::CAN_Ctrl::Frame frame{};
+
+    MSCAN_ReadRxMb(controllerBase, &mscanFrame);
+    MSCAN_ClearRxBufferFullFlag(controllerBase);
+
+    memcpy(frame.data.data(), mscanFrame.DSR, mscanFrame.DLR);
+
+    frame.id = mscanFrame.ID_Type.ID;
+
+    return frame;
+}
+|——Node:template Text: template
+|——Node:template_parameter_list Text: <>
+|———Node:< Text: <
+|———Node:> Text: >
+|——Node:function_definition Text: [[nodiscard]] BSP::CAN_Ctrl::Frame
+BSP::CAN_Ctrl::ControllerDriver<MSCAN_Type>::readReceivedFrame() const
+{
+    mscan_frame_t mscanFrame{};
+    BSP::CAN_Ctrl::Frame frame{};
+
+    MSCAN_ReadRxMb(controllerBase, &mscanFrame);
+    MSCAN_ClearRxBufferFullFlag(controllerBase);
+
+    memcpy(frame.data.data(), mscanFrame.DSR, mscanFrame.DLR);
+
+    frame.id = mscanFrame.ID_Type.ID;
+
+    return frame;
+}
+|———Node:attribute_declaration Text: [[nodiscard]]
+|————Node:[[ Text: [[
+|————Node:attribute Text: nodiscard
+|—————Node:identifier Text: nodiscard
+|————Node:]] Text: ]]
+|———Node:qualified_identifier Text: BSP::CAN_Ctrl::Frame
+|————Node:namespace_identifier Text: BSP
+|————Node::: Text: ::
+|————Node:qualified_identifier Text: CAN_Ctrl::Frame
+|—————Node:namespace_identifier Text: CAN_Ctrl
+|—————Node::: Text: ::
+|—————Node:type_identifier Text: Frame
+|———Node:function_declarator Text: BSP::CAN_Ctrl::ControllerDriver<MSCAN_Type>::readReceivedFrame() const
+|————Node:qualified_identifier Text: BSP::CAN_Ctrl::ControllerDriver<MSCAN_Type>::readReceivedFrame
+|—————Node:namespace_identifier Text: BSP
+|—————Node::: Text: ::
+|—————Node:qualified_identifier Text: CAN_Ctrl::ControllerDriver<MSCAN_Type>::readReceivedFrame
+|——————Node:namespace_identifier Text: CAN_Ctrl
+|——————Node::: Text: ::
+|——————Node:qualified_identifier Text: ControllerDriver<MSCAN_Type>::readReceivedFrame
+|———————Node:template_type Text: ControllerDriver<MSCAN_Type>
+|————————Node:type_identifier Text: ControllerDriver
+|————————Node:template_argument_list Text: <MSCAN_Type>
+|—————————Node:< Text: <
+|—————————Node:type_descriptor Text: MSCAN_Type
+|——————————Node:type_identifier Text: MSCAN_Type
+|—————————Node:> Text: >
+|———————Node::: Text: ::
+|———————Node:identifier Text: readReceivedFrame
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|———Node:compound_statement Text: {
+    mscan_frame_t mscanFrame{};
+    BSP::CAN_Ctrl::Frame frame{};
+
+    MSCAN_ReadRxMb(controllerBase, &mscanFrame);
+    MSCAN_ClearRxBufferFullFlag(controllerBase);
+
+    memcpy(frame.data.data(), mscanFrame.DSR, mscanFrame.DLR);
+
+    frame.id = mscanFrame.ID_Type.ID;
+
+    return frame;
+}
+|————Node:{ Text: {
+|————Node:declaration Text: mscan_frame_t mscanFrame{};
+|—————Node:type_identifier Text: mscan_frame_t
+|—————Node:init_declarator Text: mscanFrame{}
+|——————Node:identifier Text: mscanFrame
+|——————Node:initializer_list Text: {}
+|———————Node:{ Text: {
+|———————Node:} Text: }
+|—————Node:; Text: ;
+|————Node:declaration Text: BSP::CAN_Ctrl::Frame frame{};
+|—————Node:qualified_identifier Text: BSP::CAN_Ctrl::Frame
+|——————Node:namespace_identifier Text: BSP
+|——————Node::: Text: ::
+|——————Node:qualified_identifier Text: CAN_Ctrl::Frame
+|———————Node:namespace_identifier Text: CAN_Ctrl
+|———————Node::: Text: ::
+|———————Node:type_identifier Text: Frame
+|—————Node:init_declarator Text: frame{}
+|——————Node:identifier Text: frame
+|——————Node:initializer_list Text: {}
+|———————Node:{ Text: {
+|———————Node:} Text: }
+|—————Node:; Text: ;
+|————Node:expression_statement Text: MSCAN_ReadRxMb(controllerBase, &mscanFrame);
+|—————Node:call_expression Text: MSCAN_ReadRxMb(controllerBase, &mscanFrame)
+|——————Node:identifier Text: MSCAN_ReadRxMb
+|——————Node:argument_list Text: (controllerBase, &mscanFrame)
+|———————Node:( Text: (
+|———————Node:identifier Text: controllerBase
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &mscanFrame
+|————————Node:& Text: &
+|————————Node:identifier Text: mscanFrame
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: MSCAN_ClearRxBufferFullFlag(controllerBase);
+|—————Node:call_expression Text: MSCAN_ClearRxBufferFullFlag(controllerBase)
+|——————Node:identifier Text: MSCAN_ClearRxBufferFullFlag
+|——————Node:argument_list Text: (controllerBase)
+|———————Node:( Text: (
+|———————Node:identifier Text: controllerBase
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: memcpy(frame.data.data(), mscanFrame.DSR, mscanFrame.DLR);
+|—————Node:call_expression Text: memcpy(frame.data.data(), mscanFrame.DSR, mscanFrame.DLR)
+|——————Node:identifier Text: memcpy
+|——————Node:argument_list Text: (frame.data.data(), mscanFrame.DSR, mscanFrame.DLR)
+|———————Node:( Text: (
+|———————Node:call_expression Text: frame.data.data()
+|————————Node:field_expression Text: frame.data.data
+|—————————Node:field_expression Text: frame.data
+|——————————Node:identifier Text: frame
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: data
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: data
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:field_expression Text: mscanFrame.DSR
+|————————Node:identifier Text: mscanFrame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: DSR
+|———————Node:, Text: ,
+|———————Node:field_expression Text: mscanFrame.DLR
+|————————Node:identifier Text: mscanFrame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: DLR
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:expression_statement Text: frame.id = mscanFrame.ID_Type.ID;
+|—————Node:assignment_expression Text: frame.id = mscanFrame.ID_Type.ID
+|——————Node:field_expression Text: frame.id
+|———————Node:identifier Text: frame
+|———————Node:. Text: .
+|———————Node:field_identifier Text: id
+|——————Node:= Text: =
+|——————Node:field_expression Text: mscanFrame.ID_Type.ID
+|———————Node:field_expression Text: mscanFrame.ID_Type
+|————————Node:identifier Text: mscanFrame
+|————————Node:. Text: .
+|————————Node:field_identifier Text: ID_Type
+|———————Node:. Text: .
+|———————Node:field_identifier Text: ID
+|—————Node:; Text: ;
+|————Node:return_statement Text: return frame;
+|—————Node:return Text: return
+|—————Node:identifier Text: frame
+|—————Node:; Text: ;
+|————Node:} Text: }

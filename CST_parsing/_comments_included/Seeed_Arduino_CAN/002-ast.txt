@@ -1,0 +1,930 @@
+Seeed_Arduino_CAN-mcp_can.h
+
+|Node:translation_unit
+|—Node:comment Text: /*
+  mcp_can.h
+  2012 Copyright (c) Seeed Technology Inc.  All right reserved.
+
+  Author:Loovee
+  Contributor: Cory J. Fowler
+  2014-1-16
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-
+  1301  USA
+*/
+|—Node:preproc_ifdef Text: #ifndef _MCP2515_H_
+#define _MCP2515_H_
+
+#include "mcp_can_dfs.h"
+#define MAX_CHAR_IN_MESSAGE 8
+
+class MCP_CAN
+{
+    private:
+    
+    INT8U   m_nExtFlg;                                                  /* identifier xxxID             */
+                                                                        /* either extended (the 29 LSB) */
+                                                                        /* or standard (the 11 LSB)     */
+    INT32U  m_nID;                                                      /* can id                       */
+    INT8U   m_nDlc;                                                     /* data length:                 */
+    INT8U   m_nDta[MAX_CHAR_IN_MESSAGE];                            	/* data                         */
+    INT8U   m_nRtr;                                                     /* rtr                          */
+    INT8U   m_nfilhit;
+    INT8U   SPICS;
+
+/*
+*  mcp2515 driver function 
+*/
+   // private:
+private:
+
+    void mcp2515_reset(void);                                           /* reset mcp2515                */
+
+    INT8U mcp2515_readRegister(const INT8U address);                    /* read mcp2515's register      */
+    
+    void mcp2515_readRegisterS(const INT8U address, 
+	                       INT8U values[], 
+                               const INT8U n);
+    void mcp2515_setRegister(const INT8U address,                       /* set mcp2515's register       */
+                             const INT8U value);
+
+    void mcp2515_setRegisterS(const INT8U address,                      /* set mcp2515's registers      */
+                              const INT8U values[],
+                              const INT8U n);
+    
+    void mcp2515_initCANBuffers(void);
+    
+    void mcp2515_modifyRegister(const INT8U address,                    /* set bit of one register      */
+                                const INT8U mask,
+                                const INT8U data);
+
+    INT8U mcp2515_readStatus(void);                                     /* read mcp2515's Status        */
+    INT8U mcp2515_setCANCTRL_Mode(const INT8U newmode);                 /* set mode                     */
+    INT8U mcp2515_configRate(const INT8U canSpeed);                     /* set boadrate                 */
+    INT8U mcp2515_init(const INT8U canSpeed);                           /* mcp2515init                  */
+
+    void mcp2515_write_id( const INT8U mcp_addr,                        /* write can id                 */
+                               const INT8U ext,
+                               const INT32U id );
+
+    void mcp2515_read_id( const INT8U mcp_addr,                         /* read can id                  */
+                                    INT8U* ext,
+                                    INT32U* id );
+
+    void mcp2515_write_canMsg( const INT8U buffer_sidh_addr );          /* write can msg                */
+    void mcp2515_read_canMsg( const INT8U buffer_sidh_addr);            /* read can msg                 */
+    void mcp2515_start_transmit(const INT8U mcp_addr);                  /* start transmit               */
+    INT8U mcp2515_getNextFreeTXBuf(INT8U *txbuf_n);                     /* get Next free txbuf          */
+
+/*
+*  can operator function
+*/    
+
+    INT8U setMsg(INT32U id, INT8U ext, INT8U len, INT8U rtr, INT8U *pData); /* set message                  */  
+    INT8U clearMsg();                                               /* clear all message to zero    */
+    INT8U readMsg();                                                /* read message                 */
+    INT8U sendMsg();                                                /* send message                 */
+
+public:
+    MCP_CAN(INT8U _CS);
+    INT8U begin(INT8U speedset);                              /* init can                     */
+    INT8U init_Mask(INT8U num, INT8U ext, INT32U ulData);           /* init Masks                   */
+    INT8U init_Filt(INT8U num, INT8U ext, INT32U ulData);           /* init filters                 */
+    INT8U sendMsgBuf(INT32U id, INT8U ext, INT8U rtr, INT8U len, INT8U *buf); /* send buf                     */
+    INT8U readMsgBuf(INT8U *len, INT8U *buf);                       /* read buf                     */
+    INT8U readMsgBufID(INT32U *ID, INT8U *len, INT8U *buf);         /* read buf with object ID      */
+    INT8U checkReceive(void);                                       /* if something received        */
+    INT8U checkError(void);                                         /* if something error           */
+    INT32U getCanId(void);                                          /* get can id when receive      */
+    INT8U isRemoteRequest(void);                                    /* get RR flag when receive     */
+};
+
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: _MCP2515_H_
+|——Node:preproc_def Text: #define _MCP2515_H_
+
+|———Node:#define Text: #define
+|———Node:identifier Text: _MCP2515_H_
+|——Node:preproc_include Text: #include "mcp_can_dfs.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "mcp_can_dfs.h"
+|————Node:" Text: "
+|————Node:string_content Text: mcp_can_dfs.h
+|————Node:" Text: "
+|——Node:preproc_def Text: #define MAX_CHAR_IN_MESSAGE 8
+
+|———Node:#define Text: #define
+|———Node:identifier Text: MAX_CHAR_IN_MESSAGE
+|———Node:preproc_arg Text: 8
+|——Node:function_definition Text: class MCP_CAN
+{
+    private:
+    
+    INT8U   m_nExtFlg;                                                  /* identifier xxxID             */
+                                                                        /* either extended (the 29 LSB) */
+                                                                        /* or standard (the 11 LSB)     */
+    INT32U  m_nID;                                                      /* can id                       */
+    INT8U   m_nDlc;                                                     /* data length:                 */
+    INT8U   m_nDta[MAX_CHAR_IN_MESSAGE];                            	/* data                         */
+    INT8U   m_nRtr;                                                     /* rtr                          */
+    INT8U   m_nfilhit;
+    INT8U   SPICS;
+
+/*
+*  mcp2515 driver function 
+*/
+   // private:
+private:
+
+    void mcp2515_reset(void);                                           /* reset mcp2515                */
+
+    INT8U mcp2515_readRegister(const INT8U address);                    /* read mcp2515's register      */
+    
+    void mcp2515_readRegisterS(const INT8U address, 
+	                       INT8U values[], 
+                               const INT8U n);
+    void mcp2515_setRegister(const INT8U address,                       /* set mcp2515's register       */
+                             const INT8U value);
+
+    void mcp2515_setRegisterS(const INT8U address,                      /* set mcp2515's registers      */
+                              const INT8U values[],
+                              const INT8U n);
+    
+    void mcp2515_initCANBuffers(void);
+    
+    void mcp2515_modifyRegister(const INT8U address,                    /* set bit of one register      */
+                                const INT8U mask,
+                                const INT8U data);
+
+    INT8U mcp2515_readStatus(void);                                     /* read mcp2515's Status        */
+    INT8U mcp2515_setCANCTRL_Mode(const INT8U newmode);                 /* set mode                     */
+    INT8U mcp2515_configRate(const INT8U canSpeed);                     /* set boadrate                 */
+    INT8U mcp2515_init(const INT8U canSpeed);                           /* mcp2515init                  */
+
+    void mcp2515_write_id( const INT8U mcp_addr,                        /* write can id                 */
+                               const INT8U ext,
+                               const INT32U id );
+
+    void mcp2515_read_id( const INT8U mcp_addr,                         /* read can id                  */
+                                    INT8U* ext,
+                                    INT32U* id );
+
+    void mcp2515_write_canMsg( const INT8U buffer_sidh_addr );          /* write can msg                */
+    void mcp2515_read_canMsg( const INT8U buffer_sidh_addr);            /* read can msg                 */
+    void mcp2515_start_transmit(const INT8U mcp_addr);                  /* start transmit               */
+    INT8U mcp2515_getNextFreeTXBuf(INT8U *txbuf_n);                     /* get Next free txbuf          */
+
+/*
+*  can operator function
+*/    
+
+    INT8U setMsg(INT32U id, INT8U ext, INT8U len, INT8U rtr, INT8U *pData); /* set message                  */  
+    INT8U clearMsg();                                               /* clear all message to zero    */
+    INT8U readMsg();                                                /* read message                 */
+    INT8U sendMsg();                                                /* send message                 */
+
+public:
+    MCP_CAN(INT8U _CS);
+    INT8U begin(INT8U speedset);                              /* init can                     */
+    INT8U init_Mask(INT8U num, INT8U ext, INT32U ulData);           /* init Masks                   */
+    INT8U init_Filt(INT8U num, INT8U ext, INT32U ulData);           /* init filters                 */
+    INT8U sendMsgBuf(INT32U id, INT8U ext, INT8U rtr, INT8U len, INT8U *buf); /* send buf                     */
+    INT8U readMsgBuf(INT8U *len, INT8U *buf);                       /* read buf                     */
+    INT8U readMsgBufID(INT32U *ID, INT8U *len, INT8U *buf);         /* read buf with object ID      */
+    INT8U checkReceive(void);                                       /* if something received        */
+    INT8U checkError(void);                                         /* if something error           */
+    INT32U getCanId(void);                                          /* get can id when receive      */
+    INT8U isRemoteRequest(void);                                    /* get RR flag when receive     */
+}
+|———Node:type_identifier Text: class
+|———Node:identifier Text: MCP_CAN
+|———Node:compound_statement Text: {
+    private:
+    
+    INT8U   m_nExtFlg;                                                  /* identifier xxxID             */
+                                                                        /* either extended (the 29 LSB) */
+                                                                        /* or standard (the 11 LSB)     */
+    INT32U  m_nID;                                                      /* can id                       */
+    INT8U   m_nDlc;                                                     /* data length:                 */
+    INT8U   m_nDta[MAX_CHAR_IN_MESSAGE];                            	/* data                         */
+    INT8U   m_nRtr;                                                     /* rtr                          */
+    INT8U   m_nfilhit;
+    INT8U   SPICS;
+
+/*
+*  mcp2515 driver function 
+*/
+   // private:
+private:
+
+    void mcp2515_reset(void);                                           /* reset mcp2515                */
+
+    INT8U mcp2515_readRegister(const INT8U address);                    /* read mcp2515's register      */
+    
+    void mcp2515_readRegisterS(const INT8U address, 
+	                       INT8U values[], 
+                               const INT8U n);
+    void mcp2515_setRegister(const INT8U address,                       /* set mcp2515's register       */
+                             const INT8U value);
+
+    void mcp2515_setRegisterS(const INT8U address,                      /* set mcp2515's registers      */
+                              const INT8U values[],
+                              const INT8U n);
+    
+    void mcp2515_initCANBuffers(void);
+    
+    void mcp2515_modifyRegister(const INT8U address,                    /* set bit of one register      */
+                                const INT8U mask,
+                                const INT8U data);
+
+    INT8U mcp2515_readStatus(void);                                     /* read mcp2515's Status        */
+    INT8U mcp2515_setCANCTRL_Mode(const INT8U newmode);                 /* set mode                     */
+    INT8U mcp2515_configRate(const INT8U canSpeed);                     /* set boadrate                 */
+    INT8U mcp2515_init(const INT8U canSpeed);                           /* mcp2515init                  */
+
+    void mcp2515_write_id( const INT8U mcp_addr,                        /* write can id                 */
+                               const INT8U ext,
+                               const INT32U id );
+
+    void mcp2515_read_id( const INT8U mcp_addr,                         /* read can id                  */
+                                    INT8U* ext,
+                                    INT32U* id );
+
+    void mcp2515_write_canMsg( const INT8U buffer_sidh_addr );          /* write can msg                */
+    void mcp2515_read_canMsg( const INT8U buffer_sidh_addr);            /* read can msg                 */
+    void mcp2515_start_transmit(const INT8U mcp_addr);                  /* start transmit               */
+    INT8U mcp2515_getNextFreeTXBuf(INT8U *txbuf_n);                     /* get Next free txbuf          */
+
+/*
+*  can operator function
+*/    
+
+    INT8U setMsg(INT32U id, INT8U ext, INT8U len, INT8U rtr, INT8U *pData); /* set message                  */  
+    INT8U clearMsg();                                               /* clear all message to zero    */
+    INT8U readMsg();                                                /* read message                 */
+    INT8U sendMsg();                                                /* send message                 */
+
+public:
+    MCP_CAN(INT8U _CS);
+    INT8U begin(INT8U speedset);                              /* init can                     */
+    INT8U init_Mask(INT8U num, INT8U ext, INT32U ulData);           /* init Masks                   */
+    INT8U init_Filt(INT8U num, INT8U ext, INT32U ulData);           /* init filters                 */
+    INT8U sendMsgBuf(INT32U id, INT8U ext, INT8U rtr, INT8U len, INT8U *buf); /* send buf                     */
+    INT8U readMsgBuf(INT8U *len, INT8U *buf);                       /* read buf                     */
+    INT8U readMsgBufID(INT32U *ID, INT8U *len, INT8U *buf);         /* read buf with object ID      */
+    INT8U checkReceive(void);                                       /* if something received        */
+    INT8U checkError(void);                                         /* if something error           */
+    INT32U getCanId(void);                                          /* get can id when receive      */
+    INT8U isRemoteRequest(void);                                    /* get RR flag when receive     */
+}
+|————Node:{ Text: {
+|————Node:labeled_statement Text: private:
+    
+    INT8U   m_nExtFlg;
+|—————Node:statement_identifier Text: private
+|—————Node:: Text: :
+|—————Node:declaration Text: INT8U   m_nExtFlg;
+|——————Node:type_identifier Text: INT8U
+|——————Node:identifier Text: m_nExtFlg
+|——————Node:; Text: ;
+|————Node:comment Text: /* identifier xxxID             */
+|————Node:comment Text: /* either extended (the 29 LSB) */
+|————Node:comment Text: /* or standard (the 11 LSB)     */
+|————Node:declaration Text: INT32U  m_nID;
+|—————Node:type_identifier Text: INT32U
+|—————Node:identifier Text: m_nID
+|—————Node:; Text: ;
+|————Node:comment Text: /* can id                       */
+|————Node:declaration Text: INT8U   m_nDlc;
+|—————Node:type_identifier Text: INT8U
+|—————Node:identifier Text: m_nDlc
+|—————Node:; Text: ;
+|————Node:comment Text: /* data length:                 */
+|————Node:declaration Text: INT8U   m_nDta[MAX_CHAR_IN_MESSAGE];
+|—————Node:type_identifier Text: INT8U
+|—————Node:array_declarator Text: m_nDta[MAX_CHAR_IN_MESSAGE]
+|——————Node:identifier Text: m_nDta
+|——————Node:[ Text: [
+|——————Node:identifier Text: MAX_CHAR_IN_MESSAGE
+|——————Node:] Text: ]
+|—————Node:; Text: ;
+|————Node:comment Text: /* data                         */
+|————Node:declaration Text: INT8U   m_nRtr;
+|—————Node:type_identifier Text: INT8U
+|—————Node:identifier Text: m_nRtr
+|—————Node:; Text: ;
+|————Node:comment Text: /* rtr                          */
+|————Node:declaration Text: INT8U   m_nfilhit;
+|—————Node:type_identifier Text: INT8U
+|—————Node:identifier Text: m_nfilhit
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U   SPICS;
+|—————Node:type_identifier Text: INT8U
+|—————Node:identifier Text: SPICS
+|—————Node:; Text: ;
+|————Node:comment Text: /*
+*  mcp2515 driver function 
+*/
+|————Node:comment Text: // private:
+|————Node:labeled_statement Text: private:
+
+    void mcp2515_reset(void);
+|—————Node:statement_identifier Text: private
+|—————Node:: Text: :
+|—————Node:declaration Text: void mcp2515_reset(void);
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: mcp2515_reset(void)
+|———————Node:identifier Text: mcp2515_reset
+|———————Node:parameter_list Text: (void)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: void
+|—————————Node:primitive_type Text: void
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|————Node:comment Text: /* reset mcp2515                */
+|————Node:declaration Text: INT8U mcp2515_readRegister(const INT8U address);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: mcp2515_readRegister(const INT8U address)
+|——————Node:identifier Text: mcp2515_readRegister
+|——————Node:parameter_list Text: (const INT8U address)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const INT8U address
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: address
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* read mcp2515's register      */
+|————Node:declaration Text: void mcp2515_readRegisterS(const INT8U address, 
+	                       INT8U values[], 
+                               const INT8U n);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: mcp2515_readRegisterS(const INT8U address, 
+	                       INT8U values[], 
+                               const INT8U n)
+|——————Node:identifier Text: mcp2515_readRegisterS
+|——————Node:parameter_list Text: (const INT8U address, 
+	                       INT8U values[], 
+                               const INT8U n)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const INT8U address
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: address
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U values[]
+|————————Node:type_identifier Text: INT8U
+|————————Node:array_declarator Text: values[]
+|—————————Node:identifier Text: values
+|—————————Node:[ Text: [
+|—————————Node:] Text: ]
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const INT8U n
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: n
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void mcp2515_setRegister(const INT8U address,                       /* set mcp2515's register       */
+                             const INT8U value);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: mcp2515_setRegister(const INT8U address,                       /* set mcp2515's register       */
+                             const INT8U value)
+|——————Node:identifier Text: mcp2515_setRegister
+|——————Node:parameter_list Text: (const INT8U address,                       /* set mcp2515's register       */
+                             const INT8U value)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const INT8U address
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: address
+|———————Node:, Text: ,
+|———————Node:comment Text: /* set mcp2515's register       */
+|———————Node:parameter_declaration Text: const INT8U value
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: value
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void mcp2515_setRegisterS(const INT8U address,                      /* set mcp2515's registers      */
+                              const INT8U values[],
+                              const INT8U n);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: mcp2515_setRegisterS(const INT8U address,                      /* set mcp2515's registers      */
+                              const INT8U values[],
+                              const INT8U n)
+|——————Node:identifier Text: mcp2515_setRegisterS
+|——————Node:parameter_list Text: (const INT8U address,                      /* set mcp2515's registers      */
+                              const INT8U values[],
+                              const INT8U n)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const INT8U address
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: address
+|———————Node:, Text: ,
+|———————Node:comment Text: /* set mcp2515's registers      */
+|———————Node:parameter_declaration Text: const INT8U values[]
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:array_declarator Text: values[]
+|—————————Node:identifier Text: values
+|—————————Node:[ Text: [
+|—————————Node:] Text: ]
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const INT8U n
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: n
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void mcp2515_initCANBuffers(void);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: mcp2515_initCANBuffers(void)
+|——————Node:identifier Text: mcp2515_initCANBuffers
+|——————Node:parameter_list Text: (void)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: void
+|————————Node:primitive_type Text: void
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void mcp2515_modifyRegister(const INT8U address,                    /* set bit of one register      */
+                                const INT8U mask,
+                                const INT8U data);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: mcp2515_modifyRegister(const INT8U address,                    /* set bit of one register      */
+                                const INT8U mask,
+                                const INT8U data)
+|——————Node:identifier Text: mcp2515_modifyRegister
+|——————Node:parameter_list Text: (const INT8U address,                    /* set bit of one register      */
+                                const INT8U mask,
+                                const INT8U data)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const INT8U address
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: address
+|———————Node:, Text: ,
+|———————Node:comment Text: /* set bit of one register      */
+|———————Node:parameter_declaration Text: const INT8U mask
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: mask
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const INT8U data
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: data
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U mcp2515_readStatus(void);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: mcp2515_readStatus(void)
+|——————Node:identifier Text: mcp2515_readStatus
+|——————Node:parameter_list Text: (void)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: void
+|————————Node:primitive_type Text: void
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* read mcp2515's Status        */
+|————Node:declaration Text: INT8U mcp2515_setCANCTRL_Mode(const INT8U newmode);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: mcp2515_setCANCTRL_Mode(const INT8U newmode)
+|——————Node:identifier Text: mcp2515_setCANCTRL_Mode
+|——————Node:parameter_list Text: (const INT8U newmode)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const INT8U newmode
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: newmode
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* set mode                     */
+|————Node:declaration Text: INT8U mcp2515_configRate(const INT8U canSpeed);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: mcp2515_configRate(const INT8U canSpeed)
+|——————Node:identifier Text: mcp2515_configRate
+|——————Node:parameter_list Text: (const INT8U canSpeed)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const INT8U canSpeed
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: canSpeed
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* set boadrate                 */
+|————Node:declaration Text: INT8U mcp2515_init(const INT8U canSpeed);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: mcp2515_init(const INT8U canSpeed)
+|——————Node:identifier Text: mcp2515_init
+|——————Node:parameter_list Text: (const INT8U canSpeed)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const INT8U canSpeed
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: canSpeed
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* mcp2515init                  */
+|————Node:declaration Text: void mcp2515_write_id( const INT8U mcp_addr,                        /* write can id                 */
+                               const INT8U ext,
+                               const INT32U id );
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: mcp2515_write_id( const INT8U mcp_addr,                        /* write can id                 */
+                               const INT8U ext,
+                               const INT32U id )
+|——————Node:identifier Text: mcp2515_write_id
+|——————Node:parameter_list Text: ( const INT8U mcp_addr,                        /* write can id                 */
+                               const INT8U ext,
+                               const INT32U id )
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const INT8U mcp_addr
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: mcp_addr
+|———————Node:, Text: ,
+|———————Node:comment Text: /* write can id                 */
+|———————Node:parameter_declaration Text: const INT8U ext
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: ext
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const INT32U id
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT32U
+|————————Node:identifier Text: id
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void mcp2515_read_id( const INT8U mcp_addr,                         /* read can id                  */
+                                    INT8U* ext,
+                                    INT32U* id );
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: mcp2515_read_id( const INT8U mcp_addr,                         /* read can id                  */
+                                    INT8U* ext,
+                                    INT32U* id )
+|——————Node:identifier Text: mcp2515_read_id
+|——————Node:parameter_list Text: ( const INT8U mcp_addr,                         /* read can id                  */
+                                    INT8U* ext,
+                                    INT32U* id )
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const INT8U mcp_addr
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: mcp_addr
+|———————Node:, Text: ,
+|———————Node:comment Text: /* read can id                  */
+|———————Node:parameter_declaration Text: INT8U* ext
+|————————Node:type_identifier Text: INT8U
+|————————Node:pointer_declarator Text: * ext
+|—————————Node:* Text: *
+|—————————Node:identifier Text: ext
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT32U* id
+|————————Node:type_identifier Text: INT32U
+|————————Node:pointer_declarator Text: * id
+|—————————Node:* Text: *
+|—————————Node:identifier Text: id
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void mcp2515_write_canMsg( const INT8U buffer_sidh_addr );
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: mcp2515_write_canMsg( const INT8U buffer_sidh_addr )
+|——————Node:identifier Text: mcp2515_write_canMsg
+|——————Node:parameter_list Text: ( const INT8U buffer_sidh_addr )
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const INT8U buffer_sidh_addr
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: buffer_sidh_addr
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* write can msg                */
+|————Node:declaration Text: void mcp2515_read_canMsg( const INT8U buffer_sidh_addr);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: mcp2515_read_canMsg( const INT8U buffer_sidh_addr)
+|——————Node:identifier Text: mcp2515_read_canMsg
+|——————Node:parameter_list Text: ( const INT8U buffer_sidh_addr)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const INT8U buffer_sidh_addr
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: buffer_sidh_addr
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* read can msg                 */
+|————Node:declaration Text: void mcp2515_start_transmit(const INT8U mcp_addr);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: mcp2515_start_transmit(const INT8U mcp_addr)
+|——————Node:identifier Text: mcp2515_start_transmit
+|——————Node:parameter_list Text: (const INT8U mcp_addr)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const INT8U mcp_addr
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: mcp_addr
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* start transmit               */
+|————Node:declaration Text: INT8U mcp2515_getNextFreeTXBuf(INT8U *txbuf_n);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: mcp2515_getNextFreeTXBuf(INT8U *txbuf_n)
+|——————Node:identifier Text: mcp2515_getNextFreeTXBuf
+|——————Node:parameter_list Text: (INT8U *txbuf_n)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: INT8U *txbuf_n
+|————————Node:type_identifier Text: INT8U
+|————————Node:pointer_declarator Text: *txbuf_n
+|—————————Node:* Text: *
+|—————————Node:identifier Text: txbuf_n
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* get Next free txbuf          */
+|————Node:comment Text: /*
+*  can operator function
+*/
+|————Node:declaration Text: INT8U setMsg(INT32U id, INT8U ext, INT8U len, INT8U rtr, INT8U *pData);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: setMsg(INT32U id, INT8U ext, INT8U len, INT8U rtr, INT8U *pData)
+|——————Node:identifier Text: setMsg
+|——————Node:parameter_list Text: (INT32U id, INT8U ext, INT8U len, INT8U rtr, INT8U *pData)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: INT32U id
+|————————Node:type_identifier Text: INT32U
+|————————Node:identifier Text: id
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U ext
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: ext
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U len
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: len
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U rtr
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: rtr
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U *pData
+|————————Node:type_identifier Text: INT8U
+|————————Node:pointer_declarator Text: *pData
+|—————————Node:* Text: *
+|—————————Node:identifier Text: pData
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* set message                  */
+|————Node:declaration Text: INT8U clearMsg();
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: clearMsg()
+|——————Node:identifier Text: clearMsg
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* clear all message to zero    */
+|————Node:declaration Text: INT8U readMsg();
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: readMsg()
+|——————Node:identifier Text: readMsg
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* read message                 */
+|————Node:declaration Text: INT8U sendMsg();
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: sendMsg()
+|——————Node:identifier Text: sendMsg
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* send message                 */
+|————Node:labeled_statement Text: public:
+    MCP_CAN(INT8U _CS);
+|—————Node:statement_identifier Text: public
+|—————Node:: Text: :
+|—————Node:declaration Text: MCP_CAN(INT8U _CS);
+|——————Node:macro_type_specifier Text: MCP_CAN(INT8U _CS)
+|———————Node:identifier Text: MCP_CAN
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: INT8U
+|————————Node:type_identifier Text: INT8U
+|———————Node:ERROR Text: _CS
+|————————Node:identifier Text: _CS
+|———————Node:) Text: )
+|——————Node:identifier Text: 
+|——————Node:; Text: ;
+|————Node:declaration Text: INT8U begin(INT8U speedset);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: begin(INT8U speedset)
+|——————Node:identifier Text: begin
+|——————Node:parameter_list Text: (INT8U speedset)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: INT8U speedset
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: speedset
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* init can                     */
+|————Node:declaration Text: INT8U init_Mask(INT8U num, INT8U ext, INT32U ulData);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: init_Mask(INT8U num, INT8U ext, INT32U ulData)
+|——————Node:identifier Text: init_Mask
+|——————Node:parameter_list Text: (INT8U num, INT8U ext, INT32U ulData)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: INT8U num
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: num
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U ext
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: ext
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT32U ulData
+|————————Node:type_identifier Text: INT32U
+|————————Node:identifier Text: ulData
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* init Masks                   */
+|————Node:declaration Text: INT8U init_Filt(INT8U num, INT8U ext, INT32U ulData);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: init_Filt(INT8U num, INT8U ext, INT32U ulData)
+|——————Node:identifier Text: init_Filt
+|——————Node:parameter_list Text: (INT8U num, INT8U ext, INT32U ulData)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: INT8U num
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: num
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U ext
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: ext
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT32U ulData
+|————————Node:type_identifier Text: INT32U
+|————————Node:identifier Text: ulData
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* init filters                 */
+|————Node:declaration Text: INT8U sendMsgBuf(INT32U id, INT8U ext, INT8U rtr, INT8U len, INT8U *buf);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: sendMsgBuf(INT32U id, INT8U ext, INT8U rtr, INT8U len, INT8U *buf)
+|——————Node:identifier Text: sendMsgBuf
+|——————Node:parameter_list Text: (INT32U id, INT8U ext, INT8U rtr, INT8U len, INT8U *buf)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: INT32U id
+|————————Node:type_identifier Text: INT32U
+|————————Node:identifier Text: id
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U ext
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: ext
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U rtr
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: rtr
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U len
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: len
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U *buf
+|————————Node:type_identifier Text: INT8U
+|————————Node:pointer_declarator Text: *buf
+|—————————Node:* Text: *
+|—————————Node:identifier Text: buf
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* send buf                     */
+|————Node:declaration Text: INT8U readMsgBuf(INT8U *len, INT8U *buf);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: readMsgBuf(INT8U *len, INT8U *buf)
+|——————Node:identifier Text: readMsgBuf
+|——————Node:parameter_list Text: (INT8U *len, INT8U *buf)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: INT8U *len
+|————————Node:type_identifier Text: INT8U
+|————————Node:pointer_declarator Text: *len
+|—————————Node:* Text: *
+|—————————Node:identifier Text: len
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U *buf
+|————————Node:type_identifier Text: INT8U
+|————————Node:pointer_declarator Text: *buf
+|—————————Node:* Text: *
+|—————————Node:identifier Text: buf
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* read buf                     */
+|————Node:declaration Text: INT8U readMsgBufID(INT32U *ID, INT8U *len, INT8U *buf);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: readMsgBufID(INT32U *ID, INT8U *len, INT8U *buf)
+|——————Node:identifier Text: readMsgBufID
+|——————Node:parameter_list Text: (INT32U *ID, INT8U *len, INT8U *buf)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: INT32U *ID
+|————————Node:type_identifier Text: INT32U
+|————————Node:pointer_declarator Text: *ID
+|—————————Node:* Text: *
+|—————————Node:identifier Text: ID
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U *len
+|————————Node:type_identifier Text: INT8U
+|————————Node:pointer_declarator Text: *len
+|—————————Node:* Text: *
+|—————————Node:identifier Text: len
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U *buf
+|————————Node:type_identifier Text: INT8U
+|————————Node:pointer_declarator Text: *buf
+|—————————Node:* Text: *
+|—————————Node:identifier Text: buf
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* read buf with object ID      */
+|————Node:declaration Text: INT8U checkReceive(void);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: checkReceive(void)
+|——————Node:identifier Text: checkReceive
+|——————Node:parameter_list Text: (void)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: void
+|————————Node:primitive_type Text: void
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* if something received        */
+|————Node:declaration Text: INT8U checkError(void);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: checkError(void)
+|——————Node:identifier Text: checkError
+|——————Node:parameter_list Text: (void)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: void
+|————————Node:primitive_type Text: void
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* if something error           */
+|————Node:declaration Text: INT32U getCanId(void);
+|—————Node:type_identifier Text: INT32U
+|—————Node:function_declarator Text: getCanId(void)
+|——————Node:identifier Text: getCanId
+|——————Node:parameter_list Text: (void)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: void
+|————————Node:primitive_type Text: void
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* get can id when receive      */
+|————Node:declaration Text: INT8U isRemoteRequest(void);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: isRemoteRequest(void)
+|——————Node:identifier Text: isRemoteRequest
+|——————Node:parameter_list Text: (void)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: void
+|————————Node:primitive_type Text: void
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment Text: /* get RR flag when receive     */
+|————Node:} Text: }
+|——Node:expression_statement Text: ;
+|———Node:; Text: ;
+|——Node:#endif Text: #endif
+|—Node:comment Text: /*********************************************************************************************************
+  END FILE
+*********************************************************************************************************/

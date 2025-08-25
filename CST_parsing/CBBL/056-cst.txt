@@ -1,0 +1,2217 @@
+CBBL-src\cal.c
+
+|Node:translation_unit
+|—Node:comment
+|—Node:preproc_include Text: #include "cal.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "cal.h"
+|———Node:" Text: "
+|———Node:string_content Text: cal.h
+|———Node:" Text: "
+|—Node:comment
+|—Node:comment
+|—Node:function_definition Text: int32_t cal_sendbyte(uint8_t b) {
+	if (comm_peripheral == USART)
+	{
+		USART_SendData(USART1, (uint16_t)b);
+		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET) {
+		}
+		return 0;
+	}
+
+	else
+	{
+	uint8_t mailbox;	//mailbox that will transmit the message
+	uint32_t tries = 0, maxTries = 99;
+
+	/* Set up the packet info. */
+	CanTxMsg msg;
+	msg.DLC = 1;		//frame length
+	msg.RTR = 0;		//data frame (not a remote frame)
+	msg.IDE = 0;		//standard identifier (not an extended identifier)
+	msg.StdId = 0;		//identifier value 0; must have been allowed for entrance by a filter bank
+	msg.ExtId = 0;		//identifier value 0; must have been allowed for entrance by a filter bank
+	msg.Data[0] = b;	//data
+
+	/* Fire. */
+	do {
+		mailbox = CAN_Transmit(CAN1, &msg);
+		tries++;
+	}
+	while (mailbox==CAN_TxStatus_NoMailBox && tries<maxTries);
+
+	/* Hard Fault if no mailbox is found empty after a while. */
+	if (mailbox==CAN_TxStatus_NoMailBox) HardFault_Handler();
+
+	return 0;
+	}
+
+	return -1;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: cal_sendbyte(uint8_t b)
+|———Node:identifier Text: cal_sendbyte
+|———Node:parameter_list Text: (uint8_t b)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint8_t b
+|—————Node:primitive_type Text: uint8_t
+|—————Node:identifier Text: b
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	if (comm_peripheral == USART)
+	{
+		USART_SendData(USART1, (uint16_t)b);
+		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET) {
+		}
+		return 0;
+	}
+
+	else
+	{
+	uint8_t mailbox;	//mailbox that will transmit the message
+	uint32_t tries = 0, maxTries = 99;
+
+	/* Set up the packet info. */
+	CanTxMsg msg;
+	msg.DLC = 1;		//frame length
+	msg.RTR = 0;		//data frame (not a remote frame)
+	msg.IDE = 0;		//standard identifier (not an extended identifier)
+	msg.StdId = 0;		//identifier value 0; must have been allowed for entrance by a filter bank
+	msg.ExtId = 0;		//identifier value 0; must have been allowed for entrance by a filter bank
+	msg.Data[0] = b;	//data
+
+	/* Fire. */
+	do {
+		mailbox = CAN_Transmit(CAN1, &msg);
+		tries++;
+	}
+	while (mailbox==CAN_TxStatus_NoMailBox && tries<maxTries);
+
+	/* Hard Fault if no mailbox is found empty after a while. */
+	if (mailbox==CAN_TxStatus_NoMailBox) HardFault_Handler();
+
+	return 0;
+	}
+
+	return -1;
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (comm_peripheral == USART)
+	{
+		USART_SendData(USART1, (uint16_t)b);
+		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET) {
+		}
+		return 0;
+	}
+
+	else
+	{
+	uint8_t mailbox;	//mailbox that will transmit the message
+	uint32_t tries = 0, maxTries = 99;
+
+	/* Set up the packet info. */
+	CanTxMsg msg;
+	msg.DLC = 1;		//frame length
+	msg.RTR = 0;		//data frame (not a remote frame)
+	msg.IDE = 0;		//standard identifier (not an extended identifier)
+	msg.StdId = 0;		//identifier value 0; must have been allowed for entrance by a filter bank
+	msg.ExtId = 0;		//identifier value 0; must have been allowed for entrance by a filter bank
+	msg.Data[0] = b;	//data
+
+	/* Fire. */
+	do {
+		mailbox = CAN_Transmit(CAN1, &msg);
+		tries++;
+	}
+	while (mailbox==CAN_TxStatus_NoMailBox && tries<maxTries);
+
+	/* Hard Fault if no mailbox is found empty after a while. */
+	if (mailbox==CAN_TxStatus_NoMailBox) HardFault_Handler();
+
+	return 0;
+	}
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (comm_peripheral == USART)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: comm_peripheral == USART
+|——————Node:identifier Text: comm_peripheral
+|——————Node:== Text: ==
+|——————Node:identifier Text: USART
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+		USART_SendData(USART1, (uint16_t)b);
+		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET) {
+		}
+		return 0;
+	}
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: USART_SendData(USART1, (uint16_t)b);
+|——————Node:call_expression Text: USART_SendData(USART1, (uint16_t)b)
+|———————Node:identifier Text: USART_SendData
+|———————Node:argument_list Text: (USART1, (uint16_t)b)
+|————————Node:( Text: (
+|————————Node:identifier Text: USART1
+|————————Node:, Text: ,
+|————————Node:cast_expression Text: (uint16_t)b
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: uint16_t
+|——————————Node:primitive_type Text: uint16_t
+|—————————Node:) Text: )
+|—————————Node:identifier Text: b
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:while_statement Text: while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET) {
+		}
+|——————Node:while Text: while
+|——————Node:parenthesized_expression Text: (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET
+|————————Node:call_expression Text: USART_GetFlagStatus(USART1, USART_FLAG_TXE)
+|—————————Node:identifier Text: USART_GetFlagStatus
+|—————————Node:argument_list Text: (USART1, USART_FLAG_TXE)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: USART1
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: USART_FLAG_TXE
+|——————————Node:) Text: )
+|————————Node:== Text: ==
+|————————Node:identifier Text: RESET
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+		}
+|———————Node:{ Text: {
+|———————Node:} Text: }
+|—————Node:return_statement Text: return 0;
+|——————Node:return Text: return
+|——————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else
+	{
+	uint8_t mailbox;	//mailbox that will transmit the message
+	uint32_t tries = 0, maxTries = 99;
+
+	/* Set up the packet info. */
+	CanTxMsg msg;
+	msg.DLC = 1;		//frame length
+	msg.RTR = 0;		//data frame (not a remote frame)
+	msg.IDE = 0;		//standard identifier (not an extended identifier)
+	msg.StdId = 0;		//identifier value 0; must have been allowed for entrance by a filter bank
+	msg.ExtId = 0;		//identifier value 0; must have been allowed for entrance by a filter bank
+	msg.Data[0] = b;	//data
+
+	/* Fire. */
+	do {
+		mailbox = CAN_Transmit(CAN1, &msg);
+		tries++;
+	}
+	while (mailbox==CAN_TxStatus_NoMailBox && tries<maxTries);
+
+	/* Hard Fault if no mailbox is found empty after a while. */
+	if (mailbox==CAN_TxStatus_NoMailBox) HardFault_Handler();
+
+	return 0;
+	}
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+	uint8_t mailbox;	//mailbox that will transmit the message
+	uint32_t tries = 0, maxTries = 99;
+
+	/* Set up the packet info. */
+	CanTxMsg msg;
+	msg.DLC = 1;		//frame length
+	msg.RTR = 0;		//data frame (not a remote frame)
+	msg.IDE = 0;		//standard identifier (not an extended identifier)
+	msg.StdId = 0;		//identifier value 0; must have been allowed for entrance by a filter bank
+	msg.ExtId = 0;		//identifier value 0; must have been allowed for entrance by a filter bank
+	msg.Data[0] = b;	//data
+
+	/* Fire. */
+	do {
+		mailbox = CAN_Transmit(CAN1, &msg);
+		tries++;
+	}
+	while (mailbox==CAN_TxStatus_NoMailBox && tries<maxTries);
+
+	/* Hard Fault if no mailbox is found empty after a while. */
+	if (mailbox==CAN_TxStatus_NoMailBox) HardFault_Handler();
+
+	return 0;
+	}
+|——————Node:{ Text: {
+|——————Node:declaration Text: uint8_t mailbox;
+|———————Node:primitive_type Text: uint8_t
+|———————Node:identifier Text: mailbox
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:declaration Text: uint32_t tries = 0, maxTries = 99;
+|———————Node:primitive_type Text: uint32_t
+|———————Node:init_declarator Text: tries = 0
+|————————Node:identifier Text: tries
+|————————Node:= Text: =
+|————————Node:number_literal Text: 0
+|———————Node:, Text: ,
+|———————Node:init_declarator Text: maxTries = 99
+|————————Node:identifier Text: maxTries
+|————————Node:= Text: =
+|————————Node:number_literal Text: 99
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:declaration Text: CanTxMsg msg;
+|———————Node:type_identifier Text: CanTxMsg
+|———————Node:identifier Text: msg
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: msg.DLC = 1;
+|———————Node:assignment_expression Text: msg.DLC = 1
+|————————Node:field_expression Text: msg.DLC
+|—————————Node:identifier Text: msg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: DLC
+|————————Node:= Text: =
+|————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:expression_statement Text: msg.RTR = 0;
+|———————Node:assignment_expression Text: msg.RTR = 0
+|————————Node:field_expression Text: msg.RTR
+|—————————Node:identifier Text: msg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: RTR
+|————————Node:= Text: =
+|————————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:expression_statement Text: msg.IDE = 0;
+|———————Node:assignment_expression Text: msg.IDE = 0
+|————————Node:field_expression Text: msg.IDE
+|—————————Node:identifier Text: msg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: IDE
+|————————Node:= Text: =
+|————————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:expression_statement Text: msg.StdId = 0;
+|———————Node:assignment_expression Text: msg.StdId = 0
+|————————Node:field_expression Text: msg.StdId
+|—————————Node:identifier Text: msg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: StdId
+|————————Node:= Text: =
+|————————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:expression_statement Text: msg.ExtId = 0;
+|———————Node:assignment_expression Text: msg.ExtId = 0
+|————————Node:field_expression Text: msg.ExtId
+|—————————Node:identifier Text: msg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: ExtId
+|————————Node:= Text: =
+|————————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:expression_statement Text: msg.Data[0] = b;
+|———————Node:assignment_expression Text: msg.Data[0] = b
+|————————Node:subscript_expression Text: msg.Data[0]
+|—————————Node:field_expression Text: msg.Data
+|——————————Node:identifier Text: msg
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: Data
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 0
+|—————————Node:] Text: ]
+|————————Node:= Text: =
+|————————Node:identifier Text: b
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:comment
+|——————Node:do_statement Text: do {
+		mailbox = CAN_Transmit(CAN1, &msg);
+		tries++;
+	}
+	while (mailbox==CAN_TxStatus_NoMailBox && tries<maxTries);
+|———————Node:do Text: do
+|———————Node:compound_statement Text: {
+		mailbox = CAN_Transmit(CAN1, &msg);
+		tries++;
+	}
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: mailbox = CAN_Transmit(CAN1, &msg);
+|—————————Node:assignment_expression Text: mailbox = CAN_Transmit(CAN1, &msg)
+|——————————Node:identifier Text: mailbox
+|——————————Node:= Text: =
+|——————————Node:call_expression Text: CAN_Transmit(CAN1, &msg)
+|———————————Node:identifier Text: CAN_Transmit
+|———————————Node:argument_list Text: (CAN1, &msg)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: CAN1
+|————————————Node:, Text: ,
+|————————————Node:pointer_expression Text: &msg
+|—————————————Node:& Text: &
+|—————————————Node:identifier Text: msg
+|————————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:expression_statement Text: tries++;
+|—————————Node:update_expression Text: tries++
+|——————————Node:identifier Text: tries
+|——————————Node:++ Text: ++
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———————Node:while Text: while
+|———————Node:parenthesized_expression Text: (mailbox==CAN_TxStatus_NoMailBox && tries<maxTries)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: mailbox==CAN_TxStatus_NoMailBox && tries<maxTries
+|—————————Node:binary_expression Text: mailbox==CAN_TxStatus_NoMailBox
+|——————————Node:identifier Text: mailbox
+|——————————Node:== Text: ==
+|——————————Node:identifier Text: CAN_TxStatus_NoMailBox
+|—————————Node:&& Text: &&
+|—————————Node:binary_expression Text: tries<maxTries
+|——————————Node:identifier Text: tries
+|——————————Node:< Text: <
+|——————————Node:identifier Text: maxTries
+|————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:if_statement Text: if (mailbox==CAN_TxStatus_NoMailBox) HardFault_Handler();
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (mailbox==CAN_TxStatus_NoMailBox)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: mailbox==CAN_TxStatus_NoMailBox
+|—————————Node:identifier Text: mailbox
+|—————————Node:== Text: ==
+|—————————Node:identifier Text: CAN_TxStatus_NoMailBox
+|————————Node:) Text: )
+|———————Node:expression_statement Text: HardFault_Handler();
+|————————Node:call_expression Text: HardFault_Handler()
+|—————————Node:identifier Text: HardFault_Handler
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|——————Node:return_statement Text: return 0;
+|———————Node:return Text: return
+|———————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:return_statement Text: return -1;
+|————Node:return Text: return
+|————Node:number_literal Text: -1
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int32_t cal_receivebyte(uint8_t *c, uint32_t timeout) {
+
+	if (comm_peripheral == USART)
+	{
+		while (timeout-- > 0)	{
+			if ( USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != RESET)	{
+				*c = USART1->DR;
+				return 0;
+			}
+		}
+		return -1;
+	}
+
+	else
+	{
+	CanRxMsg msg0, msg1;
+
+	uint8_t f0, f1, s0;
+
+	/* Fetch status of receive FIFOs. */
+	s0 = CAN1->RF0R;
+	//s1 = CAN1->RF1R;
+	while (!CAN_MessagePending(CAN1, CAN_FIFO0));
+	/* Receive the message from FIFO0. */
+	CAN_Receive(CAN1, CAN_FIFO0, &msg0);
+
+	/* Receive the message from FIFO1. */
+	//CAN_Receive(CAN1, CAN_FIFO1, &msg1);
+
+	f0 = msg0.Data[0];
+	f1 = msg1.Data[0];
+
+	/* Extract the data. */
+	*c = msg0.Data[0];
+
+	return 0;
+	}
+
+	return -1;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: cal_receivebyte(uint8_t *c, uint32_t timeout)
+|———Node:identifier Text: cal_receivebyte
+|———Node:parameter_list Text: (uint8_t *c, uint32_t timeout)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint8_t *c
+|—————Node:primitive_type Text: uint8_t
+|—————Node:pointer_declarator Text: *c
+|——————Node:* Text: *
+|——————Node:identifier Text: c
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint32_t timeout
+|—————Node:primitive_type Text: uint32_t
+|—————Node:identifier Text: timeout
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+
+	if (comm_peripheral == USART)
+	{
+		while (timeout-- > 0)	{
+			if ( USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != RESET)	{
+				*c = USART1->DR;
+				return 0;
+			}
+		}
+		return -1;
+	}
+
+	else
+	{
+	CanRxMsg msg0, msg1;
+
+	uint8_t f0, f1, s0;
+
+	/* Fetch status of receive FIFOs. */
+	s0 = CAN1->RF0R;
+	//s1 = CAN1->RF1R;
+	while (!CAN_MessagePending(CAN1, CAN_FIFO0));
+	/* Receive the message from FIFO0. */
+	CAN_Receive(CAN1, CAN_FIFO0, &msg0);
+
+	/* Receive the message from FIFO1. */
+	//CAN_Receive(CAN1, CAN_FIFO1, &msg1);
+
+	f0 = msg0.Data[0];
+	f1 = msg1.Data[0];
+
+	/* Extract the data. */
+	*c = msg0.Data[0];
+
+	return 0;
+	}
+
+	return -1;
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (comm_peripheral == USART)
+	{
+		while (timeout-- > 0)	{
+			if ( USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != RESET)	{
+				*c = USART1->DR;
+				return 0;
+			}
+		}
+		return -1;
+	}
+
+	else
+	{
+	CanRxMsg msg0, msg1;
+
+	uint8_t f0, f1, s0;
+
+	/* Fetch status of receive FIFOs. */
+	s0 = CAN1->RF0R;
+	//s1 = CAN1->RF1R;
+	while (!CAN_MessagePending(CAN1, CAN_FIFO0));
+	/* Receive the message from FIFO0. */
+	CAN_Receive(CAN1, CAN_FIFO0, &msg0);
+
+	/* Receive the message from FIFO1. */
+	//CAN_Receive(CAN1, CAN_FIFO1, &msg1);
+
+	f0 = msg0.Data[0];
+	f1 = msg1.Data[0];
+
+	/* Extract the data. */
+	*c = msg0.Data[0];
+
+	return 0;
+	}
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (comm_peripheral == USART)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: comm_peripheral == USART
+|——————Node:identifier Text: comm_peripheral
+|——————Node:== Text: ==
+|——————Node:identifier Text: USART
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+		while (timeout-- > 0)	{
+			if ( USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != RESET)	{
+				*c = USART1->DR;
+				return 0;
+			}
+		}
+		return -1;
+	}
+|—————Node:{ Text: {
+|—————Node:while_statement Text: while (timeout-- > 0)	{
+			if ( USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != RESET)	{
+				*c = USART1->DR;
+				return 0;
+			}
+		}
+|——————Node:while Text: while
+|——————Node:parenthesized_expression Text: (timeout-- > 0)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: timeout-- > 0
+|————————Node:update_expression Text: timeout--
+|—————————Node:identifier Text: timeout
+|—————————Node:-- Text: --
+|————————Node:> Text: >
+|————————Node:number_literal Text: 0
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+			if ( USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != RESET)	{
+				*c = USART1->DR;
+				return 0;
+			}
+		}
+|———————Node:{ Text: {
+|———————Node:if_statement Text: if ( USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != RESET)	{
+				*c = USART1->DR;
+				return 0;
+			}
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: ( USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != RESET)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != RESET
+|——————————Node:call_expression Text: USART_GetFlagStatus(USART1, USART_FLAG_RXNE)
+|———————————Node:identifier Text: USART_GetFlagStatus
+|———————————Node:argument_list Text: (USART1, USART_FLAG_RXNE)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: USART1
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: USART_FLAG_RXNE
+|————————————Node:) Text: )
+|——————————Node:!= Text: !=
+|——————————Node:identifier Text: RESET
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+				*c = USART1->DR;
+				return 0;
+			}
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: *c = USART1->DR;
+|——————————Node:assignment_expression Text: *c = USART1->DR
+|———————————Node:pointer_expression Text: *c
+|————————————Node:* Text: *
+|————————————Node:identifier Text: c
+|———————————Node:= Text: =
+|———————————Node:field_expression Text: USART1->DR
+|————————————Node:identifier Text: USART1
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: DR
+|——————————Node:; Text: ;
+|—————————Node:return_statement Text: return 0;
+|——————————Node:return Text: return
+|——————————Node:number_literal Text: 0
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|—————Node:return_statement Text: return -1;
+|——————Node:return Text: return
+|——————Node:number_literal Text: -1
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else
+	{
+	CanRxMsg msg0, msg1;
+
+	uint8_t f0, f1, s0;
+
+	/* Fetch status of receive FIFOs. */
+	s0 = CAN1->RF0R;
+	//s1 = CAN1->RF1R;
+	while (!CAN_MessagePending(CAN1, CAN_FIFO0));
+	/* Receive the message from FIFO0. */
+	CAN_Receive(CAN1, CAN_FIFO0, &msg0);
+
+	/* Receive the message from FIFO1. */
+	//CAN_Receive(CAN1, CAN_FIFO1, &msg1);
+
+	f0 = msg0.Data[0];
+	f1 = msg1.Data[0];
+
+	/* Extract the data. */
+	*c = msg0.Data[0];
+
+	return 0;
+	}
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+	CanRxMsg msg0, msg1;
+
+	uint8_t f0, f1, s0;
+
+	/* Fetch status of receive FIFOs. */
+	s0 = CAN1->RF0R;
+	//s1 = CAN1->RF1R;
+	while (!CAN_MessagePending(CAN1, CAN_FIFO0));
+	/* Receive the message from FIFO0. */
+	CAN_Receive(CAN1, CAN_FIFO0, &msg0);
+
+	/* Receive the message from FIFO1. */
+	//CAN_Receive(CAN1, CAN_FIFO1, &msg1);
+
+	f0 = msg0.Data[0];
+	f1 = msg1.Data[0];
+
+	/* Extract the data. */
+	*c = msg0.Data[0];
+
+	return 0;
+	}
+|——————Node:{ Text: {
+|——————Node:declaration Text: CanRxMsg msg0, msg1;
+|———————Node:type_identifier Text: CanRxMsg
+|———————Node:identifier Text: msg0
+|———————Node:, Text: ,
+|———————Node:identifier Text: msg1
+|———————Node:; Text: ;
+|——————Node:declaration Text: uint8_t f0, f1, s0;
+|———————Node:primitive_type Text: uint8_t
+|———————Node:identifier Text: f0
+|———————Node:, Text: ,
+|———————Node:identifier Text: f1
+|———————Node:, Text: ,
+|———————Node:identifier Text: s0
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:expression_statement Text: s0 = CAN1->RF0R;
+|———————Node:assignment_expression Text: s0 = CAN1->RF0R
+|————————Node:identifier Text: s0
+|————————Node:= Text: =
+|————————Node:field_expression Text: CAN1->RF0R
+|—————————Node:identifier Text: CAN1
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: RF0R
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:while_statement Text: while (!CAN_MessagePending(CAN1, CAN_FIFO0));
+|———————Node:while Text: while
+|———————Node:parenthesized_expression Text: (!CAN_MessagePending(CAN1, CAN_FIFO0))
+|————————Node:( Text: (
+|————————Node:unary_expression Text: !CAN_MessagePending(CAN1, CAN_FIFO0)
+|—————————Node:! Text: !
+|—————————Node:call_expression Text: CAN_MessagePending(CAN1, CAN_FIFO0)
+|——————————Node:identifier Text: CAN_MessagePending
+|——————————Node:argument_list Text: (CAN1, CAN_FIFO0)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: CAN1
+|———————————Node:, Text: ,
+|———————————Node:identifier Text: CAN_FIFO0
+|———————————Node:) Text: )
+|————————Node:) Text: )
+|———————Node:expression_statement Text: ;
+|————————Node:; Text: ;
+|——————Node:comment
+|——————Node:expression_statement Text: CAN_Receive(CAN1, CAN_FIFO0, &msg0);
+|———————Node:call_expression Text: CAN_Receive(CAN1, CAN_FIFO0, &msg0)
+|————————Node:identifier Text: CAN_Receive
+|————————Node:argument_list Text: (CAN1, CAN_FIFO0, &msg0)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: CAN1
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: CAN_FIFO0
+|—————————Node:, Text: ,
+|—————————Node:pointer_expression Text: &msg0
+|——————————Node:& Text: &
+|——————————Node:identifier Text: msg0
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:comment
+|——————Node:expression_statement Text: f0 = msg0.Data[0];
+|———————Node:assignment_expression Text: f0 = msg0.Data[0]
+|————————Node:identifier Text: f0
+|————————Node:= Text: =
+|————————Node:subscript_expression Text: msg0.Data[0]
+|—————————Node:field_expression Text: msg0.Data
+|——————————Node:identifier Text: msg0
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: Data
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 0
+|—————————Node:] Text: ]
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: f1 = msg1.Data[0];
+|———————Node:assignment_expression Text: f1 = msg1.Data[0]
+|————————Node:identifier Text: f1
+|————————Node:= Text: =
+|————————Node:subscript_expression Text: msg1.Data[0]
+|—————————Node:field_expression Text: msg1.Data
+|——————————Node:identifier Text: msg1
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: Data
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 0
+|—————————Node:] Text: ]
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:expression_statement Text: *c = msg0.Data[0];
+|———————Node:assignment_expression Text: *c = msg0.Data[0]
+|————————Node:pointer_expression Text: *c
+|—————————Node:* Text: *
+|—————————Node:identifier Text: c
+|————————Node:= Text: =
+|————————Node:subscript_expression Text: msg0.Data[0]
+|—————————Node:field_expression Text: msg0.Data
+|——————————Node:identifier Text: msg0
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: Data
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 0
+|—————————Node:] Text: ]
+|———————Node:; Text: ;
+|——————Node:return_statement Text: return 0;
+|———————Node:return Text: return
+|———————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:return_statement Text: return -1;
+|————Node:return Text: return
+|————Node:number_literal Text: -1
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:comment
+|—Node:function_definition Text: int32_t cal_receiveword(uint32_t *c, uint32_t timeout) {
+	uint32_t bytes = 0;
+    uint8_t a1,a2,a3,a4;
+    cal_READBYTE(a1,TIMEOUT_NACK);
+    cal_READBYTE(a2,TIMEOUT_NACK);
+    cal_READBYTE(a3,TIMEOUT_NACK);
+    cal_READBYTE(a4,TIMEOUT_NACK);
+    bytes |= a1<<24;
+    bytes |= a2<<16;
+    bytes |= a3<<8;
+    bytes |= a4;
+    *c = bytes;
+    return 0;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: cal_receiveword(uint32_t *c, uint32_t timeout)
+|———Node:identifier Text: cal_receiveword
+|———Node:parameter_list Text: (uint32_t *c, uint32_t timeout)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint32_t *c
+|—————Node:primitive_type Text: uint32_t
+|—————Node:pointer_declarator Text: *c
+|——————Node:* Text: *
+|——————Node:identifier Text: c
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint32_t timeout
+|—————Node:primitive_type Text: uint32_t
+|—————Node:identifier Text: timeout
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	uint32_t bytes = 0;
+    uint8_t a1,a2,a3,a4;
+    cal_READBYTE(a1,TIMEOUT_NACK);
+    cal_READBYTE(a2,TIMEOUT_NACK);
+    cal_READBYTE(a3,TIMEOUT_NACK);
+    cal_READBYTE(a4,TIMEOUT_NACK);
+    bytes |= a1<<24;
+    bytes |= a2<<16;
+    bytes |= a3<<8;
+    bytes |= a4;
+    *c = bytes;
+    return 0;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: uint32_t bytes = 0;
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: bytes = 0
+|—————Node:identifier Text: bytes
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: uint8_t a1,a2,a3,a4;
+|————Node:primitive_type Text: uint8_t
+|————Node:identifier Text: a1
+|————Node:, Text: ,
+|————Node:identifier Text: a2
+|————Node:, Text: ,
+|————Node:identifier Text: a3
+|————Node:, Text: ,
+|————Node:identifier Text: a4
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_READBYTE(a1,TIMEOUT_NACK);
+|————Node:call_expression Text: cal_READBYTE(a1,TIMEOUT_NACK)
+|—————Node:identifier Text: cal_READBYTE
+|—————Node:argument_list Text: (a1,TIMEOUT_NACK)
+|——————Node:( Text: (
+|——————Node:identifier Text: a1
+|——————Node:, Text: ,
+|——————Node:identifier Text: TIMEOUT_NACK
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_READBYTE(a2,TIMEOUT_NACK);
+|————Node:call_expression Text: cal_READBYTE(a2,TIMEOUT_NACK)
+|—————Node:identifier Text: cal_READBYTE
+|—————Node:argument_list Text: (a2,TIMEOUT_NACK)
+|——————Node:( Text: (
+|——————Node:identifier Text: a2
+|——————Node:, Text: ,
+|——————Node:identifier Text: TIMEOUT_NACK
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_READBYTE(a3,TIMEOUT_NACK);
+|————Node:call_expression Text: cal_READBYTE(a3,TIMEOUT_NACK)
+|—————Node:identifier Text: cal_READBYTE
+|—————Node:argument_list Text: (a3,TIMEOUT_NACK)
+|——————Node:( Text: (
+|——————Node:identifier Text: a3
+|——————Node:, Text: ,
+|——————Node:identifier Text: TIMEOUT_NACK
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cal_READBYTE(a4,TIMEOUT_NACK);
+|————Node:call_expression Text: cal_READBYTE(a4,TIMEOUT_NACK)
+|—————Node:identifier Text: cal_READBYTE
+|—————Node:argument_list Text: (a4,TIMEOUT_NACK)
+|——————Node:( Text: (
+|——————Node:identifier Text: a4
+|——————Node:, Text: ,
+|——————Node:identifier Text: TIMEOUT_NACK
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: bytes |= a1<<24;
+|————Node:assignment_expression Text: bytes |= a1<<24
+|—————Node:identifier Text: bytes
+|—————Node:|= Text: |=
+|—————Node:binary_expression Text: a1<<24
+|——————Node:identifier Text: a1
+|——————Node:<< Text: <<
+|——————Node:number_literal Text: 24
+|————Node:; Text: ;
+|———Node:expression_statement Text: bytes |= a2<<16;
+|————Node:assignment_expression Text: bytes |= a2<<16
+|—————Node:identifier Text: bytes
+|—————Node:|= Text: |=
+|—————Node:binary_expression Text: a2<<16
+|——————Node:identifier Text: a2
+|——————Node:<< Text: <<
+|——————Node:number_literal Text: 16
+|————Node:; Text: ;
+|———Node:expression_statement Text: bytes |= a3<<8;
+|————Node:assignment_expression Text: bytes |= a3<<8
+|—————Node:identifier Text: bytes
+|—————Node:|= Text: |=
+|—————Node:binary_expression Text: a3<<8
+|——————Node:identifier Text: a3
+|——————Node:<< Text: <<
+|——————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: bytes |= a4;
+|————Node:assignment_expression Text: bytes |= a4
+|—————Node:identifier Text: bytes
+|—————Node:|= Text: |=
+|—————Node:identifier Text: a4
+|————Node:; Text: ;
+|———Node:expression_statement Text: *c = bytes;
+|————Node:assignment_expression Text: *c = bytes
+|—————Node:pointer_expression Text: *c
+|——————Node:* Text: *
+|——————Node:identifier Text: c
+|—————Node:= Text: =
+|—————Node:identifier Text: bytes
+|————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int32_t cal_sendword(uint32_t b) {
+	uint8_t *p, i;
+	p = (uint8_t*)&b;
+	for (i=0; i<4; i++) cal_sendbyte(*(p+i));
+	return 0;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: cal_sendword(uint32_t b)
+|———Node:identifier Text: cal_sendword
+|———Node:parameter_list Text: (uint32_t b)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint32_t b
+|—————Node:primitive_type Text: uint32_t
+|—————Node:identifier Text: b
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	uint8_t *p, i;
+	p = (uint8_t*)&b;
+	for (i=0; i<4; i++) cal_sendbyte(*(p+i));
+	return 0;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: uint8_t *p, i;
+|————Node:primitive_type Text: uint8_t
+|————Node:pointer_declarator Text: *p
+|—————Node:* Text: *
+|—————Node:identifier Text: p
+|————Node:, Text: ,
+|————Node:identifier Text: i
+|————Node:; Text: ;
+|———Node:expression_statement Text: p = (uint8_t*)&b;
+|————Node:assignment_expression Text: p = (uint8_t*)&b
+|—————Node:identifier Text: p
+|—————Node:= Text: =
+|—————Node:cast_expression Text: (uint8_t*)&b
+|——————Node:( Text: (
+|——————Node:type_descriptor Text: uint8_t*
+|———————Node:primitive_type Text: uint8_t
+|———————Node:abstract_pointer_declarator Text: *
+|————————Node:* Text: *
+|——————Node:) Text: )
+|——————Node:pointer_expression Text: &b
+|———————Node:& Text: &
+|———————Node:identifier Text: b
+|————Node:; Text: ;
+|———Node:for_statement Text: for (i=0; i<4; i++) cal_sendbyte(*(p+i));
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:assignment_expression Text: i=0
+|—————Node:identifier Text: i
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|————Node:binary_expression Text: i<4
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:number_literal Text: 4
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:expression_statement Text: cal_sendbyte(*(p+i));
+|—————Node:call_expression Text: cal_sendbyte(*(p+i))
+|——————Node:identifier Text: cal_sendbyte
+|——————Node:argument_list Text: (*(p+i))
+|———————Node:( Text: (
+|———————Node:pointer_expression Text: *(p+i)
+|————————Node:* Text: *
+|————————Node:parenthesized_expression Text: (p+i)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: p+i
+|——————————Node:identifier Text: p
+|——————————Node:+ Text: +
+|——————————Node:identifier Text: i
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int32_t cal_sendstring(uint8_t *s)	{
+	while (*s != '\0')  {
+		if(cal_sendbyte(*s)==-1) return -1;
+		s++;
+	}
+	return 0;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: cal_sendstring(uint8_t *s)
+|———Node:identifier Text: cal_sendstring
+|———Node:parameter_list Text: (uint8_t *s)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint8_t *s
+|—————Node:primitive_type Text: uint8_t
+|—————Node:pointer_declarator Text: *s
+|——————Node:* Text: *
+|——————Node:identifier Text: s
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	while (*s != '\0')  {
+		if(cal_sendbyte(*s)==-1) return -1;
+		s++;
+	}
+	return 0;
+}
+|———Node:{ Text: {
+|———Node:while_statement Text: while (*s != '\0')  {
+		if(cal_sendbyte(*s)==-1) return -1;
+		s++;
+	}
+|————Node:while Text: while
+|————Node:parenthesized_expression Text: (*s != '\0')
+|—————Node:( Text: (
+|—————Node:binary_expression Text: *s != '\0'
+|——————Node:pointer_expression Text: *s
+|———————Node:* Text: *
+|———————Node:identifier Text: s
+|——————Node:!= Text: !=
+|——————Node:char_literal Text: '\0'
+|———————Node:' Text: '
+|———————Node:escape_sequence Text: \0
+|———————Node:' Text: '
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+		if(cal_sendbyte(*s)==-1) return -1;
+		s++;
+	}
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if(cal_sendbyte(*s)==-1) return -1;
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (cal_sendbyte(*s)==-1)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: cal_sendbyte(*s)==-1
+|————————Node:call_expression Text: cal_sendbyte(*s)
+|—————————Node:identifier Text: cal_sendbyte
+|—————————Node:argument_list Text: (*s)
+|——————————Node:( Text: (
+|——————————Node:pointer_expression Text: *s
+|———————————Node:* Text: *
+|———————————Node:identifier Text: s
+|——————————Node:) Text: )
+|————————Node:== Text: ==
+|————————Node:number_literal Text: -1
+|———————Node:) Text: )
+|——————Node:return_statement Text: return -1;
+|———————Node:return Text: return
+|———————Node:number_literal Text: -1
+|———————Node:; Text: ;
+|—————Node:expression_statement Text: s++;
+|——————Node:update_expression Text: s++
+|———————Node:identifier Text: s
+|———————Node:++ Text: ++
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int32_t cal_init(void) {
+
+	GPIOinit();
+
+	//#ifdef USART
+	USARTinit();
+	//#elif defined CAN
+	CANinit();
+	//#endif
+
+	return 0;
+}
+|——Node:primitive_type Text: int32_t
+|——Node:function_declarator Text: cal_init(void)
+|———Node:identifier Text: cal_init
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+
+	GPIOinit();
+
+	//#ifdef USART
+	USARTinit();
+	//#elif defined CAN
+	CANinit();
+	//#endif
+
+	return 0;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: GPIOinit();
+|————Node:call_expression Text: GPIOinit()
+|—————Node:identifier Text: GPIOinit
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: USARTinit();
+|————Node:call_expression Text: USARTinit()
+|—————Node:identifier Text: USARTinit
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: CANinit();
+|————Node:call_expression Text: CANinit()
+|—————Node:identifier Text: CANinit
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:comment
+|—Node:function_definition Text: void USARTinit(void) {
+
+		  /*Baud Rate at 115200. */
+		  uint32_t BRR=0x00000271;
+
+		  /*USART1 on APB2 bus clock enable. */
+		  RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
+
+		  /*Configure GPIOA output and input mode for UART. */
+		  /*USART1 TX as alternate function push-pull: bits 4-7 to 1011=B. */
+		  /*USART1 RX as input floating: bits 8-11 to 0100=4. */
+		  GPIOA->CRH = 0x444444B4;
+
+		  /*Ensure no remap, keep PA9,PA10. */
+		  AFIO->MAPR &= ~AFIO_MAPR_USART1_REMAP;
+
+		  /*USART Enable. */
+		  USART1->CR1 |= USART_CR1_UE;
+
+		  /*Use 1 stop bit. */
+		  USART1->CR2 &= ~0x00003000;
+
+		  /*Set BaudRate=115.2Ksymb/sec @72MHz CLK, 1 Symb=1 Bit. */
+		  USART1->BRR = BRR;
+
+		  /*Set word length to 8 bits. */
+		  USART1->CR1 &= ~USART_CR1_M;
+
+		  /*Ensure Hardware flow control disabled. */
+		  USART1->CR3 &= 0x000009FF;
+
+		  //!!!!!!!!!!!!!! /*Ensure no parity bit. */
+		  USART1->CR1 &= 0xFFFFFBFF;
+
+		  /*Set TE RE (transmission and receive enable) bits. */
+		  USART1->CR1 |= USART_CR1_TE | USART_CR1_RE;
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: USARTinit(void)
+|———Node:identifier Text: USARTinit
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+
+		  /*Baud Rate at 115200. */
+		  uint32_t BRR=0x00000271;
+
+		  /*USART1 on APB2 bus clock enable. */
+		  RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
+
+		  /*Configure GPIOA output and input mode for UART. */
+		  /*USART1 TX as alternate function push-pull: bits 4-7 to 1011=B. */
+		  /*USART1 RX as input floating: bits 8-11 to 0100=4. */
+		  GPIOA->CRH = 0x444444B4;
+
+		  /*Ensure no remap, keep PA9,PA10. */
+		  AFIO->MAPR &= ~AFIO_MAPR_USART1_REMAP;
+
+		  /*USART Enable. */
+		  USART1->CR1 |= USART_CR1_UE;
+
+		  /*Use 1 stop bit. */
+		  USART1->CR2 &= ~0x00003000;
+
+		  /*Set BaudRate=115.2Ksymb/sec @72MHz CLK, 1 Symb=1 Bit. */
+		  USART1->BRR = BRR;
+
+		  /*Set word length to 8 bits. */
+		  USART1->CR1 &= ~USART_CR1_M;
+
+		  /*Ensure Hardware flow control disabled. */
+		  USART1->CR3 &= 0x000009FF;
+
+		  //!!!!!!!!!!!!!! /*Ensure no parity bit. */
+		  USART1->CR1 &= 0xFFFFFBFF;
+
+		  /*Set TE RE (transmission and receive enable) bits. */
+		  USART1->CR1 |= USART_CR1_TE | USART_CR1_RE;
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:declaration Text: uint32_t BRR=0x00000271;
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: BRR=0x00000271
+|—————Node:identifier Text: BRR
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x00000271
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
+|————Node:assignment_expression Text: RCC->APB2ENR |= RCC_APB2ENR_USART1EN
+|—————Node:field_expression Text: RCC->APB2ENR
+|——————Node:identifier Text: RCC
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: APB2ENR
+|—————Node:|= Text: |=
+|—————Node:identifier Text: RCC_APB2ENR_USART1EN
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: GPIOA->CRH = 0x444444B4;
+|————Node:assignment_expression Text: GPIOA->CRH = 0x444444B4
+|—————Node:field_expression Text: GPIOA->CRH
+|——————Node:identifier Text: GPIOA
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: CRH
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x444444B4
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: AFIO->MAPR &= ~AFIO_MAPR_USART1_REMAP;
+|————Node:assignment_expression Text: AFIO->MAPR &= ~AFIO_MAPR_USART1_REMAP
+|—————Node:field_expression Text: AFIO->MAPR
+|——————Node:identifier Text: AFIO
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: MAPR
+|—————Node:&= Text: &=
+|—————Node:unary_expression Text: ~AFIO_MAPR_USART1_REMAP
+|——————Node:~ Text: ~
+|——————Node:identifier Text: AFIO_MAPR_USART1_REMAP
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: USART1->CR1 |= USART_CR1_UE;
+|————Node:assignment_expression Text: USART1->CR1 |= USART_CR1_UE
+|—————Node:field_expression Text: USART1->CR1
+|——————Node:identifier Text: USART1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: CR1
+|—————Node:|= Text: |=
+|—————Node:identifier Text: USART_CR1_UE
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: USART1->CR2 &= ~0x00003000;
+|————Node:assignment_expression Text: USART1->CR2 &= ~0x00003000
+|—————Node:field_expression Text: USART1->CR2
+|——————Node:identifier Text: USART1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: CR2
+|—————Node:&= Text: &=
+|—————Node:unary_expression Text: ~0x00003000
+|——————Node:~ Text: ~
+|——————Node:number_literal Text: 0x00003000
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: USART1->BRR = BRR;
+|————Node:assignment_expression Text: USART1->BRR = BRR
+|—————Node:field_expression Text: USART1->BRR
+|——————Node:identifier Text: USART1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: BRR
+|—————Node:= Text: =
+|—————Node:identifier Text: BRR
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: USART1->CR1 &= ~USART_CR1_M;
+|————Node:assignment_expression Text: USART1->CR1 &= ~USART_CR1_M
+|—————Node:field_expression Text: USART1->CR1
+|——————Node:identifier Text: USART1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: CR1
+|—————Node:&= Text: &=
+|—————Node:unary_expression Text: ~USART_CR1_M
+|——————Node:~ Text: ~
+|——————Node:identifier Text: USART_CR1_M
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: USART1->CR3 &= 0x000009FF;
+|————Node:assignment_expression Text: USART1->CR3 &= 0x000009FF
+|—————Node:field_expression Text: USART1->CR3
+|——————Node:identifier Text: USART1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: CR3
+|—————Node:&= Text: &=
+|—————Node:number_literal Text: 0x000009FF
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: USART1->CR1 &= 0xFFFFFBFF;
+|————Node:assignment_expression Text: USART1->CR1 &= 0xFFFFFBFF
+|—————Node:field_expression Text: USART1->CR1
+|——————Node:identifier Text: USART1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: CR1
+|—————Node:&= Text: &=
+|—————Node:number_literal Text: 0xFFFFFBFF
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: USART1->CR1 |= USART_CR1_TE | USART_CR1_RE;
+|————Node:assignment_expression Text: USART1->CR1 |= USART_CR1_TE | USART_CR1_RE
+|—————Node:field_expression Text: USART1->CR1
+|——————Node:identifier Text: USART1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: CR1
+|—————Node:|= Text: |=
+|—————Node:binary_expression Text: USART_CR1_TE | USART_CR1_RE
+|——————Node:identifier Text: USART_CR1_TE
+|——————Node:| Text: |
+|——————Node:identifier Text: USART_CR1_RE
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: void CANinit() {
+
+	//uint32_t stdmsgid = 0;
+
+	/* This id must be between 0-13 as there are 14 filter banks available in MD devices. */
+	uint32_t filterbankid = 0;
+
+	/* bxCAN on APB1 bus clock enable. */
+	RCC->APB1ENR |= RCC_APB1ENR_CAN1EN;
+
+	/* Enable clock on GPIOB. */
+	RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;
+
+	/* Remap CAN pinouts to GPIOB's PB8, PB9: bits 13=0 14=1. */
+	RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
+	AFIO->MAPR |= AFIO_MAPR_CAN_REMAP_REMAP2;
+	//AFIO->MAPR &= ~0x00002000;
+
+	/*Configure GPIOB (PB9, PB10) output and input mode for CAN. */
+	/*CAN TX as alternate function push-pull: bits 4-7 to 1011=B. */
+	/*CAN RX as input floating: bits 0-3 to 0100=4. */
+	GPIOB->CRH &= 0xFFFFFF00;
+	GPIOB->CRH |= 0x000000B4;
+
+	/* Enter CAN initialization mode. */
+	CAN1->MCR |= CAN_MCR_INRQ;
+
+	/* Wait until init mode entered. */
+	while (((CAN1->MSR & CAN_MSR_INAK) != CAN_MSR_INAK));
+
+	/* CAN module still working during debug. */
+	//CAN1->MCR &= ~0x00010000;
+
+	/* Use automatic wakeup mode. */
+	//CAN1->MCR |= CAN_MCR_AWUM;
+
+	/* Use automatic retransmission mode. */
+	CAN1->MCR &= ~(uint32_t) CAN_MCR_NART;
+	//  |=
+
+	/* Receive FIFO locked against overrun; incoming messages when FIFO full will be discarded. */
+	//CAN1->MCR |= CAN_MCR_RFLM;
+
+	/* When many transmit Mailboxes are ready, transmit in request chronological order. */
+	CAN1->MCR |= CAN_MCR_TXFP;
+
+	uint32_t btr = 0;
+
+	/* Use hot self-test mode (silent+loop back). */
+	//btr |= (CAN_BTR_SILM | CAN_BTR_LBKM);
+
+	/* Set CAN baud rate prescaler. */
+	btr |= CAN_BRP;
+
+	/* Set TS1, TS2 to achieve 0.7*BitTime=SampleTime @36MHz. */
+	btr |= (CAN_SJW << 24) | (CAN_TS2 << 20) | (CAN_TS1 << 16);
+
+	CAN1->BTR = btr;
+
+	//uint32_t btr = CAN1->BTR;
+	//btr = 0;
+
+	/* ID of the messages that are allowed to enter receive FIFOs
+	 * adapted for standard id (not extended) format. */
+	//stdmsgid  |= (0) | CAN_ID_STD;
+
+	/* Enter initialization mode for filter banks and in particular for the specified bank. */
+	CAN1->FMR |= CAN_FMR_FINIT;
+	CAN1->FA1R &= ~(uint32_t)(1 << filterbankid);
+
+	/* Set 32-bit scale filtering. */
+	CAN1->FS1R |= (uint32_t)(1 << filterbankid);
+
+	/* Set mask mode. */
+	CAN1->FM1R &= ~(uint32_t)(1 << filterbankid);
+
+	/* Assign allowed message ids to the selected filter bank. */
+	CAN1->sFilterRegister[filterbankid].FR1 = (uint32_t)MSGID;
+	CAN1->sFilterRegister[filterbankid].FR2 = (uint32_t)MSGID;
+
+	/* Messages passing the selected bank will flow into FIFO0. */
+	CAN1->FFA1R &= ~(uint32_t)(1 << filterbankid);
+
+	/* Activate the selected bank. */
+	CAN1->FA1R |= (uint32_t)(1 << filterbankid);
+
+	/* Leave initialization mode for filter banks. */
+	CAN1->FMR &= ~CAN_FMR_FINIT;
+
+	/*Enter CAN normal mode. */
+	CAN1->MCR &= ~CAN_MCR_INRQ;
+
+	/* Wait until normal mode entered. */
+	while (((CAN1->MSR & CAN_MSR_INAK) == CAN_MSR_INAK));
+
+	/* Exit sleep mode (need discovered while debugging). */
+	CAN1->MCR &= ~CAN_MCR_SLEEP;
+
+	/* Wait transmit mailbox empty. */
+	//while ((CAN->TSR & CAN_TSR_TME0) == 0);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CANinit()
+|———Node:identifier Text: CANinit
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+
+	//uint32_t stdmsgid = 0;
+
+	/* This id must be between 0-13 as there are 14 filter banks available in MD devices. */
+	uint32_t filterbankid = 0;
+
+	/* bxCAN on APB1 bus clock enable. */
+	RCC->APB1ENR |= RCC_APB1ENR_CAN1EN;
+
+	/* Enable clock on GPIOB. */
+	RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;
+
+	/* Remap CAN pinouts to GPIOB's PB8, PB9: bits 13=0 14=1. */
+	RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
+	AFIO->MAPR |= AFIO_MAPR_CAN_REMAP_REMAP2;
+	//AFIO->MAPR &= ~0x00002000;
+
+	/*Configure GPIOB (PB9, PB10) output and input mode for CAN. */
+	/*CAN TX as alternate function push-pull: bits 4-7 to 1011=B. */
+	/*CAN RX as input floating: bits 0-3 to 0100=4. */
+	GPIOB->CRH &= 0xFFFFFF00;
+	GPIOB->CRH |= 0x000000B4;
+
+	/* Enter CAN initialization mode. */
+	CAN1->MCR |= CAN_MCR_INRQ;
+
+	/* Wait until init mode entered. */
+	while (((CAN1->MSR & CAN_MSR_INAK) != CAN_MSR_INAK));
+
+	/* CAN module still working during debug. */
+	//CAN1->MCR &= ~0x00010000;
+
+	/* Use automatic wakeup mode. */
+	//CAN1->MCR |= CAN_MCR_AWUM;
+
+	/* Use automatic retransmission mode. */
+	CAN1->MCR &= ~(uint32_t) CAN_MCR_NART;
+	//  |=
+
+	/* Receive FIFO locked against overrun; incoming messages when FIFO full will be discarded. */
+	//CAN1->MCR |= CAN_MCR_RFLM;
+
+	/* When many transmit Mailboxes are ready, transmit in request chronological order. */
+	CAN1->MCR |= CAN_MCR_TXFP;
+
+	uint32_t btr = 0;
+
+	/* Use hot self-test mode (silent+loop back). */
+	//btr |= (CAN_BTR_SILM | CAN_BTR_LBKM);
+
+	/* Set CAN baud rate prescaler. */
+	btr |= CAN_BRP;
+
+	/* Set TS1, TS2 to achieve 0.7*BitTime=SampleTime @36MHz. */
+	btr |= (CAN_SJW << 24) | (CAN_TS2 << 20) | (CAN_TS1 << 16);
+
+	CAN1->BTR = btr;
+
+	//uint32_t btr = CAN1->BTR;
+	//btr = 0;
+
+	/* ID of the messages that are allowed to enter receive FIFOs
+	 * adapted for standard id (not extended) format. */
+	//stdmsgid  |= (0) | CAN_ID_STD;
+
+	/* Enter initialization mode for filter banks and in particular for the specified bank. */
+	CAN1->FMR |= CAN_FMR_FINIT;
+	CAN1->FA1R &= ~(uint32_t)(1 << filterbankid);
+
+	/* Set 32-bit scale filtering. */
+	CAN1->FS1R |= (uint32_t)(1 << filterbankid);
+
+	/* Set mask mode. */
+	CAN1->FM1R &= ~(uint32_t)(1 << filterbankid);
+
+	/* Assign allowed message ids to the selected filter bank. */
+	CAN1->sFilterRegister[filterbankid].FR1 = (uint32_t)MSGID;
+	CAN1->sFilterRegister[filterbankid].FR2 = (uint32_t)MSGID;
+
+	/* Messages passing the selected bank will flow into FIFO0. */
+	CAN1->FFA1R &= ~(uint32_t)(1 << filterbankid);
+
+	/* Activate the selected bank. */
+	CAN1->FA1R |= (uint32_t)(1 << filterbankid);
+
+	/* Leave initialization mode for filter banks. */
+	CAN1->FMR &= ~CAN_FMR_FINIT;
+
+	/*Enter CAN normal mode. */
+	CAN1->MCR &= ~CAN_MCR_INRQ;
+
+	/* Wait until normal mode entered. */
+	while (((CAN1->MSR & CAN_MSR_INAK) == CAN_MSR_INAK));
+
+	/* Exit sleep mode (need discovered while debugging). */
+	CAN1->MCR &= ~CAN_MCR_SLEEP;
+
+	/* Wait transmit mailbox empty. */
+	//while ((CAN->TSR & CAN_TSR_TME0) == 0);
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:comment
+|———Node:declaration Text: uint32_t filterbankid = 0;
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: filterbankid = 0
+|—————Node:identifier Text: filterbankid
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: RCC->APB1ENR |= RCC_APB1ENR_CAN1EN;
+|————Node:assignment_expression Text: RCC->APB1ENR |= RCC_APB1ENR_CAN1EN
+|—————Node:field_expression Text: RCC->APB1ENR
+|——————Node:identifier Text: RCC
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: APB1ENR
+|—————Node:|= Text: |=
+|—————Node:identifier Text: RCC_APB1ENR_CAN1EN
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;
+|————Node:assignment_expression Text: RCC->APB2ENR |= RCC_APB2ENR_IOPBEN
+|—————Node:field_expression Text: RCC->APB2ENR
+|——————Node:identifier Text: RCC
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: APB2ENR
+|—————Node:|= Text: |=
+|—————Node:identifier Text: RCC_APB2ENR_IOPBEN
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
+|————Node:assignment_expression Text: RCC->APB2ENR |= RCC_APB2ENR_AFIOEN
+|—————Node:field_expression Text: RCC->APB2ENR
+|——————Node:identifier Text: RCC
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: APB2ENR
+|—————Node:|= Text: |=
+|—————Node:identifier Text: RCC_APB2ENR_AFIOEN
+|————Node:; Text: ;
+|———Node:expression_statement Text: AFIO->MAPR |= AFIO_MAPR_CAN_REMAP_REMAP2;
+|————Node:assignment_expression Text: AFIO->MAPR |= AFIO_MAPR_CAN_REMAP_REMAP2
+|—————Node:field_expression Text: AFIO->MAPR
+|——————Node:identifier Text: AFIO
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: MAPR
+|—————Node:|= Text: |=
+|—————Node:identifier Text: AFIO_MAPR_CAN_REMAP_REMAP2
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: GPIOB->CRH &= 0xFFFFFF00;
+|————Node:assignment_expression Text: GPIOB->CRH &= 0xFFFFFF00
+|—————Node:field_expression Text: GPIOB->CRH
+|——————Node:identifier Text: GPIOB
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: CRH
+|—————Node:&= Text: &=
+|—————Node:number_literal Text: 0xFFFFFF00
+|————Node:; Text: ;
+|———Node:expression_statement Text: GPIOB->CRH |= 0x000000B4;
+|————Node:assignment_expression Text: GPIOB->CRH |= 0x000000B4
+|—————Node:field_expression Text: GPIOB->CRH
+|——————Node:identifier Text: GPIOB
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: CRH
+|—————Node:|= Text: |=
+|—————Node:number_literal Text: 0x000000B4
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: CAN1->MCR |= CAN_MCR_INRQ;
+|————Node:assignment_expression Text: CAN1->MCR |= CAN_MCR_INRQ
+|—————Node:field_expression Text: CAN1->MCR
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: MCR
+|—————Node:|= Text: |=
+|—————Node:identifier Text: CAN_MCR_INRQ
+|————Node:; Text: ;
+|———Node:comment
+|———Node:while_statement Text: while (((CAN1->MSR & CAN_MSR_INAK) != CAN_MSR_INAK));
+|————Node:while Text: while
+|————Node:parenthesized_expression Text: (((CAN1->MSR & CAN_MSR_INAK) != CAN_MSR_INAK))
+|—————Node:( Text: (
+|—————Node:parenthesized_expression Text: ((CAN1->MSR & CAN_MSR_INAK) != CAN_MSR_INAK)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: (CAN1->MSR & CAN_MSR_INAK) != CAN_MSR_INAK
+|———————Node:parenthesized_expression Text: (CAN1->MSR & CAN_MSR_INAK)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: CAN1->MSR & CAN_MSR_INAK
+|—————————Node:field_expression Text: CAN1->MSR
+|——————————Node:identifier Text: CAN1
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: MSR
+|—————————Node:& Text: &
+|—————————Node:identifier Text: CAN_MSR_INAK
+|————————Node:) Text: )
+|———————Node:!= Text: !=
+|———————Node:identifier Text: CAN_MSR_INAK
+|——————Node:) Text: )
+|—————Node:) Text: )
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: CAN1->MCR &= ~(uint32_t) CAN_MCR_NART;
+|————Node:assignment_expression Text: CAN1->MCR &= ~(uint32_t) CAN_MCR_NART
+|—————Node:field_expression Text: CAN1->MCR
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: MCR
+|—————Node:&= Text: &=
+|—————Node:unary_expression Text: ~(uint32_t) CAN_MCR_NART
+|——————Node:~ Text: ~
+|——————Node:cast_expression Text: (uint32_t) CAN_MCR_NART
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: uint32_t
+|————————Node:primitive_type Text: uint32_t
+|———————Node:) Text: )
+|———————Node:identifier Text: CAN_MCR_NART
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: CAN1->MCR |= CAN_MCR_TXFP;
+|————Node:assignment_expression Text: CAN1->MCR |= CAN_MCR_TXFP
+|—————Node:field_expression Text: CAN1->MCR
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: MCR
+|—————Node:|= Text: |=
+|—————Node:identifier Text: CAN_MCR_TXFP
+|————Node:; Text: ;
+|———Node:declaration Text: uint32_t btr = 0;
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: btr = 0
+|—————Node:identifier Text: btr
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: btr |= CAN_BRP;
+|————Node:assignment_expression Text: btr |= CAN_BRP
+|—————Node:identifier Text: btr
+|—————Node:|= Text: |=
+|—————Node:identifier Text: CAN_BRP
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: btr |= (CAN_SJW << 24) | (CAN_TS2 << 20) | (CAN_TS1 << 16);
+|————Node:assignment_expression Text: btr |= (CAN_SJW << 24) | (CAN_TS2 << 20) | (CAN_TS1 << 16)
+|—————Node:identifier Text: btr
+|—————Node:|= Text: |=
+|—————Node:binary_expression Text: (CAN_SJW << 24) | (CAN_TS2 << 20) | (CAN_TS1 << 16)
+|——————Node:binary_expression Text: (CAN_SJW << 24) | (CAN_TS2 << 20)
+|———————Node:parenthesized_expression Text: (CAN_SJW << 24)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: CAN_SJW << 24
+|—————————Node:identifier Text: CAN_SJW
+|—————————Node:<< Text: <<
+|—————————Node:number_literal Text: 24
+|————————Node:) Text: )
+|———————Node:| Text: |
+|———————Node:parenthesized_expression Text: (CAN_TS2 << 20)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: CAN_TS2 << 20
+|—————————Node:identifier Text: CAN_TS2
+|—————————Node:<< Text: <<
+|—————————Node:number_literal Text: 20
+|————————Node:) Text: )
+|——————Node:| Text: |
+|——————Node:parenthesized_expression Text: (CAN_TS1 << 16)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: CAN_TS1 << 16
+|————————Node:identifier Text: CAN_TS1
+|————————Node:<< Text: <<
+|————————Node:number_literal Text: 16
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: CAN1->BTR = btr;
+|————Node:assignment_expression Text: CAN1->BTR = btr
+|—————Node:field_expression Text: CAN1->BTR
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: BTR
+|—————Node:= Text: =
+|—————Node:identifier Text: btr
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: CAN1->FMR |= CAN_FMR_FINIT;
+|————Node:assignment_expression Text: CAN1->FMR |= CAN_FMR_FINIT
+|—————Node:field_expression Text: CAN1->FMR
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: FMR
+|—————Node:|= Text: |=
+|—————Node:identifier Text: CAN_FMR_FINIT
+|————Node:; Text: ;
+|———Node:expression_statement Text: CAN1->FA1R &= ~(uint32_t)(1 << filterbankid);
+|————Node:assignment_expression Text: CAN1->FA1R &= ~(uint32_t)(1 << filterbankid)
+|—————Node:field_expression Text: CAN1->FA1R
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: FA1R
+|—————Node:&= Text: &=
+|—————Node:unary_expression Text: ~(uint32_t)(1 << filterbankid)
+|——————Node:~ Text: ~
+|——————Node:cast_expression Text: (uint32_t)(1 << filterbankid)
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: uint32_t
+|————————Node:primitive_type Text: uint32_t
+|———————Node:) Text: )
+|———————Node:parenthesized_expression Text: (1 << filterbankid)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: 1 << filterbankid
+|—————————Node:number_literal Text: 1
+|—————————Node:<< Text: <<
+|—————————Node:identifier Text: filterbankid
+|————————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: CAN1->FS1R |= (uint32_t)(1 << filterbankid);
+|————Node:assignment_expression Text: CAN1->FS1R |= (uint32_t)(1 << filterbankid)
+|—————Node:field_expression Text: CAN1->FS1R
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: FS1R
+|—————Node:|= Text: |=
+|—————Node:cast_expression Text: (uint32_t)(1 << filterbankid)
+|——————Node:( Text: (
+|——————Node:type_descriptor Text: uint32_t
+|———————Node:primitive_type Text: uint32_t
+|——————Node:) Text: )
+|——————Node:parenthesized_expression Text: (1 << filterbankid)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: 1 << filterbankid
+|————————Node:number_literal Text: 1
+|————————Node:<< Text: <<
+|————————Node:identifier Text: filterbankid
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: CAN1->FM1R &= ~(uint32_t)(1 << filterbankid);
+|————Node:assignment_expression Text: CAN1->FM1R &= ~(uint32_t)(1 << filterbankid)
+|—————Node:field_expression Text: CAN1->FM1R
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: FM1R
+|—————Node:&= Text: &=
+|—————Node:unary_expression Text: ~(uint32_t)(1 << filterbankid)
+|——————Node:~ Text: ~
+|——————Node:cast_expression Text: (uint32_t)(1 << filterbankid)
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: uint32_t
+|————————Node:primitive_type Text: uint32_t
+|———————Node:) Text: )
+|———————Node:parenthesized_expression Text: (1 << filterbankid)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: 1 << filterbankid
+|—————————Node:number_literal Text: 1
+|—————————Node:<< Text: <<
+|—————————Node:identifier Text: filterbankid
+|————————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: CAN1->sFilterRegister[filterbankid].FR1 = (uint32_t)MSGID;
+|————Node:assignment_expression Text: CAN1->sFilterRegister[filterbankid].FR1 = (uint32_t)MSGID
+|—————Node:field_expression Text: CAN1->sFilterRegister[filterbankid].FR1
+|——————Node:subscript_expression Text: CAN1->sFilterRegister[filterbankid]
+|———————Node:field_expression Text: CAN1->sFilterRegister
+|————————Node:identifier Text: CAN1
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: sFilterRegister
+|———————Node:[ Text: [
+|———————Node:identifier Text: filterbankid
+|———————Node:] Text: ]
+|——————Node:. Text: .
+|——————Node:field_identifier Text: FR1
+|—————Node:= Text: =
+|—————Node:cast_expression Text: (uint32_t)MSGID
+|——————Node:( Text: (
+|——————Node:type_descriptor Text: uint32_t
+|———————Node:primitive_type Text: uint32_t
+|——————Node:) Text: )
+|——————Node:identifier Text: MSGID
+|————Node:; Text: ;
+|———Node:expression_statement Text: CAN1->sFilterRegister[filterbankid].FR2 = (uint32_t)MSGID;
+|————Node:assignment_expression Text: CAN1->sFilterRegister[filterbankid].FR2 = (uint32_t)MSGID
+|—————Node:field_expression Text: CAN1->sFilterRegister[filterbankid].FR2
+|——————Node:subscript_expression Text: CAN1->sFilterRegister[filterbankid]
+|———————Node:field_expression Text: CAN1->sFilterRegister
+|————————Node:identifier Text: CAN1
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: sFilterRegister
+|———————Node:[ Text: [
+|———————Node:identifier Text: filterbankid
+|———————Node:] Text: ]
+|——————Node:. Text: .
+|——————Node:field_identifier Text: FR2
+|—————Node:= Text: =
+|—————Node:cast_expression Text: (uint32_t)MSGID
+|——————Node:( Text: (
+|——————Node:type_descriptor Text: uint32_t
+|———————Node:primitive_type Text: uint32_t
+|——————Node:) Text: )
+|——————Node:identifier Text: MSGID
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: CAN1->FFA1R &= ~(uint32_t)(1 << filterbankid);
+|————Node:assignment_expression Text: CAN1->FFA1R &= ~(uint32_t)(1 << filterbankid)
+|—————Node:field_expression Text: CAN1->FFA1R
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: FFA1R
+|—————Node:&= Text: &=
+|—————Node:unary_expression Text: ~(uint32_t)(1 << filterbankid)
+|——————Node:~ Text: ~
+|——————Node:cast_expression Text: (uint32_t)(1 << filterbankid)
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: uint32_t
+|————————Node:primitive_type Text: uint32_t
+|———————Node:) Text: )
+|———————Node:parenthesized_expression Text: (1 << filterbankid)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: 1 << filterbankid
+|—————————Node:number_literal Text: 1
+|—————————Node:<< Text: <<
+|—————————Node:identifier Text: filterbankid
+|————————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: CAN1->FA1R |= (uint32_t)(1 << filterbankid);
+|————Node:assignment_expression Text: CAN1->FA1R |= (uint32_t)(1 << filterbankid)
+|—————Node:field_expression Text: CAN1->FA1R
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: FA1R
+|—————Node:|= Text: |=
+|—————Node:cast_expression Text: (uint32_t)(1 << filterbankid)
+|——————Node:( Text: (
+|——————Node:type_descriptor Text: uint32_t
+|———————Node:primitive_type Text: uint32_t
+|——————Node:) Text: )
+|——————Node:parenthesized_expression Text: (1 << filterbankid)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: 1 << filterbankid
+|————————Node:number_literal Text: 1
+|————————Node:<< Text: <<
+|————————Node:identifier Text: filterbankid
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: CAN1->FMR &= ~CAN_FMR_FINIT;
+|————Node:assignment_expression Text: CAN1->FMR &= ~CAN_FMR_FINIT
+|—————Node:field_expression Text: CAN1->FMR
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: FMR
+|—————Node:&= Text: &=
+|—————Node:unary_expression Text: ~CAN_FMR_FINIT
+|——————Node:~ Text: ~
+|——————Node:identifier Text: CAN_FMR_FINIT
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: CAN1->MCR &= ~CAN_MCR_INRQ;
+|————Node:assignment_expression Text: CAN1->MCR &= ~CAN_MCR_INRQ
+|—————Node:field_expression Text: CAN1->MCR
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: MCR
+|—————Node:&= Text: &=
+|—————Node:unary_expression Text: ~CAN_MCR_INRQ
+|——————Node:~ Text: ~
+|——————Node:identifier Text: CAN_MCR_INRQ
+|————Node:; Text: ;
+|———Node:comment
+|———Node:while_statement Text: while (((CAN1->MSR & CAN_MSR_INAK) == CAN_MSR_INAK));
+|————Node:while Text: while
+|————Node:parenthesized_expression Text: (((CAN1->MSR & CAN_MSR_INAK) == CAN_MSR_INAK))
+|—————Node:( Text: (
+|—————Node:parenthesized_expression Text: ((CAN1->MSR & CAN_MSR_INAK) == CAN_MSR_INAK)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: (CAN1->MSR & CAN_MSR_INAK) == CAN_MSR_INAK
+|———————Node:parenthesized_expression Text: (CAN1->MSR & CAN_MSR_INAK)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: CAN1->MSR & CAN_MSR_INAK
+|—————————Node:field_expression Text: CAN1->MSR
+|——————————Node:identifier Text: CAN1
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: MSR
+|—————————Node:& Text: &
+|—————————Node:identifier Text: CAN_MSR_INAK
+|————————Node:) Text: )
+|———————Node:== Text: ==
+|———————Node:identifier Text: CAN_MSR_INAK
+|——————Node:) Text: )
+|—————Node:) Text: )
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: CAN1->MCR &= ~CAN_MCR_SLEEP;
+|————Node:assignment_expression Text: CAN1->MCR &= ~CAN_MCR_SLEEP
+|—————Node:field_expression Text: CAN1->MCR
+|——————Node:identifier Text: CAN1
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: MCR
+|—————Node:&= Text: &=
+|—————Node:unary_expression Text: ~CAN_MCR_SLEEP
+|——————Node:~ Text: ~
+|——————Node:identifier Text: CAN_MCR_SLEEP
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: void GPIOinit(void) {
+	  /*GPIO Initialization. */
+
+	  /*GPIOA, GPIOB on APB2 bus clock enable. */
+	  RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN;
+
+	  /*PA0, PA1, PA2, PA3 in output mode general purpose push-pull. */
+	  GPIOA->CRL =(0x03 << (3 * 4)) | (0x03 << (2 * 4)) | (0x03 << (1 * 4)) | (0x03 << (0 * 4));
+
+	  /*PB0, PB1 in floating input mode. */
+	  GPIOB->CRL = (0x08 << (1 * 4)) | (0x08 << (0 * 4));
+
+	  /*why do we do this?. */
+	  GPIOB->ODR |= GPIO_ODR_ODR0 | GPIO_ODR_ODR1;
+
+	  /*Light up selected leds by resetting the output bits. */
+	  GPIOA->BSRR |= GPIO_BSRR_BR0 | GPIO_BSRR_BR1 | GPIO_BSRR_BS2 | GPIO_BSRR_BS3;
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: GPIOinit(void)
+|———Node:identifier Text: GPIOinit
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	  /*GPIO Initialization. */
+
+	  /*GPIOA, GPIOB on APB2 bus clock enable. */
+	  RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN;
+
+	  /*PA0, PA1, PA2, PA3 in output mode general purpose push-pull. */
+	  GPIOA->CRL =(0x03 << (3 * 4)) | (0x03 << (2 * 4)) | (0x03 << (1 * 4)) | (0x03 << (0 * 4));
+
+	  /*PB0, PB1 in floating input mode. */
+	  GPIOB->CRL = (0x08 << (1 * 4)) | (0x08 << (0 * 4));
+
+	  /*why do we do this?. */
+	  GPIOB->ODR |= GPIO_ODR_ODR0 | GPIO_ODR_ODR1;
+
+	  /*Light up selected leds by resetting the output bits. */
+	  GPIOA->BSRR |= GPIO_BSRR_BR0 | GPIO_BSRR_BR1 | GPIO_BSRR_BS2 | GPIO_BSRR_BS3;
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN;
+|————Node:assignment_expression Text: RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN
+|—————Node:field_expression Text: RCC->APB2ENR
+|——————Node:identifier Text: RCC
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: APB2ENR
+|—————Node:|= Text: |=
+|—————Node:binary_expression Text: RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN
+|——————Node:binary_expression Text: RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN
+|———————Node:identifier Text: RCC_APB2ENR_IOPAEN
+|———————Node:| Text: |
+|———————Node:identifier Text: RCC_APB2ENR_IOPBEN
+|——————Node:| Text: |
+|——————Node:identifier Text: RCC_APB2ENR_AFIOEN
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: GPIOA->CRL =(0x03 << (3 * 4)) | (0x03 << (2 * 4)) | (0x03 << (1 * 4)) | (0x03 << (0 * 4));
+|————Node:assignment_expression Text: GPIOA->CRL =(0x03 << (3 * 4)) | (0x03 << (2 * 4)) | (0x03 << (1 * 4)) | (0x03 << (0 * 4))
+|—————Node:field_expression Text: GPIOA->CRL
+|——————Node:identifier Text: GPIOA
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: CRL
+|—————Node:= Text: =
+|—————Node:binary_expression Text: (0x03 << (3 * 4)) | (0x03 << (2 * 4)) | (0x03 << (1 * 4)) | (0x03 << (0 * 4))
+|——————Node:binary_expression Text: (0x03 << (3 * 4)) | (0x03 << (2 * 4)) | (0x03 << (1 * 4))
+|———————Node:binary_expression Text: (0x03 << (3 * 4)) | (0x03 << (2 * 4))
+|————————Node:parenthesized_expression Text: (0x03 << (3 * 4))
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: 0x03 << (3 * 4)
+|——————————Node:number_literal Text: 0x03
+|——————————Node:<< Text: <<
+|——————————Node:parenthesized_expression Text: (3 * 4)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: 3 * 4
+|————————————Node:number_literal Text: 3
+|————————————Node:* Text: *
+|————————————Node:number_literal Text: 4
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:| Text: |
+|————————Node:parenthesized_expression Text: (0x03 << (2 * 4))
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: 0x03 << (2 * 4)
+|——————————Node:number_literal Text: 0x03
+|——————————Node:<< Text: <<
+|——————————Node:parenthesized_expression Text: (2 * 4)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: 2 * 4
+|————————————Node:number_literal Text: 2
+|————————————Node:* Text: *
+|————————————Node:number_literal Text: 4
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|———————Node:| Text: |
+|———————Node:parenthesized_expression Text: (0x03 << (1 * 4))
+|————————Node:( Text: (
+|————————Node:binary_expression Text: 0x03 << (1 * 4)
+|—————————Node:number_literal Text: 0x03
+|—————————Node:<< Text: <<
+|—————————Node:parenthesized_expression Text: (1 * 4)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: 1 * 4
+|———————————Node:number_literal Text: 1
+|———————————Node:* Text: *
+|———————————Node:number_literal Text: 4
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:| Text: |
+|——————Node:parenthesized_expression Text: (0x03 << (0 * 4))
+|———————Node:( Text: (
+|———————Node:binary_expression Text: 0x03 << (0 * 4)
+|————————Node:number_literal Text: 0x03
+|————————Node:<< Text: <<
+|————————Node:parenthesized_expression Text: (0 * 4)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: 0 * 4
+|——————————Node:number_literal Text: 0
+|——————————Node:* Text: *
+|——————————Node:number_literal Text: 4
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: GPIOB->CRL = (0x08 << (1 * 4)) | (0x08 << (0 * 4));
+|————Node:assignment_expression Text: GPIOB->CRL = (0x08 << (1 * 4)) | (0x08 << (0 * 4))
+|—————Node:field_expression Text: GPIOB->CRL
+|——————Node:identifier Text: GPIOB
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: CRL
+|—————Node:= Text: =
+|—————Node:binary_expression Text: (0x08 << (1 * 4)) | (0x08 << (0 * 4))
+|——————Node:parenthesized_expression Text: (0x08 << (1 * 4))
+|———————Node:( Text: (
+|———————Node:binary_expression Text: 0x08 << (1 * 4)
+|————————Node:number_literal Text: 0x08
+|————————Node:<< Text: <<
+|————————Node:parenthesized_expression Text: (1 * 4)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: 1 * 4
+|——————————Node:number_literal Text: 1
+|——————————Node:* Text: *
+|——————————Node:number_literal Text: 4
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:| Text: |
+|——————Node:parenthesized_expression Text: (0x08 << (0 * 4))
+|———————Node:( Text: (
+|———————Node:binary_expression Text: 0x08 << (0 * 4)
+|————————Node:number_literal Text: 0x08
+|————————Node:<< Text: <<
+|————————Node:parenthesized_expression Text: (0 * 4)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: 0 * 4
+|——————————Node:number_literal Text: 0
+|——————————Node:* Text: *
+|——————————Node:number_literal Text: 4
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: GPIOB->ODR |= GPIO_ODR_ODR0 | GPIO_ODR_ODR1;
+|————Node:assignment_expression Text: GPIOB->ODR |= GPIO_ODR_ODR0 | GPIO_ODR_ODR1
+|—————Node:field_expression Text: GPIOB->ODR
+|——————Node:identifier Text: GPIOB
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: ODR
+|—————Node:|= Text: |=
+|—————Node:binary_expression Text: GPIO_ODR_ODR0 | GPIO_ODR_ODR1
+|——————Node:identifier Text: GPIO_ODR_ODR0
+|——————Node:| Text: |
+|——————Node:identifier Text: GPIO_ODR_ODR1
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: GPIOA->BSRR |= GPIO_BSRR_BR0 | GPIO_BSRR_BR1 | GPIO_BSRR_BS2 | GPIO_BSRR_BS3;
+|————Node:assignment_expression Text: GPIOA->BSRR |= GPIO_BSRR_BR0 | GPIO_BSRR_BR1 | GPIO_BSRR_BS2 | GPIO_BSRR_BS3
+|—————Node:field_expression Text: GPIOA->BSRR
+|——————Node:identifier Text: GPIOA
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: BSRR
+|—————Node:|= Text: |=
+|—————Node:binary_expression Text: GPIO_BSRR_BR0 | GPIO_BSRR_BR1 | GPIO_BSRR_BS2 | GPIO_BSRR_BS3
+|——————Node:binary_expression Text: GPIO_BSRR_BR0 | GPIO_BSRR_BR1 | GPIO_BSRR_BS2
+|———————Node:binary_expression Text: GPIO_BSRR_BR0 | GPIO_BSRR_BR1
+|————————Node:identifier Text: GPIO_BSRR_BR0
+|————————Node:| Text: |
+|————————Node:identifier Text: GPIO_BSRR_BR1
+|———————Node:| Text: |
+|———————Node:identifier Text: GPIO_BSRR_BS2
+|——————Node:| Text: |
+|——————Node:identifier Text: GPIO_BSRR_BS3
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void cal_baudrate(void) {
+	return;
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: cal_baudrate(void)
+|———Node:identifier Text: cal_baudrate
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+	return;
+}
+|———Node:{ Text: {
+|———Node:return_statement Text: return;
+|————Node:return Text: return
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment

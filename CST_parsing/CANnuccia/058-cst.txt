@@ -1,0 +1,276 @@
+CANnuccia-src\common\main.c
+
+|Node:translation_unit
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:preproc_include Text: #include "common/debug.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "common/debug.h"
+|———Node:" Text: "
+|———Node:string_content Text: common/debug.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "common/can.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "common/can.h"
+|———Node:" Text: "
+|———Node:string_content Text: common/can.h
+|———Node:" Text: "
+|—Node:function_definition Text: int main(void)
+{
+    cnDebugInit();
+
+    cnCANInit(0x00000000, 0x00000000);
+    uint8_t data[] = {1, 2, 3, 4, 6, 8, 10, 12}, data2[] = {0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF};
+
+    volatile int i = 0;
+    uint32_t recvId = 0;
+    while(1)
+    {
+        cnCANSend(0xF0F0F0F4, sizeof(data), data);
+        if(cnCANRecv(&recvId, sizeof(data2), data2) >= 0)
+        {
+            cnDebugLed(i % 2);
+            i ++;
+        }
+        for(volatile int j = 0; j < 200000; j ++) { }
+    }
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: main(void)
+|———Node:identifier Text: main
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    cnDebugInit();
+
+    cnCANInit(0x00000000, 0x00000000);
+    uint8_t data[] = {1, 2, 3, 4, 6, 8, 10, 12}, data2[] = {0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF};
+
+    volatile int i = 0;
+    uint32_t recvId = 0;
+    while(1)
+    {
+        cnCANSend(0xF0F0F0F4, sizeof(data), data);
+        if(cnCANRecv(&recvId, sizeof(data2), data2) >= 0)
+        {
+            cnDebugLed(i % 2);
+            i ++;
+        }
+        for(volatile int j = 0; j < 200000; j ++) { }
+    }
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: cnDebugInit();
+|————Node:call_expression Text: cnDebugInit()
+|—————Node:identifier Text: cnDebugInit
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: cnCANInit(0x00000000, 0x00000000);
+|————Node:call_expression Text: cnCANInit(0x00000000, 0x00000000)
+|—————Node:identifier Text: cnCANInit
+|—————Node:argument_list Text: (0x00000000, 0x00000000)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0x00000000
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0x00000000
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: uint8_t data[] = {1, 2, 3, 4, 6, 8, 10, 12}, data2[] = {0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF};
+|————Node:primitive_type Text: uint8_t
+|————Node:init_declarator Text: data[] = {1, 2, 3, 4, 6, 8, 10, 12}
+|—————Node:array_declarator Text: data[]
+|——————Node:identifier Text: data
+|——————Node:[ Text: [
+|——————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:initializer_list Text: {1, 2, 3, 4, 6, 8, 10, 12}
+|——————Node:{ Text: {
+|——————Node:number_literal Text: 1
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 2
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 3
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 4
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 6
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 8
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 10
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 12
+|——————Node:} Text: }
+|————Node:, Text: ,
+|————Node:init_declarator Text: data2[] = {0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF}
+|—————Node:array_declarator Text: data2[]
+|——————Node:identifier Text: data2
+|——————Node:[ Text: [
+|——————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:initializer_list Text: {0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF}
+|——————Node:{ Text: {
+|——————Node:number_literal Text: 0xF
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0xF
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0xF
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0xF
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0xF
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0xF
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0xF
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0xF
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:declaration Text: volatile int i = 0;
+|————Node:type_qualifier Text: volatile
+|—————Node:volatile Text: volatile
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: i = 0
+|—————Node:identifier Text: i
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: uint32_t recvId = 0;
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: recvId = 0
+|—————Node:identifier Text: recvId
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:while_statement Text: while(1)
+    {
+        cnCANSend(0xF0F0F0F4, sizeof(data), data);
+        if(cnCANRecv(&recvId, sizeof(data2), data2) >= 0)
+        {
+            cnDebugLed(i % 2);
+            i ++;
+        }
+        for(volatile int j = 0; j < 200000; j ++) { }
+    }
+|————Node:while Text: while
+|————Node:parenthesized_expression Text: (1)
+|—————Node:( Text: (
+|—————Node:number_literal Text: 1
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        cnCANSend(0xF0F0F0F4, sizeof(data), data);
+        if(cnCANRecv(&recvId, sizeof(data2), data2) >= 0)
+        {
+            cnDebugLed(i % 2);
+            i ++;
+        }
+        for(volatile int j = 0; j < 200000; j ++) { }
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: cnCANSend(0xF0F0F0F4, sizeof(data), data);
+|——————Node:call_expression Text: cnCANSend(0xF0F0F0F4, sizeof(data), data)
+|———————Node:identifier Text: cnCANSend
+|———————Node:argument_list Text: (0xF0F0F0F4, sizeof(data), data)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 0xF0F0F0F4
+|————————Node:, Text: ,
+|————————Node:sizeof_expression Text: sizeof(data)
+|—————————Node:sizeof Text: sizeof
+|—————————Node:parenthesized_expression Text: (data)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: data
+|——————————Node:) Text: )
+|————————Node:, Text: ,
+|————————Node:identifier Text: data
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if(cnCANRecv(&recvId, sizeof(data2), data2) >= 0)
+        {
+            cnDebugLed(i % 2);
+            i ++;
+        }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (cnCANRecv(&recvId, sizeof(data2), data2) >= 0)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: cnCANRecv(&recvId, sizeof(data2), data2) >= 0
+|————————Node:call_expression Text: cnCANRecv(&recvId, sizeof(data2), data2)
+|—————————Node:identifier Text: cnCANRecv
+|—————————Node:argument_list Text: (&recvId, sizeof(data2), data2)
+|——————————Node:( Text: (
+|——————————Node:pointer_expression Text: &recvId
+|———————————Node:& Text: &
+|———————————Node:identifier Text: recvId
+|——————————Node:, Text: ,
+|——————————Node:sizeof_expression Text: sizeof(data2)
+|———————————Node:sizeof Text: sizeof
+|———————————Node:parenthesized_expression Text: (data2)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: data2
+|————————————Node:) Text: )
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: data2
+|——————————Node:) Text: )
+|————————Node:>= Text: >=
+|————————Node:number_literal Text: 0
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            cnDebugLed(i % 2);
+            i ++;
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: cnDebugLed(i % 2);
+|————————Node:call_expression Text: cnDebugLed(i % 2)
+|—————————Node:identifier Text: cnDebugLed
+|—————————Node:argument_list Text: (i % 2)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: i % 2
+|———————————Node:identifier Text: i
+|———————————Node:% Text: %
+|———————————Node:number_literal Text: 2
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: i ++;
+|————————Node:update_expression Text: i ++
+|—————————Node:identifier Text: i
+|—————————Node:++ Text: ++
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:for_statement Text: for(volatile int j = 0; j < 200000; j ++) { }
+|——————Node:for Text: for
+|——————Node:( Text: (
+|——————Node:declaration Text: volatile int j = 0;
+|———————Node:type_qualifier Text: volatile
+|————————Node:volatile Text: volatile
+|———————Node:primitive_type Text: int
+|———————Node:init_declarator Text: j = 0
+|————————Node:identifier Text: j
+|————————Node:= Text: =
+|————————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:binary_expression Text: j < 200000
+|———————Node:identifier Text: j
+|———————Node:< Text: <
+|———————Node:number_literal Text: 200000
+|——————Node:; Text: ;
+|——————Node:update_expression Text: j ++
+|———————Node:identifier Text: j
+|———————Node:++ Text: ++
+|——————Node:) Text: )
+|——————Node:compound_statement Text: { }
+|———————Node:{ Text: {
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:} Text: }

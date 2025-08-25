@@ -1,0 +1,3266 @@
+eVCU-src\DeviceCAN.cpp
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include "DeviceCAN.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "DeviceCAN.h"
+|———Node:" Text: "
+|———Node:string_content Text: DeviceCAN.h
+|———Node:" Text: "
+|—Node:declaration Text: MapTimerMsg* MapTimerMsg::obj{NULL};
+|——Node:type_identifier Text: MapTimerMsg
+|——Node:init_declarator Text: * MapTimerMsg::obj{NULL}
+|———Node:pointer_declarator Text: * MapTimerMsg::obj
+|————Node:* Text: *
+|————Node:qualified_identifier Text: MapTimerMsg::obj
+|—————Node:namespace_identifier Text: MapTimerMsg
+|—————Node::: Text: ::
+|—————Node:identifier Text: obj
+|———Node:initializer_list Text: {NULL}
+|————Node:{ Text: {
+|————Node:null Text: NULL
+|—————Node:NULL Text: NULL
+|————Node:} Text: }
+|——Node:; Text: ;
+|—Node:comment
+|—Node:function_definition Text: MapTimerMsg* MapTimerMsg::getInstance()
+{
+  if (!obj) obj = new MapTimerMsg();
+  return obj;
+}
+|——Node:type_identifier Text: MapTimerMsg
+|——Node:pointer_declarator Text: * MapTimerMsg::getInstance()
+|———Node:* Text: *
+|———Node:function_declarator Text: MapTimerMsg::getInstance()
+|————Node:qualified_identifier Text: MapTimerMsg::getInstance
+|—————Node:namespace_identifier Text: MapTimerMsg
+|—————Node::: Text: ::
+|—————Node:identifier Text: getInstance
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|——Node:compound_statement Text: {
+  if (!obj) obj = new MapTimerMsg();
+  return obj;
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (!obj) obj = new MapTimerMsg();
+|————Node:if Text: if
+|————Node:condition_clause Text: (!obj)
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !obj
+|——————Node:! Text: !
+|——————Node:identifier Text: obj
+|—————Node:) Text: )
+|————Node:expression_statement Text: obj = new MapTimerMsg();
+|—————Node:assignment_expression Text: obj = new MapTimerMsg()
+|——————Node:identifier Text: obj
+|——————Node:= Text: =
+|——————Node:new_expression Text: new MapTimerMsg()
+|———————Node:new Text: new
+|———————Node:type_identifier Text: MapTimerMsg
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:return_statement Text: return obj;
+|————Node:return Text: return
+|————Node:identifier Text: obj
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: DeviceCAN::DeviceCAN(VehicleController* vc)
+  : DeviceSerial(vc), m_pMap(NULL), m_busMode(TWAI_MODE_LISTEN_ONLY)
+{
+  m_pMap = MapTimerMsg::getInstance();
+}
+|——Node:function_declarator Text: DeviceCAN::DeviceCAN(VehicleController* vc)
+|———Node:qualified_identifier Text: DeviceCAN::DeviceCAN
+|————Node:namespace_identifier Text: DeviceCAN
+|————Node::: Text: ::
+|————Node:identifier Text: DeviceCAN
+|———Node:parameter_list Text: (VehicleController* vc)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: VehicleController* vc
+|—————Node:type_identifier Text: VehicleController
+|—————Node:pointer_declarator Text: * vc
+|——————Node:* Text: *
+|——————Node:identifier Text: vc
+|————Node:) Text: )
+|——Node:field_initializer_list Text: : DeviceSerial(vc), m_pMap(NULL), m_busMode(TWAI_MODE_LISTEN_ONLY)
+|———Node:: Text: :
+|———Node:field_initializer Text: DeviceSerial(vc)
+|————Node:field_identifier Text: DeviceSerial
+|————Node:argument_list Text: (vc)
+|—————Node:( Text: (
+|—————Node:identifier Text: vc
+|—————Node:) Text: )
+|———Node:, Text: ,
+|———Node:field_initializer Text: m_pMap(NULL)
+|————Node:field_identifier Text: m_pMap
+|————Node:argument_list Text: (NULL)
+|—————Node:( Text: (
+|—————Node:null Text: NULL
+|——————Node:NULL Text: NULL
+|—————Node:) Text: )
+|———Node:, Text: ,
+|———Node:field_initializer Text: m_busMode(TWAI_MODE_LISTEN_ONLY)
+|————Node:field_identifier Text: m_busMode
+|————Node:argument_list Text: (TWAI_MODE_LISTEN_ONLY)
+|—————Node:( Text: (
+|—————Node:identifier Text: TWAI_MODE_LISTEN_ONLY
+|—————Node:) Text: )
+|——Node:compound_statement Text: {
+  m_pMap = MapTimerMsg::getInstance();
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: m_pMap = MapTimerMsg::getInstance();
+|————Node:assignment_expression Text: m_pMap = MapTimerMsg::getInstance()
+|—————Node:identifier Text: m_pMap
+|—————Node:= Text: =
+|—————Node:call_expression Text: MapTimerMsg::getInstance()
+|——————Node:qualified_identifier Text: MapTimerMsg::getInstance
+|———————Node:namespace_identifier Text: MapTimerMsg
+|———————Node::: Text: ::
+|———————Node:identifier Text: getInstance
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: void DeviceCAN::waitForSerialEvent()
+{
+  // Wait for a message
+  twai_message_t msg;
+  switch (twai_receive(&msg, pdMS_TO_TICKS(1005))) {
+    case ESP_OK:
+      // Check if the message is remote or normal and forward
+      if (msg.rtr) this->onRemoteFrameRcv(&msg);
+      else this->onMsgRcv(&msg);
+      break;
+    case ESP_ERR_TIMEOUT:
+      // Check for driver errors
+      //DeviceCAN::checkBusErrors();
+      PRINT("Warning: no CAN bus messages detected")
+      break;
+    case ESP_ERR_INVALID_STATE:
+      PRINT("Error receiving a CAN message: CAN driver is not installed")
+      vTaskDelay(pdMS_TO_TICKS(5));
+      break;
+    case ESP_ERR_INVALID_ARG:
+      PRINT("Error receiving a CAN message: Invalid message argument")
+      break;
+    default:
+      PRINT("Error receiving a CAN message")
+      break;
+  }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: DeviceCAN::waitForSerialEvent()
+|———Node:qualified_identifier Text: DeviceCAN::waitForSerialEvent
+|————Node:namespace_identifier Text: DeviceCAN
+|————Node::: Text: ::
+|————Node:identifier Text: waitForSerialEvent
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  // Wait for a message
+  twai_message_t msg;
+  switch (twai_receive(&msg, pdMS_TO_TICKS(1005))) {
+    case ESP_OK:
+      // Check if the message is remote or normal and forward
+      if (msg.rtr) this->onRemoteFrameRcv(&msg);
+      else this->onMsgRcv(&msg);
+      break;
+    case ESP_ERR_TIMEOUT:
+      // Check for driver errors
+      //DeviceCAN::checkBusErrors();
+      PRINT("Warning: no CAN bus messages detected")
+      break;
+    case ESP_ERR_INVALID_STATE:
+      PRINT("Error receiving a CAN message: CAN driver is not installed")
+      vTaskDelay(pdMS_TO_TICKS(5));
+      break;
+    case ESP_ERR_INVALID_ARG:
+      PRINT("Error receiving a CAN message: Invalid message argument")
+      break;
+    default:
+      PRINT("Error receiving a CAN message")
+      break;
+  }
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:declaration Text: twai_message_t msg;
+|————Node:type_identifier Text: twai_message_t
+|————Node:identifier Text: msg
+|————Node:; Text: ;
+|———Node:switch_statement Text: switch (twai_receive(&msg, pdMS_TO_TICKS(1005))) {
+    case ESP_OK:
+      // Check if the message is remote or normal and forward
+      if (msg.rtr) this->onRemoteFrameRcv(&msg);
+      else this->onMsgRcv(&msg);
+      break;
+    case ESP_ERR_TIMEOUT:
+      // Check for driver errors
+      //DeviceCAN::checkBusErrors();
+      PRINT("Warning: no CAN bus messages detected")
+      break;
+    case ESP_ERR_INVALID_STATE:
+      PRINT("Error receiving a CAN message: CAN driver is not installed")
+      vTaskDelay(pdMS_TO_TICKS(5));
+      break;
+    case ESP_ERR_INVALID_ARG:
+      PRINT("Error receiving a CAN message: Invalid message argument")
+      break;
+    default:
+      PRINT("Error receiving a CAN message")
+      break;
+  }
+|————Node:switch Text: switch
+|————Node:condition_clause Text: (twai_receive(&msg, pdMS_TO_TICKS(1005)))
+|—————Node:( Text: (
+|—————Node:call_expression Text: twai_receive(&msg, pdMS_TO_TICKS(1005))
+|——————Node:identifier Text: twai_receive
+|——————Node:argument_list Text: (&msg, pdMS_TO_TICKS(1005))
+|———————Node:( Text: (
+|———————Node:pointer_expression Text: &msg
+|————————Node:& Text: &
+|————————Node:identifier Text: msg
+|———————Node:, Text: ,
+|———————Node:call_expression Text: pdMS_TO_TICKS(1005)
+|————————Node:identifier Text: pdMS_TO_TICKS
+|————————Node:argument_list Text: (1005)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 1005
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    case ESP_OK:
+      // Check if the message is remote or normal and forward
+      if (msg.rtr) this->onRemoteFrameRcv(&msg);
+      else this->onMsgRcv(&msg);
+      break;
+    case ESP_ERR_TIMEOUT:
+      // Check for driver errors
+      //DeviceCAN::checkBusErrors();
+      PRINT("Warning: no CAN bus messages detected")
+      break;
+    case ESP_ERR_INVALID_STATE:
+      PRINT("Error receiving a CAN message: CAN driver is not installed")
+      vTaskDelay(pdMS_TO_TICKS(5));
+      break;
+    case ESP_ERR_INVALID_ARG:
+      PRINT("Error receiving a CAN message: Invalid message argument")
+      break;
+    default:
+      PRINT("Error receiving a CAN message")
+      break;
+  }
+|—————Node:{ Text: {
+|—————Node:case_statement Text: case ESP_OK:
+      // Check if the message is remote or normal and forward
+      if (msg.rtr) this->onRemoteFrameRcv(&msg);
+      else this->onMsgRcv(&msg);
+      break;
+|——————Node:case Text: case
+|——————Node:identifier Text: ESP_OK
+|——————Node:: Text: :
+|——————Node:comment
+|——————Node:if_statement Text: if (msg.rtr) this->onRemoteFrameRcv(&msg);
+      else this->onMsgRcv(&msg);
+|———————Node:if Text: if
+|———————Node:condition_clause Text: (msg.rtr)
+|————————Node:( Text: (
+|————————Node:field_expression Text: msg.rtr
+|—————————Node:identifier Text: msg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: rtr
+|————————Node:) Text: )
+|———————Node:expression_statement Text: this->onRemoteFrameRcv(&msg);
+|————————Node:call_expression Text: this->onRemoteFrameRcv(&msg)
+|—————————Node:field_expression Text: this->onRemoteFrameRcv
+|——————————Node:this Text: this
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: onRemoteFrameRcv
+|—————————Node:argument_list Text: (&msg)
+|——————————Node:( Text: (
+|——————————Node:pointer_expression Text: &msg
+|———————————Node:& Text: &
+|———————————Node:identifier Text: msg
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:else_clause Text: else this->onMsgRcv(&msg);
+|————————Node:else Text: else
+|————————Node:expression_statement Text: this->onMsgRcv(&msg);
+|—————————Node:call_expression Text: this->onMsgRcv(&msg)
+|——————————Node:field_expression Text: this->onMsgRcv
+|———————————Node:this Text: this
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: onMsgRcv
+|——————————Node:argument_list Text: (&msg)
+|———————————Node:( Text: (
+|———————————Node:pointer_expression Text: &msg
+|————————————Node:& Text: &
+|————————————Node:identifier Text: msg
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case ESP_ERR_TIMEOUT:
+      // Check for driver errors
+      //DeviceCAN::checkBusErrors();
+      PRINT("Warning: no CAN bus messages detected")
+      break;
+|——————Node:case Text: case
+|——————Node:identifier Text: ESP_ERR_TIMEOUT
+|——————Node:: Text: :
+|——————Node:comment
+|——————Node:comment
+|——————Node:expression_statement Text: PRINT("Warning: no CAN bus messages detected")
+      break;
+|———————Node:call_expression Text: PRINT("Warning: no CAN bus messages detected")
+|————————Node:identifier Text: PRINT
+|————————Node:argument_list Text: ("Warning: no CAN bus messages detected")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Warning: no CAN bus messages detected"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Warning: no CAN bus messages detected
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:ERROR Text: break
+|————————Node:identifier Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case ESP_ERR_INVALID_STATE:
+      PRINT("Error receiving a CAN message: CAN driver is not installed")
+      vTaskDelay(pdMS_TO_TICKS(5));
+      break;
+|——————Node:case Text: case
+|——————Node:identifier Text: ESP_ERR_INVALID_STATE
+|——————Node:: Text: :
+|——————Node:expression_statement Text: PRINT("Error receiving a CAN message: CAN driver is not installed")
+|———————Node:call_expression Text: PRINT("Error receiving a CAN message: CAN driver is not installed")
+|————————Node:identifier Text: PRINT
+|————————Node:argument_list Text: ("Error receiving a CAN message: CAN driver is not installed")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Error receiving a CAN message: CAN driver is not installed"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Error receiving a CAN message: CAN driver is not installed
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: 
+|——————Node:expression_statement Text: vTaskDelay(pdMS_TO_TICKS(5));
+|———————Node:call_expression Text: vTaskDelay(pdMS_TO_TICKS(5))
+|————————Node:identifier Text: vTaskDelay
+|————————Node:argument_list Text: (pdMS_TO_TICKS(5))
+|—————————Node:( Text: (
+|—————————Node:call_expression Text: pdMS_TO_TICKS(5)
+|——————————Node:identifier Text: pdMS_TO_TICKS
+|——————————Node:argument_list Text: (5)
+|———————————Node:( Text: (
+|———————————Node:number_literal Text: 5
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case ESP_ERR_INVALID_ARG:
+      PRINT("Error receiving a CAN message: Invalid message argument")
+      break;
+|——————Node:case Text: case
+|——————Node:identifier Text: ESP_ERR_INVALID_ARG
+|——————Node:: Text: :
+|——————Node:expression_statement Text: PRINT("Error receiving a CAN message: Invalid message argument")
+      break;
+|———————Node:call_expression Text: PRINT("Error receiving a CAN message: Invalid message argument")
+|————————Node:identifier Text: PRINT
+|————————Node:argument_list Text: ("Error receiving a CAN message: Invalid message argument")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Error receiving a CAN message: Invalid message argument"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Error receiving a CAN message: Invalid message argument
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:ERROR Text: break
+|————————Node:identifier Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: default:
+      PRINT("Error receiving a CAN message")
+      break;
+|——————Node:default Text: default
+|——————Node:: Text: :
+|——————Node:expression_statement Text: PRINT("Error receiving a CAN message")
+      break;
+|———————Node:call_expression Text: PRINT("Error receiving a CAN message")
+|————————Node:identifier Text: PRINT
+|————————Node:argument_list Text: ("Error receiving a CAN message")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Error receiving a CAN message"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Error receiving a CAN message
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:ERROR Text: break
+|————————Node:identifier Text: break
+|———————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: void DeviceCAN::onMsgRcv(twai_message_t* pMsg)
+{}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: DeviceCAN::onMsgRcv(twai_message_t* pMsg)
+|———Node:qualified_identifier Text: DeviceCAN::onMsgRcv
+|————Node:namespace_identifier Text: DeviceCAN
+|————Node::: Text: ::
+|————Node:identifier Text: onMsgRcv
+|———Node:parameter_list Text: (twai_message_t* pMsg)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: twai_message_t* pMsg
+|—————Node:type_identifier Text: twai_message_t
+|—————Node:pointer_declarator Text: * pMsg
+|——————Node:* Text: *
+|——————Node:identifier Text: pMsg
+|————Node:) Text: )
+|——Node:compound_statement Text: {}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: void DeviceCAN::onRemoteFrameRcv(twai_message_t* pMsg)
+{}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: DeviceCAN::onRemoteFrameRcv(twai_message_t* pMsg)
+|———Node:qualified_identifier Text: DeviceCAN::onRemoteFrameRcv
+|————Node:namespace_identifier Text: DeviceCAN
+|————Node::: Text: ::
+|————Node:identifier Text: onRemoteFrameRcv
+|———Node:parameter_list Text: (twai_message_t* pMsg)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: twai_message_t* pMsg
+|—————Node:type_identifier Text: twai_message_t
+|—————Node:pointer_declarator Text: * pMsg
+|——————Node:* Text: *
+|——————Node:identifier Text: pMsg
+|————Node:) Text: )
+|——Node:compound_statement Text: {}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: bool DeviceCAN::setTransactionPeriodic(twai_message_t* pMsg, uint16_t interval)
+{
+  // If the interval is 0, send the message once
+  if (interval == 0) {
+    return DeviceCAN::sendTransaction(pMsg);
+  }
+  else {
+    // Create a FreeRTOS software timer for this message.
+    // Its ID is the message identifier
+    TimerHandle_t xTimer = xTimerCreate("",
+                                        pdMS_TO_TICKS(interval),
+                                        pdTRUE,
+                                        (void*)(pMsg->identifier),
+                                        DeviceCAN::timerCallbackSendTransaction);
+    if (xTimer != NULL) {
+      // Save the message and its timer in the map with the timer
+      // handle as key
+      this->m_pMap->put(xTimer, pMsg);
+      // Start the timer
+      if (xTimerStart(xTimer, 1) != pdPASS) {
+        PRINT("Error starting the timer for CAN message " + String(pMsg->identifier))
+        return false;
+      }
+      return true;
+    }
+    else {
+      PRINT("Error creating a timer for CAN message " + String(pMsg->identifier))
+      return false;
+    }
+  }
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: DeviceCAN::setTransactionPeriodic(twai_message_t* pMsg, uint16_t interval)
+|———Node:qualified_identifier Text: DeviceCAN::setTransactionPeriodic
+|————Node:namespace_identifier Text: DeviceCAN
+|————Node::: Text: ::
+|————Node:identifier Text: setTransactionPeriodic
+|———Node:parameter_list Text: (twai_message_t* pMsg, uint16_t interval)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: twai_message_t* pMsg
+|—————Node:type_identifier Text: twai_message_t
+|—————Node:pointer_declarator Text: * pMsg
+|——————Node:* Text: *
+|——————Node:identifier Text: pMsg
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint16_t interval
+|—————Node:primitive_type Text: uint16_t
+|—————Node:identifier Text: interval
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  // If the interval is 0, send the message once
+  if (interval == 0) {
+    return DeviceCAN::sendTransaction(pMsg);
+  }
+  else {
+    // Create a FreeRTOS software timer for this message.
+    // Its ID is the message identifier
+    TimerHandle_t xTimer = xTimerCreate("",
+                                        pdMS_TO_TICKS(interval),
+                                        pdTRUE,
+                                        (void*)(pMsg->identifier),
+                                        DeviceCAN::timerCallbackSendTransaction);
+    if (xTimer != NULL) {
+      // Save the message and its timer in the map with the timer
+      // handle as key
+      this->m_pMap->put(xTimer, pMsg);
+      // Start the timer
+      if (xTimerStart(xTimer, 1) != pdPASS) {
+        PRINT("Error starting the timer for CAN message " + String(pMsg->identifier))
+        return false;
+      }
+      return true;
+    }
+    else {
+      PRINT("Error creating a timer for CAN message " + String(pMsg->identifier))
+      return false;
+    }
+  }
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:if_statement Text: if (interval == 0) {
+    return DeviceCAN::sendTransaction(pMsg);
+  }
+  else {
+    // Create a FreeRTOS software timer for this message.
+    // Its ID is the message identifier
+    TimerHandle_t xTimer = xTimerCreate("",
+                                        pdMS_TO_TICKS(interval),
+                                        pdTRUE,
+                                        (void*)(pMsg->identifier),
+                                        DeviceCAN::timerCallbackSendTransaction);
+    if (xTimer != NULL) {
+      // Save the message and its timer in the map with the timer
+      // handle as key
+      this->m_pMap->put(xTimer, pMsg);
+      // Start the timer
+      if (xTimerStart(xTimer, 1) != pdPASS) {
+        PRINT("Error starting the timer for CAN message " + String(pMsg->identifier))
+        return false;
+      }
+      return true;
+    }
+    else {
+      PRINT("Error creating a timer for CAN message " + String(pMsg->identifier))
+      return false;
+    }
+  }
+|————Node:if Text: if
+|————Node:condition_clause Text: (interval == 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: interval == 0
+|——————Node:identifier Text: interval
+|——————Node:== Text: ==
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    return DeviceCAN::sendTransaction(pMsg);
+  }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return DeviceCAN::sendTransaction(pMsg);
+|——————Node:return Text: return
+|——————Node:call_expression Text: DeviceCAN::sendTransaction(pMsg)
+|———————Node:qualified_identifier Text: DeviceCAN::sendTransaction
+|————————Node:namespace_identifier Text: DeviceCAN
+|————————Node::: Text: ::
+|————————Node:identifier Text: sendTransaction
+|———————Node:argument_list Text: (pMsg)
+|————————Node:( Text: (
+|————————Node:identifier Text: pMsg
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else {
+    // Create a FreeRTOS software timer for this message.
+    // Its ID is the message identifier
+    TimerHandle_t xTimer = xTimerCreate("",
+                                        pdMS_TO_TICKS(interval),
+                                        pdTRUE,
+                                        (void*)(pMsg->identifier),
+                                        DeviceCAN::timerCallbackSendTransaction);
+    if (xTimer != NULL) {
+      // Save the message and its timer in the map with the timer
+      // handle as key
+      this->m_pMap->put(xTimer, pMsg);
+      // Start the timer
+      if (xTimerStart(xTimer, 1) != pdPASS) {
+        PRINT("Error starting the timer for CAN message " + String(pMsg->identifier))
+        return false;
+      }
+      return true;
+    }
+    else {
+      PRINT("Error creating a timer for CAN message " + String(pMsg->identifier))
+      return false;
+    }
+  }
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+    // Create a FreeRTOS software timer for this message.
+    // Its ID is the message identifier
+    TimerHandle_t xTimer = xTimerCreate("",
+                                        pdMS_TO_TICKS(interval),
+                                        pdTRUE,
+                                        (void*)(pMsg->identifier),
+                                        DeviceCAN::timerCallbackSendTransaction);
+    if (xTimer != NULL) {
+      // Save the message and its timer in the map with the timer
+      // handle as key
+      this->m_pMap->put(xTimer, pMsg);
+      // Start the timer
+      if (xTimerStart(xTimer, 1) != pdPASS) {
+        PRINT("Error starting the timer for CAN message " + String(pMsg->identifier))
+        return false;
+      }
+      return true;
+    }
+    else {
+      PRINT("Error creating a timer for CAN message " + String(pMsg->identifier))
+      return false;
+    }
+  }
+|——————Node:{ Text: {
+|——————Node:comment
+|——————Node:comment
+|——————Node:declaration Text: TimerHandle_t xTimer = xTimerCreate("",
+                                        pdMS_TO_TICKS(interval),
+                                        pdTRUE,
+                                        (void*)(pMsg->identifier),
+                                        DeviceCAN::timerCallbackSendTransaction);
+|———————Node:type_identifier Text: TimerHandle_t
+|———————Node:init_declarator Text: xTimer = xTimerCreate("",
+                                        pdMS_TO_TICKS(interval),
+                                        pdTRUE,
+                                        (void*)(pMsg->identifier),
+                                        DeviceCAN::timerCallbackSendTransaction)
+|————————Node:identifier Text: xTimer
+|————————Node:= Text: =
+|————————Node:call_expression Text: xTimerCreate("",
+                                        pdMS_TO_TICKS(interval),
+                                        pdTRUE,
+                                        (void*)(pMsg->identifier),
+                                        DeviceCAN::timerCallbackSendTransaction)
+|—————————Node:identifier Text: xTimerCreate
+|—————————Node:argument_list Text: ("",
+                                        pdMS_TO_TICKS(interval),
+                                        pdTRUE,
+                                        (void*)(pMsg->identifier),
+                                        DeviceCAN::timerCallbackSendTransaction)
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: ""
+|———————————Node:" Text: "
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:call_expression Text: pdMS_TO_TICKS(interval)
+|———————————Node:identifier Text: pdMS_TO_TICKS
+|———————————Node:argument_list Text: (interval)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: interval
+|————————————Node:) Text: )
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: pdTRUE
+|——————————Node:, Text: ,
+|——————————Node:cast_expression Text: (void*)(pMsg->identifier)
+|———————————Node:( Text: (
+|———————————Node:type_descriptor Text: void*
+|————————————Node:primitive_type Text: void
+|————————————Node:abstract_pointer_declarator Text: *
+|—————————————Node:* Text: *
+|———————————Node:) Text: )
+|———————————Node:parenthesized_expression Text: (pMsg->identifier)
+|————————————Node:( Text: (
+|————————————Node:field_expression Text: pMsg->identifier
+|—————————————Node:identifier Text: pMsg
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: identifier
+|————————————Node:) Text: )
+|——————————Node:, Text: ,
+|——————————Node:qualified_identifier Text: DeviceCAN::timerCallbackSendTransaction
+|———————————Node:namespace_identifier Text: DeviceCAN
+|———————————Node::: Text: ::
+|———————————Node:identifier Text: timerCallbackSendTransaction
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (xTimer != NULL) {
+      // Save the message and its timer in the map with the timer
+      // handle as key
+      this->m_pMap->put(xTimer, pMsg);
+      // Start the timer
+      if (xTimerStart(xTimer, 1) != pdPASS) {
+        PRINT("Error starting the timer for CAN message " + String(pMsg->identifier))
+        return false;
+      }
+      return true;
+    }
+    else {
+      PRINT("Error creating a timer for CAN message " + String(pMsg->identifier))
+      return false;
+    }
+|———————Node:if Text: if
+|———————Node:condition_clause Text: (xTimer != NULL)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: xTimer != NULL
+|—————————Node:identifier Text: xTimer
+|—————————Node:!= Text: !=
+|—————————Node:null Text: NULL
+|——————————Node:NULL Text: NULL
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+      // Save the message and its timer in the map with the timer
+      // handle as key
+      this->m_pMap->put(xTimer, pMsg);
+      // Start the timer
+      if (xTimerStart(xTimer, 1) != pdPASS) {
+        PRINT("Error starting the timer for CAN message " + String(pMsg->identifier))
+        return false;
+      }
+      return true;
+    }
+|————————Node:{ Text: {
+|————————Node:comment
+|————————Node:comment
+|————————Node:expression_statement Text: this->m_pMap->put(xTimer, pMsg);
+|—————————Node:call_expression Text: this->m_pMap->put(xTimer, pMsg)
+|——————————Node:field_expression Text: this->m_pMap->put
+|———————————Node:field_expression Text: this->m_pMap
+|————————————Node:this Text: this
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: m_pMap
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: put
+|——————————Node:argument_list Text: (xTimer, pMsg)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: xTimer
+|———————————Node:, Text: ,
+|———————————Node:identifier Text: pMsg
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:comment
+|————————Node:if_statement Text: if (xTimerStart(xTimer, 1) != pdPASS) {
+        PRINT("Error starting the timer for CAN message " + String(pMsg->identifier))
+        return false;
+      }
+|—————————Node:if Text: if
+|—————————Node:condition_clause Text: (xTimerStart(xTimer, 1) != pdPASS)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: xTimerStart(xTimer, 1) != pdPASS
+|———————————Node:call_expression Text: xTimerStart(xTimer, 1)
+|————————————Node:identifier Text: xTimerStart
+|————————————Node:argument_list Text: (xTimer, 1)
+|—————————————Node:( Text: (
+|—————————————Node:identifier Text: xTimer
+|—————————————Node:, Text: ,
+|—————————————Node:number_literal Text: 1
+|—————————————Node:) Text: )
+|———————————Node:!= Text: !=
+|———————————Node:identifier Text: pdPASS
+|——————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+        PRINT("Error starting the timer for CAN message " + String(pMsg->identifier))
+        return false;
+      }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: PRINT("Error starting the timer for CAN message " + String(pMsg->identifier))
+|———————————Node:call_expression Text: PRINT("Error starting the timer for CAN message " + String(pMsg->identifier))
+|————————————Node:identifier Text: PRINT
+|————————————Node:argument_list Text: ("Error starting the timer for CAN message " + String(pMsg->identifier))
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: "Error starting the timer for CAN message " + String(pMsg->identifier)
+|——————————————Node:string_literal Text: "Error starting the timer for CAN message "
+|———————————————Node:" Text: "
+|———————————————Node:string_content Text: Error starting the timer for CAN message 
+|———————————————Node:" Text: "
+|——————————————Node:+ Text: +
+|——————————————Node:call_expression Text: String(pMsg->identifier)
+|———————————————Node:identifier Text: String
+|———————————————Node:argument_list Text: (pMsg->identifier)
+|————————————————Node:( Text: (
+|————————————————Node:field_expression Text: pMsg->identifier
+|—————————————————Node:identifier Text: pMsg
+|—————————————————Node:-> Text: ->
+|—————————————————Node:field_identifier Text: identifier
+|————————————————Node:) Text: )
+|—————————————Node:) Text: )
+|———————————Node:; Text: 
+|——————————Node:return_statement Text: return false;
+|———————————Node:return Text: return
+|———————————Node:false Text: false
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|————————Node:return_statement Text: return true;
+|—————————Node:return Text: return
+|—————————Node:true Text: true
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———————Node:else_clause Text: else {
+      PRINT("Error creating a timer for CAN message " + String(pMsg->identifier))
+      return false;
+    }
+|————————Node:else Text: else
+|————————Node:compound_statement Text: {
+      PRINT("Error creating a timer for CAN message " + String(pMsg->identifier))
+      return false;
+    }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: PRINT("Error creating a timer for CAN message " + String(pMsg->identifier))
+|——————————Node:call_expression Text: PRINT("Error creating a timer for CAN message " + String(pMsg->identifier))
+|———————————Node:identifier Text: PRINT
+|———————————Node:argument_list Text: ("Error creating a timer for CAN message " + String(pMsg->identifier))
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: "Error creating a timer for CAN message " + String(pMsg->identifier)
+|—————————————Node:string_literal Text: "Error creating a timer for CAN message "
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: Error creating a timer for CAN message 
+|——————————————Node:" Text: "
+|—————————————Node:+ Text: +
+|—————————————Node:call_expression Text: String(pMsg->identifier)
+|——————————————Node:identifier Text: String
+|——————————————Node:argument_list Text: (pMsg->identifier)
+|———————————————Node:( Text: (
+|———————————————Node:field_expression Text: pMsg->identifier
+|————————————————Node:identifier Text: pMsg
+|————————————————Node:-> Text: ->
+|————————————————Node:field_identifier Text: identifier
+|———————————————Node:) Text: )
+|————————————Node:) Text: )
+|——————————Node:; Text: 
+|—————————Node:return_statement Text: return false;
+|——————————Node:return Text: return
+|——————————Node:false Text: false
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|——————Node:} Text: }
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: bool DeviceCAN::sendTransaction(twai_message_t* pMsg)
+{
+  // Send only if not in recovery state
+  twai_status_info_t status;
+  if (twai_get_status_info(&status) == ESP_OK) {
+    if (status.state == TWAI_STATE_RUNNING) {
+          
+      // Queue the message for transmission
+      switch (twai_transmit(pMsg, pdMS_TO_TICKS(5))) {
+        case ESP_OK:
+          return true;
+        case ESP_ERR_TIMEOUT:
+          PRINT("Error sending CAN message: ACK missing or TX queue full")
+          // Check the bus
+          DeviceCAN::checkBusErrors();
+          break;
+        case ESP_ERR_INVALID_STATE:
+          // Try to start the protocol
+          PRINT("Error sending CAN message: wrong state or bus-off mode entered")
+          DeviceCAN::checkBusErrors();
+          break;
+        case ESP_ERR_NOT_SUPPORTED:
+          PRINT("Error sending CAN message because in wrong mode")
+          break;
+        default:
+          PRINT("Error sending CAN message because of wrong parameters or send queue disabled")
+          break;
+      }
+    }
+    // if not running, check the bus
+    else {
+      PRINT("Error sending CAN message: wrong state")
+      DeviceCAN::checkBusErrors();
+    }
+  }
+  return false;
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: DeviceCAN::sendTransaction(twai_message_t* pMsg)
+|———Node:qualified_identifier Text: DeviceCAN::sendTransaction
+|————Node:namespace_identifier Text: DeviceCAN
+|————Node::: Text: ::
+|————Node:identifier Text: sendTransaction
+|———Node:parameter_list Text: (twai_message_t* pMsg)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: twai_message_t* pMsg
+|—————Node:type_identifier Text: twai_message_t
+|—————Node:pointer_declarator Text: * pMsg
+|——————Node:* Text: *
+|——————Node:identifier Text: pMsg
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  // Send only if not in recovery state
+  twai_status_info_t status;
+  if (twai_get_status_info(&status) == ESP_OK) {
+    if (status.state == TWAI_STATE_RUNNING) {
+          
+      // Queue the message for transmission
+      switch (twai_transmit(pMsg, pdMS_TO_TICKS(5))) {
+        case ESP_OK:
+          return true;
+        case ESP_ERR_TIMEOUT:
+          PRINT("Error sending CAN message: ACK missing or TX queue full")
+          // Check the bus
+          DeviceCAN::checkBusErrors();
+          break;
+        case ESP_ERR_INVALID_STATE:
+          // Try to start the protocol
+          PRINT("Error sending CAN message: wrong state or bus-off mode entered")
+          DeviceCAN::checkBusErrors();
+          break;
+        case ESP_ERR_NOT_SUPPORTED:
+          PRINT("Error sending CAN message because in wrong mode")
+          break;
+        default:
+          PRINT("Error sending CAN message because of wrong parameters or send queue disabled")
+          break;
+      }
+    }
+    // if not running, check the bus
+    else {
+      PRINT("Error sending CAN message: wrong state")
+      DeviceCAN::checkBusErrors();
+    }
+  }
+  return false;
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:declaration Text: twai_status_info_t status;
+|————Node:type_identifier Text: twai_status_info_t
+|————Node:identifier Text: status
+|————Node:; Text: ;
+|———Node:if_statement Text: if (twai_get_status_info(&status) == ESP_OK) {
+    if (status.state == TWAI_STATE_RUNNING) {
+          
+      // Queue the message for transmission
+      switch (twai_transmit(pMsg, pdMS_TO_TICKS(5))) {
+        case ESP_OK:
+          return true;
+        case ESP_ERR_TIMEOUT:
+          PRINT("Error sending CAN message: ACK missing or TX queue full")
+          // Check the bus
+          DeviceCAN::checkBusErrors();
+          break;
+        case ESP_ERR_INVALID_STATE:
+          // Try to start the protocol
+          PRINT("Error sending CAN message: wrong state or bus-off mode entered")
+          DeviceCAN::checkBusErrors();
+          break;
+        case ESP_ERR_NOT_SUPPORTED:
+          PRINT("Error sending CAN message because in wrong mode")
+          break;
+        default:
+          PRINT("Error sending CAN message because of wrong parameters or send queue disabled")
+          break;
+      }
+    }
+    // if not running, check the bus
+    else {
+      PRINT("Error sending CAN message: wrong state")
+      DeviceCAN::checkBusErrors();
+    }
+  }
+|————Node:if Text: if
+|————Node:condition_clause Text: (twai_get_status_info(&status) == ESP_OK)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: twai_get_status_info(&status) == ESP_OK
+|——————Node:call_expression Text: twai_get_status_info(&status)
+|———————Node:identifier Text: twai_get_status_info
+|———————Node:argument_list Text: (&status)
+|————————Node:( Text: (
+|————————Node:pointer_expression Text: &status
+|—————————Node:& Text: &
+|—————————Node:identifier Text: status
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:identifier Text: ESP_OK
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    if (status.state == TWAI_STATE_RUNNING) {
+          
+      // Queue the message for transmission
+      switch (twai_transmit(pMsg, pdMS_TO_TICKS(5))) {
+        case ESP_OK:
+          return true;
+        case ESP_ERR_TIMEOUT:
+          PRINT("Error sending CAN message: ACK missing or TX queue full")
+          // Check the bus
+          DeviceCAN::checkBusErrors();
+          break;
+        case ESP_ERR_INVALID_STATE:
+          // Try to start the protocol
+          PRINT("Error sending CAN message: wrong state or bus-off mode entered")
+          DeviceCAN::checkBusErrors();
+          break;
+        case ESP_ERR_NOT_SUPPORTED:
+          PRINT("Error sending CAN message because in wrong mode")
+          break;
+        default:
+          PRINT("Error sending CAN message because of wrong parameters or send queue disabled")
+          break;
+      }
+    }
+    // if not running, check the bus
+    else {
+      PRINT("Error sending CAN message: wrong state")
+      DeviceCAN::checkBusErrors();
+    }
+  }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if (status.state == TWAI_STATE_RUNNING) {
+          
+      // Queue the message for transmission
+      switch (twai_transmit(pMsg, pdMS_TO_TICKS(5))) {
+        case ESP_OK:
+          return true;
+        case ESP_ERR_TIMEOUT:
+          PRINT("Error sending CAN message: ACK missing or TX queue full")
+          // Check the bus
+          DeviceCAN::checkBusErrors();
+          break;
+        case ESP_ERR_INVALID_STATE:
+          // Try to start the protocol
+          PRINT("Error sending CAN message: wrong state or bus-off mode entered")
+          DeviceCAN::checkBusErrors();
+          break;
+        case ESP_ERR_NOT_SUPPORTED:
+          PRINT("Error sending CAN message because in wrong mode")
+          break;
+        default:
+          PRINT("Error sending CAN message because of wrong parameters or send queue disabled")
+          break;
+      }
+    }
+    // if not running, check the bus
+    else {
+      PRINT("Error sending CAN message: wrong state")
+      DeviceCAN::checkBusErrors();
+    }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (status.state == TWAI_STATE_RUNNING)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: status.state == TWAI_STATE_RUNNING
+|————————Node:field_expression Text: status.state
+|—————————Node:identifier Text: status
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: state
+|————————Node:== Text: ==
+|————————Node:identifier Text: TWAI_STATE_RUNNING
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+          
+      // Queue the message for transmission
+      switch (twai_transmit(pMsg, pdMS_TO_TICKS(5))) {
+        case ESP_OK:
+          return true;
+        case ESP_ERR_TIMEOUT:
+          PRINT("Error sending CAN message: ACK missing or TX queue full")
+          // Check the bus
+          DeviceCAN::checkBusErrors();
+          break;
+        case ESP_ERR_INVALID_STATE:
+          // Try to start the protocol
+          PRINT("Error sending CAN message: wrong state or bus-off mode entered")
+          DeviceCAN::checkBusErrors();
+          break;
+        case ESP_ERR_NOT_SUPPORTED:
+          PRINT("Error sending CAN message because in wrong mode")
+          break;
+        default:
+          PRINT("Error sending CAN message because of wrong parameters or send queue disabled")
+          break;
+      }
+    }
+|———————Node:{ Text: {
+|———————Node:comment
+|———————Node:switch_statement Text: switch (twai_transmit(pMsg, pdMS_TO_TICKS(5))) {
+        case ESP_OK:
+          return true;
+        case ESP_ERR_TIMEOUT:
+          PRINT("Error sending CAN message: ACK missing or TX queue full")
+          // Check the bus
+          DeviceCAN::checkBusErrors();
+          break;
+        case ESP_ERR_INVALID_STATE:
+          // Try to start the protocol
+          PRINT("Error sending CAN message: wrong state or bus-off mode entered")
+          DeviceCAN::checkBusErrors();
+          break;
+        case ESP_ERR_NOT_SUPPORTED:
+          PRINT("Error sending CAN message because in wrong mode")
+          break;
+        default:
+          PRINT("Error sending CAN message because of wrong parameters or send queue disabled")
+          break;
+      }
+|————————Node:switch Text: switch
+|————————Node:condition_clause Text: (twai_transmit(pMsg, pdMS_TO_TICKS(5)))
+|—————————Node:( Text: (
+|—————————Node:call_expression Text: twai_transmit(pMsg, pdMS_TO_TICKS(5))
+|——————————Node:identifier Text: twai_transmit
+|——————————Node:argument_list Text: (pMsg, pdMS_TO_TICKS(5))
+|———————————Node:( Text: (
+|———————————Node:identifier Text: pMsg
+|———————————Node:, Text: ,
+|———————————Node:call_expression Text: pdMS_TO_TICKS(5)
+|————————————Node:identifier Text: pdMS_TO_TICKS
+|————————————Node:argument_list Text: (5)
+|—————————————Node:( Text: (
+|—————————————Node:number_literal Text: 5
+|—————————————Node:) Text: )
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+        case ESP_OK:
+          return true;
+        case ESP_ERR_TIMEOUT:
+          PRINT("Error sending CAN message: ACK missing or TX queue full")
+          // Check the bus
+          DeviceCAN::checkBusErrors();
+          break;
+        case ESP_ERR_INVALID_STATE:
+          // Try to start the protocol
+          PRINT("Error sending CAN message: wrong state or bus-off mode entered")
+          DeviceCAN::checkBusErrors();
+          break;
+        case ESP_ERR_NOT_SUPPORTED:
+          PRINT("Error sending CAN message because in wrong mode")
+          break;
+        default:
+          PRINT("Error sending CAN message because of wrong parameters or send queue disabled")
+          break;
+      }
+|—————————Node:{ Text: {
+|—————————Node:case_statement Text: case ESP_OK:
+          return true;
+|——————————Node:case Text: case
+|——————————Node:identifier Text: ESP_OK
+|——————————Node:: Text: :
+|——————————Node:return_statement Text: return true;
+|———————————Node:return Text: return
+|———————————Node:true Text: true
+|———————————Node:; Text: ;
+|—————————Node:case_statement Text: case ESP_ERR_TIMEOUT:
+          PRINT("Error sending CAN message: ACK missing or TX queue full")
+          // Check the bus
+          DeviceCAN::checkBusErrors();
+          break;
+|——————————Node:case Text: case
+|——————————Node:identifier Text: ESP_ERR_TIMEOUT
+|——————————Node:: Text: :
+|——————————Node:expression_statement Text: PRINT("Error sending CAN message: ACK missing or TX queue full")
+          // Check the bus
+|———————————Node:call_expression Text: PRINT("Error sending CAN message: ACK missing or TX queue full")
+|————————————Node:identifier Text: PRINT
+|————————————Node:argument_list Text: ("Error sending CAN message: ACK missing or TX queue full")
+|—————————————Node:( Text: (
+|—————————————Node:string_literal Text: "Error sending CAN message: ACK missing or TX queue full"
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: Error sending CAN message: ACK missing or TX queue full
+|——————————————Node:" Text: "
+|—————————————Node:) Text: )
+|———————————Node:comment
+|———————————Node:; Text: 
+|——————————Node:expression_statement Text: DeviceCAN::checkBusErrors();
+|———————————Node:call_expression Text: DeviceCAN::checkBusErrors()
+|————————————Node:qualified_identifier Text: DeviceCAN::checkBusErrors
+|—————————————Node:namespace_identifier Text: DeviceCAN
+|—————————————Node::: Text: ::
+|—————————————Node:identifier Text: checkBusErrors
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:break_statement Text: break;
+|———————————Node:break Text: break
+|———————————Node:; Text: ;
+|—————————Node:case_statement Text: case ESP_ERR_INVALID_STATE:
+          // Try to start the protocol
+          PRINT("Error sending CAN message: wrong state or bus-off mode entered")
+          DeviceCAN::checkBusErrors();
+          break;
+|——————————Node:case Text: case
+|——————————Node:identifier Text: ESP_ERR_INVALID_STATE
+|——————————Node:: Text: :
+|——————————Node:comment
+|——————————Node:expression_statement Text: PRINT("Error sending CAN message: wrong state or bus-off mode entered")
+|———————————Node:call_expression Text: PRINT("Error sending CAN message: wrong state or bus-off mode entered")
+|————————————Node:identifier Text: PRINT
+|————————————Node:argument_list Text: ("Error sending CAN message: wrong state or bus-off mode entered")
+|—————————————Node:( Text: (
+|—————————————Node:string_literal Text: "Error sending CAN message: wrong state or bus-off mode entered"
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: Error sending CAN message: wrong state or bus-off mode entered
+|——————————————Node:" Text: "
+|—————————————Node:) Text: )
+|———————————Node:; Text: 
+|——————————Node:expression_statement Text: DeviceCAN::checkBusErrors();
+|———————————Node:call_expression Text: DeviceCAN::checkBusErrors()
+|————————————Node:qualified_identifier Text: DeviceCAN::checkBusErrors
+|—————————————Node:namespace_identifier Text: DeviceCAN
+|—————————————Node::: Text: ::
+|—————————————Node:identifier Text: checkBusErrors
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:break_statement Text: break;
+|———————————Node:break Text: break
+|———————————Node:; Text: ;
+|—————————Node:case_statement Text: case ESP_ERR_NOT_SUPPORTED:
+          PRINT("Error sending CAN message because in wrong mode")
+          break;
+|——————————Node:case Text: case
+|——————————Node:identifier Text: ESP_ERR_NOT_SUPPORTED
+|——————————Node:: Text: :
+|——————————Node:expression_statement Text: PRINT("Error sending CAN message because in wrong mode")
+          break;
+|———————————Node:call_expression Text: PRINT("Error sending CAN message because in wrong mode")
+|————————————Node:identifier Text: PRINT
+|————————————Node:argument_list Text: ("Error sending CAN message because in wrong mode")
+|—————————————Node:( Text: (
+|—————————————Node:string_literal Text: "Error sending CAN message because in wrong mode"
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: Error sending CAN message because in wrong mode
+|——————————————Node:" Text: "
+|—————————————Node:) Text: )
+|———————————Node:ERROR Text: break
+|————————————Node:identifier Text: break
+|———————————Node:; Text: ;
+|—————————Node:case_statement Text: default:
+          PRINT("Error sending CAN message because of wrong parameters or send queue disabled")
+          break;
+|——————————Node:default Text: default
+|——————————Node:: Text: :
+|——————————Node:expression_statement Text: PRINT("Error sending CAN message because of wrong parameters or send queue disabled")
+          break;
+|———————————Node:call_expression Text: PRINT("Error sending CAN message because of wrong parameters or send queue disabled")
+|————————————Node:identifier Text: PRINT
+|————————————Node:argument_list Text: ("Error sending CAN message because of wrong parameters or send queue disabled")
+|—————————————Node:( Text: (
+|—————————————Node:string_literal Text: "Error sending CAN message because of wrong parameters or send queue disabled"
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: Error sending CAN message because of wrong parameters or send queue disabled
+|——————————————Node:" Text: "
+|—————————————Node:) Text: )
+|———————————Node:ERROR Text: break
+|————————————Node:identifier Text: break
+|———————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|——————Node:comment
+|——————Node:else_clause Text: else {
+      PRINT("Error sending CAN message: wrong state")
+      DeviceCAN::checkBusErrors();
+    }
+|———————Node:else Text: else
+|———————Node:compound_statement Text: {
+      PRINT("Error sending CAN message: wrong state")
+      DeviceCAN::checkBusErrors();
+    }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: PRINT("Error sending CAN message: wrong state")
+|—————————Node:call_expression Text: PRINT("Error sending CAN message: wrong state")
+|——————————Node:identifier Text: PRINT
+|——————————Node:argument_list Text: ("Error sending CAN message: wrong state")
+|———————————Node:( Text: (
+|———————————Node:string_literal Text: "Error sending CAN message: wrong state"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: Error sending CAN message: wrong state
+|————————————Node:" Text: "
+|———————————Node:) Text: )
+|—————————Node:; Text: 
+|————————Node:expression_statement Text: DeviceCAN::checkBusErrors();
+|—————————Node:call_expression Text: DeviceCAN::checkBusErrors()
+|——————————Node:qualified_identifier Text: DeviceCAN::checkBusErrors
+|———————————Node:namespace_identifier Text: DeviceCAN
+|———————————Node::: Text: ::
+|———————————Node:identifier Text: checkBusErrors
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|—————Node:} Text: }
+|———Node:return_statement Text: return false;
+|————Node:return Text: return
+|————Node:false Text: false
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: void DeviceCAN::timerCallbackSendTransaction(TimerHandle_t xTimer)
+{
+  MapTimerMsg* map = MapTimerMsg::getInstance(); // get Singleton instance
+  DeviceCAN::sendTransaction(map->get(xTimer));
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: DeviceCAN::timerCallbackSendTransaction(TimerHandle_t xTimer)
+|———Node:qualified_identifier Text: DeviceCAN::timerCallbackSendTransaction
+|————Node:namespace_identifier Text: DeviceCAN
+|————Node::: Text: ::
+|————Node:identifier Text: timerCallbackSendTransaction
+|———Node:parameter_list Text: (TimerHandle_t xTimer)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: TimerHandle_t xTimer
+|—————Node:type_identifier Text: TimerHandle_t
+|—————Node:identifier Text: xTimer
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  MapTimerMsg* map = MapTimerMsg::getInstance(); // get Singleton instance
+  DeviceCAN::sendTransaction(map->get(xTimer));
+}
+|———Node:{ Text: {
+|———Node:declaration Text: MapTimerMsg* map = MapTimerMsg::getInstance();
+|————Node:type_identifier Text: MapTimerMsg
+|————Node:init_declarator Text: * map = MapTimerMsg::getInstance()
+|—————Node:pointer_declarator Text: * map
+|——————Node:* Text: *
+|——————Node:identifier Text: map
+|—————Node:= Text: =
+|—————Node:call_expression Text: MapTimerMsg::getInstance()
+|——————Node:qualified_identifier Text: MapTimerMsg::getInstance
+|———————Node:namespace_identifier Text: MapTimerMsg
+|———————Node::: Text: ::
+|———————Node:identifier Text: getInstance
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: DeviceCAN::sendTransaction(map->get(xTimer));
+|————Node:call_expression Text: DeviceCAN::sendTransaction(map->get(xTimer))
+|—————Node:qualified_identifier Text: DeviceCAN::sendTransaction
+|——————Node:namespace_identifier Text: DeviceCAN
+|——————Node::: Text: ::
+|——————Node:identifier Text: sendTransaction
+|—————Node:argument_list Text: (map->get(xTimer))
+|——————Node:( Text: (
+|——————Node:call_expression Text: map->get(xTimer)
+|———————Node:field_expression Text: map->get
+|————————Node:identifier Text: map
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: get
+|———————Node:argument_list Text: (xTimer)
+|————————Node:( Text: (
+|————————Node:identifier Text: xTimer
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: bool DeviceCAN::initSerialProtocol(configCAN_t config)
+{
+  // Set the bus mode of this device
+  this->m_busMode = config.mode;
+  // Initialise configuration structures using macro initialisers
+  twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(
+    config.txPin,
+    config.rxPin,
+    config.mode);
+  twai_timing_config_t t_config;
+  if (config.speed == 125000) t_config = TWAI_TIMING_CONFIG_125KBITS();
+  else if (config.speed == 250000) t_config = TWAI_TIMING_CONFIG_250KBITS();
+  else if (config.speed == 500000) t_config = TWAI_TIMING_CONFIG_500KBITS();
+  else if (config.speed == 1000000) t_config = TWAI_TIMING_CONFIG_1MBITS();
+  else {
+    PRINT("Error: Wrong CAN bus speed given in initialisation")
+    return false;
+  }
+  // Do not set a receive filter because one device cannot know
+  // the desired message IDs of other devices.
+  twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+
+  // Install TWAI driver
+  // If it was already installed by another device, still return true
+  switch (twai_driver_install(&g_config, &t_config, &f_config)) {
+
+    // Success
+    case ESP_OK:
+      PRINT("Info: CAN driver installed")
+      
+      // Start TWAI driver
+      if (twai_start() == ESP_OK) {
+          PRINT("Info: CAN driver started")
+          return true;
+      } else {
+          PRINT("Error starting CAN driver: not in stopped state")
+      }
+      break;
+
+    // Cases where the initialisation went wrong: log an error
+    case ESP_ERR_INVALID_STATE:
+      PRINT("Debug: CAN driver is already installed")
+      return true;
+    case ESP_ERR_INVALID_ARG:
+      PRINT("Error: Wrong arguments for initialising the CAN driver")
+      break;
+    case ESP_ERR_NO_MEM:
+      PRINT("Error initialising the CAN bus: out of memory")
+      break;
+    default:
+      PRINT("Error initialising the CAN bus")
+      break;
+  }
+  return false;
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: DeviceCAN::initSerialProtocol(configCAN_t config)
+|———Node:qualified_identifier Text: DeviceCAN::initSerialProtocol
+|————Node:namespace_identifier Text: DeviceCAN
+|————Node::: Text: ::
+|————Node:identifier Text: initSerialProtocol
+|———Node:parameter_list Text: (configCAN_t config)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: configCAN_t config
+|—————Node:type_identifier Text: configCAN_t
+|—————Node:identifier Text: config
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  // Set the bus mode of this device
+  this->m_busMode = config.mode;
+  // Initialise configuration structures using macro initialisers
+  twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(
+    config.txPin,
+    config.rxPin,
+    config.mode);
+  twai_timing_config_t t_config;
+  if (config.speed == 125000) t_config = TWAI_TIMING_CONFIG_125KBITS();
+  else if (config.speed == 250000) t_config = TWAI_TIMING_CONFIG_250KBITS();
+  else if (config.speed == 500000) t_config = TWAI_TIMING_CONFIG_500KBITS();
+  else if (config.speed == 1000000) t_config = TWAI_TIMING_CONFIG_1MBITS();
+  else {
+    PRINT("Error: Wrong CAN bus speed given in initialisation")
+    return false;
+  }
+  // Do not set a receive filter because one device cannot know
+  // the desired message IDs of other devices.
+  twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+
+  // Install TWAI driver
+  // If it was already installed by another device, still return true
+  switch (twai_driver_install(&g_config, &t_config, &f_config)) {
+
+    // Success
+    case ESP_OK:
+      PRINT("Info: CAN driver installed")
+      
+      // Start TWAI driver
+      if (twai_start() == ESP_OK) {
+          PRINT("Info: CAN driver started")
+          return true;
+      } else {
+          PRINT("Error starting CAN driver: not in stopped state")
+      }
+      break;
+
+    // Cases where the initialisation went wrong: log an error
+    case ESP_ERR_INVALID_STATE:
+      PRINT("Debug: CAN driver is already installed")
+      return true;
+    case ESP_ERR_INVALID_ARG:
+      PRINT("Error: Wrong arguments for initialising the CAN driver")
+      break;
+    case ESP_ERR_NO_MEM:
+      PRINT("Error initialising the CAN bus: out of memory")
+      break;
+    default:
+      PRINT("Error initialising the CAN bus")
+      break;
+  }
+  return false;
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:expression_statement Text: this->m_busMode = config.mode;
+|————Node:assignment_expression Text: this->m_busMode = config.mode
+|—————Node:field_expression Text: this->m_busMode
+|——————Node:this Text: this
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: m_busMode
+|—————Node:= Text: =
+|—————Node:field_expression Text: config.mode
+|——————Node:identifier Text: config
+|——————Node:. Text: .
+|——————Node:field_identifier Text: mode
+|————Node:; Text: ;
+|———Node:comment
+|———Node:declaration Text: twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(
+    config.txPin,
+    config.rxPin,
+    config.mode);
+|————Node:type_identifier Text: twai_general_config_t
+|————Node:init_declarator Text: g_config = TWAI_GENERAL_CONFIG_DEFAULT(
+    config.txPin,
+    config.rxPin,
+    config.mode)
+|—————Node:identifier Text: g_config
+|—————Node:= Text: =
+|—————Node:call_expression Text: TWAI_GENERAL_CONFIG_DEFAULT(
+    config.txPin,
+    config.rxPin,
+    config.mode)
+|——————Node:identifier Text: TWAI_GENERAL_CONFIG_DEFAULT
+|——————Node:argument_list Text: (
+    config.txPin,
+    config.rxPin,
+    config.mode)
+|———————Node:( Text: (
+|———————Node:field_expression Text: config.txPin
+|————————Node:identifier Text: config
+|————————Node:. Text: .
+|————————Node:field_identifier Text: txPin
+|———————Node:, Text: ,
+|———————Node:field_expression Text: config.rxPin
+|————————Node:identifier Text: config
+|————————Node:. Text: .
+|————————Node:field_identifier Text: rxPin
+|———————Node:, Text: ,
+|———————Node:field_expression Text: config.mode
+|————————Node:identifier Text: config
+|————————Node:. Text: .
+|————————Node:field_identifier Text: mode
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: twai_timing_config_t t_config;
+|————Node:type_identifier Text: twai_timing_config_t
+|————Node:identifier Text: t_config
+|————Node:; Text: ;
+|———Node:if_statement Text: if (config.speed == 125000) t_config = TWAI_TIMING_CONFIG_125KBITS();
+  else if (config.speed == 250000) t_config = TWAI_TIMING_CONFIG_250KBITS();
+  else if (config.speed == 500000) t_config = TWAI_TIMING_CONFIG_500KBITS();
+  else if (config.speed == 1000000) t_config = TWAI_TIMING_CONFIG_1MBITS();
+  else {
+    PRINT("Error: Wrong CAN bus speed given in initialisation")
+    return false;
+  }
+|————Node:if Text: if
+|————Node:condition_clause Text: (config.speed == 125000)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: config.speed == 125000
+|——————Node:field_expression Text: config.speed
+|———————Node:identifier Text: config
+|———————Node:. Text: .
+|———————Node:field_identifier Text: speed
+|——————Node:== Text: ==
+|——————Node:number_literal Text: 125000
+|—————Node:) Text: )
+|————Node:expression_statement Text: t_config = TWAI_TIMING_CONFIG_125KBITS();
+|—————Node:assignment_expression Text: t_config = TWAI_TIMING_CONFIG_125KBITS()
+|——————Node:identifier Text: t_config
+|——————Node:= Text: =
+|——————Node:call_expression Text: TWAI_TIMING_CONFIG_125KBITS()
+|———————Node:identifier Text: TWAI_TIMING_CONFIG_125KBITS
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:else_clause Text: else if (config.speed == 250000) t_config = TWAI_TIMING_CONFIG_250KBITS();
+  else if (config.speed == 500000) t_config = TWAI_TIMING_CONFIG_500KBITS();
+  else if (config.speed == 1000000) t_config = TWAI_TIMING_CONFIG_1MBITS();
+  else {
+    PRINT("Error: Wrong CAN bus speed given in initialisation")
+    return false;
+  }
+|—————Node:else Text: else
+|—————Node:if_statement Text: if (config.speed == 250000) t_config = TWAI_TIMING_CONFIG_250KBITS();
+  else if (config.speed == 500000) t_config = TWAI_TIMING_CONFIG_500KBITS();
+  else if (config.speed == 1000000) t_config = TWAI_TIMING_CONFIG_1MBITS();
+  else {
+    PRINT("Error: Wrong CAN bus speed given in initialisation")
+    return false;
+  }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (config.speed == 250000)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: config.speed == 250000
+|————————Node:field_expression Text: config.speed
+|—————————Node:identifier Text: config
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: speed
+|————————Node:== Text: ==
+|————————Node:number_literal Text: 250000
+|———————Node:) Text: )
+|——————Node:expression_statement Text: t_config = TWAI_TIMING_CONFIG_250KBITS();
+|———————Node:assignment_expression Text: t_config = TWAI_TIMING_CONFIG_250KBITS()
+|————————Node:identifier Text: t_config
+|————————Node:= Text: =
+|————————Node:call_expression Text: TWAI_TIMING_CONFIG_250KBITS()
+|—————————Node:identifier Text: TWAI_TIMING_CONFIG_250KBITS
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:else_clause Text: else if (config.speed == 500000) t_config = TWAI_TIMING_CONFIG_500KBITS();
+  else if (config.speed == 1000000) t_config = TWAI_TIMING_CONFIG_1MBITS();
+  else {
+    PRINT("Error: Wrong CAN bus speed given in initialisation")
+    return false;
+  }
+|———————Node:else Text: else
+|———————Node:if_statement Text: if (config.speed == 500000) t_config = TWAI_TIMING_CONFIG_500KBITS();
+  else if (config.speed == 1000000) t_config = TWAI_TIMING_CONFIG_1MBITS();
+  else {
+    PRINT("Error: Wrong CAN bus speed given in initialisation")
+    return false;
+  }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (config.speed == 500000)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: config.speed == 500000
+|——————————Node:field_expression Text: config.speed
+|———————————Node:identifier Text: config
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: speed
+|——————————Node:== Text: ==
+|——————————Node:number_literal Text: 500000
+|—————————Node:) Text: )
+|————————Node:expression_statement Text: t_config = TWAI_TIMING_CONFIG_500KBITS();
+|—————————Node:assignment_expression Text: t_config = TWAI_TIMING_CONFIG_500KBITS()
+|——————————Node:identifier Text: t_config
+|——————————Node:= Text: =
+|——————————Node:call_expression Text: TWAI_TIMING_CONFIG_500KBITS()
+|———————————Node:identifier Text: TWAI_TIMING_CONFIG_500KBITS
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:else_clause Text: else if (config.speed == 1000000) t_config = TWAI_TIMING_CONFIG_1MBITS();
+  else {
+    PRINT("Error: Wrong CAN bus speed given in initialisation")
+    return false;
+  }
+|—————————Node:else Text: else
+|—————————Node:if_statement Text: if (config.speed == 1000000) t_config = TWAI_TIMING_CONFIG_1MBITS();
+  else {
+    PRINT("Error: Wrong CAN bus speed given in initialisation")
+    return false;
+  }
+|——————————Node:if Text: if
+|——————————Node:condition_clause Text: (config.speed == 1000000)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: config.speed == 1000000
+|————————————Node:field_expression Text: config.speed
+|—————————————Node:identifier Text: config
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: speed
+|————————————Node:== Text: ==
+|————————————Node:number_literal Text: 1000000
+|———————————Node:) Text: )
+|——————————Node:expression_statement Text: t_config = TWAI_TIMING_CONFIG_1MBITS();
+|———————————Node:assignment_expression Text: t_config = TWAI_TIMING_CONFIG_1MBITS()
+|————————————Node:identifier Text: t_config
+|————————————Node:= Text: =
+|————————————Node:call_expression Text: TWAI_TIMING_CONFIG_1MBITS()
+|—————————————Node:identifier Text: TWAI_TIMING_CONFIG_1MBITS
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:else_clause Text: else {
+    PRINT("Error: Wrong CAN bus speed given in initialisation")
+    return false;
+  }
+|———————————Node:else Text: else
+|———————————Node:compound_statement Text: {
+    PRINT("Error: Wrong CAN bus speed given in initialisation")
+    return false;
+  }
+|————————————Node:{ Text: {
+|————————————Node:expression_statement Text: PRINT("Error: Wrong CAN bus speed given in initialisation")
+|—————————————Node:call_expression Text: PRINT("Error: Wrong CAN bus speed given in initialisation")
+|——————————————Node:identifier Text: PRINT
+|——————————————Node:argument_list Text: ("Error: Wrong CAN bus speed given in initialisation")
+|———————————————Node:( Text: (
+|———————————————Node:string_literal Text: "Error: Wrong CAN bus speed given in initialisation"
+|————————————————Node:" Text: "
+|————————————————Node:string_content Text: Error: Wrong CAN bus speed given in initialisation
+|————————————————Node:" Text: "
+|———————————————Node:) Text: )
+|—————————————Node:; Text: 
+|————————————Node:return_statement Text: return false;
+|—————————————Node:return Text: return
+|—————————————Node:false Text: false
+|—————————————Node:; Text: ;
+|————————————Node:} Text: }
+|———Node:comment
+|———Node:comment
+|———Node:declaration Text: twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+|————Node:type_identifier Text: twai_filter_config_t
+|————Node:init_declarator Text: f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL()
+|—————Node:identifier Text: f_config
+|—————Node:= Text: =
+|—————Node:call_expression Text: TWAI_FILTER_CONFIG_ACCEPT_ALL()
+|——————Node:identifier Text: TWAI_FILTER_CONFIG_ACCEPT_ALL
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:switch_statement Text: switch (twai_driver_install(&g_config, &t_config, &f_config)) {
+
+    // Success
+    case ESP_OK:
+      PRINT("Info: CAN driver installed")
+      
+      // Start TWAI driver
+      if (twai_start() == ESP_OK) {
+          PRINT("Info: CAN driver started")
+          return true;
+      } else {
+          PRINT("Error starting CAN driver: not in stopped state")
+      }
+      break;
+
+    // Cases where the initialisation went wrong: log an error
+    case ESP_ERR_INVALID_STATE:
+      PRINT("Debug: CAN driver is already installed")
+      return true;
+    case ESP_ERR_INVALID_ARG:
+      PRINT("Error: Wrong arguments for initialising the CAN driver")
+      break;
+    case ESP_ERR_NO_MEM:
+      PRINT("Error initialising the CAN bus: out of memory")
+      break;
+    default:
+      PRINT("Error initialising the CAN bus")
+      break;
+  }
+|————Node:switch Text: switch
+|————Node:condition_clause Text: (twai_driver_install(&g_config, &t_config, &f_config))
+|—————Node:( Text: (
+|—————Node:call_expression Text: twai_driver_install(&g_config, &t_config, &f_config)
+|——————Node:identifier Text: twai_driver_install
+|——————Node:argument_list Text: (&g_config, &t_config, &f_config)
+|———————Node:( Text: (
+|———————Node:pointer_expression Text: &g_config
+|————————Node:& Text: &
+|————————Node:identifier Text: g_config
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &t_config
+|————————Node:& Text: &
+|————————Node:identifier Text: t_config
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &f_config
+|————————Node:& Text: &
+|————————Node:identifier Text: f_config
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+
+    // Success
+    case ESP_OK:
+      PRINT("Info: CAN driver installed")
+      
+      // Start TWAI driver
+      if (twai_start() == ESP_OK) {
+          PRINT("Info: CAN driver started")
+          return true;
+      } else {
+          PRINT("Error starting CAN driver: not in stopped state")
+      }
+      break;
+
+    // Cases where the initialisation went wrong: log an error
+    case ESP_ERR_INVALID_STATE:
+      PRINT("Debug: CAN driver is already installed")
+      return true;
+    case ESP_ERR_INVALID_ARG:
+      PRINT("Error: Wrong arguments for initialising the CAN driver")
+      break;
+    case ESP_ERR_NO_MEM:
+      PRINT("Error initialising the CAN bus: out of memory")
+      break;
+    default:
+      PRINT("Error initialising the CAN bus")
+      break;
+  }
+|—————Node:{ Text: {
+|—————Node:comment
+|—————Node:case_statement Text: case ESP_OK:
+      PRINT("Info: CAN driver installed")
+      
+      // Start TWAI driver
+      if (twai_start() == ESP_OK) {
+          PRINT("Info: CAN driver started")
+          return true;
+      } else {
+          PRINT("Error starting CAN driver: not in stopped state")
+      }
+      break;
+|——————Node:case Text: case
+|——————Node:identifier Text: ESP_OK
+|——————Node:: Text: :
+|——————Node:expression_statement Text: PRINT("Info: CAN driver installed")
+      
+      // Start TWAI driver
+|———————Node:call_expression Text: PRINT("Info: CAN driver installed")
+|————————Node:identifier Text: PRINT
+|————————Node:argument_list Text: ("Info: CAN driver installed")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Info: CAN driver installed"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Info: CAN driver installed
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:comment
+|———————Node:; Text: 
+|——————Node:if_statement Text: if (twai_start() == ESP_OK) {
+          PRINT("Info: CAN driver started")
+          return true;
+      } else {
+          PRINT("Error starting CAN driver: not in stopped state")
+      }
+|———————Node:if Text: if
+|———————Node:condition_clause Text: (twai_start() == ESP_OK)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: twai_start() == ESP_OK
+|—————————Node:call_expression Text: twai_start()
+|——————————Node:identifier Text: twai_start
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:== Text: ==
+|—————————Node:identifier Text: ESP_OK
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+          PRINT("Info: CAN driver started")
+          return true;
+      }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: PRINT("Info: CAN driver started")
+|—————————Node:call_expression Text: PRINT("Info: CAN driver started")
+|——————————Node:identifier Text: PRINT
+|——————————Node:argument_list Text: ("Info: CAN driver started")
+|———————————Node:( Text: (
+|———————————Node:string_literal Text: "Info: CAN driver started"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: Info: CAN driver started
+|————————————Node:" Text: "
+|———————————Node:) Text: )
+|—————————Node:; Text: 
+|————————Node:return_statement Text: return true;
+|—————————Node:return Text: return
+|—————————Node:true Text: true
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———————Node:else_clause Text: else {
+          PRINT("Error starting CAN driver: not in stopped state")
+      }
+|————————Node:else Text: else
+|————————Node:compound_statement Text: {
+          PRINT("Error starting CAN driver: not in stopped state")
+      }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: PRINT("Error starting CAN driver: not in stopped state")
+|——————————Node:call_expression Text: PRINT("Error starting CAN driver: not in stopped state")
+|———————————Node:identifier Text: PRINT
+|———————————Node:argument_list Text: ("Error starting CAN driver: not in stopped state")
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "Error starting CAN driver: not in stopped state"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: Error starting CAN driver: not in stopped state
+|—————————————Node:" Text: "
+|————————————Node:) Text: )
+|——————————Node:; Text: 
+|—————————Node:} Text: }
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|—————Node:comment
+|—————Node:case_statement Text: case ESP_ERR_INVALID_STATE:
+      PRINT("Debug: CAN driver is already installed")
+      return true;
+|——————Node:case Text: case
+|——————Node:identifier Text: ESP_ERR_INVALID_STATE
+|——————Node:: Text: :
+|——————Node:expression_statement Text: PRINT("Debug: CAN driver is already installed")
+|———————Node:call_expression Text: PRINT("Debug: CAN driver is already installed")
+|————————Node:identifier Text: PRINT
+|————————Node:argument_list Text: ("Debug: CAN driver is already installed")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Debug: CAN driver is already installed"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Debug: CAN driver is already installed
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: 
+|——————Node:return_statement Text: return true;
+|———————Node:return Text: return
+|———————Node:true Text: true
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case ESP_ERR_INVALID_ARG:
+      PRINT("Error: Wrong arguments for initialising the CAN driver")
+      break;
+|——————Node:case Text: case
+|——————Node:identifier Text: ESP_ERR_INVALID_ARG
+|——————Node:: Text: :
+|——————Node:expression_statement Text: PRINT("Error: Wrong arguments for initialising the CAN driver")
+      break;
+|———————Node:call_expression Text: PRINT("Error: Wrong arguments for initialising the CAN driver")
+|————————Node:identifier Text: PRINT
+|————————Node:argument_list Text: ("Error: Wrong arguments for initialising the CAN driver")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Error: Wrong arguments for initialising the CAN driver"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Error: Wrong arguments for initialising the CAN driver
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:ERROR Text: break
+|————————Node:identifier Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: case ESP_ERR_NO_MEM:
+      PRINT("Error initialising the CAN bus: out of memory")
+      break;
+|——————Node:case Text: case
+|——————Node:identifier Text: ESP_ERR_NO_MEM
+|——————Node:: Text: :
+|——————Node:expression_statement Text: PRINT("Error initialising the CAN bus: out of memory")
+      break;
+|———————Node:call_expression Text: PRINT("Error initialising the CAN bus: out of memory")
+|————————Node:identifier Text: PRINT
+|————————Node:argument_list Text: ("Error initialising the CAN bus: out of memory")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Error initialising the CAN bus: out of memory"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Error initialising the CAN bus: out of memory
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:ERROR Text: break
+|————————Node:identifier Text: break
+|———————Node:; Text: ;
+|—————Node:case_statement Text: default:
+      PRINT("Error initialising the CAN bus")
+      break;
+|——————Node:default Text: default
+|——————Node:: Text: :
+|——————Node:expression_statement Text: PRINT("Error initialising the CAN bus")
+      break;
+|———————Node:call_expression Text: PRINT("Error initialising the CAN bus")
+|————————Node:identifier Text: PRINT
+|————————Node:argument_list Text: ("Error initialising the CAN bus")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Error initialising the CAN bus"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Error initialising the CAN bus
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:ERROR Text: break
+|————————Node:identifier Text: break
+|———————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return false;
+|————Node:return Text: return
+|————Node:false Text: false
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: void DeviceCAN::endSerialProtocol()
+{
+  // Delete all timers in the map
+  SecuredLinkedListMapElement<TimerHandle_t, twai_message_t*> elementsList[this->m_pMap->size()];
+  this->m_pMap->getAll(elementsList);
+  for (int i=0; i<this->m_pMap->size(); i++) {
+    if (elementsList[i].key != NULL) {
+      xTimerDelete(elementsList[i].key, pdMS_TO_TICKS(10));
+    }
+  }
+  // Clear the map
+  this->m_pMap->clear();
+
+  // Check the driver status
+  twai_status_info_t status;
+  if (twai_get_status_info(&status) == ESP_OK) {
+    
+    // The driver must be in stopped or bus-off state to be uninstalled
+    switch (status.state) {
+      case TWAI_STATE_STOPPED:
+        break;
+      case TWAI_STATE_RUNNING:
+        // Stop the driver
+        twai_stop();
+        break;
+      case TWAI_STATE_BUS_OFF:
+        break;
+      case TWAI_STATE_RECOVERING:
+        // Wait until it is recovered
+        PRINT("Info: Waiting for CAN bus to recover before deinitialisation")
+        while (status.state == TWAI_STATE_RECOVERING) {
+          vTaskDelay(pdMS_TO_TICKS(5));
+          twai_get_status_info(&status);
+        }
+        if (status.state != TWAI_STATE_STOPPED) {
+          this->endSerialProtocol();
+        }
+        break;
+      default:
+        break;
+    }
+
+    // Uninstall the driver
+    twai_driver_uninstall();
+  }
+  else {
+    PRINT("Error reading status information of CAN driver")
+  }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: DeviceCAN::endSerialProtocol()
+|———Node:qualified_identifier Text: DeviceCAN::endSerialProtocol
+|————Node:namespace_identifier Text: DeviceCAN
+|————Node::: Text: ::
+|————Node:identifier Text: endSerialProtocol
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  // Delete all timers in the map
+  SecuredLinkedListMapElement<TimerHandle_t, twai_message_t*> elementsList[this->m_pMap->size()];
+  this->m_pMap->getAll(elementsList);
+  for (int i=0; i<this->m_pMap->size(); i++) {
+    if (elementsList[i].key != NULL) {
+      xTimerDelete(elementsList[i].key, pdMS_TO_TICKS(10));
+    }
+  }
+  // Clear the map
+  this->m_pMap->clear();
+
+  // Check the driver status
+  twai_status_info_t status;
+  if (twai_get_status_info(&status) == ESP_OK) {
+    
+    // The driver must be in stopped or bus-off state to be uninstalled
+    switch (status.state) {
+      case TWAI_STATE_STOPPED:
+        break;
+      case TWAI_STATE_RUNNING:
+        // Stop the driver
+        twai_stop();
+        break;
+      case TWAI_STATE_BUS_OFF:
+        break;
+      case TWAI_STATE_RECOVERING:
+        // Wait until it is recovered
+        PRINT("Info: Waiting for CAN bus to recover before deinitialisation")
+        while (status.state == TWAI_STATE_RECOVERING) {
+          vTaskDelay(pdMS_TO_TICKS(5));
+          twai_get_status_info(&status);
+        }
+        if (status.state != TWAI_STATE_STOPPED) {
+          this->endSerialProtocol();
+        }
+        break;
+      default:
+        break;
+    }
+
+    // Uninstall the driver
+    twai_driver_uninstall();
+  }
+  else {
+    PRINT("Error reading status information of CAN driver")
+  }
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:declaration Text: SecuredLinkedListMapElement<TimerHandle_t, twai_message_t*> elementsList[this->m_pMap->size()];
+|————Node:template_type Text: SecuredLinkedListMapElement<TimerHandle_t, twai_message_t*>
+|—————Node:type_identifier Text: SecuredLinkedListMapElement
+|—————Node:template_argument_list Text: <TimerHandle_t, twai_message_t*>
+|——————Node:< Text: <
+|——————Node:type_descriptor Text: TimerHandle_t
+|———————Node:type_identifier Text: TimerHandle_t
+|——————Node:, Text: ,
+|——————Node:type_descriptor Text: twai_message_t*
+|———————Node:type_identifier Text: twai_message_t
+|———————Node:abstract_pointer_declarator Text: *
+|————————Node:* Text: *
+|——————Node:> Text: >
+|————Node:array_declarator Text: elementsList[this->m_pMap->size()]
+|—————Node:identifier Text: elementsList
+|—————Node:[ Text: [
+|—————Node:call_expression Text: this->m_pMap->size()
+|——————Node:field_expression Text: this->m_pMap->size
+|———————Node:field_expression Text: this->m_pMap
+|————————Node:this Text: this
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: m_pMap
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: size
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:expression_statement Text: this->m_pMap->getAll(elementsList);
+|————Node:call_expression Text: this->m_pMap->getAll(elementsList)
+|—————Node:field_expression Text: this->m_pMap->getAll
+|——————Node:field_expression Text: this->m_pMap
+|———————Node:this Text: this
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: m_pMap
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: getAll
+|—————Node:argument_list Text: (elementsList)
+|——————Node:( Text: (
+|——————Node:identifier Text: elementsList
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:for_statement Text: for (int i=0; i<this->m_pMap->size(); i++) {
+    if (elementsList[i].key != NULL) {
+      xTimerDelete(elementsList[i].key, pdMS_TO_TICKS(10));
+    }
+  }
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:declaration Text: int i=0;
+|—————Node:primitive_type Text: int
+|—————Node:init_declarator Text: i=0
+|——————Node:identifier Text: i
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:binary_expression Text: i<this->m_pMap->size()
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:call_expression Text: this->m_pMap->size()
+|——————Node:field_expression Text: this->m_pMap->size
+|———————Node:field_expression Text: this->m_pMap
+|————————Node:this Text: this
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: m_pMap
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: size
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+    if (elementsList[i].key != NULL) {
+      xTimerDelete(elementsList[i].key, pdMS_TO_TICKS(10));
+    }
+  }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if (elementsList[i].key != NULL) {
+      xTimerDelete(elementsList[i].key, pdMS_TO_TICKS(10));
+    }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (elementsList[i].key != NULL)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: elementsList[i].key != NULL
+|————————Node:field_expression Text: elementsList[i].key
+|—————————Node:subscript_expression Text: elementsList[i]
+|——————————Node:identifier Text: elementsList
+|——————————Node:subscript_argument_list Text: [i]
+|———————————Node:[ Text: [
+|———————————Node:identifier Text: i
+|———————————Node:] Text: ]
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: key
+|————————Node:!= Text: !=
+|————————Node:null Text: NULL
+|—————————Node:NULL Text: NULL
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+      xTimerDelete(elementsList[i].key, pdMS_TO_TICKS(10));
+    }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: xTimerDelete(elementsList[i].key, pdMS_TO_TICKS(10));
+|————————Node:call_expression Text: xTimerDelete(elementsList[i].key, pdMS_TO_TICKS(10))
+|—————————Node:identifier Text: xTimerDelete
+|—————————Node:argument_list Text: (elementsList[i].key, pdMS_TO_TICKS(10))
+|——————————Node:( Text: (
+|——————————Node:field_expression Text: elementsList[i].key
+|———————————Node:subscript_expression Text: elementsList[i]
+|————————————Node:identifier Text: elementsList
+|————————————Node:subscript_argument_list Text: [i]
+|—————————————Node:[ Text: [
+|—————————————Node:identifier Text: i
+|—————————————Node:] Text: ]
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: key
+|——————————Node:, Text: ,
+|——————————Node:call_expression Text: pdMS_TO_TICKS(10)
+|———————————Node:identifier Text: pdMS_TO_TICKS
+|———————————Node:argument_list Text: (10)
+|————————————Node:( Text: (
+|————————————Node:number_literal Text: 10
+|————————————Node:) Text: )
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:comment
+|———Node:expression_statement Text: this->m_pMap->clear();
+|————Node:call_expression Text: this->m_pMap->clear()
+|—————Node:field_expression Text: this->m_pMap->clear
+|——————Node:field_expression Text: this->m_pMap
+|———————Node:this Text: this
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: m_pMap
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: clear
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:declaration Text: twai_status_info_t status;
+|————Node:type_identifier Text: twai_status_info_t
+|————Node:identifier Text: status
+|————Node:; Text: ;
+|———Node:if_statement Text: if (twai_get_status_info(&status) == ESP_OK) {
+    
+    // The driver must be in stopped or bus-off state to be uninstalled
+    switch (status.state) {
+      case TWAI_STATE_STOPPED:
+        break;
+      case TWAI_STATE_RUNNING:
+        // Stop the driver
+        twai_stop();
+        break;
+      case TWAI_STATE_BUS_OFF:
+        break;
+      case TWAI_STATE_RECOVERING:
+        // Wait until it is recovered
+        PRINT("Info: Waiting for CAN bus to recover before deinitialisation")
+        while (status.state == TWAI_STATE_RECOVERING) {
+          vTaskDelay(pdMS_TO_TICKS(5));
+          twai_get_status_info(&status);
+        }
+        if (status.state != TWAI_STATE_STOPPED) {
+          this->endSerialProtocol();
+        }
+        break;
+      default:
+        break;
+    }
+
+    // Uninstall the driver
+    twai_driver_uninstall();
+  }
+  else {
+    PRINT("Error reading status information of CAN driver")
+  }
+|————Node:if Text: if
+|————Node:condition_clause Text: (twai_get_status_info(&status) == ESP_OK)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: twai_get_status_info(&status) == ESP_OK
+|——————Node:call_expression Text: twai_get_status_info(&status)
+|———————Node:identifier Text: twai_get_status_info
+|———————Node:argument_list Text: (&status)
+|————————Node:( Text: (
+|————————Node:pointer_expression Text: &status
+|—————————Node:& Text: &
+|—————————Node:identifier Text: status
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:identifier Text: ESP_OK
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    
+    // The driver must be in stopped or bus-off state to be uninstalled
+    switch (status.state) {
+      case TWAI_STATE_STOPPED:
+        break;
+      case TWAI_STATE_RUNNING:
+        // Stop the driver
+        twai_stop();
+        break;
+      case TWAI_STATE_BUS_OFF:
+        break;
+      case TWAI_STATE_RECOVERING:
+        // Wait until it is recovered
+        PRINT("Info: Waiting for CAN bus to recover before deinitialisation")
+        while (status.state == TWAI_STATE_RECOVERING) {
+          vTaskDelay(pdMS_TO_TICKS(5));
+          twai_get_status_info(&status);
+        }
+        if (status.state != TWAI_STATE_STOPPED) {
+          this->endSerialProtocol();
+        }
+        break;
+      default:
+        break;
+    }
+
+    // Uninstall the driver
+    twai_driver_uninstall();
+  }
+|—————Node:{ Text: {
+|—————Node:comment
+|—————Node:switch_statement Text: switch (status.state) {
+      case TWAI_STATE_STOPPED:
+        break;
+      case TWAI_STATE_RUNNING:
+        // Stop the driver
+        twai_stop();
+        break;
+      case TWAI_STATE_BUS_OFF:
+        break;
+      case TWAI_STATE_RECOVERING:
+        // Wait until it is recovered
+        PRINT("Info: Waiting for CAN bus to recover before deinitialisation")
+        while (status.state == TWAI_STATE_RECOVERING) {
+          vTaskDelay(pdMS_TO_TICKS(5));
+          twai_get_status_info(&status);
+        }
+        if (status.state != TWAI_STATE_STOPPED) {
+          this->endSerialProtocol();
+        }
+        break;
+      default:
+        break;
+    }
+|——————Node:switch Text: switch
+|——————Node:condition_clause Text: (status.state)
+|———————Node:( Text: (
+|———————Node:field_expression Text: status.state
+|————————Node:identifier Text: status
+|————————Node:. Text: .
+|————————Node:field_identifier Text: state
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+      case TWAI_STATE_STOPPED:
+        break;
+      case TWAI_STATE_RUNNING:
+        // Stop the driver
+        twai_stop();
+        break;
+      case TWAI_STATE_BUS_OFF:
+        break;
+      case TWAI_STATE_RECOVERING:
+        // Wait until it is recovered
+        PRINT("Info: Waiting for CAN bus to recover before deinitialisation")
+        while (status.state == TWAI_STATE_RECOVERING) {
+          vTaskDelay(pdMS_TO_TICKS(5));
+          twai_get_status_info(&status);
+        }
+        if (status.state != TWAI_STATE_STOPPED) {
+          this->endSerialProtocol();
+        }
+        break;
+      default:
+        break;
+    }
+|———————Node:{ Text: {
+|———————Node:case_statement Text: case TWAI_STATE_STOPPED:
+        break;
+|————————Node:case Text: case
+|————————Node:identifier Text: TWAI_STATE_STOPPED
+|————————Node:: Text: :
+|————————Node:break_statement Text: break;
+|—————————Node:break Text: break
+|—————————Node:; Text: ;
+|———————Node:case_statement Text: case TWAI_STATE_RUNNING:
+        // Stop the driver
+        twai_stop();
+        break;
+|————————Node:case Text: case
+|————————Node:identifier Text: TWAI_STATE_RUNNING
+|————————Node:: Text: :
+|————————Node:comment
+|————————Node:expression_statement Text: twai_stop();
+|—————————Node:call_expression Text: twai_stop()
+|——————————Node:identifier Text: twai_stop
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:break_statement Text: break;
+|—————————Node:break Text: break
+|—————————Node:; Text: ;
+|———————Node:case_statement Text: case TWAI_STATE_BUS_OFF:
+        break;
+|————————Node:case Text: case
+|————————Node:identifier Text: TWAI_STATE_BUS_OFF
+|————————Node:: Text: :
+|————————Node:break_statement Text: break;
+|—————————Node:break Text: break
+|—————————Node:; Text: ;
+|———————Node:case_statement Text: case TWAI_STATE_RECOVERING:
+        // Wait until it is recovered
+        PRINT("Info: Waiting for CAN bus to recover before deinitialisation")
+        while (status.state == TWAI_STATE_RECOVERING) {
+          vTaskDelay(pdMS_TO_TICKS(5));
+          twai_get_status_info(&status);
+        }
+        if (status.state != TWAI_STATE_STOPPED) {
+          this->endSerialProtocol();
+        }
+        break;
+|————————Node:case Text: case
+|————————Node:identifier Text: TWAI_STATE_RECOVERING
+|————————Node:: Text: :
+|————————Node:comment
+|————————Node:expression_statement Text: PRINT("Info: Waiting for CAN bus to recover before deinitialisation")
+|—————————Node:call_expression Text: PRINT("Info: Waiting for CAN bus to recover before deinitialisation")
+|——————————Node:identifier Text: PRINT
+|——————————Node:argument_list Text: ("Info: Waiting for CAN bus to recover before deinitialisation")
+|———————————Node:( Text: (
+|———————————Node:string_literal Text: "Info: Waiting for CAN bus to recover before deinitialisation"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: Info: Waiting for CAN bus to recover before deinitialisation
+|————————————Node:" Text: "
+|———————————Node:) Text: )
+|—————————Node:; Text: 
+|————————Node:while_statement Text: while (status.state == TWAI_STATE_RECOVERING) {
+          vTaskDelay(pdMS_TO_TICKS(5));
+          twai_get_status_info(&status);
+        }
+|—————————Node:while Text: while
+|—————————Node:condition_clause Text: (status.state == TWAI_STATE_RECOVERING)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: status.state == TWAI_STATE_RECOVERING
+|———————————Node:field_expression Text: status.state
+|————————————Node:identifier Text: status
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: state
+|———————————Node:== Text: ==
+|———————————Node:identifier Text: TWAI_STATE_RECOVERING
+|——————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+          vTaskDelay(pdMS_TO_TICKS(5));
+          twai_get_status_info(&status);
+        }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: vTaskDelay(pdMS_TO_TICKS(5));
+|———————————Node:call_expression Text: vTaskDelay(pdMS_TO_TICKS(5))
+|————————————Node:identifier Text: vTaskDelay
+|————————————Node:argument_list Text: (pdMS_TO_TICKS(5))
+|—————————————Node:( Text: (
+|—————————————Node:call_expression Text: pdMS_TO_TICKS(5)
+|——————————————Node:identifier Text: pdMS_TO_TICKS
+|——————————————Node:argument_list Text: (5)
+|———————————————Node:( Text: (
+|———————————————Node:number_literal Text: 5
+|———————————————Node:) Text: )
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:expression_statement Text: twai_get_status_info(&status);
+|———————————Node:call_expression Text: twai_get_status_info(&status)
+|————————————Node:identifier Text: twai_get_status_info
+|————————————Node:argument_list Text: (&status)
+|—————————————Node:( Text: (
+|—————————————Node:pointer_expression Text: &status
+|——————————————Node:& Text: &
+|——————————————Node:identifier Text: status
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|————————Node:if_statement Text: if (status.state != TWAI_STATE_STOPPED) {
+          this->endSerialProtocol();
+        }
+|—————————Node:if Text: if
+|—————————Node:condition_clause Text: (status.state != TWAI_STATE_STOPPED)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: status.state != TWAI_STATE_STOPPED
+|———————————Node:field_expression Text: status.state
+|————————————Node:identifier Text: status
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: state
+|———————————Node:!= Text: !=
+|———————————Node:identifier Text: TWAI_STATE_STOPPED
+|——————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+          this->endSerialProtocol();
+        }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: this->endSerialProtocol();
+|———————————Node:call_expression Text: this->endSerialProtocol()
+|————————————Node:field_expression Text: this->endSerialProtocol
+|—————————————Node:this Text: this
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: endSerialProtocol
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|————————Node:break_statement Text: break;
+|—————————Node:break Text: break
+|—————————Node:; Text: ;
+|———————Node:case_statement Text: default:
+        break;
+|————————Node:default Text: default
+|————————Node:: Text: :
+|————————Node:break_statement Text: break;
+|—————————Node:break Text: break
+|—————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:comment
+|—————Node:expression_statement Text: twai_driver_uninstall();
+|——————Node:call_expression Text: twai_driver_uninstall()
+|———————Node:identifier Text: twai_driver_uninstall
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else {
+    PRINT("Error reading status information of CAN driver")
+  }
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+    PRINT("Error reading status information of CAN driver")
+  }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: PRINT("Error reading status information of CAN driver")
+|———————Node:call_expression Text: PRINT("Error reading status information of CAN driver")
+|————————Node:identifier Text: PRINT
+|————————Node:argument_list Text: ("Error reading status information of CAN driver")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Error reading status information of CAN driver"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Error reading status information of CAN driver
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: 
+|——————Node:} Text: }
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: void DeviceCAN::checkBusErrors()
+{
+  // Check the driver status
+  twai_status_info_t status;
+  if (twai_get_status_info(&status) == ESP_OK) {
+    switch (status.state) {
+      case TWAI_STATE_STOPPED:
+        if (twai_start() != ESP_OK) {
+          PRINT("Error starting CAN bus: Driver not installed")
+          return;
+        }
+        break;
+      case TWAI_STATE_RUNNING:
+        break;
+      case TWAI_STATE_BUS_OFF:
+        // Try to recover the bus
+        vTaskDelay(pdMS_TO_TICKS(10));
+        if (twai_initiate_recovery() == ESP_OK) {
+          PRINT("Info: Started CAN bus recovery")
+        }
+        else {
+          PRINT("Error starting CAN bus recovery")
+          return;
+        }
+        //break; continue with recovery
+      case TWAI_STATE_RECOVERING:
+        // Wait until it is recovered
+        PRINT("Info: Waiting for CAN bus to recover")
+        twai_get_status_info(&status);
+        while (status.state == TWAI_STATE_RECOVERING) {
+          vTaskDelay(pdMS_TO_TICKS(5));
+          twai_get_status_info(&status);
+        }
+        // Start the driver again
+        if (twai_start() == ESP_OK) {
+          PRINT("Info: CAN bus recovered and started")
+        } else {
+          PRINT("Error recovering the CAN bus")
+          DeviceCAN::checkBusErrors();
+        }
+        break;
+      default:
+        PRINT("Warning: CAN bus in unknown status")
+        break;
+    }
+  }
+  else {
+    PRINT("Error reading status information of CAN driver")
+  }
+
+  /*// Check TWAI driver alerts
+  uint32_t alerts;
+  switch (twai_read_alerts(&alerts, 1) {
+    case ESP_OK:
+      // Read alerts
+      if ()
+    case ESP_ERR_TIMEOUT:
+      PRINT("Debug: No CAN bus alert occured")
+	  break;
+    default:
+      PRINT("Error reading CAN bus alerts")
+	  break;
+  }*/
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: DeviceCAN::checkBusErrors()
+|———Node:qualified_identifier Text: DeviceCAN::checkBusErrors
+|————Node:namespace_identifier Text: DeviceCAN
+|————Node::: Text: ::
+|————Node:identifier Text: checkBusErrors
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  // Check the driver status
+  twai_status_info_t status;
+  if (twai_get_status_info(&status) == ESP_OK) {
+    switch (status.state) {
+      case TWAI_STATE_STOPPED:
+        if (twai_start() != ESP_OK) {
+          PRINT("Error starting CAN bus: Driver not installed")
+          return;
+        }
+        break;
+      case TWAI_STATE_RUNNING:
+        break;
+      case TWAI_STATE_BUS_OFF:
+        // Try to recover the bus
+        vTaskDelay(pdMS_TO_TICKS(10));
+        if (twai_initiate_recovery() == ESP_OK) {
+          PRINT("Info: Started CAN bus recovery")
+        }
+        else {
+          PRINT("Error starting CAN bus recovery")
+          return;
+        }
+        //break; continue with recovery
+      case TWAI_STATE_RECOVERING:
+        // Wait until it is recovered
+        PRINT("Info: Waiting for CAN bus to recover")
+        twai_get_status_info(&status);
+        while (status.state == TWAI_STATE_RECOVERING) {
+          vTaskDelay(pdMS_TO_TICKS(5));
+          twai_get_status_info(&status);
+        }
+        // Start the driver again
+        if (twai_start() == ESP_OK) {
+          PRINT("Info: CAN bus recovered and started")
+        } else {
+          PRINT("Error recovering the CAN bus")
+          DeviceCAN::checkBusErrors();
+        }
+        break;
+      default:
+        PRINT("Warning: CAN bus in unknown status")
+        break;
+    }
+  }
+  else {
+    PRINT("Error reading status information of CAN driver")
+  }
+
+  /*// Check TWAI driver alerts
+  uint32_t alerts;
+  switch (twai_read_alerts(&alerts, 1) {
+    case ESP_OK:
+      // Read alerts
+      if ()
+    case ESP_ERR_TIMEOUT:
+      PRINT("Debug: No CAN bus alert occured")
+	  break;
+    default:
+      PRINT("Error reading CAN bus alerts")
+	  break;
+  }*/
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:declaration Text: twai_status_info_t status;
+|————Node:type_identifier Text: twai_status_info_t
+|————Node:identifier Text: status
+|————Node:; Text: ;
+|———Node:if_statement Text: if (twai_get_status_info(&status) == ESP_OK) {
+    switch (status.state) {
+      case TWAI_STATE_STOPPED:
+        if (twai_start() != ESP_OK) {
+          PRINT("Error starting CAN bus: Driver not installed")
+          return;
+        }
+        break;
+      case TWAI_STATE_RUNNING:
+        break;
+      case TWAI_STATE_BUS_OFF:
+        // Try to recover the bus
+        vTaskDelay(pdMS_TO_TICKS(10));
+        if (twai_initiate_recovery() == ESP_OK) {
+          PRINT("Info: Started CAN bus recovery")
+        }
+        else {
+          PRINT("Error starting CAN bus recovery")
+          return;
+        }
+        //break; continue with recovery
+      case TWAI_STATE_RECOVERING:
+        // Wait until it is recovered
+        PRINT("Info: Waiting for CAN bus to recover")
+        twai_get_status_info(&status);
+        while (status.state == TWAI_STATE_RECOVERING) {
+          vTaskDelay(pdMS_TO_TICKS(5));
+          twai_get_status_info(&status);
+        }
+        // Start the driver again
+        if (twai_start() == ESP_OK) {
+          PRINT("Info: CAN bus recovered and started")
+        } else {
+          PRINT("Error recovering the CAN bus")
+          DeviceCAN::checkBusErrors();
+        }
+        break;
+      default:
+        PRINT("Warning: CAN bus in unknown status")
+        break;
+    }
+  }
+  else {
+    PRINT("Error reading status information of CAN driver")
+  }
+|————Node:if Text: if
+|————Node:condition_clause Text: (twai_get_status_info(&status) == ESP_OK)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: twai_get_status_info(&status) == ESP_OK
+|——————Node:call_expression Text: twai_get_status_info(&status)
+|———————Node:identifier Text: twai_get_status_info
+|———————Node:argument_list Text: (&status)
+|————————Node:( Text: (
+|————————Node:pointer_expression Text: &status
+|—————————Node:& Text: &
+|—————————Node:identifier Text: status
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:identifier Text: ESP_OK
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    switch (status.state) {
+      case TWAI_STATE_STOPPED:
+        if (twai_start() != ESP_OK) {
+          PRINT("Error starting CAN bus: Driver not installed")
+          return;
+        }
+        break;
+      case TWAI_STATE_RUNNING:
+        break;
+      case TWAI_STATE_BUS_OFF:
+        // Try to recover the bus
+        vTaskDelay(pdMS_TO_TICKS(10));
+        if (twai_initiate_recovery() == ESP_OK) {
+          PRINT("Info: Started CAN bus recovery")
+        }
+        else {
+          PRINT("Error starting CAN bus recovery")
+          return;
+        }
+        //break; continue with recovery
+      case TWAI_STATE_RECOVERING:
+        // Wait until it is recovered
+        PRINT("Info: Waiting for CAN bus to recover")
+        twai_get_status_info(&status);
+        while (status.state == TWAI_STATE_RECOVERING) {
+          vTaskDelay(pdMS_TO_TICKS(5));
+          twai_get_status_info(&status);
+        }
+        // Start the driver again
+        if (twai_start() == ESP_OK) {
+          PRINT("Info: CAN bus recovered and started")
+        } else {
+          PRINT("Error recovering the CAN bus")
+          DeviceCAN::checkBusErrors();
+        }
+        break;
+      default:
+        PRINT("Warning: CAN bus in unknown status")
+        break;
+    }
+  }
+|—————Node:{ Text: {
+|—————Node:switch_statement Text: switch (status.state) {
+      case TWAI_STATE_STOPPED:
+        if (twai_start() != ESP_OK) {
+          PRINT("Error starting CAN bus: Driver not installed")
+          return;
+        }
+        break;
+      case TWAI_STATE_RUNNING:
+        break;
+      case TWAI_STATE_BUS_OFF:
+        // Try to recover the bus
+        vTaskDelay(pdMS_TO_TICKS(10));
+        if (twai_initiate_recovery() == ESP_OK) {
+          PRINT("Info: Started CAN bus recovery")
+        }
+        else {
+          PRINT("Error starting CAN bus recovery")
+          return;
+        }
+        //break; continue with recovery
+      case TWAI_STATE_RECOVERING:
+        // Wait until it is recovered
+        PRINT("Info: Waiting for CAN bus to recover")
+        twai_get_status_info(&status);
+        while (status.state == TWAI_STATE_RECOVERING) {
+          vTaskDelay(pdMS_TO_TICKS(5));
+          twai_get_status_info(&status);
+        }
+        // Start the driver again
+        if (twai_start() == ESP_OK) {
+          PRINT("Info: CAN bus recovered and started")
+        } else {
+          PRINT("Error recovering the CAN bus")
+          DeviceCAN::checkBusErrors();
+        }
+        break;
+      default:
+        PRINT("Warning: CAN bus in unknown status")
+        break;
+    }
+|——————Node:switch Text: switch
+|——————Node:condition_clause Text: (status.state)
+|———————Node:( Text: (
+|———————Node:field_expression Text: status.state
+|————————Node:identifier Text: status
+|————————Node:. Text: .
+|————————Node:field_identifier Text: state
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+      case TWAI_STATE_STOPPED:
+        if (twai_start() != ESP_OK) {
+          PRINT("Error starting CAN bus: Driver not installed")
+          return;
+        }
+        break;
+      case TWAI_STATE_RUNNING:
+        break;
+      case TWAI_STATE_BUS_OFF:
+        // Try to recover the bus
+        vTaskDelay(pdMS_TO_TICKS(10));
+        if (twai_initiate_recovery() == ESP_OK) {
+          PRINT("Info: Started CAN bus recovery")
+        }
+        else {
+          PRINT("Error starting CAN bus recovery")
+          return;
+        }
+        //break; continue with recovery
+      case TWAI_STATE_RECOVERING:
+        // Wait until it is recovered
+        PRINT("Info: Waiting for CAN bus to recover")
+        twai_get_status_info(&status);
+        while (status.state == TWAI_STATE_RECOVERING) {
+          vTaskDelay(pdMS_TO_TICKS(5));
+          twai_get_status_info(&status);
+        }
+        // Start the driver again
+        if (twai_start() == ESP_OK) {
+          PRINT("Info: CAN bus recovered and started")
+        } else {
+          PRINT("Error recovering the CAN bus")
+          DeviceCAN::checkBusErrors();
+        }
+        break;
+      default:
+        PRINT("Warning: CAN bus in unknown status")
+        break;
+    }
+|———————Node:{ Text: {
+|———————Node:case_statement Text: case TWAI_STATE_STOPPED:
+        if (twai_start() != ESP_OK) {
+          PRINT("Error starting CAN bus: Driver not installed")
+          return;
+        }
+        break;
+|————————Node:case Text: case
+|————————Node:identifier Text: TWAI_STATE_STOPPED
+|————————Node:: Text: :
+|————————Node:if_statement Text: if (twai_start() != ESP_OK) {
+          PRINT("Error starting CAN bus: Driver not installed")
+          return;
+        }
+|—————————Node:if Text: if
+|—————————Node:condition_clause Text: (twai_start() != ESP_OK)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: twai_start() != ESP_OK
+|———————————Node:call_expression Text: twai_start()
+|————————————Node:identifier Text: twai_start
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:!= Text: !=
+|———————————Node:identifier Text: ESP_OK
+|——————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+          PRINT("Error starting CAN bus: Driver not installed")
+          return;
+        }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: PRINT("Error starting CAN bus: Driver not installed")
+          return;
+|———————————Node:call_expression Text: PRINT("Error starting CAN bus: Driver not installed")
+|————————————Node:identifier Text: PRINT
+|————————————Node:argument_list Text: ("Error starting CAN bus: Driver not installed")
+|—————————————Node:( Text: (
+|—————————————Node:string_literal Text: "Error starting CAN bus: Driver not installed"
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: Error starting CAN bus: Driver not installed
+|——————————————Node:" Text: "
+|—————————————Node:) Text: )
+|———————————Node:ERROR Text: return
+|————————————Node:identifier Text: return
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|————————Node:break_statement Text: break;
+|—————————Node:break Text: break
+|—————————Node:; Text: ;
+|———————Node:case_statement Text: case TWAI_STATE_RUNNING:
+        break;
+|————————Node:case Text: case
+|————————Node:identifier Text: TWAI_STATE_RUNNING
+|————————Node:: Text: :
+|————————Node:break_statement Text: break;
+|—————————Node:break Text: break
+|—————————Node:; Text: ;
+|———————Node:case_statement Text: case TWAI_STATE_BUS_OFF:
+        // Try to recover the bus
+        vTaskDelay(pdMS_TO_TICKS(10));
+        if (twai_initiate_recovery() == ESP_OK) {
+          PRINT("Info: Started CAN bus recovery")
+        }
+        else {
+          PRINT("Error starting CAN bus recovery")
+          return;
+        }
+|————————Node:case Text: case
+|————————Node:identifier Text: TWAI_STATE_BUS_OFF
+|————————Node:: Text: :
+|————————Node:comment
+|————————Node:expression_statement Text: vTaskDelay(pdMS_TO_TICKS(10));
+|—————————Node:call_expression Text: vTaskDelay(pdMS_TO_TICKS(10))
+|——————————Node:identifier Text: vTaskDelay
+|——————————Node:argument_list Text: (pdMS_TO_TICKS(10))
+|———————————Node:( Text: (
+|———————————Node:call_expression Text: pdMS_TO_TICKS(10)
+|————————————Node:identifier Text: pdMS_TO_TICKS
+|————————————Node:argument_list Text: (10)
+|—————————————Node:( Text: (
+|—————————————Node:number_literal Text: 10
+|—————————————Node:) Text: )
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:if_statement Text: if (twai_initiate_recovery() == ESP_OK) {
+          PRINT("Info: Started CAN bus recovery")
+        }
+        else {
+          PRINT("Error starting CAN bus recovery")
+          return;
+        }
+|—————————Node:if Text: if
+|—————————Node:condition_clause Text: (twai_initiate_recovery() == ESP_OK)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: twai_initiate_recovery() == ESP_OK
+|———————————Node:call_expression Text: twai_initiate_recovery()
+|————————————Node:identifier Text: twai_initiate_recovery
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:== Text: ==
+|———————————Node:identifier Text: ESP_OK
+|——————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+          PRINT("Info: Started CAN bus recovery")
+        }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: PRINT("Info: Started CAN bus recovery")
+|———————————Node:call_expression Text: PRINT("Info: Started CAN bus recovery")
+|————————————Node:identifier Text: PRINT
+|————————————Node:argument_list Text: ("Info: Started CAN bus recovery")
+|—————————————Node:( Text: (
+|—————————————Node:string_literal Text: "Info: Started CAN bus recovery"
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: Info: Started CAN bus recovery
+|——————————————Node:" Text: "
+|—————————————Node:) Text: )
+|———————————Node:; Text: 
+|——————————Node:} Text: }
+|—————————Node:else_clause Text: else {
+          PRINT("Error starting CAN bus recovery")
+          return;
+        }
+|——————————Node:else Text: else
+|——————————Node:compound_statement Text: {
+          PRINT("Error starting CAN bus recovery")
+          return;
+        }
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: PRINT("Error starting CAN bus recovery")
+          return;
+|————————————Node:call_expression Text: PRINT("Error starting CAN bus recovery")
+|—————————————Node:identifier Text: PRINT
+|—————————————Node:argument_list Text: ("Error starting CAN bus recovery")
+|——————————————Node:( Text: (
+|——————————————Node:string_literal Text: "Error starting CAN bus recovery"
+|———————————————Node:" Text: "
+|———————————————Node:string_content Text: Error starting CAN bus recovery
+|———————————————Node:" Text: "
+|——————————————Node:) Text: )
+|————————————Node:ERROR Text: return
+|—————————————Node:identifier Text: return
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|———————Node:comment
+|———————Node:case_statement Text: case TWAI_STATE_RECOVERING:
+        // Wait until it is recovered
+        PRINT("Info: Waiting for CAN bus to recover")
+        twai_get_status_info(&status);
+        while (status.state == TWAI_STATE_RECOVERING) {
+          vTaskDelay(pdMS_TO_TICKS(5));
+          twai_get_status_info(&status);
+        }
+        // Start the driver again
+        if (twai_start() == ESP_OK) {
+          PRINT("Info: CAN bus recovered and started")
+        } else {
+          PRINT("Error recovering the CAN bus")
+          DeviceCAN::checkBusErrors();
+        }
+        break;
+|————————Node:case Text: case
+|————————Node:identifier Text: TWAI_STATE_RECOVERING
+|————————Node:: Text: :
+|————————Node:comment
+|————————Node:expression_statement Text: PRINT("Info: Waiting for CAN bus to recover")
+|—————————Node:call_expression Text: PRINT("Info: Waiting for CAN bus to recover")
+|——————————Node:identifier Text: PRINT
+|——————————Node:argument_list Text: ("Info: Waiting for CAN bus to recover")
+|———————————Node:( Text: (
+|———————————Node:string_literal Text: "Info: Waiting for CAN bus to recover"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: Info: Waiting for CAN bus to recover
+|————————————Node:" Text: "
+|———————————Node:) Text: )
+|—————————Node:; Text: 
+|————————Node:expression_statement Text: twai_get_status_info(&status);
+|—————————Node:call_expression Text: twai_get_status_info(&status)
+|——————————Node:identifier Text: twai_get_status_info
+|——————————Node:argument_list Text: (&status)
+|———————————Node:( Text: (
+|———————————Node:pointer_expression Text: &status
+|————————————Node:& Text: &
+|————————————Node:identifier Text: status
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:while_statement Text: while (status.state == TWAI_STATE_RECOVERING) {
+          vTaskDelay(pdMS_TO_TICKS(5));
+          twai_get_status_info(&status);
+        }
+|—————————Node:while Text: while
+|—————————Node:condition_clause Text: (status.state == TWAI_STATE_RECOVERING)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: status.state == TWAI_STATE_RECOVERING
+|———————————Node:field_expression Text: status.state
+|————————————Node:identifier Text: status
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: state
+|———————————Node:== Text: ==
+|———————————Node:identifier Text: TWAI_STATE_RECOVERING
+|——————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+          vTaskDelay(pdMS_TO_TICKS(5));
+          twai_get_status_info(&status);
+        }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: vTaskDelay(pdMS_TO_TICKS(5));
+|———————————Node:call_expression Text: vTaskDelay(pdMS_TO_TICKS(5))
+|————————————Node:identifier Text: vTaskDelay
+|————————————Node:argument_list Text: (pdMS_TO_TICKS(5))
+|—————————————Node:( Text: (
+|—————————————Node:call_expression Text: pdMS_TO_TICKS(5)
+|——————————————Node:identifier Text: pdMS_TO_TICKS
+|——————————————Node:argument_list Text: (5)
+|———————————————Node:( Text: (
+|———————————————Node:number_literal Text: 5
+|———————————————Node:) Text: )
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:expression_statement Text: twai_get_status_info(&status);
+|———————————Node:call_expression Text: twai_get_status_info(&status)
+|————————————Node:identifier Text: twai_get_status_info
+|————————————Node:argument_list Text: (&status)
+|—————————————Node:( Text: (
+|—————————————Node:pointer_expression Text: &status
+|——————————————Node:& Text: &
+|——————————————Node:identifier Text: status
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|————————Node:comment
+|————————Node:if_statement Text: if (twai_start() == ESP_OK) {
+          PRINT("Info: CAN bus recovered and started")
+        } else {
+          PRINT("Error recovering the CAN bus")
+          DeviceCAN::checkBusErrors();
+        }
+|—————————Node:if Text: if
+|—————————Node:condition_clause Text: (twai_start() == ESP_OK)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: twai_start() == ESP_OK
+|———————————Node:call_expression Text: twai_start()
+|————————————Node:identifier Text: twai_start
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:== Text: ==
+|———————————Node:identifier Text: ESP_OK
+|——————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+          PRINT("Info: CAN bus recovered and started")
+        }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: PRINT("Info: CAN bus recovered and started")
+|———————————Node:call_expression Text: PRINT("Info: CAN bus recovered and started")
+|————————————Node:identifier Text: PRINT
+|————————————Node:argument_list Text: ("Info: CAN bus recovered and started")
+|—————————————Node:( Text: (
+|—————————————Node:string_literal Text: "Info: CAN bus recovered and started"
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: Info: CAN bus recovered and started
+|——————————————Node:" Text: "
+|—————————————Node:) Text: )
+|———————————Node:; Text: 
+|——————————Node:} Text: }
+|—————————Node:else_clause Text: else {
+          PRINT("Error recovering the CAN bus")
+          DeviceCAN::checkBusErrors();
+        }
+|——————————Node:else Text: else
+|——————————Node:compound_statement Text: {
+          PRINT("Error recovering the CAN bus")
+          DeviceCAN::checkBusErrors();
+        }
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: PRINT("Error recovering the CAN bus")
+|————————————Node:call_expression Text: PRINT("Error recovering the CAN bus")
+|—————————————Node:identifier Text: PRINT
+|—————————————Node:argument_list Text: ("Error recovering the CAN bus")
+|——————————————Node:( Text: (
+|——————————————Node:string_literal Text: "Error recovering the CAN bus"
+|———————————————Node:" Text: "
+|———————————————Node:string_content Text: Error recovering the CAN bus
+|———————————————Node:" Text: "
+|——————————————Node:) Text: )
+|————————————Node:; Text: 
+|———————————Node:expression_statement Text: DeviceCAN::checkBusErrors();
+|————————————Node:call_expression Text: DeviceCAN::checkBusErrors()
+|—————————————Node:qualified_identifier Text: DeviceCAN::checkBusErrors
+|——————————————Node:namespace_identifier Text: DeviceCAN
+|——————————————Node::: Text: ::
+|——————————————Node:identifier Text: checkBusErrors
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|————————Node:break_statement Text: break;
+|—————————Node:break Text: break
+|—————————Node:; Text: ;
+|———————Node:case_statement Text: default:
+        PRINT("Warning: CAN bus in unknown status")
+        break;
+|————————Node:default Text: default
+|————————Node:: Text: :
+|————————Node:expression_statement Text: PRINT("Warning: CAN bus in unknown status")
+        break;
+|—————————Node:call_expression Text: PRINT("Warning: CAN bus in unknown status")
+|——————————Node:identifier Text: PRINT
+|——————————Node:argument_list Text: ("Warning: CAN bus in unknown status")
+|———————————Node:( Text: (
+|———————————Node:string_literal Text: "Warning: CAN bus in unknown status"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: Warning: CAN bus in unknown status
+|————————————Node:" Text: "
+|———————————Node:) Text: )
+|—————————Node:ERROR Text: break
+|——————————Node:identifier Text: break
+|—————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|————Node:else_clause Text: else {
+    PRINT("Error reading status information of CAN driver")
+  }
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+    PRINT("Error reading status information of CAN driver")
+  }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: PRINT("Error reading status information of CAN driver")
+|———————Node:call_expression Text: PRINT("Error reading status information of CAN driver")
+|————————Node:identifier Text: PRINT
+|————————Node:argument_list Text: ("Error reading status information of CAN driver")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Error reading status information of CAN driver"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Error reading status information of CAN driver
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: 
+|——————Node:} Text: }
+|———Node:comment
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: void DeviceCAN::startTasks(uint16_t stackSizeOnValueChanged,
+                           uint16_t stackSizeOnSerialEvent,
+                           uint8_t core)
+{
+  // Call parent function to start the rest of the tasks
+  DeviceSerial::startTasks(stackSizeOnValueChanged, stackSizeOnSerialEvent, core);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: DeviceCAN::startTasks(uint16_t stackSizeOnValueChanged,
+                           uint16_t stackSizeOnSerialEvent,
+                           uint8_t core)
+|———Node:qualified_identifier Text: DeviceCAN::startTasks
+|————Node:namespace_identifier Text: DeviceCAN
+|————Node::: Text: ::
+|————Node:identifier Text: startTasks
+|———Node:parameter_list Text: (uint16_t stackSizeOnValueChanged,
+                           uint16_t stackSizeOnSerialEvent,
+                           uint8_t core)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint16_t stackSizeOnValueChanged
+|—————Node:primitive_type Text: uint16_t
+|—————Node:identifier Text: stackSizeOnValueChanged
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint16_t stackSizeOnSerialEvent
+|—————Node:primitive_type Text: uint16_t
+|—————Node:identifier Text: stackSizeOnSerialEvent
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint8_t core
+|—————Node:primitive_type Text: uint8_t
+|—————Node:identifier Text: core
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  // Call parent function to start the rest of the tasks
+  DeviceSerial::startTasks(stackSizeOnValueChanged, stackSizeOnSerialEvent, core);
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:expression_statement Text: DeviceSerial::startTasks(stackSizeOnValueChanged, stackSizeOnSerialEvent, core);
+|————Node:call_expression Text: DeviceSerial::startTasks(stackSizeOnValueChanged, stackSizeOnSerialEvent, core)
+|—————Node:qualified_identifier Text: DeviceSerial::startTasks
+|——————Node:namespace_identifier Text: DeviceSerial
+|——————Node::: Text: ::
+|——————Node:identifier Text: startTasks
+|—————Node:argument_list Text: (stackSizeOnValueChanged, stackSizeOnSerialEvent, core)
+|——————Node:( Text: (
+|——————Node:identifier Text: stackSizeOnValueChanged
+|——————Node:, Text: ,
+|——————Node:identifier Text: stackSizeOnSerialEvent
+|——————Node:, Text: ,
+|——————Node:identifier Text: core
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }

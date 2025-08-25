@@ -1,0 +1,1861 @@
+J1939-Framework-CAN\Backends\PeakCan\PeakCanReceiver.cpp
+
+|Node:translation_unit
+|—Node:comment
+|—Node:preproc_include Text: #include "PeakCanReceiver.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "PeakCanReceiver.h"
+|———Node:" Text: "
+|———Node:string_content Text: PeakCanReceiver.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "PeakCanChannels.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "PeakCanChannels.h"
+|———Node:" Text: "
+|———Node:string_content Text: PeakCanChannels.h
+|———Node:" Text: "
+|—Node:using_declaration Text: using namespace Utils;
+|——Node:using Text: using
+|——Node:namespace Text: namespace
+|——Node:identifier Text: Utils
+|——Node:; Text: ;
+|—Node:namespace_definition Text: namespace Can {
+namespace PeakCan {
+
+PeakCanReceiver::PeakCanReceiver() : mCurrentHandle(PCAN_NONEBUS), mReadFd(-1) {
+
+}
+
+PeakCanReceiver::~PeakCanReceiver() {
+}
+
+bool PeakCanReceiver::_initialize(const std::string& interface) {
+
+	//Get the interface
+	Channel channel = PeakCanChannels::getInstance().getChannel(interface);
+
+	if(channel.getName() != interface) {		//The interface does not exist
+		return false;
+	}
+
+	int value = 0;
+
+	//Callback to PeakCan library to get the condition of channel
+	TPCANStatus status = PeakCanSymbols::getInstance().CAN_GetValue(channel.getIndex(), PCAN_CHANNEL_CONDITION,
+													&value, sizeof(value));
+
+	if((status == PCAN_ERROR_OK) && (value & PCAN_CHANNEL_OCCUPIED)) {	//Channel already initialized?
+
+		mCurrentHandle = channel.getIndex();
+	}
+
+	if(mCurrentHandle == PCAN_NONEBUS) {		//No device initialized
+		return false;
+	}
+
+	status = PeakCanSymbols::getInstance().CAN_GetValue(channel.getIndex(), PCAN_RECEIVE_EVENT,		//To obtain the file descriptor to watch for events
+				&mReadFd, sizeof(mReadFd));
+
+	if(status != PCAN_ERROR_OK) {
+		return false;
+	}
+
+	return true;
+
+}
+
+bool PeakCanReceiver::finalize(const std::string& interface) {
+
+	int param;
+	param = PCAN_FILTER_CLOSE;
+
+	TPCANStatus status = PeakCanSymbols::getInstance().CAN_SetValue(mCurrentHandle, PCAN_MESSAGE_FILTER, &param, sizeof(param));
+
+	mCurrentHandle = PCAN_NONEBUS;
+
+
+	return (status == PCAN_ERROR_OK);
+
+}
+
+void PeakCanReceiver::sniff(u32 timeout) {
+
+	bool running = true;
+	TPCANMsg message;
+	TPCANTimestamp tmStamp;
+	fd_set fds;
+	TPCANStatus status;
+	int result;
+
+	timeval tv;
+
+
+	do {
+
+		tv.tv_sec = timeout / 1000;
+		tv.tv_usec = (timeout % 1000) / 1000000;
+
+		do {
+
+			FD_ZERO(&fds);
+			FD_SET(mReadFd, &fds);
+			result = select(mReadFd + 1, &fds, NULL, NULL, &tv);
+
+		} while (result == -1 && errno == EINTR);
+
+
+
+		if (result > 0) {
+
+			if (FD_ISSET(mReadFd, &fds)) {		//Frame available from interface
+
+
+				status = PeakCanSymbols::getInstance().CAN_Read(mCurrentHandle, &message, &tmStamp);
+
+				if (status != PCAN_ERROR_OK || message.LEN > MAX_CAN_DATA_SIZE || (message.MSGTYPE != PCAN_MESSAGE_STANDARD &&
+						message.MSGTYPE != PCAN_MESSAGE_EXTENDED)) {
+					continue;
+				}
+
+				if(filter(message.ID)) {		//Check if message is filtered
+
+					//Set data
+					std::string data;
+					data.append((char*)message.DATA, message.LEN);
+
+					CanFrame frame(message.MSGTYPE == PCAN_MESSAGE_EXTENDED, message.ID, data);
+
+					TimeStamp timestamp(tmStamp.millis / 1000, (tmStamp.millis % 1000) * 1000 + tmStamp.micros);
+
+					//Work is delegated to callback.
+					(mRcvCB)(frame, timestamp, mData);
+
+				}
+
+			}
+
+		} else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+
+
+	} while (running);
+
+}
+
+
+} /* namespace PeakCan */
+}
+|——Node:namespace Text: namespace
+|——Node:namespace_identifier Text: Can
+|——Node:declaration_list Text: {
+namespace PeakCan {
+
+PeakCanReceiver::PeakCanReceiver() : mCurrentHandle(PCAN_NONEBUS), mReadFd(-1) {
+
+}
+
+PeakCanReceiver::~PeakCanReceiver() {
+}
+
+bool PeakCanReceiver::_initialize(const std::string& interface) {
+
+	//Get the interface
+	Channel channel = PeakCanChannels::getInstance().getChannel(interface);
+
+	if(channel.getName() != interface) {		//The interface does not exist
+		return false;
+	}
+
+	int value = 0;
+
+	//Callback to PeakCan library to get the condition of channel
+	TPCANStatus status = PeakCanSymbols::getInstance().CAN_GetValue(channel.getIndex(), PCAN_CHANNEL_CONDITION,
+													&value, sizeof(value));
+
+	if((status == PCAN_ERROR_OK) && (value & PCAN_CHANNEL_OCCUPIED)) {	//Channel already initialized?
+
+		mCurrentHandle = channel.getIndex();
+	}
+
+	if(mCurrentHandle == PCAN_NONEBUS) {		//No device initialized
+		return false;
+	}
+
+	status = PeakCanSymbols::getInstance().CAN_GetValue(channel.getIndex(), PCAN_RECEIVE_EVENT,		//To obtain the file descriptor to watch for events
+				&mReadFd, sizeof(mReadFd));
+
+	if(status != PCAN_ERROR_OK) {
+		return false;
+	}
+
+	return true;
+
+}
+
+bool PeakCanReceiver::finalize(const std::string& interface) {
+
+	int param;
+	param = PCAN_FILTER_CLOSE;
+
+	TPCANStatus status = PeakCanSymbols::getInstance().CAN_SetValue(mCurrentHandle, PCAN_MESSAGE_FILTER, &param, sizeof(param));
+
+	mCurrentHandle = PCAN_NONEBUS;
+
+
+	return (status == PCAN_ERROR_OK);
+
+}
+
+void PeakCanReceiver::sniff(u32 timeout) {
+
+	bool running = true;
+	TPCANMsg message;
+	TPCANTimestamp tmStamp;
+	fd_set fds;
+	TPCANStatus status;
+	int result;
+
+	timeval tv;
+
+
+	do {
+
+		tv.tv_sec = timeout / 1000;
+		tv.tv_usec = (timeout % 1000) / 1000000;
+
+		do {
+
+			FD_ZERO(&fds);
+			FD_SET(mReadFd, &fds);
+			result = select(mReadFd + 1, &fds, NULL, NULL, &tv);
+
+		} while (result == -1 && errno == EINTR);
+
+
+
+		if (result > 0) {
+
+			if (FD_ISSET(mReadFd, &fds)) {		//Frame available from interface
+
+
+				status = PeakCanSymbols::getInstance().CAN_Read(mCurrentHandle, &message, &tmStamp);
+
+				if (status != PCAN_ERROR_OK || message.LEN > MAX_CAN_DATA_SIZE || (message.MSGTYPE != PCAN_MESSAGE_STANDARD &&
+						message.MSGTYPE != PCAN_MESSAGE_EXTENDED)) {
+					continue;
+				}
+
+				if(filter(message.ID)) {		//Check if message is filtered
+
+					//Set data
+					std::string data;
+					data.append((char*)message.DATA, message.LEN);
+
+					CanFrame frame(message.MSGTYPE == PCAN_MESSAGE_EXTENDED, message.ID, data);
+
+					TimeStamp timestamp(tmStamp.millis / 1000, (tmStamp.millis % 1000) * 1000 + tmStamp.micros);
+
+					//Work is delegated to callback.
+					(mRcvCB)(frame, timestamp, mData);
+
+				}
+
+			}
+
+		} else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+
+
+	} while (running);
+
+}
+
+
+} /* namespace PeakCan */
+}
+|———Node:{ Text: {
+|———Node:namespace_definition Text: namespace PeakCan {
+
+PeakCanReceiver::PeakCanReceiver() : mCurrentHandle(PCAN_NONEBUS), mReadFd(-1) {
+
+}
+
+PeakCanReceiver::~PeakCanReceiver() {
+}
+
+bool PeakCanReceiver::_initialize(const std::string& interface) {
+
+	//Get the interface
+	Channel channel = PeakCanChannels::getInstance().getChannel(interface);
+
+	if(channel.getName() != interface) {		//The interface does not exist
+		return false;
+	}
+
+	int value = 0;
+
+	//Callback to PeakCan library to get the condition of channel
+	TPCANStatus status = PeakCanSymbols::getInstance().CAN_GetValue(channel.getIndex(), PCAN_CHANNEL_CONDITION,
+													&value, sizeof(value));
+
+	if((status == PCAN_ERROR_OK) && (value & PCAN_CHANNEL_OCCUPIED)) {	//Channel already initialized?
+
+		mCurrentHandle = channel.getIndex();
+	}
+
+	if(mCurrentHandle == PCAN_NONEBUS) {		//No device initialized
+		return false;
+	}
+
+	status = PeakCanSymbols::getInstance().CAN_GetValue(channel.getIndex(), PCAN_RECEIVE_EVENT,		//To obtain the file descriptor to watch for events
+				&mReadFd, sizeof(mReadFd));
+
+	if(status != PCAN_ERROR_OK) {
+		return false;
+	}
+
+	return true;
+
+}
+
+bool PeakCanReceiver::finalize(const std::string& interface) {
+
+	int param;
+	param = PCAN_FILTER_CLOSE;
+
+	TPCANStatus status = PeakCanSymbols::getInstance().CAN_SetValue(mCurrentHandle, PCAN_MESSAGE_FILTER, &param, sizeof(param));
+
+	mCurrentHandle = PCAN_NONEBUS;
+
+
+	return (status == PCAN_ERROR_OK);
+
+}
+
+void PeakCanReceiver::sniff(u32 timeout) {
+
+	bool running = true;
+	TPCANMsg message;
+	TPCANTimestamp tmStamp;
+	fd_set fds;
+	TPCANStatus status;
+	int result;
+
+	timeval tv;
+
+
+	do {
+
+		tv.tv_sec = timeout / 1000;
+		tv.tv_usec = (timeout % 1000) / 1000000;
+
+		do {
+
+			FD_ZERO(&fds);
+			FD_SET(mReadFd, &fds);
+			result = select(mReadFd + 1, &fds, NULL, NULL, &tv);
+
+		} while (result == -1 && errno == EINTR);
+
+
+
+		if (result > 0) {
+
+			if (FD_ISSET(mReadFd, &fds)) {		//Frame available from interface
+
+
+				status = PeakCanSymbols::getInstance().CAN_Read(mCurrentHandle, &message, &tmStamp);
+
+				if (status != PCAN_ERROR_OK || message.LEN > MAX_CAN_DATA_SIZE || (message.MSGTYPE != PCAN_MESSAGE_STANDARD &&
+						message.MSGTYPE != PCAN_MESSAGE_EXTENDED)) {
+					continue;
+				}
+
+				if(filter(message.ID)) {		//Check if message is filtered
+
+					//Set data
+					std::string data;
+					data.append((char*)message.DATA, message.LEN);
+
+					CanFrame frame(message.MSGTYPE == PCAN_MESSAGE_EXTENDED, message.ID, data);
+
+					TimeStamp timestamp(tmStamp.millis / 1000, (tmStamp.millis % 1000) * 1000 + tmStamp.micros);
+
+					//Work is delegated to callback.
+					(mRcvCB)(frame, timestamp, mData);
+
+				}
+
+			}
+
+		} else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+
+
+	} while (running);
+
+}
+
+
+}
+|————Node:namespace Text: namespace
+|————Node:namespace_identifier Text: PeakCan
+|————Node:declaration_list Text: {
+
+PeakCanReceiver::PeakCanReceiver() : mCurrentHandle(PCAN_NONEBUS), mReadFd(-1) {
+
+}
+
+PeakCanReceiver::~PeakCanReceiver() {
+}
+
+bool PeakCanReceiver::_initialize(const std::string& interface) {
+
+	//Get the interface
+	Channel channel = PeakCanChannels::getInstance().getChannel(interface);
+
+	if(channel.getName() != interface) {		//The interface does not exist
+		return false;
+	}
+
+	int value = 0;
+
+	//Callback to PeakCan library to get the condition of channel
+	TPCANStatus status = PeakCanSymbols::getInstance().CAN_GetValue(channel.getIndex(), PCAN_CHANNEL_CONDITION,
+													&value, sizeof(value));
+
+	if((status == PCAN_ERROR_OK) && (value & PCAN_CHANNEL_OCCUPIED)) {	//Channel already initialized?
+
+		mCurrentHandle = channel.getIndex();
+	}
+
+	if(mCurrentHandle == PCAN_NONEBUS) {		//No device initialized
+		return false;
+	}
+
+	status = PeakCanSymbols::getInstance().CAN_GetValue(channel.getIndex(), PCAN_RECEIVE_EVENT,		//To obtain the file descriptor to watch for events
+				&mReadFd, sizeof(mReadFd));
+
+	if(status != PCAN_ERROR_OK) {
+		return false;
+	}
+
+	return true;
+
+}
+
+bool PeakCanReceiver::finalize(const std::string& interface) {
+
+	int param;
+	param = PCAN_FILTER_CLOSE;
+
+	TPCANStatus status = PeakCanSymbols::getInstance().CAN_SetValue(mCurrentHandle, PCAN_MESSAGE_FILTER, &param, sizeof(param));
+
+	mCurrentHandle = PCAN_NONEBUS;
+
+
+	return (status == PCAN_ERROR_OK);
+
+}
+
+void PeakCanReceiver::sniff(u32 timeout) {
+
+	bool running = true;
+	TPCANMsg message;
+	TPCANTimestamp tmStamp;
+	fd_set fds;
+	TPCANStatus status;
+	int result;
+
+	timeval tv;
+
+
+	do {
+
+		tv.tv_sec = timeout / 1000;
+		tv.tv_usec = (timeout % 1000) / 1000000;
+
+		do {
+
+			FD_ZERO(&fds);
+			FD_SET(mReadFd, &fds);
+			result = select(mReadFd + 1, &fds, NULL, NULL, &tv);
+
+		} while (result == -1 && errno == EINTR);
+
+
+
+		if (result > 0) {
+
+			if (FD_ISSET(mReadFd, &fds)) {		//Frame available from interface
+
+
+				status = PeakCanSymbols::getInstance().CAN_Read(mCurrentHandle, &message, &tmStamp);
+
+				if (status != PCAN_ERROR_OK || message.LEN > MAX_CAN_DATA_SIZE || (message.MSGTYPE != PCAN_MESSAGE_STANDARD &&
+						message.MSGTYPE != PCAN_MESSAGE_EXTENDED)) {
+					continue;
+				}
+
+				if(filter(message.ID)) {		//Check if message is filtered
+
+					//Set data
+					std::string data;
+					data.append((char*)message.DATA, message.LEN);
+
+					CanFrame frame(message.MSGTYPE == PCAN_MESSAGE_EXTENDED, message.ID, data);
+
+					TimeStamp timestamp(tmStamp.millis / 1000, (tmStamp.millis % 1000) * 1000 + tmStamp.micros);
+
+					//Work is delegated to callback.
+					(mRcvCB)(frame, timestamp, mData);
+
+				}
+
+			}
+
+		} else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+
+
+	} while (running);
+
+}
+
+
+}
+|—————Node:{ Text: {
+|—————Node:function_definition Text: PeakCanReceiver::PeakCanReceiver() : mCurrentHandle(PCAN_NONEBUS), mReadFd(-1) {
+
+}
+|——————Node:function_declarator Text: PeakCanReceiver::PeakCanReceiver()
+|———————Node:qualified_identifier Text: PeakCanReceiver::PeakCanReceiver
+|————————Node:namespace_identifier Text: PeakCanReceiver
+|————————Node::: Text: ::
+|————————Node:identifier Text: PeakCanReceiver
+|———————Node:parameter_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:field_initializer_list Text: : mCurrentHandle(PCAN_NONEBUS), mReadFd(-1)
+|———————Node:: Text: :
+|———————Node:field_initializer Text: mCurrentHandle(PCAN_NONEBUS)
+|————————Node:field_identifier Text: mCurrentHandle
+|————————Node:argument_list Text: (PCAN_NONEBUS)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: PCAN_NONEBUS
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:field_initializer Text: mReadFd(-1)
+|————————Node:field_identifier Text: mReadFd
+|————————Node:argument_list Text: (-1)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: -1
+|—————————Node:) Text: )
+|——————Node:compound_statement Text: {
+
+}
+|———————Node:{ Text: {
+|———————Node:} Text: }
+|—————Node:function_definition Text: PeakCanReceiver::~PeakCanReceiver() {
+}
+|——————Node:function_declarator Text: PeakCanReceiver::~PeakCanReceiver()
+|———————Node:qualified_identifier Text: PeakCanReceiver::~PeakCanReceiver
+|————————Node:namespace_identifier Text: PeakCanReceiver
+|————————Node::: Text: ::
+|————————Node:destructor_name Text: ~PeakCanReceiver
+|—————————Node:~ Text: ~
+|—————————Node:identifier Text: PeakCanReceiver
+|———————Node:parameter_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:compound_statement Text: {
+}
+|———————Node:{ Text: {
+|———————Node:} Text: }
+|—————Node:function_definition Text: bool PeakCanReceiver::_initialize(const std::string& interface) {
+
+	//Get the interface
+	Channel channel = PeakCanChannels::getInstance().getChannel(interface);
+
+	if(channel.getName() != interface) {		//The interface does not exist
+		return false;
+	}
+
+	int value = 0;
+
+	//Callback to PeakCan library to get the condition of channel
+	TPCANStatus status = PeakCanSymbols::getInstance().CAN_GetValue(channel.getIndex(), PCAN_CHANNEL_CONDITION,
+													&value, sizeof(value));
+
+	if((status == PCAN_ERROR_OK) && (value & PCAN_CHANNEL_OCCUPIED)) {	//Channel already initialized?
+
+		mCurrentHandle = channel.getIndex();
+	}
+
+	if(mCurrentHandle == PCAN_NONEBUS) {		//No device initialized
+		return false;
+	}
+
+	status = PeakCanSymbols::getInstance().CAN_GetValue(channel.getIndex(), PCAN_RECEIVE_EVENT,		//To obtain the file descriptor to watch for events
+				&mReadFd, sizeof(mReadFd));
+
+	if(status != PCAN_ERROR_OK) {
+		return false;
+	}
+
+	return true;
+
+}
+|——————Node:primitive_type Text: bool
+|——————Node:function_declarator Text: PeakCanReceiver::_initialize(const std::string& interface)
+|———————Node:qualified_identifier Text: PeakCanReceiver::_initialize
+|————————Node:namespace_identifier Text: PeakCanReceiver
+|————————Node::: Text: ::
+|————————Node:identifier Text: _initialize
+|———————Node:parameter_list Text: (const std::string& interface)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const std::string& interface
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:qualified_identifier Text: std::string
+|——————————Node:namespace_identifier Text: std
+|——————————Node::: Text: ::
+|——————————Node:type_identifier Text: string
+|—————————Node:reference_declarator Text: & interface
+|——————————Node:& Text: &
+|——————————Node:identifier Text: interface
+|————————Node:) Text: )
+|——————Node:compound_statement Text: {
+
+	//Get the interface
+	Channel channel = PeakCanChannels::getInstance().getChannel(interface);
+
+	if(channel.getName() != interface) {		//The interface does not exist
+		return false;
+	}
+
+	int value = 0;
+
+	//Callback to PeakCan library to get the condition of channel
+	TPCANStatus status = PeakCanSymbols::getInstance().CAN_GetValue(channel.getIndex(), PCAN_CHANNEL_CONDITION,
+													&value, sizeof(value));
+
+	if((status == PCAN_ERROR_OK) && (value & PCAN_CHANNEL_OCCUPIED)) {	//Channel already initialized?
+
+		mCurrentHandle = channel.getIndex();
+	}
+
+	if(mCurrentHandle == PCAN_NONEBUS) {		//No device initialized
+		return false;
+	}
+
+	status = PeakCanSymbols::getInstance().CAN_GetValue(channel.getIndex(), PCAN_RECEIVE_EVENT,		//To obtain the file descriptor to watch for events
+				&mReadFd, sizeof(mReadFd));
+
+	if(status != PCAN_ERROR_OK) {
+		return false;
+	}
+
+	return true;
+
+}
+|———————Node:{ Text: {
+|———————Node:comment
+|———————Node:declaration Text: Channel channel = PeakCanChannels::getInstance().getChannel(interface);
+|————————Node:type_identifier Text: Channel
+|————————Node:init_declarator Text: channel = PeakCanChannels::getInstance().getChannel(interface)
+|—————————Node:identifier Text: channel
+|—————————Node:= Text: =
+|—————————Node:call_expression Text: PeakCanChannels::getInstance().getChannel(interface)
+|——————————Node:field_expression Text: PeakCanChannels::getInstance().getChannel
+|———————————Node:call_expression Text: PeakCanChannels::getInstance()
+|————————————Node:qualified_identifier Text: PeakCanChannels::getInstance
+|—————————————Node:namespace_identifier Text: PeakCanChannels
+|—————————————Node::: Text: ::
+|—————————————Node:identifier Text: getInstance
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: getChannel
+|——————————Node:argument_list Text: (interface)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: interface
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if(channel.getName() != interface) {		//The interface does not exist
+		return false;
+	}
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (channel.getName() != interface)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: channel.getName() != interface
+|——————————Node:call_expression Text: channel.getName()
+|———————————Node:field_expression Text: channel.getName
+|————————————Node:identifier Text: channel
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: getName
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:!= Text: !=
+|——————————Node:identifier Text: interface
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {		//The interface does not exist
+		return false;
+	}
+|—————————Node:{ Text: {
+|—————————Node:comment
+|—————————Node:return_statement Text: return false;
+|——————————Node:return Text: return
+|——————————Node:false Text: false
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:declaration Text: int value = 0;
+|————————Node:primitive_type Text: int
+|————————Node:init_declarator Text: value = 0
+|—————————Node:identifier Text: value
+|—————————Node:= Text: =
+|—————————Node:number_literal Text: 0
+|————————Node:; Text: ;
+|———————Node:comment
+|———————Node:declaration Text: TPCANStatus status = PeakCanSymbols::getInstance().CAN_GetValue(channel.getIndex(), PCAN_CHANNEL_CONDITION,
+													&value, sizeof(value));
+|————————Node:type_identifier Text: TPCANStatus
+|————————Node:init_declarator Text: status = PeakCanSymbols::getInstance().CAN_GetValue(channel.getIndex(), PCAN_CHANNEL_CONDITION,
+													&value, sizeof(value))
+|—————————Node:identifier Text: status
+|—————————Node:= Text: =
+|—————————Node:call_expression Text: PeakCanSymbols::getInstance().CAN_GetValue(channel.getIndex(), PCAN_CHANNEL_CONDITION,
+													&value, sizeof(value))
+|——————————Node:field_expression Text: PeakCanSymbols::getInstance().CAN_GetValue
+|———————————Node:call_expression Text: PeakCanSymbols::getInstance()
+|————————————Node:qualified_identifier Text: PeakCanSymbols::getInstance
+|—————————————Node:namespace_identifier Text: PeakCanSymbols
+|—————————————Node::: Text: ::
+|—————————————Node:identifier Text: getInstance
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: CAN_GetValue
+|——————————Node:argument_list Text: (channel.getIndex(), PCAN_CHANNEL_CONDITION,
+													&value, sizeof(value))
+|———————————Node:( Text: (
+|———————————Node:call_expression Text: channel.getIndex()
+|————————————Node:field_expression Text: channel.getIndex
+|—————————————Node:identifier Text: channel
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: getIndex
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:, Text: ,
+|———————————Node:identifier Text: PCAN_CHANNEL_CONDITION
+|———————————Node:, Text: ,
+|———————————Node:pointer_expression Text: &value
+|————————————Node:& Text: &
+|————————————Node:identifier Text: value
+|———————————Node:, Text: ,
+|———————————Node:sizeof_expression Text: sizeof(value)
+|————————————Node:sizeof Text: sizeof
+|————————————Node:parenthesized_expression Text: (value)
+|—————————————Node:( Text: (
+|—————————————Node:identifier Text: value
+|—————————————Node:) Text: )
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if((status == PCAN_ERROR_OK) && (value & PCAN_CHANNEL_OCCUPIED)) {	//Channel already initialized?
+
+		mCurrentHandle = channel.getIndex();
+	}
+|————————Node:if Text: if
+|————————Node:condition_clause Text: ((status == PCAN_ERROR_OK) && (value & PCAN_CHANNEL_OCCUPIED))
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: (status == PCAN_ERROR_OK) && (value & PCAN_CHANNEL_OCCUPIED)
+|——————————Node:parenthesized_expression Text: (status == PCAN_ERROR_OK)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: status == PCAN_ERROR_OK
+|————————————Node:identifier Text: status
+|————————————Node:== Text: ==
+|————————————Node:identifier Text: PCAN_ERROR_OK
+|———————————Node:) Text: )
+|——————————Node:&& Text: &&
+|——————————Node:parenthesized_expression Text: (value & PCAN_CHANNEL_OCCUPIED)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: value & PCAN_CHANNEL_OCCUPIED
+|————————————Node:identifier Text: value
+|————————————Node:& Text: &
+|————————————Node:identifier Text: PCAN_CHANNEL_OCCUPIED
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {	//Channel already initialized?
+
+		mCurrentHandle = channel.getIndex();
+	}
+|—————————Node:{ Text: {
+|—————————Node:comment
+|—————————Node:expression_statement Text: mCurrentHandle = channel.getIndex();
+|——————————Node:assignment_expression Text: mCurrentHandle = channel.getIndex()
+|———————————Node:identifier Text: mCurrentHandle
+|———————————Node:= Text: =
+|———————————Node:call_expression Text: channel.getIndex()
+|————————————Node:field_expression Text: channel.getIndex
+|—————————————Node:identifier Text: channel
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: getIndex
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:if_statement Text: if(mCurrentHandle == PCAN_NONEBUS) {		//No device initialized
+		return false;
+	}
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (mCurrentHandle == PCAN_NONEBUS)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: mCurrentHandle == PCAN_NONEBUS
+|——————————Node:identifier Text: mCurrentHandle
+|——————————Node:== Text: ==
+|——————————Node:identifier Text: PCAN_NONEBUS
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {		//No device initialized
+		return false;
+	}
+|—————————Node:{ Text: {
+|—————————Node:comment
+|—————————Node:return_statement Text: return false;
+|——————————Node:return Text: return
+|——————————Node:false Text: false
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:expression_statement Text: status = PeakCanSymbols::getInstance().CAN_GetValue(channel.getIndex(), PCAN_RECEIVE_EVENT,		//To obtain the file descriptor to watch for events
+				&mReadFd, sizeof(mReadFd));
+|————————Node:assignment_expression Text: status = PeakCanSymbols::getInstance().CAN_GetValue(channel.getIndex(), PCAN_RECEIVE_EVENT,		//To obtain the file descriptor to watch for events
+				&mReadFd, sizeof(mReadFd))
+|—————————Node:identifier Text: status
+|—————————Node:= Text: =
+|—————————Node:call_expression Text: PeakCanSymbols::getInstance().CAN_GetValue(channel.getIndex(), PCAN_RECEIVE_EVENT,		//To obtain the file descriptor to watch for events
+				&mReadFd, sizeof(mReadFd))
+|——————————Node:field_expression Text: PeakCanSymbols::getInstance().CAN_GetValue
+|———————————Node:call_expression Text: PeakCanSymbols::getInstance()
+|————————————Node:qualified_identifier Text: PeakCanSymbols::getInstance
+|—————————————Node:namespace_identifier Text: PeakCanSymbols
+|—————————————Node::: Text: ::
+|—————————————Node:identifier Text: getInstance
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: CAN_GetValue
+|——————————Node:argument_list Text: (channel.getIndex(), PCAN_RECEIVE_EVENT,		//To obtain the file descriptor to watch for events
+				&mReadFd, sizeof(mReadFd))
+|———————————Node:( Text: (
+|———————————Node:call_expression Text: channel.getIndex()
+|————————————Node:field_expression Text: channel.getIndex
+|—————————————Node:identifier Text: channel
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: getIndex
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:, Text: ,
+|———————————Node:identifier Text: PCAN_RECEIVE_EVENT
+|———————————Node:, Text: ,
+|———————————Node:comment
+|———————————Node:pointer_expression Text: &mReadFd
+|————————————Node:& Text: &
+|————————————Node:identifier Text: mReadFd
+|———————————Node:, Text: ,
+|———————————Node:sizeof_expression Text: sizeof(mReadFd)
+|————————————Node:sizeof Text: sizeof
+|————————————Node:parenthesized_expression Text: (mReadFd)
+|—————————————Node:( Text: (
+|—————————————Node:identifier Text: mReadFd
+|—————————————Node:) Text: )
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if(status != PCAN_ERROR_OK) {
+		return false;
+	}
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (status != PCAN_ERROR_OK)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: status != PCAN_ERROR_OK
+|——————————Node:identifier Text: status
+|——————————Node:!= Text: !=
+|——————————Node:identifier Text: PCAN_ERROR_OK
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+		return false;
+	}
+|—————————Node:{ Text: {
+|—————————Node:return_statement Text: return false;
+|——————————Node:return Text: return
+|——————————Node:false Text: false
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:return_statement Text: return true;
+|————————Node:return Text: return
+|————————Node:true Text: true
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:function_definition Text: bool PeakCanReceiver::finalize(const std::string& interface) {
+
+	int param;
+	param = PCAN_FILTER_CLOSE;
+
+	TPCANStatus status = PeakCanSymbols::getInstance().CAN_SetValue(mCurrentHandle, PCAN_MESSAGE_FILTER, &param, sizeof(param));
+
+	mCurrentHandle = PCAN_NONEBUS;
+
+
+	return (status == PCAN_ERROR_OK);
+
+}
+|——————Node:primitive_type Text: bool
+|——————Node:function_declarator Text: PeakCanReceiver::finalize(const std::string& interface)
+|———————Node:qualified_identifier Text: PeakCanReceiver::finalize
+|————————Node:namespace_identifier Text: PeakCanReceiver
+|————————Node::: Text: ::
+|————————Node:identifier Text: finalize
+|———————Node:parameter_list Text: (const std::string& interface)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const std::string& interface
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:qualified_identifier Text: std::string
+|——————————Node:namespace_identifier Text: std
+|——————————Node::: Text: ::
+|——————————Node:type_identifier Text: string
+|—————————Node:reference_declarator Text: & interface
+|——————————Node:& Text: &
+|——————————Node:identifier Text: interface
+|————————Node:) Text: )
+|——————Node:compound_statement Text: {
+
+	int param;
+	param = PCAN_FILTER_CLOSE;
+
+	TPCANStatus status = PeakCanSymbols::getInstance().CAN_SetValue(mCurrentHandle, PCAN_MESSAGE_FILTER, &param, sizeof(param));
+
+	mCurrentHandle = PCAN_NONEBUS;
+
+
+	return (status == PCAN_ERROR_OK);
+
+}
+|———————Node:{ Text: {
+|———————Node:declaration Text: int param;
+|————————Node:primitive_type Text: int
+|————————Node:identifier Text: param
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: param = PCAN_FILTER_CLOSE;
+|————————Node:assignment_expression Text: param = PCAN_FILTER_CLOSE
+|—————————Node:identifier Text: param
+|—————————Node:= Text: =
+|—————————Node:identifier Text: PCAN_FILTER_CLOSE
+|————————Node:; Text: ;
+|———————Node:declaration Text: TPCANStatus status = PeakCanSymbols::getInstance().CAN_SetValue(mCurrentHandle, PCAN_MESSAGE_FILTER, &param, sizeof(param));
+|————————Node:type_identifier Text: TPCANStatus
+|————————Node:init_declarator Text: status = PeakCanSymbols::getInstance().CAN_SetValue(mCurrentHandle, PCAN_MESSAGE_FILTER, &param, sizeof(param))
+|—————————Node:identifier Text: status
+|—————————Node:= Text: =
+|—————————Node:call_expression Text: PeakCanSymbols::getInstance().CAN_SetValue(mCurrentHandle, PCAN_MESSAGE_FILTER, &param, sizeof(param))
+|——————————Node:field_expression Text: PeakCanSymbols::getInstance().CAN_SetValue
+|———————————Node:call_expression Text: PeakCanSymbols::getInstance()
+|————————————Node:qualified_identifier Text: PeakCanSymbols::getInstance
+|—————————————Node:namespace_identifier Text: PeakCanSymbols
+|—————————————Node::: Text: ::
+|—————————————Node:identifier Text: getInstance
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: CAN_SetValue
+|——————————Node:argument_list Text: (mCurrentHandle, PCAN_MESSAGE_FILTER, &param, sizeof(param))
+|———————————Node:( Text: (
+|———————————Node:identifier Text: mCurrentHandle
+|———————————Node:, Text: ,
+|———————————Node:identifier Text: PCAN_MESSAGE_FILTER
+|———————————Node:, Text: ,
+|———————————Node:pointer_expression Text: &param
+|————————————Node:& Text: &
+|————————————Node:identifier Text: param
+|———————————Node:, Text: ,
+|———————————Node:sizeof_expression Text: sizeof(param)
+|————————————Node:sizeof Text: sizeof
+|————————————Node:parenthesized_expression Text: (param)
+|—————————————Node:( Text: (
+|—————————————Node:identifier Text: param
+|—————————————Node:) Text: )
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: mCurrentHandle = PCAN_NONEBUS;
+|————————Node:assignment_expression Text: mCurrentHandle = PCAN_NONEBUS
+|—————————Node:identifier Text: mCurrentHandle
+|—————————Node:= Text: =
+|—————————Node:identifier Text: PCAN_NONEBUS
+|————————Node:; Text: ;
+|———————Node:return_statement Text: return (status == PCAN_ERROR_OK);
+|————————Node:return Text: return
+|————————Node:parenthesized_expression Text: (status == PCAN_ERROR_OK)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: status == PCAN_ERROR_OK
+|——————————Node:identifier Text: status
+|——————————Node:== Text: ==
+|——————————Node:identifier Text: PCAN_ERROR_OK
+|—————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:function_definition Text: void PeakCanReceiver::sniff(u32 timeout) {
+
+	bool running = true;
+	TPCANMsg message;
+	TPCANTimestamp tmStamp;
+	fd_set fds;
+	TPCANStatus status;
+	int result;
+
+	timeval tv;
+
+
+	do {
+
+		tv.tv_sec = timeout / 1000;
+		tv.tv_usec = (timeout % 1000) / 1000000;
+
+		do {
+
+			FD_ZERO(&fds);
+			FD_SET(mReadFd, &fds);
+			result = select(mReadFd + 1, &fds, NULL, NULL, &tv);
+
+		} while (result == -1 && errno == EINTR);
+
+
+
+		if (result > 0) {
+
+			if (FD_ISSET(mReadFd, &fds)) {		//Frame available from interface
+
+
+				status = PeakCanSymbols::getInstance().CAN_Read(mCurrentHandle, &message, &tmStamp);
+
+				if (status != PCAN_ERROR_OK || message.LEN > MAX_CAN_DATA_SIZE || (message.MSGTYPE != PCAN_MESSAGE_STANDARD &&
+						message.MSGTYPE != PCAN_MESSAGE_EXTENDED)) {
+					continue;
+				}
+
+				if(filter(message.ID)) {		//Check if message is filtered
+
+					//Set data
+					std::string data;
+					data.append((char*)message.DATA, message.LEN);
+
+					CanFrame frame(message.MSGTYPE == PCAN_MESSAGE_EXTENDED, message.ID, data);
+
+					TimeStamp timestamp(tmStamp.millis / 1000, (tmStamp.millis % 1000) * 1000 + tmStamp.micros);
+
+					//Work is delegated to callback.
+					(mRcvCB)(frame, timestamp, mData);
+
+				}
+
+			}
+
+		} else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+
+
+	} while (running);
+
+}
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: PeakCanReceiver::sniff(u32 timeout)
+|———————Node:qualified_identifier Text: PeakCanReceiver::sniff
+|————————Node:namespace_identifier Text: PeakCanReceiver
+|————————Node::: Text: ::
+|————————Node:identifier Text: sniff
+|———————Node:parameter_list Text: (u32 timeout)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: u32 timeout
+|—————————Node:type_identifier Text: u32
+|—————————Node:identifier Text: timeout
+|————————Node:) Text: )
+|——————Node:compound_statement Text: {
+
+	bool running = true;
+	TPCANMsg message;
+	TPCANTimestamp tmStamp;
+	fd_set fds;
+	TPCANStatus status;
+	int result;
+
+	timeval tv;
+
+
+	do {
+
+		tv.tv_sec = timeout / 1000;
+		tv.tv_usec = (timeout % 1000) / 1000000;
+
+		do {
+
+			FD_ZERO(&fds);
+			FD_SET(mReadFd, &fds);
+			result = select(mReadFd + 1, &fds, NULL, NULL, &tv);
+
+		} while (result == -1 && errno == EINTR);
+
+
+
+		if (result > 0) {
+
+			if (FD_ISSET(mReadFd, &fds)) {		//Frame available from interface
+
+
+				status = PeakCanSymbols::getInstance().CAN_Read(mCurrentHandle, &message, &tmStamp);
+
+				if (status != PCAN_ERROR_OK || message.LEN > MAX_CAN_DATA_SIZE || (message.MSGTYPE != PCAN_MESSAGE_STANDARD &&
+						message.MSGTYPE != PCAN_MESSAGE_EXTENDED)) {
+					continue;
+				}
+
+				if(filter(message.ID)) {		//Check if message is filtered
+
+					//Set data
+					std::string data;
+					data.append((char*)message.DATA, message.LEN);
+
+					CanFrame frame(message.MSGTYPE == PCAN_MESSAGE_EXTENDED, message.ID, data);
+
+					TimeStamp timestamp(tmStamp.millis / 1000, (tmStamp.millis % 1000) * 1000 + tmStamp.micros);
+
+					//Work is delegated to callback.
+					(mRcvCB)(frame, timestamp, mData);
+
+				}
+
+			}
+
+		} else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+
+
+	} while (running);
+
+}
+|———————Node:{ Text: {
+|———————Node:declaration Text: bool running = true;
+|————————Node:primitive_type Text: bool
+|————————Node:init_declarator Text: running = true
+|—————————Node:identifier Text: running
+|—————————Node:= Text: =
+|—————————Node:true Text: true
+|————————Node:; Text: ;
+|———————Node:declaration Text: TPCANMsg message;
+|————————Node:type_identifier Text: TPCANMsg
+|————————Node:identifier Text: message
+|————————Node:; Text: ;
+|———————Node:declaration Text: TPCANTimestamp tmStamp;
+|————————Node:type_identifier Text: TPCANTimestamp
+|————————Node:identifier Text: tmStamp
+|————————Node:; Text: ;
+|———————Node:declaration Text: fd_set fds;
+|————————Node:type_identifier Text: fd_set
+|————————Node:identifier Text: fds
+|————————Node:; Text: ;
+|———————Node:declaration Text: TPCANStatus status;
+|————————Node:type_identifier Text: TPCANStatus
+|————————Node:identifier Text: status
+|————————Node:; Text: ;
+|———————Node:declaration Text: int result;
+|————————Node:primitive_type Text: int
+|————————Node:identifier Text: result
+|————————Node:; Text: ;
+|———————Node:declaration Text: timeval tv;
+|————————Node:type_identifier Text: timeval
+|————————Node:identifier Text: tv
+|————————Node:; Text: ;
+|———————Node:do_statement Text: do {
+
+		tv.tv_sec = timeout / 1000;
+		tv.tv_usec = (timeout % 1000) / 1000000;
+
+		do {
+
+			FD_ZERO(&fds);
+			FD_SET(mReadFd, &fds);
+			result = select(mReadFd + 1, &fds, NULL, NULL, &tv);
+
+		} while (result == -1 && errno == EINTR);
+
+
+
+		if (result > 0) {
+
+			if (FD_ISSET(mReadFd, &fds)) {		//Frame available from interface
+
+
+				status = PeakCanSymbols::getInstance().CAN_Read(mCurrentHandle, &message, &tmStamp);
+
+				if (status != PCAN_ERROR_OK || message.LEN > MAX_CAN_DATA_SIZE || (message.MSGTYPE != PCAN_MESSAGE_STANDARD &&
+						message.MSGTYPE != PCAN_MESSAGE_EXTENDED)) {
+					continue;
+				}
+
+				if(filter(message.ID)) {		//Check if message is filtered
+
+					//Set data
+					std::string data;
+					data.append((char*)message.DATA, message.LEN);
+
+					CanFrame frame(message.MSGTYPE == PCAN_MESSAGE_EXTENDED, message.ID, data);
+
+					TimeStamp timestamp(tmStamp.millis / 1000, (tmStamp.millis % 1000) * 1000 + tmStamp.micros);
+
+					//Work is delegated to callback.
+					(mRcvCB)(frame, timestamp, mData);
+
+				}
+
+			}
+
+		} else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+
+
+	} while (running);
+|————————Node:do Text: do
+|————————Node:compound_statement Text: {
+
+		tv.tv_sec = timeout / 1000;
+		tv.tv_usec = (timeout % 1000) / 1000000;
+
+		do {
+
+			FD_ZERO(&fds);
+			FD_SET(mReadFd, &fds);
+			result = select(mReadFd + 1, &fds, NULL, NULL, &tv);
+
+		} while (result == -1 && errno == EINTR);
+
+
+
+		if (result > 0) {
+
+			if (FD_ISSET(mReadFd, &fds)) {		//Frame available from interface
+
+
+				status = PeakCanSymbols::getInstance().CAN_Read(mCurrentHandle, &message, &tmStamp);
+
+				if (status != PCAN_ERROR_OK || message.LEN > MAX_CAN_DATA_SIZE || (message.MSGTYPE != PCAN_MESSAGE_STANDARD &&
+						message.MSGTYPE != PCAN_MESSAGE_EXTENDED)) {
+					continue;
+				}
+
+				if(filter(message.ID)) {		//Check if message is filtered
+
+					//Set data
+					std::string data;
+					data.append((char*)message.DATA, message.LEN);
+
+					CanFrame frame(message.MSGTYPE == PCAN_MESSAGE_EXTENDED, message.ID, data);
+
+					TimeStamp timestamp(tmStamp.millis / 1000, (tmStamp.millis % 1000) * 1000 + tmStamp.micros);
+
+					//Work is delegated to callback.
+					(mRcvCB)(frame, timestamp, mData);
+
+				}
+
+			}
+
+		} else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+
+
+	}
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: tv.tv_sec = timeout / 1000;
+|——————————Node:assignment_expression Text: tv.tv_sec = timeout / 1000
+|———————————Node:field_expression Text: tv.tv_sec
+|————————————Node:identifier Text: tv
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: tv_sec
+|———————————Node:= Text: =
+|———————————Node:binary_expression Text: timeout / 1000
+|————————————Node:identifier Text: timeout
+|————————————Node:/ Text: /
+|————————————Node:number_literal Text: 1000
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: tv.tv_usec = (timeout % 1000) / 1000000;
+|——————————Node:assignment_expression Text: tv.tv_usec = (timeout % 1000) / 1000000
+|———————————Node:field_expression Text: tv.tv_usec
+|————————————Node:identifier Text: tv
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: tv_usec
+|———————————Node:= Text: =
+|———————————Node:binary_expression Text: (timeout % 1000) / 1000000
+|————————————Node:parenthesized_expression Text: (timeout % 1000)
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: timeout % 1000
+|——————————————Node:identifier Text: timeout
+|——————————————Node:% Text: %
+|——————————————Node:number_literal Text: 1000
+|—————————————Node:) Text: )
+|————————————Node:/ Text: /
+|————————————Node:number_literal Text: 1000000
+|——————————Node:; Text: ;
+|—————————Node:do_statement Text: do {
+
+			FD_ZERO(&fds);
+			FD_SET(mReadFd, &fds);
+			result = select(mReadFd + 1, &fds, NULL, NULL, &tv);
+
+		} while (result == -1 && errno == EINTR);
+|——————————Node:do Text: do
+|——————————Node:compound_statement Text: {
+
+			FD_ZERO(&fds);
+			FD_SET(mReadFd, &fds);
+			result = select(mReadFd + 1, &fds, NULL, NULL, &tv);
+
+		}
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: FD_ZERO(&fds);
+|————————————Node:call_expression Text: FD_ZERO(&fds)
+|—————————————Node:identifier Text: FD_ZERO
+|—————————————Node:argument_list Text: (&fds)
+|——————————————Node:( Text: (
+|——————————————Node:pointer_expression Text: &fds
+|———————————————Node:& Text: &
+|———————————————Node:identifier Text: fds
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:expression_statement Text: FD_SET(mReadFd, &fds);
+|————————————Node:call_expression Text: FD_SET(mReadFd, &fds)
+|—————————————Node:identifier Text: FD_SET
+|—————————————Node:argument_list Text: (mReadFd, &fds)
+|——————————————Node:( Text: (
+|——————————————Node:identifier Text: mReadFd
+|——————————————Node:, Text: ,
+|——————————————Node:pointer_expression Text: &fds
+|———————————————Node:& Text: &
+|———————————————Node:identifier Text: fds
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:expression_statement Text: result = select(mReadFd + 1, &fds, NULL, NULL, &tv);
+|————————————Node:assignment_expression Text: result = select(mReadFd + 1, &fds, NULL, NULL, &tv)
+|—————————————Node:identifier Text: result
+|—————————————Node:= Text: =
+|—————————————Node:call_expression Text: select(mReadFd + 1, &fds, NULL, NULL, &tv)
+|——————————————Node:identifier Text: select
+|——————————————Node:argument_list Text: (mReadFd + 1, &fds, NULL, NULL, &tv)
+|———————————————Node:( Text: (
+|———————————————Node:binary_expression Text: mReadFd + 1
+|————————————————Node:identifier Text: mReadFd
+|————————————————Node:+ Text: +
+|————————————————Node:number_literal Text: 1
+|———————————————Node:, Text: ,
+|———————————————Node:pointer_expression Text: &fds
+|————————————————Node:& Text: &
+|————————————————Node:identifier Text: fds
+|———————————————Node:, Text: ,
+|———————————————Node:null Text: NULL
+|————————————————Node:NULL Text: NULL
+|———————————————Node:, Text: ,
+|———————————————Node:null Text: NULL
+|————————————————Node:NULL Text: NULL
+|———————————————Node:, Text: ,
+|———————————————Node:pointer_expression Text: &tv
+|————————————————Node:& Text: &
+|————————————————Node:identifier Text: tv
+|———————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|——————————Node:while Text: while
+|——————————Node:parenthesized_expression Text: (result == -1 && errno == EINTR)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: result == -1 && errno == EINTR
+|————————————Node:binary_expression Text: result == -1
+|—————————————Node:identifier Text: result
+|—————————————Node:== Text: ==
+|—————————————Node:number_literal Text: -1
+|————————————Node:&& Text: &&
+|————————————Node:binary_expression Text: errno == EINTR
+|—————————————Node:identifier Text: errno
+|—————————————Node:== Text: ==
+|—————————————Node:identifier Text: EINTR
+|———————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:if_statement Text: if (result > 0) {
+
+			if (FD_ISSET(mReadFd, &fds)) {		//Frame available from interface
+
+
+				status = PeakCanSymbols::getInstance().CAN_Read(mCurrentHandle, &message, &tmStamp);
+
+				if (status != PCAN_ERROR_OK || message.LEN > MAX_CAN_DATA_SIZE || (message.MSGTYPE != PCAN_MESSAGE_STANDARD &&
+						message.MSGTYPE != PCAN_MESSAGE_EXTENDED)) {
+					continue;
+				}
+
+				if(filter(message.ID)) {		//Check if message is filtered
+
+					//Set data
+					std::string data;
+					data.append((char*)message.DATA, message.LEN);
+
+					CanFrame frame(message.MSGTYPE == PCAN_MESSAGE_EXTENDED, message.ID, data);
+
+					TimeStamp timestamp(tmStamp.millis / 1000, (tmStamp.millis % 1000) * 1000 + tmStamp.micros);
+
+					//Work is delegated to callback.
+					(mRcvCB)(frame, timestamp, mData);
+
+				}
+
+			}
+
+		} else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+|——————————Node:if Text: if
+|——————————Node:condition_clause Text: (result > 0)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: result > 0
+|————————————Node:identifier Text: result
+|————————————Node:> Text: >
+|————————————Node:number_literal Text: 0
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+
+			if (FD_ISSET(mReadFd, &fds)) {		//Frame available from interface
+
+
+				status = PeakCanSymbols::getInstance().CAN_Read(mCurrentHandle, &message, &tmStamp);
+
+				if (status != PCAN_ERROR_OK || message.LEN > MAX_CAN_DATA_SIZE || (message.MSGTYPE != PCAN_MESSAGE_STANDARD &&
+						message.MSGTYPE != PCAN_MESSAGE_EXTENDED)) {
+					continue;
+				}
+
+				if(filter(message.ID)) {		//Check if message is filtered
+
+					//Set data
+					std::string data;
+					data.append((char*)message.DATA, message.LEN);
+
+					CanFrame frame(message.MSGTYPE == PCAN_MESSAGE_EXTENDED, message.ID, data);
+
+					TimeStamp timestamp(tmStamp.millis / 1000, (tmStamp.millis % 1000) * 1000 + tmStamp.micros);
+
+					//Work is delegated to callback.
+					(mRcvCB)(frame, timestamp, mData);
+
+				}
+
+			}
+
+		}
+|———————————Node:{ Text: {
+|———————————Node:if_statement Text: if (FD_ISSET(mReadFd, &fds)) {		//Frame available from interface
+
+
+				status = PeakCanSymbols::getInstance().CAN_Read(mCurrentHandle, &message, &tmStamp);
+
+				if (status != PCAN_ERROR_OK || message.LEN > MAX_CAN_DATA_SIZE || (message.MSGTYPE != PCAN_MESSAGE_STANDARD &&
+						message.MSGTYPE != PCAN_MESSAGE_EXTENDED)) {
+					continue;
+				}
+
+				if(filter(message.ID)) {		//Check if message is filtered
+
+					//Set data
+					std::string data;
+					data.append((char*)message.DATA, message.LEN);
+
+					CanFrame frame(message.MSGTYPE == PCAN_MESSAGE_EXTENDED, message.ID, data);
+
+					TimeStamp timestamp(tmStamp.millis / 1000, (tmStamp.millis % 1000) * 1000 + tmStamp.micros);
+
+					//Work is delegated to callback.
+					(mRcvCB)(frame, timestamp, mData);
+
+				}
+
+			}
+|————————————Node:if Text: if
+|————————————Node:condition_clause Text: (FD_ISSET(mReadFd, &fds))
+|—————————————Node:( Text: (
+|—————————————Node:call_expression Text: FD_ISSET(mReadFd, &fds)
+|——————————————Node:identifier Text: FD_ISSET
+|——————————————Node:argument_list Text: (mReadFd, &fds)
+|———————————————Node:( Text: (
+|———————————————Node:identifier Text: mReadFd
+|———————————————Node:, Text: ,
+|———————————————Node:pointer_expression Text: &fds
+|————————————————Node:& Text: &
+|————————————————Node:identifier Text: fds
+|———————————————Node:) Text: )
+|—————————————Node:) Text: )
+|————————————Node:compound_statement Text: {		//Frame available from interface
+
+
+				status = PeakCanSymbols::getInstance().CAN_Read(mCurrentHandle, &message, &tmStamp);
+
+				if (status != PCAN_ERROR_OK || message.LEN > MAX_CAN_DATA_SIZE || (message.MSGTYPE != PCAN_MESSAGE_STANDARD &&
+						message.MSGTYPE != PCAN_MESSAGE_EXTENDED)) {
+					continue;
+				}
+
+				if(filter(message.ID)) {		//Check if message is filtered
+
+					//Set data
+					std::string data;
+					data.append((char*)message.DATA, message.LEN);
+
+					CanFrame frame(message.MSGTYPE == PCAN_MESSAGE_EXTENDED, message.ID, data);
+
+					TimeStamp timestamp(tmStamp.millis / 1000, (tmStamp.millis % 1000) * 1000 + tmStamp.micros);
+
+					//Work is delegated to callback.
+					(mRcvCB)(frame, timestamp, mData);
+
+				}
+
+			}
+|—————————————Node:{ Text: {
+|—————————————Node:comment
+|—————————————Node:expression_statement Text: status = PeakCanSymbols::getInstance().CAN_Read(mCurrentHandle, &message, &tmStamp);
+|——————————————Node:assignment_expression Text: status = PeakCanSymbols::getInstance().CAN_Read(mCurrentHandle, &message, &tmStamp)
+|———————————————Node:identifier Text: status
+|———————————————Node:= Text: =
+|———————————————Node:call_expression Text: PeakCanSymbols::getInstance().CAN_Read(mCurrentHandle, &message, &tmStamp)
+|————————————————Node:field_expression Text: PeakCanSymbols::getInstance().CAN_Read
+|—————————————————Node:call_expression Text: PeakCanSymbols::getInstance()
+|——————————————————Node:qualified_identifier Text: PeakCanSymbols::getInstance
+|———————————————————Node:namespace_identifier Text: PeakCanSymbols
+|———————————————————Node::: Text: ::
+|———————————————————Node:identifier Text: getInstance
+|——————————————————Node:argument_list Text: ()
+|———————————————————Node:( Text: (
+|———————————————————Node:) Text: )
+|—————————————————Node:. Text: .
+|—————————————————Node:field_identifier Text: CAN_Read
+|————————————————Node:argument_list Text: (mCurrentHandle, &message, &tmStamp)
+|—————————————————Node:( Text: (
+|—————————————————Node:identifier Text: mCurrentHandle
+|—————————————————Node:, Text: ,
+|—————————————————Node:pointer_expression Text: &message
+|——————————————————Node:& Text: &
+|——————————————————Node:identifier Text: message
+|—————————————————Node:, Text: ,
+|—————————————————Node:pointer_expression Text: &tmStamp
+|——————————————————Node:& Text: &
+|——————————————————Node:identifier Text: tmStamp
+|—————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:if_statement Text: if (status != PCAN_ERROR_OK || message.LEN > MAX_CAN_DATA_SIZE || (message.MSGTYPE != PCAN_MESSAGE_STANDARD &&
+						message.MSGTYPE != PCAN_MESSAGE_EXTENDED)) {
+					continue;
+				}
+|——————————————Node:if Text: if
+|——————————————Node:condition_clause Text: (status != PCAN_ERROR_OK || message.LEN > MAX_CAN_DATA_SIZE || (message.MSGTYPE != PCAN_MESSAGE_STANDARD &&
+						message.MSGTYPE != PCAN_MESSAGE_EXTENDED))
+|———————————————Node:( Text: (
+|———————————————Node:binary_expression Text: status != PCAN_ERROR_OK || message.LEN > MAX_CAN_DATA_SIZE || (message.MSGTYPE != PCAN_MESSAGE_STANDARD &&
+						message.MSGTYPE != PCAN_MESSAGE_EXTENDED)
+|————————————————Node:binary_expression Text: status != PCAN_ERROR_OK || message.LEN > MAX_CAN_DATA_SIZE
+|—————————————————Node:binary_expression Text: status != PCAN_ERROR_OK
+|——————————————————Node:identifier Text: status
+|——————————————————Node:!= Text: !=
+|——————————————————Node:identifier Text: PCAN_ERROR_OK
+|—————————————————Node:|| Text: ||
+|—————————————————Node:binary_expression Text: message.LEN > MAX_CAN_DATA_SIZE
+|——————————————————Node:field_expression Text: message.LEN
+|———————————————————Node:identifier Text: message
+|———————————————————Node:. Text: .
+|———————————————————Node:field_identifier Text: LEN
+|——————————————————Node:> Text: >
+|——————————————————Node:identifier Text: MAX_CAN_DATA_SIZE
+|————————————————Node:|| Text: ||
+|————————————————Node:parenthesized_expression Text: (message.MSGTYPE != PCAN_MESSAGE_STANDARD &&
+						message.MSGTYPE != PCAN_MESSAGE_EXTENDED)
+|—————————————————Node:( Text: (
+|—————————————————Node:binary_expression Text: message.MSGTYPE != PCAN_MESSAGE_STANDARD &&
+						message.MSGTYPE != PCAN_MESSAGE_EXTENDED
+|——————————————————Node:binary_expression Text: message.MSGTYPE != PCAN_MESSAGE_STANDARD
+|———————————————————Node:field_expression Text: message.MSGTYPE
+|————————————————————Node:identifier Text: message
+|————————————————————Node:. Text: .
+|————————————————————Node:field_identifier Text: MSGTYPE
+|———————————————————Node:!= Text: !=
+|———————————————————Node:identifier Text: PCAN_MESSAGE_STANDARD
+|——————————————————Node:&& Text: &&
+|——————————————————Node:binary_expression Text: message.MSGTYPE != PCAN_MESSAGE_EXTENDED
+|———————————————————Node:field_expression Text: message.MSGTYPE
+|————————————————————Node:identifier Text: message
+|————————————————————Node:. Text: .
+|————————————————————Node:field_identifier Text: MSGTYPE
+|———————————————————Node:!= Text: !=
+|———————————————————Node:identifier Text: PCAN_MESSAGE_EXTENDED
+|—————————————————Node:) Text: )
+|———————————————Node:) Text: )
+|——————————————Node:compound_statement Text: {
+					continue;
+				}
+|———————————————Node:{ Text: {
+|———————————————Node:continue_statement Text: continue;
+|————————————————Node:continue Text: continue
+|————————————————Node:; Text: ;
+|———————————————Node:} Text: }
+|—————————————Node:if_statement Text: if(filter(message.ID)) {		//Check if message is filtered
+
+					//Set data
+					std::string data;
+					data.append((char*)message.DATA, message.LEN);
+
+					CanFrame frame(message.MSGTYPE == PCAN_MESSAGE_EXTENDED, message.ID, data);
+
+					TimeStamp timestamp(tmStamp.millis / 1000, (tmStamp.millis % 1000) * 1000 + tmStamp.micros);
+
+					//Work is delegated to callback.
+					(mRcvCB)(frame, timestamp, mData);
+
+				}
+|——————————————Node:if Text: if
+|——————————————Node:condition_clause Text: (filter(message.ID))
+|———————————————Node:( Text: (
+|———————————————Node:call_expression Text: filter(message.ID)
+|————————————————Node:identifier Text: filter
+|————————————————Node:argument_list Text: (message.ID)
+|—————————————————Node:( Text: (
+|—————————————————Node:field_expression Text: message.ID
+|——————————————————Node:identifier Text: message
+|——————————————————Node:. Text: .
+|——————————————————Node:field_identifier Text: ID
+|—————————————————Node:) Text: )
+|———————————————Node:) Text: )
+|——————————————Node:compound_statement Text: {		//Check if message is filtered
+
+					//Set data
+					std::string data;
+					data.append((char*)message.DATA, message.LEN);
+
+					CanFrame frame(message.MSGTYPE == PCAN_MESSAGE_EXTENDED, message.ID, data);
+
+					TimeStamp timestamp(tmStamp.millis / 1000, (tmStamp.millis % 1000) * 1000 + tmStamp.micros);
+
+					//Work is delegated to callback.
+					(mRcvCB)(frame, timestamp, mData);
+
+				}
+|———————————————Node:{ Text: {
+|———————————————Node:comment
+|———————————————Node:comment
+|———————————————Node:declaration Text: std::string data;
+|————————————————Node:qualified_identifier Text: std::string
+|—————————————————Node:namespace_identifier Text: std
+|—————————————————Node::: Text: ::
+|—————————————————Node:type_identifier Text: string
+|————————————————Node:identifier Text: data
+|————————————————Node:; Text: ;
+|———————————————Node:expression_statement Text: data.append((char*)message.DATA, message.LEN);
+|————————————————Node:call_expression Text: data.append((char*)message.DATA, message.LEN)
+|—————————————————Node:field_expression Text: data.append
+|——————————————————Node:identifier Text: data
+|——————————————————Node:. Text: .
+|——————————————————Node:field_identifier Text: append
+|—————————————————Node:argument_list Text: ((char*)message.DATA, message.LEN)
+|——————————————————Node:( Text: (
+|——————————————————Node:cast_expression Text: (char*)message.DATA
+|———————————————————Node:( Text: (
+|———————————————————Node:type_descriptor Text: char*
+|————————————————————Node:primitive_type Text: char
+|————————————————————Node:abstract_pointer_declarator Text: *
+|—————————————————————Node:* Text: *
+|———————————————————Node:) Text: )
+|———————————————————Node:field_expression Text: message.DATA
+|————————————————————Node:identifier Text: message
+|————————————————————Node:. Text: .
+|————————————————————Node:field_identifier Text: DATA
+|——————————————————Node:, Text: ,
+|——————————————————Node:field_expression Text: message.LEN
+|———————————————————Node:identifier Text: message
+|———————————————————Node:. Text: .
+|———————————————————Node:field_identifier Text: LEN
+|——————————————————Node:) Text: )
+|————————————————Node:; Text: ;
+|———————————————Node:declaration Text: CanFrame frame(message.MSGTYPE == PCAN_MESSAGE_EXTENDED, message.ID, data);
+|————————————————Node:type_identifier Text: CanFrame
+|————————————————Node:init_declarator Text: frame(message.MSGTYPE == PCAN_MESSAGE_EXTENDED, message.ID, data)
+|—————————————————Node:identifier Text: frame
+|—————————————————Node:argument_list Text: (message.MSGTYPE == PCAN_MESSAGE_EXTENDED, message.ID, data)
+|——————————————————Node:( Text: (
+|——————————————————Node:binary_expression Text: message.MSGTYPE == PCAN_MESSAGE_EXTENDED
+|———————————————————Node:field_expression Text: message.MSGTYPE
+|————————————————————Node:identifier Text: message
+|————————————————————Node:. Text: .
+|————————————————————Node:field_identifier Text: MSGTYPE
+|———————————————————Node:== Text: ==
+|———————————————————Node:identifier Text: PCAN_MESSAGE_EXTENDED
+|——————————————————Node:, Text: ,
+|——————————————————Node:field_expression Text: message.ID
+|———————————————————Node:identifier Text: message
+|———————————————————Node:. Text: .
+|———————————————————Node:field_identifier Text: ID
+|——————————————————Node:, Text: ,
+|——————————————————Node:identifier Text: data
+|——————————————————Node:) Text: )
+|————————————————Node:; Text: ;
+|———————————————Node:declaration Text: TimeStamp timestamp(tmStamp.millis / 1000, (tmStamp.millis % 1000) * 1000 + tmStamp.micros);
+|————————————————Node:type_identifier Text: TimeStamp
+|————————————————Node:init_declarator Text: timestamp(tmStamp.millis / 1000, (tmStamp.millis % 1000) * 1000 + tmStamp.micros)
+|—————————————————Node:identifier Text: timestamp
+|—————————————————Node:argument_list Text: (tmStamp.millis / 1000, (tmStamp.millis % 1000) * 1000 + tmStamp.micros)
+|——————————————————Node:( Text: (
+|——————————————————Node:binary_expression Text: tmStamp.millis / 1000
+|———————————————————Node:field_expression Text: tmStamp.millis
+|————————————————————Node:identifier Text: tmStamp
+|————————————————————Node:. Text: .
+|————————————————————Node:field_identifier Text: millis
+|———————————————————Node:/ Text: /
+|———————————————————Node:number_literal Text: 1000
+|——————————————————Node:, Text: ,
+|——————————————————Node:binary_expression Text: (tmStamp.millis % 1000) * 1000 + tmStamp.micros
+|———————————————————Node:binary_expression Text: (tmStamp.millis % 1000) * 1000
+|————————————————————Node:parenthesized_expression Text: (tmStamp.millis % 1000)
+|—————————————————————Node:( Text: (
+|—————————————————————Node:binary_expression Text: tmStamp.millis % 1000
+|——————————————————————Node:field_expression Text: tmStamp.millis
+|———————————————————————Node:identifier Text: tmStamp
+|———————————————————————Node:. Text: .
+|———————————————————————Node:field_identifier Text: millis
+|——————————————————————Node:% Text: %
+|——————————————————————Node:number_literal Text: 1000
+|—————————————————————Node:) Text: )
+|————————————————————Node:* Text: *
+|————————————————————Node:number_literal Text: 1000
+|———————————————————Node:+ Text: +
+|———————————————————Node:field_expression Text: tmStamp.micros
+|————————————————————Node:identifier Text: tmStamp
+|————————————————————Node:. Text: .
+|————————————————————Node:field_identifier Text: micros
+|——————————————————Node:) Text: )
+|————————————————Node:; Text: ;
+|———————————————Node:comment
+|———————————————Node:expression_statement Text: (mRcvCB)(frame, timestamp, mData);
+|————————————————Node:call_expression Text: (mRcvCB)(frame, timestamp, mData)
+|—————————————————Node:parenthesized_expression Text: (mRcvCB)
+|——————————————————Node:( Text: (
+|——————————————————Node:identifier Text: mRcvCB
+|——————————————————Node:) Text: )
+|—————————————————Node:argument_list Text: (frame, timestamp, mData)
+|——————————————————Node:( Text: (
+|——————————————————Node:identifier Text: frame
+|——————————————————Node:, Text: ,
+|——————————————————Node:identifier Text: timestamp
+|——————————————————Node:, Text: ,
+|——————————————————Node:identifier Text: mData
+|——————————————————Node:) Text: )
+|————————————————Node:; Text: ;
+|———————————————Node:} Text: }
+|—————————————Node:} Text: }
+|———————————Node:} Text: }
+|——————————Node:else_clause Text: else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+|———————————Node:else Text: else
+|———————————Node:if_statement Text: if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+|————————————Node:if Text: if
+|————————————Node:condition_clause Text: (result == 0)
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: result == 0
+|——————————————Node:identifier Text: result
+|——————————————Node:== Text: ==
+|——————————————Node:number_literal Text: 0
+|—————————————Node:) Text: )
+|————————————Node:compound_statement Text: {		//Timeout expired
+			running = (mTimeoutCB)();
+		}
+|—————————————Node:{ Text: {
+|—————————————Node:comment
+|—————————————Node:expression_statement Text: running = (mTimeoutCB)();
+|——————————————Node:assignment_expression Text: running = (mTimeoutCB)()
+|———————————————Node:identifier Text: running
+|———————————————Node:= Text: =
+|———————————————Node:call_expression Text: (mTimeoutCB)()
+|————————————————Node:parenthesized_expression Text: (mTimeoutCB)
+|—————————————————Node:( Text: (
+|—————————————————Node:identifier Text: mTimeoutCB
+|—————————————————Node:) Text: )
+|————————————————Node:argument_list Text: ()
+|—————————————————Node:( Text: (
+|—————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:} Text: }
+|————————————Node:else_clause Text: else {
+			running = false;
+		}
+|—————————————Node:else Text: else
+|—————————————Node:compound_statement Text: {
+			running = false;
+		}
+|——————————————Node:{ Text: {
+|——————————————Node:expression_statement Text: running = false;
+|———————————————Node:assignment_expression Text: running = false
+|————————————————Node:identifier Text: running
+|————————————————Node:= Text: =
+|————————————————Node:false Text: false
+|———————————————Node:; Text: ;
+|——————————————Node:} Text: }
+|—————————Node:} Text: }
+|————————Node:while Text: while
+|————————Node:parenthesized_expression Text: (running)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: running
+|—————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:comment
+|———Node:} Text: }
+|—Node:comment

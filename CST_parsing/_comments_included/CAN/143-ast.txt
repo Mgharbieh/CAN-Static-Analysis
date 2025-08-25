@@ -1,0 +1,1745 @@
+CAN-test\test_main.cpp
+
+|Node:translation_unit
+|—Node:preproc_def Text: #define NATIVE  // to make can interface increment last receive time
+
+|——Node:#define Text: #define
+|——Node:identifier Text: NATIVE
+|——Node:comment Text: // to make can interface increment last receive time
+|—Node:preproc_include Text: #include <iomanip>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <iomanip>
+|—Node:preproc_include Text: #include <iostream>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <iostream>
+|—Node:preproc_include Text: #include "can_interface.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "can_interface.h"
+|———Node:" Text: "
+|———Node:string_content Text: can_interface.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "unity.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "unity.h"
+|———Node:" Text: "
+|———Node:string_content Text: unity.h
+|———Node:" Text: "
+|—Node:function_definition Text: void setUp(void)
+{
+    // set stuff up here
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: setUp(void)
+|———Node:identifier Text: setUp
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    // set stuff up here
+}
+|———Node:{ Text: {
+|———Node:comment Text: // set stuff up here
+|———Node:} Text: }
+|—Node:function_definition Text: void tearDown(void)
+{
+    // clean stuff up here
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: tearDown(void)
+|———Node:identifier Text: tearDown
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    // clean stuff up here
+}
+|———Node:{ Text: {
+|———Node:comment Text: // clean stuff up here
+|———Node:} Text: }
+|—Node:function_definition Text: void CanSignalTest(void)
+{
+    CANSignal<uint8_t, 0, 8, CANTemplateConvertFloat(1), 0> test_signal;
+    test_signal = 0;
+    uint64_t test_buf{0};
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0, test_buf);
+    test_signal = 0xFF;
+    TEST_ASSERT_EQUAL_HEX16(0xFF, test_signal);
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0xFF, test_buf);
+
+    CANSignal<uint8_t, 8, 8, CANTemplateConvertFloat(1), 0> test_signal_pos_8;
+    test_signal_pos_8 = 0;
+    test_buf = 0;
+    test_signal_pos_8.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0, test_buf);
+    test_signal_pos_8 = 0xFF;
+    TEST_ASSERT_EQUAL_HEX8(0xFF, test_signal_pos_8);
+    test_signal_pos_8.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0xFF00, test_buf);
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0xFFFF, test_buf);
+
+    test_signal.DecodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX8(0xFF, test_signal);
+    test_signal_pos_8.DecodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX8(0xFF, test_signal_pos_8);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CanSignalTest(void)
+|———Node:identifier Text: CanSignalTest
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    CANSignal<uint8_t, 0, 8, CANTemplateConvertFloat(1), 0> test_signal;
+    test_signal = 0;
+    uint64_t test_buf{0};
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0, test_buf);
+    test_signal = 0xFF;
+    TEST_ASSERT_EQUAL_HEX16(0xFF, test_signal);
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0xFF, test_buf);
+
+    CANSignal<uint8_t, 8, 8, CANTemplateConvertFloat(1), 0> test_signal_pos_8;
+    test_signal_pos_8 = 0;
+    test_buf = 0;
+    test_signal_pos_8.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0, test_buf);
+    test_signal_pos_8 = 0xFF;
+    TEST_ASSERT_EQUAL_HEX8(0xFF, test_signal_pos_8);
+    test_signal_pos_8.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0xFF00, test_buf);
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0xFFFF, test_buf);
+
+    test_signal.DecodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX8(0xFF, test_signal);
+    test_signal_pos_8.DecodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX8(0xFF, test_signal_pos_8);
+}
+|———Node:{ Text: {
+|———Node:declaration Text: CANSignal<uint8_t, 0, 8, CANTemplateConvertFloat(1), 0> test_signal;
+|————Node:template_type Text: CANSignal<uint8_t, 0, 8, CANTemplateConvertFloat(1), 0>
+|—————Node:type_identifier Text: CANSignal
+|—————Node:template_argument_list Text: <uint8_t, 0, 8, CANTemplateConvertFloat(1), 0>
+|——————Node:< Text: <
+|——————Node:type_descriptor Text: uint8_t
+|———————Node:primitive_type Text: uint8_t
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 8
+|——————Node:, Text: ,
+|——————Node:call_expression Text: CANTemplateConvertFloat(1)
+|———————Node:identifier Text: CANTemplateConvertFloat
+|———————Node:argument_list Text: (1)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 1
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0
+|——————Node:> Text: >
+|————Node:identifier Text: test_signal
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal = 0;
+|————Node:assignment_expression Text: test_signal = 0
+|—————Node:identifier Text: test_signal
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: uint64_t test_buf{0};
+|————Node:primitive_type Text: uint64_t
+|————Node:init_declarator Text: test_buf{0}
+|—————Node:identifier Text: test_buf
+|—————Node:initializer_list Text: {0}
+|——————Node:{ Text: {
+|——————Node:number_literal Text: 0
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal.EncodeSignal(&test_buf);
+|————Node:call_expression Text: test_signal.EncodeSignal(&test_buf)
+|—————Node:field_expression Text: test_signal.EncodeSignal
+|——————Node:identifier Text: test_signal
+|——————Node:. Text: .
+|——————Node:field_identifier Text: EncodeSignal
+|—————Node:argument_list Text: (&test_buf)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &test_buf
+|———————Node:& Text: &
+|———————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX64(0, test_buf);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX64(0, test_buf)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX64
+|—————Node:argument_list Text: (0, test_buf)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal = 0xFF;
+|————Node:assignment_expression Text: test_signal = 0xFF
+|—————Node:identifier Text: test_signal
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0xFF
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX16(0xFF, test_signal);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX16(0xFF, test_signal)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX16
+|—————Node:argument_list Text: (0xFF, test_signal)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0xFF
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_signal
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal.EncodeSignal(&test_buf);
+|————Node:call_expression Text: test_signal.EncodeSignal(&test_buf)
+|—————Node:field_expression Text: test_signal.EncodeSignal
+|——————Node:identifier Text: test_signal
+|——————Node:. Text: .
+|——————Node:field_identifier Text: EncodeSignal
+|—————Node:argument_list Text: (&test_buf)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &test_buf
+|———————Node:& Text: &
+|———————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX64(0xFF, test_buf);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX64(0xFF, test_buf)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX64
+|—————Node:argument_list Text: (0xFF, test_buf)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0xFF
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: CANSignal<uint8_t, 8, 8, CANTemplateConvertFloat(1), 0> test_signal_pos_8;
+|————Node:template_type Text: CANSignal<uint8_t, 8, 8, CANTemplateConvertFloat(1), 0>
+|—————Node:type_identifier Text: CANSignal
+|—————Node:template_argument_list Text: <uint8_t, 8, 8, CANTemplateConvertFloat(1), 0>
+|——————Node:< Text: <
+|——————Node:type_descriptor Text: uint8_t
+|———————Node:primitive_type Text: uint8_t
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 8
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 8
+|——————Node:, Text: ,
+|——————Node:call_expression Text: CANTemplateConvertFloat(1)
+|———————Node:identifier Text: CANTemplateConvertFloat
+|———————Node:argument_list Text: (1)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 1
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0
+|——————Node:> Text: >
+|————Node:identifier Text: test_signal_pos_8
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal_pos_8 = 0;
+|————Node:assignment_expression Text: test_signal_pos_8 = 0
+|—————Node:identifier Text: test_signal_pos_8
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_buf = 0;
+|————Node:assignment_expression Text: test_buf = 0
+|—————Node:identifier Text: test_buf
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal_pos_8.EncodeSignal(&test_buf);
+|————Node:call_expression Text: test_signal_pos_8.EncodeSignal(&test_buf)
+|—————Node:field_expression Text: test_signal_pos_8.EncodeSignal
+|——————Node:identifier Text: test_signal_pos_8
+|——————Node:. Text: .
+|——————Node:field_identifier Text: EncodeSignal
+|—————Node:argument_list Text: (&test_buf)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &test_buf
+|———————Node:& Text: &
+|———————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX64(0, test_buf);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX64(0, test_buf)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX64
+|—————Node:argument_list Text: (0, test_buf)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal_pos_8 = 0xFF;
+|————Node:assignment_expression Text: test_signal_pos_8 = 0xFF
+|—————Node:identifier Text: test_signal_pos_8
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0xFF
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX8(0xFF, test_signal_pos_8);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX8(0xFF, test_signal_pos_8)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX8
+|—————Node:argument_list Text: (0xFF, test_signal_pos_8)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0xFF
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_signal_pos_8
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal_pos_8.EncodeSignal(&test_buf);
+|————Node:call_expression Text: test_signal_pos_8.EncodeSignal(&test_buf)
+|—————Node:field_expression Text: test_signal_pos_8.EncodeSignal
+|——————Node:identifier Text: test_signal_pos_8
+|——————Node:. Text: .
+|——————Node:field_identifier Text: EncodeSignal
+|—————Node:argument_list Text: (&test_buf)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &test_buf
+|———————Node:& Text: &
+|———————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX64(0xFF00, test_buf);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX64(0xFF00, test_buf)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX64
+|—————Node:argument_list Text: (0xFF00, test_buf)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0xFF00
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal.EncodeSignal(&test_buf);
+|————Node:call_expression Text: test_signal.EncodeSignal(&test_buf)
+|—————Node:field_expression Text: test_signal.EncodeSignal
+|——————Node:identifier Text: test_signal
+|——————Node:. Text: .
+|——————Node:field_identifier Text: EncodeSignal
+|—————Node:argument_list Text: (&test_buf)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &test_buf
+|———————Node:& Text: &
+|———————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX64(0xFFFF, test_buf);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX64(0xFFFF, test_buf)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX64
+|—————Node:argument_list Text: (0xFFFF, test_buf)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0xFFFF
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal.DecodeSignal(&test_buf);
+|————Node:call_expression Text: test_signal.DecodeSignal(&test_buf)
+|—————Node:field_expression Text: test_signal.DecodeSignal
+|——————Node:identifier Text: test_signal
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DecodeSignal
+|—————Node:argument_list Text: (&test_buf)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &test_buf
+|———————Node:& Text: &
+|———————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX8(0xFF, test_signal);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX8(0xFF, test_signal)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX8
+|—————Node:argument_list Text: (0xFF, test_signal)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0xFF
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_signal
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal_pos_8.DecodeSignal(&test_buf);
+|————Node:call_expression Text: test_signal_pos_8.DecodeSignal(&test_buf)
+|—————Node:field_expression Text: test_signal_pos_8.DecodeSignal
+|——————Node:identifier Text: test_signal_pos_8
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DecodeSignal
+|—————Node:argument_list Text: (&test_buf)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &test_buf
+|———————Node:& Text: &
+|———————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX8(0xFF, test_signal_pos_8);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX8(0xFF, test_signal_pos_8)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX8
+|—————Node:argument_list Text: (0xFF, test_signal_pos_8)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0xFF
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_signal_pos_8
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void UnAlignedCanSignalTest(void)
+{
+    CANSignal<uint16_t, 0, 12, CANTemplateConvertFloat(1), 0> test_signal;
+    test_signal = 0;
+    uint64_t test_buf{0};
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0, test_buf);
+    test_signal = 0xFFF;
+    TEST_ASSERT_EQUAL_HEX16(0xFFF, test_signal);
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0xFFF, test_buf);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: UnAlignedCanSignalTest(void)
+|———Node:identifier Text: UnAlignedCanSignalTest
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    CANSignal<uint16_t, 0, 12, CANTemplateConvertFloat(1), 0> test_signal;
+    test_signal = 0;
+    uint64_t test_buf{0};
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0, test_buf);
+    test_signal = 0xFFF;
+    TEST_ASSERT_EQUAL_HEX16(0xFFF, test_signal);
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0xFFF, test_buf);
+}
+|———Node:{ Text: {
+|———Node:declaration Text: CANSignal<uint16_t, 0, 12, CANTemplateConvertFloat(1), 0> test_signal;
+|————Node:template_type Text: CANSignal<uint16_t, 0, 12, CANTemplateConvertFloat(1), 0>
+|—————Node:type_identifier Text: CANSignal
+|—————Node:template_argument_list Text: <uint16_t, 0, 12, CANTemplateConvertFloat(1), 0>
+|——————Node:< Text: <
+|——————Node:type_descriptor Text: uint16_t
+|———————Node:primitive_type Text: uint16_t
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 12
+|——————Node:, Text: ,
+|——————Node:call_expression Text: CANTemplateConvertFloat(1)
+|———————Node:identifier Text: CANTemplateConvertFloat
+|———————Node:argument_list Text: (1)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 1
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0
+|——————Node:> Text: >
+|————Node:identifier Text: test_signal
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal = 0;
+|————Node:assignment_expression Text: test_signal = 0
+|—————Node:identifier Text: test_signal
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: uint64_t test_buf{0};
+|————Node:primitive_type Text: uint64_t
+|————Node:init_declarator Text: test_buf{0}
+|—————Node:identifier Text: test_buf
+|—————Node:initializer_list Text: {0}
+|——————Node:{ Text: {
+|——————Node:number_literal Text: 0
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal.EncodeSignal(&test_buf);
+|————Node:call_expression Text: test_signal.EncodeSignal(&test_buf)
+|—————Node:field_expression Text: test_signal.EncodeSignal
+|——————Node:identifier Text: test_signal
+|——————Node:. Text: .
+|——————Node:field_identifier Text: EncodeSignal
+|—————Node:argument_list Text: (&test_buf)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &test_buf
+|———————Node:& Text: &
+|———————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX64(0, test_buf);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX64(0, test_buf)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX64
+|—————Node:argument_list Text: (0, test_buf)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal = 0xFFF;
+|————Node:assignment_expression Text: test_signal = 0xFFF
+|—————Node:identifier Text: test_signal
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0xFFF
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX16(0xFFF, test_signal);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX16(0xFFF, test_signal)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX16
+|—————Node:argument_list Text: (0xFFF, test_signal)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0xFFF
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_signal
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal.EncodeSignal(&test_buf);
+|————Node:call_expression Text: test_signal.EncodeSignal(&test_buf)
+|—————Node:field_expression Text: test_signal.EncodeSignal
+|——————Node:identifier Text: test_signal
+|——————Node:. Text: .
+|——————Node:field_identifier Text: EncodeSignal
+|—————Node:argument_list Text: (&test_buf)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &test_buf
+|———————Node:& Text: &
+|———————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX64(0xFFF, test_buf);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX64(0xFFF, test_buf)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX64
+|—————Node:argument_list Text: (0xFFF, test_buf)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0xFFF
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void SignedCanSignalTest(void)
+{
+    CANSignal<float, 0, 16, CANTemplateConvertFloat(1), 0, true> test_signal;
+    test_signal = 0;
+    uint64_t test_buf{0};
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0, test_buf);
+    test_signal = -1;
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0xFFFF, test_buf);
+
+    test_signal.DecodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_FLOAT(-1, test_signal);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: SignedCanSignalTest(void)
+|———Node:identifier Text: SignedCanSignalTest
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    CANSignal<float, 0, 16, CANTemplateConvertFloat(1), 0, true> test_signal;
+    test_signal = 0;
+    uint64_t test_buf{0};
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0, test_buf);
+    test_signal = -1;
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0xFFFF, test_buf);
+
+    test_signal.DecodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_FLOAT(-1, test_signal);
+}
+|———Node:{ Text: {
+|———Node:declaration Text: CANSignal<float, 0, 16, CANTemplateConvertFloat(1), 0, true> test_signal;
+|————Node:template_type Text: CANSignal<float, 0, 16, CANTemplateConvertFloat(1), 0, true>
+|—————Node:type_identifier Text: CANSignal
+|—————Node:template_argument_list Text: <float, 0, 16, CANTemplateConvertFloat(1), 0, true>
+|——————Node:< Text: <
+|——————Node:type_descriptor Text: float
+|———————Node:primitive_type Text: float
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 16
+|——————Node:, Text: ,
+|——————Node:call_expression Text: CANTemplateConvertFloat(1)
+|———————Node:identifier Text: CANTemplateConvertFloat
+|———————Node:argument_list Text: (1)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 1
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:true Text: true
+|——————Node:> Text: >
+|————Node:identifier Text: test_signal
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal = 0;
+|————Node:assignment_expression Text: test_signal = 0
+|—————Node:identifier Text: test_signal
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: uint64_t test_buf{0};
+|————Node:primitive_type Text: uint64_t
+|————Node:init_declarator Text: test_buf{0}
+|—————Node:identifier Text: test_buf
+|—————Node:initializer_list Text: {0}
+|——————Node:{ Text: {
+|——————Node:number_literal Text: 0
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal.EncodeSignal(&test_buf);
+|————Node:call_expression Text: test_signal.EncodeSignal(&test_buf)
+|—————Node:field_expression Text: test_signal.EncodeSignal
+|——————Node:identifier Text: test_signal
+|——————Node:. Text: .
+|——————Node:field_identifier Text: EncodeSignal
+|—————Node:argument_list Text: (&test_buf)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &test_buf
+|———————Node:& Text: &
+|———————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX64(0, test_buf);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX64(0, test_buf)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX64
+|—————Node:argument_list Text: (0, test_buf)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal = -1;
+|————Node:assignment_expression Text: test_signal = -1
+|—————Node:identifier Text: test_signal
+|—————Node:= Text: =
+|—————Node:number_literal Text: -1
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal.EncodeSignal(&test_buf);
+|————Node:call_expression Text: test_signal.EncodeSignal(&test_buf)
+|—————Node:field_expression Text: test_signal.EncodeSignal
+|——————Node:identifier Text: test_signal
+|——————Node:. Text: .
+|——————Node:field_identifier Text: EncodeSignal
+|—————Node:argument_list Text: (&test_buf)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &test_buf
+|———————Node:& Text: &
+|———————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX64(0xFFFF, test_buf);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX64(0xFFFF, test_buf)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX64
+|—————Node:argument_list Text: (0xFFFF, test_buf)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0xFFFF
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal.DecodeSignal(&test_buf);
+|————Node:call_expression Text: test_signal.DecodeSignal(&test_buf)
+|—————Node:field_expression Text: test_signal.DecodeSignal
+|——————Node:identifier Text: test_signal
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DecodeSignal
+|—————Node:argument_list Text: (&test_buf)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &test_buf
+|———————Node:& Text: &
+|———————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_FLOAT(-1, test_signal);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_FLOAT(-1, test_signal)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_FLOAT
+|—————Node:argument_list Text: (-1, test_signal)
+|——————Node:( Text: (
+|——————Node:number_literal Text: -1
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_signal
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void BigEndianCanSignalTest(void)
+{
+    // CANSignal<uint16_t, 0, 16, CANTemplateConvertFloat(1), 0, false, ICANSignal::ByteOrder::kBigEndian> test_signal;
+    MakeEndianUnsignedCANSignal(uint16_t, 8, 16, 1, 0, ICANSignal::ByteOrder::kBigEndian) test_signal;
+    test_signal = 0xFF00;
+    uint64_t test_buf{0};
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0x00FF, test_buf);
+    std::cout << std::hex << test_buf << std::endl;
+
+    test_signal.DecodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX16(0xFF00, test_signal);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: BigEndianCanSignalTest(void)
+|———Node:identifier Text: BigEndianCanSignalTest
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    // CANSignal<uint16_t, 0, 16, CANTemplateConvertFloat(1), 0, false, ICANSignal::ByteOrder::kBigEndian> test_signal;
+    MakeEndianUnsignedCANSignal(uint16_t, 8, 16, 1, 0, ICANSignal::ByteOrder::kBigEndian) test_signal;
+    test_signal = 0xFF00;
+    uint64_t test_buf{0};
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0x00FF, test_buf);
+    std::cout << std::hex << test_buf << std::endl;
+
+    test_signal.DecodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX16(0xFF00, test_signal);
+}
+|———Node:{ Text: {
+|———Node:comment Text: // CANSignal<uint16_t, 0, 16, CANTemplateConvertFloat(1), 0, false, ICANSignal::ByteOrder::kBigEndian> test_signal;
+|———Node:ERROR Text: MakeEndianUnsignedCANSignal(uint16_t, 8, 16, 1, 0, ICANSignal::ByteOrder::kBigEndian)
+|————Node:identifier Text: MakeEndianUnsignedCANSignal
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint16_t
+|—————Node:primitive_type Text: uint16_t
+|————Node:, Text: ,
+|————Node:comma_expression Text: 8, 16, 1, 0, ICANSignal::ByteOrder::kBigEndian
+|—————Node:number_literal Text: 8
+|—————Node:, Text: ,
+|—————Node:comma_expression Text: 16, 1, 0, ICANSignal::ByteOrder::kBigEndian
+|——————Node:number_literal Text: 16
+|——————Node:, Text: ,
+|——————Node:comma_expression Text: 1, 0, ICANSignal::ByteOrder::kBigEndian
+|———————Node:number_literal Text: 1
+|———————Node:, Text: ,
+|———————Node:comma_expression Text: 0, ICANSignal::ByteOrder::kBigEndian
+|————————Node:number_literal Text: 0
+|————————Node:, Text: ,
+|————————Node:qualified_identifier Text: ICANSignal::ByteOrder::kBigEndian
+|—————————Node:namespace_identifier Text: ICANSignal
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: ByteOrder::kBigEndian
+|——————————Node:namespace_identifier Text: ByteOrder
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: kBigEndian
+|————Node:) Text: )
+|———Node:expression_statement Text: test_signal;
+|————Node:identifier Text: test_signal
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal = 0xFF00;
+|————Node:assignment_expression Text: test_signal = 0xFF00
+|—————Node:identifier Text: test_signal
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0xFF00
+|————Node:; Text: ;
+|———Node:declaration Text: uint64_t test_buf{0};
+|————Node:primitive_type Text: uint64_t
+|————Node:init_declarator Text: test_buf{0}
+|—————Node:identifier Text: test_buf
+|—————Node:initializer_list Text: {0}
+|——————Node:{ Text: {
+|——————Node:number_literal Text: 0
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal.EncodeSignal(&test_buf);
+|————Node:call_expression Text: test_signal.EncodeSignal(&test_buf)
+|—————Node:field_expression Text: test_signal.EncodeSignal
+|——————Node:identifier Text: test_signal
+|——————Node:. Text: .
+|——————Node:field_identifier Text: EncodeSignal
+|—————Node:argument_list Text: (&test_buf)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &test_buf
+|———————Node:& Text: &
+|———————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX64(0x00FF, test_buf);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX64(0x00FF, test_buf)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX64
+|—————Node:argument_list Text: (0x00FF, test_buf)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0x00FF
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: std::cout << std::hex << test_buf << std::endl;
+|————Node:binary_expression Text: std::cout << std::hex << test_buf << std::endl
+|—————Node:binary_expression Text: std::cout << std::hex << test_buf
+|——————Node:binary_expression Text: std::cout << std::hex
+|———————Node:qualified_identifier Text: std::cout
+|————————Node:namespace_identifier Text: std
+|————————Node::: Text: ::
+|————————Node:identifier Text: cout
+|———————Node:<< Text: <<
+|———————Node:qualified_identifier Text: std::hex
+|————————Node:namespace_identifier Text: std
+|————————Node::: Text: ::
+|————————Node:identifier Text: hex
+|——————Node:<< Text: <<
+|——————Node:identifier Text: test_buf
+|—————Node:<< Text: <<
+|—————Node:qualified_identifier Text: std::endl
+|——————Node:namespace_identifier Text: std
+|——————Node::: Text: ::
+|——————Node:identifier Text: endl
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal.DecodeSignal(&test_buf);
+|————Node:call_expression Text: test_signal.DecodeSignal(&test_buf)
+|—————Node:field_expression Text: test_signal.DecodeSignal
+|——————Node:identifier Text: test_signal
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DecodeSignal
+|—————Node:argument_list Text: (&test_buf)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &test_buf
+|———————Node:& Text: &
+|———————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX16(0xFF00, test_signal);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX16(0xFF00, test_signal)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX16
+|—————Node:argument_list Text: (0xFF00, test_signal)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0xFF00
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_signal
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void TypedCanSignalTest(void)
+{
+    CANSignal<uint8_t, 0, 8, CANTemplateConvertFloat(1), 0> actual_test_signal;
+    ITypedCANSignal<uint8_t>& test_signal = actual_test_signal;
+    test_signal = 0;
+    uint64_t test_buf{0};
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0, test_buf);
+    test_signal = 0xFF;
+    TEST_ASSERT_EQUAL_HEX16(0xFF, test_signal);
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0xFF, test_buf);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: TypedCanSignalTest(void)
+|———Node:identifier Text: TypedCanSignalTest
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    CANSignal<uint8_t, 0, 8, CANTemplateConvertFloat(1), 0> actual_test_signal;
+    ITypedCANSignal<uint8_t>& test_signal = actual_test_signal;
+    test_signal = 0;
+    uint64_t test_buf{0};
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0, test_buf);
+    test_signal = 0xFF;
+    TEST_ASSERT_EQUAL_HEX16(0xFF, test_signal);
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0xFF, test_buf);
+}
+|———Node:{ Text: {
+|———Node:declaration Text: CANSignal<uint8_t, 0, 8, CANTemplateConvertFloat(1), 0> actual_test_signal;
+|————Node:template_type Text: CANSignal<uint8_t, 0, 8, CANTemplateConvertFloat(1), 0>
+|—————Node:type_identifier Text: CANSignal
+|—————Node:template_argument_list Text: <uint8_t, 0, 8, CANTemplateConvertFloat(1), 0>
+|——————Node:< Text: <
+|——————Node:type_descriptor Text: uint8_t
+|———————Node:primitive_type Text: uint8_t
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 8
+|——————Node:, Text: ,
+|——————Node:call_expression Text: CANTemplateConvertFloat(1)
+|———————Node:identifier Text: CANTemplateConvertFloat
+|———————Node:argument_list Text: (1)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 1
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0
+|——————Node:> Text: >
+|————Node:identifier Text: actual_test_signal
+|————Node:; Text: ;
+|———Node:declaration Text: ITypedCANSignal<uint8_t>& test_signal = actual_test_signal;
+|————Node:template_type Text: ITypedCANSignal<uint8_t>
+|—————Node:type_identifier Text: ITypedCANSignal
+|—————Node:template_argument_list Text: <uint8_t>
+|——————Node:< Text: <
+|——————Node:type_descriptor Text: uint8_t
+|———————Node:primitive_type Text: uint8_t
+|——————Node:> Text: >
+|————Node:init_declarator Text: & test_signal = actual_test_signal
+|—————Node:reference_declarator Text: & test_signal
+|——————Node:& Text: &
+|——————Node:identifier Text: test_signal
+|—————Node:= Text: =
+|—————Node:identifier Text: actual_test_signal
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal = 0;
+|————Node:assignment_expression Text: test_signal = 0
+|—————Node:identifier Text: test_signal
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: uint64_t test_buf{0};
+|————Node:primitive_type Text: uint64_t
+|————Node:init_declarator Text: test_buf{0}
+|—————Node:identifier Text: test_buf
+|—————Node:initializer_list Text: {0}
+|——————Node:{ Text: {
+|——————Node:number_literal Text: 0
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal.EncodeSignal(&test_buf);
+|————Node:call_expression Text: test_signal.EncodeSignal(&test_buf)
+|—————Node:field_expression Text: test_signal.EncodeSignal
+|——————Node:identifier Text: test_signal
+|——————Node:. Text: .
+|——————Node:field_identifier Text: EncodeSignal
+|—————Node:argument_list Text: (&test_buf)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &test_buf
+|———————Node:& Text: &
+|———————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX64(0, test_buf);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX64(0, test_buf)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX64
+|—————Node:argument_list Text: (0, test_buf)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal = 0xFF;
+|————Node:assignment_expression Text: test_signal = 0xFF
+|—————Node:identifier Text: test_signal
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0xFF
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX16(0xFF, test_signal);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX16(0xFF, test_signal)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX16
+|—————Node:argument_list Text: (0xFF, test_signal)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0xFF
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_signal
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal.EncodeSignal(&test_buf);
+|————Node:call_expression Text: test_signal.EncodeSignal(&test_buf)
+|—————Node:field_expression Text: test_signal.EncodeSignal
+|——————Node:identifier Text: test_signal
+|——————Node:. Text: .
+|——————Node:field_identifier Text: EncodeSignal
+|—————Node:argument_list Text: (&test_buf)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &test_buf
+|———————Node:& Text: &
+|———————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX64(0xFF, test_buf);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX64(0xFF, test_buf)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX64
+|—————Node:argument_list Text: (0xFF, test_buf)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0xFF
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void EnumClassSignalTest(void)
+{
+    enum class TestEnum : uint8_t
+    {
+        kT1 = 0,
+        kT2 = 0xFF,
+        kT3 = 1
+    };
+    CANSignal<TestEnum, 0, 8, CANTemplateConvertFloat(1), 0> test_signal;
+    test_signal = TestEnum::kT1;
+    uint64_t test_buf{0};
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0, test_buf);
+    test_signal = TestEnum::kT2;
+    TEST_ASSERT(test_signal == TestEnum::kT2);
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0xFF, test_buf);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: EnumClassSignalTest(void)
+|———Node:identifier Text: EnumClassSignalTest
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    enum class TestEnum : uint8_t
+    {
+        kT1 = 0,
+        kT2 = 0xFF,
+        kT3 = 1
+    };
+    CANSignal<TestEnum, 0, 8, CANTemplateConvertFloat(1), 0> test_signal;
+    test_signal = TestEnum::kT1;
+    uint64_t test_buf{0};
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0, test_buf);
+    test_signal = TestEnum::kT2;
+    TEST_ASSERT(test_signal == TestEnum::kT2);
+    test_signal.EncodeSignal(&test_buf);
+    TEST_ASSERT_EQUAL_HEX64(0xFF, test_buf);
+}
+|———Node:{ Text: {
+|———Node:enum_specifier Text: enum class TestEnum : uint8_t
+    {
+        kT1 = 0,
+        kT2 = 0xFF,
+        kT3 = 1
+    }
+|————Node:enum Text: enum
+|————Node:class Text: class
+|————Node:type_identifier Text: TestEnum
+|————Node:: Text: :
+|————Node:primitive_type Text: uint8_t
+|————Node:enumerator_list Text: {
+        kT1 = 0,
+        kT2 = 0xFF,
+        kT3 = 1
+    }
+|—————Node:{ Text: {
+|—————Node:enumerator Text: kT1 = 0
+|——————Node:identifier Text: kT1
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:, Text: ,
+|—————Node:enumerator Text: kT2 = 0xFF
+|——————Node:identifier Text: kT2
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0xFF
+|—————Node:, Text: ,
+|—————Node:enumerator Text: kT3 = 1
+|——————Node:identifier Text: kT3
+|——————Node:= Text: =
+|——————Node:number_literal Text: 1
+|—————Node:} Text: }
+|———Node:; Text: ;
+|———Node:declaration Text: CANSignal<TestEnum, 0, 8, CANTemplateConvertFloat(1), 0> test_signal;
+|————Node:template_type Text: CANSignal<TestEnum, 0, 8, CANTemplateConvertFloat(1), 0>
+|—————Node:type_identifier Text: CANSignal
+|—————Node:template_argument_list Text: <TestEnum, 0, 8, CANTemplateConvertFloat(1), 0>
+|——————Node:< Text: <
+|——————Node:type_descriptor Text: TestEnum
+|———————Node:type_identifier Text: TestEnum
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 8
+|——————Node:, Text: ,
+|——————Node:call_expression Text: CANTemplateConvertFloat(1)
+|———————Node:identifier Text: CANTemplateConvertFloat
+|———————Node:argument_list Text: (1)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 1
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0
+|——————Node:> Text: >
+|————Node:identifier Text: test_signal
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal = TestEnum::kT1;
+|————Node:assignment_expression Text: test_signal = TestEnum::kT1
+|—————Node:identifier Text: test_signal
+|—————Node:= Text: =
+|—————Node:qualified_identifier Text: TestEnum::kT1
+|——————Node:namespace_identifier Text: TestEnum
+|——————Node::: Text: ::
+|——————Node:identifier Text: kT1
+|————Node:; Text: ;
+|———Node:declaration Text: uint64_t test_buf{0};
+|————Node:primitive_type Text: uint64_t
+|————Node:init_declarator Text: test_buf{0}
+|—————Node:identifier Text: test_buf
+|—————Node:initializer_list Text: {0}
+|——————Node:{ Text: {
+|——————Node:number_literal Text: 0
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal.EncodeSignal(&test_buf);
+|————Node:call_expression Text: test_signal.EncodeSignal(&test_buf)
+|—————Node:field_expression Text: test_signal.EncodeSignal
+|——————Node:identifier Text: test_signal
+|——————Node:. Text: .
+|——————Node:field_identifier Text: EncodeSignal
+|—————Node:argument_list Text: (&test_buf)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &test_buf
+|———————Node:& Text: &
+|———————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX64(0, test_buf);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX64(0, test_buf)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX64
+|—————Node:argument_list Text: (0, test_buf)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal = TestEnum::kT2;
+|————Node:assignment_expression Text: test_signal = TestEnum::kT2
+|—————Node:identifier Text: test_signal
+|—————Node:= Text: =
+|—————Node:qualified_identifier Text: TestEnum::kT2
+|——————Node:namespace_identifier Text: TestEnum
+|——————Node::: Text: ::
+|——————Node:identifier Text: kT2
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT(test_signal == TestEnum::kT2);
+|————Node:call_expression Text: TEST_ASSERT(test_signal == TestEnum::kT2)
+|—————Node:identifier Text: TEST_ASSERT
+|—————Node:argument_list Text: (test_signal == TestEnum::kT2)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: test_signal == TestEnum::kT2
+|———————Node:identifier Text: test_signal
+|———————Node:== Text: ==
+|———————Node:qualified_identifier Text: TestEnum::kT2
+|————————Node:namespace_identifier Text: TestEnum
+|————————Node::: Text: ::
+|————————Node:identifier Text: kT2
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: test_signal.EncodeSignal(&test_buf);
+|————Node:call_expression Text: test_signal.EncodeSignal(&test_buf)
+|—————Node:field_expression Text: test_signal.EncodeSignal
+|——————Node:identifier Text: test_signal
+|——————Node:. Text: .
+|——————Node:field_identifier Text: EncodeSignal
+|—————Node:argument_list Text: (&test_buf)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &test_buf
+|———————Node:& Text: &
+|———————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL_HEX64(0xFF, test_buf);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL_HEX64(0xFF, test_buf)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL_HEX64
+|—————Node:argument_list Text: (0xFF, test_buf)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0xFF
+|——————Node:, Text: ,
+|——————Node:identifier Text: test_buf
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void MITMotorBigEndianCANSignalTest(void)
+{
+    // testing for position working with non-byte-aligned big-endian signals
+    MakeEndianUnsignedCANSignal(uint16_t, 8, 16, 1, 0, ICANSignal::ByteOrder::kBigEndian) p_des;
+    MakeEndianUnsignedCANSignal(uint16_t, 28, 12, 1, 0, ICANSignal::ByteOrder::kBigEndian) v_des;
+    MakeEndianUnsignedCANSignal(uint16_t, 32, 12, 1, 0, ICANSignal::ByteOrder::kBigEndian) kp;
+    MakeEndianUnsignedCANSignal(uint16_t, 52, 12, 1, 0, ICANSignal::ByteOrder::kBigEndian) kd;
+    MakeEndianUnsignedCANSignal(uint16_t, 56, 12, 1, 0, ICANSignal::ByteOrder::kBigEndian) torque;
+
+    uint8_t msg[8];
+    uint64_t* full_msg = reinterpret_cast<uint64_t*>(msg);
+    *full_msg = 0;
+
+    p_des = 0x8005;
+    v_des = 0x800;
+    kp = 0;
+    kd = 0xFFF;
+    torque = 0x800;
+    p_des.EncodeSignal(full_msg);
+    v_des.EncodeSignal(full_msg);
+    kp.EncodeSignal(full_msg);
+    kd.EncodeSignal(full_msg);
+    torque.EncodeSignal(full_msg);
+
+    // std::cout << std::hex << *full_msg << std::endl;
+
+    for (int i = 0; i < 8; i++) std::cout << std::hex << std::setfill('0') << std::setw(2) << uint16_t(msg[i]) << " ";
+    std::cout << std::endl;
+    // printf("%d\n", msg[0]);
+
+    TEST_ASSERT_EQUAL(bswap(uint64_t(0x8005800000fff800)), *full_msg);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: MITMotorBigEndianCANSignalTest(void)
+|———Node:identifier Text: MITMotorBigEndianCANSignalTest
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    // testing for position working with non-byte-aligned big-endian signals
+    MakeEndianUnsignedCANSignal(uint16_t, 8, 16, 1, 0, ICANSignal::ByteOrder::kBigEndian) p_des;
+    MakeEndianUnsignedCANSignal(uint16_t, 28, 12, 1, 0, ICANSignal::ByteOrder::kBigEndian) v_des;
+    MakeEndianUnsignedCANSignal(uint16_t, 32, 12, 1, 0, ICANSignal::ByteOrder::kBigEndian) kp;
+    MakeEndianUnsignedCANSignal(uint16_t, 52, 12, 1, 0, ICANSignal::ByteOrder::kBigEndian) kd;
+    MakeEndianUnsignedCANSignal(uint16_t, 56, 12, 1, 0, ICANSignal::ByteOrder::kBigEndian) torque;
+
+    uint8_t msg[8];
+    uint64_t* full_msg = reinterpret_cast<uint64_t*>(msg);
+    *full_msg = 0;
+
+    p_des = 0x8005;
+    v_des = 0x800;
+    kp = 0;
+    kd = 0xFFF;
+    torque = 0x800;
+    p_des.EncodeSignal(full_msg);
+    v_des.EncodeSignal(full_msg);
+    kp.EncodeSignal(full_msg);
+    kd.EncodeSignal(full_msg);
+    torque.EncodeSignal(full_msg);
+
+    // std::cout << std::hex << *full_msg << std::endl;
+
+    for (int i = 0; i < 8; i++) std::cout << std::hex << std::setfill('0') << std::setw(2) << uint16_t(msg[i]) << " ";
+    std::cout << std::endl;
+    // printf("%d\n", msg[0]);
+
+    TEST_ASSERT_EQUAL(bswap(uint64_t(0x8005800000fff800)), *full_msg);
+}
+|———Node:{ Text: {
+|———Node:comment Text: // testing for position working with non-byte-aligned big-endian signals
+|———Node:ERROR Text: MakeEndianUnsignedCANSignal(uint16_t, 8, 16, 1, 0, ICANSignal::ByteOrder::kBigEndian)
+|————Node:identifier Text: MakeEndianUnsignedCANSignal
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint16_t
+|—————Node:primitive_type Text: uint16_t
+|————Node:, Text: ,
+|————Node:comma_expression Text: 8, 16, 1, 0, ICANSignal::ByteOrder::kBigEndian
+|—————Node:number_literal Text: 8
+|—————Node:, Text: ,
+|—————Node:comma_expression Text: 16, 1, 0, ICANSignal::ByteOrder::kBigEndian
+|——————Node:number_literal Text: 16
+|——————Node:, Text: ,
+|——————Node:comma_expression Text: 1, 0, ICANSignal::ByteOrder::kBigEndian
+|———————Node:number_literal Text: 1
+|———————Node:, Text: ,
+|———————Node:comma_expression Text: 0, ICANSignal::ByteOrder::kBigEndian
+|————————Node:number_literal Text: 0
+|————————Node:, Text: ,
+|————————Node:qualified_identifier Text: ICANSignal::ByteOrder::kBigEndian
+|—————————Node:namespace_identifier Text: ICANSignal
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: ByteOrder::kBigEndian
+|——————————Node:namespace_identifier Text: ByteOrder
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: kBigEndian
+|————Node:) Text: )
+|———Node:type_identifier Text: p_des
+|———Node:; Text: ;
+|———Node:ERROR Text: MakeEndianUnsignedCANSignal(uint16_t, 28, 12, 1, 0, ICANSignal::ByteOrder::kBigEndian)
+|————Node:identifier Text: MakeEndianUnsignedCANSignal
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint16_t
+|—————Node:primitive_type Text: uint16_t
+|————Node:, Text: ,
+|————Node:comma_expression Text: 28, 12, 1, 0, ICANSignal::ByteOrder::kBigEndian
+|—————Node:number_literal Text: 28
+|—————Node:, Text: ,
+|—————Node:comma_expression Text: 12, 1, 0, ICANSignal::ByteOrder::kBigEndian
+|——————Node:number_literal Text: 12
+|——————Node:, Text: ,
+|——————Node:comma_expression Text: 1, 0, ICANSignal::ByteOrder::kBigEndian
+|———————Node:number_literal Text: 1
+|———————Node:, Text: ,
+|———————Node:comma_expression Text: 0, ICANSignal::ByteOrder::kBigEndian
+|————————Node:number_literal Text: 0
+|————————Node:, Text: ,
+|————————Node:qualified_identifier Text: ICANSignal::ByteOrder::kBigEndian
+|—————————Node:namespace_identifier Text: ICANSignal
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: ByteOrder::kBigEndian
+|——————————Node:namespace_identifier Text: ByteOrder
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: kBigEndian
+|————Node:) Text: )
+|———Node:expression_statement Text: v_des;
+|————Node:identifier Text: v_des
+|————Node:; Text: ;
+|———Node:ERROR Text: MakeEndianUnsignedCANSignal(uint16_t, 32, 12, 1, 0, ICANSignal::ByteOrder::kBigEndian)
+|————Node:identifier Text: MakeEndianUnsignedCANSignal
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint16_t
+|—————Node:primitive_type Text: uint16_t
+|————Node:, Text: ,
+|————Node:comma_expression Text: 32, 12, 1, 0, ICANSignal::ByteOrder::kBigEndian
+|—————Node:number_literal Text: 32
+|—————Node:, Text: ,
+|—————Node:comma_expression Text: 12, 1, 0, ICANSignal::ByteOrder::kBigEndian
+|——————Node:number_literal Text: 12
+|——————Node:, Text: ,
+|——————Node:comma_expression Text: 1, 0, ICANSignal::ByteOrder::kBigEndian
+|———————Node:number_literal Text: 1
+|———————Node:, Text: ,
+|———————Node:comma_expression Text: 0, ICANSignal::ByteOrder::kBigEndian
+|————————Node:number_literal Text: 0
+|————————Node:, Text: ,
+|————————Node:qualified_identifier Text: ICANSignal::ByteOrder::kBigEndian
+|—————————Node:namespace_identifier Text: ICANSignal
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: ByteOrder::kBigEndian
+|——————————Node:namespace_identifier Text: ByteOrder
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: kBigEndian
+|————Node:) Text: )
+|———Node:expression_statement Text: kp;
+|————Node:identifier Text: kp
+|————Node:; Text: ;
+|———Node:ERROR Text: MakeEndianUnsignedCANSignal(uint16_t, 52, 12, 1, 0, ICANSignal::ByteOrder::kBigEndian)
+|————Node:identifier Text: MakeEndianUnsignedCANSignal
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint16_t
+|—————Node:primitive_type Text: uint16_t
+|————Node:, Text: ,
+|————Node:comma_expression Text: 52, 12, 1, 0, ICANSignal::ByteOrder::kBigEndian
+|—————Node:number_literal Text: 52
+|—————Node:, Text: ,
+|—————Node:comma_expression Text: 12, 1, 0, ICANSignal::ByteOrder::kBigEndian
+|——————Node:number_literal Text: 12
+|——————Node:, Text: ,
+|——————Node:comma_expression Text: 1, 0, ICANSignal::ByteOrder::kBigEndian
+|———————Node:number_literal Text: 1
+|———————Node:, Text: ,
+|———————Node:comma_expression Text: 0, ICANSignal::ByteOrder::kBigEndian
+|————————Node:number_literal Text: 0
+|————————Node:, Text: ,
+|————————Node:qualified_identifier Text: ICANSignal::ByteOrder::kBigEndian
+|—————————Node:namespace_identifier Text: ICANSignal
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: ByteOrder::kBigEndian
+|——————————Node:namespace_identifier Text: ByteOrder
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: kBigEndian
+|————Node:) Text: )
+|———Node:expression_statement Text: kd;
+|————Node:identifier Text: kd
+|————Node:; Text: ;
+|———Node:ERROR Text: MakeEndianUnsignedCANSignal(uint16_t, 56, 12, 1, 0, ICANSignal::ByteOrder::kBigEndian)
+|————Node:identifier Text: MakeEndianUnsignedCANSignal
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint16_t
+|—————Node:primitive_type Text: uint16_t
+|————Node:, Text: ,
+|————Node:comma_expression Text: 56, 12, 1, 0, ICANSignal::ByteOrder::kBigEndian
+|—————Node:number_literal Text: 56
+|—————Node:, Text: ,
+|—————Node:comma_expression Text: 12, 1, 0, ICANSignal::ByteOrder::kBigEndian
+|——————Node:number_literal Text: 12
+|——————Node:, Text: ,
+|——————Node:comma_expression Text: 1, 0, ICANSignal::ByteOrder::kBigEndian
+|———————Node:number_literal Text: 1
+|———————Node:, Text: ,
+|———————Node:comma_expression Text: 0, ICANSignal::ByteOrder::kBigEndian
+|————————Node:number_literal Text: 0
+|————————Node:, Text: ,
+|————————Node:qualified_identifier Text: ICANSignal::ByteOrder::kBigEndian
+|—————————Node:namespace_identifier Text: ICANSignal
+|—————————Node::: Text: ::
+|—————————Node:qualified_identifier Text: ByteOrder::kBigEndian
+|——————————Node:namespace_identifier Text: ByteOrder
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: kBigEndian
+|————Node:) Text: )
+|———Node:expression_statement Text: torque;
+|————Node:identifier Text: torque
+|————Node:; Text: ;
+|———Node:declaration Text: uint8_t msg[8];
+|————Node:primitive_type Text: uint8_t
+|————Node:array_declarator Text: msg[8]
+|—————Node:identifier Text: msg
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 8
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:declaration Text: uint64_t* full_msg = reinterpret_cast<uint64_t*>(msg);
+|————Node:primitive_type Text: uint64_t
+|————Node:init_declarator Text: * full_msg = reinterpret_cast<uint64_t*>(msg)
+|—————Node:pointer_declarator Text: * full_msg
+|——————Node:* Text: *
+|——————Node:identifier Text: full_msg
+|—————Node:= Text: =
+|—————Node:call_expression Text: reinterpret_cast<uint64_t*>(msg)
+|——————Node:template_function Text: reinterpret_cast<uint64_t*>
+|———————Node:identifier Text: reinterpret_cast
+|———————Node:template_argument_list Text: <uint64_t*>
+|————————Node:< Text: <
+|————————Node:type_descriptor Text: uint64_t*
+|—————————Node:primitive_type Text: uint64_t
+|—————————Node:abstract_pointer_declarator Text: *
+|——————————Node:* Text: *
+|————————Node:> Text: >
+|——————Node:argument_list Text: (msg)
+|———————Node:( Text: (
+|———————Node:identifier Text: msg
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: *full_msg = 0;
+|————Node:assignment_expression Text: *full_msg = 0
+|—————Node:pointer_expression Text: *full_msg
+|——————Node:* Text: *
+|——————Node:identifier Text: full_msg
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: p_des = 0x8005;
+|————Node:assignment_expression Text: p_des = 0x8005
+|—————Node:identifier Text: p_des
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x8005
+|————Node:; Text: ;
+|———Node:expression_statement Text: v_des = 0x800;
+|————Node:assignment_expression Text: v_des = 0x800
+|—————Node:identifier Text: v_des
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x800
+|————Node:; Text: ;
+|———Node:expression_statement Text: kp = 0;
+|————Node:assignment_expression Text: kp = 0
+|—————Node:identifier Text: kp
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: kd = 0xFFF;
+|————Node:assignment_expression Text: kd = 0xFFF
+|—————Node:identifier Text: kd
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0xFFF
+|————Node:; Text: ;
+|———Node:expression_statement Text: torque = 0x800;
+|————Node:assignment_expression Text: torque = 0x800
+|—————Node:identifier Text: torque
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x800
+|————Node:; Text: ;
+|———Node:expression_statement Text: p_des.EncodeSignal(full_msg);
+|————Node:call_expression Text: p_des.EncodeSignal(full_msg)
+|—————Node:field_expression Text: p_des.EncodeSignal
+|——————Node:identifier Text: p_des
+|——————Node:. Text: .
+|——————Node:field_identifier Text: EncodeSignal
+|—————Node:argument_list Text: (full_msg)
+|——————Node:( Text: (
+|——————Node:identifier Text: full_msg
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: v_des.EncodeSignal(full_msg);
+|————Node:call_expression Text: v_des.EncodeSignal(full_msg)
+|—————Node:field_expression Text: v_des.EncodeSignal
+|——————Node:identifier Text: v_des
+|——————Node:. Text: .
+|——————Node:field_identifier Text: EncodeSignal
+|—————Node:argument_list Text: (full_msg)
+|——————Node:( Text: (
+|——————Node:identifier Text: full_msg
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: kp.EncodeSignal(full_msg);
+|————Node:call_expression Text: kp.EncodeSignal(full_msg)
+|—————Node:field_expression Text: kp.EncodeSignal
+|——————Node:identifier Text: kp
+|——————Node:. Text: .
+|——————Node:field_identifier Text: EncodeSignal
+|—————Node:argument_list Text: (full_msg)
+|——————Node:( Text: (
+|——————Node:identifier Text: full_msg
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: kd.EncodeSignal(full_msg);
+|————Node:call_expression Text: kd.EncodeSignal(full_msg)
+|—————Node:field_expression Text: kd.EncodeSignal
+|——————Node:identifier Text: kd
+|——————Node:. Text: .
+|——————Node:field_identifier Text: EncodeSignal
+|—————Node:argument_list Text: (full_msg)
+|——————Node:( Text: (
+|——————Node:identifier Text: full_msg
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: torque.EncodeSignal(full_msg);
+|————Node:call_expression Text: torque.EncodeSignal(full_msg)
+|—————Node:field_expression Text: torque.EncodeSignal
+|——————Node:identifier Text: torque
+|——————Node:. Text: .
+|——————Node:field_identifier Text: EncodeSignal
+|—————Node:argument_list Text: (full_msg)
+|——————Node:( Text: (
+|——————Node:identifier Text: full_msg
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment Text: // std::cout << std::hex << *full_msg << std::endl;
+|———Node:for_statement Text: for (int i = 0; i < 8; i++) std::cout << std::hex << std::setfill('0') << std::setw(2) << uint16_t(msg[i]) << " ";
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:declaration Text: int i = 0;
+|—————Node:primitive_type Text: int
+|—————Node:init_declarator Text: i = 0
+|——————Node:identifier Text: i
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:binary_expression Text: i < 8
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:expression_statement Text: std::cout << std::hex << std::setfill('0') << std::setw(2) << uint16_t(msg[i]) << " ";
+|—————Node:binary_expression Text: std::cout << std::hex << std::setfill('0') << std::setw(2) << uint16_t(msg[i]) << " "
+|——————Node:binary_expression Text: std::cout << std::hex << std::setfill('0') << std::setw(2) << uint16_t(msg[i])
+|———————Node:binary_expression Text: std::cout << std::hex << std::setfill('0') << std::setw(2)
+|————————Node:binary_expression Text: std::cout << std::hex << std::setfill('0')
+|—————————Node:binary_expression Text: std::cout << std::hex
+|——————————Node:qualified_identifier Text: std::cout
+|———————————Node:namespace_identifier Text: std
+|———————————Node::: Text: ::
+|———————————Node:identifier Text: cout
+|——————————Node:<< Text: <<
+|——————————Node:qualified_identifier Text: std::hex
+|———————————Node:namespace_identifier Text: std
+|———————————Node::: Text: ::
+|———————————Node:identifier Text: hex
+|—————————Node:<< Text: <<
+|—————————Node:call_expression Text: std::setfill('0')
+|——————————Node:qualified_identifier Text: std::setfill
+|———————————Node:namespace_identifier Text: std
+|———————————Node::: Text: ::
+|———————————Node:identifier Text: setfill
+|——————————Node:argument_list Text: ('0')
+|———————————Node:( Text: (
+|———————————Node:char_literal Text: '0'
+|————————————Node:' Text: '
+|————————————Node:character Text: 0
+|————————————Node:' Text: '
+|———————————Node:) Text: )
+|————————Node:<< Text: <<
+|————————Node:call_expression Text: std::setw(2)
+|—————————Node:qualified_identifier Text: std::setw
+|——————————Node:namespace_identifier Text: std
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: setw
+|—————————Node:argument_list Text: (2)
+|——————————Node:( Text: (
+|——————————Node:number_literal Text: 2
+|——————————Node:) Text: )
+|———————Node:<< Text: <<
+|———————Node:call_expression Text: uint16_t(msg[i])
+|————————Node:primitive_type Text: uint16_t
+|————————Node:argument_list Text: (msg[i])
+|—————————Node:( Text: (
+|—————————Node:subscript_expression Text: msg[i]
+|——————————Node:identifier Text: msg
+|——————————Node:subscript_argument_list Text: [i]
+|———————————Node:[ Text: [
+|———————————Node:identifier Text: i
+|———————————Node:] Text: ]
+|—————————Node:) Text: )
+|——————Node:<< Text: <<
+|——————Node:string_literal Text: " "
+|———————Node:" Text: "
+|———————Node:string_content Text:  
+|———————Node:" Text: "
+|—————Node:; Text: ;
+|———Node:expression_statement Text: std::cout << std::endl;
+|————Node:binary_expression Text: std::cout << std::endl
+|—————Node:qualified_identifier Text: std::cout
+|——————Node:namespace_identifier Text: std
+|——————Node::: Text: ::
+|——————Node:identifier Text: cout
+|—————Node:<< Text: <<
+|—————Node:qualified_identifier Text: std::endl
+|——————Node:namespace_identifier Text: std
+|——————Node::: Text: ::
+|——————Node:identifier Text: endl
+|————Node:; Text: ;
+|———Node:comment Text: // printf("%d\n", msg[0]);
+|———Node:expression_statement Text: TEST_ASSERT_EQUAL(bswap(uint64_t(0x8005800000fff800)), *full_msg);
+|————Node:call_expression Text: TEST_ASSERT_EQUAL(bswap(uint64_t(0x8005800000fff800)), *full_msg)
+|—————Node:identifier Text: TEST_ASSERT_EQUAL
+|—————Node:argument_list Text: (bswap(uint64_t(0x8005800000fff800)), *full_msg)
+|——————Node:( Text: (
+|——————Node:call_expression Text: bswap(uint64_t(0x8005800000fff800))
+|———————Node:identifier Text: bswap
+|———————Node:argument_list Text: (uint64_t(0x8005800000fff800))
+|————————Node:( Text: (
+|————————Node:call_expression Text: uint64_t(0x8005800000fff800)
+|—————————Node:primitive_type Text: uint64_t
+|—————————Node:argument_list Text: (0x8005800000fff800)
+|——————————Node:( Text: (
+|——————————Node:number_literal Text: 0x8005800000fff800
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:pointer_expression Text: *full_msg
+|———————Node:* Text: *
+|———————Node:identifier Text: full_msg
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: int runUnityTests(void)
+{
+    UNITY_BEGIN();
+    RUN_TEST(CanSignalTest);
+    RUN_TEST(UnAlignedCanSignalTest);
+    RUN_TEST(BigEndianCanSignalTest);
+    RUN_TEST(SignedCanSignalTest);
+    RUN_TEST(TypedCanSignalTest);
+    RUN_TEST(EnumClassSignalTest);
+    RUN_TEST(MITMotorBigEndianCANSignalTest);
+    return UNITY_END();
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: runUnityTests(void)
+|———Node:identifier Text: runUnityTests
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    UNITY_BEGIN();
+    RUN_TEST(CanSignalTest);
+    RUN_TEST(UnAlignedCanSignalTest);
+    RUN_TEST(BigEndianCanSignalTest);
+    RUN_TEST(SignedCanSignalTest);
+    RUN_TEST(TypedCanSignalTest);
+    RUN_TEST(EnumClassSignalTest);
+    RUN_TEST(MITMotorBigEndianCANSignalTest);
+    return UNITY_END();
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: UNITY_BEGIN();
+|————Node:call_expression Text: UNITY_BEGIN()
+|—————Node:identifier Text: UNITY_BEGIN
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(CanSignalTest);
+|————Node:call_expression Text: RUN_TEST(CanSignalTest)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (CanSignalTest)
+|——————Node:( Text: (
+|——————Node:identifier Text: CanSignalTest
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(UnAlignedCanSignalTest);
+|————Node:call_expression Text: RUN_TEST(UnAlignedCanSignalTest)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (UnAlignedCanSignalTest)
+|——————Node:( Text: (
+|——————Node:identifier Text: UnAlignedCanSignalTest
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(BigEndianCanSignalTest);
+|————Node:call_expression Text: RUN_TEST(BigEndianCanSignalTest)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (BigEndianCanSignalTest)
+|——————Node:( Text: (
+|——————Node:identifier Text: BigEndianCanSignalTest
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(SignedCanSignalTest);
+|————Node:call_expression Text: RUN_TEST(SignedCanSignalTest)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (SignedCanSignalTest)
+|——————Node:( Text: (
+|——————Node:identifier Text: SignedCanSignalTest
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(TypedCanSignalTest);
+|————Node:call_expression Text: RUN_TEST(TypedCanSignalTest)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (TypedCanSignalTest)
+|——————Node:( Text: (
+|——————Node:identifier Text: TypedCanSignalTest
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(EnumClassSignalTest);
+|————Node:call_expression Text: RUN_TEST(EnumClassSignalTest)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (EnumClassSignalTest)
+|——————Node:( Text: (
+|——————Node:identifier Text: EnumClassSignalTest
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: RUN_TEST(MITMotorBigEndianCANSignalTest);
+|————Node:call_expression Text: RUN_TEST(MITMotorBigEndianCANSignalTest)
+|—————Node:identifier Text: RUN_TEST
+|—————Node:argument_list Text: (MITMotorBigEndianCANSignalTest)
+|——————Node:( Text: (
+|——————Node:identifier Text: MITMotorBigEndianCANSignalTest
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return UNITY_END();
+|————Node:return Text: return
+|————Node:call_expression Text: UNITY_END()
+|—————Node:identifier Text: UNITY_END
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: int main(void) { return runUnityTests(); }
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: main(void)
+|———Node:identifier Text: main
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: { return runUnityTests(); }
+|———Node:{ Text: {
+|———Node:return_statement Text: return runUnityTests();
+|————Node:return Text: return
+|————Node:call_expression Text: runUnityTests()
+|—————Node:identifier Text: runUnityTests
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }

@@ -1,0 +1,1376 @@
+arduino-canbus-monitor-can-232.h
+
+|Node:translation_unit
+|—Node:comment Text: /*****************************************************************************************
+* This is implementation of CAN BUS ASCII protocol based on LAWICEL v1.3 serial protocol
+*  of CAN232/CANUSB device (http://www.can232.com/docs/can232_v3.pdf)
+*
+* Made for Arduino with Seeduino/ElecFreaks CAN BUS Shield based on MCP2515
+*
+* Copyright (C) 2015 Anton Viktorov <latonita@yandex.ru>
+*                                    https://github.com/latonita/can-ascii
+*
+* This library is free software. You may use/redistribute it under The MIT License terms. 
+*
+*****************************************************************************************/
+|—Node:preproc_ifdef Text: #ifndef _CAN_232_H_
+#define _CAN_232_H_
+
+//#if defined(ARDUINO) && ARDUINO >= 100
+//    #include "arduino.h"
+//#else
+//    #include "WProgram.h"
+//#endif
+
+#include "mcp_can.h"
+#include "SoftwareSerial.h"
+
+#define LW232_LAWICEL_VERSION_STR     "V1013"
+#define LW232_LAWICEL_SERIAL_NUM      "NA123"
+#define LW232_CAN_BUS_SHIELD_CS_PIN   10
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//   Commands not supported/not implemented:
+//     s, W, M, m, U
+//      
+//   Commands modified:
+//     S - supports not declared 83.3 rate straight away (S9)     
+//         refer to https://github.com/latonita/CAN_BUS_Shield fork with 83.3 support, easy to add.
+//     F - returns MCP2515 error flags
+//     Z - extra Z2 option enables 4 byte timestamp vs standard 2 byte (60000ms max)
+//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                   
+//                          CODE   SUPPORTED   SYNTAX               DESCRIPTION     
+//
+#define LW232_CMD_SETUP     'S' //   YES+      Sn[CR]               Setup with standard CAN bit-rates where n is 0-8.
+                                //                                  S0 10Kbit          S4 125Kbit         S8 1Mbit
+                                //                                  S1 20Kbit          S5 250Kbit         S9 83.3Kbit
+                                //                                  S2 50Kbit          S6 500Kbit
+                                //                                  S3 100Kbit         S7 800Kbit
+#define LW232_CMD_SETUP_BTR 's' //    -        sxxyy[CR]            Setup with BTR0/BTR1 CAN bit-rates where xx and yy is a hex value.
+#define LW232_CMD_OPEN      'O' //   YES       O[CR]                Open the CAN channel in normal mode (sending & receiving).
+#define LW232_CMD_LISTEN    'L' //   YES       L[CR]                Open the CAN channel in listen only mode (receiving).
+#define LW232_CMD_CLOSE     'C' //   YES       C[CR]                Close the CAN channel.
+#define LW232_CMD_TX11      't' //   YES       tiiildd...[CR]       Transmit a standard (11bit) CAN frame.
+#define LW232_CMD_TX29      'T' //   YES       Tiiiiiiiildd...[CR]  Transmit an extended (29bit) CAN frame
+#define LW232_CMD_RTR11     'r' //   YES       riiil[CR]            Transmit an standard RTR (11bit) CAN frame.
+#define LW232_CMD_RTR29     'R' //   YES       Riiiiiiiil[CR]       Transmit an extended RTR (29bit) CAN frame.
+#define LW232_CMD_POLL_ONE  'P' //   YES       P[CR]                Poll incomming FIFO for CAN frames (single poll)
+#define LW232_CMD_POLL_MANY 'A' //   YES       A[CR]                Polls incomming FIFO for CAN frames (all pending frames)
+#define LW232_CMD_FLAGS     'F' //   YES+      F[CR]                Read Status Flags.
+#define LW232_CMD_AUTOPOLL  'X' //   YES       Xn[CR]               Sets Auto Poll/Send ON/OFF for received frames.
+#define LW232_CMD_FILTER    'W' //    -        Wn[CR]               Filter mode setting. By default CAN232 works in dual filter mode (0) and is backwards compatible with previous CAN232 versions.
+#define LW232_CMD_ACC_CODE  'M' //    -        Mxxxxxxxx[CR]        Sets Acceptance Code Register (ACn Register of SJA1000). // we use MCP2515, not supported
+#define LW232_CMD_ACC_MASK  'm' //    -        mxxxxxxxx[CR]        Sets Acceptance Mask Register (AMn Register of SJA1000). // we use MCP2515, not supported
+#define LW232_CMD_UART      'U' //   YES       Un[CR]               Setup UART with a new baud rate where n is 0-6.
+#define LW232_CMD_VERSION1  'V' //   YES       v[CR]                Get Version number of both CAN232 hardware and software
+#define LW232_CMD_VERSION2  'v' //   YES       V[CR]                Get Version number of both CAN232 hardware and software
+#define LW232_CMD_SERIAL    'N' //   YES       N[CR]                Get Serial number of the CAN232.
+#define LW232_CMD_TIMESTAMP 'Z' //   YES+      Zn[CR]               Sets Time Stamp ON/OFF for received frames only. EXTENSION to LAWICEL: Z2 - millis() timestamp w/o standard 60000ms cycle
+#define LW232_CMD_AUTOSTART 'Q' //   YES  todo     Qn[CR]               Auto Startup feature (from power on). 
+
+#define LOW_BYTE(x)     ((unsigned char)((x)&0xFF))
+#define HIGH_BYTE(x)    ((unsigned char)(((x)>>8)&0xFF))
+#define LOW_WORD(x)     ((unsigned short)((x)&0xFFFF))
+#define HIGH_WORD(x)    ((unsigned short)(((x)>>16)&0xFFFF))
+
+#ifndef INT32U
+#define INT32U unsigned long
+#endif
+
+#ifndef INT16U
+#define INT16U word
+#endif
+
+#ifndef INT8U
+#define INT8U byte
+#endif
+
+#define LW232_OK                      0x00
+#define LW232_OK_SMALL                0x01
+#define LW232_OK_BIG                  0x02
+#define LW232_ERR                     0x03
+#define LW232_ERR_NOT_IMPLEMENTED     0x04
+#define LW232_ERR_UNKNOWN_CMD         0x05
+
+#define LW232_FILTER_SKIP			  0x00
+#define LW232_FILTER_PROCESS	      0x01
+
+//#define LW232_IS_OK(x) ((x)==LW232_OK ||(x)==LW232_OK_NEW ? TRUE : FALSE)
+
+#define LW232_CR    '\r'
+#define LW232_ALL   'A'
+#define LW232_FLAG  'F'
+#define LW232_TR11  't'
+#define LW232_TR29  'T'
+
+#define LW232_RET_ASCII_OK             0x0D
+#define LW232_RET_ASCII_ERROR          0x07
+#define LW232_RET_ASCII_OK_SMALL       'z'
+#define LW232_RET_ASCII_OK_BIG         'Z'
+
+#define LW232_STATUS_CAN_CLOSED        0x00
+#define LW232_STATUS_CAN_OPEN_NORMAL   0x01
+#define LW232_STATUS_CAN_OPEN_LISTEN   0x01
+
+#define LW232_FRAME_MAX_LENGTH         0x08
+#define LW232_FRAME_MAX_SIZE           (sizeof("Tiiiiiiiildddddddddddddddd\r")+1)
+
+#define LW232_OFF                      '0'
+#define LW232_ON_ONE                   '1'
+#define LW232_ON_TWO                   '2'
+
+#define LW232_AUTOPOLL_OFF             0x00
+#define LW232_AUTOPOLL_ON              0x01
+
+#define LW232_AUTOSTART_OFF            0x00
+#define LW232_AUTOSTART_ON_NORMAL      0x01
+#define LW232_AUTOSTART_ON_LISTEN      0x02
+
+#define LW232_TIMESTAMP_OFF            0x00
+#define LW232_TIMESTAMP_ON_NORMAL      0x01
+#define LW232_TIMESTAMP_ON_EXTENDED    0x02
+
+#define LW232_OFFSET_STD_PKT_LEN       0x04
+#define LW232_OFFSET_STD_PKT_DATA      0x05
+#define LW232_OFFSET_EXT_PKT_LEN       0x09
+#define LW232_OFFSET_EXT_PKT_DATA      0x0A
+
+
+#define LW232_DEFAULT_BAUD_RATE        115200
+#define LW232_DEFAULT_CAN_RATE         CAN_500KBPS
+#define LW232_DEFAULT_CLOCK_FREQ       MCP_16MHz
+
+#define LW232_CAN_BAUD_NUM             0x0a
+#define LW232_UART_BAUD_NUM            0x07
+
+
+const INT32U lw232SerialBaudRates[] //PROGMEM
+= { 230400, 115200, 57600, 38400, 19200, 9600, 2400 };
+
+const INT32U lw232CanBaudRates[] //PROGMEM
+= { CAN_10KBPS, CAN_20KBPS, CAN_50KBPS, CAN_100KBPS, CAN_125KBPS, CAN_250KBPS, CAN_500KBPS, CAN_500KBPS /*CAN_800KBPS*/, CAN_1000KBPS, CAN_83K3BPS };
+
+class Can232
+{
+public:
+    static void init(INT8U defaultCanSpeed = LW232_DEFAULT_CAN_RATE, const INT8U clock = LW232_DEFAULT_CLOCK_FREQ);
+    static void setFilter(INT8U (*userFunc)(INT32U));
+    static void loop();
+    static void serialEvent();
+
+private:
+    static Can232* _instance;
+    static Can232* instance();
+
+    void initFunc();
+    void setFilterFunc(INT8U (*userFunc)(INT32U));
+    void loopFunc();
+    void serialEventFunc();
+
+    INT8U (*userAddressFilterFunc)(INT32U addr) = 0;
+
+    MCP_CAN lw232CAN = MCP_CAN(LW232_CAN_BUS_SHIELD_CS_PIN);
+
+    INT8U lw232CanSpeedSelection = CAN_83K3BPS;
+    INT8U lw232McpModuleClock = MCP_16MHz;
+    INT8U lw232CanChannelMode = LW232_STATUS_CAN_CLOSED;
+    INT8U lw232LastErr = LW232_OK;
+
+    INT8U lw232AutoStart = LW232_AUTOSTART_OFF;
+    INT8U lw232AutoPoll  = LW232_AUTOPOLL_OFF;
+    INT8U lw232TimeStamp = LW232_TIMESTAMP_OFF;
+
+    INT32U lw232CanId = 0;
+
+    INT8U lw232Buffer[8];
+    INT8U lw232PacketLen = 0;
+
+    INT8U lw232Message[LW232_FRAME_MAX_SIZE];
+
+    String inputString = "";         // a string to hold incoming data
+    boolean stringComplete = false;  // whether the string is complete
+
+    INT8U parseAndRunCommand();
+    INT8U exec();
+
+    INT8U checkReceive();
+    INT8U readMsgBufID(INT32U *ID, INT8U *len, INT8U buf[]);
+    INT8U receiveSingleFrame();
+    INT8U isExtendedFrame();
+    INT8U checkPassFilter(INT32U addr);
+    INT8U openCanBus();
+    
+    INT8U sendMsgBuf(INT32U id, INT8U ext, INT8U rtr, INT8U len, INT8U *buf);
+
+    void  parseCanStdId();
+    void  parseCanExtId();
+};
+
+class HexHelper {
+public:
+    static void printFullByte(INT8U b);
+    static void printNibble(INT8U b);
+
+    static INT8U parseNibble(INT8U hex);
+    static INT8U parseFullByte(INT8U H, INT8U L);
+    static INT8U parseNibbleWithLimit(INT8U hex, INT8U limit);
+};
+
+class Can232Fake : Can232 {
+
+};
+
+
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: _CAN_232_H_
+|——Node:preproc_def Text: #define _CAN_232_H_
+
+|———Node:#define Text: #define
+|———Node:identifier Text: _CAN_232_H_
+|——Node:comment Text: //#if defined(ARDUINO) && ARDUINO >= 100
+|——Node:comment Text: //    #include "arduino.h"
+|——Node:comment Text: //#else
+|——Node:comment Text: //    #include "WProgram.h"
+|——Node:comment Text: //#endif
+|——Node:preproc_include Text: #include "mcp_can.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "mcp_can.h"
+|————Node:" Text: "
+|————Node:string_content Text: mcp_can.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "SoftwareSerial.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "SoftwareSerial.h"
+|————Node:" Text: "
+|————Node:string_content Text: SoftwareSerial.h
+|————Node:" Text: "
+|——Node:preproc_def Text: #define LW232_LAWICEL_VERSION_STR     "V1013"
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_LAWICEL_VERSION_STR
+|———Node:preproc_arg Text: "V1013"
+|——Node:preproc_def Text: #define LW232_LAWICEL_SERIAL_NUM      "NA123"
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_LAWICEL_SERIAL_NUM
+|———Node:preproc_arg Text: "NA123"
+|——Node:preproc_def Text: #define LW232_CAN_BUS_SHIELD_CS_PIN   10
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CAN_BUS_SHIELD_CS_PIN
+|———Node:preproc_arg Text: 10
+|——Node:comment Text: //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+|——Node:comment Text: //
+|——Node:comment Text: //   Commands not supported/not implemented:
+|——Node:comment Text: //     s, W, M, m, U
+|——Node:comment Text: //      
+|——Node:comment Text: //   Commands modified:
+|——Node:comment Text: //     S - supports not declared 83.3 rate straight away (S9)     
+|——Node:comment Text: //         refer to https://github.com/latonita/CAN_BUS_Shield fork with 83.3 support, easy to add.
+|——Node:comment Text: //     F - returns MCP2515 error flags
+|——Node:comment Text: //     Z - extra Z2 option enables 4 byte timestamp vs standard 2 byte (60000ms max)
+|——Node:comment Text: //
+|——Node:comment Text: //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+|——Node:comment Text: //                                   
+|——Node:comment Text: //                          CODE   SUPPORTED   SYNTAX               DESCRIPTION     
+|——Node:comment Text: //
+|——Node:preproc_def Text: #define LW232_CMD_SETUP     'S' //   YES+      Sn[CR]               Setup with standard CAN bit-rates where n is 0-8.
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_SETUP
+|———Node:preproc_arg Text: 'S' //   YES+      Sn[CR]               Setup with standard CAN bit-rates where n is 0-8.
+|——Node:comment Text: //                                  S0 10Kbit          S4 125Kbit         S8 1Mbit
+|——Node:comment Text: //                                  S1 20Kbit          S5 250Kbit         S9 83.3Kbit
+|——Node:comment Text: //                                  S2 50Kbit          S6 500Kbit
+|——Node:comment Text: //                                  S3 100Kbit         S7 800Kbit
+|——Node:preproc_def Text: #define LW232_CMD_SETUP_BTR 's' //    -        sxxyy[CR]            Setup with BTR0/BTR1 CAN bit-rates where xx and yy is a hex value.
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_SETUP_BTR
+|———Node:preproc_arg Text: 's' //    -        sxxyy[CR]            Setup with BTR0/BTR1 CAN bit-rates where xx and yy is a hex value.
+|——Node:preproc_def Text: #define LW232_CMD_OPEN      'O' //   YES       O[CR]                Open the CAN channel in normal mode (sending & receiving).
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_OPEN
+|———Node:preproc_arg Text: 'O' //   YES       O[CR]                Open the CAN channel in normal mode (sending & receiving).
+|——Node:preproc_def Text: #define LW232_CMD_LISTEN    'L' //   YES       L[CR]                Open the CAN channel in listen only mode (receiving).
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_LISTEN
+|———Node:preproc_arg Text: 'L' //   YES       L[CR]                Open the CAN channel in listen only mode (receiving).
+|——Node:preproc_def Text: #define LW232_CMD_CLOSE     'C' //   YES       C[CR]                Close the CAN channel.
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_CLOSE
+|———Node:preproc_arg Text: 'C' //   YES       C[CR]                Close the CAN channel.
+|——Node:preproc_def Text: #define LW232_CMD_TX11      't' //   YES       tiiildd...[CR]       Transmit a standard (11bit) CAN frame.
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_TX11
+|———Node:preproc_arg Text: 't' //   YES       tiiildd...[CR]       Transmit a standard (11bit) CAN frame.
+|——Node:preproc_def Text: #define LW232_CMD_TX29      'T' //   YES       Tiiiiiiiildd...[CR]  Transmit an extended (29bit) CAN frame
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_TX29
+|———Node:preproc_arg Text: 'T' //   YES       Tiiiiiiiildd...[CR]  Transmit an extended (29bit) CAN frame
+|——Node:preproc_def Text: #define LW232_CMD_RTR11     'r' //   YES       riiil[CR]            Transmit an standard RTR (11bit) CAN frame.
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_RTR11
+|———Node:preproc_arg Text: 'r' //   YES       riiil[CR]            Transmit an standard RTR (11bit) CAN frame.
+|——Node:preproc_def Text: #define LW232_CMD_RTR29     'R' //   YES       Riiiiiiiil[CR]       Transmit an extended RTR (29bit) CAN frame.
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_RTR29
+|———Node:preproc_arg Text: 'R' //   YES       Riiiiiiiil[CR]       Transmit an extended RTR (29bit) CAN frame.
+|——Node:preproc_def Text: #define LW232_CMD_POLL_ONE  'P' //   YES       P[CR]                Poll incomming FIFO for CAN frames (single poll)
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_POLL_ONE
+|———Node:preproc_arg Text: 'P' //   YES       P[CR]                Poll incomming FIFO for CAN frames (single poll)
+|——Node:preproc_def Text: #define LW232_CMD_POLL_MANY 'A' //   YES       A[CR]                Polls incomming FIFO for CAN frames (all pending frames)
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_POLL_MANY
+|———Node:preproc_arg Text: 'A' //   YES       A[CR]                Polls incomming FIFO for CAN frames (all pending frames)
+|——Node:preproc_def Text: #define LW232_CMD_FLAGS     'F' //   YES+      F[CR]                Read Status Flags.
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_FLAGS
+|———Node:preproc_arg Text: 'F' //   YES+      F[CR]                Read Status Flags.
+|——Node:preproc_def Text: #define LW232_CMD_AUTOPOLL  'X' //   YES       Xn[CR]               Sets Auto Poll/Send ON/OFF for received frames.
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_AUTOPOLL
+|———Node:preproc_arg Text: 'X' //   YES       Xn[CR]               Sets Auto Poll/Send ON/OFF for received frames.
+|——Node:preproc_def Text: #define LW232_CMD_FILTER    'W' //    -        Wn[CR]               Filter mode setting. By default CAN232 works in dual filter mode (0) and is backwards compatible with previous CAN232 versions.
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_FILTER
+|———Node:preproc_arg Text: 'W' //    -        Wn[CR]               Filter mode setting. By default CAN232 works in dual filter mode (0) and is backwards compatible with previous CAN232 versions.
+|——Node:preproc_def Text: #define LW232_CMD_ACC_CODE  'M' //    -        Mxxxxxxxx[CR]        Sets Acceptance Code Register (ACn Register of SJA1000). // we use MCP2515, not supported
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_ACC_CODE
+|———Node:preproc_arg Text: 'M' //    -        Mxxxxxxxx[CR]        Sets Acceptance Code Register (ACn Register of SJA1000). // we use MCP2515, not supported
+|——Node:preproc_def Text: #define LW232_CMD_ACC_MASK  'm' //    -        mxxxxxxxx[CR]        Sets Acceptance Mask Register (AMn Register of SJA1000). // we use MCP2515, not supported
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_ACC_MASK
+|———Node:preproc_arg Text: 'm' //    -        mxxxxxxxx[CR]        Sets Acceptance Mask Register (AMn Register of SJA1000). // we use MCP2515, not supported
+|——Node:preproc_def Text: #define LW232_CMD_UART      'U' //   YES       Un[CR]               Setup UART with a new baud rate where n is 0-6.
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_UART
+|———Node:preproc_arg Text: 'U' //   YES       Un[CR]               Setup UART with a new baud rate where n is 0-6.
+|——Node:preproc_def Text: #define LW232_CMD_VERSION1  'V' //   YES       v[CR]                Get Version number of both CAN232 hardware and software
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_VERSION1
+|———Node:preproc_arg Text: 'V' //   YES       v[CR]                Get Version number of both CAN232 hardware and software
+|——Node:preproc_def Text: #define LW232_CMD_VERSION2  'v' //   YES       V[CR]                Get Version number of both CAN232 hardware and software
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_VERSION2
+|———Node:preproc_arg Text: 'v' //   YES       V[CR]                Get Version number of both CAN232 hardware and software
+|——Node:preproc_def Text: #define LW232_CMD_SERIAL    'N' //   YES       N[CR]                Get Serial number of the CAN232.
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_SERIAL
+|———Node:preproc_arg Text: 'N' //   YES       N[CR]                Get Serial number of the CAN232.
+|——Node:preproc_def Text: #define LW232_CMD_TIMESTAMP 'Z' //   YES+      Zn[CR]               Sets Time Stamp ON/OFF for received frames only. EXTENSION to LAWICEL: Z2 - millis() timestamp w/o standard 60000ms cycle
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_TIMESTAMP
+|———Node:preproc_arg Text: 'Z' //   YES+      Zn[CR]               Sets Time Stamp ON/OFF for received frames only. EXTENSION to LAWICEL: Z2 - millis() timestamp w/o standard 60000ms cycle
+|——Node:preproc_def Text: #define LW232_CMD_AUTOSTART 'Q' //   YES  todo     Qn[CR]               Auto Startup feature (from power on). 
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CMD_AUTOSTART
+|———Node:preproc_arg Text: 'Q' //   YES  todo     Qn[CR]               Auto Startup feature (from power on). 
+|——Node:preproc_function_def Text: #define LOW_BYTE(x)     ((unsigned char)((x)&0xFF))
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LOW_BYTE
+|———Node:preproc_params Text: (x)
+|————Node:( Text: (
+|————Node:identifier Text: x
+|————Node:) Text: )
+|———Node:preproc_arg Text: ((unsigned char)((x)&0xFF))
+|——Node:preproc_function_def Text: #define HIGH_BYTE(x)    ((unsigned char)(((x)>>8)&0xFF))
+
+|———Node:#define Text: #define
+|———Node:identifier Text: HIGH_BYTE
+|———Node:preproc_params Text: (x)
+|————Node:( Text: (
+|————Node:identifier Text: x
+|————Node:) Text: )
+|———Node:preproc_arg Text: ((unsigned char)(((x)>>8)&0xFF))
+|——Node:preproc_function_def Text: #define LOW_WORD(x)     ((unsigned short)((x)&0xFFFF))
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LOW_WORD
+|———Node:preproc_params Text: (x)
+|————Node:( Text: (
+|————Node:identifier Text: x
+|————Node:) Text: )
+|———Node:preproc_arg Text: ((unsigned short)((x)&0xFFFF))
+|——Node:preproc_function_def Text: #define HIGH_WORD(x)    ((unsigned short)(((x)>>16)&0xFFFF))
+
+|———Node:#define Text: #define
+|———Node:identifier Text: HIGH_WORD
+|———Node:preproc_params Text: (x)
+|————Node:( Text: (
+|————Node:identifier Text: x
+|————Node:) Text: )
+|———Node:preproc_arg Text: ((unsigned short)(((x)>>16)&0xFFFF))
+|——Node:preproc_ifdef Text: #ifndef INT32U
+#define INT32U unsigned long
+#endif
+|———Node:#ifndef Text: #ifndef
+|———Node:identifier Text: INT32U
+|———Node:preproc_def Text: #define INT32U unsigned long
+
+|————Node:#define Text: #define
+|————Node:identifier Text: INT32U
+|————Node:preproc_arg Text: unsigned long
+|———Node:#endif Text: #endif
+|——Node:preproc_ifdef Text: #ifndef INT16U
+#define INT16U word
+#endif
+|———Node:#ifndef Text: #ifndef
+|———Node:identifier Text: INT16U
+|———Node:preproc_def Text: #define INT16U word
+
+|————Node:#define Text: #define
+|————Node:identifier Text: INT16U
+|————Node:preproc_arg Text: word
+|———Node:#endif Text: #endif
+|——Node:preproc_ifdef Text: #ifndef INT8U
+#define INT8U byte
+#endif
+|———Node:#ifndef Text: #ifndef
+|———Node:identifier Text: INT8U
+|———Node:preproc_def Text: #define INT8U byte
+
+|————Node:#define Text: #define
+|————Node:identifier Text: INT8U
+|————Node:preproc_arg Text: byte
+|———Node:#endif Text: #endif
+|——Node:preproc_def Text: #define LW232_OK                      0x00
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_OK
+|———Node:preproc_arg Text: 0x00
+|——Node:preproc_def Text: #define LW232_OK_SMALL                0x01
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_OK_SMALL
+|———Node:preproc_arg Text: 0x01
+|——Node:preproc_def Text: #define LW232_OK_BIG                  0x02
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_OK_BIG
+|———Node:preproc_arg Text: 0x02
+|——Node:preproc_def Text: #define LW232_ERR                     0x03
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_ERR
+|———Node:preproc_arg Text: 0x03
+|——Node:preproc_def Text: #define LW232_ERR_NOT_IMPLEMENTED     0x04
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_ERR_NOT_IMPLEMENTED
+|———Node:preproc_arg Text: 0x04
+|——Node:preproc_def Text: #define LW232_ERR_UNKNOWN_CMD         0x05
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_ERR_UNKNOWN_CMD
+|———Node:preproc_arg Text: 0x05
+|——Node:preproc_def Text: #define LW232_FILTER_SKIP			  0x00
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_FILTER_SKIP
+|———Node:preproc_arg Text: 0x00
+|——Node:preproc_def Text: #define LW232_FILTER_PROCESS	      0x01
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_FILTER_PROCESS
+|———Node:preproc_arg Text: 0x01
+|——Node:comment Text: //#define LW232_IS_OK(x) ((x)==LW232_OK ||(x)==LW232_OK_NEW ? TRUE : FALSE)
+|——Node:preproc_def Text: #define LW232_CR    '\r'
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CR
+|———Node:preproc_arg Text: '\r'
+|——Node:preproc_def Text: #define LW232_ALL   'A'
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_ALL
+|———Node:preproc_arg Text: 'A'
+|——Node:preproc_def Text: #define LW232_FLAG  'F'
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_FLAG
+|———Node:preproc_arg Text: 'F'
+|——Node:preproc_def Text: #define LW232_TR11  't'
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_TR11
+|———Node:preproc_arg Text: 't'
+|——Node:preproc_def Text: #define LW232_TR29  'T'
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_TR29
+|———Node:preproc_arg Text: 'T'
+|——Node:preproc_def Text: #define LW232_RET_ASCII_OK             0x0D
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_RET_ASCII_OK
+|———Node:preproc_arg Text: 0x0D
+|——Node:preproc_def Text: #define LW232_RET_ASCII_ERROR          0x07
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_RET_ASCII_ERROR
+|———Node:preproc_arg Text: 0x07
+|——Node:preproc_def Text: #define LW232_RET_ASCII_OK_SMALL       'z'
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_RET_ASCII_OK_SMALL
+|———Node:preproc_arg Text: 'z'
+|——Node:preproc_def Text: #define LW232_RET_ASCII_OK_BIG         'Z'
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_RET_ASCII_OK_BIG
+|———Node:preproc_arg Text: 'Z'
+|——Node:preproc_def Text: #define LW232_STATUS_CAN_CLOSED        0x00
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_STATUS_CAN_CLOSED
+|———Node:preproc_arg Text: 0x00
+|——Node:preproc_def Text: #define LW232_STATUS_CAN_OPEN_NORMAL   0x01
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_STATUS_CAN_OPEN_NORMAL
+|———Node:preproc_arg Text: 0x01
+|——Node:preproc_def Text: #define LW232_STATUS_CAN_OPEN_LISTEN   0x01
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_STATUS_CAN_OPEN_LISTEN
+|———Node:preproc_arg Text: 0x01
+|——Node:preproc_def Text: #define LW232_FRAME_MAX_LENGTH         0x08
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_FRAME_MAX_LENGTH
+|———Node:preproc_arg Text: 0x08
+|——Node:preproc_def Text: #define LW232_FRAME_MAX_SIZE           (sizeof("Tiiiiiiiildddddddddddddddd\r")+1)
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_FRAME_MAX_SIZE
+|———Node:preproc_arg Text: (sizeof("Tiiiiiiiildddddddddddddddd\r")+1)
+|——Node:preproc_def Text: #define LW232_OFF                      '0'
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_OFF
+|———Node:preproc_arg Text: '0'
+|——Node:preproc_def Text: #define LW232_ON_ONE                   '1'
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_ON_ONE
+|———Node:preproc_arg Text: '1'
+|——Node:preproc_def Text: #define LW232_ON_TWO                   '2'
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_ON_TWO
+|———Node:preproc_arg Text: '2'
+|——Node:preproc_def Text: #define LW232_AUTOPOLL_OFF             0x00
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_AUTOPOLL_OFF
+|———Node:preproc_arg Text: 0x00
+|——Node:preproc_def Text: #define LW232_AUTOPOLL_ON              0x01
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_AUTOPOLL_ON
+|———Node:preproc_arg Text: 0x01
+|——Node:preproc_def Text: #define LW232_AUTOSTART_OFF            0x00
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_AUTOSTART_OFF
+|———Node:preproc_arg Text: 0x00
+|——Node:preproc_def Text: #define LW232_AUTOSTART_ON_NORMAL      0x01
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_AUTOSTART_ON_NORMAL
+|———Node:preproc_arg Text: 0x01
+|——Node:preproc_def Text: #define LW232_AUTOSTART_ON_LISTEN      0x02
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_AUTOSTART_ON_LISTEN
+|———Node:preproc_arg Text: 0x02
+|——Node:preproc_def Text: #define LW232_TIMESTAMP_OFF            0x00
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_TIMESTAMP_OFF
+|———Node:preproc_arg Text: 0x00
+|——Node:preproc_def Text: #define LW232_TIMESTAMP_ON_NORMAL      0x01
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_TIMESTAMP_ON_NORMAL
+|———Node:preproc_arg Text: 0x01
+|——Node:preproc_def Text: #define LW232_TIMESTAMP_ON_EXTENDED    0x02
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_TIMESTAMP_ON_EXTENDED
+|———Node:preproc_arg Text: 0x02
+|——Node:preproc_def Text: #define LW232_OFFSET_STD_PKT_LEN       0x04
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_OFFSET_STD_PKT_LEN
+|———Node:preproc_arg Text: 0x04
+|——Node:preproc_def Text: #define LW232_OFFSET_STD_PKT_DATA      0x05
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_OFFSET_STD_PKT_DATA
+|———Node:preproc_arg Text: 0x05
+|——Node:preproc_def Text: #define LW232_OFFSET_EXT_PKT_LEN       0x09
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_OFFSET_EXT_PKT_LEN
+|———Node:preproc_arg Text: 0x09
+|——Node:preproc_def Text: #define LW232_OFFSET_EXT_PKT_DATA      0x0A
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_OFFSET_EXT_PKT_DATA
+|———Node:preproc_arg Text: 0x0A
+|——Node:preproc_def Text: #define LW232_DEFAULT_BAUD_RATE        115200
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_DEFAULT_BAUD_RATE
+|———Node:preproc_arg Text: 115200
+|——Node:preproc_def Text: #define LW232_DEFAULT_CAN_RATE         CAN_500KBPS
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_DEFAULT_CAN_RATE
+|———Node:preproc_arg Text: CAN_500KBPS
+|——Node:preproc_def Text: #define LW232_DEFAULT_CLOCK_FREQ       MCP_16MHz
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_DEFAULT_CLOCK_FREQ
+|———Node:preproc_arg Text: MCP_16MHz
+|——Node:preproc_def Text: #define LW232_CAN_BAUD_NUM             0x0a
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_CAN_BAUD_NUM
+|———Node:preproc_arg Text: 0x0a
+|——Node:preproc_def Text: #define LW232_UART_BAUD_NUM            0x07
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LW232_UART_BAUD_NUM
+|———Node:preproc_arg Text: 0x07
+|——Node:declaration Text: const INT32U lw232SerialBaudRates[] //PROGMEM
+= { 230400, 115200, 57600, 38400, 19200, 9600, 2400 };
+|———Node:type_qualifier Text: const
+|————Node:const Text: const
+|———Node:type_identifier Text: INT32U
+|———Node:init_declarator Text: lw232SerialBaudRates[] //PROGMEM
+= { 230400, 115200, 57600, 38400, 19200, 9600, 2400 }
+|————Node:array_declarator Text: lw232SerialBaudRates[]
+|—————Node:identifier Text: lw232SerialBaudRates
+|—————Node:[ Text: [
+|—————Node:] Text: ]
+|————Node:comment Text: //PROGMEM
+|————Node:= Text: =
+|————Node:initializer_list Text: { 230400, 115200, 57600, 38400, 19200, 9600, 2400 }
+|—————Node:{ Text: {
+|—————Node:number_literal Text: 230400
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 115200
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 57600
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 38400
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 19200
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 9600
+|—————Node:, Text: ,
+|—————Node:number_literal Text: 2400
+|—————Node:} Text: }
+|———Node:; Text: ;
+|——Node:declaration Text: const INT32U lw232CanBaudRates[] //PROGMEM
+= { CAN_10KBPS, CAN_20KBPS, CAN_50KBPS, CAN_100KBPS, CAN_125KBPS, CAN_250KBPS, CAN_500KBPS, CAN_500KBPS /*CAN_800KBPS*/, CAN_1000KBPS, CAN_83K3BPS };
+|———Node:type_qualifier Text: const
+|————Node:const Text: const
+|———Node:type_identifier Text: INT32U
+|———Node:init_declarator Text: lw232CanBaudRates[] //PROGMEM
+= { CAN_10KBPS, CAN_20KBPS, CAN_50KBPS, CAN_100KBPS, CAN_125KBPS, CAN_250KBPS, CAN_500KBPS, CAN_500KBPS /*CAN_800KBPS*/, CAN_1000KBPS, CAN_83K3BPS }
+|————Node:array_declarator Text: lw232CanBaudRates[]
+|—————Node:identifier Text: lw232CanBaudRates
+|—————Node:[ Text: [
+|—————Node:] Text: ]
+|————Node:comment Text: //PROGMEM
+|————Node:= Text: =
+|————Node:initializer_list Text: { CAN_10KBPS, CAN_20KBPS, CAN_50KBPS, CAN_100KBPS, CAN_125KBPS, CAN_250KBPS, CAN_500KBPS, CAN_500KBPS /*CAN_800KBPS*/, CAN_1000KBPS, CAN_83K3BPS }
+|—————Node:{ Text: {
+|—————Node:identifier Text: CAN_10KBPS
+|—————Node:, Text: ,
+|—————Node:identifier Text: CAN_20KBPS
+|—————Node:, Text: ,
+|—————Node:identifier Text: CAN_50KBPS
+|—————Node:, Text: ,
+|—————Node:identifier Text: CAN_100KBPS
+|—————Node:, Text: ,
+|—————Node:identifier Text: CAN_125KBPS
+|—————Node:, Text: ,
+|—————Node:identifier Text: CAN_250KBPS
+|—————Node:, Text: ,
+|—————Node:identifier Text: CAN_500KBPS
+|—————Node:, Text: ,
+|—————Node:identifier Text: CAN_500KBPS
+|—————Node:comment Text: /*CAN_800KBPS*/
+|—————Node:, Text: ,
+|—————Node:identifier Text: CAN_1000KBPS
+|—————Node:, Text: ,
+|—————Node:identifier Text: CAN_83K3BPS
+|—————Node:} Text: }
+|———Node:; Text: ;
+|——Node:function_definition Text: class Can232
+{
+public:
+    static void init(INT8U defaultCanSpeed = LW232_DEFAULT_CAN_RATE, const INT8U clock = LW232_DEFAULT_CLOCK_FREQ);
+    static void setFilter(INT8U (*userFunc)(INT32U));
+    static void loop();
+    static void serialEvent();
+
+private:
+    static Can232* _instance;
+    static Can232* instance();
+
+    void initFunc();
+    void setFilterFunc(INT8U (*userFunc)(INT32U));
+    void loopFunc();
+    void serialEventFunc();
+
+    INT8U (*userAddressFilterFunc)(INT32U addr) = 0;
+
+    MCP_CAN lw232CAN = MCP_CAN(LW232_CAN_BUS_SHIELD_CS_PIN);
+
+    INT8U lw232CanSpeedSelection = CAN_83K3BPS;
+    INT8U lw232McpModuleClock = MCP_16MHz;
+    INT8U lw232CanChannelMode = LW232_STATUS_CAN_CLOSED;
+    INT8U lw232LastErr = LW232_OK;
+
+    INT8U lw232AutoStart = LW232_AUTOSTART_OFF;
+    INT8U lw232AutoPoll  = LW232_AUTOPOLL_OFF;
+    INT8U lw232TimeStamp = LW232_TIMESTAMP_OFF;
+
+    INT32U lw232CanId = 0;
+
+    INT8U lw232Buffer[8];
+    INT8U lw232PacketLen = 0;
+
+    INT8U lw232Message[LW232_FRAME_MAX_SIZE];
+
+    String inputString = "";         // a string to hold incoming data
+    boolean stringComplete = false;  // whether the string is complete
+
+    INT8U parseAndRunCommand();
+    INT8U exec();
+
+    INT8U checkReceive();
+    INT8U readMsgBufID(INT32U *ID, INT8U *len, INT8U buf[]);
+    INT8U receiveSingleFrame();
+    INT8U isExtendedFrame();
+    INT8U checkPassFilter(INT32U addr);
+    INT8U openCanBus();
+    
+    INT8U sendMsgBuf(INT32U id, INT8U ext, INT8U rtr, INT8U len, INT8U *buf);
+
+    void  parseCanStdId();
+    void  parseCanExtId();
+}
+|———Node:type_identifier Text: class
+|———Node:identifier Text: Can232
+|———Node:compound_statement Text: {
+public:
+    static void init(INT8U defaultCanSpeed = LW232_DEFAULT_CAN_RATE, const INT8U clock = LW232_DEFAULT_CLOCK_FREQ);
+    static void setFilter(INT8U (*userFunc)(INT32U));
+    static void loop();
+    static void serialEvent();
+
+private:
+    static Can232* _instance;
+    static Can232* instance();
+
+    void initFunc();
+    void setFilterFunc(INT8U (*userFunc)(INT32U));
+    void loopFunc();
+    void serialEventFunc();
+
+    INT8U (*userAddressFilterFunc)(INT32U addr) = 0;
+
+    MCP_CAN lw232CAN = MCP_CAN(LW232_CAN_BUS_SHIELD_CS_PIN);
+
+    INT8U lw232CanSpeedSelection = CAN_83K3BPS;
+    INT8U lw232McpModuleClock = MCP_16MHz;
+    INT8U lw232CanChannelMode = LW232_STATUS_CAN_CLOSED;
+    INT8U lw232LastErr = LW232_OK;
+
+    INT8U lw232AutoStart = LW232_AUTOSTART_OFF;
+    INT8U lw232AutoPoll  = LW232_AUTOPOLL_OFF;
+    INT8U lw232TimeStamp = LW232_TIMESTAMP_OFF;
+
+    INT32U lw232CanId = 0;
+
+    INT8U lw232Buffer[8];
+    INT8U lw232PacketLen = 0;
+
+    INT8U lw232Message[LW232_FRAME_MAX_SIZE];
+
+    String inputString = "";         // a string to hold incoming data
+    boolean stringComplete = false;  // whether the string is complete
+
+    INT8U parseAndRunCommand();
+    INT8U exec();
+
+    INT8U checkReceive();
+    INT8U readMsgBufID(INT32U *ID, INT8U *len, INT8U buf[]);
+    INT8U receiveSingleFrame();
+    INT8U isExtendedFrame();
+    INT8U checkPassFilter(INT32U addr);
+    INT8U openCanBus();
+    
+    INT8U sendMsgBuf(INT32U id, INT8U ext, INT8U rtr, INT8U len, INT8U *buf);
+
+    void  parseCanStdId();
+    void  parseCanExtId();
+}
+|————Node:{ Text: {
+|————Node:labeled_statement Text: public:
+    static void init(INT8U defaultCanSpeed = LW232_DEFAULT_CAN_RATE, const INT8U clock = LW232_DEFAULT_CLOCK_FREQ);
+|—————Node:statement_identifier Text: public
+|—————Node:: Text: :
+|—————Node:declaration Text: static void init(INT8U defaultCanSpeed = LW232_DEFAULT_CAN_RATE, const INT8U clock = LW232_DEFAULT_CLOCK_FREQ);
+|——————Node:storage_class_specifier Text: static
+|———————Node:static Text: static
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: init(INT8U defaultCanSpeed = LW232_DEFAULT_CAN_RATE, const INT8U clock = LW232_DEFAULT_CLOCK_FREQ)
+|———————Node:identifier Text: init
+|———————Node:parameter_list Text: (INT8U defaultCanSpeed = LW232_DEFAULT_CAN_RATE, const INT8U clock = LW232_DEFAULT_CLOCK_FREQ)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: INT8U defaultCanSpeed = LW232_DEFAULT_CAN_RATE
+|—————————Node:type_identifier Text: INT8U
+|—————————Node:ERROR Text: defaultCanSpeed =
+|——————————Node:identifier Text: defaultCanSpeed
+|——————————Node:= Text: =
+|—————————Node:identifier Text: LW232_DEFAULT_CAN_RATE
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const INT8U clock = LW232_DEFAULT_CLOCK_FREQ
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:type_identifier Text: INT8U
+|—————————Node:ERROR Text: clock =
+|——————————Node:identifier Text: clock
+|——————————Node:= Text: =
+|—————————Node:identifier Text: LW232_DEFAULT_CLOCK_FREQ
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|————Node:declaration Text: static void setFilter(INT8U (*userFunc)(INT32U));
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setFilter(INT8U (*userFunc)(INT32U))
+|——————Node:identifier Text: setFilter
+|——————Node:parameter_list Text: (INT8U (*userFunc)(INT32U))
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: INT8U (*userFunc)(INT32U)
+|————————Node:type_identifier Text: INT8U
+|————————Node:function_declarator Text: (*userFunc)(INT32U)
+|—————————Node:parenthesized_declarator Text: (*userFunc)
+|——————————Node:( Text: (
+|——————————Node:pointer_declarator Text: *userFunc
+|———————————Node:* Text: *
+|———————————Node:identifier Text: userFunc
+|——————————Node:) Text: )
+|—————————Node:parameter_list Text: (INT32U)
+|——————————Node:( Text: (
+|——————————Node:parameter_declaration Text: INT32U
+|———————————Node:type_identifier Text: INT32U
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: static void loop();
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: loop()
+|——————Node:identifier Text: loop
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: static void serialEvent();
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: serialEvent()
+|——————Node:identifier Text: serialEvent
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:labeled_statement Text: private:
+    static Can232* _instance;
+|—————Node:statement_identifier Text: private
+|—————Node:: Text: :
+|—————Node:declaration Text: static Can232* _instance;
+|——————Node:storage_class_specifier Text: static
+|———————Node:static Text: static
+|——————Node:type_identifier Text: Can232
+|——————Node:pointer_declarator Text: * _instance
+|———————Node:* Text: *
+|———————Node:identifier Text: _instance
+|——————Node:; Text: ;
+|————Node:declaration Text: static Can232* instance();
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:type_identifier Text: Can232
+|—————Node:pointer_declarator Text: * instance()
+|——————Node:* Text: *
+|——————Node:function_declarator Text: instance()
+|———————Node:identifier Text: instance
+|———————Node:parameter_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void initFunc();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: initFunc()
+|——————Node:identifier Text: initFunc
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void setFilterFunc(INT8U (*userFunc)(INT32U));
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setFilterFunc(INT8U (*userFunc)(INT32U))
+|——————Node:identifier Text: setFilterFunc
+|——————Node:parameter_list Text: (INT8U (*userFunc)(INT32U))
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: INT8U (*userFunc)(INT32U)
+|————————Node:type_identifier Text: INT8U
+|————————Node:function_declarator Text: (*userFunc)(INT32U)
+|—————————Node:parenthesized_declarator Text: (*userFunc)
+|——————————Node:( Text: (
+|——————————Node:pointer_declarator Text: *userFunc
+|———————————Node:* Text: *
+|———————————Node:identifier Text: userFunc
+|——————————Node:) Text: )
+|—————————Node:parameter_list Text: (INT32U)
+|——————————Node:( Text: (
+|——————————Node:parameter_declaration Text: INT32U
+|———————————Node:type_identifier Text: INT32U
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void loopFunc();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: loopFunc()
+|——————Node:identifier Text: loopFunc
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void serialEventFunc();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: serialEventFunc()
+|——————Node:identifier Text: serialEventFunc
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U (*userAddressFilterFunc)(INT32U addr) = 0;
+|—————Node:type_identifier Text: INT8U
+|—————Node:init_declarator Text: (*userAddressFilterFunc)(INT32U addr) = 0
+|——————Node:function_declarator Text: (*userAddressFilterFunc)(INT32U addr)
+|———————Node:parenthesized_declarator Text: (*userAddressFilterFunc)
+|————————Node:( Text: (
+|————————Node:pointer_declarator Text: *userAddressFilterFunc
+|—————————Node:* Text: *
+|—————————Node:identifier Text: userAddressFilterFunc
+|————————Node:) Text: )
+|———————Node:parameter_list Text: (INT32U addr)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: INT32U addr
+|—————————Node:type_identifier Text: INT32U
+|—————————Node:identifier Text: addr
+|————————Node:) Text: )
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:declaration Text: MCP_CAN lw232CAN = MCP_CAN(LW232_CAN_BUS_SHIELD_CS_PIN);
+|—————Node:type_identifier Text: MCP_CAN
+|—————Node:init_declarator Text: lw232CAN = MCP_CAN(LW232_CAN_BUS_SHIELD_CS_PIN)
+|——————Node:identifier Text: lw232CAN
+|——————Node:= Text: =
+|——————Node:call_expression Text: MCP_CAN(LW232_CAN_BUS_SHIELD_CS_PIN)
+|———————Node:identifier Text: MCP_CAN
+|———————Node:argument_list Text: (LW232_CAN_BUS_SHIELD_CS_PIN)
+|————————Node:( Text: (
+|————————Node:identifier Text: LW232_CAN_BUS_SHIELD_CS_PIN
+|————————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U lw232CanSpeedSelection = CAN_83K3BPS;
+|—————Node:type_identifier Text: INT8U
+|—————Node:init_declarator Text: lw232CanSpeedSelection = CAN_83K3BPS
+|——————Node:identifier Text: lw232CanSpeedSelection
+|——————Node:= Text: =
+|——————Node:identifier Text: CAN_83K3BPS
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U lw232McpModuleClock = MCP_16MHz;
+|—————Node:type_identifier Text: INT8U
+|—————Node:init_declarator Text: lw232McpModuleClock = MCP_16MHz
+|——————Node:identifier Text: lw232McpModuleClock
+|——————Node:= Text: =
+|——————Node:identifier Text: MCP_16MHz
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U lw232CanChannelMode = LW232_STATUS_CAN_CLOSED;
+|—————Node:type_identifier Text: INT8U
+|—————Node:init_declarator Text: lw232CanChannelMode = LW232_STATUS_CAN_CLOSED
+|——————Node:identifier Text: lw232CanChannelMode
+|——————Node:= Text: =
+|——————Node:identifier Text: LW232_STATUS_CAN_CLOSED
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U lw232LastErr = LW232_OK;
+|—————Node:type_identifier Text: INT8U
+|—————Node:init_declarator Text: lw232LastErr = LW232_OK
+|——————Node:identifier Text: lw232LastErr
+|——————Node:= Text: =
+|——————Node:identifier Text: LW232_OK
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U lw232AutoStart = LW232_AUTOSTART_OFF;
+|—————Node:type_identifier Text: INT8U
+|—————Node:init_declarator Text: lw232AutoStart = LW232_AUTOSTART_OFF
+|——————Node:identifier Text: lw232AutoStart
+|——————Node:= Text: =
+|——————Node:identifier Text: LW232_AUTOSTART_OFF
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U lw232AutoPoll  = LW232_AUTOPOLL_OFF;
+|—————Node:type_identifier Text: INT8U
+|—————Node:init_declarator Text: lw232AutoPoll  = LW232_AUTOPOLL_OFF
+|——————Node:identifier Text: lw232AutoPoll
+|——————Node:= Text: =
+|——————Node:identifier Text: LW232_AUTOPOLL_OFF
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U lw232TimeStamp = LW232_TIMESTAMP_OFF;
+|—————Node:type_identifier Text: INT8U
+|—————Node:init_declarator Text: lw232TimeStamp = LW232_TIMESTAMP_OFF
+|——————Node:identifier Text: lw232TimeStamp
+|——————Node:= Text: =
+|——————Node:identifier Text: LW232_TIMESTAMP_OFF
+|—————Node:; Text: ;
+|————Node:declaration Text: INT32U lw232CanId = 0;
+|—————Node:type_identifier Text: INT32U
+|—————Node:init_declarator Text: lw232CanId = 0
+|——————Node:identifier Text: lw232CanId
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U lw232Buffer[8];
+|—————Node:type_identifier Text: INT8U
+|—————Node:array_declarator Text: lw232Buffer[8]
+|——————Node:identifier Text: lw232Buffer
+|——————Node:[ Text: [
+|——————Node:number_literal Text: 8
+|——————Node:] Text: ]
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U lw232PacketLen = 0;
+|—————Node:type_identifier Text: INT8U
+|—————Node:init_declarator Text: lw232PacketLen = 0
+|——————Node:identifier Text: lw232PacketLen
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U lw232Message[LW232_FRAME_MAX_SIZE];
+|—————Node:type_identifier Text: INT8U
+|—————Node:array_declarator Text: lw232Message[LW232_FRAME_MAX_SIZE]
+|——————Node:identifier Text: lw232Message
+|——————Node:[ Text: [
+|——————Node:identifier Text: LW232_FRAME_MAX_SIZE
+|——————Node:] Text: ]
+|—————Node:; Text: ;
+|————Node:declaration Text: String inputString = "";
+|—————Node:type_identifier Text: String
+|—————Node:init_declarator Text: inputString = ""
+|——————Node:identifier Text: inputString
+|——————Node:= Text: =
+|——————Node:string_literal Text: ""
+|———————Node:" Text: "
+|———————Node:" Text: "
+|—————Node:; Text: ;
+|————Node:comment Text: // a string to hold incoming data
+|————Node:declaration Text: boolean stringComplete = false;
+|—————Node:type_identifier Text: boolean
+|—————Node:init_declarator Text: stringComplete = false
+|——————Node:identifier Text: stringComplete
+|——————Node:= Text: =
+|——————Node:false Text: false
+|—————Node:; Text: ;
+|————Node:comment Text: // whether the string is complete
+|————Node:declaration Text: INT8U parseAndRunCommand();
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: parseAndRunCommand()
+|——————Node:identifier Text: parseAndRunCommand
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U exec();
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: exec()
+|——————Node:identifier Text: exec
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U checkReceive();
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: checkReceive()
+|——————Node:identifier Text: checkReceive
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U readMsgBufID(INT32U *ID, INT8U *len, INT8U buf[]);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: readMsgBufID(INT32U *ID, INT8U *len, INT8U buf[])
+|——————Node:identifier Text: readMsgBufID
+|——————Node:parameter_list Text: (INT32U *ID, INT8U *len, INT8U buf[])
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: INT32U *ID
+|————————Node:type_identifier Text: INT32U
+|————————Node:pointer_declarator Text: *ID
+|—————————Node:* Text: *
+|—————————Node:identifier Text: ID
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U *len
+|————————Node:type_identifier Text: INT8U
+|————————Node:pointer_declarator Text: *len
+|—————————Node:* Text: *
+|—————————Node:identifier Text: len
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U buf[]
+|————————Node:type_identifier Text: INT8U
+|————————Node:array_declarator Text: buf[]
+|—————————Node:identifier Text: buf
+|—————————Node:[ Text: [
+|—————————Node:] Text: ]
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U receiveSingleFrame();
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: receiveSingleFrame()
+|——————Node:identifier Text: receiveSingleFrame
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U isExtendedFrame();
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: isExtendedFrame()
+|——————Node:identifier Text: isExtendedFrame
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U checkPassFilter(INT32U addr);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: checkPassFilter(INT32U addr)
+|——————Node:identifier Text: checkPassFilter
+|——————Node:parameter_list Text: (INT32U addr)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: INT32U addr
+|————————Node:type_identifier Text: INT32U
+|————————Node:identifier Text: addr
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U openCanBus();
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: openCanBus()
+|——————Node:identifier Text: openCanBus
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U sendMsgBuf(INT32U id, INT8U ext, INT8U rtr, INT8U len, INT8U *buf);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: sendMsgBuf(INT32U id, INT8U ext, INT8U rtr, INT8U len, INT8U *buf)
+|——————Node:identifier Text: sendMsgBuf
+|——————Node:parameter_list Text: (INT32U id, INT8U ext, INT8U rtr, INT8U len, INT8U *buf)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: INT32U id
+|————————Node:type_identifier Text: INT32U
+|————————Node:identifier Text: id
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U ext
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: ext
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U rtr
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: rtr
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U len
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: len
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U *buf
+|————————Node:type_identifier Text: INT8U
+|————————Node:pointer_declarator Text: *buf
+|—————————Node:* Text: *
+|—————————Node:identifier Text: buf
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void  parseCanStdId();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: parseCanStdId()
+|——————Node:identifier Text: parseCanStdId
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void  parseCanExtId();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: parseCanExtId()
+|——————Node:identifier Text: parseCanExtId
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:expression_statement Text: ;
+|———Node:; Text: ;
+|——Node:function_definition Text: class HexHelper {
+public:
+    static void printFullByte(INT8U b);
+    static void printNibble(INT8U b);
+
+    static INT8U parseNibble(INT8U hex);
+    static INT8U parseFullByte(INT8U H, INT8U L);
+    static INT8U parseNibbleWithLimit(INT8U hex, INT8U limit);
+}
+|———Node:type_identifier Text: class
+|———Node:identifier Text: HexHelper
+|———Node:compound_statement Text: {
+public:
+    static void printFullByte(INT8U b);
+    static void printNibble(INT8U b);
+
+    static INT8U parseNibble(INT8U hex);
+    static INT8U parseFullByte(INT8U H, INT8U L);
+    static INT8U parseNibbleWithLimit(INT8U hex, INT8U limit);
+}
+|————Node:{ Text: {
+|————Node:labeled_statement Text: public:
+    static void printFullByte(INT8U b);
+|—————Node:statement_identifier Text: public
+|—————Node:: Text: :
+|—————Node:declaration Text: static void printFullByte(INT8U b);
+|——————Node:storage_class_specifier Text: static
+|———————Node:static Text: static
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: printFullByte(INT8U b)
+|———————Node:identifier Text: printFullByte
+|———————Node:parameter_list Text: (INT8U b)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: INT8U b
+|—————————Node:type_identifier Text: INT8U
+|—————————Node:identifier Text: b
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|————Node:declaration Text: static void printNibble(INT8U b);
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: printNibble(INT8U b)
+|——————Node:identifier Text: printNibble
+|——————Node:parameter_list Text: (INT8U b)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: INT8U b
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: b
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: static INT8U parseNibble(INT8U hex);
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: parseNibble(INT8U hex)
+|——————Node:identifier Text: parseNibble
+|——————Node:parameter_list Text: (INT8U hex)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: INT8U hex
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: hex
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: static INT8U parseFullByte(INT8U H, INT8U L);
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: parseFullByte(INT8U H, INT8U L)
+|——————Node:identifier Text: parseFullByte
+|——————Node:parameter_list Text: (INT8U H, INT8U L)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: INT8U H
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: H
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U L
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: L
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: static INT8U parseNibbleWithLimit(INT8U hex, INT8U limit);
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: parseNibbleWithLimit(INT8U hex, INT8U limit)
+|——————Node:identifier Text: parseNibbleWithLimit
+|——————Node:parameter_list Text: (INT8U hex, INT8U limit)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: INT8U hex
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: hex
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: INT8U limit
+|————————Node:type_identifier Text: INT8U
+|————————Node:identifier Text: limit
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:expression_statement Text: ;
+|———Node:; Text: ;
+|——Node:function_definition Text: class Can232Fake : Can232 {
+
+}
+|———Node:type_identifier Text: class
+|———Node:identifier Text: Can232Fake
+|———Node:ERROR Text: : Can232
+|————Node:: Text: :
+|————Node:identifier Text: Can232
+|———Node:compound_statement Text: {
+
+}
+|————Node:{ Text: {
+|————Node:} Text: }
+|——Node:expression_statement Text: ;
+|———Node:; Text: ;
+|——Node:#endif Text: #endif

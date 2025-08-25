@@ -1,0 +1,503 @@
+mmr_can-Src\mmr_can.c
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include "mmr_can.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "mmr_can.h"
+|———Node:" Text: "
+|———Node:string_content Text: mmr_can.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "mmr_can_util.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "mmr_can_util.h"
+|———Node:" Text: "
+|———Node:string_content Text: mmr_can_util.h
+|———Node:" Text: "
+|—Node:declaration Text: static uint8_t maskIdLower5Bits(CanRxHeader *header);
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: uint8_t
+|——Node:function_declarator Text: maskIdLower5Bits(CanRxHeader *header)
+|———Node:identifier Text: maskIdLower5Bits
+|———Node:parameter_list Text: (CanRxHeader *header)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: CanRxHeader *header
+|—————Node:type_identifier Text: CanRxHeader
+|—————Node:pointer_declarator Text: *header
+|——————Node:* Text: *
+|——————Node:identifier Text: header
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:function_definition Text: HalStatus MMR_CAN_BasicSetupAndStart(CanHandle *hcan) {
+  return
+    MMR_CAN_FilterConfigDefault(hcan) |
+    HAL_CAN_Start(hcan)
+    ;
+}
+|——Node:type_identifier Text: HalStatus
+|——Node:function_declarator Text: MMR_CAN_BasicSetupAndStart(CanHandle *hcan)
+|———Node:identifier Text: MMR_CAN_BasicSetupAndStart
+|———Node:parameter_list Text: (CanHandle *hcan)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: CanHandle *hcan
+|—————Node:type_identifier Text: CanHandle
+|—————Node:pointer_declarator Text: *hcan
+|——————Node:* Text: *
+|——————Node:identifier Text: hcan
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  return
+    MMR_CAN_FilterConfigDefault(hcan) |
+    HAL_CAN_Start(hcan)
+    ;
+}
+|———Node:{ Text: {
+|———Node:return_statement Text: return
+    MMR_CAN_FilterConfigDefault(hcan) |
+    HAL_CAN_Start(hcan)
+    ;
+|————Node:return Text: return
+|————Node:binary_expression Text: MMR_CAN_FilterConfigDefault(hcan) |
+    HAL_CAN_Start(hcan)
+|—————Node:call_expression Text: MMR_CAN_FilterConfigDefault(hcan)
+|——————Node:identifier Text: MMR_CAN_FilterConfigDefault
+|——————Node:argument_list Text: (hcan)
+|———————Node:( Text: (
+|———————Node:identifier Text: hcan
+|———————Node:) Text: )
+|—————Node:| Text: |
+|—————Node:call_expression Text: HAL_CAN_Start(hcan)
+|——————Node:identifier Text: HAL_CAN_Start
+|——————Node:argument_list Text: (hcan)
+|———————Node:( Text: (
+|———————Node:identifier Text: hcan
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: HalStatus MMR_CAN_FilterConfig(CanHandle *hcan, MmrCanFilterSettings settings) {
+  CanFilter filter = {
+    .FilterActivation = settings.enabled
+      ? CAN_FILTER_ENABLE
+      : CAN_FILTER_DISABLE,
+
+    .FilterIdHigh = settings.idMask,
+    .FilterMaskIdHigh = settings.idMask,
+    .FilterFIFOAssignment = settings.fifo,
+    .FilterBank = settings.bank,
+    .SlaveStartFilterBank = settings.slaveBankStart,
+    .FilterMode = CAN_FILTERMODE_IDMASK,
+    .FilterScale = CAN_FILTERSCALE_32BIT,
+  };
+
+  return HAL_CAN_ConfigFilter(hcan, &filter);
+}
+|——Node:type_identifier Text: HalStatus
+|——Node:function_declarator Text: MMR_CAN_FilterConfig(CanHandle *hcan, MmrCanFilterSettings settings)
+|———Node:identifier Text: MMR_CAN_FilterConfig
+|———Node:parameter_list Text: (CanHandle *hcan, MmrCanFilterSettings settings)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: CanHandle *hcan
+|—————Node:type_identifier Text: CanHandle
+|—————Node:pointer_declarator Text: *hcan
+|——————Node:* Text: *
+|——————Node:identifier Text: hcan
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: MmrCanFilterSettings settings
+|—————Node:type_identifier Text: MmrCanFilterSettings
+|—————Node:identifier Text: settings
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  CanFilter filter = {
+    .FilterActivation = settings.enabled
+      ? CAN_FILTER_ENABLE
+      : CAN_FILTER_DISABLE,
+
+    .FilterIdHigh = settings.idMask,
+    .FilterMaskIdHigh = settings.idMask,
+    .FilterFIFOAssignment = settings.fifo,
+    .FilterBank = settings.bank,
+    .SlaveStartFilterBank = settings.slaveBankStart,
+    .FilterMode = CAN_FILTERMODE_IDMASK,
+    .FilterScale = CAN_FILTERSCALE_32BIT,
+  };
+
+  return HAL_CAN_ConfigFilter(hcan, &filter);
+}
+|———Node:{ Text: {
+|———Node:declaration Text: CanFilter filter = {
+    .FilterActivation = settings.enabled
+      ? CAN_FILTER_ENABLE
+      : CAN_FILTER_DISABLE,
+
+    .FilterIdHigh = settings.idMask,
+    .FilterMaskIdHigh = settings.idMask,
+    .FilterFIFOAssignment = settings.fifo,
+    .FilterBank = settings.bank,
+    .SlaveStartFilterBank = settings.slaveBankStart,
+    .FilterMode = CAN_FILTERMODE_IDMASK,
+    .FilterScale = CAN_FILTERSCALE_32BIT,
+  };
+|————Node:type_identifier Text: CanFilter
+|————Node:init_declarator Text: filter = {
+    .FilterActivation = settings.enabled
+      ? CAN_FILTER_ENABLE
+      : CAN_FILTER_DISABLE,
+
+    .FilterIdHigh = settings.idMask,
+    .FilterMaskIdHigh = settings.idMask,
+    .FilterFIFOAssignment = settings.fifo,
+    .FilterBank = settings.bank,
+    .SlaveStartFilterBank = settings.slaveBankStart,
+    .FilterMode = CAN_FILTERMODE_IDMASK,
+    .FilterScale = CAN_FILTERSCALE_32BIT,
+  }
+|—————Node:identifier Text: filter
+|—————Node:= Text: =
+|—————Node:initializer_list Text: {
+    .FilterActivation = settings.enabled
+      ? CAN_FILTER_ENABLE
+      : CAN_FILTER_DISABLE,
+
+    .FilterIdHigh = settings.idMask,
+    .FilterMaskIdHigh = settings.idMask,
+    .FilterFIFOAssignment = settings.fifo,
+    .FilterBank = settings.bank,
+    .SlaveStartFilterBank = settings.slaveBankStart,
+    .FilterMode = CAN_FILTERMODE_IDMASK,
+    .FilterScale = CAN_FILTERSCALE_32BIT,
+  }
+|——————Node:{ Text: {
+|——————Node:initializer_pair Text: .FilterActivation = settings.enabled
+      ? CAN_FILTER_ENABLE
+      : CAN_FILTER_DISABLE
+|———————Node:field_designator Text: .FilterActivation
+|————————Node:. Text: .
+|————————Node:field_identifier Text: FilterActivation
+|———————Node:= Text: =
+|———————Node:conditional_expression Text: settings.enabled
+      ? CAN_FILTER_ENABLE
+      : CAN_FILTER_DISABLE
+|————————Node:field_expression Text: settings.enabled
+|—————————Node:identifier Text: settings
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: enabled
+|————————Node:? Text: ?
+|————————Node:identifier Text: CAN_FILTER_ENABLE
+|————————Node:: Text: :
+|————————Node:identifier Text: CAN_FILTER_DISABLE
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .FilterIdHigh = settings.idMask
+|———————Node:field_designator Text: .FilterIdHigh
+|————————Node:. Text: .
+|————————Node:field_identifier Text: FilterIdHigh
+|———————Node:= Text: =
+|———————Node:field_expression Text: settings.idMask
+|————————Node:identifier Text: settings
+|————————Node:. Text: .
+|————————Node:field_identifier Text: idMask
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .FilterMaskIdHigh = settings.idMask
+|———————Node:field_designator Text: .FilterMaskIdHigh
+|————————Node:. Text: .
+|————————Node:field_identifier Text: FilterMaskIdHigh
+|———————Node:= Text: =
+|———————Node:field_expression Text: settings.idMask
+|————————Node:identifier Text: settings
+|————————Node:. Text: .
+|————————Node:field_identifier Text: idMask
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .FilterFIFOAssignment = settings.fifo
+|———————Node:field_designator Text: .FilterFIFOAssignment
+|————————Node:. Text: .
+|————————Node:field_identifier Text: FilterFIFOAssignment
+|———————Node:= Text: =
+|———————Node:field_expression Text: settings.fifo
+|————————Node:identifier Text: settings
+|————————Node:. Text: .
+|————————Node:field_identifier Text: fifo
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .FilterBank = settings.bank
+|———————Node:field_designator Text: .FilterBank
+|————————Node:. Text: .
+|————————Node:field_identifier Text: FilterBank
+|———————Node:= Text: =
+|———————Node:field_expression Text: settings.bank
+|————————Node:identifier Text: settings
+|————————Node:. Text: .
+|————————Node:field_identifier Text: bank
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .SlaveStartFilterBank = settings.slaveBankStart
+|———————Node:field_designator Text: .SlaveStartFilterBank
+|————————Node:. Text: .
+|————————Node:field_identifier Text: SlaveStartFilterBank
+|———————Node:= Text: =
+|———————Node:field_expression Text: settings.slaveBankStart
+|————————Node:identifier Text: settings
+|————————Node:. Text: .
+|————————Node:field_identifier Text: slaveBankStart
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .FilterMode = CAN_FILTERMODE_IDMASK
+|———————Node:field_designator Text: .FilterMode
+|————————Node:. Text: .
+|————————Node:field_identifier Text: FilterMode
+|———————Node:= Text: =
+|———————Node:identifier Text: CAN_FILTERMODE_IDMASK
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .FilterScale = CAN_FILTERSCALE_32BIT
+|———————Node:field_designator Text: .FilterScale
+|————————Node:. Text: .
+|————————Node:field_identifier Text: FilterScale
+|———————Node:= Text: =
+|———————Node:identifier Text: CAN_FILTERSCALE_32BIT
+|——————Node:, Text: ,
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:return_statement Text: return HAL_CAN_ConfigFilter(hcan, &filter);
+|————Node:return Text: return
+|————Node:call_expression Text: HAL_CAN_ConfigFilter(hcan, &filter)
+|—————Node:identifier Text: HAL_CAN_ConfigFilter
+|—————Node:argument_list Text: (hcan, &filter)
+|——————Node:( Text: (
+|——————Node:identifier Text: hcan
+|——————Node:, Text: ,
+|——————Node:pointer_expression Text: &filter
+|———————Node:& Text: &
+|———————Node:identifier Text: filter
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: CanFilterMask MMR_CAN_AlignStandardMask(CanFilterMask baseMask) {
+  static const uint8_t extendedMaskSurplusBytes = 5;
+  return baseMask << extendedMaskSurplusBytes;
+}
+|——Node:type_identifier Text: CanFilterMask
+|——Node:function_declarator Text: MMR_CAN_AlignStandardMask(CanFilterMask baseMask)
+|———Node:identifier Text: MMR_CAN_AlignStandardMask
+|———Node:parameter_list Text: (CanFilterMask baseMask)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: CanFilterMask baseMask
+|—————Node:type_identifier Text: CanFilterMask
+|—————Node:identifier Text: baseMask
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  static const uint8_t extendedMaskSurplusBytes = 5;
+  return baseMask << extendedMaskSurplusBytes;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: static const uint8_t extendedMaskSurplusBytes = 5;
+|————Node:storage_class_specifier Text: static
+|—————Node:static Text: static
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:primitive_type Text: uint8_t
+|————Node:init_declarator Text: extendedMaskSurplusBytes = 5
+|—————Node:identifier Text: extendedMaskSurplusBytes
+|—————Node:= Text: =
+|—————Node:number_literal Text: 5
+|————Node:; Text: ;
+|———Node:return_statement Text: return baseMask << extendedMaskSurplusBytes;
+|————Node:return Text: return
+|————Node:binary_expression Text: baseMask << extendedMaskSurplusBytes
+|—————Node:identifier Text: baseMask
+|—————Node:<< Text: <<
+|—————Node:identifier Text: extendedMaskSurplusBytes
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: MmrCanFilterSettings MMR_CAN_GetDefaultFilterSettings() {
+  return (MmrCanFilterSettings) {
+    .enabled = true,
+    .fifo = MMR_CAN_FILTER_FIFO,
+    .idMask = 0,
+    .bank = 0,
+    .slaveBankStart = 14,
+  };
+}
+|——Node:type_identifier Text: MmrCanFilterSettings
+|——Node:function_declarator Text: MMR_CAN_GetDefaultFilterSettings()
+|———Node:identifier Text: MMR_CAN_GetDefaultFilterSettings
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  return (MmrCanFilterSettings) {
+    .enabled = true,
+    .fifo = MMR_CAN_FILTER_FIFO,
+    .idMask = 0,
+    .bank = 0,
+    .slaveBankStart = 14,
+  };
+}
+|———Node:{ Text: {
+|———Node:return_statement Text: return (MmrCanFilterSettings) {
+    .enabled = true,
+    .fifo = MMR_CAN_FILTER_FIFO,
+    .idMask = 0,
+    .bank = 0,
+    .slaveBankStart = 14,
+  };
+|————Node:return Text: return
+|————Node:compound_literal_expression Text: (MmrCanFilterSettings) {
+    .enabled = true,
+    .fifo = MMR_CAN_FILTER_FIFO,
+    .idMask = 0,
+    .bank = 0,
+    .slaveBankStart = 14,
+  }
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: MmrCanFilterSettings
+|——————Node:type_identifier Text: MmrCanFilterSettings
+|—————Node:) Text: )
+|—————Node:initializer_list Text: {
+    .enabled = true,
+    .fifo = MMR_CAN_FILTER_FIFO,
+    .idMask = 0,
+    .bank = 0,
+    .slaveBankStart = 14,
+  }
+|——————Node:{ Text: {
+|——————Node:initializer_pair Text: .enabled = true
+|———————Node:field_designator Text: .enabled
+|————————Node:. Text: .
+|————————Node:field_identifier Text: enabled
+|———————Node:= Text: =
+|———————Node:true Text: true
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .fifo = MMR_CAN_FILTER_FIFO
+|———————Node:field_designator Text: .fifo
+|————————Node:. Text: .
+|————————Node:field_identifier Text: fifo
+|———————Node:= Text: =
+|———————Node:identifier Text: MMR_CAN_FILTER_FIFO
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .idMask = 0
+|———————Node:field_designator Text: .idMask
+|————————Node:. Text: .
+|————————Node:field_identifier Text: idMask
+|———————Node:= Text: =
+|———————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .bank = 0
+|———————Node:field_designator Text: .bank
+|————————Node:. Text: .
+|————————Node:field_identifier Text: bank
+|———————Node:= Text: =
+|———————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:initializer_pair Text: .slaveBankStart = 14
+|———————Node:field_designator Text: .slaveBankStart
+|————————Node:. Text: .
+|————————Node:field_identifier Text: slaveBankStart
+|———————Node:= Text: =
+|———————Node:number_literal Text: 14
+|——————Node:, Text: ,
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: bool MMR_CAN_IsMultiFrame(CanRxHeader *header) {
+  return maskIdLower5Bits(header) == MMR_CAN_MESSAGE_TYPE_MULTI_FRAME;
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: MMR_CAN_IsMultiFrame(CanRxHeader *header)
+|———Node:identifier Text: MMR_CAN_IsMultiFrame
+|———Node:parameter_list Text: (CanRxHeader *header)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: CanRxHeader *header
+|—————Node:type_identifier Text: CanRxHeader
+|—————Node:pointer_declarator Text: *header
+|——————Node:* Text: *
+|——————Node:identifier Text: header
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  return maskIdLower5Bits(header) == MMR_CAN_MESSAGE_TYPE_MULTI_FRAME;
+}
+|———Node:{ Text: {
+|———Node:return_statement Text: return maskIdLower5Bits(header) == MMR_CAN_MESSAGE_TYPE_MULTI_FRAME;
+|————Node:return Text: return
+|————Node:binary_expression Text: maskIdLower5Bits(header) == MMR_CAN_MESSAGE_TYPE_MULTI_FRAME
+|—————Node:call_expression Text: maskIdLower5Bits(header)
+|——————Node:identifier Text: maskIdLower5Bits
+|——————Node:argument_list Text: (header)
+|———————Node:( Text: (
+|———————Node:identifier Text: header
+|———————Node:) Text: )
+|—————Node:== Text: ==
+|—————Node:identifier Text: MMR_CAN_MESSAGE_TYPE_MULTI_FRAME
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: bool MMR_CAN_IsMultiFrameEnd(CanRxHeader *header) {
+  return maskIdLower5Bits(header) == MMR_CAN_MESSAGE_TYPE_MULTI_FRAME_END;
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: MMR_CAN_IsMultiFrameEnd(CanRxHeader *header)
+|———Node:identifier Text: MMR_CAN_IsMultiFrameEnd
+|———Node:parameter_list Text: (CanRxHeader *header)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: CanRxHeader *header
+|—————Node:type_identifier Text: CanRxHeader
+|—————Node:pointer_declarator Text: *header
+|——————Node:* Text: *
+|——————Node:identifier Text: header
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  return maskIdLower5Bits(header) == MMR_CAN_MESSAGE_TYPE_MULTI_FRAME_END;
+}
+|———Node:{ Text: {
+|———Node:return_statement Text: return maskIdLower5Bits(header) == MMR_CAN_MESSAGE_TYPE_MULTI_FRAME_END;
+|————Node:return Text: return
+|————Node:binary_expression Text: maskIdLower5Bits(header) == MMR_CAN_MESSAGE_TYPE_MULTI_FRAME_END
+|—————Node:call_expression Text: maskIdLower5Bits(header)
+|——————Node:identifier Text: maskIdLower5Bits
+|——————Node:argument_list Text: (header)
+|———————Node:( Text: (
+|———————Node:identifier Text: header
+|———————Node:) Text: )
+|—————Node:== Text: ==
+|—————Node:identifier Text: MMR_CAN_MESSAGE_TYPE_MULTI_FRAME_END
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: static always_inline uint8_t maskIdLower5Bits(CanRxHeader *header) {
+  return mask(header->ExtId, B8_(0001, 1111));
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:type_identifier Text: always_inline
+|——Node:ERROR Text: uint8_t
+|———Node:identifier Text: uint8_t
+|——Node:function_declarator Text: maskIdLower5Bits(CanRxHeader *header)
+|———Node:identifier Text: maskIdLower5Bits
+|———Node:parameter_list Text: (CanRxHeader *header)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: CanRxHeader *header
+|—————Node:type_identifier Text: CanRxHeader
+|—————Node:pointer_declarator Text: *header
+|——————Node:* Text: *
+|——————Node:identifier Text: header
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  return mask(header->ExtId, B8_(0001, 1111));
+}
+|———Node:{ Text: {
+|———Node:return_statement Text: return mask(header->ExtId, B8_(0001, 1111));
+|————Node:return Text: return
+|————Node:call_expression Text: mask(header->ExtId, B8_(0001, 1111))
+|—————Node:identifier Text: mask
+|—————Node:argument_list Text: (header->ExtId, B8_(0001, 1111))
+|——————Node:( Text: (
+|——————Node:field_expression Text: header->ExtId
+|———————Node:identifier Text: header
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: ExtId
+|——————Node:, Text: ,
+|——————Node:call_expression Text: B8_(0001, 1111)
+|———————Node:identifier Text: B8_
+|———————Node:argument_list Text: (0001, 1111)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 0001
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 1111
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }

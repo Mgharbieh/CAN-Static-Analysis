@@ -1,0 +1,278 @@
+cansee-include\config.h
+
+|Node:translation_unit
+|—Node:preproc_ifdef Text: #ifndef _CONFIG_H_
+#define _CONFIG_H_
+
+#include <EEPROM.h>
+
+#define WIFI_STATION 1
+#define WIFI_SOFTAP  2
+
+#define DEBUG_COMMAND_FF      0x08
+#define DEBUG_COMMAND         0x04
+#define DEBUG_BUS_RECEIVE_FF  0x01
+#define DEBUG_COMMAND_ISO     0x10
+
+// Config ********************************************************************
+// structure that defines the firmware's configuration
+typedef struct {
+  uint32_t magicnumber;                    // does that read CanSee?
+  byte version;
+  byte mode_serial;
+  byte mode_bluetooth;
+  byte mode_wifi;
+  byte mode_debug;
+  byte mode_leds;
+  char name_bluetooth [32];
+  char pin_bluetooth [8];
+  char ssid_ap [32];
+  char password_ap [16];
+  char ssid_station [32];
+  char password_station [16];
+  byte can0_rx;
+  byte can0_tx;
+  uint16_t can0_speed;
+  byte can1_rx;
+  byte can1_tx;
+  uint16_t can1_speed;
+} CS_CONFIG_t;
+
+CS_CONFIG_t *getConfigFromEeprom ();
+void setConfigToEeprom (bool reset);
+
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: _CONFIG_H_
+|——Node:preproc_def Text: #define _CONFIG_H_
+
+|———Node:#define Text: #define
+|———Node:identifier Text: _CONFIG_H_
+|——Node:preproc_include Text: #include <EEPROM.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <EEPROM.h>
+|——Node:preproc_def Text: #define WIFI_STATION 1
+
+|———Node:#define Text: #define
+|———Node:identifier Text: WIFI_STATION
+|———Node:preproc_arg Text: 1
+|——Node:preproc_def Text: #define WIFI_SOFTAP  2
+
+|———Node:#define Text: #define
+|———Node:identifier Text: WIFI_SOFTAP
+|———Node:preproc_arg Text: 2
+|——Node:preproc_def Text: #define DEBUG_COMMAND_FF      0x08
+
+|———Node:#define Text: #define
+|———Node:identifier Text: DEBUG_COMMAND_FF
+|———Node:preproc_arg Text: 0x08
+|——Node:preproc_def Text: #define DEBUG_COMMAND         0x04
+
+|———Node:#define Text: #define
+|———Node:identifier Text: DEBUG_COMMAND
+|———Node:preproc_arg Text: 0x04
+|——Node:preproc_def Text: #define DEBUG_BUS_RECEIVE_FF  0x01
+
+|———Node:#define Text: #define
+|———Node:identifier Text: DEBUG_BUS_RECEIVE_FF
+|———Node:preproc_arg Text: 0x01
+|——Node:preproc_def Text: #define DEBUG_COMMAND_ISO     0x10
+
+|———Node:#define Text: #define
+|———Node:identifier Text: DEBUG_COMMAND_ISO
+|———Node:preproc_arg Text: 0x10
+|——Node:comment
+|——Node:comment
+|——Node:type_definition Text: typedef struct {
+  uint32_t magicnumber;                    // does that read CanSee?
+  byte version;
+  byte mode_serial;
+  byte mode_bluetooth;
+  byte mode_wifi;
+  byte mode_debug;
+  byte mode_leds;
+  char name_bluetooth [32];
+  char pin_bluetooth [8];
+  char ssid_ap [32];
+  char password_ap [16];
+  char ssid_station [32];
+  char password_station [16];
+  byte can0_rx;
+  byte can0_tx;
+  uint16_t can0_speed;
+  byte can1_rx;
+  byte can1_tx;
+  uint16_t can1_speed;
+} CS_CONFIG_t;
+|———Node:typedef Text: typedef
+|———Node:struct_specifier Text: struct {
+  uint32_t magicnumber;                    // does that read CanSee?
+  byte version;
+  byte mode_serial;
+  byte mode_bluetooth;
+  byte mode_wifi;
+  byte mode_debug;
+  byte mode_leds;
+  char name_bluetooth [32];
+  char pin_bluetooth [8];
+  char ssid_ap [32];
+  char password_ap [16];
+  char ssid_station [32];
+  char password_station [16];
+  byte can0_rx;
+  byte can0_tx;
+  uint16_t can0_speed;
+  byte can1_rx;
+  byte can1_tx;
+  uint16_t can1_speed;
+}
+|————Node:struct Text: struct
+|————Node:field_declaration_list Text: {
+  uint32_t magicnumber;                    // does that read CanSee?
+  byte version;
+  byte mode_serial;
+  byte mode_bluetooth;
+  byte mode_wifi;
+  byte mode_debug;
+  byte mode_leds;
+  char name_bluetooth [32];
+  char pin_bluetooth [8];
+  char ssid_ap [32];
+  char password_ap [16];
+  char ssid_station [32];
+  char password_station [16];
+  byte can0_rx;
+  byte can0_tx;
+  uint16_t can0_speed;
+  byte can1_rx;
+  byte can1_tx;
+  uint16_t can1_speed;
+}
+|—————Node:{ Text: {
+|—————Node:field_declaration Text: uint32_t magicnumber;
+|——————Node:primitive_type Text: uint32_t
+|——————Node:field_identifier Text: magicnumber
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:field_declaration Text: byte version;
+|——————Node:type_identifier Text: byte
+|——————Node:field_identifier Text: version
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: byte mode_serial;
+|——————Node:type_identifier Text: byte
+|——————Node:field_identifier Text: mode_serial
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: byte mode_bluetooth;
+|——————Node:type_identifier Text: byte
+|——————Node:field_identifier Text: mode_bluetooth
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: byte mode_wifi;
+|——————Node:type_identifier Text: byte
+|——————Node:field_identifier Text: mode_wifi
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: byte mode_debug;
+|——————Node:type_identifier Text: byte
+|——————Node:field_identifier Text: mode_debug
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: byte mode_leds;
+|——————Node:type_identifier Text: byte
+|——————Node:field_identifier Text: mode_leds
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: char name_bluetooth [32];
+|——————Node:primitive_type Text: char
+|——————Node:array_declarator Text: name_bluetooth [32]
+|———————Node:field_identifier Text: name_bluetooth
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 32
+|———————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: char pin_bluetooth [8];
+|——————Node:primitive_type Text: char
+|——————Node:array_declarator Text: pin_bluetooth [8]
+|———————Node:field_identifier Text: pin_bluetooth
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 8
+|———————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: char ssid_ap [32];
+|——————Node:primitive_type Text: char
+|——————Node:array_declarator Text: ssid_ap [32]
+|———————Node:field_identifier Text: ssid_ap
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 32
+|———————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: char password_ap [16];
+|——————Node:primitive_type Text: char
+|——————Node:array_declarator Text: password_ap [16]
+|———————Node:field_identifier Text: password_ap
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 16
+|———————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: char ssid_station [32];
+|——————Node:primitive_type Text: char
+|——————Node:array_declarator Text: ssid_station [32]
+|———————Node:field_identifier Text: ssid_station
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 32
+|———————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: char password_station [16];
+|——————Node:primitive_type Text: char
+|——————Node:array_declarator Text: password_station [16]
+|———————Node:field_identifier Text: password_station
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 16
+|———————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: byte can0_rx;
+|——————Node:type_identifier Text: byte
+|——————Node:field_identifier Text: can0_rx
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: byte can0_tx;
+|——————Node:type_identifier Text: byte
+|——————Node:field_identifier Text: can0_tx
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: uint16_t can0_speed;
+|——————Node:primitive_type Text: uint16_t
+|——————Node:field_identifier Text: can0_speed
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: byte can1_rx;
+|——————Node:type_identifier Text: byte
+|——————Node:field_identifier Text: can1_rx
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: byte can1_tx;
+|——————Node:type_identifier Text: byte
+|——————Node:field_identifier Text: can1_tx
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: uint16_t can1_speed;
+|——————Node:primitive_type Text: uint16_t
+|——————Node:field_identifier Text: can1_speed
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:type_identifier Text: CS_CONFIG_t
+|———Node:; Text: ;
+|——Node:declaration Text: CS_CONFIG_t *getConfigFromEeprom ();
+|———Node:type_identifier Text: CS_CONFIG_t
+|———Node:pointer_declarator Text: *getConfigFromEeprom ()
+|————Node:* Text: *
+|————Node:function_declarator Text: getConfigFromEeprom ()
+|—————Node:identifier Text: getConfigFromEeprom
+|—————Node:parameter_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: void setConfigToEeprom (bool reset);
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: setConfigToEeprom (bool reset)
+|————Node:identifier Text: setConfigToEeprom
+|————Node:parameter_list Text: (bool reset)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: bool reset
+|——————Node:primitive_type Text: bool
+|——————Node:identifier Text: reset
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:#endif Text: #endif

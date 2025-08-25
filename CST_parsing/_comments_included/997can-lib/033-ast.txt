@@ -1,0 +1,1033 @@
+997can-lib-EngineMsmt.h
+
+|Node:translation_unit
+|—Node:preproc_ifdef Text: #ifndef _ENGINEMSMT_H
+#define _ENGINEMSMT_H
+#include <arduino.h>
+#include <avr/pgmspace.h>
+
+
+
+#define FOREACH_EngineError(EngineError) \
+        EngineError(OK)   \
+        EngineError(CRC_NOT_VALID)  \
+     
+
+#define GENERATE_ENUM(ENUM) ENUM,
+
+enum EngineError {
+	FOREACH_EngineError(GENERATE_ENUM)
+};
+
+
+enum EGT_Status {
+	MAX31855OK=0,
+	OC=1,
+	SCG=2,
+	SCV=4
+
+};
+
+#ifndef NO_CAN_242_245_442
+typedef struct {
+	unsigned int St_ACD : 3;
+	unsigned int F_Anz_ACD : 1;
+	unsigned int ACD_Text : 3;
+	unsigned int Anz_ACD_ein : 1;
+
+}ACD_1;
+
+typedef struct {
+	unsigned int B_ll : 1;
+	unsigned int E_fpp : 1;
+	unsigned int B_dza : 1;
+	unsigned int S_ITLK : 1;
+	unsigned int E_canasr : 1;
+	unsigned int B_noasr : 1;
+	unsigned int E_cge : 1;
+	unsigned int E_lm : 1;
+	unsigned char miist;
+	unsigned short nmot;
+	unsigned char mifab;
+	unsigned char Wped_fgr;
+	unsigned char mdverl;
+	unsigned char mrfa;
+} MOTOR_1;
+
+typedef struct {
+	unsigned RES_MOTOR_GET_CODE_MONORM :6;
+	unsigned int MUL_CODE :2;
+	unsigned char Tmot;
+	unsigned int E_tm : 1;
+	unsigned int B_bremse : 1;
+	unsigned int E_bremse : 1;
+	unsigned int dummy : 3;
+	unsigned int B_ffz : 1;
+	unsigned int stat_fgr : 1;
+	unsigned char mibas;
+	unsigned char nstat;
+	unsigned char mizwmn;
+	unsigned char mimax;
+	unsigned char misol;
+} MOTOR_2;
+
+
+#endif
+float EngOilTemp(byte& Tmot);
+
+typedef struct  {
+ unsigned int egtl : 12;
+ int EGT_Status_left:4;		
+ unsigned int egtr : 12;	
+ int EGT_Status_right:4;
+ 
+ byte status;			
+ byte nmot100;
+ byte lambdaplus100;		
+ byte llambdaplus100;		
+ 
+ int iatl:12;					// 6
+ int iatr:12;					// 8
+ byte Tmot;
+ 
+ int iatbeforeIC:12;			// 12
+ int dummy1:4;
+ unsigned int map:15;		// 14
+ unsigned int gearboxoilpump : 1;
+ } EngineMsmt ;
+
+typedef union {
+  EngineMsmt sensor;
+  char b[sizeof(EngineMsmt)];
+} EngineMsmtU;
+
+typedef struct {
+  int waterinjection:1;
+  int oilpump:1;
+  int vacuumpump : 1;
+  int dummy : 5;
+  
+} Headunit;
+
+typedef union {
+  Headunit settings;
+  char b[sizeof(Headunit)];
+} HeadU;
+
+
+
+#ifndef NO_PRINTLNDATASERIAL
+void PrintlnDataSerial(EngineMsmt &engine, MOTOR_1 &can242,MOTOR_2 & can245);
+#endif
+extern EngineMsmtU Engine;
+extern HeadU Head;
+extern PGM_P const EngineError_STRING[] PROGMEM;
+void HeadU_Zero();
+void EngineMsmtU_Zero();
+
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: _ENGINEMSMT_H
+|——Node:preproc_def Text: #define _ENGINEMSMT_H
+
+|———Node:#define Text: #define
+|———Node:identifier Text: _ENGINEMSMT_H
+|——Node:preproc_include Text: #include <arduino.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <arduino.h>
+|——Node:preproc_include Text: #include <avr/pgmspace.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <avr/pgmspace.h>
+|——Node:preproc_function_def Text: #define FOREACH_EngineError(EngineError) \
+        EngineError(OK)   \
+        EngineError(CRC_NOT_VALID)  \
+     
+
+|———Node:#define Text: #define
+|———Node:identifier Text: FOREACH_EngineError
+|———Node:preproc_params Text: (EngineError)
+|————Node:( Text: (
+|————Node:identifier Text: EngineError
+|————Node:) Text: )
+|———Node:preproc_arg Text: EngineError(OK)   \
+        EngineError(CRC_NOT_VALID)  \
+     
+|——Node:preproc_function_def Text: #define GENERATE_ENUM(ENUM) ENUM,
+
+|———Node:#define Text: #define
+|———Node:identifier Text: GENERATE_ENUM
+|———Node:preproc_params Text: (ENUM)
+|————Node:( Text: (
+|————Node:identifier Text: ENUM
+|————Node:) Text: )
+|———Node:preproc_arg Text: ENUM,
+|——Node:enum_specifier Text: enum EngineError {
+	FOREACH_EngineError(GENERATE_ENUM)
+}
+|———Node:enum Text: enum
+|———Node:type_identifier Text: EngineError
+|———Node:enumerator_list Text: {
+	FOREACH_EngineError(GENERATE_ENUM)
+}
+|————Node:{ Text: {
+|————Node:enumerator Text: FOREACH_EngineError
+|—————Node:identifier Text: FOREACH_EngineError
+|————Node:ERROR Text: (GENERATE_ENUM)
+|—————Node:( Text: (
+|—————Node:identifier Text: GENERATE_ENUM
+|—————Node:) Text: )
+|————Node:} Text: }
+|——Node:; Text: ;
+|——Node:enum_specifier Text: enum EGT_Status {
+	MAX31855OK=0,
+	OC=1,
+	SCG=2,
+	SCV=4
+
+}
+|———Node:enum Text: enum
+|———Node:type_identifier Text: EGT_Status
+|———Node:enumerator_list Text: {
+	MAX31855OK=0,
+	OC=1,
+	SCG=2,
+	SCV=4
+
+}
+|————Node:{ Text: {
+|————Node:enumerator Text: MAX31855OK=0
+|—————Node:identifier Text: MAX31855OK
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:, Text: ,
+|————Node:enumerator Text: OC=1
+|—————Node:identifier Text: OC
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:, Text: ,
+|————Node:enumerator Text: SCG=2
+|—————Node:identifier Text: SCG
+|—————Node:= Text: =
+|—————Node:number_literal Text: 2
+|————Node:, Text: ,
+|————Node:enumerator Text: SCV=4
+|—————Node:identifier Text: SCV
+|—————Node:= Text: =
+|—————Node:number_literal Text: 4
+|————Node:} Text: }
+|——Node:; Text: ;
+|——Node:preproc_ifdef Text: #ifndef NO_CAN_242_245_442
+typedef struct {
+	unsigned int St_ACD : 3;
+	unsigned int F_Anz_ACD : 1;
+	unsigned int ACD_Text : 3;
+	unsigned int Anz_ACD_ein : 1;
+
+}ACD_1;
+
+typedef struct {
+	unsigned int B_ll : 1;
+	unsigned int E_fpp : 1;
+	unsigned int B_dza : 1;
+	unsigned int S_ITLK : 1;
+	unsigned int E_canasr : 1;
+	unsigned int B_noasr : 1;
+	unsigned int E_cge : 1;
+	unsigned int E_lm : 1;
+	unsigned char miist;
+	unsigned short nmot;
+	unsigned char mifab;
+	unsigned char Wped_fgr;
+	unsigned char mdverl;
+	unsigned char mrfa;
+} MOTOR_1;
+
+typedef struct {
+	unsigned RES_MOTOR_GET_CODE_MONORM :6;
+	unsigned int MUL_CODE :2;
+	unsigned char Tmot;
+	unsigned int E_tm : 1;
+	unsigned int B_bremse : 1;
+	unsigned int E_bremse : 1;
+	unsigned int dummy : 3;
+	unsigned int B_ffz : 1;
+	unsigned int stat_fgr : 1;
+	unsigned char mibas;
+	unsigned char nstat;
+	unsigned char mizwmn;
+	unsigned char mimax;
+	unsigned char misol;
+} MOTOR_2;
+
+
+#endif
+|———Node:#ifndef Text: #ifndef
+|———Node:identifier Text: NO_CAN_242_245_442
+|———Node:type_definition Text: typedef struct {
+	unsigned int St_ACD : 3;
+	unsigned int F_Anz_ACD : 1;
+	unsigned int ACD_Text : 3;
+	unsigned int Anz_ACD_ein : 1;
+
+}ACD_1;
+|————Node:typedef Text: typedef
+|————Node:struct_specifier Text: struct {
+	unsigned int St_ACD : 3;
+	unsigned int F_Anz_ACD : 1;
+	unsigned int ACD_Text : 3;
+	unsigned int Anz_ACD_ein : 1;
+
+}
+|—————Node:struct Text: struct
+|—————Node:field_declaration_list Text: {
+	unsigned int St_ACD : 3;
+	unsigned int F_Anz_ACD : 1;
+	unsigned int ACD_Text : 3;
+	unsigned int Anz_ACD_ein : 1;
+
+}
+|——————Node:{ Text: {
+|——————Node:field_declaration Text: unsigned int St_ACD : 3;
+|———————Node:sized_type_specifier Text: unsigned int
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: int
+|———————Node:field_identifier Text: St_ACD
+|———————Node:bitfield_clause Text: : 3
+|————————Node:: Text: :
+|————————Node:number_literal Text: 3
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned int F_Anz_ACD : 1;
+|———————Node:sized_type_specifier Text: unsigned int
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: int
+|———————Node:field_identifier Text: F_Anz_ACD
+|———————Node:bitfield_clause Text: : 1
+|————————Node:: Text: :
+|————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned int ACD_Text : 3;
+|———————Node:sized_type_specifier Text: unsigned int
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: int
+|———————Node:field_identifier Text: ACD_Text
+|———————Node:bitfield_clause Text: : 3
+|————————Node:: Text: :
+|————————Node:number_literal Text: 3
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned int Anz_ACD_ein : 1;
+|———————Node:sized_type_specifier Text: unsigned int
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: int
+|———————Node:field_identifier Text: Anz_ACD_ein
+|———————Node:bitfield_clause Text: : 1
+|————————Node:: Text: :
+|————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:type_identifier Text: ACD_1
+|————Node:; Text: ;
+|———Node:type_definition Text: typedef struct {
+	unsigned int B_ll : 1;
+	unsigned int E_fpp : 1;
+	unsigned int B_dza : 1;
+	unsigned int S_ITLK : 1;
+	unsigned int E_canasr : 1;
+	unsigned int B_noasr : 1;
+	unsigned int E_cge : 1;
+	unsigned int E_lm : 1;
+	unsigned char miist;
+	unsigned short nmot;
+	unsigned char mifab;
+	unsigned char Wped_fgr;
+	unsigned char mdverl;
+	unsigned char mrfa;
+} MOTOR_1;
+|————Node:typedef Text: typedef
+|————Node:struct_specifier Text: struct {
+	unsigned int B_ll : 1;
+	unsigned int E_fpp : 1;
+	unsigned int B_dza : 1;
+	unsigned int S_ITLK : 1;
+	unsigned int E_canasr : 1;
+	unsigned int B_noasr : 1;
+	unsigned int E_cge : 1;
+	unsigned int E_lm : 1;
+	unsigned char miist;
+	unsigned short nmot;
+	unsigned char mifab;
+	unsigned char Wped_fgr;
+	unsigned char mdverl;
+	unsigned char mrfa;
+}
+|—————Node:struct Text: struct
+|—————Node:field_declaration_list Text: {
+	unsigned int B_ll : 1;
+	unsigned int E_fpp : 1;
+	unsigned int B_dza : 1;
+	unsigned int S_ITLK : 1;
+	unsigned int E_canasr : 1;
+	unsigned int B_noasr : 1;
+	unsigned int E_cge : 1;
+	unsigned int E_lm : 1;
+	unsigned char miist;
+	unsigned short nmot;
+	unsigned char mifab;
+	unsigned char Wped_fgr;
+	unsigned char mdverl;
+	unsigned char mrfa;
+}
+|——————Node:{ Text: {
+|——————Node:field_declaration Text: unsigned int B_ll : 1;
+|———————Node:sized_type_specifier Text: unsigned int
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: int
+|———————Node:field_identifier Text: B_ll
+|———————Node:bitfield_clause Text: : 1
+|————————Node:: Text: :
+|————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned int E_fpp : 1;
+|———————Node:sized_type_specifier Text: unsigned int
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: int
+|———————Node:field_identifier Text: E_fpp
+|———————Node:bitfield_clause Text: : 1
+|————————Node:: Text: :
+|————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned int B_dza : 1;
+|———————Node:sized_type_specifier Text: unsigned int
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: int
+|———————Node:field_identifier Text: B_dza
+|———————Node:bitfield_clause Text: : 1
+|————————Node:: Text: :
+|————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned int S_ITLK : 1;
+|———————Node:sized_type_specifier Text: unsigned int
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: int
+|———————Node:field_identifier Text: S_ITLK
+|———————Node:bitfield_clause Text: : 1
+|————————Node:: Text: :
+|————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned int E_canasr : 1;
+|———————Node:sized_type_specifier Text: unsigned int
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: int
+|———————Node:field_identifier Text: E_canasr
+|———————Node:bitfield_clause Text: : 1
+|————————Node:: Text: :
+|————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned int B_noasr : 1;
+|———————Node:sized_type_specifier Text: unsigned int
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: int
+|———————Node:field_identifier Text: B_noasr
+|———————Node:bitfield_clause Text: : 1
+|————————Node:: Text: :
+|————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned int E_cge : 1;
+|———————Node:sized_type_specifier Text: unsigned int
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: int
+|———————Node:field_identifier Text: E_cge
+|———————Node:bitfield_clause Text: : 1
+|————————Node:: Text: :
+|————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned int E_lm : 1;
+|———————Node:sized_type_specifier Text: unsigned int
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: int
+|———————Node:field_identifier Text: E_lm
+|———————Node:bitfield_clause Text: : 1
+|————————Node:: Text: :
+|————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned char miist;
+|———————Node:sized_type_specifier Text: unsigned char
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: char
+|———————Node:field_identifier Text: miist
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned short nmot;
+|———————Node:sized_type_specifier Text: unsigned short
+|————————Node:unsigned Text: unsigned
+|————————Node:short Text: short
+|———————Node:field_identifier Text: nmot
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned char mifab;
+|———————Node:sized_type_specifier Text: unsigned char
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: char
+|———————Node:field_identifier Text: mifab
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned char Wped_fgr;
+|———————Node:sized_type_specifier Text: unsigned char
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: char
+|———————Node:field_identifier Text: Wped_fgr
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned char mdverl;
+|———————Node:sized_type_specifier Text: unsigned char
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: char
+|———————Node:field_identifier Text: mdverl
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned char mrfa;
+|———————Node:sized_type_specifier Text: unsigned char
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: char
+|———————Node:field_identifier Text: mrfa
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:type_identifier Text: MOTOR_1
+|————Node:; Text: ;
+|———Node:type_definition Text: typedef struct {
+	unsigned RES_MOTOR_GET_CODE_MONORM :6;
+	unsigned int MUL_CODE :2;
+	unsigned char Tmot;
+	unsigned int E_tm : 1;
+	unsigned int B_bremse : 1;
+	unsigned int E_bremse : 1;
+	unsigned int dummy : 3;
+	unsigned int B_ffz : 1;
+	unsigned int stat_fgr : 1;
+	unsigned char mibas;
+	unsigned char nstat;
+	unsigned char mizwmn;
+	unsigned char mimax;
+	unsigned char misol;
+} MOTOR_2;
+|————Node:typedef Text: typedef
+|————Node:struct_specifier Text: struct {
+	unsigned RES_MOTOR_GET_CODE_MONORM :6;
+	unsigned int MUL_CODE :2;
+	unsigned char Tmot;
+	unsigned int E_tm : 1;
+	unsigned int B_bremse : 1;
+	unsigned int E_bremse : 1;
+	unsigned int dummy : 3;
+	unsigned int B_ffz : 1;
+	unsigned int stat_fgr : 1;
+	unsigned char mibas;
+	unsigned char nstat;
+	unsigned char mizwmn;
+	unsigned char mimax;
+	unsigned char misol;
+}
+|—————Node:struct Text: struct
+|—————Node:field_declaration_list Text: {
+	unsigned RES_MOTOR_GET_CODE_MONORM :6;
+	unsigned int MUL_CODE :2;
+	unsigned char Tmot;
+	unsigned int E_tm : 1;
+	unsigned int B_bremse : 1;
+	unsigned int E_bremse : 1;
+	unsigned int dummy : 3;
+	unsigned int B_ffz : 1;
+	unsigned int stat_fgr : 1;
+	unsigned char mibas;
+	unsigned char nstat;
+	unsigned char mizwmn;
+	unsigned char mimax;
+	unsigned char misol;
+}
+|——————Node:{ Text: {
+|——————Node:field_declaration Text: unsigned RES_MOTOR_GET_CODE_MONORM :6;
+|———————Node:sized_type_specifier Text: unsigned
+|————————Node:unsigned Text: unsigned
+|———————Node:field_identifier Text: RES_MOTOR_GET_CODE_MONORM
+|———————Node:bitfield_clause Text: :6
+|————————Node:: Text: :
+|————————Node:number_literal Text: 6
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned int MUL_CODE :2;
+|———————Node:sized_type_specifier Text: unsigned int
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: int
+|———————Node:field_identifier Text: MUL_CODE
+|———————Node:bitfield_clause Text: :2
+|————————Node:: Text: :
+|————————Node:number_literal Text: 2
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned char Tmot;
+|———————Node:sized_type_specifier Text: unsigned char
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: char
+|———————Node:field_identifier Text: Tmot
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned int E_tm : 1;
+|———————Node:sized_type_specifier Text: unsigned int
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: int
+|———————Node:field_identifier Text: E_tm
+|———————Node:bitfield_clause Text: : 1
+|————————Node:: Text: :
+|————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned int B_bremse : 1;
+|———————Node:sized_type_specifier Text: unsigned int
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: int
+|———————Node:field_identifier Text: B_bremse
+|———————Node:bitfield_clause Text: : 1
+|————————Node:: Text: :
+|————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned int E_bremse : 1;
+|———————Node:sized_type_specifier Text: unsigned int
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: int
+|———————Node:field_identifier Text: E_bremse
+|———————Node:bitfield_clause Text: : 1
+|————————Node:: Text: :
+|————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned int dummy : 3;
+|———————Node:sized_type_specifier Text: unsigned int
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: int
+|———————Node:field_identifier Text: dummy
+|———————Node:bitfield_clause Text: : 3
+|————————Node:: Text: :
+|————————Node:number_literal Text: 3
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned int B_ffz : 1;
+|———————Node:sized_type_specifier Text: unsigned int
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: int
+|———————Node:field_identifier Text: B_ffz
+|———————Node:bitfield_clause Text: : 1
+|————————Node:: Text: :
+|————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned int stat_fgr : 1;
+|———————Node:sized_type_specifier Text: unsigned int
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: int
+|———————Node:field_identifier Text: stat_fgr
+|———————Node:bitfield_clause Text: : 1
+|————————Node:: Text: :
+|————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned char mibas;
+|———————Node:sized_type_specifier Text: unsigned char
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: char
+|———————Node:field_identifier Text: mibas
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned char nstat;
+|———————Node:sized_type_specifier Text: unsigned char
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: char
+|———————Node:field_identifier Text: nstat
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned char mizwmn;
+|———————Node:sized_type_specifier Text: unsigned char
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: char
+|———————Node:field_identifier Text: mizwmn
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned char mimax;
+|———————Node:sized_type_specifier Text: unsigned char
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: char
+|———————Node:field_identifier Text: mimax
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: unsigned char misol;
+|———————Node:sized_type_specifier Text: unsigned char
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: char
+|———————Node:field_identifier Text: misol
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:type_identifier Text: MOTOR_2
+|————Node:; Text: ;
+|———Node:#endif Text: #endif
+|——Node:declaration Text: float EngOilTemp(byte& Tmot);
+|———Node:primitive_type Text: float
+|———Node:function_declarator Text: EngOilTemp(byte& Tmot)
+|————Node:identifier Text: EngOilTemp
+|————Node:parameter_list Text: (byte& Tmot)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: byte& Tmot
+|——————Node:type_identifier Text: byte
+|——————Node:ERROR Text: &
+|———————Node:& Text: &
+|——————Node:identifier Text: Tmot
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef struct  {
+ unsigned int egtl : 12;
+ int EGT_Status_left:4;		
+ unsigned int egtr : 12;	
+ int EGT_Status_right:4;
+ 
+ byte status;			
+ byte nmot100;
+ byte lambdaplus100;		
+ byte llambdaplus100;		
+ 
+ int iatl:12;					// 6
+ int iatr:12;					// 8
+ byte Tmot;
+ 
+ int iatbeforeIC:12;			// 12
+ int dummy1:4;
+ unsigned int map:15;		// 14
+ unsigned int gearboxoilpump : 1;
+ } EngineMsmt ;
+|———Node:typedef Text: typedef
+|———Node:struct_specifier Text: struct  {
+ unsigned int egtl : 12;
+ int EGT_Status_left:4;		
+ unsigned int egtr : 12;	
+ int EGT_Status_right:4;
+ 
+ byte status;			
+ byte nmot100;
+ byte lambdaplus100;		
+ byte llambdaplus100;		
+ 
+ int iatl:12;					// 6
+ int iatr:12;					// 8
+ byte Tmot;
+ 
+ int iatbeforeIC:12;			// 12
+ int dummy1:4;
+ unsigned int map:15;		// 14
+ unsigned int gearboxoilpump : 1;
+ }
+|————Node:struct Text: struct
+|————Node:field_declaration_list Text: {
+ unsigned int egtl : 12;
+ int EGT_Status_left:4;		
+ unsigned int egtr : 12;	
+ int EGT_Status_right:4;
+ 
+ byte status;			
+ byte nmot100;
+ byte lambdaplus100;		
+ byte llambdaplus100;		
+ 
+ int iatl:12;					// 6
+ int iatr:12;					// 8
+ byte Tmot;
+ 
+ int iatbeforeIC:12;			// 12
+ int dummy1:4;
+ unsigned int map:15;		// 14
+ unsigned int gearboxoilpump : 1;
+ }
+|—————Node:{ Text: {
+|—————Node:field_declaration Text: unsigned int egtl : 12;
+|——————Node:sized_type_specifier Text: unsigned int
+|———————Node:unsigned Text: unsigned
+|———————Node:primitive_type Text: int
+|——————Node:field_identifier Text: egtl
+|——————Node:bitfield_clause Text: : 12
+|———————Node:: Text: :
+|———————Node:number_literal Text: 12
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: int EGT_Status_left:4;
+|——————Node:primitive_type Text: int
+|——————Node:field_identifier Text: EGT_Status_left
+|——————Node:bitfield_clause Text: :4
+|———————Node:: Text: :
+|———————Node:number_literal Text: 4
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: unsigned int egtr : 12;
+|——————Node:sized_type_specifier Text: unsigned int
+|———————Node:unsigned Text: unsigned
+|———————Node:primitive_type Text: int
+|——————Node:field_identifier Text: egtr
+|——————Node:bitfield_clause Text: : 12
+|———————Node:: Text: :
+|———————Node:number_literal Text: 12
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: int EGT_Status_right:4;
+|——————Node:primitive_type Text: int
+|——————Node:field_identifier Text: EGT_Status_right
+|——————Node:bitfield_clause Text: :4
+|———————Node:: Text: :
+|———————Node:number_literal Text: 4
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: byte status;
+|——————Node:type_identifier Text: byte
+|——————Node:field_identifier Text: status
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: byte nmot100;
+|——————Node:type_identifier Text: byte
+|——————Node:field_identifier Text: nmot100
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: byte lambdaplus100;
+|——————Node:type_identifier Text: byte
+|——————Node:field_identifier Text: lambdaplus100
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: byte llambdaplus100;
+|——————Node:type_identifier Text: byte
+|——————Node:field_identifier Text: llambdaplus100
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: int iatl:12;
+|——————Node:primitive_type Text: int
+|——————Node:field_identifier Text: iatl
+|——————Node:bitfield_clause Text: :12
+|———————Node:: Text: :
+|———————Node:number_literal Text: 12
+|——————Node:; Text: ;
+|—————Node:comment Text: // 6
+|—————Node:field_declaration Text: int iatr:12;
+|——————Node:primitive_type Text: int
+|——————Node:field_identifier Text: iatr
+|——————Node:bitfield_clause Text: :12
+|———————Node:: Text: :
+|———————Node:number_literal Text: 12
+|——————Node:; Text: ;
+|—————Node:comment Text: // 8
+|—————Node:field_declaration Text: byte Tmot;
+|——————Node:type_identifier Text: byte
+|——————Node:field_identifier Text: Tmot
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: int iatbeforeIC:12;
+|——————Node:primitive_type Text: int
+|——————Node:field_identifier Text: iatbeforeIC
+|——————Node:bitfield_clause Text: :12
+|———————Node:: Text: :
+|———————Node:number_literal Text: 12
+|——————Node:; Text: ;
+|—————Node:comment Text: // 12
+|—————Node:field_declaration Text: int dummy1:4;
+|——————Node:primitive_type Text: int
+|——————Node:field_identifier Text: dummy1
+|——————Node:bitfield_clause Text: :4
+|———————Node:: Text: :
+|———————Node:number_literal Text: 4
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: unsigned int map:15;
+|——————Node:sized_type_specifier Text: unsigned int
+|———————Node:unsigned Text: unsigned
+|———————Node:primitive_type Text: int
+|——————Node:field_identifier Text: map
+|——————Node:bitfield_clause Text: :15
+|———————Node:: Text: :
+|———————Node:number_literal Text: 15
+|——————Node:; Text: ;
+|—————Node:comment Text: // 14
+|—————Node:field_declaration Text: unsigned int gearboxoilpump : 1;
+|——————Node:sized_type_specifier Text: unsigned int
+|———————Node:unsigned Text: unsigned
+|———————Node:primitive_type Text: int
+|——————Node:field_identifier Text: gearboxoilpump
+|——————Node:bitfield_clause Text: : 1
+|———————Node:: Text: :
+|———————Node:number_literal Text: 1
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:type_identifier Text: EngineMsmt
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef union {
+  EngineMsmt sensor;
+  char b[sizeof(EngineMsmt)];
+} EngineMsmtU;
+|———Node:typedef Text: typedef
+|———Node:union_specifier Text: union {
+  EngineMsmt sensor;
+  char b[sizeof(EngineMsmt)];
+}
+|————Node:union Text: union
+|————Node:field_declaration_list Text: {
+  EngineMsmt sensor;
+  char b[sizeof(EngineMsmt)];
+}
+|—————Node:{ Text: {
+|—————Node:field_declaration Text: EngineMsmt sensor;
+|——————Node:type_identifier Text: EngineMsmt
+|——————Node:field_identifier Text: sensor
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: char b[sizeof(EngineMsmt)];
+|——————Node:primitive_type Text: char
+|——————Node:array_declarator Text: b[sizeof(EngineMsmt)]
+|———————Node:field_identifier Text: b
+|———————Node:[ Text: [
+|———————Node:sizeof_expression Text: sizeof(EngineMsmt)
+|————————Node:sizeof Text: sizeof
+|————————Node:parenthesized_expression Text: (EngineMsmt)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: EngineMsmt
+|—————————Node:) Text: )
+|———————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:type_identifier Text: EngineMsmtU
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef struct {
+  int waterinjection:1;
+  int oilpump:1;
+  int vacuumpump : 1;
+  int dummy : 5;
+  
+} Headunit;
+|———Node:typedef Text: typedef
+|———Node:struct_specifier Text: struct {
+  int waterinjection:1;
+  int oilpump:1;
+  int vacuumpump : 1;
+  int dummy : 5;
+  
+}
+|————Node:struct Text: struct
+|————Node:field_declaration_list Text: {
+  int waterinjection:1;
+  int oilpump:1;
+  int vacuumpump : 1;
+  int dummy : 5;
+  
+}
+|—————Node:{ Text: {
+|—————Node:field_declaration Text: int waterinjection:1;
+|——————Node:primitive_type Text: int
+|——————Node:field_identifier Text: waterinjection
+|——————Node:bitfield_clause Text: :1
+|———————Node:: Text: :
+|———————Node:number_literal Text: 1
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: int oilpump:1;
+|——————Node:primitive_type Text: int
+|——————Node:field_identifier Text: oilpump
+|——————Node:bitfield_clause Text: :1
+|———————Node:: Text: :
+|———————Node:number_literal Text: 1
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: int vacuumpump : 1;
+|——————Node:primitive_type Text: int
+|——————Node:field_identifier Text: vacuumpump
+|——————Node:bitfield_clause Text: : 1
+|———————Node:: Text: :
+|———————Node:number_literal Text: 1
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: int dummy : 5;
+|——————Node:primitive_type Text: int
+|——————Node:field_identifier Text: dummy
+|——————Node:bitfield_clause Text: : 5
+|———————Node:: Text: :
+|———————Node:number_literal Text: 5
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:type_identifier Text: Headunit
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef union {
+  Headunit settings;
+  char b[sizeof(Headunit)];
+} HeadU;
+|———Node:typedef Text: typedef
+|———Node:union_specifier Text: union {
+  Headunit settings;
+  char b[sizeof(Headunit)];
+}
+|————Node:union Text: union
+|————Node:field_declaration_list Text: {
+  Headunit settings;
+  char b[sizeof(Headunit)];
+}
+|—————Node:{ Text: {
+|—————Node:field_declaration Text: Headunit settings;
+|——————Node:type_identifier Text: Headunit
+|——————Node:field_identifier Text: settings
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: char b[sizeof(Headunit)];
+|——————Node:primitive_type Text: char
+|——————Node:array_declarator Text: b[sizeof(Headunit)]
+|———————Node:field_identifier Text: b
+|———————Node:[ Text: [
+|———————Node:sizeof_expression Text: sizeof(Headunit)
+|————————Node:sizeof Text: sizeof
+|————————Node:parenthesized_expression Text: (Headunit)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: Headunit
+|—————————Node:) Text: )
+|———————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:type_identifier Text: HeadU
+|———Node:; Text: ;
+|——Node:preproc_ifdef Text: #ifndef NO_PRINTLNDATASERIAL
+void PrintlnDataSerial(EngineMsmt &engine, MOTOR_1 &can242,MOTOR_2 & can245);
+#endif
+|———Node:#ifndef Text: #ifndef
+|———Node:identifier Text: NO_PRINTLNDATASERIAL
+|———Node:declaration Text: void PrintlnDataSerial(EngineMsmt &engine, MOTOR_1 &can242,MOTOR_2 & can245);
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: PrintlnDataSerial(EngineMsmt &engine, MOTOR_1 &can242,MOTOR_2 & can245)
+|—————Node:identifier Text: PrintlnDataSerial
+|—————Node:parameter_list Text: (EngineMsmt &engine, MOTOR_1 &can242,MOTOR_2 & can245)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: EngineMsmt &engine
+|———————Node:type_identifier Text: EngineMsmt
+|———————Node:ERROR Text: &
+|————————Node:& Text: &
+|———————Node:identifier Text: engine
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: MOTOR_1 &can242
+|———————Node:type_identifier Text: MOTOR_1
+|———————Node:ERROR Text: &
+|————————Node:& Text: &
+|———————Node:identifier Text: can242
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: MOTOR_2 & can245
+|———————Node:type_identifier Text: MOTOR_2
+|———————Node:ERROR Text: &
+|————————Node:& Text: &
+|———————Node:identifier Text: can245
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:#endif Text: #endif
+|——Node:declaration Text: extern EngineMsmtU Engine;
+|———Node:storage_class_specifier Text: extern
+|————Node:extern Text: extern
+|———Node:type_identifier Text: EngineMsmtU
+|———Node:identifier Text: Engine
+|———Node:; Text: ;
+|——Node:declaration Text: extern HeadU Head;
+|———Node:storage_class_specifier Text: extern
+|————Node:extern Text: extern
+|———Node:type_identifier Text: HeadU
+|———Node:identifier Text: Head
+|———Node:; Text: ;
+|——Node:declaration Text: extern PGM_P const EngineError_STRING[] PROGMEM;
+|———Node:storage_class_specifier Text: extern
+|————Node:extern Text: extern
+|———Node:type_identifier Text: PGM_P
+|———Node:type_qualifier Text: const
+|————Node:const Text: const
+|———Node:array_declarator Text: EngineError_STRING[]
+|————Node:identifier Text: EngineError_STRING
+|————Node:[ Text: [
+|————Node:] Text: ]
+|———Node:ERROR Text: PROGMEM
+|————Node:identifier Text: PROGMEM
+|———Node:; Text: ;
+|——Node:declaration Text: void HeadU_Zero();
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: HeadU_Zero()
+|————Node:identifier Text: HeadU_Zero
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: void EngineMsmtU_Zero();
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: EngineMsmtU_Zero()
+|————Node:identifier Text: EngineMsmtU_Zero
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:#endif Text: #endif

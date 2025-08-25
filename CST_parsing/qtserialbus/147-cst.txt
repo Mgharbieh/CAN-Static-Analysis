@@ -1,0 +1,3289 @@
+qtserialbus-src\serialbus\qmodbusrtuserialmaster_p.h
+
+|Node:translation_unit
+|—Node:comment
+|—Node:preproc_ifdef Text: #ifndef QMODBUSSERIALMASTER_P_H
+#define QMODBUSSERIALMASTER_P_H
+
+#include "qmodbusrtuserialmaster.h"
+#include "qmodbusclient_p.h"
+
+#include <QtCore/qloggingcategory.h>
+#include <QtCore/qpointer.h>
+#include <QtCore/qqueue.h>
+#include <QtCore/qtimer.h>
+#include <QtSerialPort/qserialport.h>
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API. It exists purely as an
+// implementation detail. This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
+QT_BEGIN_NAMESPACE
+
+Q_DECLARE_LOGGING_CATEGORY(QT_MODBUS)
+Q_DECLARE_LOGGING_CATEGORY(QT_MODBUS_LOW)
+
+class QModbusRtuSerialMasterPrivate : public QModbusClientPrivate
+{
+    Q_DECLARE_PUBLIC(QModbusRtuSerialMaster)
+
+public:
+    QModbusRtuSerialMasterPrivate()
+    {
+    }
+
+    void setupSerialPort()
+    {
+        Q_Q(QModbusRtuSerialMaster);
+
+        m_serialPort = new QSerialPort(q);
+        m_serialPort->setBaudRate(QSerialPort::Baud9600);
+        m_serialPort->setParity(QSerialPort::NoParity);
+        m_serialPort->setDataBits(QSerialPort::Data8);
+        m_serialPort->setStopBits(QSerialPort::OneStop);
+
+        QObject::connect(m_serialPort, &QSerialPort::readyRead, [this]() {
+            responseBuffer += m_serialPort->read(m_serialPort->bytesAvailable());
+
+            if (responseBuffer.size() < 2) {
+                qCDebug(QT_MODBUS) << "Modbus ADU not complete";
+                return;
+            }
+
+            int aduSize = 2; //slave address & function code
+
+            QModbusPdu::FunctionCode fcode = QModbusPdu::FunctionCode(responseBuffer.at(1));
+            int pduSizeWithoutFcode = QModbusResponse::calculateDataSize(fcode, responseBuffer.mid(2));
+            if (pduSizeWithoutFcode < 0) {
+                // wait for more data
+                qCDebug(QT_MODBUS) << "Cannot calculate PDU size for fcode, delaying pending frame"
+                                   << fcode;
+                return;
+            }
+            aduSize += pduSizeWithoutFcode;
+
+            aduSize += 2; //CRC
+            if (responseBuffer.size() < aduSize) {
+                qCDebug(QT_MODBUS) << "ADU too short, ignoring pending frame";
+                return;
+            }
+
+            const QByteArray completeAduFrame = responseBuffer.left(aduSize);
+            responseBuffer.remove(0, aduSize);
+
+            stopResponseTimer();
+
+            qCDebug(QT_MODBUS)<< "Received response (incl ADU)" << completeAduFrame.toHex();
+            if (QT_MODBUS().isDebugEnabled() && !responseBuffer.isEmpty())
+                qCDebug(QT_MODBUS_LOW) << "Pending buffer:" << responseBuffer.toHex();
+
+            // check CRC
+            quint16 receivedCrc = quint8(completeAduFrame[aduSize - 2]) << 8
+                                  | quint8(completeAduFrame[aduSize - 1]);
+            if (!matchingCRC(completeAduFrame, completeAduFrame.size() - 2, receivedCrc)) {
+                qCWarning(QT_MODBUS) << "Discarding request with wrong CRC, received:"
+                                     << receivedCrc << "got:"
+                                     << calculateCRC(completeAduFrame, completeAduFrame.size());
+                return;
+            }
+
+
+            const QModbusResponse response(fcode,
+                                           completeAduFrame.mid(2, completeAduFrame.size() - 4));
+
+            if (!canMatchRequestAndResponse(response, completeAduFrame.at(0))) {
+                qCWarning(QT_MODBUS) << "Cannot match response with open request. "
+                                        "Ignoring response.";
+                return;
+            }
+
+            QueueElement headOfQueue = m_queue.dequeue();
+            if (!response.isException()) {
+                QModbusDataUnit unit = headOfQueue.unit;
+                if (processResponse(response, &unit)) {
+                    headOfQueue.reply->setResult(unit);
+                } else {
+                    headOfQueue.reply->setError(
+                            QModbusReply::UnknownError,
+                            QModbusRtuSerialMaster::tr("An invalid response has been received."));
+                }
+            } else {
+               headOfQueue.reply->setProtocolError(response.exceptionCode(), QString());
+            }
+
+            headOfQueue.reply->setFinished(true);
+
+            sendNextRequest(); // go to next request
+        });
+
+        QObject::connect(m_serialPort, &QSerialPort::aboutToClose, [this]() {
+            Q_Q(QModbusRtuSerialMaster);
+            if (q->state() != QModbusDevice::ClosingState)
+                q->close();
+        });
+    }
+
+    QByteArray wrapInADU(const QModbusRequest &request, int slaveAddress) const
+    {
+        QByteArray result;
+        QDataStream out(&result, QIODevice::WriteOnly);
+        out << quint8(slaveAddress);
+        out << request;
+        out << calculateCRC(result, result.size());
+
+        return result;
+    }
+
+    bool sendNextAdu(const QModbusRequest &request, int slaveAddress)
+    {
+        Q_Q(QModbusRtuSerialMaster);
+
+        const QByteArray adu = wrapInADU(request, slaveAddress);
+        int writtenBytes = m_serialPort->write(adu);
+        if (writtenBytes == -1 || writtenBytes < adu.size()) {
+            qCDebug(QT_MODBUS) << "Cannot write request to serial port. Failed ADU"
+                               << adu;
+            q->setError(QModbusRtuSerialMaster::tr("Could not write request to serial bus"),
+                        QModbusDevice::WriteError);
+            return false;
+        } else {
+            qCDebug(QT_MODBUS)<< "Sent request (incl ADU)" << adu.toHex();
+        }
+
+        return true;
+
+    }
+
+    void sendNextRequest()
+    {
+        if (m_queue.isEmpty())
+            return;
+
+        if (m_queue.head().reply.isNull()) { // reply deleted, skip it
+            m_queue.dequeue();
+            sendNextRequest();
+            return;
+        }
+
+        bool success = sendNextAdu(m_queue.head().requestPdu,
+                                   m_queue.head().reply->slaveAddress());
+        if (!success) {
+            QueueElement elem = m_queue.dequeue();
+
+            elem.reply->setError(QModbusReply::WriteError,
+                                 QModbusRtuSerialMaster::tr("Could not write message to serial bus."));
+            elem.reply->setFinished(true);
+
+            sendNextRequest();
+            return;
+        }
+
+        if (!m_queue.head().reply->slaveAddress()) {
+            // broadcasts return immediately but we delay a bit to avoid spaming of bus
+            QueueElement elem = m_queue.dequeue();
+            elem.reply->setFinished(true);
+
+            QTimer::singleShot(0, [this]() { sendNextRequest(); });
+            return;
+        }
+
+        // regular send -> keep in queue
+        startResponseTimer();
+    }
+
+    QModbusReply *enqueueRequest(const QModbusRequest &request, int slaveAddress,
+                                       const QModbusDataUnit unit)
+    {
+        Q_Q(QModbusRtuSerialMaster);
+
+        QModbusReply *reply = new QModbusReply(slaveAddress, q);
+        QueueElement elem = { reply, request, unit };
+        m_queue.enqueue(elem);
+        sendNextRequest();
+
+        return reply;
+    }
+
+    bool canMatchRequestAndResponse(const QModbusResponse &response, int sendingSlave) const
+    {
+        if (m_queue.isEmpty()) // nothing pending
+            return false;
+
+        const QueueElement &head = m_queue.head(); // reply deleted
+        if (head.reply.isNull())
+            return false;
+
+        if (head.reply->slaveAddress() != sendingSlave) // slave mismatch
+            return false;
+
+        // request for different fcode
+        if (head.requestPdu.functionCode() != response.functionCode())
+            return false;
+
+        return true;
+    }
+
+    void handleResponseTimeout()
+    {
+        qCDebug(QT_MODBUS) << "Timeout of last request";
+
+        if (m_queue.isEmpty())
+            return;
+
+        QueueElement elem = m_queue.dequeue();
+        if (elem.reply.isNull()) {
+            // reply deleted while waiting for response which timed out
+            // nothing really to do here
+            return;
+        }
+
+        elem.reply->setError(QModbusReply::TimeoutError,
+                             QModbusRtuSerialMaster::tr("Request timeout."));
+    }
+
+    QSerialPort *m_serialPort;
+    QByteArray responseBuffer;
+
+    struct QueueElement {
+        QPointer<QModbusReply> reply;
+        QModbusRequest requestPdu;
+        QModbusDataUnit unit;
+    };
+
+    QQueue<QueueElement> m_queue;
+};
+
+QT_END_NAMESPACE
+
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: QMODBUSSERIALMASTER_P_H
+|——Node:preproc_def Text: #define QMODBUSSERIALMASTER_P_H
+
+|———Node:#define Text: #define
+|———Node:identifier Text: QMODBUSSERIALMASTER_P_H
+|——Node:preproc_include Text: #include "qmodbusrtuserialmaster.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "qmodbusrtuserialmaster.h"
+|————Node:" Text: "
+|————Node:string_content Text: qmodbusrtuserialmaster.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "qmodbusclient_p.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "qmodbusclient_p.h"
+|————Node:" Text: "
+|————Node:string_content Text: qmodbusclient_p.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include <QtCore/qloggingcategory.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <QtCore/qloggingcategory.h>
+|——Node:preproc_include Text: #include <QtCore/qpointer.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <QtCore/qpointer.h>
+|——Node:preproc_include Text: #include <QtCore/qqueue.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <QtCore/qqueue.h>
+|——Node:preproc_include Text: #include <QtCore/qtimer.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <QtCore/qtimer.h>
+|——Node:preproc_include Text: #include <QtSerialPort/qserialport.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <QtSerialPort/qserialport.h>
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:function_definition Text: QT_BEGIN_NAMESPACE
+
+Q_DECLARE_LOGGING_CATEGORY(QT_MODBUS)
+Q_DECLARE_LOGGING_CATEGORY(QT_MODBUS_LOW)
+
+class QModbusRtuSerialMasterPrivate : public QModbusClientPrivate
+{
+    Q_DECLARE_PUBLIC(QModbusRtuSerialMaster)
+
+public:
+    QModbusRtuSerialMasterPrivate()
+    {
+    }
+
+    void setupSerialPort()
+    {
+        Q_Q(QModbusRtuSerialMaster);
+
+        m_serialPort = new QSerialPort(q);
+        m_serialPort->setBaudRate(QSerialPort::Baud9600);
+        m_serialPort->setParity(QSerialPort::NoParity);
+        m_serialPort->setDataBits(QSerialPort::Data8);
+        m_serialPort->setStopBits(QSerialPort::OneStop);
+
+        QObject::connect(m_serialPort, &QSerialPort::readyRead, [this]() {
+            responseBuffer += m_serialPort->read(m_serialPort->bytesAvailable());
+
+            if (responseBuffer.size() < 2) {
+                qCDebug(QT_MODBUS) << "Modbus ADU not complete";
+                return;
+            }
+
+            int aduSize = 2; //slave address & function code
+
+            QModbusPdu::FunctionCode fcode = QModbusPdu::FunctionCode(responseBuffer.at(1));
+            int pduSizeWithoutFcode = QModbusResponse::calculateDataSize(fcode, responseBuffer.mid(2));
+            if (pduSizeWithoutFcode < 0) {
+                // wait for more data
+                qCDebug(QT_MODBUS) << "Cannot calculate PDU size for fcode, delaying pending frame"
+                                   << fcode;
+                return;
+            }
+            aduSize += pduSizeWithoutFcode;
+
+            aduSize += 2; //CRC
+            if (responseBuffer.size() < aduSize) {
+                qCDebug(QT_MODBUS) << "ADU too short, ignoring pending frame";
+                return;
+            }
+
+            const QByteArray completeAduFrame = responseBuffer.left(aduSize);
+            responseBuffer.remove(0, aduSize);
+
+            stopResponseTimer();
+
+            qCDebug(QT_MODBUS)<< "Received response (incl ADU)" << completeAduFrame.toHex();
+            if (QT_MODBUS().isDebugEnabled() && !responseBuffer.isEmpty())
+                qCDebug(QT_MODBUS_LOW) << "Pending buffer:" << responseBuffer.toHex();
+
+            // check CRC
+            quint16 receivedCrc = quint8(completeAduFrame[aduSize - 2]) << 8
+                                  | quint8(completeAduFrame[aduSize - 1]);
+            if (!matchingCRC(completeAduFrame, completeAduFrame.size() - 2, receivedCrc)) {
+                qCWarning(QT_MODBUS) << "Discarding request with wrong CRC, received:"
+                                     << receivedCrc << "got:"
+                                     << calculateCRC(completeAduFrame, completeAduFrame.size());
+                return;
+            }
+
+
+            const QModbusResponse response(fcode,
+                                           completeAduFrame.mid(2, completeAduFrame.size() - 4));
+
+            if (!canMatchRequestAndResponse(response, completeAduFrame.at(0))) {
+                qCWarning(QT_MODBUS) << "Cannot match response with open request. "
+                                        "Ignoring response.";
+                return;
+            }
+
+            QueueElement headOfQueue = m_queue.dequeue();
+            if (!response.isException()) {
+                QModbusDataUnit unit = headOfQueue.unit;
+                if (processResponse(response, &unit)) {
+                    headOfQueue.reply->setResult(unit);
+                } else {
+                    headOfQueue.reply->setError(
+                            QModbusReply::UnknownError,
+                            QModbusRtuSerialMaster::tr("An invalid response has been received."));
+                }
+            } else {
+               headOfQueue.reply->setProtocolError(response.exceptionCode(), QString());
+            }
+
+            headOfQueue.reply->setFinished(true);
+
+            sendNextRequest(); // go to next request
+        });
+
+        QObject::connect(m_serialPort, &QSerialPort::aboutToClose, [this]() {
+            Q_Q(QModbusRtuSerialMaster);
+            if (q->state() != QModbusDevice::ClosingState)
+                q->close();
+        });
+    }
+
+    QByteArray wrapInADU(const QModbusRequest &request, int slaveAddress) const
+    {
+        QByteArray result;
+        QDataStream out(&result, QIODevice::WriteOnly);
+        out << quint8(slaveAddress);
+        out << request;
+        out << calculateCRC(result, result.size());
+
+        return result;
+    }
+
+    bool sendNextAdu(const QModbusRequest &request, int slaveAddress)
+    {
+        Q_Q(QModbusRtuSerialMaster);
+
+        const QByteArray adu = wrapInADU(request, slaveAddress);
+        int writtenBytes = m_serialPort->write(adu);
+        if (writtenBytes == -1 || writtenBytes < adu.size()) {
+            qCDebug(QT_MODBUS) << "Cannot write request to serial port. Failed ADU"
+                               << adu;
+            q->setError(QModbusRtuSerialMaster::tr("Could not write request to serial bus"),
+                        QModbusDevice::WriteError);
+            return false;
+        } else {
+            qCDebug(QT_MODBUS)<< "Sent request (incl ADU)" << adu.toHex();
+        }
+
+        return true;
+
+    }
+
+    void sendNextRequest()
+    {
+        if (m_queue.isEmpty())
+            return;
+
+        if (m_queue.head().reply.isNull()) { // reply deleted, skip it
+            m_queue.dequeue();
+            sendNextRequest();
+            return;
+        }
+
+        bool success = sendNextAdu(m_queue.head().requestPdu,
+                                   m_queue.head().reply->slaveAddress());
+        if (!success) {
+            QueueElement elem = m_queue.dequeue();
+
+            elem.reply->setError(QModbusReply::WriteError,
+                                 QModbusRtuSerialMaster::tr("Could not write message to serial bus."));
+            elem.reply->setFinished(true);
+
+            sendNextRequest();
+            return;
+        }
+
+        if (!m_queue.head().reply->slaveAddress()) {
+            // broadcasts return immediately but we delay a bit to avoid spaming of bus
+            QueueElement elem = m_queue.dequeue();
+            elem.reply->setFinished(true);
+
+            QTimer::singleShot(0, [this]() { sendNextRequest(); });
+            return;
+        }
+
+        // regular send -> keep in queue
+        startResponseTimer();
+    }
+
+    QModbusReply *enqueueRequest(const QModbusRequest &request, int slaveAddress,
+                                       const QModbusDataUnit unit)
+    {
+        Q_Q(QModbusRtuSerialMaster);
+
+        QModbusReply *reply = new QModbusReply(slaveAddress, q);
+        QueueElement elem = { reply, request, unit };
+        m_queue.enqueue(elem);
+        sendNextRequest();
+
+        return reply;
+    }
+
+    bool canMatchRequestAndResponse(const QModbusResponse &response, int sendingSlave) const
+    {
+        if (m_queue.isEmpty()) // nothing pending
+            return false;
+
+        const QueueElement &head = m_queue.head(); // reply deleted
+        if (head.reply.isNull())
+            return false;
+
+        if (head.reply->slaveAddress() != sendingSlave) // slave mismatch
+            return false;
+
+        // request for different fcode
+        if (head.requestPdu.functionCode() != response.functionCode())
+            return false;
+
+        return true;
+    }
+
+    void handleResponseTimeout()
+    {
+        qCDebug(QT_MODBUS) << "Timeout of last request";
+
+        if (m_queue.isEmpty())
+            return;
+
+        QueueElement elem = m_queue.dequeue();
+        if (elem.reply.isNull()) {
+            // reply deleted while waiting for response which timed out
+            // nothing really to do here
+            return;
+        }
+
+        elem.reply->setError(QModbusReply::TimeoutError,
+                             QModbusRtuSerialMaster::tr("Request timeout."));
+    }
+
+    QSerialPort *m_serialPort;
+    QByteArray responseBuffer;
+
+    struct QueueElement {
+        QPointer<QModbusReply> reply;
+        QModbusRequest requestPdu;
+        QModbusDataUnit unit;
+    };
+
+    QQueue<QueueElement> m_queue;
+}
+|———Node:type_identifier Text: QT_BEGIN_NAMESPACE
+|———Node:function_declarator Text: Q_DECLARE_LOGGING_CATEGORY(QT_MODBUS)
+Q_DECLARE_LOGGING_CATEGORY(QT_MODBUS_LOW)
+
+class QModbusRtuSerialMasterPrivate : public QModbusClientPrivate
+|————Node:identifier Text: Q_DECLARE_LOGGING_CATEGORY
+|————Node:parameter_list Text: (QT_MODBUS)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: QT_MODBUS
+|——————Node:type_identifier Text: QT_MODBUS
+|—————Node:) Text: )
+|————Node:call_expression Text: Q_DECLARE_LOGGING_CATEGORY(QT_MODBUS_LOW)
+|—————Node:identifier Text: Q_DECLARE_LOGGING_CATEGORY
+|—————Node:argument_list Text: (QT_MODBUS_LOW)
+|——————Node:( Text: (
+|——————Node:identifier Text: QT_MODBUS_LOW
+|——————Node:) Text: )
+|————Node:identifier Text: class
+|————Node:identifier Text: QModbusRtuSerialMasterPrivate
+|————Node:ERROR Text: :
+|—————Node:: Text: :
+|————Node:identifier Text: public
+|————Node:identifier Text: QModbusClientPrivate
+|———Node:compound_statement Text: {
+    Q_DECLARE_PUBLIC(QModbusRtuSerialMaster)
+
+public:
+    QModbusRtuSerialMasterPrivate()
+    {
+    }
+
+    void setupSerialPort()
+    {
+        Q_Q(QModbusRtuSerialMaster);
+
+        m_serialPort = new QSerialPort(q);
+        m_serialPort->setBaudRate(QSerialPort::Baud9600);
+        m_serialPort->setParity(QSerialPort::NoParity);
+        m_serialPort->setDataBits(QSerialPort::Data8);
+        m_serialPort->setStopBits(QSerialPort::OneStop);
+
+        QObject::connect(m_serialPort, &QSerialPort::readyRead, [this]() {
+            responseBuffer += m_serialPort->read(m_serialPort->bytesAvailable());
+
+            if (responseBuffer.size() < 2) {
+                qCDebug(QT_MODBUS) << "Modbus ADU not complete";
+                return;
+            }
+
+            int aduSize = 2; //slave address & function code
+
+            QModbusPdu::FunctionCode fcode = QModbusPdu::FunctionCode(responseBuffer.at(1));
+            int pduSizeWithoutFcode = QModbusResponse::calculateDataSize(fcode, responseBuffer.mid(2));
+            if (pduSizeWithoutFcode < 0) {
+                // wait for more data
+                qCDebug(QT_MODBUS) << "Cannot calculate PDU size for fcode, delaying pending frame"
+                                   << fcode;
+                return;
+            }
+            aduSize += pduSizeWithoutFcode;
+
+            aduSize += 2; //CRC
+            if (responseBuffer.size() < aduSize) {
+                qCDebug(QT_MODBUS) << "ADU too short, ignoring pending frame";
+                return;
+            }
+
+            const QByteArray completeAduFrame = responseBuffer.left(aduSize);
+            responseBuffer.remove(0, aduSize);
+
+            stopResponseTimer();
+
+            qCDebug(QT_MODBUS)<< "Received response (incl ADU)" << completeAduFrame.toHex();
+            if (QT_MODBUS().isDebugEnabled() && !responseBuffer.isEmpty())
+                qCDebug(QT_MODBUS_LOW) << "Pending buffer:" << responseBuffer.toHex();
+
+            // check CRC
+            quint16 receivedCrc = quint8(completeAduFrame[aduSize - 2]) << 8
+                                  | quint8(completeAduFrame[aduSize - 1]);
+            if (!matchingCRC(completeAduFrame, completeAduFrame.size() - 2, receivedCrc)) {
+                qCWarning(QT_MODBUS) << "Discarding request with wrong CRC, received:"
+                                     << receivedCrc << "got:"
+                                     << calculateCRC(completeAduFrame, completeAduFrame.size());
+                return;
+            }
+
+
+            const QModbusResponse response(fcode,
+                                           completeAduFrame.mid(2, completeAduFrame.size() - 4));
+
+            if (!canMatchRequestAndResponse(response, completeAduFrame.at(0))) {
+                qCWarning(QT_MODBUS) << "Cannot match response with open request. "
+                                        "Ignoring response.";
+                return;
+            }
+
+            QueueElement headOfQueue = m_queue.dequeue();
+            if (!response.isException()) {
+                QModbusDataUnit unit = headOfQueue.unit;
+                if (processResponse(response, &unit)) {
+                    headOfQueue.reply->setResult(unit);
+                } else {
+                    headOfQueue.reply->setError(
+                            QModbusReply::UnknownError,
+                            QModbusRtuSerialMaster::tr("An invalid response has been received."));
+                }
+            } else {
+               headOfQueue.reply->setProtocolError(response.exceptionCode(), QString());
+            }
+
+            headOfQueue.reply->setFinished(true);
+
+            sendNextRequest(); // go to next request
+        });
+
+        QObject::connect(m_serialPort, &QSerialPort::aboutToClose, [this]() {
+            Q_Q(QModbusRtuSerialMaster);
+            if (q->state() != QModbusDevice::ClosingState)
+                q->close();
+        });
+    }
+
+    QByteArray wrapInADU(const QModbusRequest &request, int slaveAddress) const
+    {
+        QByteArray result;
+        QDataStream out(&result, QIODevice::WriteOnly);
+        out << quint8(slaveAddress);
+        out << request;
+        out << calculateCRC(result, result.size());
+
+        return result;
+    }
+
+    bool sendNextAdu(const QModbusRequest &request, int slaveAddress)
+    {
+        Q_Q(QModbusRtuSerialMaster);
+
+        const QByteArray adu = wrapInADU(request, slaveAddress);
+        int writtenBytes = m_serialPort->write(adu);
+        if (writtenBytes == -1 || writtenBytes < adu.size()) {
+            qCDebug(QT_MODBUS) << "Cannot write request to serial port. Failed ADU"
+                               << adu;
+            q->setError(QModbusRtuSerialMaster::tr("Could not write request to serial bus"),
+                        QModbusDevice::WriteError);
+            return false;
+        } else {
+            qCDebug(QT_MODBUS)<< "Sent request (incl ADU)" << adu.toHex();
+        }
+
+        return true;
+
+    }
+
+    void sendNextRequest()
+    {
+        if (m_queue.isEmpty())
+            return;
+
+        if (m_queue.head().reply.isNull()) { // reply deleted, skip it
+            m_queue.dequeue();
+            sendNextRequest();
+            return;
+        }
+
+        bool success = sendNextAdu(m_queue.head().requestPdu,
+                                   m_queue.head().reply->slaveAddress());
+        if (!success) {
+            QueueElement elem = m_queue.dequeue();
+
+            elem.reply->setError(QModbusReply::WriteError,
+                                 QModbusRtuSerialMaster::tr("Could not write message to serial bus."));
+            elem.reply->setFinished(true);
+
+            sendNextRequest();
+            return;
+        }
+
+        if (!m_queue.head().reply->slaveAddress()) {
+            // broadcasts return immediately but we delay a bit to avoid spaming of bus
+            QueueElement elem = m_queue.dequeue();
+            elem.reply->setFinished(true);
+
+            QTimer::singleShot(0, [this]() { sendNextRequest(); });
+            return;
+        }
+
+        // regular send -> keep in queue
+        startResponseTimer();
+    }
+
+    QModbusReply *enqueueRequest(const QModbusRequest &request, int slaveAddress,
+                                       const QModbusDataUnit unit)
+    {
+        Q_Q(QModbusRtuSerialMaster);
+
+        QModbusReply *reply = new QModbusReply(slaveAddress, q);
+        QueueElement elem = { reply, request, unit };
+        m_queue.enqueue(elem);
+        sendNextRequest();
+
+        return reply;
+    }
+
+    bool canMatchRequestAndResponse(const QModbusResponse &response, int sendingSlave) const
+    {
+        if (m_queue.isEmpty()) // nothing pending
+            return false;
+
+        const QueueElement &head = m_queue.head(); // reply deleted
+        if (head.reply.isNull())
+            return false;
+
+        if (head.reply->slaveAddress() != sendingSlave) // slave mismatch
+            return false;
+
+        // request for different fcode
+        if (head.requestPdu.functionCode() != response.functionCode())
+            return false;
+
+        return true;
+    }
+
+    void handleResponseTimeout()
+    {
+        qCDebug(QT_MODBUS) << "Timeout of last request";
+
+        if (m_queue.isEmpty())
+            return;
+
+        QueueElement elem = m_queue.dequeue();
+        if (elem.reply.isNull()) {
+            // reply deleted while waiting for response which timed out
+            // nothing really to do here
+            return;
+        }
+
+        elem.reply->setError(QModbusReply::TimeoutError,
+                             QModbusRtuSerialMaster::tr("Request timeout."));
+    }
+
+    QSerialPort *m_serialPort;
+    QByteArray responseBuffer;
+
+    struct QueueElement {
+        QPointer<QModbusReply> reply;
+        QModbusRequest requestPdu;
+        QModbusDataUnit unit;
+    };
+
+    QQueue<QueueElement> m_queue;
+}
+|————Node:{ Text: {
+|————Node:function_definition Text: Q_DECLARE_PUBLIC(QModbusRtuSerialMaster)
+
+public:
+    QModbusRtuSerialMasterPrivate()
+    {
+    }
+|—————Node:macro_type_specifier Text: Q_DECLARE_PUBLIC(QModbusRtuSerialMaster)
+|——————Node:identifier Text: Q_DECLARE_PUBLIC
+|——————Node:( Text: (
+|——————Node:type_descriptor Text: QModbusRtuSerialMaster
+|———————Node:type_identifier Text: QModbusRtuSerialMaster
+|——————Node:) Text: )
+|—————Node:ERROR Text: public:
+|——————Node:identifier Text: public
+|——————Node:: Text: :
+|—————Node:function_declarator Text: QModbusRtuSerialMasterPrivate()
+|——————Node:identifier Text: QModbusRtuSerialMasterPrivate
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {
+    }
+|——————Node:{ Text: {
+|——————Node:} Text: }
+|————Node:function_definition Text: void setupSerialPort()
+    {
+        Q_Q(QModbusRtuSerialMaster);
+
+        m_serialPort = new QSerialPort(q);
+        m_serialPort->setBaudRate(QSerialPort::Baud9600);
+        m_serialPort->setParity(QSerialPort::NoParity);
+        m_serialPort->setDataBits(QSerialPort::Data8);
+        m_serialPort->setStopBits(QSerialPort::OneStop);
+
+        QObject::connect(m_serialPort, &QSerialPort::readyRead, [this]() {
+            responseBuffer += m_serialPort->read(m_serialPort->bytesAvailable());
+
+            if (responseBuffer.size() < 2) {
+                qCDebug(QT_MODBUS) << "Modbus ADU not complete";
+                return;
+            }
+
+            int aduSize = 2; //slave address & function code
+
+            QModbusPdu::FunctionCode fcode = QModbusPdu::FunctionCode(responseBuffer.at(1));
+            int pduSizeWithoutFcode = QModbusResponse::calculateDataSize(fcode, responseBuffer.mid(2));
+            if (pduSizeWithoutFcode < 0) {
+                // wait for more data
+                qCDebug(QT_MODBUS) << "Cannot calculate PDU size for fcode, delaying pending frame"
+                                   << fcode;
+                return;
+            }
+            aduSize += pduSizeWithoutFcode;
+
+            aduSize += 2; //CRC
+            if (responseBuffer.size() < aduSize) {
+                qCDebug(QT_MODBUS) << "ADU too short, ignoring pending frame";
+                return;
+            }
+
+            const QByteArray completeAduFrame = responseBuffer.left(aduSize);
+            responseBuffer.remove(0, aduSize);
+
+            stopResponseTimer();
+
+            qCDebug(QT_MODBUS)<< "Received response (incl ADU)" << completeAduFrame.toHex();
+            if (QT_MODBUS().isDebugEnabled() && !responseBuffer.isEmpty())
+                qCDebug(QT_MODBUS_LOW) << "Pending buffer:" << responseBuffer.toHex();
+
+            // check CRC
+            quint16 receivedCrc = quint8(completeAduFrame[aduSize - 2]) << 8
+                                  | quint8(completeAduFrame[aduSize - 1]);
+            if (!matchingCRC(completeAduFrame, completeAduFrame.size() - 2, receivedCrc)) {
+                qCWarning(QT_MODBUS) << "Discarding request with wrong CRC, received:"
+                                     << receivedCrc << "got:"
+                                     << calculateCRC(completeAduFrame, completeAduFrame.size());
+                return;
+            }
+
+
+            const QModbusResponse response(fcode,
+                                           completeAduFrame.mid(2, completeAduFrame.size() - 4));
+
+            if (!canMatchRequestAndResponse(response, completeAduFrame.at(0))) {
+                qCWarning(QT_MODBUS) << "Cannot match response with open request. "
+                                        "Ignoring response.";
+                return;
+            }
+
+            QueueElement headOfQueue = m_queue.dequeue();
+            if (!response.isException()) {
+                QModbusDataUnit unit = headOfQueue.unit;
+                if (processResponse(response, &unit)) {
+                    headOfQueue.reply->setResult(unit);
+                } else {
+                    headOfQueue.reply->setError(
+                            QModbusReply::UnknownError,
+                            QModbusRtuSerialMaster::tr("An invalid response has been received."));
+                }
+            } else {
+               headOfQueue.reply->setProtocolError(response.exceptionCode(), QString());
+            }
+
+            headOfQueue.reply->setFinished(true);
+
+            sendNextRequest(); // go to next request
+        });
+
+        QObject::connect(m_serialPort, &QSerialPort::aboutToClose, [this]() {
+            Q_Q(QModbusRtuSerialMaster);
+            if (q->state() != QModbusDevice::ClosingState)
+                q->close();
+        });
+    }
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setupSerialPort()
+|——————Node:identifier Text: setupSerialPort
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {
+        Q_Q(QModbusRtuSerialMaster);
+
+        m_serialPort = new QSerialPort(q);
+        m_serialPort->setBaudRate(QSerialPort::Baud9600);
+        m_serialPort->setParity(QSerialPort::NoParity);
+        m_serialPort->setDataBits(QSerialPort::Data8);
+        m_serialPort->setStopBits(QSerialPort::OneStop);
+
+        QObject::connect(m_serialPort, &QSerialPort::readyRead, [this]() {
+            responseBuffer += m_serialPort->read(m_serialPort->bytesAvailable());
+
+            if (responseBuffer.size() < 2) {
+                qCDebug(QT_MODBUS) << "Modbus ADU not complete";
+                return;
+            }
+
+            int aduSize = 2; //slave address & function code
+
+            QModbusPdu::FunctionCode fcode = QModbusPdu::FunctionCode(responseBuffer.at(1));
+            int pduSizeWithoutFcode = QModbusResponse::calculateDataSize(fcode, responseBuffer.mid(2));
+            if (pduSizeWithoutFcode < 0) {
+                // wait for more data
+                qCDebug(QT_MODBUS) << "Cannot calculate PDU size for fcode, delaying pending frame"
+                                   << fcode;
+                return;
+            }
+            aduSize += pduSizeWithoutFcode;
+
+            aduSize += 2; //CRC
+            if (responseBuffer.size() < aduSize) {
+                qCDebug(QT_MODBUS) << "ADU too short, ignoring pending frame";
+                return;
+            }
+
+            const QByteArray completeAduFrame = responseBuffer.left(aduSize);
+            responseBuffer.remove(0, aduSize);
+
+            stopResponseTimer();
+
+            qCDebug(QT_MODBUS)<< "Received response (incl ADU)" << completeAduFrame.toHex();
+            if (QT_MODBUS().isDebugEnabled() && !responseBuffer.isEmpty())
+                qCDebug(QT_MODBUS_LOW) << "Pending buffer:" << responseBuffer.toHex();
+
+            // check CRC
+            quint16 receivedCrc = quint8(completeAduFrame[aduSize - 2]) << 8
+                                  | quint8(completeAduFrame[aduSize - 1]);
+            if (!matchingCRC(completeAduFrame, completeAduFrame.size() - 2, receivedCrc)) {
+                qCWarning(QT_MODBUS) << "Discarding request with wrong CRC, received:"
+                                     << receivedCrc << "got:"
+                                     << calculateCRC(completeAduFrame, completeAduFrame.size());
+                return;
+            }
+
+
+            const QModbusResponse response(fcode,
+                                           completeAduFrame.mid(2, completeAduFrame.size() - 4));
+
+            if (!canMatchRequestAndResponse(response, completeAduFrame.at(0))) {
+                qCWarning(QT_MODBUS) << "Cannot match response with open request. "
+                                        "Ignoring response.";
+                return;
+            }
+
+            QueueElement headOfQueue = m_queue.dequeue();
+            if (!response.isException()) {
+                QModbusDataUnit unit = headOfQueue.unit;
+                if (processResponse(response, &unit)) {
+                    headOfQueue.reply->setResult(unit);
+                } else {
+                    headOfQueue.reply->setError(
+                            QModbusReply::UnknownError,
+                            QModbusRtuSerialMaster::tr("An invalid response has been received."));
+                }
+            } else {
+               headOfQueue.reply->setProtocolError(response.exceptionCode(), QString());
+            }
+
+            headOfQueue.reply->setFinished(true);
+
+            sendNextRequest(); // go to next request
+        });
+
+        QObject::connect(m_serialPort, &QSerialPort::aboutToClose, [this]() {
+            Q_Q(QModbusRtuSerialMaster);
+            if (q->state() != QModbusDevice::ClosingState)
+                q->close();
+        });
+    }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: Q_Q(QModbusRtuSerialMaster);
+|———————Node:call_expression Text: Q_Q(QModbusRtuSerialMaster)
+|————————Node:identifier Text: Q_Q
+|————————Node:argument_list Text: (QModbusRtuSerialMaster)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: QModbusRtuSerialMaster
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: m_serialPort = new QSerialPort(q);
+|———————Node:assignment_expression Text: m_serialPort = new QSerialPort(q)
+|————————Node:identifier Text: m_serialPort
+|————————Node:= Text: =
+|————————Node:ERROR Text: new
+|—————————Node:identifier Text: new
+|————————Node:call_expression Text: QSerialPort(q)
+|—————————Node:identifier Text: QSerialPort
+|—————————Node:argument_list Text: (q)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: q
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: m_serialPort->setBaudRate(QSerialPort::Baud9600);
+|———————Node:call_expression Text: m_serialPort->setBaudRate(QSerialPort::Baud9600)
+|————————Node:field_expression Text: m_serialPort->setBaudRate
+|—————————Node:identifier Text: m_serialPort
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: setBaudRate
+|————————Node:argument_list Text: (QSerialPort::Baud9600)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: QSerialPort
+|—————————Node:ERROR Text: ::Baud9600
+|——————————Node:: Text: :
+|——————————Node:: Text: :
+|——————————Node:identifier Text: Baud9600
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: m_serialPort->setParity(QSerialPort::NoParity);
+|———————Node:call_expression Text: m_serialPort->setParity(QSerialPort::NoParity)
+|————————Node:field_expression Text: m_serialPort->setParity
+|—————————Node:identifier Text: m_serialPort
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: setParity
+|————————Node:argument_list Text: (QSerialPort::NoParity)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: QSerialPort
+|—————————Node:ERROR Text: ::NoParity
+|——————————Node:: Text: :
+|——————————Node:: Text: :
+|——————————Node:identifier Text: NoParity
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: m_serialPort->setDataBits(QSerialPort::Data8);
+|———————Node:call_expression Text: m_serialPort->setDataBits(QSerialPort::Data8)
+|————————Node:field_expression Text: m_serialPort->setDataBits
+|—————————Node:identifier Text: m_serialPort
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: setDataBits
+|————————Node:argument_list Text: (QSerialPort::Data8)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: QSerialPort
+|—————————Node:ERROR Text: ::Data8
+|——————————Node:: Text: :
+|——————————Node:: Text: :
+|——————————Node:identifier Text: Data8
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: m_serialPort->setStopBits(QSerialPort::OneStop);
+|———————Node:call_expression Text: m_serialPort->setStopBits(QSerialPort::OneStop)
+|————————Node:field_expression Text: m_serialPort->setStopBits
+|—————————Node:identifier Text: m_serialPort
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: setStopBits
+|————————Node:argument_list Text: (QSerialPort::OneStop)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: QSerialPort
+|—————————Node:ERROR Text: ::OneStop
+|——————————Node:: Text: :
+|——————————Node:: Text: :
+|——————————Node:identifier Text: OneStop
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:labeled_statement Text: QObject::connect(m_serialPort, &QSerialPort::readyRead, [this]()
+|———————Node:statement_identifier Text: QObject
+|———————Node:ERROR Text: ::connect(m_serialPort, &QSerialPort:
+|————————Node:: Text: :
+|————————Node:: Text: :
+|————————Node:identifier Text: connect
+|————————Node:( Text: (
+|————————Node:identifier Text: m_serialPort
+|————————Node:, Text: ,
+|————————Node:pointer_expression Text: &QSerialPort
+|—————————Node:& Text: &
+|—————————Node:identifier Text: QSerialPort
+|————————Node:: Text: :
+|———————Node:: Text: :
+|———————Node:expression_statement Text: readyRead, [this]()
+|————————Node:call_expression Text: readyRead, [this]()
+|—————————Node:subscript_expression Text: readyRead, [this]
+|——————————Node:identifier Text: readyRead
+|——————————Node:ERROR Text: ,
+|———————————Node:, Text: ,
+|——————————Node:[ Text: [
+|——————————Node:identifier Text: this
+|——————————Node:] Text: ]
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:; Text: 
+|——————Node:compound_statement Text: {
+            responseBuffer += m_serialPort->read(m_serialPort->bytesAvailable());
+
+            if (responseBuffer.size() < 2) {
+                qCDebug(QT_MODBUS) << "Modbus ADU not complete";
+                return;
+            }
+
+            int aduSize = 2; //slave address & function code
+
+            QModbusPdu::FunctionCode fcode = QModbusPdu::FunctionCode(responseBuffer.at(1));
+            int pduSizeWithoutFcode = QModbusResponse::calculateDataSize(fcode, responseBuffer.mid(2));
+            if (pduSizeWithoutFcode < 0) {
+                // wait for more data
+                qCDebug(QT_MODBUS) << "Cannot calculate PDU size for fcode, delaying pending frame"
+                                   << fcode;
+                return;
+            }
+            aduSize += pduSizeWithoutFcode;
+
+            aduSize += 2; //CRC
+            if (responseBuffer.size() < aduSize) {
+                qCDebug(QT_MODBUS) << "ADU too short, ignoring pending frame";
+                return;
+            }
+
+            const QByteArray completeAduFrame = responseBuffer.left(aduSize);
+            responseBuffer.remove(0, aduSize);
+
+            stopResponseTimer();
+
+            qCDebug(QT_MODBUS)<< "Received response (incl ADU)" << completeAduFrame.toHex();
+            if (QT_MODBUS().isDebugEnabled() && !responseBuffer.isEmpty())
+                qCDebug(QT_MODBUS_LOW) << "Pending buffer:" << responseBuffer.toHex();
+
+            // check CRC
+            quint16 receivedCrc = quint8(completeAduFrame[aduSize - 2]) << 8
+                                  | quint8(completeAduFrame[aduSize - 1]);
+            if (!matchingCRC(completeAduFrame, completeAduFrame.size() - 2, receivedCrc)) {
+                qCWarning(QT_MODBUS) << "Discarding request with wrong CRC, received:"
+                                     << receivedCrc << "got:"
+                                     << calculateCRC(completeAduFrame, completeAduFrame.size());
+                return;
+            }
+
+
+            const QModbusResponse response(fcode,
+                                           completeAduFrame.mid(2, completeAduFrame.size() - 4));
+
+            if (!canMatchRequestAndResponse(response, completeAduFrame.at(0))) {
+                qCWarning(QT_MODBUS) << "Cannot match response with open request. "
+                                        "Ignoring response.";
+                return;
+            }
+
+            QueueElement headOfQueue = m_queue.dequeue();
+            if (!response.isException()) {
+                QModbusDataUnit unit = headOfQueue.unit;
+                if (processResponse(response, &unit)) {
+                    headOfQueue.reply->setResult(unit);
+                } else {
+                    headOfQueue.reply->setError(
+                            QModbusReply::UnknownError,
+                            QModbusRtuSerialMaster::tr("An invalid response has been received."));
+                }
+            } else {
+               headOfQueue.reply->setProtocolError(response.exceptionCode(), QString());
+            }
+
+            headOfQueue.reply->setFinished(true);
+
+            sendNextRequest(); // go to next request
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: responseBuffer += m_serialPort->read(m_serialPort->bytesAvailable());
+|————————Node:assignment_expression Text: responseBuffer += m_serialPort->read(m_serialPort->bytesAvailable())
+|—————————Node:identifier Text: responseBuffer
+|—————————Node:+= Text: +=
+|—————————Node:call_expression Text: m_serialPort->read(m_serialPort->bytesAvailable())
+|——————————Node:field_expression Text: m_serialPort->read
+|———————————Node:identifier Text: m_serialPort
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: read
+|——————————Node:argument_list Text: (m_serialPort->bytesAvailable())
+|———————————Node:( Text: (
+|———————————Node:call_expression Text: m_serialPort->bytesAvailable()
+|————————————Node:field_expression Text: m_serialPort->bytesAvailable
+|—————————————Node:identifier Text: m_serialPort
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: bytesAvailable
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if (responseBuffer.size() < 2) {
+                qCDebug(QT_MODBUS) << "Modbus ADU not complete";
+                return;
+            }
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (responseBuffer.size() < 2)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: responseBuffer.size() < 2
+|——————————Node:call_expression Text: responseBuffer.size()
+|———————————Node:field_expression Text: responseBuffer.size
+|————————————Node:identifier Text: responseBuffer
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: size
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:< Text: <
+|——————————Node:number_literal Text: 2
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                qCDebug(QT_MODBUS) << "Modbus ADU not complete";
+                return;
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: qCDebug(QT_MODBUS) << "Modbus ADU not complete";
+|——————————Node:binary_expression Text: qCDebug(QT_MODBUS) << "Modbus ADU not complete"
+|———————————Node:call_expression Text: qCDebug(QT_MODBUS)
+|————————————Node:identifier Text: qCDebug
+|————————————Node:argument_list Text: (QT_MODBUS)
+|—————————————Node:( Text: (
+|—————————————Node:identifier Text: QT_MODBUS
+|—————————————Node:) Text: )
+|———————————Node:<< Text: <<
+|———————————Node:string_literal Text: "Modbus ADU not complete"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: Modbus ADU not complete
+|————————————Node:" Text: "
+|——————————Node:; Text: ;
+|—————————Node:return_statement Text: return;
+|——————————Node:return Text: return
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:declaration Text: int aduSize = 2;
+|————————Node:primitive_type Text: int
+|————————Node:init_declarator Text: aduSize = 2
+|—————————Node:identifier Text: aduSize
+|—————————Node:= Text: =
+|—————————Node:number_literal Text: 2
+|————————Node:; Text: ;
+|———————Node:comment
+|———————Node:labeled_statement Text: QModbusPdu::FunctionCode fcode = QModbusPdu::FunctionCode(responseBuffer.at(1));
+|————————Node:statement_identifier Text: QModbusPdu
+|————————Node:ERROR Text: ::FunctionCode fcode = QModbusPdu:
+|—————————Node:: Text: :
+|—————————Node:: Text: :
+|—————————Node:type_identifier Text: FunctionCode
+|—————————Node:init_declarator Text: fcode = QModbusPdu
+|——————————Node:identifier Text: fcode
+|——————————Node:= Text: =
+|——————————Node:identifier Text: QModbusPdu
+|—————————Node:: Text: :
+|————————Node:: Text: :
+|————————Node:expression_statement Text: FunctionCode(responseBuffer.at(1));
+|—————————Node:call_expression Text: FunctionCode(responseBuffer.at(1))
+|——————————Node:identifier Text: FunctionCode
+|——————————Node:argument_list Text: (responseBuffer.at(1))
+|———————————Node:( Text: (
+|———————————Node:call_expression Text: responseBuffer.at(1)
+|————————————Node:field_expression Text: responseBuffer.at
+|—————————————Node:identifier Text: responseBuffer
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: at
+|————————————Node:argument_list Text: (1)
+|—————————————Node:( Text: (
+|—————————————Node:number_literal Text: 1
+|—————————————Node:) Text: )
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|———————Node:declaration Text: int pduSizeWithoutFcode = QModbusResponse::calculateDataSize(fcode, responseBuffer.mid(2));
+|————————Node:primitive_type Text: int
+|————————Node:init_declarator Text: pduSizeWithoutFcode = QModbusResponse::calculateDataSize(fcode, responseBuffer.mid(2))
+|—————————Node:identifier Text: pduSizeWithoutFcode
+|—————————Node:= Text: =
+|—————————Node:ERROR Text: QModbusResponse::
+|——————————Node:identifier Text: QModbusResponse
+|——————————Node:: Text: :
+|——————————Node:: Text: :
+|—————————Node:call_expression Text: calculateDataSize(fcode, responseBuffer.mid(2))
+|——————————Node:identifier Text: calculateDataSize
+|——————————Node:argument_list Text: (fcode, responseBuffer.mid(2))
+|———————————Node:( Text: (
+|———————————Node:identifier Text: fcode
+|———————————Node:, Text: ,
+|———————————Node:call_expression Text: responseBuffer.mid(2)
+|————————————Node:field_expression Text: responseBuffer.mid
+|—————————————Node:identifier Text: responseBuffer
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: mid
+|————————————Node:argument_list Text: (2)
+|—————————————Node:( Text: (
+|—————————————Node:number_literal Text: 2
+|—————————————Node:) Text: )
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if (pduSizeWithoutFcode < 0) {
+                // wait for more data
+                qCDebug(QT_MODBUS) << "Cannot calculate PDU size for fcode, delaying pending frame"
+                                   << fcode;
+                return;
+            }
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (pduSizeWithoutFcode < 0)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: pduSizeWithoutFcode < 0
+|——————————Node:identifier Text: pduSizeWithoutFcode
+|——————————Node:< Text: <
+|——————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                // wait for more data
+                qCDebug(QT_MODBUS) << "Cannot calculate PDU size for fcode, delaying pending frame"
+                                   << fcode;
+                return;
+            }
+|—————————Node:{ Text: {
+|—————————Node:comment
+|—————————Node:expression_statement Text: qCDebug(QT_MODBUS) << "Cannot calculate PDU size for fcode, delaying pending frame"
+                                   << fcode;
+|——————————Node:binary_expression Text: qCDebug(QT_MODBUS) << "Cannot calculate PDU size for fcode, delaying pending frame"
+                                   << fcode
+|———————————Node:binary_expression Text: qCDebug(QT_MODBUS) << "Cannot calculate PDU size for fcode, delaying pending frame"
+|————————————Node:call_expression Text: qCDebug(QT_MODBUS)
+|—————————————Node:identifier Text: qCDebug
+|—————————————Node:argument_list Text: (QT_MODBUS)
+|——————————————Node:( Text: (
+|——————————————Node:identifier Text: QT_MODBUS
+|——————————————Node:) Text: )
+|————————————Node:<< Text: <<
+|————————————Node:string_literal Text: "Cannot calculate PDU size for fcode, delaying pending frame"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: Cannot calculate PDU size for fcode, delaying pending frame
+|—————————————Node:" Text: "
+|———————————Node:<< Text: <<
+|———————————Node:identifier Text: fcode
+|——————————Node:; Text: ;
+|—————————Node:return_statement Text: return;
+|——————————Node:return Text: return
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:expression_statement Text: aduSize += pduSizeWithoutFcode;
+|————————Node:assignment_expression Text: aduSize += pduSizeWithoutFcode
+|—————————Node:identifier Text: aduSize
+|—————————Node:+= Text: +=
+|—————————Node:identifier Text: pduSizeWithoutFcode
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: aduSize += 2;
+|————————Node:assignment_expression Text: aduSize += 2
+|—————————Node:identifier Text: aduSize
+|—————————Node:+= Text: +=
+|—————————Node:number_literal Text: 2
+|————————Node:; Text: ;
+|———————Node:comment
+|———————Node:if_statement Text: if (responseBuffer.size() < aduSize) {
+                qCDebug(QT_MODBUS) << "ADU too short, ignoring pending frame";
+                return;
+            }
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (responseBuffer.size() < aduSize)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: responseBuffer.size() < aduSize
+|——————————Node:call_expression Text: responseBuffer.size()
+|———————————Node:field_expression Text: responseBuffer.size
+|————————————Node:identifier Text: responseBuffer
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: size
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:< Text: <
+|——————————Node:identifier Text: aduSize
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                qCDebug(QT_MODBUS) << "ADU too short, ignoring pending frame";
+                return;
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: qCDebug(QT_MODBUS) << "ADU too short, ignoring pending frame";
+|——————————Node:binary_expression Text: qCDebug(QT_MODBUS) << "ADU too short, ignoring pending frame"
+|———————————Node:call_expression Text: qCDebug(QT_MODBUS)
+|————————————Node:identifier Text: qCDebug
+|————————————Node:argument_list Text: (QT_MODBUS)
+|—————————————Node:( Text: (
+|—————————————Node:identifier Text: QT_MODBUS
+|—————————————Node:) Text: )
+|———————————Node:<< Text: <<
+|———————————Node:string_literal Text: "ADU too short, ignoring pending frame"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: ADU too short, ignoring pending frame
+|————————————Node:" Text: "
+|——————————Node:; Text: ;
+|—————————Node:return_statement Text: return;
+|——————————Node:return Text: return
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:declaration Text: const QByteArray completeAduFrame = responseBuffer.left(aduSize);
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: QByteArray
+|————————Node:init_declarator Text: completeAduFrame = responseBuffer.left(aduSize)
+|—————————Node:identifier Text: completeAduFrame
+|—————————Node:= Text: =
+|—————————Node:call_expression Text: responseBuffer.left(aduSize)
+|——————————Node:field_expression Text: responseBuffer.left
+|———————————Node:identifier Text: responseBuffer
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: left
+|——————————Node:argument_list Text: (aduSize)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: aduSize
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: responseBuffer.remove(0, aduSize);
+|————————Node:call_expression Text: responseBuffer.remove(0, aduSize)
+|—————————Node:field_expression Text: responseBuffer.remove
+|——————————Node:identifier Text: responseBuffer
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: remove
+|—————————Node:argument_list Text: (0, aduSize)
+|——————————Node:( Text: (
+|——————————Node:number_literal Text: 0
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: aduSize
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: stopResponseTimer();
+|————————Node:call_expression Text: stopResponseTimer()
+|—————————Node:identifier Text: stopResponseTimer
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: qCDebug(QT_MODBUS)<< "Received response (incl ADU)" << completeAduFrame.toHex();
+|————————Node:binary_expression Text: qCDebug(QT_MODBUS)<< "Received response (incl ADU)" << completeAduFrame.toHex()
+|—————————Node:binary_expression Text: qCDebug(QT_MODBUS)<< "Received response (incl ADU)"
+|——————————Node:call_expression Text: qCDebug(QT_MODBUS)
+|———————————Node:identifier Text: qCDebug
+|———————————Node:argument_list Text: (QT_MODBUS)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: QT_MODBUS
+|————————————Node:) Text: )
+|——————————Node:<< Text: <<
+|——————————Node:string_literal Text: "Received response (incl ADU)"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: Received response (incl ADU)
+|———————————Node:" Text: "
+|—————————Node:<< Text: <<
+|—————————Node:call_expression Text: completeAduFrame.toHex()
+|——————————Node:field_expression Text: completeAduFrame.toHex
+|———————————Node:identifier Text: completeAduFrame
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: toHex
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if (QT_MODBUS().isDebugEnabled() && !responseBuffer.isEmpty())
+                qCDebug(QT_MODBUS_LOW) << "Pending buffer:" << responseBuffer.toHex();
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (QT_MODBUS().isDebugEnabled() && !responseBuffer.isEmpty())
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: QT_MODBUS().isDebugEnabled() && !responseBuffer.isEmpty()
+|——————————Node:call_expression Text: QT_MODBUS().isDebugEnabled()
+|———————————Node:field_expression Text: QT_MODBUS().isDebugEnabled
+|————————————Node:call_expression Text: QT_MODBUS()
+|—————————————Node:identifier Text: QT_MODBUS
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: isDebugEnabled
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:&& Text: &&
+|——————————Node:unary_expression Text: !responseBuffer.isEmpty()
+|———————————Node:! Text: !
+|———————————Node:call_expression Text: responseBuffer.isEmpty()
+|————————————Node:field_expression Text: responseBuffer.isEmpty
+|—————————————Node:identifier Text: responseBuffer
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: isEmpty
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:expression_statement Text: qCDebug(QT_MODBUS_LOW) << "Pending buffer:" << responseBuffer.toHex();
+|—————————Node:binary_expression Text: qCDebug(QT_MODBUS_LOW) << "Pending buffer:" << responseBuffer.toHex()
+|——————————Node:binary_expression Text: qCDebug(QT_MODBUS_LOW) << "Pending buffer:"
+|———————————Node:call_expression Text: qCDebug(QT_MODBUS_LOW)
+|————————————Node:identifier Text: qCDebug
+|————————————Node:argument_list Text: (QT_MODBUS_LOW)
+|—————————————Node:( Text: (
+|—————————————Node:identifier Text: QT_MODBUS_LOW
+|—————————————Node:) Text: )
+|———————————Node:<< Text: <<
+|———————————Node:string_literal Text: "Pending buffer:"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: Pending buffer:
+|————————————Node:" Text: "
+|——————————Node:<< Text: <<
+|——————————Node:call_expression Text: responseBuffer.toHex()
+|———————————Node:field_expression Text: responseBuffer.toHex
+|————————————Node:identifier Text: responseBuffer
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: toHex
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|—————————Node:; Text: ;
+|———————Node:comment
+|———————Node:declaration Text: quint16 receivedCrc = quint8(completeAduFrame[aduSize - 2]) << 8
+                                  | quint8(completeAduFrame[aduSize - 1]);
+|————————Node:type_identifier Text: quint16
+|————————Node:init_declarator Text: receivedCrc = quint8(completeAduFrame[aduSize - 2]) << 8
+                                  | quint8(completeAduFrame[aduSize - 1])
+|—————————Node:identifier Text: receivedCrc
+|—————————Node:= Text: =
+|—————————Node:binary_expression Text: quint8(completeAduFrame[aduSize - 2]) << 8
+                                  | quint8(completeAduFrame[aduSize - 1])
+|——————————Node:binary_expression Text: quint8(completeAduFrame[aduSize - 2]) << 8
+|———————————Node:call_expression Text: quint8(completeAduFrame[aduSize - 2])
+|————————————Node:identifier Text: quint8
+|————————————Node:argument_list Text: (completeAduFrame[aduSize - 2])
+|—————————————Node:( Text: (
+|—————————————Node:subscript_expression Text: completeAduFrame[aduSize - 2]
+|——————————————Node:identifier Text: completeAduFrame
+|——————————————Node:[ Text: [
+|——————————————Node:binary_expression Text: aduSize - 2
+|———————————————Node:identifier Text: aduSize
+|———————————————Node:- Text: -
+|———————————————Node:number_literal Text: 2
+|——————————————Node:] Text: ]
+|—————————————Node:) Text: )
+|———————————Node:<< Text: <<
+|———————————Node:number_literal Text: 8
+|——————————Node:| Text: |
+|——————————Node:call_expression Text: quint8(completeAduFrame[aduSize - 1])
+|———————————Node:identifier Text: quint8
+|———————————Node:argument_list Text: (completeAduFrame[aduSize - 1])
+|————————————Node:( Text: (
+|————————————Node:subscript_expression Text: completeAduFrame[aduSize - 1]
+|—————————————Node:identifier Text: completeAduFrame
+|—————————————Node:[ Text: [
+|—————————————Node:binary_expression Text: aduSize - 1
+|——————————————Node:identifier Text: aduSize
+|——————————————Node:- Text: -
+|——————————————Node:number_literal Text: 1
+|—————————————Node:] Text: ]
+|————————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if (!matchingCRC(completeAduFrame, completeAduFrame.size() - 2, receivedCrc)) {
+                qCWarning(QT_MODBUS) << "Discarding request with wrong CRC, received:"
+                                     << receivedCrc << "got:"
+                                     << calculateCRC(completeAduFrame, completeAduFrame.size());
+                return;
+            }
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (!matchingCRC(completeAduFrame, completeAduFrame.size() - 2, receivedCrc))
+|—————————Node:( Text: (
+|—————————Node:unary_expression Text: !matchingCRC(completeAduFrame, completeAduFrame.size() - 2, receivedCrc)
+|——————————Node:! Text: !
+|——————————Node:call_expression Text: matchingCRC(completeAduFrame, completeAduFrame.size() - 2, receivedCrc)
+|———————————Node:identifier Text: matchingCRC
+|———————————Node:argument_list Text: (completeAduFrame, completeAduFrame.size() - 2, receivedCrc)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: completeAduFrame
+|————————————Node:, Text: ,
+|————————————Node:binary_expression Text: completeAduFrame.size() - 2
+|—————————————Node:call_expression Text: completeAduFrame.size()
+|——————————————Node:field_expression Text: completeAduFrame.size
+|———————————————Node:identifier Text: completeAduFrame
+|———————————————Node:. Text: .
+|———————————————Node:field_identifier Text: size
+|——————————————Node:argument_list Text: ()
+|———————————————Node:( Text: (
+|———————————————Node:) Text: )
+|—————————————Node:- Text: -
+|—————————————Node:number_literal Text: 2
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: receivedCrc
+|————————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                qCWarning(QT_MODBUS) << "Discarding request with wrong CRC, received:"
+                                     << receivedCrc << "got:"
+                                     << calculateCRC(completeAduFrame, completeAduFrame.size());
+                return;
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: qCWarning(QT_MODBUS) << "Discarding request with wrong CRC, received:"
+                                     << receivedCrc << "got:"
+                                     << calculateCRC(completeAduFrame, completeAduFrame.size());
+|——————————Node:binary_expression Text: qCWarning(QT_MODBUS) << "Discarding request with wrong CRC, received:"
+                                     << receivedCrc << "got:"
+                                     << calculateCRC(completeAduFrame, completeAduFrame.size())
+|———————————Node:binary_expression Text: qCWarning(QT_MODBUS) << "Discarding request with wrong CRC, received:"
+                                     << receivedCrc << "got:"
+|————————————Node:binary_expression Text: qCWarning(QT_MODBUS) << "Discarding request with wrong CRC, received:"
+                                     << receivedCrc
+|—————————————Node:binary_expression Text: qCWarning(QT_MODBUS) << "Discarding request with wrong CRC, received:"
+|——————————————Node:call_expression Text: qCWarning(QT_MODBUS)
+|———————————————Node:identifier Text: qCWarning
+|———————————————Node:argument_list Text: (QT_MODBUS)
+|————————————————Node:( Text: (
+|————————————————Node:identifier Text: QT_MODBUS
+|————————————————Node:) Text: )
+|——————————————Node:<< Text: <<
+|——————————————Node:string_literal Text: "Discarding request with wrong CRC, received:"
+|———————————————Node:" Text: "
+|———————————————Node:string_content Text: Discarding request with wrong CRC, received:
+|———————————————Node:" Text: "
+|—————————————Node:<< Text: <<
+|—————————————Node:identifier Text: receivedCrc
+|————————————Node:<< Text: <<
+|————————————Node:string_literal Text: "got:"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: got:
+|—————————————Node:" Text: "
+|———————————Node:<< Text: <<
+|———————————Node:call_expression Text: calculateCRC(completeAduFrame, completeAduFrame.size())
+|————————————Node:identifier Text: calculateCRC
+|————————————Node:argument_list Text: (completeAduFrame, completeAduFrame.size())
+|—————————————Node:( Text: (
+|—————————————Node:identifier Text: completeAduFrame
+|—————————————Node:, Text: ,
+|—————————————Node:call_expression Text: completeAduFrame.size()
+|——————————————Node:field_expression Text: completeAduFrame.size
+|———————————————Node:identifier Text: completeAduFrame
+|———————————————Node:. Text: .
+|———————————————Node:field_identifier Text: size
+|——————————————Node:argument_list Text: ()
+|———————————————Node:( Text: (
+|———————————————Node:) Text: )
+|—————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:return_statement Text: return;
+|——————————Node:return Text: return
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:ERROR Text: const QModbusResponse response(fcode,
+                                           completeAduFrame.mid(2, completeAduFrame.size() - 4))
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: QModbusResponse
+|————————Node:function_declarator Text: response(fcode,
+                                           completeAduFrame.mid(2, completeAduFrame.size()
+|—————————Node:identifier Text: response
+|—————————Node:parameter_list Text: (fcode,
+                                           completeAduFrame.mid(2, completeAduFrame.size()
+|——————————Node:( Text: (
+|——————————Node:identifier Text: fcode
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: completeAduFrame
+|——————————Node:ERROR Text: .mid(2
+|———————————Node:. Text: .
+|———————————Node:identifier Text: mid
+|———————————Node:( Text: (
+|———————————Node:number_literal Text: 2
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: completeAduFrame
+|——————————Node:ERROR Text: .size(
+|———————————Node:. Text: .
+|———————————Node:identifier Text: size
+|———————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:- Text: -
+|————————Node:number_literal Text: 4
+|————————Node:) Text: )
+|————————Node:) Text: )
+|———————Node:expression_statement Text: ;
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if (!canMatchRequestAndResponse(response, completeAduFrame.at(0))) {
+                qCWarning(QT_MODBUS) << "Cannot match response with open request. "
+                                        "Ignoring response.";
+                return;
+            }
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (!canMatchRequestAndResponse(response, completeAduFrame.at(0)))
+|—————————Node:( Text: (
+|—————————Node:unary_expression Text: !canMatchRequestAndResponse(response, completeAduFrame.at(0))
+|——————————Node:! Text: !
+|——————————Node:call_expression Text: canMatchRequestAndResponse(response, completeAduFrame.at(0))
+|———————————Node:identifier Text: canMatchRequestAndResponse
+|———————————Node:argument_list Text: (response, completeAduFrame.at(0))
+|————————————Node:( Text: (
+|————————————Node:identifier Text: response
+|————————————Node:, Text: ,
+|————————————Node:call_expression Text: completeAduFrame.at(0)
+|—————————————Node:field_expression Text: completeAduFrame.at
+|——————————————Node:identifier Text: completeAduFrame
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: at
+|—————————————Node:argument_list Text: (0)
+|——————————————Node:( Text: (
+|——————————————Node:number_literal Text: 0
+|——————————————Node:) Text: )
+|————————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                qCWarning(QT_MODBUS) << "Cannot match response with open request. "
+                                        "Ignoring response.";
+                return;
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: qCWarning(QT_MODBUS) << "Cannot match response with open request. "
+                                        "Ignoring response.";
+|——————————Node:binary_expression Text: qCWarning(QT_MODBUS) << "Cannot match response with open request. "
+                                        "Ignoring response."
+|———————————Node:call_expression Text: qCWarning(QT_MODBUS)
+|————————————Node:identifier Text: qCWarning
+|————————————Node:argument_list Text: (QT_MODBUS)
+|—————————————Node:( Text: (
+|—————————————Node:identifier Text: QT_MODBUS
+|—————————————Node:) Text: )
+|———————————Node:<< Text: <<
+|———————————Node:concatenated_string Text: "Cannot match response with open request. "
+                                        "Ignoring response."
+|————————————Node:string_literal Text: "Cannot match response with open request. "
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: Cannot match response with open request. 
+|—————————————Node:" Text: "
+|————————————Node:string_literal Text: "Ignoring response."
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: Ignoring response.
+|—————————————Node:" Text: "
+|——————————Node:; Text: ;
+|—————————Node:return_statement Text: return;
+|——————————Node:return Text: return
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:declaration Text: QueueElement headOfQueue = m_queue.dequeue();
+|————————Node:type_identifier Text: QueueElement
+|————————Node:init_declarator Text: headOfQueue = m_queue.dequeue()
+|—————————Node:identifier Text: headOfQueue
+|—————————Node:= Text: =
+|—————————Node:call_expression Text: m_queue.dequeue()
+|——————————Node:field_expression Text: m_queue.dequeue
+|———————————Node:identifier Text: m_queue
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: dequeue
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if (!response.isException()) {
+                QModbusDataUnit unit = headOfQueue.unit;
+                if (processResponse(response, &unit)) {
+                    headOfQueue.reply->setResult(unit);
+                } else {
+                    headOfQueue.reply->setError(
+                            QModbusReply::UnknownError,
+                            QModbusRtuSerialMaster::tr("An invalid response has been received."));
+                }
+            } else {
+               headOfQueue.reply->setProtocolError(response.exceptionCode(), QString());
+            }
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (!response.isException())
+|—————————Node:( Text: (
+|—————————Node:unary_expression Text: !response.isException()
+|——————————Node:! Text: !
+|——————————Node:call_expression Text: response.isException()
+|———————————Node:field_expression Text: response.isException
+|————————————Node:identifier Text: response
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: isException
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                QModbusDataUnit unit = headOfQueue.unit;
+                if (processResponse(response, &unit)) {
+                    headOfQueue.reply->setResult(unit);
+                } else {
+                    headOfQueue.reply->setError(
+                            QModbusReply::UnknownError,
+                            QModbusRtuSerialMaster::tr("An invalid response has been received."));
+                }
+            }
+|—————————Node:{ Text: {
+|—————————Node:declaration Text: QModbusDataUnit unit = headOfQueue.unit;
+|——————————Node:type_identifier Text: QModbusDataUnit
+|——————————Node:init_declarator Text: unit = headOfQueue.unit
+|———————————Node:identifier Text: unit
+|———————————Node:= Text: =
+|———————————Node:field_expression Text: headOfQueue.unit
+|————————————Node:identifier Text: headOfQueue
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: unit
+|——————————Node:; Text: ;
+|—————————Node:if_statement Text: if (processResponse(response, &unit)) {
+                    headOfQueue.reply->setResult(unit);
+                } else {
+                    headOfQueue.reply->setError(
+                            QModbusReply::UnknownError,
+                            QModbusRtuSerialMaster::tr("An invalid response has been received."));
+                }
+|——————————Node:if Text: if
+|——————————Node:parenthesized_expression Text: (processResponse(response, &unit))
+|———————————Node:( Text: (
+|———————————Node:call_expression Text: processResponse(response, &unit)
+|————————————Node:identifier Text: processResponse
+|————————————Node:argument_list Text: (response, &unit)
+|—————————————Node:( Text: (
+|—————————————Node:identifier Text: response
+|—————————————Node:, Text: ,
+|—————————————Node:pointer_expression Text: &unit
+|——————————————Node:& Text: &
+|——————————————Node:identifier Text: unit
+|—————————————Node:) Text: )
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+                    headOfQueue.reply->setResult(unit);
+                }
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: headOfQueue.reply->setResult(unit);
+|————————————Node:call_expression Text: headOfQueue.reply->setResult(unit)
+|—————————————Node:field_expression Text: headOfQueue.reply->setResult
+|——————————————Node:field_expression Text: headOfQueue.reply
+|———————————————Node:identifier Text: headOfQueue
+|———————————————Node:. Text: .
+|———————————————Node:field_identifier Text: reply
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: setResult
+|—————————————Node:argument_list Text: (unit)
+|——————————————Node:( Text: (
+|——————————————Node:identifier Text: unit
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|——————————Node:else_clause Text: else {
+                    headOfQueue.reply->setError(
+                            QModbusReply::UnknownError,
+                            QModbusRtuSerialMaster::tr("An invalid response has been received."));
+                }
+|———————————Node:else Text: else
+|———————————Node:compound_statement Text: {
+                    headOfQueue.reply->setError(
+                            QModbusReply::UnknownError,
+                            QModbusRtuSerialMaster::tr("An invalid response has been received."));
+                }
+|————————————Node:{ Text: {
+|————————————Node:expression_statement Text: headOfQueue.reply->setError(
+                            QModbusReply::UnknownError,
+                            QModbusRtuSerialMaster::tr("An invalid response has been received."));
+|—————————————Node:call_expression Text: headOfQueue.reply->setError(
+                            QModbusReply::UnknownError,
+                            QModbusRtuSerialMaster::tr("An invalid response has been received."))
+|——————————————Node:field_expression Text: headOfQueue.reply->setError
+|———————————————Node:field_expression Text: headOfQueue.reply
+|————————————————Node:identifier Text: headOfQueue
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: reply
+|———————————————Node:-> Text: ->
+|———————————————Node:field_identifier Text: setError
+|——————————————Node:argument_list Text: (
+                            QModbusReply::UnknownError,
+                            QModbusRtuSerialMaster::tr("An invalid response has been received."))
+|———————————————Node:( Text: (
+|———————————————Node:identifier Text: QModbusReply
+|———————————————Node:ERROR Text: ::UnknownError
+|————————————————Node:: Text: :
+|————————————————Node:: Text: :
+|————————————————Node:identifier Text: UnknownError
+|———————————————Node:, Text: ,
+|———————————————Node:ERROR Text: QModbusRtuSerialMaster::
+|————————————————Node:identifier Text: QModbusRtuSerialMaster
+|————————————————Node:: Text: :
+|————————————————Node:: Text: :
+|———————————————Node:call_expression Text: tr("An invalid response has been received.")
+|————————————————Node:identifier Text: tr
+|————————————————Node:argument_list Text: ("An invalid response has been received.")
+|—————————————————Node:( Text: (
+|—————————————————Node:string_literal Text: "An invalid response has been received."
+|——————————————————Node:" Text: "
+|——————————————————Node:string_content Text: An invalid response has been received.
+|——————————————————Node:" Text: "
+|—————————————————Node:) Text: )
+|———————————————Node:) Text: )
+|—————————————Node:; Text: ;
+|————————————Node:} Text: }
+|—————————Node:} Text: }
+|————————Node:else_clause Text: else {
+               headOfQueue.reply->setProtocolError(response.exceptionCode(), QString());
+            }
+|—————————Node:else Text: else
+|—————————Node:compound_statement Text: {
+               headOfQueue.reply->setProtocolError(response.exceptionCode(), QString());
+            }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: headOfQueue.reply->setProtocolError(response.exceptionCode(), QString());
+|———————————Node:call_expression Text: headOfQueue.reply->setProtocolError(response.exceptionCode(), QString())
+|————————————Node:field_expression Text: headOfQueue.reply->setProtocolError
+|—————————————Node:field_expression Text: headOfQueue.reply
+|——————————————Node:identifier Text: headOfQueue
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: reply
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: setProtocolError
+|————————————Node:argument_list Text: (response.exceptionCode(), QString())
+|—————————————Node:( Text: (
+|—————————————Node:call_expression Text: response.exceptionCode()
+|——————————————Node:field_expression Text: response.exceptionCode
+|———————————————Node:identifier Text: response
+|———————————————Node:. Text: .
+|———————————————Node:field_identifier Text: exceptionCode
+|——————————————Node:argument_list Text: ()
+|———————————————Node:( Text: (
+|———————————————Node:) Text: )
+|—————————————Node:, Text: ,
+|—————————————Node:call_expression Text: QString()
+|——————————————Node:identifier Text: QString
+|——————————————Node:argument_list Text: ()
+|———————————————Node:( Text: (
+|———————————————Node:) Text: )
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|———————Node:expression_statement Text: headOfQueue.reply->setFinished(true);
+|————————Node:call_expression Text: headOfQueue.reply->setFinished(true)
+|—————————Node:field_expression Text: headOfQueue.reply->setFinished
+|——————————Node:field_expression Text: headOfQueue.reply
+|———————————Node:identifier Text: headOfQueue
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: reply
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: setFinished
+|—————————Node:argument_list Text: (true)
+|——————————Node:( Text: (
+|——————————Node:true Text: true
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: sendNextRequest();
+|————————Node:call_expression Text: sendNextRequest()
+|—————————Node:identifier Text: sendNextRequest
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:comment
+|———————Node:} Text: }
+|——————Node:ERROR Text: )
+|———————Node:) Text: )
+|——————Node:expression_statement Text: ;
+|———————Node:; Text: ;
+|——————Node:labeled_statement Text: QObject::connect(m_serialPort, &QSerialPort::aboutToClose, [this]()
+|———————Node:statement_identifier Text: QObject
+|———————Node:ERROR Text: ::connect(m_serialPort, &QSerialPort:
+|————————Node:: Text: :
+|————————Node:: Text: :
+|————————Node:identifier Text: connect
+|————————Node:( Text: (
+|————————Node:identifier Text: m_serialPort
+|————————Node:, Text: ,
+|————————Node:pointer_expression Text: &QSerialPort
+|—————————Node:& Text: &
+|—————————Node:identifier Text: QSerialPort
+|————————Node:: Text: :
+|———————Node:: Text: :
+|———————Node:expression_statement Text: aboutToClose, [this]()
+|————————Node:call_expression Text: aboutToClose, [this]()
+|—————————Node:subscript_expression Text: aboutToClose, [this]
+|——————————Node:identifier Text: aboutToClose
+|——————————Node:ERROR Text: ,
+|———————————Node:, Text: ,
+|——————————Node:[ Text: [
+|——————————Node:identifier Text: this
+|——————————Node:] Text: ]
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:; Text: 
+|——————Node:compound_statement Text: {
+            Q_Q(QModbusRtuSerialMaster);
+            if (q->state() != QModbusDevice::ClosingState)
+                q->close();
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: Q_Q(QModbusRtuSerialMaster);
+|————————Node:call_expression Text: Q_Q(QModbusRtuSerialMaster)
+|—————————Node:identifier Text: Q_Q
+|—————————Node:argument_list Text: (QModbusRtuSerialMaster)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: QModbusRtuSerialMaster
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if (q->state() != QModbusDevice::ClosingState)
+                q->close();
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (q->state() != QModbusDevice::ClosingState)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: q->state() != QModbusDevice
+|——————————Node:call_expression Text: q->state()
+|———————————Node:field_expression Text: q->state
+|————————————Node:identifier Text: q
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: state
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:!= Text: !=
+|——————————Node:identifier Text: QModbusDevice
+|—————————Node:ERROR Text: ::ClosingState
+|——————————Node:: Text: :
+|——————————Node:: Text: :
+|——————————Node:identifier Text: ClosingState
+|—————————Node:) Text: )
+|————————Node:expression_statement Text: q->close();
+|—————————Node:call_expression Text: q->close()
+|——————————Node:field_expression Text: q->close
+|———————————Node:identifier Text: q
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: close
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|———————Node:} Text: }
+|——————Node:ERROR Text: )
+|———————Node:) Text: )
+|——————Node:expression_statement Text: ;
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:function_definition Text: QByteArray wrapInADU(const QModbusRequest &request, int slaveAddress) const
+    {
+        QByteArray result;
+        QDataStream out(&result, QIODevice::WriteOnly);
+        out << quint8(slaveAddress);
+        out << request;
+        out << calculateCRC(result, result.size());
+
+        return result;
+    }
+|—————Node:type_identifier Text: QByteArray
+|—————Node:function_declarator Text: wrapInADU(const QModbusRequest &request, int slaveAddress) const
+|——————Node:identifier Text: wrapInADU
+|——————Node:parameter_list Text: (const QModbusRequest &request, int slaveAddress)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const QModbusRequest &request
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: QModbusRequest
+|————————Node:ERROR Text: &
+|—————————Node:& Text: &
+|————————Node:identifier Text: request
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: int slaveAddress
+|————————Node:primitive_type Text: int
+|————————Node:identifier Text: slaveAddress
+|———————Node:) Text: )
+|——————Node:identifier Text: const
+|—————Node:compound_statement Text: {
+        QByteArray result;
+        QDataStream out(&result, QIODevice::WriteOnly);
+        out << quint8(slaveAddress);
+        out << request;
+        out << calculateCRC(result, result.size());
+
+        return result;
+    }
+|——————Node:{ Text: {
+|——————Node:declaration Text: QByteArray result;
+|———————Node:type_identifier Text: QByteArray
+|———————Node:identifier Text: result
+|———————Node:; Text: ;
+|——————Node:declaration Text: QDataStream out(&result, QIODevice::WriteOnly);
+|———————Node:type_identifier Text: QDataStream
+|———————Node:function_declarator Text: out(&result, QIODevice::WriteOnly)
+|————————Node:identifier Text: out
+|————————Node:parameter_list Text: (&result, QIODevice::WriteOnly)
+|—————————Node:( Text: (
+|—————————Node:ERROR Text: &
+|——————————Node:& Text: &
+|—————————Node:parameter_declaration Text: result, QIODevice::WriteOnly
+|——————————Node:type_identifier Text: result
+|——————————Node:ERROR Text: , QIODevice::
+|———————————Node:, Text: ,
+|———————————Node:identifier Text: QIODevice
+|———————————Node:: Text: :
+|———————————Node:: Text: :
+|——————————Node:identifier Text: WriteOnly
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: out << quint8(slaveAddress);
+|———————Node:binary_expression Text: out << quint8(slaveAddress)
+|————————Node:identifier Text: out
+|————————Node:<< Text: <<
+|————————Node:call_expression Text: quint8(slaveAddress)
+|—————————Node:identifier Text: quint8
+|—————————Node:argument_list Text: (slaveAddress)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: slaveAddress
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: out << request;
+|———————Node:binary_expression Text: out << request
+|————————Node:identifier Text: out
+|————————Node:<< Text: <<
+|————————Node:identifier Text: request
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: out << calculateCRC(result, result.size());
+|———————Node:binary_expression Text: out << calculateCRC(result, result.size())
+|————————Node:identifier Text: out
+|————————Node:<< Text: <<
+|————————Node:call_expression Text: calculateCRC(result, result.size())
+|—————————Node:identifier Text: calculateCRC
+|—————————Node:argument_list Text: (result, result.size())
+|——————————Node:( Text: (
+|——————————Node:identifier Text: result
+|——————————Node:, Text: ,
+|——————————Node:call_expression Text: result.size()
+|———————————Node:field_expression Text: result.size
+|————————————Node:identifier Text: result
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: size
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:return_statement Text: return result;
+|———————Node:return Text: return
+|———————Node:identifier Text: result
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:function_definition Text: bool sendNextAdu(const QModbusRequest &request, int slaveAddress)
+    {
+        Q_Q(QModbusRtuSerialMaster);
+
+        const QByteArray adu = wrapInADU(request, slaveAddress);
+        int writtenBytes = m_serialPort->write(adu);
+        if (writtenBytes == -1 || writtenBytes < adu.size()) {
+            qCDebug(QT_MODBUS) << "Cannot write request to serial port. Failed ADU"
+                               << adu;
+            q->setError(QModbusRtuSerialMaster::tr("Could not write request to serial bus"),
+                        QModbusDevice::WriteError);
+            return false;
+        } else {
+            qCDebug(QT_MODBUS)<< "Sent request (incl ADU)" << adu.toHex();
+        }
+
+        return true;
+
+    }
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: sendNextAdu(const QModbusRequest &request, int slaveAddress)
+|——————Node:identifier Text: sendNextAdu
+|——————Node:parameter_list Text: (const QModbusRequest &request, int slaveAddress)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const QModbusRequest &request
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: QModbusRequest
+|————————Node:ERROR Text: &
+|—————————Node:& Text: &
+|————————Node:identifier Text: request
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: int slaveAddress
+|————————Node:primitive_type Text: int
+|————————Node:identifier Text: slaveAddress
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {
+        Q_Q(QModbusRtuSerialMaster);
+
+        const QByteArray adu = wrapInADU(request, slaveAddress);
+        int writtenBytes = m_serialPort->write(adu);
+        if (writtenBytes == -1 || writtenBytes < adu.size()) {
+            qCDebug(QT_MODBUS) << "Cannot write request to serial port. Failed ADU"
+                               << adu;
+            q->setError(QModbusRtuSerialMaster::tr("Could not write request to serial bus"),
+                        QModbusDevice::WriteError);
+            return false;
+        } else {
+            qCDebug(QT_MODBUS)<< "Sent request (incl ADU)" << adu.toHex();
+        }
+
+        return true;
+
+    }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: Q_Q(QModbusRtuSerialMaster);
+|———————Node:call_expression Text: Q_Q(QModbusRtuSerialMaster)
+|————————Node:identifier Text: Q_Q
+|————————Node:argument_list Text: (QModbusRtuSerialMaster)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: QModbusRtuSerialMaster
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:declaration Text: const QByteArray adu = wrapInADU(request, slaveAddress);
+|———————Node:type_qualifier Text: const
+|————————Node:const Text: const
+|———————Node:type_identifier Text: QByteArray
+|———————Node:init_declarator Text: adu = wrapInADU(request, slaveAddress)
+|————————Node:identifier Text: adu
+|————————Node:= Text: =
+|————————Node:call_expression Text: wrapInADU(request, slaveAddress)
+|—————————Node:identifier Text: wrapInADU
+|—————————Node:argument_list Text: (request, slaveAddress)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: request
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: slaveAddress
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:declaration Text: int writtenBytes = m_serialPort->write(adu);
+|———————Node:primitive_type Text: int
+|———————Node:init_declarator Text: writtenBytes = m_serialPort->write(adu)
+|————————Node:identifier Text: writtenBytes
+|————————Node:= Text: =
+|————————Node:call_expression Text: m_serialPort->write(adu)
+|—————————Node:field_expression Text: m_serialPort->write
+|——————————Node:identifier Text: m_serialPort
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: write
+|—————————Node:argument_list Text: (adu)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: adu
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (writtenBytes == -1 || writtenBytes < adu.size()) {
+            qCDebug(QT_MODBUS) << "Cannot write request to serial port. Failed ADU"
+                               << adu;
+            q->setError(QModbusRtuSerialMaster::tr("Could not write request to serial bus"),
+                        QModbusDevice::WriteError);
+            return false;
+        } else {
+            qCDebug(QT_MODBUS)<< "Sent request (incl ADU)" << adu.toHex();
+        }
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (writtenBytes == -1 || writtenBytes < adu.size())
+|————————Node:( Text: (
+|————————Node:binary_expression Text: writtenBytes == -1 || writtenBytes < adu.size()
+|—————————Node:binary_expression Text: writtenBytes == -1
+|——————————Node:identifier Text: writtenBytes
+|——————————Node:== Text: ==
+|——————————Node:number_literal Text: -1
+|—————————Node:|| Text: ||
+|—————————Node:binary_expression Text: writtenBytes < adu.size()
+|——————————Node:identifier Text: writtenBytes
+|——————————Node:< Text: <
+|——————————Node:call_expression Text: adu.size()
+|———————————Node:field_expression Text: adu.size
+|————————————Node:identifier Text: adu
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: size
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+            qCDebug(QT_MODBUS) << "Cannot write request to serial port. Failed ADU"
+                               << adu;
+            q->setError(QModbusRtuSerialMaster::tr("Could not write request to serial bus"),
+                        QModbusDevice::WriteError);
+            return false;
+        }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: qCDebug(QT_MODBUS) << "Cannot write request to serial port. Failed ADU"
+                               << adu;
+|—————————Node:binary_expression Text: qCDebug(QT_MODBUS) << "Cannot write request to serial port. Failed ADU"
+                               << adu
+|——————————Node:binary_expression Text: qCDebug(QT_MODBUS) << "Cannot write request to serial port. Failed ADU"
+|———————————Node:call_expression Text: qCDebug(QT_MODBUS)
+|————————————Node:identifier Text: qCDebug
+|————————————Node:argument_list Text: (QT_MODBUS)
+|—————————————Node:( Text: (
+|—————————————Node:identifier Text: QT_MODBUS
+|—————————————Node:) Text: )
+|———————————Node:<< Text: <<
+|———————————Node:string_literal Text: "Cannot write request to serial port. Failed ADU"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: Cannot write request to serial port. Failed ADU
+|————————————Node:" Text: "
+|——————————Node:<< Text: <<
+|——————————Node:identifier Text: adu
+|—————————Node:; Text: ;
+|————————Node:expression_statement Text: q->setError(QModbusRtuSerialMaster::tr("Could not write request to serial bus"),
+                        QModbusDevice::WriteError);
+|—————————Node:call_expression Text: q->setError(QModbusRtuSerialMaster::tr("Could not write request to serial bus"),
+                        QModbusDevice::WriteError)
+|——————————Node:field_expression Text: q->setError
+|———————————Node:identifier Text: q
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: setError
+|——————————Node:argument_list Text: (QModbusRtuSerialMaster::tr("Could not write request to serial bus"),
+                        QModbusDevice::WriteError)
+|———————————Node:( Text: (
+|———————————Node:ERROR Text: QModbusRtuSerialMaster::
+|————————————Node:identifier Text: QModbusRtuSerialMaster
+|————————————Node:: Text: :
+|————————————Node:: Text: :
+|———————————Node:call_expression Text: tr("Could not write request to serial bus")
+|————————————Node:identifier Text: tr
+|————————————Node:argument_list Text: ("Could not write request to serial bus")
+|—————————————Node:( Text: (
+|—————————————Node:string_literal Text: "Could not write request to serial bus"
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: Could not write request to serial bus
+|——————————————Node:" Text: "
+|—————————————Node:) Text: )
+|———————————Node:, Text: ,
+|———————————Node:identifier Text: QModbusDevice
+|———————————Node:ERROR Text: ::WriteError
+|————————————Node:: Text: :
+|————————————Node:: Text: :
+|————————————Node:identifier Text: WriteError
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:return_statement Text: return false;
+|—————————Node:return Text: return
+|—————————Node:false Text: false
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|———————Node:else_clause Text: else {
+            qCDebug(QT_MODBUS)<< "Sent request (incl ADU)" << adu.toHex();
+        }
+|————————Node:else Text: else
+|————————Node:compound_statement Text: {
+            qCDebug(QT_MODBUS)<< "Sent request (incl ADU)" << adu.toHex();
+        }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: qCDebug(QT_MODBUS)<< "Sent request (incl ADU)" << adu.toHex();
+|——————————Node:binary_expression Text: qCDebug(QT_MODBUS)<< "Sent request (incl ADU)" << adu.toHex()
+|———————————Node:binary_expression Text: qCDebug(QT_MODBUS)<< "Sent request (incl ADU)"
+|————————————Node:call_expression Text: qCDebug(QT_MODBUS)
+|—————————————Node:identifier Text: qCDebug
+|—————————————Node:argument_list Text: (QT_MODBUS)
+|——————————————Node:( Text: (
+|——————————————Node:identifier Text: QT_MODBUS
+|——————————————Node:) Text: )
+|————————————Node:<< Text: <<
+|————————————Node:string_literal Text: "Sent request (incl ADU)"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: Sent request (incl ADU)
+|—————————————Node:" Text: "
+|———————————Node:<< Text: <<
+|———————————Node:call_expression Text: adu.toHex()
+|————————————Node:field_expression Text: adu.toHex
+|—————————————Node:identifier Text: adu
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: toHex
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|——————Node:return_statement Text: return true;
+|———————Node:return Text: return
+|———————Node:true Text: true
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:function_definition Text: void sendNextRequest()
+    {
+        if (m_queue.isEmpty())
+            return;
+
+        if (m_queue.head().reply.isNull()) { // reply deleted, skip it
+            m_queue.dequeue();
+            sendNextRequest();
+            return;
+        }
+
+        bool success = sendNextAdu(m_queue.head().requestPdu,
+                                   m_queue.head().reply->slaveAddress());
+        if (!success) {
+            QueueElement elem = m_queue.dequeue();
+
+            elem.reply->setError(QModbusReply::WriteError,
+                                 QModbusRtuSerialMaster::tr("Could not write message to serial bus."));
+            elem.reply->setFinished(true);
+
+            sendNextRequest();
+            return;
+        }
+
+        if (!m_queue.head().reply->slaveAddress()) {
+            // broadcasts return immediately but we delay a bit to avoid spaming of bus
+            QueueElement elem = m_queue.dequeue();
+            elem.reply->setFinished(true);
+
+            QTimer::singleShot(0, [this]() { sendNextRequest(); });
+            return;
+        }
+
+        // regular send -> keep in queue
+        startResponseTimer();
+    }
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: sendNextRequest()
+|——————Node:identifier Text: sendNextRequest
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {
+        if (m_queue.isEmpty())
+            return;
+
+        if (m_queue.head().reply.isNull()) { // reply deleted, skip it
+            m_queue.dequeue();
+            sendNextRequest();
+            return;
+        }
+
+        bool success = sendNextAdu(m_queue.head().requestPdu,
+                                   m_queue.head().reply->slaveAddress());
+        if (!success) {
+            QueueElement elem = m_queue.dequeue();
+
+            elem.reply->setError(QModbusReply::WriteError,
+                                 QModbusRtuSerialMaster::tr("Could not write message to serial bus."));
+            elem.reply->setFinished(true);
+
+            sendNextRequest();
+            return;
+        }
+
+        if (!m_queue.head().reply->slaveAddress()) {
+            // broadcasts return immediately but we delay a bit to avoid spaming of bus
+            QueueElement elem = m_queue.dequeue();
+            elem.reply->setFinished(true);
+
+            QTimer::singleShot(0, [this]() { sendNextRequest(); });
+            return;
+        }
+
+        // regular send -> keep in queue
+        startResponseTimer();
+    }
+|——————Node:{ Text: {
+|——————Node:if_statement Text: if (m_queue.isEmpty())
+            return;
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (m_queue.isEmpty())
+|————————Node:( Text: (
+|————————Node:call_expression Text: m_queue.isEmpty()
+|—————————Node:field_expression Text: m_queue.isEmpty
+|——————————Node:identifier Text: m_queue
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: isEmpty
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|———————Node:return_statement Text: return;
+|————————Node:return Text: return
+|————————Node:; Text: ;
+|——————Node:if_statement Text: if (m_queue.head().reply.isNull()) { // reply deleted, skip it
+            m_queue.dequeue();
+            sendNextRequest();
+            return;
+        }
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (m_queue.head().reply.isNull())
+|————————Node:( Text: (
+|————————Node:call_expression Text: m_queue.head().reply.isNull()
+|—————————Node:field_expression Text: m_queue.head().reply.isNull
+|——————————Node:field_expression Text: m_queue.head().reply
+|———————————Node:call_expression Text: m_queue.head()
+|————————————Node:field_expression Text: m_queue.head
+|—————————————Node:identifier Text: m_queue
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: head
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: reply
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: isNull
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|———————Node:compound_statement Text: { // reply deleted, skip it
+            m_queue.dequeue();
+            sendNextRequest();
+            return;
+        }
+|————————Node:{ Text: {
+|————————Node:comment
+|————————Node:expression_statement Text: m_queue.dequeue();
+|—————————Node:call_expression Text: m_queue.dequeue()
+|——————————Node:field_expression Text: m_queue.dequeue
+|———————————Node:identifier Text: m_queue
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: dequeue
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:expression_statement Text: sendNextRequest();
+|—————————Node:call_expression Text: sendNextRequest()
+|——————————Node:identifier Text: sendNextRequest
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:return_statement Text: return;
+|—————————Node:return Text: return
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:declaration Text: bool success = sendNextAdu(m_queue.head().requestPdu,
+                                   m_queue.head().reply->slaveAddress());
+|———————Node:primitive_type Text: bool
+|———————Node:init_declarator Text: success = sendNextAdu(m_queue.head().requestPdu,
+                                   m_queue.head().reply->slaveAddress())
+|————————Node:identifier Text: success
+|————————Node:= Text: =
+|————————Node:call_expression Text: sendNextAdu(m_queue.head().requestPdu,
+                                   m_queue.head().reply->slaveAddress())
+|—————————Node:identifier Text: sendNextAdu
+|—————————Node:argument_list Text: (m_queue.head().requestPdu,
+                                   m_queue.head().reply->slaveAddress())
+|——————————Node:( Text: (
+|——————————Node:field_expression Text: m_queue.head().requestPdu
+|———————————Node:call_expression Text: m_queue.head()
+|————————————Node:field_expression Text: m_queue.head
+|—————————————Node:identifier Text: m_queue
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: head
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: requestPdu
+|——————————Node:, Text: ,
+|——————————Node:call_expression Text: m_queue.head().reply->slaveAddress()
+|———————————Node:field_expression Text: m_queue.head().reply->slaveAddress
+|————————————Node:field_expression Text: m_queue.head().reply
+|—————————————Node:call_expression Text: m_queue.head()
+|——————————————Node:field_expression Text: m_queue.head
+|———————————————Node:identifier Text: m_queue
+|———————————————Node:. Text: .
+|———————————————Node:field_identifier Text: head
+|——————————————Node:argument_list Text: ()
+|———————————————Node:( Text: (
+|———————————————Node:) Text: )
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: reply
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: slaveAddress
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (!success) {
+            QueueElement elem = m_queue.dequeue();
+
+            elem.reply->setError(QModbusReply::WriteError,
+                                 QModbusRtuSerialMaster::tr("Could not write message to serial bus."));
+            elem.reply->setFinished(true);
+
+            sendNextRequest();
+            return;
+        }
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (!success)
+|————————Node:( Text: (
+|————————Node:unary_expression Text: !success
+|—————————Node:! Text: !
+|—————————Node:identifier Text: success
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+            QueueElement elem = m_queue.dequeue();
+
+            elem.reply->setError(QModbusReply::WriteError,
+                                 QModbusRtuSerialMaster::tr("Could not write message to serial bus."));
+            elem.reply->setFinished(true);
+
+            sendNextRequest();
+            return;
+        }
+|————————Node:{ Text: {
+|————————Node:declaration Text: QueueElement elem = m_queue.dequeue();
+|—————————Node:type_identifier Text: QueueElement
+|—————————Node:init_declarator Text: elem = m_queue.dequeue()
+|——————————Node:identifier Text: elem
+|——————————Node:= Text: =
+|——————————Node:call_expression Text: m_queue.dequeue()
+|———————————Node:field_expression Text: m_queue.dequeue
+|————————————Node:identifier Text: m_queue
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: dequeue
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:expression_statement Text: elem.reply->setError(QModbusReply::WriteError,
+                                 QModbusRtuSerialMaster::tr("Could not write message to serial bus."));
+|—————————Node:call_expression Text: elem.reply->setError(QModbusReply::WriteError,
+                                 QModbusRtuSerialMaster::tr("Could not write message to serial bus."))
+|——————————Node:field_expression Text: elem.reply->setError
+|———————————Node:field_expression Text: elem.reply
+|————————————Node:identifier Text: elem
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: reply
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: setError
+|——————————Node:argument_list Text: (QModbusReply::WriteError,
+                                 QModbusRtuSerialMaster::tr("Could not write message to serial bus."))
+|———————————Node:( Text: (
+|———————————Node:identifier Text: QModbusReply
+|———————————Node:ERROR Text: ::WriteError
+|————————————Node:: Text: :
+|————————————Node:: Text: :
+|————————————Node:identifier Text: WriteError
+|———————————Node:, Text: ,
+|———————————Node:ERROR Text: QModbusRtuSerialMaster::
+|————————————Node:identifier Text: QModbusRtuSerialMaster
+|————————————Node:: Text: :
+|————————————Node:: Text: :
+|———————————Node:call_expression Text: tr("Could not write message to serial bus.")
+|————————————Node:identifier Text: tr
+|————————————Node:argument_list Text: ("Could not write message to serial bus.")
+|—————————————Node:( Text: (
+|—————————————Node:string_literal Text: "Could not write message to serial bus."
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: Could not write message to serial bus.
+|——————————————Node:" Text: "
+|—————————————Node:) Text: )
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:expression_statement Text: elem.reply->setFinished(true);
+|—————————Node:call_expression Text: elem.reply->setFinished(true)
+|——————————Node:field_expression Text: elem.reply->setFinished
+|———————————Node:field_expression Text: elem.reply
+|————————————Node:identifier Text: elem
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: reply
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: setFinished
+|——————————Node:argument_list Text: (true)
+|———————————Node:( Text: (
+|———————————Node:true Text: true
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:expression_statement Text: sendNextRequest();
+|—————————Node:call_expression Text: sendNextRequest()
+|——————————Node:identifier Text: sendNextRequest
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:return_statement Text: return;
+|—————————Node:return Text: return
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:if_statement Text: if (!m_queue.head().reply->slaveAddress()) {
+            // broadcasts return immediately but we delay a bit to avoid spaming of bus
+            QueueElement elem = m_queue.dequeue();
+            elem.reply->setFinished(true);
+
+            QTimer::singleShot(0, [this]() { sendNextRequest(); });
+            return;
+        }
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (!m_queue.head().reply->slaveAddress())
+|————————Node:( Text: (
+|————————Node:unary_expression Text: !m_queue.head().reply->slaveAddress()
+|—————————Node:! Text: !
+|—————————Node:call_expression Text: m_queue.head().reply->slaveAddress()
+|——————————Node:field_expression Text: m_queue.head().reply->slaveAddress
+|———————————Node:field_expression Text: m_queue.head().reply
+|————————————Node:call_expression Text: m_queue.head()
+|—————————————Node:field_expression Text: m_queue.head
+|——————————————Node:identifier Text: m_queue
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: head
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: reply
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: slaveAddress
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+            // broadcasts return immediately but we delay a bit to avoid spaming of bus
+            QueueElement elem = m_queue.dequeue();
+            elem.reply->setFinished(true);
+
+            QTimer::singleShot(0, [this]() { sendNextRequest(); });
+            return;
+        }
+|————————Node:{ Text: {
+|————————Node:comment
+|————————Node:declaration Text: QueueElement elem = m_queue.dequeue();
+|—————————Node:type_identifier Text: QueueElement
+|—————————Node:init_declarator Text: elem = m_queue.dequeue()
+|——————————Node:identifier Text: elem
+|——————————Node:= Text: =
+|——————————Node:call_expression Text: m_queue.dequeue()
+|———————————Node:field_expression Text: m_queue.dequeue
+|————————————Node:identifier Text: m_queue
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: dequeue
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:expression_statement Text: elem.reply->setFinished(true);
+|—————————Node:call_expression Text: elem.reply->setFinished(true)
+|——————————Node:field_expression Text: elem.reply->setFinished
+|———————————Node:field_expression Text: elem.reply
+|————————————Node:identifier Text: elem
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: reply
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: setFinished
+|——————————Node:argument_list Text: (true)
+|———————————Node:( Text: (
+|———————————Node:true Text: true
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:labeled_statement Text: QTimer::singleShot(0, [this]() { sendNextRequest(); });
+|—————————Node:statement_identifier Text: QTimer
+|—————————Node:: Text: :
+|—————————Node:ERROR Text: :
+|——————————Node:: Text: :
+|—————————Node:expression_statement Text: singleShot(0, [this]() { sendNextRequest(); });
+|——————————Node:call_expression Text: singleShot(0, [this]() { sendNextRequest(); })
+|———————————Node:identifier Text: singleShot
+|———————————Node:argument_list Text: (0, [this]() { sendNextRequest(); })
+|————————————Node:( Text: (
+|————————————Node:ERROR Text: 0, [this]()
+|—————————————Node:call_expression Text: 0, [this]()
+|——————————————Node:subscript_expression Text: 0, [this]
+|———————————————Node:number_literal Text: 0
+|———————————————Node:ERROR Text: ,
+|————————————————Node:, Text: ,
+|———————————————Node:[ Text: [
+|———————————————Node:identifier Text: this
+|———————————————Node:] Text: ]
+|——————————————Node:argument_list Text: ()
+|———————————————Node:( Text: (
+|———————————————Node:) Text: )
+|————————————Node:compound_statement Text: { sendNextRequest(); }
+|—————————————Node:{ Text: {
+|—————————————Node:expression_statement Text: sendNextRequest();
+|——————————————Node:call_expression Text: sendNextRequest()
+|———————————————Node:identifier Text: sendNextRequest
+|———————————————Node:argument_list Text: ()
+|————————————————Node:( Text: (
+|————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:} Text: }
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|————————Node:return_statement Text: return;
+|—————————Node:return Text: return
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:comment
+|——————Node:expression_statement Text: startResponseTimer();
+|———————Node:call_expression Text: startResponseTimer()
+|————————Node:identifier Text: startResponseTimer
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:function_definition Text: QModbusReply *enqueueRequest(const QModbusRequest &request, int slaveAddress,
+                                       const QModbusDataUnit unit)
+    {
+        Q_Q(QModbusRtuSerialMaster);
+
+        QModbusReply *reply = new QModbusReply(slaveAddress, q);
+        QueueElement elem = { reply, request, unit };
+        m_queue.enqueue(elem);
+        sendNextRequest();
+
+        return reply;
+    }
+|—————Node:type_identifier Text: QModbusReply
+|—————Node:pointer_declarator Text: *enqueueRequest(const QModbusRequest &request, int slaveAddress,
+                                       const QModbusDataUnit unit)
+|——————Node:* Text: *
+|——————Node:function_declarator Text: enqueueRequest(const QModbusRequest &request, int slaveAddress,
+                                       const QModbusDataUnit unit)
+|———————Node:identifier Text: enqueueRequest
+|———————Node:parameter_list Text: (const QModbusRequest &request, int slaveAddress,
+                                       const QModbusDataUnit unit)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const QModbusRequest &request
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:type_identifier Text: QModbusRequest
+|—————————Node:ERROR Text: &
+|——————————Node:& Text: &
+|—————————Node:identifier Text: request
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: int slaveAddress
+|—————————Node:primitive_type Text: int
+|—————————Node:identifier Text: slaveAddress
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: const QModbusDataUnit unit
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:type_identifier Text: QModbusDataUnit
+|—————————Node:identifier Text: unit
+|————————Node:) Text: )
+|—————Node:compound_statement Text: {
+        Q_Q(QModbusRtuSerialMaster);
+
+        QModbusReply *reply = new QModbusReply(slaveAddress, q);
+        QueueElement elem = { reply, request, unit };
+        m_queue.enqueue(elem);
+        sendNextRequest();
+
+        return reply;
+    }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: Q_Q(QModbusRtuSerialMaster);
+|———————Node:call_expression Text: Q_Q(QModbusRtuSerialMaster)
+|————————Node:identifier Text: Q_Q
+|————————Node:argument_list Text: (QModbusRtuSerialMaster)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: QModbusRtuSerialMaster
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:declaration Text: QModbusReply *reply = new QModbusReply(slaveAddress, q);
+|———————Node:type_identifier Text: QModbusReply
+|———————Node:init_declarator Text: *reply = new QModbusReply(slaveAddress, q)
+|————————Node:pointer_declarator Text: *reply
+|—————————Node:* Text: *
+|—————————Node:identifier Text: reply
+|————————Node:= Text: =
+|————————Node:ERROR Text: new
+|—————————Node:identifier Text: new
+|————————Node:call_expression Text: QModbusReply(slaveAddress, q)
+|—————————Node:identifier Text: QModbusReply
+|—————————Node:argument_list Text: (slaveAddress, q)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: slaveAddress
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: q
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:declaration Text: QueueElement elem = { reply, request, unit };
+|———————Node:type_identifier Text: QueueElement
+|———————Node:init_declarator Text: elem = { reply, request, unit }
+|————————Node:identifier Text: elem
+|————————Node:= Text: =
+|————————Node:initializer_list Text: { reply, request, unit }
+|—————————Node:{ Text: {
+|—————————Node:identifier Text: reply
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: request
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: unit
+|—————————Node:} Text: }
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: m_queue.enqueue(elem);
+|———————Node:call_expression Text: m_queue.enqueue(elem)
+|————————Node:field_expression Text: m_queue.enqueue
+|—————————Node:identifier Text: m_queue
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: enqueue
+|————————Node:argument_list Text: (elem)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: elem
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: sendNextRequest();
+|———————Node:call_expression Text: sendNextRequest()
+|————————Node:identifier Text: sendNextRequest
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:return_statement Text: return reply;
+|———————Node:return Text: return
+|———————Node:identifier Text: reply
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:function_definition Text: bool canMatchRequestAndResponse(const QModbusResponse &response, int sendingSlave) const
+    {
+        if (m_queue.isEmpty()) // nothing pending
+            return false;
+
+        const QueueElement &head = m_queue.head(); // reply deleted
+        if (head.reply.isNull())
+            return false;
+
+        if (head.reply->slaveAddress() != sendingSlave) // slave mismatch
+            return false;
+
+        // request for different fcode
+        if (head.requestPdu.functionCode() != response.functionCode())
+            return false;
+
+        return true;
+    }
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: canMatchRequestAndResponse(const QModbusResponse &response, int sendingSlave) const
+|——————Node:identifier Text: canMatchRequestAndResponse
+|——————Node:parameter_list Text: (const QModbusResponse &response, int sendingSlave)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const QModbusResponse &response
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: QModbusResponse
+|————————Node:ERROR Text: &
+|—————————Node:& Text: &
+|————————Node:identifier Text: response
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: int sendingSlave
+|————————Node:primitive_type Text: int
+|————————Node:identifier Text: sendingSlave
+|———————Node:) Text: )
+|——————Node:identifier Text: const
+|—————Node:compound_statement Text: {
+        if (m_queue.isEmpty()) // nothing pending
+            return false;
+
+        const QueueElement &head = m_queue.head(); // reply deleted
+        if (head.reply.isNull())
+            return false;
+
+        if (head.reply->slaveAddress() != sendingSlave) // slave mismatch
+            return false;
+
+        // request for different fcode
+        if (head.requestPdu.functionCode() != response.functionCode())
+            return false;
+
+        return true;
+    }
+|——————Node:{ Text: {
+|——————Node:if_statement Text: if (m_queue.isEmpty()) // nothing pending
+            return false;
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (m_queue.isEmpty())
+|————————Node:( Text: (
+|————————Node:call_expression Text: m_queue.isEmpty()
+|—————————Node:field_expression Text: m_queue.isEmpty
+|——————————Node:identifier Text: m_queue
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: isEmpty
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|———————Node:comment
+|———————Node:return_statement Text: return false;
+|————————Node:return Text: return
+|————————Node:false Text: false
+|————————Node:; Text: ;
+|——————Node:declaration Text: const QueueElement &head = m_queue.head();
+|———————Node:type_qualifier Text: const
+|————————Node:const Text: const
+|———————Node:type_identifier Text: QueueElement
+|———————Node:ERROR Text: &
+|————————Node:& Text: &
+|———————Node:init_declarator Text: head = m_queue.head()
+|————————Node:identifier Text: head
+|————————Node:= Text: =
+|————————Node:call_expression Text: m_queue.head()
+|—————————Node:field_expression Text: m_queue.head
+|——————————Node:identifier Text: m_queue
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: head
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:if_statement Text: if (head.reply.isNull())
+            return false;
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (head.reply.isNull())
+|————————Node:( Text: (
+|————————Node:call_expression Text: head.reply.isNull()
+|—————————Node:field_expression Text: head.reply.isNull
+|——————————Node:field_expression Text: head.reply
+|———————————Node:identifier Text: head
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: reply
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: isNull
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|———————Node:return_statement Text: return false;
+|————————Node:return Text: return
+|————————Node:false Text: false
+|————————Node:; Text: ;
+|——————Node:if_statement Text: if (head.reply->slaveAddress() != sendingSlave) // slave mismatch
+            return false;
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (head.reply->slaveAddress() != sendingSlave)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: head.reply->slaveAddress() != sendingSlave
+|—————————Node:call_expression Text: head.reply->slaveAddress()
+|——————————Node:field_expression Text: head.reply->slaveAddress
+|———————————Node:field_expression Text: head.reply
+|————————————Node:identifier Text: head
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: reply
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: slaveAddress
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:!= Text: !=
+|—————————Node:identifier Text: sendingSlave
+|————————Node:) Text: )
+|———————Node:comment
+|———————Node:return_statement Text: return false;
+|————————Node:return Text: return
+|————————Node:false Text: false
+|————————Node:; Text: ;
+|——————Node:comment
+|——————Node:if_statement Text: if (head.requestPdu.functionCode() != response.functionCode())
+            return false;
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (head.requestPdu.functionCode() != response.functionCode())
+|————————Node:( Text: (
+|————————Node:binary_expression Text: head.requestPdu.functionCode() != response.functionCode()
+|—————————Node:call_expression Text: head.requestPdu.functionCode()
+|——————————Node:field_expression Text: head.requestPdu.functionCode
+|———————————Node:field_expression Text: head.requestPdu
+|————————————Node:identifier Text: head
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: requestPdu
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: functionCode
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:!= Text: !=
+|—————————Node:call_expression Text: response.functionCode()
+|——————————Node:field_expression Text: response.functionCode
+|———————————Node:identifier Text: response
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: functionCode
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|————————Node:) Text: )
+|———————Node:return_statement Text: return false;
+|————————Node:return Text: return
+|————————Node:false Text: false
+|————————Node:; Text: ;
+|——————Node:return_statement Text: return true;
+|———————Node:return Text: return
+|———————Node:true Text: true
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:function_definition Text: void handleResponseTimeout()
+    {
+        qCDebug(QT_MODBUS) << "Timeout of last request";
+
+        if (m_queue.isEmpty())
+            return;
+
+        QueueElement elem = m_queue.dequeue();
+        if (elem.reply.isNull()) {
+            // reply deleted while waiting for response which timed out
+            // nothing really to do here
+            return;
+        }
+
+        elem.reply->setError(QModbusReply::TimeoutError,
+                             QModbusRtuSerialMaster::tr("Request timeout."));
+    }
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: handleResponseTimeout()
+|——————Node:identifier Text: handleResponseTimeout
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {
+        qCDebug(QT_MODBUS) << "Timeout of last request";
+
+        if (m_queue.isEmpty())
+            return;
+
+        QueueElement elem = m_queue.dequeue();
+        if (elem.reply.isNull()) {
+            // reply deleted while waiting for response which timed out
+            // nothing really to do here
+            return;
+        }
+
+        elem.reply->setError(QModbusReply::TimeoutError,
+                             QModbusRtuSerialMaster::tr("Request timeout."));
+    }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: qCDebug(QT_MODBUS) << "Timeout of last request";
+|———————Node:binary_expression Text: qCDebug(QT_MODBUS) << "Timeout of last request"
+|————————Node:call_expression Text: qCDebug(QT_MODBUS)
+|—————————Node:identifier Text: qCDebug
+|—————————Node:argument_list Text: (QT_MODBUS)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: QT_MODBUS
+|——————————Node:) Text: )
+|————————Node:<< Text: <<
+|————————Node:string_literal Text: "Timeout of last request"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: Timeout of last request
+|—————————Node:" Text: "
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (m_queue.isEmpty())
+            return;
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (m_queue.isEmpty())
+|————————Node:( Text: (
+|————————Node:call_expression Text: m_queue.isEmpty()
+|—————————Node:field_expression Text: m_queue.isEmpty
+|——————————Node:identifier Text: m_queue
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: isEmpty
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|———————Node:return_statement Text: return;
+|————————Node:return Text: return
+|————————Node:; Text: ;
+|——————Node:declaration Text: QueueElement elem = m_queue.dequeue();
+|———————Node:type_identifier Text: QueueElement
+|———————Node:init_declarator Text: elem = m_queue.dequeue()
+|————————Node:identifier Text: elem
+|————————Node:= Text: =
+|————————Node:call_expression Text: m_queue.dequeue()
+|—————————Node:field_expression Text: m_queue.dequeue
+|——————————Node:identifier Text: m_queue
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: dequeue
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (elem.reply.isNull()) {
+            // reply deleted while waiting for response which timed out
+            // nothing really to do here
+            return;
+        }
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (elem.reply.isNull())
+|————————Node:( Text: (
+|————————Node:call_expression Text: elem.reply.isNull()
+|—————————Node:field_expression Text: elem.reply.isNull
+|——————————Node:field_expression Text: elem.reply
+|———————————Node:identifier Text: elem
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: reply
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: isNull
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+            // reply deleted while waiting for response which timed out
+            // nothing really to do here
+            return;
+        }
+|————————Node:{ Text: {
+|————————Node:comment
+|————————Node:comment
+|————————Node:return_statement Text: return;
+|—————————Node:return Text: return
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:expression_statement Text: elem.reply->setError(QModbusReply::TimeoutError,
+                             QModbusRtuSerialMaster::tr("Request timeout."));
+|———————Node:call_expression Text: elem.reply->setError(QModbusReply::TimeoutError,
+                             QModbusRtuSerialMaster::tr("Request timeout."))
+|————————Node:field_expression Text: elem.reply->setError
+|—————————Node:field_expression Text: elem.reply
+|——————————Node:identifier Text: elem
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: reply
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: setError
+|————————Node:argument_list Text: (QModbusReply::TimeoutError,
+                             QModbusRtuSerialMaster::tr("Request timeout."))
+|—————————Node:( Text: (
+|—————————Node:identifier Text: QModbusReply
+|—————————Node:ERROR Text: ::TimeoutError
+|——————————Node:: Text: :
+|——————————Node:: Text: :
+|——————————Node:identifier Text: TimeoutError
+|—————————Node:, Text: ,
+|—————————Node:ERROR Text: QModbusRtuSerialMaster::
+|——————————Node:identifier Text: QModbusRtuSerialMaster
+|——————————Node:: Text: :
+|——————————Node:: Text: :
+|—————————Node:call_expression Text: tr("Request timeout.")
+|——————————Node:identifier Text: tr
+|——————————Node:argument_list Text: ("Request timeout.")
+|———————————Node:( Text: (
+|———————————Node:string_literal Text: "Request timeout."
+|————————————Node:" Text: "
+|————————————Node:string_content Text: Request timeout.
+|————————————Node:" Text: "
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:declaration Text: QSerialPort *m_serialPort;
+|—————Node:type_identifier Text: QSerialPort
+|—————Node:pointer_declarator Text: *m_serialPort
+|——————Node:* Text: *
+|——————Node:identifier Text: m_serialPort
+|—————Node:; Text: ;
+|————Node:declaration Text: QByteArray responseBuffer;
+|—————Node:type_identifier Text: QByteArray
+|—————Node:identifier Text: responseBuffer
+|—————Node:; Text: ;
+|————Node:struct_specifier Text: struct QueueElement {
+        QPointer<QModbusReply> reply;
+        QModbusRequest requestPdu;
+        QModbusDataUnit unit;
+    }
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: QueueElement
+|—————Node:field_declaration_list Text: {
+        QPointer<QModbusReply> reply;
+        QModbusRequest requestPdu;
+        QModbusDataUnit unit;
+    }
+|——————Node:{ Text: {
+|——————Node:field_declaration Text: QPointer<QModbusReply> reply;
+|———————Node:type_identifier Text: QPointer
+|———————Node:ERROR Text: <QModbusReply>
+|————————Node:< Text: <
+|————————Node:field_identifier Text: QModbusReply
+|————————Node:> Text: >
+|———————Node:field_identifier Text: reply
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: QModbusRequest requestPdu;
+|———————Node:type_identifier Text: QModbusRequest
+|———————Node:field_identifier Text: requestPdu
+|———————Node:; Text: ;
+|——————Node:field_declaration Text: QModbusDataUnit unit;
+|———————Node:type_identifier Text: QModbusDataUnit
+|———————Node:field_identifier Text: unit
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:; Text: ;
+|————Node:expression_statement Text: QQueue<QueueElement> m_queue;
+|—————Node:binary_expression Text: QQueue<QueueElement> m_queue
+|——————Node:binary_expression Text: QQueue<QueueElement
+|———————Node:identifier Text: QQueue
+|———————Node:< Text: <
+|———————Node:identifier Text: QueueElement
+|——————Node:> Text: >
+|——————Node:identifier Text: m_queue
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:expression_statement Text: ;
+|———Node:; Text: ;
+|——Node:type_identifier Text: QT_END_NAMESPACE
+|——Node:; Text: 
+|——Node:#endif Text: #endif
+|—Node:comment

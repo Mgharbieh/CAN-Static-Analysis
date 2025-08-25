@@ -1,0 +1,177 @@
+A0RET-can_manager.h
+
+|Node:translation_unit
+|—Node:preproc_call Text: #pragma once
+
+|——Node:preproc_directive Text: #pragma
+|——Node:preproc_arg Text: once
+|—Node:type_definition Text: typedef struct {
+    uint32_t bitsPerQuarter;
+    uint32_t bitsSoFar;
+    uint8_t busloadPercentage;
+} BUSLOAD;
+|——Node:typedef Text: typedef
+|——Node:struct_specifier Text: struct {
+    uint32_t bitsPerQuarter;
+    uint32_t bitsSoFar;
+    uint8_t busloadPercentage;
+}
+|———Node:struct Text: struct
+|———Node:field_declaration_list Text: {
+    uint32_t bitsPerQuarter;
+    uint32_t bitsSoFar;
+    uint8_t busloadPercentage;
+}
+|————Node:{ Text: {
+|————Node:field_declaration Text: uint32_t bitsPerQuarter;
+|—————Node:primitive_type Text: uint32_t
+|—————Node:field_identifier Text: bitsPerQuarter
+|—————Node:; Text: ;
+|————Node:field_declaration Text: uint32_t bitsSoFar;
+|—————Node:primitive_type Text: uint32_t
+|—————Node:field_identifier Text: bitsSoFar
+|—————Node:; Text: ;
+|————Node:field_declaration Text: uint8_t busloadPercentage;
+|—————Node:primitive_type Text: uint8_t
+|—————Node:field_identifier Text: busloadPercentage
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:type_identifier Text: BUSLOAD
+|——Node:; Text: ;
+|—Node:declaration Text: class CAN_COMMON;
+|——Node:type_identifier Text: class
+|——Node:identifier Text: CAN_COMMON
+|——Node:; Text: ;
+|—Node:declaration Text: class CAN_FRAME;
+|——Node:type_identifier Text: class
+|——Node:identifier Text: CAN_FRAME
+|——Node:; Text: ;
+|—Node:function_definition Text: class CANManager
+{
+public:
+    CANManager();
+    void addBits(int offset, CAN_FRAME &frame);
+    void sendFrame(CAN_COMMON *bus, CAN_FRAME &frame);
+    void displayFrame(CAN_FRAME &frame, int whichBus);
+    void loop();
+    void setup();
+
+private:
+    BUSLOAD busLoad[1];
+    uint32_t busLoadTimer;
+}
+|——Node:type_identifier Text: class
+|——Node:identifier Text: CANManager
+|——Node:compound_statement Text: {
+public:
+    CANManager();
+    void addBits(int offset, CAN_FRAME &frame);
+    void sendFrame(CAN_COMMON *bus, CAN_FRAME &frame);
+    void displayFrame(CAN_FRAME &frame, int whichBus);
+    void loop();
+    void setup();
+
+private:
+    BUSLOAD busLoad[1];
+    uint32_t busLoadTimer;
+}
+|———Node:{ Text: {
+|———Node:labeled_statement Text: public:
+    CANManager();
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:expression_statement Text: CANManager();
+|—————Node:call_expression Text: CANManager()
+|——————Node:identifier Text: CANManager
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:declaration Text: void addBits(int offset, CAN_FRAME &frame);
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: addBits(int offset, CAN_FRAME &frame)
+|—————Node:identifier Text: addBits
+|—————Node:parameter_list Text: (int offset, CAN_FRAME &frame)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: int offset
+|———————Node:primitive_type Text: int
+|———————Node:identifier Text: offset
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: CAN_FRAME &frame
+|———————Node:type_identifier Text: CAN_FRAME
+|———————Node:ERROR Text: &
+|————————Node:& Text: &
+|———————Node:identifier Text: frame
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: void sendFrame(CAN_COMMON *bus, CAN_FRAME &frame);
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: sendFrame(CAN_COMMON *bus, CAN_FRAME &frame)
+|—————Node:identifier Text: sendFrame
+|—————Node:parameter_list Text: (CAN_COMMON *bus, CAN_FRAME &frame)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: CAN_COMMON *bus
+|———————Node:type_identifier Text: CAN_COMMON
+|———————Node:pointer_declarator Text: *bus
+|————————Node:* Text: *
+|————————Node:identifier Text: bus
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: CAN_FRAME &frame
+|———————Node:type_identifier Text: CAN_FRAME
+|———————Node:ERROR Text: &
+|————————Node:& Text: &
+|———————Node:identifier Text: frame
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: void displayFrame(CAN_FRAME &frame, int whichBus);
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: displayFrame(CAN_FRAME &frame, int whichBus)
+|—————Node:identifier Text: displayFrame
+|—————Node:parameter_list Text: (CAN_FRAME &frame, int whichBus)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: CAN_FRAME &frame
+|———————Node:type_identifier Text: CAN_FRAME
+|———————Node:ERROR Text: &
+|————————Node:& Text: &
+|———————Node:identifier Text: frame
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: int whichBus
+|———————Node:primitive_type Text: int
+|———————Node:identifier Text: whichBus
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: void loop();
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: loop()
+|—————Node:identifier Text: loop
+|—————Node:parameter_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: void setup();
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: setup()
+|—————Node:identifier Text: setup
+|—————Node:parameter_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:labeled_statement Text: private:
+    BUSLOAD busLoad[1];
+|————Node:statement_identifier Text: private
+|————Node:: Text: :
+|————Node:declaration Text: BUSLOAD busLoad[1];
+|—————Node:type_identifier Text: BUSLOAD
+|—————Node:array_declarator Text: busLoad[1]
+|——————Node:identifier Text: busLoad
+|——————Node:[ Text: [
+|——————Node:number_literal Text: 1
+|——————Node:] Text: ]
+|—————Node:; Text: ;
+|———Node:declaration Text: uint32_t busLoadTimer;
+|————Node:primitive_type Text: uint32_t
+|————Node:identifier Text: busLoadTimer
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:expression_statement Text: ;
+|——Node:; Text: ;

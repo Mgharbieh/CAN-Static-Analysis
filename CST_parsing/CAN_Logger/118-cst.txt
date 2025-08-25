@@ -1,0 +1,5299 @@
+CAN_Logger-Firmware\IAR\demos\ARMCM4-STM32F407-DISCOVERY\main.c
+
+|Node:translation_unit
+|—Node:comment
+|—Node:preproc_include Text: #include "ch.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "ch.h"
+|———Node:" Text: "
+|———Node:string_content Text: ch.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "hal.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "hal.h"
+|———Node:" Text: "
+|———Node:string_content Text: hal.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "chprintf.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "chprintf.h"
+|———Node:" Text: "
+|———Node:string_content Text: chprintf.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "ff.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "ff.h"
+|———Node:" Text: "
+|———Node:string_content Text: ff.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "shell.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "shell.h"
+|———Node:" Text: "
+|———Node:string_content Text: shell.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "file_utils.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "file_utils.h"
+|———Node:" Text: "
+|———Node:string_content Text: file_utils.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include <time.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <time.h>
+|—Node:comment
+|—Node:comment
+|—Node:preproc_function_def Text: #define INDICATE_IDLE_ON()
+
+|——Node:#define Text: #define
+|——Node:identifier Text: INDICATE_IDLE_ON
+|——Node:preproc_params Text: ()
+|———Node:( Text: (
+|———Node:) Text: )
+|—Node:preproc_function_def Text: #define INDICATE_IDLE_OFF()
+
+|——Node:#define Text: #define
+|——Node:identifier Text: INDICATE_IDLE_OFF
+|——Node:preproc_params Text: ()
+|———Node:( Text: (
+|———Node:) Text: )
+|—Node:declaration Text: uint8_t bButton = 0;
+|——Node:primitive_type Text: uint8_t
+|——Node:init_declarator Text: bButton = 0
+|———Node:identifier Text: bButton
+|———Node:= Text: =
+|———Node:number_literal Text: 0
+|——Node:; Text: ;
+|—Node:declaration Text: unsigned char bLogging = 0;
+|——Node:sized_type_specifier Text: unsigned char
+|———Node:unsigned Text: unsigned
+|———Node:primitive_type Text: char
+|——Node:init_declarator Text: bLogging = 0
+|———Node:identifier Text: bLogging
+|———Node:= Text: =
+|———Node:number_literal Text: 0
+|——Node:; Text: ;
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:declaration Text: static CANConfig cancfg = {
+  CAN_MCR_ABOM | CAN_MCR_AWUM,
+  CAN_BTR_SJW(0) | CAN_BTR_TS2(2) |
+  CAN_BTR_TS1(1) | CAN_BTR_BRP(13)
+};
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:type_identifier Text: CANConfig
+|——Node:init_declarator Text: cancfg = {
+  CAN_MCR_ABOM | CAN_MCR_AWUM,
+  CAN_BTR_SJW(0) | CAN_BTR_TS2(2) |
+  CAN_BTR_TS1(1) | CAN_BTR_BRP(13)
+}
+|———Node:identifier Text: cancfg
+|———Node:= Text: =
+|———Node:initializer_list Text: {
+  CAN_MCR_ABOM | CAN_MCR_AWUM,
+  CAN_BTR_SJW(0) | CAN_BTR_TS2(2) |
+  CAN_BTR_TS1(1) | CAN_BTR_BRP(13)
+}
+|————Node:{ Text: {
+|————Node:binary_expression Text: CAN_MCR_ABOM | CAN_MCR_AWUM
+|—————Node:identifier Text: CAN_MCR_ABOM
+|—————Node:| Text: |
+|—————Node:identifier Text: CAN_MCR_AWUM
+|————Node:, Text: ,
+|————Node:binary_expression Text: CAN_BTR_SJW(0) | CAN_BTR_TS2(2) |
+  CAN_BTR_TS1(1) | CAN_BTR_BRP(13)
+|—————Node:binary_expression Text: CAN_BTR_SJW(0) | CAN_BTR_TS2(2) |
+  CAN_BTR_TS1(1)
+|——————Node:binary_expression Text: CAN_BTR_SJW(0) | CAN_BTR_TS2(2)
+|———————Node:call_expression Text: CAN_BTR_SJW(0)
+|————————Node:identifier Text: CAN_BTR_SJW
+|————————Node:argument_list Text: (0)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|———————Node:| Text: |
+|———————Node:call_expression Text: CAN_BTR_TS2(2)
+|————————Node:identifier Text: CAN_BTR_TS2
+|————————Node:argument_list Text: (2)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 2
+|—————————Node:) Text: )
+|——————Node:| Text: |
+|——————Node:call_expression Text: CAN_BTR_TS1(1)
+|———————Node:identifier Text: CAN_BTR_TS1
+|———————Node:argument_list Text: (1)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 1
+|————————Node:) Text: )
+|—————Node:| Text: |
+|—————Node:call_expression Text: CAN_BTR_BRP(13)
+|——————Node:identifier Text: CAN_BTR_BRP
+|——————Node:argument_list Text: (13)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 13
+|———————Node:) Text: )
+|————Node:} Text: }
+|——Node:; Text: ;
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:preproc_def Text: #define SD_WRITE_BUFFER             (1024*49)//(1024*21)   // 21K
+
+|——Node:#define Text: #define
+|——Node:identifier Text: SD_WRITE_BUFFER
+|——Node:preproc_arg Text: (1024*49)//(1024*21)   // 21K
+|—Node:preproc_def Text: #define SD_WRITE_BUFFER_FLUSH_LIMIT (1024*48)//(1024*20)   // 20K
+
+|——Node:#define Text: #define
+|——Node:identifier Text: SD_WRITE_BUFFER_FLUSH_LIMIT
+|——Node:preproc_arg Text: (1024*48)//(1024*20)   // 20K
+|—Node:preproc_include Text: #include <string.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <string.h>
+|—Node:preproc_include Text: #include "mmcsd.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "mmcsd.h"
+|———Node:" Text: "
+|———Node:string_content Text: mmcsd.h
+|———Node:" Text: "
+|—Node:comment
+|—Node:declaration Text: char sd_buffer[SD_WRITE_BUFFER];
+|——Node:primitive_type Text: char
+|——Node:array_declarator Text: sd_buffer[SD_WRITE_BUFFER]
+|———Node:identifier Text: sd_buffer
+|———Node:[ Text: [
+|———Node:identifier Text: SD_WRITE_BUFFER
+|———Node:] Text: ]
+|——Node:; Text: ;
+|—Node:declaration Text: WORD sd_buffer_length = 0;
+|——Node:type_identifier Text: WORD
+|——Node:init_declarator Text: sd_buffer_length = 0
+|———Node:identifier Text: sd_buffer_length
+|———Node:= Text: =
+|———Node:number_literal Text: 0
+|——Node:; Text: ;
+|—Node:comment
+|—Node:declaration Text: char sd_buffer_for_write[SD_WRITE_BUFFER];
+|——Node:primitive_type Text: char
+|——Node:array_declarator Text: sd_buffer_for_write[SD_WRITE_BUFFER]
+|———Node:identifier Text: sd_buffer_for_write
+|———Node:[ Text: [
+|———Node:identifier Text: SD_WRITE_BUFFER
+|———Node:] Text: ]
+|——Node:; Text: ;
+|—Node:declaration Text: unsigned char bReqWrite = 0;
+|——Node:sized_type_specifier Text: unsigned char
+|———Node:unsigned Text: unsigned
+|———Node:primitive_type Text: char
+|——Node:init_declarator Text: bReqWrite = 0
+|———Node:identifier Text: bReqWrite
+|———Node:= Text: =
+|———Node:number_literal Text: 0
+|——Node:; Text: ;
+|—Node:comment
+|—Node:declaration Text: WORD sd_buffer_length_for_write = 0;
+|——Node:type_identifier Text: WORD
+|——Node:init_declarator Text: sd_buffer_length_for_write = 0
+|———Node:identifier Text: sd_buffer_length_for_write
+|———Node:= Text: =
+|———Node:number_literal Text: 0
+|——Node:; Text: ;
+|—Node:declaration Text: unsigned char bWriteFault = 0;
+|——Node:sized_type_specifier Text: unsigned char
+|———Node:unsigned Text: unsigned
+|———Node:primitive_type Text: char
+|——Node:init_declarator Text: bWriteFault = 0
+|———Node:identifier Text: bWriteFault
+|———Node:= Text: =
+|———Node:number_literal Text: 0
+|——Node:; Text: ;
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:function_definition Text: int align_buffer()
+{
+  int i;
+  int len;
+  
+  if (sd_buffer_length < 2) return 0;
+  if (sd_buffer[sd_buffer_length-2] != '\r') return 0;
+  if (sd_buffer[sd_buffer_length-1] != '\n') return 0;
+  
+  len = MMCSD_BLOCK_SIZE - (sd_buffer_length % MMCSD_BLOCK_SIZE);
+  for (i = 0; i < len; i++)
+    sd_buffer[sd_buffer_length + i - 2] = ' ';
+  sd_buffer[sd_buffer_length - 2] = ',';
+  sd_buffer[sd_buffer_length + len - 2] = '\r';
+  sd_buffer[sd_buffer_length + len - 1] = '\n';
+  
+  sd_buffer_length += len;
+  
+  return 1;
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: align_buffer()
+|———Node:identifier Text: align_buffer
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  int i;
+  int len;
+  
+  if (sd_buffer_length < 2) return 0;
+  if (sd_buffer[sd_buffer_length-2] != '\r') return 0;
+  if (sd_buffer[sd_buffer_length-1] != '\n') return 0;
+  
+  len = MMCSD_BLOCK_SIZE - (sd_buffer_length % MMCSD_BLOCK_SIZE);
+  for (i = 0; i < len; i++)
+    sd_buffer[sd_buffer_length + i - 2] = ' ';
+  sd_buffer[sd_buffer_length - 2] = ',';
+  sd_buffer[sd_buffer_length + len - 2] = '\r';
+  sd_buffer[sd_buffer_length + len - 1] = '\n';
+  
+  sd_buffer_length += len;
+  
+  return 1;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: int i;
+|————Node:primitive_type Text: int
+|————Node:identifier Text: i
+|————Node:; Text: ;
+|———Node:declaration Text: int len;
+|————Node:primitive_type Text: int
+|————Node:identifier Text: len
+|————Node:; Text: ;
+|———Node:if_statement Text: if (sd_buffer_length < 2) return 0;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (sd_buffer_length < 2)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: sd_buffer_length < 2
+|——————Node:identifier Text: sd_buffer_length
+|——————Node:< Text: <
+|——————Node:number_literal Text: 2
+|—————Node:) Text: )
+|————Node:return_statement Text: return 0;
+|—————Node:return Text: return
+|—————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|———Node:if_statement Text: if (sd_buffer[sd_buffer_length-2] != '\r') return 0;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (sd_buffer[sd_buffer_length-2] != '\r')
+|—————Node:( Text: (
+|—————Node:binary_expression Text: sd_buffer[sd_buffer_length-2] != '\r'
+|——————Node:subscript_expression Text: sd_buffer[sd_buffer_length-2]
+|———————Node:identifier Text: sd_buffer
+|———————Node:[ Text: [
+|———————Node:binary_expression Text: sd_buffer_length-2
+|————————Node:identifier Text: sd_buffer_length
+|————————Node:- Text: -
+|————————Node:number_literal Text: 2
+|———————Node:] Text: ]
+|——————Node:!= Text: !=
+|——————Node:char_literal Text: '\r'
+|———————Node:' Text: '
+|———————Node:escape_sequence Text: \r
+|———————Node:' Text: '
+|—————Node:) Text: )
+|————Node:return_statement Text: return 0;
+|—————Node:return Text: return
+|—————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|———Node:if_statement Text: if (sd_buffer[sd_buffer_length-1] != '\n') return 0;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (sd_buffer[sd_buffer_length-1] != '\n')
+|—————Node:( Text: (
+|—————Node:binary_expression Text: sd_buffer[sd_buffer_length-1] != '\n'
+|——————Node:subscript_expression Text: sd_buffer[sd_buffer_length-1]
+|———————Node:identifier Text: sd_buffer
+|———————Node:[ Text: [
+|———————Node:binary_expression Text: sd_buffer_length-1
+|————————Node:identifier Text: sd_buffer_length
+|————————Node:- Text: -
+|————————Node:number_literal Text: 1
+|———————Node:] Text: ]
+|——————Node:!= Text: !=
+|——————Node:char_literal Text: '\n'
+|———————Node:' Text: '
+|———————Node:escape_sequence Text: \n
+|———————Node:' Text: '
+|—————Node:) Text: )
+|————Node:return_statement Text: return 0;
+|—————Node:return Text: return
+|—————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|———Node:expression_statement Text: len = MMCSD_BLOCK_SIZE - (sd_buffer_length % MMCSD_BLOCK_SIZE);
+|————Node:assignment_expression Text: len = MMCSD_BLOCK_SIZE - (sd_buffer_length % MMCSD_BLOCK_SIZE)
+|—————Node:identifier Text: len
+|—————Node:= Text: =
+|—————Node:binary_expression Text: MMCSD_BLOCK_SIZE - (sd_buffer_length % MMCSD_BLOCK_SIZE)
+|——————Node:identifier Text: MMCSD_BLOCK_SIZE
+|——————Node:- Text: -
+|——————Node:parenthesized_expression Text: (sd_buffer_length % MMCSD_BLOCK_SIZE)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: sd_buffer_length % MMCSD_BLOCK_SIZE
+|————————Node:identifier Text: sd_buffer_length
+|————————Node:% Text: %
+|————————Node:identifier Text: MMCSD_BLOCK_SIZE
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:for_statement Text: for (i = 0; i < len; i++)
+    sd_buffer[sd_buffer_length + i - 2] = ' ';
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:assignment_expression Text: i = 0
+|—————Node:identifier Text: i
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|————Node:binary_expression Text: i < len
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:identifier Text: len
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:expression_statement Text: sd_buffer[sd_buffer_length + i - 2] = ' ';
+|—————Node:assignment_expression Text: sd_buffer[sd_buffer_length + i - 2] = ' '
+|——————Node:subscript_expression Text: sd_buffer[sd_buffer_length + i - 2]
+|———————Node:identifier Text: sd_buffer
+|———————Node:[ Text: [
+|———————Node:binary_expression Text: sd_buffer_length + i - 2
+|————————Node:binary_expression Text: sd_buffer_length + i
+|—————————Node:identifier Text: sd_buffer_length
+|—————————Node:+ Text: +
+|—————————Node:identifier Text: i
+|————————Node:- Text: -
+|————————Node:number_literal Text: 2
+|———————Node:] Text: ]
+|——————Node:= Text: =
+|——————Node:char_literal Text: ' '
+|———————Node:' Text: '
+|———————Node:character Text:  
+|———————Node:' Text: '
+|—————Node:; Text: ;
+|———Node:expression_statement Text: sd_buffer[sd_buffer_length - 2] = ',';
+|————Node:assignment_expression Text: sd_buffer[sd_buffer_length - 2] = ','
+|—————Node:subscript_expression Text: sd_buffer[sd_buffer_length - 2]
+|——————Node:identifier Text: sd_buffer
+|——————Node:[ Text: [
+|——————Node:binary_expression Text: sd_buffer_length - 2
+|———————Node:identifier Text: sd_buffer_length
+|———————Node:- Text: -
+|———————Node:number_literal Text: 2
+|——————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:char_literal Text: ','
+|——————Node:' Text: '
+|——————Node:character Text: ,
+|——————Node:' Text: '
+|————Node:; Text: ;
+|———Node:expression_statement Text: sd_buffer[sd_buffer_length + len - 2] = '\r';
+|————Node:assignment_expression Text: sd_buffer[sd_buffer_length + len - 2] = '\r'
+|—————Node:subscript_expression Text: sd_buffer[sd_buffer_length + len - 2]
+|——————Node:identifier Text: sd_buffer
+|——————Node:[ Text: [
+|——————Node:binary_expression Text: sd_buffer_length + len - 2
+|———————Node:binary_expression Text: sd_buffer_length + len
+|————————Node:identifier Text: sd_buffer_length
+|————————Node:+ Text: +
+|————————Node:identifier Text: len
+|———————Node:- Text: -
+|———————Node:number_literal Text: 2
+|——————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:char_literal Text: '\r'
+|——————Node:' Text: '
+|——————Node:escape_sequence Text: \r
+|——————Node:' Text: '
+|————Node:; Text: ;
+|———Node:expression_statement Text: sd_buffer[sd_buffer_length + len - 1] = '\n';
+|————Node:assignment_expression Text: sd_buffer[sd_buffer_length + len - 1] = '\n'
+|—————Node:subscript_expression Text: sd_buffer[sd_buffer_length + len - 1]
+|——————Node:identifier Text: sd_buffer
+|——————Node:[ Text: [
+|——————Node:binary_expression Text: sd_buffer_length + len - 1
+|———————Node:binary_expression Text: sd_buffer_length + len
+|————————Node:identifier Text: sd_buffer_length
+|————————Node:+ Text: +
+|————————Node:identifier Text: len
+|———————Node:- Text: -
+|———————Node:number_literal Text: 1
+|——————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:char_literal Text: '\n'
+|——————Node:' Text: '
+|——————Node:escape_sequence Text: \n
+|——————Node:' Text: '
+|————Node:; Text: ;
+|———Node:expression_statement Text: sd_buffer_length += len;
+|————Node:assignment_expression Text: sd_buffer_length += len
+|—————Node:identifier Text: sd_buffer_length
+|—————Node:+= Text: +=
+|—————Node:identifier Text: len
+|————Node:; Text: ;
+|———Node:return_statement Text: return 1;
+|————Node:return Text: return
+|————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: void copy_buffer()
+{
+  // request write operation
+  memcpy(sd_buffer_for_write, sd_buffer, sd_buffer_length);
+  sd_buffer_length_for_write = sd_buffer_length;
+  sd_buffer_length = 0;
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: copy_buffer()
+|———Node:identifier Text: copy_buffer
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  // request write operation
+  memcpy(sd_buffer_for_write, sd_buffer, sd_buffer_length);
+  sd_buffer_length_for_write = sd_buffer_length;
+  sd_buffer_length = 0;
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:expression_statement Text: memcpy(sd_buffer_for_write, sd_buffer, sd_buffer_length);
+|————Node:call_expression Text: memcpy(sd_buffer_for_write, sd_buffer, sd_buffer_length)
+|—————Node:identifier Text: memcpy
+|—————Node:argument_list Text: (sd_buffer_for_write, sd_buffer, sd_buffer_length)
+|——————Node:( Text: (
+|——————Node:identifier Text: sd_buffer_for_write
+|——————Node:, Text: ,
+|——————Node:identifier Text: sd_buffer
+|——————Node:, Text: ,
+|——————Node:identifier Text: sd_buffer_length
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: sd_buffer_length_for_write = sd_buffer_length;
+|————Node:assignment_expression Text: sd_buffer_length_for_write = sd_buffer_length
+|—————Node:identifier Text: sd_buffer_length_for_write
+|—————Node:= Text: =
+|—————Node:identifier Text: sd_buffer_length
+|————Node:; Text: ;
+|———Node:expression_statement Text: sd_buffer_length = 0;
+|————Node:assignment_expression Text: sd_buffer_length = 0
+|—————Node:identifier Text: sd_buffer_length
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void request_write()
+{
+  chSysLock(); // prevent re-entry
+  
+  if (bReqWrite)
+    bWriteFault = 1; // buffer overlapping
+  
+  // request write operation
+  align_buffer();
+  copy_buffer();
+  bReqWrite = 1;
+  
+  chSysUnlock(); // leaving critical section
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: request_write()
+|———Node:identifier Text: request_write
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  chSysLock(); // prevent re-entry
+  
+  if (bReqWrite)
+    bWriteFault = 1; // buffer overlapping
+  
+  // request write operation
+  align_buffer();
+  copy_buffer();
+  bReqWrite = 1;
+  
+  chSysUnlock(); // leaving critical section
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: chSysLock();
+|————Node:call_expression Text: chSysLock()
+|—————Node:identifier Text: chSysLock
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:if_statement Text: if (bReqWrite)
+    bWriteFault = 1;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (bReqWrite)
+|—————Node:( Text: (
+|—————Node:identifier Text: bReqWrite
+|—————Node:) Text: )
+|————Node:expression_statement Text: bWriteFault = 1;
+|—————Node:assignment_expression Text: bWriteFault = 1
+|——————Node:identifier Text: bWriteFault
+|——————Node:= Text: =
+|——————Node:number_literal Text: 1
+|—————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: align_buffer();
+|————Node:call_expression Text: align_buffer()
+|—————Node:identifier Text: align_buffer
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: copy_buffer();
+|————Node:call_expression Text: copy_buffer()
+|—————Node:identifier Text: copy_buffer
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: bReqWrite = 1;
+|————Node:assignment_expression Text: bReqWrite = 1
+|—————Node:identifier Text: bReqWrite
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:expression_statement Text: chSysUnlock();
+|————Node:call_expression Text: chSysUnlock()
+|—————Node:identifier Text: chSysUnlock
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:} Text: }
+|—Node:declaration Text: int iLastWriteSecond = 0;
+|——Node:primitive_type Text: int
+|——Node:init_declarator Text: iLastWriteSecond = 0
+|———Node:identifier Text: iLastWriteSecond
+|———Node:= Text: =
+|———Node:number_literal Text: 0
+|——Node:; Text: ;
+|—Node:declaration Text: static struct tm timp;
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:struct_specifier Text: struct tm
+|———Node:struct Text: struct
+|———Node:type_identifier Text: tm
+|——Node:identifier Text: timp
+|——Node:; Text: ;
+|—Node:function_definition Text: void fwrite_string(char *pString)
+{
+  WORD length = strlen(pString);
+
+  // Add string
+  memcpy(&sd_buffer[sd_buffer_length], pString, length);
+  sd_buffer_length += length;
+  
+  // Check flush limit
+  if(sd_buffer_length >= SD_WRITE_BUFFER_FLUSH_LIMIT)
+  {
+    request_write();
+  }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: fwrite_string(char *pString)
+|———Node:identifier Text: fwrite_string
+|———Node:parameter_list Text: (char *pString)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: char *pString
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: *pString
+|——————Node:* Text: *
+|——————Node:identifier Text: pString
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  WORD length = strlen(pString);
+
+  // Add string
+  memcpy(&sd_buffer[sd_buffer_length], pString, length);
+  sd_buffer_length += length;
+  
+  // Check flush limit
+  if(sd_buffer_length >= SD_WRITE_BUFFER_FLUSH_LIMIT)
+  {
+    request_write();
+  }
+}
+|———Node:{ Text: {
+|———Node:declaration Text: WORD length = strlen(pString);
+|————Node:type_identifier Text: WORD
+|————Node:init_declarator Text: length = strlen(pString)
+|—————Node:identifier Text: length
+|—————Node:= Text: =
+|—————Node:call_expression Text: strlen(pString)
+|——————Node:identifier Text: strlen
+|——————Node:argument_list Text: (pString)
+|———————Node:( Text: (
+|———————Node:identifier Text: pString
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: memcpy(&sd_buffer[sd_buffer_length], pString, length);
+|————Node:call_expression Text: memcpy(&sd_buffer[sd_buffer_length], pString, length)
+|—————Node:identifier Text: memcpy
+|—————Node:argument_list Text: (&sd_buffer[sd_buffer_length], pString, length)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &sd_buffer[sd_buffer_length]
+|———————Node:& Text: &
+|———————Node:subscript_expression Text: sd_buffer[sd_buffer_length]
+|————————Node:identifier Text: sd_buffer
+|————————Node:[ Text: [
+|————————Node:identifier Text: sd_buffer_length
+|————————Node:] Text: ]
+|——————Node:, Text: ,
+|——————Node:identifier Text: pString
+|——————Node:, Text: ,
+|——————Node:identifier Text: length
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: sd_buffer_length += length;
+|————Node:assignment_expression Text: sd_buffer_length += length
+|—————Node:identifier Text: sd_buffer_length
+|—————Node:+= Text: +=
+|—————Node:identifier Text: length
+|————Node:; Text: ;
+|———Node:comment
+|———Node:if_statement Text: if(sd_buffer_length >= SD_WRITE_BUFFER_FLUSH_LIMIT)
+  {
+    request_write();
+  }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (sd_buffer_length >= SD_WRITE_BUFFER_FLUSH_LIMIT)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: sd_buffer_length >= SD_WRITE_BUFFER_FLUSH_LIMIT
+|——————Node:identifier Text: sd_buffer_length
+|——————Node:>= Text: >=
+|——————Node:identifier Text: SD_WRITE_BUFFER_FLUSH_LIMIT
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    request_write();
+  }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: request_write();
+|——————Node:call_expression Text: request_write()
+|———————Node:identifier Text: request_write
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:comment
+|—Node:declaration Text: FATFS SDC_FS;
+|——Node:type_identifier Text: FATFS
+|——Node:identifier Text: SDC_FS
+|——Node:; Text: ;
+|—Node:declaration Text: FIL *file;
+|——Node:type_identifier Text: FIL
+|——Node:pointer_declarator Text: *file
+|———Node:* Text: *
+|———Node:identifier Text: file
+|——Node:; Text: ;
+|—Node:declaration Text: FRESULT fres;
+|——Node:type_identifier Text: FRESULT
+|——Node:identifier Text: fres
+|——Node:; Text: ;
+|—Node:declaration Text: int i;
+|——Node:primitive_type Text: int
+|——Node:identifier Text: i
+|——Node:; Text: ;
+|—Node:declaration Text: int iSecond;
+|——Node:primitive_type Text: int
+|——Node:identifier Text: iSecond
+|——Node:; Text: ;
+|—Node:preproc_def Text: #define STRLINE_LENGTH 1024
+
+|——Node:#define Text: #define
+|——Node:identifier Text: STRLINE_LENGTH
+|——Node:preproc_arg Text: 1024
+|—Node:declaration Text: char sLine[STRLINE_LENGTH];
+|——Node:primitive_type Text: char
+|——Node:array_declarator Text: sLine[STRLINE_LENGTH]
+|———Node:identifier Text: sLine
+|———Node:[ Text: [
+|———Node:identifier Text: STRLINE_LENGTH
+|———Node:] Text: ]
+|——Node:; Text: ;
+|—Node:declaration Text: systime_t stLastWriting;
+|——Node:type_identifier Text: systime_t
+|——Node:identifier Text: stLastWriting
+|——Node:; Text: ;
+|—Node:declaration Text: unsigned char bIncludeTimestamp = 1;
+|——Node:sized_type_specifier Text: unsigned char
+|———Node:unsigned Text: unsigned
+|———Node:primitive_type Text: char
+|——Node:init_declarator Text: bIncludeTimestamp = 1
+|———Node:identifier Text: bIncludeTimestamp
+|———Node:= Text: =
+|———Node:number_literal Text: 1
+|——Node:; Text: ;
+|—Node:function_definition Text: void start_log()
+{
+  // open file and write the begining of the load
+  rtcGetTimeTm(&RTCD1, &timp);        
+  sprintf(sLine, "%02d-%02d-%02d.csv", timp.tm_hour, timp.tm_min, timp.tm_sec); // making new file
+
+  file = fopen_(sLine, "a");
+  if (bIncludeTimestamp)
+    strcpy(sLine, "Timestamp,ID,Data0,Data1,Data2,Data3,Data4,Data5,Data6,Data7\r\n");
+  else
+    strcpy(sLine, "ID,Data0,Data1,Data2,Data3,Data4,Data5,Data6,Data7\r\n");
+  fwrite_string(sLine);
+  align_buffer();
+  fwrite_(sd_buffer, 1, sd_buffer_length, file);
+  f_sync(file);
+
+  // reset buffer counters
+  sd_buffer_length_for_write = 0;
+  sd_buffer_length = 0;
+
+  bWriteFault = 0;
+
+  stLastWriting = chTimeNow(); // record time when we did write
+
+  bLogging = 1;
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: start_log()
+|———Node:identifier Text: start_log
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  // open file and write the begining of the load
+  rtcGetTimeTm(&RTCD1, &timp);        
+  sprintf(sLine, "%02d-%02d-%02d.csv", timp.tm_hour, timp.tm_min, timp.tm_sec); // making new file
+
+  file = fopen_(sLine, "a");
+  if (bIncludeTimestamp)
+    strcpy(sLine, "Timestamp,ID,Data0,Data1,Data2,Data3,Data4,Data5,Data6,Data7\r\n");
+  else
+    strcpy(sLine, "ID,Data0,Data1,Data2,Data3,Data4,Data5,Data6,Data7\r\n");
+  fwrite_string(sLine);
+  align_buffer();
+  fwrite_(sd_buffer, 1, sd_buffer_length, file);
+  f_sync(file);
+
+  // reset buffer counters
+  sd_buffer_length_for_write = 0;
+  sd_buffer_length = 0;
+
+  bWriteFault = 0;
+
+  stLastWriting = chTimeNow(); // record time when we did write
+
+  bLogging = 1;
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:expression_statement Text: rtcGetTimeTm(&RTCD1, &timp);
+|————Node:call_expression Text: rtcGetTimeTm(&RTCD1, &timp)
+|—————Node:identifier Text: rtcGetTimeTm
+|—————Node:argument_list Text: (&RTCD1, &timp)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &RTCD1
+|———————Node:& Text: &
+|———————Node:identifier Text: RTCD1
+|——————Node:, Text: ,
+|——————Node:pointer_expression Text: &timp
+|———————Node:& Text: &
+|———————Node:identifier Text: timp
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: sprintf(sLine, "%02d-%02d-%02d.csv", timp.tm_hour, timp.tm_min, timp.tm_sec);
+|————Node:call_expression Text: sprintf(sLine, "%02d-%02d-%02d.csv", timp.tm_hour, timp.tm_min, timp.tm_sec)
+|—————Node:identifier Text: sprintf
+|—————Node:argument_list Text: (sLine, "%02d-%02d-%02d.csv", timp.tm_hour, timp.tm_min, timp.tm_sec)
+|——————Node:( Text: (
+|——————Node:identifier Text: sLine
+|——————Node:, Text: ,
+|——————Node:string_literal Text: "%02d-%02d-%02d.csv"
+|———————Node:" Text: "
+|———————Node:string_content Text: %02d-%02d-%02d.csv
+|———————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:field_expression Text: timp.tm_hour
+|———————Node:identifier Text: timp
+|———————Node:. Text: .
+|———————Node:field_identifier Text: tm_hour
+|——————Node:, Text: ,
+|——————Node:field_expression Text: timp.tm_min
+|———————Node:identifier Text: timp
+|———————Node:. Text: .
+|———————Node:field_identifier Text: tm_min
+|——————Node:, Text: ,
+|——————Node:field_expression Text: timp.tm_sec
+|———————Node:identifier Text: timp
+|———————Node:. Text: .
+|———————Node:field_identifier Text: tm_sec
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: file = fopen_(sLine, "a");
+|————Node:assignment_expression Text: file = fopen_(sLine, "a")
+|—————Node:identifier Text: file
+|—————Node:= Text: =
+|—————Node:call_expression Text: fopen_(sLine, "a")
+|——————Node:identifier Text: fopen_
+|——————Node:argument_list Text: (sLine, "a")
+|———————Node:( Text: (
+|———————Node:identifier Text: sLine
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "a"
+|————————Node:" Text: "
+|————————Node:string_content Text: a
+|————————Node:" Text: "
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (bIncludeTimestamp)
+    strcpy(sLine, "Timestamp,ID,Data0,Data1,Data2,Data3,Data4,Data5,Data6,Data7\r\n");
+  else
+    strcpy(sLine, "ID,Data0,Data1,Data2,Data3,Data4,Data5,Data6,Data7\r\n");
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (bIncludeTimestamp)
+|—————Node:( Text: (
+|—————Node:identifier Text: bIncludeTimestamp
+|—————Node:) Text: )
+|————Node:expression_statement Text: strcpy(sLine, "Timestamp,ID,Data0,Data1,Data2,Data3,Data4,Data5,Data6,Data7\r\n");
+|—————Node:call_expression Text: strcpy(sLine, "Timestamp,ID,Data0,Data1,Data2,Data3,Data4,Data5,Data6,Data7\r\n")
+|——————Node:identifier Text: strcpy
+|——————Node:argument_list Text: (sLine, "Timestamp,ID,Data0,Data1,Data2,Data3,Data4,Data5,Data6,Data7\r\n")
+|———————Node:( Text: (
+|———————Node:identifier Text: sLine
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "Timestamp,ID,Data0,Data1,Data2,Data3,Data4,Data5,Data6,Data7\r\n"
+|————————Node:" Text: "
+|————————Node:string_content Text: Timestamp,ID,Data0,Data1,Data2,Data3,Data4,Data5,Data6,Data7
+|————————Node:escape_sequence Text: \r
+|————————Node:escape_sequence Text: \n
+|————————Node:" Text: "
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:else_clause Text: else
+    strcpy(sLine, "ID,Data0,Data1,Data2,Data3,Data4,Data5,Data6,Data7\r\n");
+|—————Node:else Text: else
+|—————Node:expression_statement Text: strcpy(sLine, "ID,Data0,Data1,Data2,Data3,Data4,Data5,Data6,Data7\r\n");
+|——————Node:call_expression Text: strcpy(sLine, "ID,Data0,Data1,Data2,Data3,Data4,Data5,Data6,Data7\r\n")
+|———————Node:identifier Text: strcpy
+|———————Node:argument_list Text: (sLine, "ID,Data0,Data1,Data2,Data3,Data4,Data5,Data6,Data7\r\n")
+|————————Node:( Text: (
+|————————Node:identifier Text: sLine
+|————————Node:, Text: ,
+|————————Node:string_literal Text: "ID,Data0,Data1,Data2,Data3,Data4,Data5,Data6,Data7\r\n"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: ID,Data0,Data1,Data2,Data3,Data4,Data5,Data6,Data7
+|—————————Node:escape_sequence Text: \r
+|—————————Node:escape_sequence Text: \n
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|———Node:expression_statement Text: fwrite_string(sLine);
+|————Node:call_expression Text: fwrite_string(sLine)
+|—————Node:identifier Text: fwrite_string
+|—————Node:argument_list Text: (sLine)
+|——————Node:( Text: (
+|——————Node:identifier Text: sLine
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: align_buffer();
+|————Node:call_expression Text: align_buffer()
+|—————Node:identifier Text: align_buffer
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: fwrite_(sd_buffer, 1, sd_buffer_length, file);
+|————Node:call_expression Text: fwrite_(sd_buffer, 1, sd_buffer_length, file)
+|—————Node:identifier Text: fwrite_
+|—————Node:argument_list Text: (sd_buffer, 1, sd_buffer_length, file)
+|——————Node:( Text: (
+|——————Node:identifier Text: sd_buffer
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 1
+|——————Node:, Text: ,
+|——————Node:identifier Text: sd_buffer_length
+|——————Node:, Text: ,
+|——————Node:identifier Text: file
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: f_sync(file);
+|————Node:call_expression Text: f_sync(file)
+|—————Node:identifier Text: f_sync
+|—————Node:argument_list Text: (file)
+|——————Node:( Text: (
+|——————Node:identifier Text: file
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: sd_buffer_length_for_write = 0;
+|————Node:assignment_expression Text: sd_buffer_length_for_write = 0
+|—————Node:identifier Text: sd_buffer_length_for_write
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: sd_buffer_length = 0;
+|————Node:assignment_expression Text: sd_buffer_length = 0
+|—————Node:identifier Text: sd_buffer_length
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: bWriteFault = 0;
+|————Node:assignment_expression Text: bWriteFault = 0
+|—————Node:identifier Text: bWriteFault
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: stLastWriting = chTimeNow();
+|————Node:assignment_expression Text: stLastWriting = chTimeNow()
+|—————Node:identifier Text: stLastWriting
+|—————Node:= Text: =
+|—————Node:call_expression Text: chTimeNow()
+|——————Node:identifier Text: chTimeNow
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: bLogging = 1;
+|————Node:assignment_expression Text: bLogging = 1
+|—————Node:identifier Text: bLogging
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:declaration Text: int iFilterMask = 0;
+|——Node:primitive_type Text: int
+|——Node:init_declarator Text: iFilterMask = 0
+|———Node:identifier Text: iFilterMask
+|———Node:= Text: =
+|———Node:number_literal Text: 0
+|——Node:; Text: ;
+|—Node:declaration Text: int iFilterValue = 0;
+|——Node:primitive_type Text: int
+|——Node:init_declarator Text: iFilterValue = 0
+|———Node:identifier Text: iFilterValue
+|———Node:= Text: =
+|———Node:number_literal Text: 0
+|——Node:; Text: ;
+|—Node:declaration Text: unsigned char bLogStdMsgs = 1;
+|——Node:sized_type_specifier Text: unsigned char
+|———Node:unsigned Text: unsigned
+|———Node:primitive_type Text: char
+|——Node:init_declarator Text: bLogStdMsgs = 1
+|———Node:identifier Text: bLogStdMsgs
+|———Node:= Text: =
+|———Node:number_literal Text: 1
+|——Node:; Text: ;
+|—Node:declaration Text: unsigned char bLogExtMsgs = 1;
+|——Node:sized_type_specifier Text: unsigned char
+|———Node:unsigned Text: unsigned
+|———Node:primitive_type Text: char
+|——Node:init_declarator Text: bLogExtMsgs = 1
+|———Node:identifier Text: bLogExtMsgs
+|———Node:= Text: =
+|———Node:number_literal Text: 1
+|——Node:; Text: ;
+|—Node:function_definition Text: int read_config_file()
+{
+  int value;
+  char name[128];
+  int baud;
+  int res = 0;
+  int ack = 0;
+  
+  iFilterMask = 0;
+  iFilterValue = 0;
+  bIncludeTimestamp = 1;
+  bLogStdMsgs = 1;
+  bLogExtMsgs = 1;
+  
+  
+  // read file
+  file = fopen_("Config.txt", "r");
+  if (file == 0) 
+  {
+    return 0;
+  }
+  
+  while( f_gets(sLine, STRLINE_LENGTH, file) )
+  {
+    if (sscanf(sLine, "%s %d", name, &value) == 0)
+    {
+      continue;
+    }
+    
+    if (strcmp(name, "baud") == 0)
+    {
+      baud = value;
+      res = 1; // at least we got baudrate, config file accepted
+    }
+    else
+    if (strcmp(name, "ack_en")  == 0)
+    {
+      ack = value;
+    }
+    else
+    if (strcmp(name, "id_filter_mask")  == 0)
+    {
+      iFilterMask = value;
+    }
+    else
+    if (strcmp(name, "id_filter_value")  == 0)
+    {
+      iFilterValue = value;
+    }
+    else
+    if (strcmp(name, "timestamp")  == 0)
+    {
+      bIncludeTimestamp = value;
+    }
+    else
+    if (strcmp(name, "log_std")  == 0)
+    {
+      bLogStdMsgs = value;
+    }
+    else
+    if (strcmp(name, "log_ext")  == 0)
+    {
+      bLogExtMsgs = value;
+    }    
+  }
+  
+  // configure CAN
+  baud = (int)(7*1000.0/((float)(baud)) + 0.5); // prescaler value  
+  if (ack)
+    cancfg.btr =  CAN_BTR_SJW(0) | CAN_BTR_TS2(2) | CAN_BTR_TS1(1) | CAN_BTR_BRP(baud - 1);
+  else
+    cancfg.btr =  CAN_BTR_SJW(0) | CAN_BTR_TS2(2) | CAN_BTR_TS1(1) | CAN_BTR_BRP(baud - 1) | CAN_BTR_SILM; // silent mode flag
+  canStop(&CAND2);
+  canStart(&CAND2, &cancfg);
+  fclose_(file);
+    
+  return res;
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: read_config_file()
+|———Node:identifier Text: read_config_file
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  int value;
+  char name[128];
+  int baud;
+  int res = 0;
+  int ack = 0;
+  
+  iFilterMask = 0;
+  iFilterValue = 0;
+  bIncludeTimestamp = 1;
+  bLogStdMsgs = 1;
+  bLogExtMsgs = 1;
+  
+  
+  // read file
+  file = fopen_("Config.txt", "r");
+  if (file == 0) 
+  {
+    return 0;
+  }
+  
+  while( f_gets(sLine, STRLINE_LENGTH, file) )
+  {
+    if (sscanf(sLine, "%s %d", name, &value) == 0)
+    {
+      continue;
+    }
+    
+    if (strcmp(name, "baud") == 0)
+    {
+      baud = value;
+      res = 1; // at least we got baudrate, config file accepted
+    }
+    else
+    if (strcmp(name, "ack_en")  == 0)
+    {
+      ack = value;
+    }
+    else
+    if (strcmp(name, "id_filter_mask")  == 0)
+    {
+      iFilterMask = value;
+    }
+    else
+    if (strcmp(name, "id_filter_value")  == 0)
+    {
+      iFilterValue = value;
+    }
+    else
+    if (strcmp(name, "timestamp")  == 0)
+    {
+      bIncludeTimestamp = value;
+    }
+    else
+    if (strcmp(name, "log_std")  == 0)
+    {
+      bLogStdMsgs = value;
+    }
+    else
+    if (strcmp(name, "log_ext")  == 0)
+    {
+      bLogExtMsgs = value;
+    }    
+  }
+  
+  // configure CAN
+  baud = (int)(7*1000.0/((float)(baud)) + 0.5); // prescaler value  
+  if (ack)
+    cancfg.btr =  CAN_BTR_SJW(0) | CAN_BTR_TS2(2) | CAN_BTR_TS1(1) | CAN_BTR_BRP(baud - 1);
+  else
+    cancfg.btr =  CAN_BTR_SJW(0) | CAN_BTR_TS2(2) | CAN_BTR_TS1(1) | CAN_BTR_BRP(baud - 1) | CAN_BTR_SILM; // silent mode flag
+  canStop(&CAND2);
+  canStart(&CAND2, &cancfg);
+  fclose_(file);
+    
+  return res;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: int value;
+|————Node:primitive_type Text: int
+|————Node:identifier Text: value
+|————Node:; Text: ;
+|———Node:declaration Text: char name[128];
+|————Node:primitive_type Text: char
+|————Node:array_declarator Text: name[128]
+|—————Node:identifier Text: name
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 128
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:declaration Text: int baud;
+|————Node:primitive_type Text: int
+|————Node:identifier Text: baud
+|————Node:; Text: ;
+|———Node:declaration Text: int res = 0;
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: res = 0
+|—————Node:identifier Text: res
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: int ack = 0;
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: ack = 0
+|—————Node:identifier Text: ack
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: iFilterMask = 0;
+|————Node:assignment_expression Text: iFilterMask = 0
+|—————Node:identifier Text: iFilterMask
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: iFilterValue = 0;
+|————Node:assignment_expression Text: iFilterValue = 0
+|—————Node:identifier Text: iFilterValue
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: bIncludeTimestamp = 1;
+|————Node:assignment_expression Text: bIncludeTimestamp = 1
+|—————Node:identifier Text: bIncludeTimestamp
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:expression_statement Text: bLogStdMsgs = 1;
+|————Node:assignment_expression Text: bLogStdMsgs = 1
+|—————Node:identifier Text: bLogStdMsgs
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:expression_statement Text: bLogExtMsgs = 1;
+|————Node:assignment_expression Text: bLogExtMsgs = 1
+|—————Node:identifier Text: bLogExtMsgs
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: file = fopen_("Config.txt", "r");
+|————Node:assignment_expression Text: file = fopen_("Config.txt", "r")
+|—————Node:identifier Text: file
+|—————Node:= Text: =
+|—————Node:call_expression Text: fopen_("Config.txt", "r")
+|——————Node:identifier Text: fopen_
+|——————Node:argument_list Text: ("Config.txt", "r")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "Config.txt"
+|————————Node:" Text: "
+|————————Node:string_content Text: Config.txt
+|————————Node:" Text: "
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "r"
+|————————Node:" Text: "
+|————————Node:string_content Text: r
+|————————Node:" Text: "
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (file == 0) 
+  {
+    return 0;
+  }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (file == 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: file == 0
+|——————Node:identifier Text: file
+|——————Node:== Text: ==
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    return 0;
+  }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return 0;
+|——————Node:return Text: return
+|——————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:while_statement Text: while( f_gets(sLine, STRLINE_LENGTH, file) )
+  {
+    if (sscanf(sLine, "%s %d", name, &value) == 0)
+    {
+      continue;
+    }
+    
+    if (strcmp(name, "baud") == 0)
+    {
+      baud = value;
+      res = 1; // at least we got baudrate, config file accepted
+    }
+    else
+    if (strcmp(name, "ack_en")  == 0)
+    {
+      ack = value;
+    }
+    else
+    if (strcmp(name, "id_filter_mask")  == 0)
+    {
+      iFilterMask = value;
+    }
+    else
+    if (strcmp(name, "id_filter_value")  == 0)
+    {
+      iFilterValue = value;
+    }
+    else
+    if (strcmp(name, "timestamp")  == 0)
+    {
+      bIncludeTimestamp = value;
+    }
+    else
+    if (strcmp(name, "log_std")  == 0)
+    {
+      bLogStdMsgs = value;
+    }
+    else
+    if (strcmp(name, "log_ext")  == 0)
+    {
+      bLogExtMsgs = value;
+    }    
+  }
+|————Node:while Text: while
+|————Node:parenthesized_expression Text: ( f_gets(sLine, STRLINE_LENGTH, file) )
+|—————Node:( Text: (
+|—————Node:call_expression Text: f_gets(sLine, STRLINE_LENGTH, file)
+|——————Node:identifier Text: f_gets
+|——————Node:argument_list Text: (sLine, STRLINE_LENGTH, file)
+|———————Node:( Text: (
+|———————Node:identifier Text: sLine
+|———————Node:, Text: ,
+|———————Node:identifier Text: STRLINE_LENGTH
+|———————Node:, Text: ,
+|———————Node:identifier Text: file
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    if (sscanf(sLine, "%s %d", name, &value) == 0)
+    {
+      continue;
+    }
+    
+    if (strcmp(name, "baud") == 0)
+    {
+      baud = value;
+      res = 1; // at least we got baudrate, config file accepted
+    }
+    else
+    if (strcmp(name, "ack_en")  == 0)
+    {
+      ack = value;
+    }
+    else
+    if (strcmp(name, "id_filter_mask")  == 0)
+    {
+      iFilterMask = value;
+    }
+    else
+    if (strcmp(name, "id_filter_value")  == 0)
+    {
+      iFilterValue = value;
+    }
+    else
+    if (strcmp(name, "timestamp")  == 0)
+    {
+      bIncludeTimestamp = value;
+    }
+    else
+    if (strcmp(name, "log_std")  == 0)
+    {
+      bLogStdMsgs = value;
+    }
+    else
+    if (strcmp(name, "log_ext")  == 0)
+    {
+      bLogExtMsgs = value;
+    }    
+  }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if (sscanf(sLine, "%s %d", name, &value) == 0)
+    {
+      continue;
+    }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (sscanf(sLine, "%s %d", name, &value) == 0)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: sscanf(sLine, "%s %d", name, &value) == 0
+|————————Node:call_expression Text: sscanf(sLine, "%s %d", name, &value)
+|—————————Node:identifier Text: sscanf
+|—————————Node:argument_list Text: (sLine, "%s %d", name, &value)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: sLine
+|——————————Node:, Text: ,
+|——————————Node:string_literal Text: "%s %d"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: %s %d
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: name
+|——————————Node:, Text: ,
+|——————————Node:pointer_expression Text: &value
+|———————————Node:& Text: &
+|———————————Node:identifier Text: value
+|——————————Node:) Text: )
+|————————Node:== Text: ==
+|————————Node:number_literal Text: 0
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+      continue;
+    }
+|———————Node:{ Text: {
+|———————Node:continue_statement Text: continue;
+|————————Node:continue Text: continue
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:if_statement Text: if (strcmp(name, "baud") == 0)
+    {
+      baud = value;
+      res = 1; // at least we got baudrate, config file accepted
+    }
+    else
+    if (strcmp(name, "ack_en")  == 0)
+    {
+      ack = value;
+    }
+    else
+    if (strcmp(name, "id_filter_mask")  == 0)
+    {
+      iFilterMask = value;
+    }
+    else
+    if (strcmp(name, "id_filter_value")  == 0)
+    {
+      iFilterValue = value;
+    }
+    else
+    if (strcmp(name, "timestamp")  == 0)
+    {
+      bIncludeTimestamp = value;
+    }
+    else
+    if (strcmp(name, "log_std")  == 0)
+    {
+      bLogStdMsgs = value;
+    }
+    else
+    if (strcmp(name, "log_ext")  == 0)
+    {
+      bLogExtMsgs = value;
+    }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (strcmp(name, "baud") == 0)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: strcmp(name, "baud") == 0
+|————————Node:call_expression Text: strcmp(name, "baud")
+|—————————Node:identifier Text: strcmp
+|—————————Node:argument_list Text: (name, "baud")
+|——————————Node:( Text: (
+|——————————Node:identifier Text: name
+|——————————Node:, Text: ,
+|——————————Node:string_literal Text: "baud"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: baud
+|———————————Node:" Text: "
+|——————————Node:) Text: )
+|————————Node:== Text: ==
+|————————Node:number_literal Text: 0
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+      baud = value;
+      res = 1; // at least we got baudrate, config file accepted
+    }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: baud = value;
+|————————Node:assignment_expression Text: baud = value
+|—————————Node:identifier Text: baud
+|—————————Node:= Text: =
+|—————————Node:identifier Text: value
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: res = 1;
+|————————Node:assignment_expression Text: res = 1
+|—————————Node:identifier Text: res
+|—————————Node:= Text: =
+|—————————Node:number_literal Text: 1
+|————————Node:; Text: ;
+|———————Node:comment
+|———————Node:} Text: }
+|——————Node:else_clause Text: else
+    if (strcmp(name, "ack_en")  == 0)
+    {
+      ack = value;
+    }
+    else
+    if (strcmp(name, "id_filter_mask")  == 0)
+    {
+      iFilterMask = value;
+    }
+    else
+    if (strcmp(name, "id_filter_value")  == 0)
+    {
+      iFilterValue = value;
+    }
+    else
+    if (strcmp(name, "timestamp")  == 0)
+    {
+      bIncludeTimestamp = value;
+    }
+    else
+    if (strcmp(name, "log_std")  == 0)
+    {
+      bLogStdMsgs = value;
+    }
+    else
+    if (strcmp(name, "log_ext")  == 0)
+    {
+      bLogExtMsgs = value;
+    }
+|———————Node:else Text: else
+|———————Node:if_statement Text: if (strcmp(name, "ack_en")  == 0)
+    {
+      ack = value;
+    }
+    else
+    if (strcmp(name, "id_filter_mask")  == 0)
+    {
+      iFilterMask = value;
+    }
+    else
+    if (strcmp(name, "id_filter_value")  == 0)
+    {
+      iFilterValue = value;
+    }
+    else
+    if (strcmp(name, "timestamp")  == 0)
+    {
+      bIncludeTimestamp = value;
+    }
+    else
+    if (strcmp(name, "log_std")  == 0)
+    {
+      bLogStdMsgs = value;
+    }
+    else
+    if (strcmp(name, "log_ext")  == 0)
+    {
+      bLogExtMsgs = value;
+    }
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (strcmp(name, "ack_en")  == 0)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: strcmp(name, "ack_en")  == 0
+|——————————Node:call_expression Text: strcmp(name, "ack_en")
+|———————————Node:identifier Text: strcmp
+|———————————Node:argument_list Text: (name, "ack_en")
+|————————————Node:( Text: (
+|————————————Node:identifier Text: name
+|————————————Node:, Text: ,
+|————————————Node:string_literal Text: "ack_en"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: ack_en
+|—————————————Node:" Text: "
+|————————————Node:) Text: )
+|——————————Node:== Text: ==
+|——————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+      ack = value;
+    }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: ack = value;
+|——————————Node:assignment_expression Text: ack = value
+|———————————Node:identifier Text: ack
+|———————————Node:= Text: =
+|———————————Node:identifier Text: value
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|————————Node:else_clause Text: else
+    if (strcmp(name, "id_filter_mask")  == 0)
+    {
+      iFilterMask = value;
+    }
+    else
+    if (strcmp(name, "id_filter_value")  == 0)
+    {
+      iFilterValue = value;
+    }
+    else
+    if (strcmp(name, "timestamp")  == 0)
+    {
+      bIncludeTimestamp = value;
+    }
+    else
+    if (strcmp(name, "log_std")  == 0)
+    {
+      bLogStdMsgs = value;
+    }
+    else
+    if (strcmp(name, "log_ext")  == 0)
+    {
+      bLogExtMsgs = value;
+    }
+|—————————Node:else Text: else
+|—————————Node:if_statement Text: if (strcmp(name, "id_filter_mask")  == 0)
+    {
+      iFilterMask = value;
+    }
+    else
+    if (strcmp(name, "id_filter_value")  == 0)
+    {
+      iFilterValue = value;
+    }
+    else
+    if (strcmp(name, "timestamp")  == 0)
+    {
+      bIncludeTimestamp = value;
+    }
+    else
+    if (strcmp(name, "log_std")  == 0)
+    {
+      bLogStdMsgs = value;
+    }
+    else
+    if (strcmp(name, "log_ext")  == 0)
+    {
+      bLogExtMsgs = value;
+    }
+|——————————Node:if Text: if
+|——————————Node:parenthesized_expression Text: (strcmp(name, "id_filter_mask")  == 0)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: strcmp(name, "id_filter_mask")  == 0
+|————————————Node:call_expression Text: strcmp(name, "id_filter_mask")
+|—————————————Node:identifier Text: strcmp
+|—————————————Node:argument_list Text: (name, "id_filter_mask")
+|——————————————Node:( Text: (
+|——————————————Node:identifier Text: name
+|——————————————Node:, Text: ,
+|——————————————Node:string_literal Text: "id_filter_mask"
+|———————————————Node:" Text: "
+|———————————————Node:string_content Text: id_filter_mask
+|———————————————Node:" Text: "
+|——————————————Node:) Text: )
+|————————————Node:== Text: ==
+|————————————Node:number_literal Text: 0
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+      iFilterMask = value;
+    }
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: iFilterMask = value;
+|————————————Node:assignment_expression Text: iFilterMask = value
+|—————————————Node:identifier Text: iFilterMask
+|—————————————Node:= Text: =
+|—————————————Node:identifier Text: value
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|——————————Node:else_clause Text: else
+    if (strcmp(name, "id_filter_value")  == 0)
+    {
+      iFilterValue = value;
+    }
+    else
+    if (strcmp(name, "timestamp")  == 0)
+    {
+      bIncludeTimestamp = value;
+    }
+    else
+    if (strcmp(name, "log_std")  == 0)
+    {
+      bLogStdMsgs = value;
+    }
+    else
+    if (strcmp(name, "log_ext")  == 0)
+    {
+      bLogExtMsgs = value;
+    }
+|———————————Node:else Text: else
+|———————————Node:if_statement Text: if (strcmp(name, "id_filter_value")  == 0)
+    {
+      iFilterValue = value;
+    }
+    else
+    if (strcmp(name, "timestamp")  == 0)
+    {
+      bIncludeTimestamp = value;
+    }
+    else
+    if (strcmp(name, "log_std")  == 0)
+    {
+      bLogStdMsgs = value;
+    }
+    else
+    if (strcmp(name, "log_ext")  == 0)
+    {
+      bLogExtMsgs = value;
+    }
+|————————————Node:if Text: if
+|————————————Node:parenthesized_expression Text: (strcmp(name, "id_filter_value")  == 0)
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: strcmp(name, "id_filter_value")  == 0
+|——————————————Node:call_expression Text: strcmp(name, "id_filter_value")
+|———————————————Node:identifier Text: strcmp
+|———————————————Node:argument_list Text: (name, "id_filter_value")
+|————————————————Node:( Text: (
+|————————————————Node:identifier Text: name
+|————————————————Node:, Text: ,
+|————————————————Node:string_literal Text: "id_filter_value"
+|—————————————————Node:" Text: "
+|—————————————————Node:string_content Text: id_filter_value
+|—————————————————Node:" Text: "
+|————————————————Node:) Text: )
+|——————————————Node:== Text: ==
+|——————————————Node:number_literal Text: 0
+|—————————————Node:) Text: )
+|————————————Node:compound_statement Text: {
+      iFilterValue = value;
+    }
+|—————————————Node:{ Text: {
+|—————————————Node:expression_statement Text: iFilterValue = value;
+|——————————————Node:assignment_expression Text: iFilterValue = value
+|———————————————Node:identifier Text: iFilterValue
+|———————————————Node:= Text: =
+|———————————————Node:identifier Text: value
+|——————————————Node:; Text: ;
+|—————————————Node:} Text: }
+|————————————Node:else_clause Text: else
+    if (strcmp(name, "timestamp")  == 0)
+    {
+      bIncludeTimestamp = value;
+    }
+    else
+    if (strcmp(name, "log_std")  == 0)
+    {
+      bLogStdMsgs = value;
+    }
+    else
+    if (strcmp(name, "log_ext")  == 0)
+    {
+      bLogExtMsgs = value;
+    }
+|—————————————Node:else Text: else
+|—————————————Node:if_statement Text: if (strcmp(name, "timestamp")  == 0)
+    {
+      bIncludeTimestamp = value;
+    }
+    else
+    if (strcmp(name, "log_std")  == 0)
+    {
+      bLogStdMsgs = value;
+    }
+    else
+    if (strcmp(name, "log_ext")  == 0)
+    {
+      bLogExtMsgs = value;
+    }
+|——————————————Node:if Text: if
+|——————————————Node:parenthesized_expression Text: (strcmp(name, "timestamp")  == 0)
+|———————————————Node:( Text: (
+|———————————————Node:binary_expression Text: strcmp(name, "timestamp")  == 0
+|————————————————Node:call_expression Text: strcmp(name, "timestamp")
+|—————————————————Node:identifier Text: strcmp
+|—————————————————Node:argument_list Text: (name, "timestamp")
+|——————————————————Node:( Text: (
+|——————————————————Node:identifier Text: name
+|——————————————————Node:, Text: ,
+|——————————————————Node:string_literal Text: "timestamp"
+|———————————————————Node:" Text: "
+|———————————————————Node:string_content Text: timestamp
+|———————————————————Node:" Text: "
+|——————————————————Node:) Text: )
+|————————————————Node:== Text: ==
+|————————————————Node:number_literal Text: 0
+|———————————————Node:) Text: )
+|——————————————Node:compound_statement Text: {
+      bIncludeTimestamp = value;
+    }
+|———————————————Node:{ Text: {
+|———————————————Node:expression_statement Text: bIncludeTimestamp = value;
+|————————————————Node:assignment_expression Text: bIncludeTimestamp = value
+|—————————————————Node:identifier Text: bIncludeTimestamp
+|—————————————————Node:= Text: =
+|—————————————————Node:identifier Text: value
+|————————————————Node:; Text: ;
+|———————————————Node:} Text: }
+|——————————————Node:else_clause Text: else
+    if (strcmp(name, "log_std")  == 0)
+    {
+      bLogStdMsgs = value;
+    }
+    else
+    if (strcmp(name, "log_ext")  == 0)
+    {
+      bLogExtMsgs = value;
+    }
+|———————————————Node:else Text: else
+|———————————————Node:if_statement Text: if (strcmp(name, "log_std")  == 0)
+    {
+      bLogStdMsgs = value;
+    }
+    else
+    if (strcmp(name, "log_ext")  == 0)
+    {
+      bLogExtMsgs = value;
+    }
+|————————————————Node:if Text: if
+|————————————————Node:parenthesized_expression Text: (strcmp(name, "log_std")  == 0)
+|—————————————————Node:( Text: (
+|—————————————————Node:binary_expression Text: strcmp(name, "log_std")  == 0
+|——————————————————Node:call_expression Text: strcmp(name, "log_std")
+|———————————————————Node:identifier Text: strcmp
+|———————————————————Node:argument_list Text: (name, "log_std")
+|————————————————————Node:( Text: (
+|————————————————————Node:identifier Text: name
+|————————————————————Node:, Text: ,
+|————————————————————Node:string_literal Text: "log_std"
+|—————————————————————Node:" Text: "
+|—————————————————————Node:string_content Text: log_std
+|—————————————————————Node:" Text: "
+|————————————————————Node:) Text: )
+|——————————————————Node:== Text: ==
+|——————————————————Node:number_literal Text: 0
+|—————————————————Node:) Text: )
+|————————————————Node:compound_statement Text: {
+      bLogStdMsgs = value;
+    }
+|—————————————————Node:{ Text: {
+|—————————————————Node:expression_statement Text: bLogStdMsgs = value;
+|——————————————————Node:assignment_expression Text: bLogStdMsgs = value
+|———————————————————Node:identifier Text: bLogStdMsgs
+|———————————————————Node:= Text: =
+|———————————————————Node:identifier Text: value
+|——————————————————Node:; Text: ;
+|—————————————————Node:} Text: }
+|————————————————Node:else_clause Text: else
+    if (strcmp(name, "log_ext")  == 0)
+    {
+      bLogExtMsgs = value;
+    }
+|—————————————————Node:else Text: else
+|—————————————————Node:if_statement Text: if (strcmp(name, "log_ext")  == 0)
+    {
+      bLogExtMsgs = value;
+    }
+|——————————————————Node:if Text: if
+|——————————————————Node:parenthesized_expression Text: (strcmp(name, "log_ext")  == 0)
+|———————————————————Node:( Text: (
+|———————————————————Node:binary_expression Text: strcmp(name, "log_ext")  == 0
+|————————————————————Node:call_expression Text: strcmp(name, "log_ext")
+|—————————————————————Node:identifier Text: strcmp
+|—————————————————————Node:argument_list Text: (name, "log_ext")
+|——————————————————————Node:( Text: (
+|——————————————————————Node:identifier Text: name
+|——————————————————————Node:, Text: ,
+|——————————————————————Node:string_literal Text: "log_ext"
+|———————————————————————Node:" Text: "
+|———————————————————————Node:string_content Text: log_ext
+|———————————————————————Node:" Text: "
+|——————————————————————Node:) Text: )
+|————————————————————Node:== Text: ==
+|————————————————————Node:number_literal Text: 0
+|———————————————————Node:) Text: )
+|——————————————————Node:compound_statement Text: {
+      bLogExtMsgs = value;
+    }
+|———————————————————Node:{ Text: {
+|———————————————————Node:expression_statement Text: bLogExtMsgs = value;
+|————————————————————Node:assignment_expression Text: bLogExtMsgs = value
+|—————————————————————Node:identifier Text: bLogExtMsgs
+|—————————————————————Node:= Text: =
+|—————————————————————Node:identifier Text: value
+|————————————————————Node:; Text: ;
+|———————————————————Node:} Text: }
+|—————Node:} Text: }
+|———Node:comment
+|———Node:expression_statement Text: baud = (int)(7*1000.0/((float)(baud)) + 0.5);
+|————Node:assignment_expression Text: baud = (int)(7*1000.0/((float)(baud)) + 0.5)
+|—————Node:identifier Text: baud
+|—————Node:= Text: =
+|—————Node:cast_expression Text: (int)(7*1000.0/((float)(baud)) + 0.5)
+|——————Node:( Text: (
+|——————Node:type_descriptor Text: int
+|———————Node:primitive_type Text: int
+|——————Node:) Text: )
+|——————Node:parenthesized_expression Text: (7*1000.0/((float)(baud)) + 0.5)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: 7*1000.0/((float)(baud)) + 0.5
+|————————Node:binary_expression Text: 7*1000.0/((float)(baud))
+|—————————Node:binary_expression Text: 7*1000.0
+|——————————Node:number_literal Text: 7
+|——————————Node:* Text: *
+|——————————Node:number_literal Text: 1000.0
+|—————————Node:/ Text: /
+|—————————Node:parenthesized_expression Text: ((float)(baud))
+|——————————Node:( Text: (
+|——————————Node:cast_expression Text: (float)(baud)
+|———————————Node:( Text: (
+|———————————Node:type_descriptor Text: float
+|————————————Node:primitive_type Text: float
+|———————————Node:) Text: )
+|———————————Node:parenthesized_expression Text: (baud)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: baud
+|————————————Node:) Text: )
+|——————————Node:) Text: )
+|————————Node:+ Text: +
+|————————Node:number_literal Text: 0.5
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:if_statement Text: if (ack)
+    cancfg.btr =  CAN_BTR_SJW(0) | CAN_BTR_TS2(2) | CAN_BTR_TS1(1) | CAN_BTR_BRP(baud - 1);
+  else
+    cancfg.btr =  CAN_BTR_SJW(0) | CAN_BTR_TS2(2) | CAN_BTR_TS1(1) | CAN_BTR_BRP(baud - 1) | CAN_BTR_SILM;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (ack)
+|—————Node:( Text: (
+|—————Node:identifier Text: ack
+|—————Node:) Text: )
+|————Node:expression_statement Text: cancfg.btr =  CAN_BTR_SJW(0) | CAN_BTR_TS2(2) | CAN_BTR_TS1(1) | CAN_BTR_BRP(baud - 1);
+|—————Node:assignment_expression Text: cancfg.btr =  CAN_BTR_SJW(0) | CAN_BTR_TS2(2) | CAN_BTR_TS1(1) | CAN_BTR_BRP(baud - 1)
+|——————Node:field_expression Text: cancfg.btr
+|———————Node:identifier Text: cancfg
+|———————Node:. Text: .
+|———————Node:field_identifier Text: btr
+|——————Node:= Text: =
+|——————Node:binary_expression Text: CAN_BTR_SJW(0) | CAN_BTR_TS2(2) | CAN_BTR_TS1(1) | CAN_BTR_BRP(baud - 1)
+|———————Node:binary_expression Text: CAN_BTR_SJW(0) | CAN_BTR_TS2(2) | CAN_BTR_TS1(1)
+|————————Node:binary_expression Text: CAN_BTR_SJW(0) | CAN_BTR_TS2(2)
+|—————————Node:call_expression Text: CAN_BTR_SJW(0)
+|——————————Node:identifier Text: CAN_BTR_SJW
+|——————————Node:argument_list Text: (0)
+|———————————Node:( Text: (
+|———————————Node:number_literal Text: 0
+|———————————Node:) Text: )
+|—————————Node:| Text: |
+|—————————Node:call_expression Text: CAN_BTR_TS2(2)
+|——————————Node:identifier Text: CAN_BTR_TS2
+|——————————Node:argument_list Text: (2)
+|———————————Node:( Text: (
+|———————————Node:number_literal Text: 2
+|———————————Node:) Text: )
+|————————Node:| Text: |
+|————————Node:call_expression Text: CAN_BTR_TS1(1)
+|—————————Node:identifier Text: CAN_BTR_TS1
+|—————————Node:argument_list Text: (1)
+|——————————Node:( Text: (
+|——————————Node:number_literal Text: 1
+|——————————Node:) Text: )
+|———————Node:| Text: |
+|———————Node:call_expression Text: CAN_BTR_BRP(baud - 1)
+|————————Node:identifier Text: CAN_BTR_BRP
+|————————Node:argument_list Text: (baud - 1)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: baud - 1
+|——————————Node:identifier Text: baud
+|——————————Node:- Text: -
+|——————————Node:number_literal Text: 1
+|—————————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:else_clause Text: else
+    cancfg.btr =  CAN_BTR_SJW(0) | CAN_BTR_TS2(2) | CAN_BTR_TS1(1) | CAN_BTR_BRP(baud - 1) | CAN_BTR_SILM;
+|—————Node:else Text: else
+|—————Node:expression_statement Text: cancfg.btr =  CAN_BTR_SJW(0) | CAN_BTR_TS2(2) | CAN_BTR_TS1(1) | CAN_BTR_BRP(baud - 1) | CAN_BTR_SILM;
+|——————Node:assignment_expression Text: cancfg.btr =  CAN_BTR_SJW(0) | CAN_BTR_TS2(2) | CAN_BTR_TS1(1) | CAN_BTR_BRP(baud - 1) | CAN_BTR_SILM
+|———————Node:field_expression Text: cancfg.btr
+|————————Node:identifier Text: cancfg
+|————————Node:. Text: .
+|————————Node:field_identifier Text: btr
+|———————Node:= Text: =
+|———————Node:binary_expression Text: CAN_BTR_SJW(0) | CAN_BTR_TS2(2) | CAN_BTR_TS1(1) | CAN_BTR_BRP(baud - 1) | CAN_BTR_SILM
+|————————Node:binary_expression Text: CAN_BTR_SJW(0) | CAN_BTR_TS2(2) | CAN_BTR_TS1(1) | CAN_BTR_BRP(baud - 1)
+|—————————Node:binary_expression Text: CAN_BTR_SJW(0) | CAN_BTR_TS2(2) | CAN_BTR_TS1(1)
+|——————————Node:binary_expression Text: CAN_BTR_SJW(0) | CAN_BTR_TS2(2)
+|———————————Node:call_expression Text: CAN_BTR_SJW(0)
+|————————————Node:identifier Text: CAN_BTR_SJW
+|————————————Node:argument_list Text: (0)
+|—————————————Node:( Text: (
+|—————————————Node:number_literal Text: 0
+|—————————————Node:) Text: )
+|———————————Node:| Text: |
+|———————————Node:call_expression Text: CAN_BTR_TS2(2)
+|————————————Node:identifier Text: CAN_BTR_TS2
+|————————————Node:argument_list Text: (2)
+|—————————————Node:( Text: (
+|—————————————Node:number_literal Text: 2
+|—————————————Node:) Text: )
+|——————————Node:| Text: |
+|——————————Node:call_expression Text: CAN_BTR_TS1(1)
+|———————————Node:identifier Text: CAN_BTR_TS1
+|———————————Node:argument_list Text: (1)
+|————————————Node:( Text: (
+|————————————Node:number_literal Text: 1
+|————————————Node:) Text: )
+|—————————Node:| Text: |
+|—————————Node:call_expression Text: CAN_BTR_BRP(baud - 1)
+|——————————Node:identifier Text: CAN_BTR_BRP
+|——————————Node:argument_list Text: (baud - 1)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: baud - 1
+|————————————Node:identifier Text: baud
+|————————————Node:- Text: -
+|————————————Node:number_literal Text: 1
+|———————————Node:) Text: )
+|————————Node:| Text: |
+|————————Node:identifier Text: CAN_BTR_SILM
+|——————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: canStop(&CAND2);
+|————Node:call_expression Text: canStop(&CAND2)
+|—————Node:identifier Text: canStop
+|—————Node:argument_list Text: (&CAND2)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &CAND2
+|———————Node:& Text: &
+|———————Node:identifier Text: CAND2
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: canStart(&CAND2, &cancfg);
+|————Node:call_expression Text: canStart(&CAND2, &cancfg)
+|—————Node:identifier Text: canStart
+|—————Node:argument_list Text: (&CAND2, &cancfg)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &CAND2
+|———————Node:& Text: &
+|———————Node:identifier Text: CAND2
+|——————Node:, Text: ,
+|——————Node:pointer_expression Text: &cancfg
+|———————Node:& Text: &
+|———————Node:identifier Text: cancfg
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: fclose_(file);
+|————Node:call_expression Text: fclose_(file)
+|—————Node:identifier Text: fclose_
+|—————Node:argument_list Text: (file)
+|——————Node:( Text: (
+|——————Node:identifier Text: file
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return res;
+|————Node:return Text: return
+|————Node:identifier Text: res
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int parse_line(char *s, CANTxFrame* txmsg, uint32_t* iTimeStamp)
+{
+  int iCount = 0;
+  int iValue = 0;
+  char * sStart = s;
+  char * sNext = s;
+  
+  // converting the time stamp
+  *iTimeStamp = strtol(sStart, &sNext, 10);
+  if (*sNext != ',') return 0; // spelling error
+  sStart = sNext+1;
+//printf("%d\r\n", *iTimeStamp);
+  
+  // converting id
+  txmsg->EID = strtol(sStart, &sNext, 16);
+  if (*sNext != ',') return 0; // spelling error
+  sStart = sNext+1;
+//printf("%d\r\n", txmsg->EID);
+  
+  // converting data
+  for (iCount = 0; iCount < 8; iCount++)
+  {
+    iValue = strtol(sStart, &sNext, 16);
+    if (sNext == sStart) 
+      break;
+    else
+      txmsg->data8[iCount] = iValue;
+    
+    sStart = sNext+1;
+    
+//printf("%x\r\n", txmsg->data8[iCount]);
+  }
+  
+  txmsg->DLC = iCount;
+  
+  return 1;
+  
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: parse_line(char *s, CANTxFrame* txmsg, uint32_t* iTimeStamp)
+|———Node:identifier Text: parse_line
+|———Node:parameter_list Text: (char *s, CANTxFrame* txmsg, uint32_t* iTimeStamp)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: char *s
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: *s
+|——————Node:* Text: *
+|——————Node:identifier Text: s
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: CANTxFrame* txmsg
+|—————Node:type_identifier Text: CANTxFrame
+|—————Node:pointer_declarator Text: * txmsg
+|——————Node:* Text: *
+|——————Node:identifier Text: txmsg
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint32_t* iTimeStamp
+|—————Node:primitive_type Text: uint32_t
+|—————Node:pointer_declarator Text: * iTimeStamp
+|——————Node:* Text: *
+|——————Node:identifier Text: iTimeStamp
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  int iCount = 0;
+  int iValue = 0;
+  char * sStart = s;
+  char * sNext = s;
+  
+  // converting the time stamp
+  *iTimeStamp = strtol(sStart, &sNext, 10);
+  if (*sNext != ',') return 0; // spelling error
+  sStart = sNext+1;
+//printf("%d\r\n", *iTimeStamp);
+  
+  // converting id
+  txmsg->EID = strtol(sStart, &sNext, 16);
+  if (*sNext != ',') return 0; // spelling error
+  sStart = sNext+1;
+//printf("%d\r\n", txmsg->EID);
+  
+  // converting data
+  for (iCount = 0; iCount < 8; iCount++)
+  {
+    iValue = strtol(sStart, &sNext, 16);
+    if (sNext == sStart) 
+      break;
+    else
+      txmsg->data8[iCount] = iValue;
+    
+    sStart = sNext+1;
+    
+//printf("%x\r\n", txmsg->data8[iCount]);
+  }
+  
+  txmsg->DLC = iCount;
+  
+  return 1;
+  
+}
+|———Node:{ Text: {
+|———Node:declaration Text: int iCount = 0;
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: iCount = 0
+|—————Node:identifier Text: iCount
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: int iValue = 0;
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: iValue = 0
+|—————Node:identifier Text: iValue
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: char * sStart = s;
+|————Node:primitive_type Text: char
+|————Node:init_declarator Text: * sStart = s
+|—————Node:pointer_declarator Text: * sStart
+|——————Node:* Text: *
+|——————Node:identifier Text: sStart
+|—————Node:= Text: =
+|—————Node:identifier Text: s
+|————Node:; Text: ;
+|———Node:declaration Text: char * sNext = s;
+|————Node:primitive_type Text: char
+|————Node:init_declarator Text: * sNext = s
+|—————Node:pointer_declarator Text: * sNext
+|——————Node:* Text: *
+|——————Node:identifier Text: sNext
+|—————Node:= Text: =
+|—————Node:identifier Text: s
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: *iTimeStamp = strtol(sStart, &sNext, 10);
+|————Node:assignment_expression Text: *iTimeStamp = strtol(sStart, &sNext, 10)
+|—————Node:pointer_expression Text: *iTimeStamp
+|——————Node:* Text: *
+|——————Node:identifier Text: iTimeStamp
+|—————Node:= Text: =
+|—————Node:call_expression Text: strtol(sStart, &sNext, 10)
+|——————Node:identifier Text: strtol
+|——————Node:argument_list Text: (sStart, &sNext, 10)
+|———————Node:( Text: (
+|———————Node:identifier Text: sStart
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &sNext
+|————————Node:& Text: &
+|————————Node:identifier Text: sNext
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 10
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (*sNext != ',') return 0;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (*sNext != ',')
+|—————Node:( Text: (
+|—————Node:binary_expression Text: *sNext != ','
+|——————Node:pointer_expression Text: *sNext
+|———————Node:* Text: *
+|———————Node:identifier Text: sNext
+|——————Node:!= Text: !=
+|——————Node:char_literal Text: ','
+|———————Node:' Text: '
+|———————Node:character Text: ,
+|———————Node:' Text: '
+|—————Node:) Text: )
+|————Node:return_statement Text: return 0;
+|—————Node:return Text: return
+|—————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: sStart = sNext+1;
+|————Node:assignment_expression Text: sStart = sNext+1
+|—————Node:identifier Text: sStart
+|—————Node:= Text: =
+|—————Node:binary_expression Text: sNext+1
+|——————Node:identifier Text: sNext
+|——————Node:+ Text: +
+|——————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: txmsg->EID = strtol(sStart, &sNext, 16);
+|————Node:assignment_expression Text: txmsg->EID = strtol(sStart, &sNext, 16)
+|—————Node:field_expression Text: txmsg->EID
+|——————Node:identifier Text: txmsg
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: EID
+|—————Node:= Text: =
+|—————Node:call_expression Text: strtol(sStart, &sNext, 16)
+|——————Node:identifier Text: strtol
+|——————Node:argument_list Text: (sStart, &sNext, 16)
+|———————Node:( Text: (
+|———————Node:identifier Text: sStart
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &sNext
+|————————Node:& Text: &
+|————————Node:identifier Text: sNext
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 16
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (*sNext != ',') return 0;
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (*sNext != ',')
+|—————Node:( Text: (
+|—————Node:binary_expression Text: *sNext != ','
+|——————Node:pointer_expression Text: *sNext
+|———————Node:* Text: *
+|———————Node:identifier Text: sNext
+|——————Node:!= Text: !=
+|——————Node:char_literal Text: ','
+|———————Node:' Text: '
+|———————Node:character Text: ,
+|———————Node:' Text: '
+|—————Node:) Text: )
+|————Node:return_statement Text: return 0;
+|—————Node:return Text: return
+|—————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: sStart = sNext+1;
+|————Node:assignment_expression Text: sStart = sNext+1
+|—————Node:identifier Text: sStart
+|—————Node:= Text: =
+|—————Node:binary_expression Text: sNext+1
+|——————Node:identifier Text: sNext
+|——————Node:+ Text: +
+|——————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:for_statement Text: for (iCount = 0; iCount < 8; iCount++)
+  {
+    iValue = strtol(sStart, &sNext, 16);
+    if (sNext == sStart) 
+      break;
+    else
+      txmsg->data8[iCount] = iValue;
+    
+    sStart = sNext+1;
+    
+//printf("%x\r\n", txmsg->data8[iCount]);
+  }
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:assignment_expression Text: iCount = 0
+|—————Node:identifier Text: iCount
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|————Node:binary_expression Text: iCount < 8
+|—————Node:identifier Text: iCount
+|—————Node:< Text: <
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|————Node:update_expression Text: iCount++
+|—————Node:identifier Text: iCount
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+    iValue = strtol(sStart, &sNext, 16);
+    if (sNext == sStart) 
+      break;
+    else
+      txmsg->data8[iCount] = iValue;
+    
+    sStart = sNext+1;
+    
+//printf("%x\r\n", txmsg->data8[iCount]);
+  }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: iValue = strtol(sStart, &sNext, 16);
+|——————Node:assignment_expression Text: iValue = strtol(sStart, &sNext, 16)
+|———————Node:identifier Text: iValue
+|———————Node:= Text: =
+|———————Node:call_expression Text: strtol(sStart, &sNext, 16)
+|————————Node:identifier Text: strtol
+|————————Node:argument_list Text: (sStart, &sNext, 16)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: sStart
+|—————————Node:, Text: ,
+|—————————Node:pointer_expression Text: &sNext
+|——————————Node:& Text: &
+|——————————Node:identifier Text: sNext
+|—————————Node:, Text: ,
+|—————————Node:number_literal Text: 16
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if (sNext == sStart) 
+      break;
+    else
+      txmsg->data8[iCount] = iValue;
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (sNext == sStart)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: sNext == sStart
+|————————Node:identifier Text: sNext
+|————————Node:== Text: ==
+|————————Node:identifier Text: sStart
+|———————Node:) Text: )
+|——————Node:break_statement Text: break;
+|———————Node:break Text: break
+|———————Node:; Text: ;
+|——————Node:else_clause Text: else
+      txmsg->data8[iCount] = iValue;
+|———————Node:else Text: else
+|———————Node:expression_statement Text: txmsg->data8[iCount] = iValue;
+|————————Node:assignment_expression Text: txmsg->data8[iCount] = iValue
+|—————————Node:subscript_expression Text: txmsg->data8[iCount]
+|——————————Node:field_expression Text: txmsg->data8
+|———————————Node:identifier Text: txmsg
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: data8
+|——————————Node:[ Text: [
+|——————————Node:identifier Text: iCount
+|——————————Node:] Text: ]
+|—————————Node:= Text: =
+|—————————Node:identifier Text: iValue
+|————————Node:; Text: ;
+|—————Node:expression_statement Text: sStart = sNext+1;
+|——————Node:assignment_expression Text: sStart = sNext+1
+|———————Node:identifier Text: sStart
+|———————Node:= Text: =
+|———————Node:binary_expression Text: sNext+1
+|————————Node:identifier Text: sNext
+|————————Node:+ Text: +
+|————————Node:number_literal Text: 1
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:} Text: }
+|———Node:expression_statement Text: txmsg->DLC = iCount;
+|————Node:assignment_expression Text: txmsg->DLC = iCount
+|—————Node:field_expression Text: txmsg->DLC
+|——————Node:identifier Text: txmsg
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: DLC
+|—————Node:= Text: =
+|—————Node:identifier Text: iCount
+|————Node:; Text: ;
+|———Node:return_statement Text: return 1;
+|————Node:return Text: return
+|————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int read_playback_file()
+{
+  CANTxFrame txmsg;
+  uint32_t iTimeMessage = 0;
+  uint32_t iTimeStart;
+  uint32_t iTimeOffst = 0;
+  int32_t iDelay = 0;
+  
+  // read file
+  file = fopen_("Play.csv", "r");
+  if (file == 0)
+  {
+    return 0;
+  }
+  
+  palClearPad(GPIOA, GPIOA_PIN7_LED_G);
+  
+  f_gets(sLine, STRLINE_LENGTH, file); // always skip first line (header)
+  
+  txmsg.RTR = 0; // only data frames
+  iTimeStart = chTimeNow();
+  
+  // there is Play.csv on SD folder -- playback mode
+  while( f_gets(sLine, STRLINE_LENGTH, file) )
+  {
+    if (parse_line(sLine, &txmsg, &iTimeMessage))
+    {
+      // if it doesnt fit to standard ID (or enforced extended ID format)
+      if (txmsg.EID > 0x7FF || bLogStdMsgs == 0)
+        txmsg.IDE = 1;
+      else
+        txmsg.IDE = 0;
+      
+      if (iTimeOffst == 0) 
+        iTimeOffst = iTimeMessage; // this is first message from file
+
+      iTimeMessage -= iTimeOffst; // first message now has time 0
+      iDelay = iTimeMessage - (chTimeNow() - iTimeStart); // how much we should wait
+      if (iDelay > 0) 
+        chThdSleepMilliseconds(iDelay); // delay to maintain timestamps
+      
+      if (canTransmit(&CAND2, 1, &txmsg, 50) != RDY_OK) // sending with 50 ms time-out
+        palSetPad(GPIOA, GPIOA_PIN5_LED_R); // transmission error indication
+      
+      palTogglePad(GPIOA, GPIOA_PIN6_LED_B);
+    }
+  }
+  
+  fclose_(file);
+  
+  palSetPad(GPIOA, GPIOA_PIN7_LED_G);
+  palClearPad(GPIOA, GPIOA_PIN6_LED_B);
+  
+  return 1;
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: read_playback_file()
+|———Node:identifier Text: read_playback_file
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  CANTxFrame txmsg;
+  uint32_t iTimeMessage = 0;
+  uint32_t iTimeStart;
+  uint32_t iTimeOffst = 0;
+  int32_t iDelay = 0;
+  
+  // read file
+  file = fopen_("Play.csv", "r");
+  if (file == 0)
+  {
+    return 0;
+  }
+  
+  palClearPad(GPIOA, GPIOA_PIN7_LED_G);
+  
+  f_gets(sLine, STRLINE_LENGTH, file); // always skip first line (header)
+  
+  txmsg.RTR = 0; // only data frames
+  iTimeStart = chTimeNow();
+  
+  // there is Play.csv on SD folder -- playback mode
+  while( f_gets(sLine, STRLINE_LENGTH, file) )
+  {
+    if (parse_line(sLine, &txmsg, &iTimeMessage))
+    {
+      // if it doesnt fit to standard ID (or enforced extended ID format)
+      if (txmsg.EID > 0x7FF || bLogStdMsgs == 0)
+        txmsg.IDE = 1;
+      else
+        txmsg.IDE = 0;
+      
+      if (iTimeOffst == 0) 
+        iTimeOffst = iTimeMessage; // this is first message from file
+
+      iTimeMessage -= iTimeOffst; // first message now has time 0
+      iDelay = iTimeMessage - (chTimeNow() - iTimeStart); // how much we should wait
+      if (iDelay > 0) 
+        chThdSleepMilliseconds(iDelay); // delay to maintain timestamps
+      
+      if (canTransmit(&CAND2, 1, &txmsg, 50) != RDY_OK) // sending with 50 ms time-out
+        palSetPad(GPIOA, GPIOA_PIN5_LED_R); // transmission error indication
+      
+      palTogglePad(GPIOA, GPIOA_PIN6_LED_B);
+    }
+  }
+  
+  fclose_(file);
+  
+  palSetPad(GPIOA, GPIOA_PIN7_LED_G);
+  palClearPad(GPIOA, GPIOA_PIN6_LED_B);
+  
+  return 1;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: CANTxFrame txmsg;
+|————Node:type_identifier Text: CANTxFrame
+|————Node:identifier Text: txmsg
+|————Node:; Text: ;
+|———Node:declaration Text: uint32_t iTimeMessage = 0;
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: iTimeMessage = 0
+|—————Node:identifier Text: iTimeMessage
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: uint32_t iTimeStart;
+|————Node:primitive_type Text: uint32_t
+|————Node:identifier Text: iTimeStart
+|————Node:; Text: ;
+|———Node:declaration Text: uint32_t iTimeOffst = 0;
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: iTimeOffst = 0
+|—————Node:identifier Text: iTimeOffst
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: int32_t iDelay = 0;
+|————Node:primitive_type Text: int32_t
+|————Node:init_declarator Text: iDelay = 0
+|—————Node:identifier Text: iDelay
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: file = fopen_("Play.csv", "r");
+|————Node:assignment_expression Text: file = fopen_("Play.csv", "r")
+|—————Node:identifier Text: file
+|—————Node:= Text: =
+|—————Node:call_expression Text: fopen_("Play.csv", "r")
+|——————Node:identifier Text: fopen_
+|——————Node:argument_list Text: ("Play.csv", "r")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "Play.csv"
+|————————Node:" Text: "
+|————————Node:string_content Text: Play.csv
+|————————Node:" Text: "
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "r"
+|————————Node:" Text: "
+|————————Node:string_content Text: r
+|————————Node:" Text: "
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (file == 0)
+  {
+    return 0;
+  }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (file == 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: file == 0
+|——————Node:identifier Text: file
+|——————Node:== Text: ==
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    return 0;
+  }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return 0;
+|——————Node:return Text: return
+|——————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: palClearPad(GPIOA, GPIOA_PIN7_LED_G);
+|————Node:call_expression Text: palClearPad(GPIOA, GPIOA_PIN7_LED_G)
+|—————Node:identifier Text: palClearPad
+|—————Node:argument_list Text: (GPIOA, GPIOA_PIN7_LED_G)
+|——————Node:( Text: (
+|——————Node:identifier Text: GPIOA
+|——————Node:, Text: ,
+|——————Node:identifier Text: GPIOA_PIN7_LED_G
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: f_gets(sLine, STRLINE_LENGTH, file);
+|————Node:call_expression Text: f_gets(sLine, STRLINE_LENGTH, file)
+|—————Node:identifier Text: f_gets
+|—————Node:argument_list Text: (sLine, STRLINE_LENGTH, file)
+|——————Node:( Text: (
+|——————Node:identifier Text: sLine
+|——————Node:, Text: ,
+|——————Node:identifier Text: STRLINE_LENGTH
+|——————Node:, Text: ,
+|——————Node:identifier Text: file
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: txmsg.RTR = 0;
+|————Node:assignment_expression Text: txmsg.RTR = 0
+|—————Node:field_expression Text: txmsg.RTR
+|——————Node:identifier Text: txmsg
+|——————Node:. Text: .
+|——————Node:field_identifier Text: RTR
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: iTimeStart = chTimeNow();
+|————Node:assignment_expression Text: iTimeStart = chTimeNow()
+|—————Node:identifier Text: iTimeStart
+|—————Node:= Text: =
+|—————Node:call_expression Text: chTimeNow()
+|——————Node:identifier Text: chTimeNow
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:while_statement Text: while( f_gets(sLine, STRLINE_LENGTH, file) )
+  {
+    if (parse_line(sLine, &txmsg, &iTimeMessage))
+    {
+      // if it doesnt fit to standard ID (or enforced extended ID format)
+      if (txmsg.EID > 0x7FF || bLogStdMsgs == 0)
+        txmsg.IDE = 1;
+      else
+        txmsg.IDE = 0;
+      
+      if (iTimeOffst == 0) 
+        iTimeOffst = iTimeMessage; // this is first message from file
+
+      iTimeMessage -= iTimeOffst; // first message now has time 0
+      iDelay = iTimeMessage - (chTimeNow() - iTimeStart); // how much we should wait
+      if (iDelay > 0) 
+        chThdSleepMilliseconds(iDelay); // delay to maintain timestamps
+      
+      if (canTransmit(&CAND2, 1, &txmsg, 50) != RDY_OK) // sending with 50 ms time-out
+        palSetPad(GPIOA, GPIOA_PIN5_LED_R); // transmission error indication
+      
+      palTogglePad(GPIOA, GPIOA_PIN6_LED_B);
+    }
+  }
+|————Node:while Text: while
+|————Node:parenthesized_expression Text: ( f_gets(sLine, STRLINE_LENGTH, file) )
+|—————Node:( Text: (
+|—————Node:call_expression Text: f_gets(sLine, STRLINE_LENGTH, file)
+|——————Node:identifier Text: f_gets
+|——————Node:argument_list Text: (sLine, STRLINE_LENGTH, file)
+|———————Node:( Text: (
+|———————Node:identifier Text: sLine
+|———————Node:, Text: ,
+|———————Node:identifier Text: STRLINE_LENGTH
+|———————Node:, Text: ,
+|———————Node:identifier Text: file
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    if (parse_line(sLine, &txmsg, &iTimeMessage))
+    {
+      // if it doesnt fit to standard ID (or enforced extended ID format)
+      if (txmsg.EID > 0x7FF || bLogStdMsgs == 0)
+        txmsg.IDE = 1;
+      else
+        txmsg.IDE = 0;
+      
+      if (iTimeOffst == 0) 
+        iTimeOffst = iTimeMessage; // this is first message from file
+
+      iTimeMessage -= iTimeOffst; // first message now has time 0
+      iDelay = iTimeMessage - (chTimeNow() - iTimeStart); // how much we should wait
+      if (iDelay > 0) 
+        chThdSleepMilliseconds(iDelay); // delay to maintain timestamps
+      
+      if (canTransmit(&CAND2, 1, &txmsg, 50) != RDY_OK) // sending with 50 ms time-out
+        palSetPad(GPIOA, GPIOA_PIN5_LED_R); // transmission error indication
+      
+      palTogglePad(GPIOA, GPIOA_PIN6_LED_B);
+    }
+  }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if (parse_line(sLine, &txmsg, &iTimeMessage))
+    {
+      // if it doesnt fit to standard ID (or enforced extended ID format)
+      if (txmsg.EID > 0x7FF || bLogStdMsgs == 0)
+        txmsg.IDE = 1;
+      else
+        txmsg.IDE = 0;
+      
+      if (iTimeOffst == 0) 
+        iTimeOffst = iTimeMessage; // this is first message from file
+
+      iTimeMessage -= iTimeOffst; // first message now has time 0
+      iDelay = iTimeMessage - (chTimeNow() - iTimeStart); // how much we should wait
+      if (iDelay > 0) 
+        chThdSleepMilliseconds(iDelay); // delay to maintain timestamps
+      
+      if (canTransmit(&CAND2, 1, &txmsg, 50) != RDY_OK) // sending with 50 ms time-out
+        palSetPad(GPIOA, GPIOA_PIN5_LED_R); // transmission error indication
+      
+      palTogglePad(GPIOA, GPIOA_PIN6_LED_B);
+    }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (parse_line(sLine, &txmsg, &iTimeMessage))
+|———————Node:( Text: (
+|———————Node:call_expression Text: parse_line(sLine, &txmsg, &iTimeMessage)
+|————————Node:identifier Text: parse_line
+|————————Node:argument_list Text: (sLine, &txmsg, &iTimeMessage)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: sLine
+|—————————Node:, Text: ,
+|—————————Node:pointer_expression Text: &txmsg
+|——————————Node:& Text: &
+|——————————Node:identifier Text: txmsg
+|—————————Node:, Text: ,
+|—————————Node:pointer_expression Text: &iTimeMessage
+|——————————Node:& Text: &
+|——————————Node:identifier Text: iTimeMessage
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+      // if it doesnt fit to standard ID (or enforced extended ID format)
+      if (txmsg.EID > 0x7FF || bLogStdMsgs == 0)
+        txmsg.IDE = 1;
+      else
+        txmsg.IDE = 0;
+      
+      if (iTimeOffst == 0) 
+        iTimeOffst = iTimeMessage; // this is first message from file
+
+      iTimeMessage -= iTimeOffst; // first message now has time 0
+      iDelay = iTimeMessage - (chTimeNow() - iTimeStart); // how much we should wait
+      if (iDelay > 0) 
+        chThdSleepMilliseconds(iDelay); // delay to maintain timestamps
+      
+      if (canTransmit(&CAND2, 1, &txmsg, 50) != RDY_OK) // sending with 50 ms time-out
+        palSetPad(GPIOA, GPIOA_PIN5_LED_R); // transmission error indication
+      
+      palTogglePad(GPIOA, GPIOA_PIN6_LED_B);
+    }
+|———————Node:{ Text: {
+|———————Node:comment
+|———————Node:if_statement Text: if (txmsg.EID > 0x7FF || bLogStdMsgs == 0)
+        txmsg.IDE = 1;
+      else
+        txmsg.IDE = 0;
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (txmsg.EID > 0x7FF || bLogStdMsgs == 0)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: txmsg.EID > 0x7FF || bLogStdMsgs == 0
+|——————————Node:binary_expression Text: txmsg.EID > 0x7FF
+|———————————Node:field_expression Text: txmsg.EID
+|————————————Node:identifier Text: txmsg
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: EID
+|———————————Node:> Text: >
+|———————————Node:number_literal Text: 0x7FF
+|——————————Node:|| Text: ||
+|——————————Node:binary_expression Text: bLogStdMsgs == 0
+|———————————Node:identifier Text: bLogStdMsgs
+|———————————Node:== Text: ==
+|———————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|————————Node:expression_statement Text: txmsg.IDE = 1;
+|—————————Node:assignment_expression Text: txmsg.IDE = 1
+|——————————Node:field_expression Text: txmsg.IDE
+|———————————Node:identifier Text: txmsg
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: IDE
+|——————————Node:= Text: =
+|——————————Node:number_literal Text: 1
+|—————————Node:; Text: ;
+|————————Node:else_clause Text: else
+        txmsg.IDE = 0;
+|—————————Node:else Text: else
+|—————————Node:expression_statement Text: txmsg.IDE = 0;
+|——————————Node:assignment_expression Text: txmsg.IDE = 0
+|———————————Node:field_expression Text: txmsg.IDE
+|————————————Node:identifier Text: txmsg
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: IDE
+|———————————Node:= Text: =
+|———————————Node:number_literal Text: 0
+|——————————Node:; Text: ;
+|———————Node:if_statement Text: if (iTimeOffst == 0) 
+        iTimeOffst = iTimeMessage;
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (iTimeOffst == 0)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: iTimeOffst == 0
+|——————————Node:identifier Text: iTimeOffst
+|——————————Node:== Text: ==
+|——————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|————————Node:expression_statement Text: iTimeOffst = iTimeMessage;
+|—————————Node:assignment_expression Text: iTimeOffst = iTimeMessage
+|——————————Node:identifier Text: iTimeOffst
+|——————————Node:= Text: =
+|——————————Node:identifier Text: iTimeMessage
+|—————————Node:; Text: ;
+|———————Node:comment
+|———————Node:expression_statement Text: iTimeMessage -= iTimeOffst;
+|————————Node:assignment_expression Text: iTimeMessage -= iTimeOffst
+|—————————Node:identifier Text: iTimeMessage
+|—————————Node:-= Text: -=
+|—————————Node:identifier Text: iTimeOffst
+|————————Node:; Text: ;
+|———————Node:comment
+|———————Node:expression_statement Text: iDelay = iTimeMessage - (chTimeNow() - iTimeStart);
+|————————Node:assignment_expression Text: iDelay = iTimeMessage - (chTimeNow() - iTimeStart)
+|—————————Node:identifier Text: iDelay
+|—————————Node:= Text: =
+|—————————Node:binary_expression Text: iTimeMessage - (chTimeNow() - iTimeStart)
+|——————————Node:identifier Text: iTimeMessage
+|——————————Node:- Text: -
+|——————————Node:parenthesized_expression Text: (chTimeNow() - iTimeStart)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: chTimeNow() - iTimeStart
+|————————————Node:call_expression Text: chTimeNow()
+|—————————————Node:identifier Text: chTimeNow
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:- Text: -
+|————————————Node:identifier Text: iTimeStart
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:comment
+|———————Node:if_statement Text: if (iDelay > 0) 
+        chThdSleepMilliseconds(iDelay);
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (iDelay > 0)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: iDelay > 0
+|——————————Node:identifier Text: iDelay
+|——————————Node:> Text: >
+|——————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|————————Node:expression_statement Text: chThdSleepMilliseconds(iDelay);
+|—————————Node:call_expression Text: chThdSleepMilliseconds(iDelay)
+|——————————Node:identifier Text: chThdSleepMilliseconds
+|——————————Node:argument_list Text: (iDelay)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: iDelay
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|———————Node:comment
+|———————Node:if_statement Text: if (canTransmit(&CAND2, 1, &txmsg, 50) != RDY_OK) // sending with 50 ms time-out
+        palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (canTransmit(&CAND2, 1, &txmsg, 50) != RDY_OK)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: canTransmit(&CAND2, 1, &txmsg, 50) != RDY_OK
+|——————————Node:call_expression Text: canTransmit(&CAND2, 1, &txmsg, 50)
+|———————————Node:identifier Text: canTransmit
+|———————————Node:argument_list Text: (&CAND2, 1, &txmsg, 50)
+|————————————Node:( Text: (
+|————————————Node:pointer_expression Text: &CAND2
+|—————————————Node:& Text: &
+|—————————————Node:identifier Text: CAND2
+|————————————Node:, Text: ,
+|————————————Node:number_literal Text: 1
+|————————————Node:, Text: ,
+|————————————Node:pointer_expression Text: &txmsg
+|—————————————Node:& Text: &
+|—————————————Node:identifier Text: txmsg
+|————————————Node:, Text: ,
+|————————————Node:number_literal Text: 50
+|————————————Node:) Text: )
+|——————————Node:!= Text: !=
+|——————————Node:identifier Text: RDY_OK
+|—————————Node:) Text: )
+|————————Node:comment
+|————————Node:expression_statement Text: palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+|—————————Node:call_expression Text: palSetPad(GPIOA, GPIOA_PIN5_LED_R)
+|——————————Node:identifier Text: palSetPad
+|——————————Node:argument_list Text: (GPIOA, GPIOA_PIN5_LED_R)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: GPIOA
+|———————————Node:, Text: ,
+|———————————Node:identifier Text: GPIOA_PIN5_LED_R
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|———————Node:comment
+|———————Node:expression_statement Text: palTogglePad(GPIOA, GPIOA_PIN6_LED_B);
+|————————Node:call_expression Text: palTogglePad(GPIOA, GPIOA_PIN6_LED_B)
+|—————————Node:identifier Text: palTogglePad
+|—————————Node:argument_list Text: (GPIOA, GPIOA_PIN6_LED_B)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: GPIOA
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: GPIOA_PIN6_LED_B
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:expression_statement Text: fclose_(file);
+|————Node:call_expression Text: fclose_(file)
+|—————Node:identifier Text: fclose_
+|—————Node:argument_list Text: (file)
+|——————Node:( Text: (
+|——————Node:identifier Text: file
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: palSetPad(GPIOA, GPIOA_PIN7_LED_G);
+|————Node:call_expression Text: palSetPad(GPIOA, GPIOA_PIN7_LED_G)
+|—————Node:identifier Text: palSetPad
+|—————Node:argument_list Text: (GPIOA, GPIOA_PIN7_LED_G)
+|——————Node:( Text: (
+|——————Node:identifier Text: GPIOA
+|——————Node:, Text: ,
+|——————Node:identifier Text: GPIOA_PIN7_LED_G
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: palClearPad(GPIOA, GPIOA_PIN6_LED_B);
+|————Node:call_expression Text: palClearPad(GPIOA, GPIOA_PIN6_LED_B)
+|—————Node:identifier Text: palClearPad
+|—————Node:argument_list Text: (GPIOA, GPIOA_PIN6_LED_B)
+|——————Node:( Text: (
+|——————Node:identifier Text: GPIOA
+|——————Node:, Text: ,
+|——————Node:identifier Text: GPIOA_PIN6_LED_B
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return 1;
+|————Node:return Text: return
+|————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: int init_sd()
+{
+  // initializing SDC interface
+  sdcStart(&SDCD1, NULL);
+  if (sdcConnect(&SDCD1) == CH_FAILED) 
+  {
+    return 0;
+  }
+  
+  // mount the file system
+  fres = f_mount(0, &SDC_FS);
+  if (fres != FR_OK)
+  {
+    sdcDisconnect(&SDCD1);
+    return 0;
+  }
+  
+  // trying just dummy read file
+  file = fopen_("Config.txt", "r");
+  if (file)
+    fclose_(file);
+
+  
+  return 1;
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: init_sd()
+|———Node:identifier Text: init_sd
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  // initializing SDC interface
+  sdcStart(&SDCD1, NULL);
+  if (sdcConnect(&SDCD1) == CH_FAILED) 
+  {
+    return 0;
+  }
+  
+  // mount the file system
+  fres = f_mount(0, &SDC_FS);
+  if (fres != FR_OK)
+  {
+    sdcDisconnect(&SDCD1);
+    return 0;
+  }
+  
+  // trying just dummy read file
+  file = fopen_("Config.txt", "r");
+  if (file)
+    fclose_(file);
+
+  
+  return 1;
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:expression_statement Text: sdcStart(&SDCD1, NULL);
+|————Node:call_expression Text: sdcStart(&SDCD1, NULL)
+|—————Node:identifier Text: sdcStart
+|—————Node:argument_list Text: (&SDCD1, NULL)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &SDCD1
+|———————Node:& Text: &
+|———————Node:identifier Text: SDCD1
+|——————Node:, Text: ,
+|——————Node:null Text: NULL
+|———————Node:NULL Text: NULL
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (sdcConnect(&SDCD1) == CH_FAILED) 
+  {
+    return 0;
+  }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (sdcConnect(&SDCD1) == CH_FAILED)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: sdcConnect(&SDCD1) == CH_FAILED
+|——————Node:call_expression Text: sdcConnect(&SDCD1)
+|———————Node:identifier Text: sdcConnect
+|———————Node:argument_list Text: (&SDCD1)
+|————————Node:( Text: (
+|————————Node:pointer_expression Text: &SDCD1
+|—————————Node:& Text: &
+|—————————Node:identifier Text: SDCD1
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:identifier Text: CH_FAILED
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    return 0;
+  }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return 0;
+|——————Node:return Text: return
+|——————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:comment
+|———Node:expression_statement Text: fres = f_mount(0, &SDC_FS);
+|————Node:assignment_expression Text: fres = f_mount(0, &SDC_FS)
+|—————Node:identifier Text: fres
+|—————Node:= Text: =
+|—————Node:call_expression Text: f_mount(0, &SDC_FS)
+|——————Node:identifier Text: f_mount
+|——————Node:argument_list Text: (0, &SDC_FS)
+|———————Node:( Text: (
+|———————Node:number_literal Text: 0
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &SDC_FS
+|————————Node:& Text: &
+|————————Node:identifier Text: SDC_FS
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (fres != FR_OK)
+  {
+    sdcDisconnect(&SDCD1);
+    return 0;
+  }
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (fres != FR_OK)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: fres != FR_OK
+|——————Node:identifier Text: fres
+|——————Node:!= Text: !=
+|——————Node:identifier Text: FR_OK
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    sdcDisconnect(&SDCD1);
+    return 0;
+  }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: sdcDisconnect(&SDCD1);
+|——————Node:call_expression Text: sdcDisconnect(&SDCD1)
+|———————Node:identifier Text: sdcDisconnect
+|———————Node:argument_list Text: (&SDCD1)
+|————————Node:( Text: (
+|————————Node:pointer_expression Text: &SDCD1
+|—————————Node:& Text: &
+|—————————Node:identifier Text: SDCD1
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return 0;
+|——————Node:return Text: return
+|——————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:comment
+|———Node:expression_statement Text: file = fopen_("Config.txt", "r");
+|————Node:assignment_expression Text: file = fopen_("Config.txt", "r")
+|—————Node:identifier Text: file
+|—————Node:= Text: =
+|—————Node:call_expression Text: fopen_("Config.txt", "r")
+|——————Node:identifier Text: fopen_
+|——————Node:argument_list Text: ("Config.txt", "r")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "Config.txt"
+|————————Node:" Text: "
+|————————Node:string_content Text: Config.txt
+|————————Node:" Text: "
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "r"
+|————————Node:" Text: "
+|————————Node:string_content Text: r
+|————————Node:" Text: "
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (file)
+    fclose_(file);
+|————Node:if Text: if
+|————Node:parenthesized_expression Text: (file)
+|—————Node:( Text: (
+|—————Node:identifier Text: file
+|—————Node:) Text: )
+|————Node:expression_statement Text: fclose_(file);
+|—————Node:call_expression Text: fclose_(file)
+|——————Node:identifier Text: fclose_
+|——————Node:argument_list Text: (file)
+|———————Node:( Text: (
+|———————Node:identifier Text: file
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:return_statement Text: return 1;
+|————Node:return Text: return
+|————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:comment
+|—Node:declaration Text: char sTmp[128];
+|——Node:primitive_type Text: char
+|——Node:array_declarator Text: sTmp[128]
+|———Node:identifier Text: sTmp
+|———Node:[ Text: [
+|———Node:number_literal Text: 128
+|———Node:] Text: ]
+|——Node:; Text: ;
+|—Node:declaration Text: static WORKING_AREA(can1_rx_wa, 256);
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:macro_type_specifier Text: WORKING_AREA(can1_rx_wa, 256)
+|———Node:identifier Text: WORKING_AREA
+|———Node:( Text: (
+|———Node:type_descriptor Text: can1_rx_wa
+|————Node:type_identifier Text: can1_rx_wa
+|———Node:ERROR Text: , 256
+|————Node:, Text: ,
+|————Node:number_literal Text: 256
+|———Node:) Text: )
+|——Node:identifier Text: 
+|——Node:; Text: ;
+|—Node:function_definition Text: static msg_t can1_rx(void *p) {
+  EventListener el;
+  CANRxFrame rxmsg;
+
+  (void)p;
+  chRegSetThreadName("receiver can 1");
+  chEvtRegister(&CAND2.rxfull_event, &el, 0);
+  while(!chThdShouldTerminate()) 
+  {
+    // if (chEvtWaitAnyTimeout(ALL_EVENTS, MS2ST(100)) == 0) continue;
+    chEvtWaitAny(ALL_EVENTS);
+    
+    while (canReceive(&CAND2, CAN_ANY_MAILBOX, &rxmsg, TIME_IMMEDIATE) == RDY_OK) 
+    {
+      /* Process message.*/
+      
+      if (bLogging)
+      {
+        // checking message acceptance
+        if (rxmsg.IDE)
+        {
+          // message with extended ID received
+          
+          // are we accepting extended ID?
+          if (!bLogExtMsgs) continue; 
+
+          // then check filter conditions
+          if ((rxmsg.EID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+        }
+        else
+        {
+          // message with standard ID received
+          
+          // are we accepting standard ID?
+          if (!bLogStdMsgs) continue;
+
+          // then check filter conditions
+          if ((rxmsg.SID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+		  
+          rxmsg.EID = rxmsg.SID;
+        }
+
+        // write down data
+        if (bIncludeTimestamp)
+          sprintf(sTmp, "%d,%X", chTimeNow(), rxmsg.EID);
+        else
+          sprintf(sTmp, "%X", rxmsg.EID);
+        
+        for (i = 0; i < rxmsg.DLC; i++)
+        {
+          sprintf(sTmp+strlen(sTmp), ",%02X", rxmsg.data8[i]);
+        }
+
+        strcat(sTmp, "\r\n");
+        fwrite_string(sTmp);
+      }
+      
+      palTogglePad(GPIOA, GPIOA_PIN7_LED_G);
+    }
+  }
+  chEvtUnregister(&CAND2.rxfull_event, &el);
+  return 0;
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:type_identifier Text: msg_t
+|——Node:function_declarator Text: can1_rx(void *p)
+|———Node:identifier Text: can1_rx
+|———Node:parameter_list Text: (void *p)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void *p
+|—————Node:primitive_type Text: void
+|—————Node:pointer_declarator Text: *p
+|——————Node:* Text: *
+|——————Node:identifier Text: p
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  EventListener el;
+  CANRxFrame rxmsg;
+
+  (void)p;
+  chRegSetThreadName("receiver can 1");
+  chEvtRegister(&CAND2.rxfull_event, &el, 0);
+  while(!chThdShouldTerminate()) 
+  {
+    // if (chEvtWaitAnyTimeout(ALL_EVENTS, MS2ST(100)) == 0) continue;
+    chEvtWaitAny(ALL_EVENTS);
+    
+    while (canReceive(&CAND2, CAN_ANY_MAILBOX, &rxmsg, TIME_IMMEDIATE) == RDY_OK) 
+    {
+      /* Process message.*/
+      
+      if (bLogging)
+      {
+        // checking message acceptance
+        if (rxmsg.IDE)
+        {
+          // message with extended ID received
+          
+          // are we accepting extended ID?
+          if (!bLogExtMsgs) continue; 
+
+          // then check filter conditions
+          if ((rxmsg.EID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+        }
+        else
+        {
+          // message with standard ID received
+          
+          // are we accepting standard ID?
+          if (!bLogStdMsgs) continue;
+
+          // then check filter conditions
+          if ((rxmsg.SID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+		  
+          rxmsg.EID = rxmsg.SID;
+        }
+
+        // write down data
+        if (bIncludeTimestamp)
+          sprintf(sTmp, "%d,%X", chTimeNow(), rxmsg.EID);
+        else
+          sprintf(sTmp, "%X", rxmsg.EID);
+        
+        for (i = 0; i < rxmsg.DLC; i++)
+        {
+          sprintf(sTmp+strlen(sTmp), ",%02X", rxmsg.data8[i]);
+        }
+
+        strcat(sTmp, "\r\n");
+        fwrite_string(sTmp);
+      }
+      
+      palTogglePad(GPIOA, GPIOA_PIN7_LED_G);
+    }
+  }
+  chEvtUnregister(&CAND2.rxfull_event, &el);
+  return 0;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: EventListener el;
+|————Node:type_identifier Text: EventListener
+|————Node:identifier Text: el
+|————Node:; Text: ;
+|———Node:declaration Text: CANRxFrame rxmsg;
+|————Node:type_identifier Text: CANRxFrame
+|————Node:identifier Text: rxmsg
+|————Node:; Text: ;
+|———Node:expression_statement Text: (void)p;
+|————Node:cast_expression Text: (void)p
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: void
+|——————Node:primitive_type Text: void
+|—————Node:) Text: )
+|—————Node:identifier Text: p
+|————Node:; Text: ;
+|———Node:expression_statement Text: chRegSetThreadName("receiver can 1");
+|————Node:call_expression Text: chRegSetThreadName("receiver can 1")
+|—————Node:identifier Text: chRegSetThreadName
+|—————Node:argument_list Text: ("receiver can 1")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "receiver can 1"
+|———————Node:" Text: "
+|———————Node:string_content Text: receiver can 1
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: chEvtRegister(&CAND2.rxfull_event, &el, 0);
+|————Node:call_expression Text: chEvtRegister(&CAND2.rxfull_event, &el, 0)
+|—————Node:identifier Text: chEvtRegister
+|—————Node:argument_list Text: (&CAND2.rxfull_event, &el, 0)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &CAND2.rxfull_event
+|———————Node:& Text: &
+|———————Node:field_expression Text: CAND2.rxfull_event
+|————————Node:identifier Text: CAND2
+|————————Node:. Text: .
+|————————Node:field_identifier Text: rxfull_event
+|——————Node:, Text: ,
+|——————Node:pointer_expression Text: &el
+|———————Node:& Text: &
+|———————Node:identifier Text: el
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:while_statement Text: while(!chThdShouldTerminate()) 
+  {
+    // if (chEvtWaitAnyTimeout(ALL_EVENTS, MS2ST(100)) == 0) continue;
+    chEvtWaitAny(ALL_EVENTS);
+    
+    while (canReceive(&CAND2, CAN_ANY_MAILBOX, &rxmsg, TIME_IMMEDIATE) == RDY_OK) 
+    {
+      /* Process message.*/
+      
+      if (bLogging)
+      {
+        // checking message acceptance
+        if (rxmsg.IDE)
+        {
+          // message with extended ID received
+          
+          // are we accepting extended ID?
+          if (!bLogExtMsgs) continue; 
+
+          // then check filter conditions
+          if ((rxmsg.EID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+        }
+        else
+        {
+          // message with standard ID received
+          
+          // are we accepting standard ID?
+          if (!bLogStdMsgs) continue;
+
+          // then check filter conditions
+          if ((rxmsg.SID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+		  
+          rxmsg.EID = rxmsg.SID;
+        }
+
+        // write down data
+        if (bIncludeTimestamp)
+          sprintf(sTmp, "%d,%X", chTimeNow(), rxmsg.EID);
+        else
+          sprintf(sTmp, "%X", rxmsg.EID);
+        
+        for (i = 0; i < rxmsg.DLC; i++)
+        {
+          sprintf(sTmp+strlen(sTmp), ",%02X", rxmsg.data8[i]);
+        }
+
+        strcat(sTmp, "\r\n");
+        fwrite_string(sTmp);
+      }
+      
+      palTogglePad(GPIOA, GPIOA_PIN7_LED_G);
+    }
+  }
+|————Node:while Text: while
+|————Node:parenthesized_expression Text: (!chThdShouldTerminate())
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !chThdShouldTerminate()
+|——————Node:! Text: !
+|——————Node:call_expression Text: chThdShouldTerminate()
+|———————Node:identifier Text: chThdShouldTerminate
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    // if (chEvtWaitAnyTimeout(ALL_EVENTS, MS2ST(100)) == 0) continue;
+    chEvtWaitAny(ALL_EVENTS);
+    
+    while (canReceive(&CAND2, CAN_ANY_MAILBOX, &rxmsg, TIME_IMMEDIATE) == RDY_OK) 
+    {
+      /* Process message.*/
+      
+      if (bLogging)
+      {
+        // checking message acceptance
+        if (rxmsg.IDE)
+        {
+          // message with extended ID received
+          
+          // are we accepting extended ID?
+          if (!bLogExtMsgs) continue; 
+
+          // then check filter conditions
+          if ((rxmsg.EID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+        }
+        else
+        {
+          // message with standard ID received
+          
+          // are we accepting standard ID?
+          if (!bLogStdMsgs) continue;
+
+          // then check filter conditions
+          if ((rxmsg.SID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+		  
+          rxmsg.EID = rxmsg.SID;
+        }
+
+        // write down data
+        if (bIncludeTimestamp)
+          sprintf(sTmp, "%d,%X", chTimeNow(), rxmsg.EID);
+        else
+          sprintf(sTmp, "%X", rxmsg.EID);
+        
+        for (i = 0; i < rxmsg.DLC; i++)
+        {
+          sprintf(sTmp+strlen(sTmp), ",%02X", rxmsg.data8[i]);
+        }
+
+        strcat(sTmp, "\r\n");
+        fwrite_string(sTmp);
+      }
+      
+      palTogglePad(GPIOA, GPIOA_PIN7_LED_G);
+    }
+  }
+|—————Node:{ Text: {
+|—————Node:comment
+|—————Node:expression_statement Text: chEvtWaitAny(ALL_EVENTS);
+|——————Node:call_expression Text: chEvtWaitAny(ALL_EVENTS)
+|———————Node:identifier Text: chEvtWaitAny
+|———————Node:argument_list Text: (ALL_EVENTS)
+|————————Node:( Text: (
+|————————Node:identifier Text: ALL_EVENTS
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:while_statement Text: while (canReceive(&CAND2, CAN_ANY_MAILBOX, &rxmsg, TIME_IMMEDIATE) == RDY_OK) 
+    {
+      /* Process message.*/
+      
+      if (bLogging)
+      {
+        // checking message acceptance
+        if (rxmsg.IDE)
+        {
+          // message with extended ID received
+          
+          // are we accepting extended ID?
+          if (!bLogExtMsgs) continue; 
+
+          // then check filter conditions
+          if ((rxmsg.EID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+        }
+        else
+        {
+          // message with standard ID received
+          
+          // are we accepting standard ID?
+          if (!bLogStdMsgs) continue;
+
+          // then check filter conditions
+          if ((rxmsg.SID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+		  
+          rxmsg.EID = rxmsg.SID;
+        }
+
+        // write down data
+        if (bIncludeTimestamp)
+          sprintf(sTmp, "%d,%X", chTimeNow(), rxmsg.EID);
+        else
+          sprintf(sTmp, "%X", rxmsg.EID);
+        
+        for (i = 0; i < rxmsg.DLC; i++)
+        {
+          sprintf(sTmp+strlen(sTmp), ",%02X", rxmsg.data8[i]);
+        }
+
+        strcat(sTmp, "\r\n");
+        fwrite_string(sTmp);
+      }
+      
+      palTogglePad(GPIOA, GPIOA_PIN7_LED_G);
+    }
+|——————Node:while Text: while
+|——————Node:parenthesized_expression Text: (canReceive(&CAND2, CAN_ANY_MAILBOX, &rxmsg, TIME_IMMEDIATE) == RDY_OK)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: canReceive(&CAND2, CAN_ANY_MAILBOX, &rxmsg, TIME_IMMEDIATE) == RDY_OK
+|————————Node:call_expression Text: canReceive(&CAND2, CAN_ANY_MAILBOX, &rxmsg, TIME_IMMEDIATE)
+|—————————Node:identifier Text: canReceive
+|—————————Node:argument_list Text: (&CAND2, CAN_ANY_MAILBOX, &rxmsg, TIME_IMMEDIATE)
+|——————————Node:( Text: (
+|——————————Node:pointer_expression Text: &CAND2
+|———————————Node:& Text: &
+|———————————Node:identifier Text: CAND2
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: CAN_ANY_MAILBOX
+|——————————Node:, Text: ,
+|——————————Node:pointer_expression Text: &rxmsg
+|———————————Node:& Text: &
+|———————————Node:identifier Text: rxmsg
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: TIME_IMMEDIATE
+|——————————Node:) Text: )
+|————————Node:== Text: ==
+|————————Node:identifier Text: RDY_OK
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+      /* Process message.*/
+      
+      if (bLogging)
+      {
+        // checking message acceptance
+        if (rxmsg.IDE)
+        {
+          // message with extended ID received
+          
+          // are we accepting extended ID?
+          if (!bLogExtMsgs) continue; 
+
+          // then check filter conditions
+          if ((rxmsg.EID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+        }
+        else
+        {
+          // message with standard ID received
+          
+          // are we accepting standard ID?
+          if (!bLogStdMsgs) continue;
+
+          // then check filter conditions
+          if ((rxmsg.SID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+		  
+          rxmsg.EID = rxmsg.SID;
+        }
+
+        // write down data
+        if (bIncludeTimestamp)
+          sprintf(sTmp, "%d,%X", chTimeNow(), rxmsg.EID);
+        else
+          sprintf(sTmp, "%X", rxmsg.EID);
+        
+        for (i = 0; i < rxmsg.DLC; i++)
+        {
+          sprintf(sTmp+strlen(sTmp), ",%02X", rxmsg.data8[i]);
+        }
+
+        strcat(sTmp, "\r\n");
+        fwrite_string(sTmp);
+      }
+      
+      palTogglePad(GPIOA, GPIOA_PIN7_LED_G);
+    }
+|———————Node:{ Text: {
+|———————Node:comment
+|———————Node:if_statement Text: if (bLogging)
+      {
+        // checking message acceptance
+        if (rxmsg.IDE)
+        {
+          // message with extended ID received
+          
+          // are we accepting extended ID?
+          if (!bLogExtMsgs) continue; 
+
+          // then check filter conditions
+          if ((rxmsg.EID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+        }
+        else
+        {
+          // message with standard ID received
+          
+          // are we accepting standard ID?
+          if (!bLogStdMsgs) continue;
+
+          // then check filter conditions
+          if ((rxmsg.SID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+		  
+          rxmsg.EID = rxmsg.SID;
+        }
+
+        // write down data
+        if (bIncludeTimestamp)
+          sprintf(sTmp, "%d,%X", chTimeNow(), rxmsg.EID);
+        else
+          sprintf(sTmp, "%X", rxmsg.EID);
+        
+        for (i = 0; i < rxmsg.DLC; i++)
+        {
+          sprintf(sTmp+strlen(sTmp), ",%02X", rxmsg.data8[i]);
+        }
+
+        strcat(sTmp, "\r\n");
+        fwrite_string(sTmp);
+      }
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (bLogging)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: bLogging
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+        // checking message acceptance
+        if (rxmsg.IDE)
+        {
+          // message with extended ID received
+          
+          // are we accepting extended ID?
+          if (!bLogExtMsgs) continue; 
+
+          // then check filter conditions
+          if ((rxmsg.EID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+        }
+        else
+        {
+          // message with standard ID received
+          
+          // are we accepting standard ID?
+          if (!bLogStdMsgs) continue;
+
+          // then check filter conditions
+          if ((rxmsg.SID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+		  
+          rxmsg.EID = rxmsg.SID;
+        }
+
+        // write down data
+        if (bIncludeTimestamp)
+          sprintf(sTmp, "%d,%X", chTimeNow(), rxmsg.EID);
+        else
+          sprintf(sTmp, "%X", rxmsg.EID);
+        
+        for (i = 0; i < rxmsg.DLC; i++)
+        {
+          sprintf(sTmp+strlen(sTmp), ",%02X", rxmsg.data8[i]);
+        }
+
+        strcat(sTmp, "\r\n");
+        fwrite_string(sTmp);
+      }
+|—————————Node:{ Text: {
+|—————————Node:comment
+|—————————Node:if_statement Text: if (rxmsg.IDE)
+        {
+          // message with extended ID received
+          
+          // are we accepting extended ID?
+          if (!bLogExtMsgs) continue; 
+
+          // then check filter conditions
+          if ((rxmsg.EID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+        }
+        else
+        {
+          // message with standard ID received
+          
+          // are we accepting standard ID?
+          if (!bLogStdMsgs) continue;
+
+          // then check filter conditions
+          if ((rxmsg.SID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+		  
+          rxmsg.EID = rxmsg.SID;
+        }
+|——————————Node:if Text: if
+|——————————Node:parenthesized_expression Text: (rxmsg.IDE)
+|———————————Node:( Text: (
+|———————————Node:field_expression Text: rxmsg.IDE
+|————————————Node:identifier Text: rxmsg
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: IDE
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+          // message with extended ID received
+          
+          // are we accepting extended ID?
+          if (!bLogExtMsgs) continue; 
+
+          // then check filter conditions
+          if ((rxmsg.EID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+        }
+|———————————Node:{ Text: {
+|———————————Node:comment
+|———————————Node:comment
+|———————————Node:if_statement Text: if (!bLogExtMsgs) continue;
+|————————————Node:if Text: if
+|————————————Node:parenthesized_expression Text: (!bLogExtMsgs)
+|—————————————Node:( Text: (
+|—————————————Node:unary_expression Text: !bLogExtMsgs
+|——————————————Node:! Text: !
+|——————————————Node:identifier Text: bLogExtMsgs
+|—————————————Node:) Text: )
+|————————————Node:continue_statement Text: continue;
+|—————————————Node:continue Text: continue
+|—————————————Node:; Text: ;
+|———————————Node:comment
+|———————————Node:if_statement Text: if ((rxmsg.EID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+|————————————Node:if Text: if
+|————————————Node:parenthesized_expression Text: ((rxmsg.EID & iFilterMask) != (iFilterValue & iFilterMask))
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: (rxmsg.EID & iFilterMask) != (iFilterValue & iFilterMask)
+|——————————————Node:parenthesized_expression Text: (rxmsg.EID & iFilterMask)
+|———————————————Node:( Text: (
+|———————————————Node:binary_expression Text: rxmsg.EID & iFilterMask
+|————————————————Node:field_expression Text: rxmsg.EID
+|—————————————————Node:identifier Text: rxmsg
+|—————————————————Node:. Text: .
+|—————————————————Node:field_identifier Text: EID
+|————————————————Node:& Text: &
+|————————————————Node:identifier Text: iFilterMask
+|———————————————Node:) Text: )
+|——————————————Node:!= Text: !=
+|——————————————Node:parenthesized_expression Text: (iFilterValue & iFilterMask)
+|———————————————Node:( Text: (
+|———————————————Node:binary_expression Text: iFilterValue & iFilterMask
+|————————————————Node:identifier Text: iFilterValue
+|————————————————Node:& Text: &
+|————————————————Node:identifier Text: iFilterMask
+|———————————————Node:) Text: )
+|—————————————Node:) Text: )
+|————————————Node:continue_statement Text: continue;
+|—————————————Node:continue Text: continue
+|—————————————Node:; Text: ;
+|———————————Node:} Text: }
+|——————————Node:else_clause Text: else
+        {
+          // message with standard ID received
+          
+          // are we accepting standard ID?
+          if (!bLogStdMsgs) continue;
+
+          // then check filter conditions
+          if ((rxmsg.SID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+		  
+          rxmsg.EID = rxmsg.SID;
+        }
+|———————————Node:else Text: else
+|———————————Node:compound_statement Text: {
+          // message with standard ID received
+          
+          // are we accepting standard ID?
+          if (!bLogStdMsgs) continue;
+
+          // then check filter conditions
+          if ((rxmsg.SID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+		  
+          rxmsg.EID = rxmsg.SID;
+        }
+|————————————Node:{ Text: {
+|————————————Node:comment
+|————————————Node:comment
+|————————————Node:if_statement Text: if (!bLogStdMsgs) continue;
+|—————————————Node:if Text: if
+|—————————————Node:parenthesized_expression Text: (!bLogStdMsgs)
+|——————————————Node:( Text: (
+|——————————————Node:unary_expression Text: !bLogStdMsgs
+|———————————————Node:! Text: !
+|———————————————Node:identifier Text: bLogStdMsgs
+|——————————————Node:) Text: )
+|—————————————Node:continue_statement Text: continue;
+|——————————————Node:continue Text: continue
+|——————————————Node:; Text: ;
+|————————————Node:comment
+|————————————Node:if_statement Text: if ((rxmsg.SID & iFilterMask) != (iFilterValue & iFilterMask)) continue;
+|—————————————Node:if Text: if
+|—————————————Node:parenthesized_expression Text: ((rxmsg.SID & iFilterMask) != (iFilterValue & iFilterMask))
+|——————————————Node:( Text: (
+|——————————————Node:binary_expression Text: (rxmsg.SID & iFilterMask) != (iFilterValue & iFilterMask)
+|———————————————Node:parenthesized_expression Text: (rxmsg.SID & iFilterMask)
+|————————————————Node:( Text: (
+|————————————————Node:binary_expression Text: rxmsg.SID & iFilterMask
+|—————————————————Node:field_expression Text: rxmsg.SID
+|——————————————————Node:identifier Text: rxmsg
+|——————————————————Node:. Text: .
+|——————————————————Node:field_identifier Text: SID
+|—————————————————Node:& Text: &
+|—————————————————Node:identifier Text: iFilterMask
+|————————————————Node:) Text: )
+|———————————————Node:!= Text: !=
+|———————————————Node:parenthesized_expression Text: (iFilterValue & iFilterMask)
+|————————————————Node:( Text: (
+|————————————————Node:binary_expression Text: iFilterValue & iFilterMask
+|—————————————————Node:identifier Text: iFilterValue
+|—————————————————Node:& Text: &
+|—————————————————Node:identifier Text: iFilterMask
+|————————————————Node:) Text: )
+|——————————————Node:) Text: )
+|—————————————Node:continue_statement Text: continue;
+|——————————————Node:continue Text: continue
+|——————————————Node:; Text: ;
+|————————————Node:expression_statement Text: rxmsg.EID = rxmsg.SID;
+|—————————————Node:assignment_expression Text: rxmsg.EID = rxmsg.SID
+|——————————————Node:field_expression Text: rxmsg.EID
+|———————————————Node:identifier Text: rxmsg
+|———————————————Node:. Text: .
+|———————————————Node:field_identifier Text: EID
+|——————————————Node:= Text: =
+|——————————————Node:field_expression Text: rxmsg.SID
+|———————————————Node:identifier Text: rxmsg
+|———————————————Node:. Text: .
+|———————————————Node:field_identifier Text: SID
+|—————————————Node:; Text: ;
+|————————————Node:} Text: }
+|—————————Node:comment
+|—————————Node:if_statement Text: if (bIncludeTimestamp)
+          sprintf(sTmp, "%d,%X", chTimeNow(), rxmsg.EID);
+        else
+          sprintf(sTmp, "%X", rxmsg.EID);
+|——————————Node:if Text: if
+|——————————Node:parenthesized_expression Text: (bIncludeTimestamp)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: bIncludeTimestamp
+|———————————Node:) Text: )
+|——————————Node:expression_statement Text: sprintf(sTmp, "%d,%X", chTimeNow(), rxmsg.EID);
+|———————————Node:call_expression Text: sprintf(sTmp, "%d,%X", chTimeNow(), rxmsg.EID)
+|————————————Node:identifier Text: sprintf
+|————————————Node:argument_list Text: (sTmp, "%d,%X", chTimeNow(), rxmsg.EID)
+|—————————————Node:( Text: (
+|—————————————Node:identifier Text: sTmp
+|—————————————Node:, Text: ,
+|—————————————Node:string_literal Text: "%d,%X"
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: %d,%X
+|——————————————Node:" Text: "
+|—————————————Node:, Text: ,
+|—————————————Node:call_expression Text: chTimeNow()
+|——————————————Node:identifier Text: chTimeNow
+|——————————————Node:argument_list Text: ()
+|———————————————Node:( Text: (
+|———————————————Node:) Text: )
+|—————————————Node:, Text: ,
+|—————————————Node:field_expression Text: rxmsg.EID
+|——————————————Node:identifier Text: rxmsg
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: EID
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:else_clause Text: else
+          sprintf(sTmp, "%X", rxmsg.EID);
+|———————————Node:else Text: else
+|———————————Node:expression_statement Text: sprintf(sTmp, "%X", rxmsg.EID);
+|————————————Node:call_expression Text: sprintf(sTmp, "%X", rxmsg.EID)
+|—————————————Node:identifier Text: sprintf
+|—————————————Node:argument_list Text: (sTmp, "%X", rxmsg.EID)
+|——————————————Node:( Text: (
+|——————————————Node:identifier Text: sTmp
+|——————————————Node:, Text: ,
+|——————————————Node:string_literal Text: "%X"
+|———————————————Node:" Text: "
+|———————————————Node:string_content Text: %X
+|———————————————Node:" Text: "
+|——————————————Node:, Text: ,
+|——————————————Node:field_expression Text: rxmsg.EID
+|———————————————Node:identifier Text: rxmsg
+|———————————————Node:. Text: .
+|———————————————Node:field_identifier Text: EID
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|—————————Node:for_statement Text: for (i = 0; i < rxmsg.DLC; i++)
+        {
+          sprintf(sTmp+strlen(sTmp), ",%02X", rxmsg.data8[i]);
+        }
+|——————————Node:for Text: for
+|——————————Node:( Text: (
+|——————————Node:assignment_expression Text: i = 0
+|———————————Node:identifier Text: i
+|———————————Node:= Text: =
+|———————————Node:number_literal Text: 0
+|——————————Node:; Text: ;
+|——————————Node:binary_expression Text: i < rxmsg.DLC
+|———————————Node:identifier Text: i
+|———————————Node:< Text: <
+|———————————Node:field_expression Text: rxmsg.DLC
+|————————————Node:identifier Text: rxmsg
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: DLC
+|——————————Node:; Text: ;
+|——————————Node:update_expression Text: i++
+|———————————Node:identifier Text: i
+|———————————Node:++ Text: ++
+|——————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+          sprintf(sTmp+strlen(sTmp), ",%02X", rxmsg.data8[i]);
+        }
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: sprintf(sTmp+strlen(sTmp), ",%02X", rxmsg.data8[i]);
+|————————————Node:call_expression Text: sprintf(sTmp+strlen(sTmp), ",%02X", rxmsg.data8[i])
+|—————————————Node:identifier Text: sprintf
+|—————————————Node:argument_list Text: (sTmp+strlen(sTmp), ",%02X", rxmsg.data8[i])
+|——————————————Node:( Text: (
+|——————————————Node:binary_expression Text: sTmp+strlen(sTmp)
+|———————————————Node:identifier Text: sTmp
+|———————————————Node:+ Text: +
+|———————————————Node:call_expression Text: strlen(sTmp)
+|————————————————Node:identifier Text: strlen
+|————————————————Node:argument_list Text: (sTmp)
+|—————————————————Node:( Text: (
+|—————————————————Node:identifier Text: sTmp
+|—————————————————Node:) Text: )
+|——————————————Node:, Text: ,
+|——————————————Node:string_literal Text: ",%02X"
+|———————————————Node:" Text: "
+|———————————————Node:string_content Text: ,%02X
+|———————————————Node:" Text: "
+|——————————————Node:, Text: ,
+|——————————————Node:subscript_expression Text: rxmsg.data8[i]
+|———————————————Node:field_expression Text: rxmsg.data8
+|————————————————Node:identifier Text: rxmsg
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: data8
+|———————————————Node:[ Text: [
+|———————————————Node:identifier Text: i
+|———————————————Node:] Text: ]
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|—————————Node:expression_statement Text: strcat(sTmp, "\r\n");
+|——————————Node:call_expression Text: strcat(sTmp, "\r\n")
+|———————————Node:identifier Text: strcat
+|———————————Node:argument_list Text: (sTmp, "\r\n")
+|————————————Node:( Text: (
+|————————————Node:identifier Text: sTmp
+|————————————Node:, Text: ,
+|————————————Node:string_literal Text: "\r\n"
+|—————————————Node:" Text: "
+|—————————————Node:escape_sequence Text: \r
+|—————————————Node:escape_sequence Text: \n
+|—————————————Node:" Text: "
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: fwrite_string(sTmp);
+|——————————Node:call_expression Text: fwrite_string(sTmp)
+|———————————Node:identifier Text: fwrite_string
+|———————————Node:argument_list Text: (sTmp)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: sTmp
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:expression_statement Text: palTogglePad(GPIOA, GPIOA_PIN7_LED_G);
+|————————Node:call_expression Text: palTogglePad(GPIOA, GPIOA_PIN7_LED_G)
+|—————————Node:identifier Text: palTogglePad
+|—————————Node:argument_list Text: (GPIOA, GPIOA_PIN7_LED_G)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: GPIOA
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: GPIOA_PIN7_LED_G
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:expression_statement Text: chEvtUnregister(&CAND2.rxfull_event, &el);
+|————Node:call_expression Text: chEvtUnregister(&CAND2.rxfull_event, &el)
+|—————Node:identifier Text: chEvtUnregister
+|—————Node:argument_list Text: (&CAND2.rxfull_event, &el)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &CAND2.rxfull_event
+|———————Node:& Text: &
+|———————Node:field_expression Text: CAND2.rxfull_event
+|————————Node:identifier Text: CAND2
+|————————Node:. Text: .
+|————————Node:field_identifier Text: rxfull_event
+|——————Node:, Text: ,
+|——————Node:pointer_expression Text: &el
+|———————Node:& Text: &
+|———————Node:identifier Text: el
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:declaration Text: int iButtonStableCounter = 0;
+|——Node:primitive_type Text: int
+|——Node:init_declarator Text: iButtonStableCounter = 0
+|———Node:identifier Text: iButtonStableCounter
+|———Node:= Text: =
+|———Node:number_literal Text: 0
+|——Node:; Text: ;
+|—Node:declaration Text: unsigned char bButtonNew = 0;
+|——Node:sized_type_specifier Text: unsigned char
+|———Node:unsigned Text: unsigned
+|———Node:primitive_type Text: char
+|——Node:init_declarator Text: bButtonNew = 0
+|———Node:identifier Text: bButtonNew
+|———Node:= Text: =
+|———Node:number_literal Text: 0
+|——Node:; Text: ;
+|—Node:declaration Text: unsigned char bButtonPrev = 0;
+|——Node:sized_type_specifier Text: unsigned char
+|———Node:unsigned Text: unsigned
+|———Node:primitive_type Text: char
+|——Node:init_declarator Text: bButtonPrev = 0
+|———Node:identifier Text: bButtonPrev
+|———Node:= Text: =
+|———Node:number_literal Text: 0
+|——Node:; Text: ;
+|—Node:preproc_def Text: #define BUTTON_COUNTER_THRESHOLD 50000
+
+|——Node:#define Text: #define
+|——Node:identifier Text: BUTTON_COUNTER_THRESHOLD
+|——Node:preproc_arg Text: 50000
+|—Node:comment
+|—Node:function_definition Text: int main(void) 
+{
+  //CANTxFrame txmsg;
+  
+  halInit();
+  chSysInit();
+  
+  palSetPad(GPIOA, GPIOA_PIN7_LED_G);
+ 
+  //canSTM32SetFilters(0, 0, NULL);
+  canStart(&CAND1, &cancfg);
+  canStart(&CAND2, &cancfg);
+  chThdCreateStatic(can1_rx_wa, sizeof(can1_rx_wa), NORMALPRIO + 7, can1_rx, NULL);
+  /*
+  while (1)
+  {
+    canTransmit(&CAND2, CAN_ANY_MAILBOX, &txmsg, MS2ST(100));
+    chThdSleepMilliseconds(50);
+  }
+  */
+
+  i = 0;
+  while (TRUE) 
+  {
+INDICATE_IDLE_ON();
+    
+    // maybe we need to write log, because we didnt for long time?
+    if (chTimeElapsedSince(stLastWriting) > S2ST(2))
+    {
+      if (sd_buffer_length > 0) // there is data to write
+      {
+        // request write operation
+        request_write();
+      }
+    }
+    
+    if (bReqWrite)
+    {
+      //palSetPad(GPIOD, GPIOD_PIN_15_BLUELED);
+INDICATE_IDLE_OFF();
+      if (fwrite_(sd_buffer_for_write, 1, sd_buffer_length_for_write, file) != sd_buffer_length_for_write)
+        bWriteFault = 2;
+      if (f_sync(file) != FR_OK)
+        bWriteFault = 2;
+INDICATE_IDLE_ON();        
+      bReqWrite = 0;
+      
+      stLastWriting = chTimeNow(); // record time when we did write
+      
+      //palClearPad(GPIOD, GPIOD_PIN_15_BLUELED);
+    }
+    
+    // start-stop log button handling
+    if (bButton && bButtonPrev == 0)
+    {
+      if (bLogging)
+      {
+        bLogging = 0;
+        
+        // we are in logging state -- should write the rest of log
+        request_write();
+      }
+      else
+      {
+        palClearPad(GPIOA, GPIOA_PIN5_LED_R);
+        palClearPad(GPIOA, GPIOA_PIN6_LED_B); 
+        
+        // we are not logging -- opening SD card and starting log
+        if (init_sd()) // trying to initialize sd card
+        {
+          if (read_config_file()) // trying to read configuration file
+          {
+            // maybe there is playback mode?
+            read_playback_file();
+            
+            // all done -- start loging
+            start_log();
+          }
+          else
+          {
+            palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+            palSetPad(GPIOA, GPIOA_PIN6_LED_B);
+          }
+        }
+        else
+          palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+      }
+    }
+    bButtonPrev = bButton;  
+    
+    // this loop is going very fast, so the button filtering is needed
+    bButtonNew = palReadPad(GPIOA, GPIOA_PIN2_BTN);
+    if (bButtonNew && bButton == 0)
+    {
+      iButtonStableCounter++;
+      if (iButtonStableCounter > BUTTON_COUNTER_THRESHOLD)
+      {
+        iButtonStableCounter = 0;
+        bButton = 1;
+      }
+    }
+    else
+    if (bButtonNew == 0 && bButton)
+    {
+      iButtonStableCounter++;
+      if (iButtonStableCounter > BUTTON_COUNTER_THRESHOLD)
+      {
+        iButtonStableCounter = 0;
+        bButton = 0;
+      }
+    }
+    else
+      iButtonStableCounter = 0;
+    
+    if (bWriteFault)
+      palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+
+  }
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: main(void)
+|———Node:identifier Text: main
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  //CANTxFrame txmsg;
+  
+  halInit();
+  chSysInit();
+  
+  palSetPad(GPIOA, GPIOA_PIN7_LED_G);
+ 
+  //canSTM32SetFilters(0, 0, NULL);
+  canStart(&CAND1, &cancfg);
+  canStart(&CAND2, &cancfg);
+  chThdCreateStatic(can1_rx_wa, sizeof(can1_rx_wa), NORMALPRIO + 7, can1_rx, NULL);
+  /*
+  while (1)
+  {
+    canTransmit(&CAND2, CAN_ANY_MAILBOX, &txmsg, MS2ST(100));
+    chThdSleepMilliseconds(50);
+  }
+  */
+
+  i = 0;
+  while (TRUE) 
+  {
+INDICATE_IDLE_ON();
+    
+    // maybe we need to write log, because we didnt for long time?
+    if (chTimeElapsedSince(stLastWriting) > S2ST(2))
+    {
+      if (sd_buffer_length > 0) // there is data to write
+      {
+        // request write operation
+        request_write();
+      }
+    }
+    
+    if (bReqWrite)
+    {
+      //palSetPad(GPIOD, GPIOD_PIN_15_BLUELED);
+INDICATE_IDLE_OFF();
+      if (fwrite_(sd_buffer_for_write, 1, sd_buffer_length_for_write, file) != sd_buffer_length_for_write)
+        bWriteFault = 2;
+      if (f_sync(file) != FR_OK)
+        bWriteFault = 2;
+INDICATE_IDLE_ON();        
+      bReqWrite = 0;
+      
+      stLastWriting = chTimeNow(); // record time when we did write
+      
+      //palClearPad(GPIOD, GPIOD_PIN_15_BLUELED);
+    }
+    
+    // start-stop log button handling
+    if (bButton && bButtonPrev == 0)
+    {
+      if (bLogging)
+      {
+        bLogging = 0;
+        
+        // we are in logging state -- should write the rest of log
+        request_write();
+      }
+      else
+      {
+        palClearPad(GPIOA, GPIOA_PIN5_LED_R);
+        palClearPad(GPIOA, GPIOA_PIN6_LED_B); 
+        
+        // we are not logging -- opening SD card and starting log
+        if (init_sd()) // trying to initialize sd card
+        {
+          if (read_config_file()) // trying to read configuration file
+          {
+            // maybe there is playback mode?
+            read_playback_file();
+            
+            // all done -- start loging
+            start_log();
+          }
+          else
+          {
+            palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+            palSetPad(GPIOA, GPIOA_PIN6_LED_B);
+          }
+        }
+        else
+          palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+      }
+    }
+    bButtonPrev = bButton;  
+    
+    // this loop is going very fast, so the button filtering is needed
+    bButtonNew = palReadPad(GPIOA, GPIOA_PIN2_BTN);
+    if (bButtonNew && bButton == 0)
+    {
+      iButtonStableCounter++;
+      if (iButtonStableCounter > BUTTON_COUNTER_THRESHOLD)
+      {
+        iButtonStableCounter = 0;
+        bButton = 1;
+      }
+    }
+    else
+    if (bButtonNew == 0 && bButton)
+    {
+      iButtonStableCounter++;
+      if (iButtonStableCounter > BUTTON_COUNTER_THRESHOLD)
+      {
+        iButtonStableCounter = 0;
+        bButton = 0;
+      }
+    }
+    else
+      iButtonStableCounter = 0;
+    
+    if (bWriteFault)
+      palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+
+  }
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:expression_statement Text: halInit();
+|————Node:call_expression Text: halInit()
+|—————Node:identifier Text: halInit
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: chSysInit();
+|————Node:call_expression Text: chSysInit()
+|—————Node:identifier Text: chSysInit
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: palSetPad(GPIOA, GPIOA_PIN7_LED_G);
+|————Node:call_expression Text: palSetPad(GPIOA, GPIOA_PIN7_LED_G)
+|—————Node:identifier Text: palSetPad
+|—————Node:argument_list Text: (GPIOA, GPIOA_PIN7_LED_G)
+|——————Node:( Text: (
+|——————Node:identifier Text: GPIOA
+|——————Node:, Text: ,
+|——————Node:identifier Text: GPIOA_PIN7_LED_G
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: canStart(&CAND1, &cancfg);
+|————Node:call_expression Text: canStart(&CAND1, &cancfg)
+|—————Node:identifier Text: canStart
+|—————Node:argument_list Text: (&CAND1, &cancfg)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &CAND1
+|———————Node:& Text: &
+|———————Node:identifier Text: CAND1
+|——————Node:, Text: ,
+|——————Node:pointer_expression Text: &cancfg
+|———————Node:& Text: &
+|———————Node:identifier Text: cancfg
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: canStart(&CAND2, &cancfg);
+|————Node:call_expression Text: canStart(&CAND2, &cancfg)
+|—————Node:identifier Text: canStart
+|—————Node:argument_list Text: (&CAND2, &cancfg)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &CAND2
+|———————Node:& Text: &
+|———————Node:identifier Text: CAND2
+|——————Node:, Text: ,
+|——————Node:pointer_expression Text: &cancfg
+|———————Node:& Text: &
+|———————Node:identifier Text: cancfg
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: chThdCreateStatic(can1_rx_wa, sizeof(can1_rx_wa), NORMALPRIO + 7, can1_rx, NULL);
+|————Node:call_expression Text: chThdCreateStatic(can1_rx_wa, sizeof(can1_rx_wa), NORMALPRIO + 7, can1_rx, NULL)
+|—————Node:identifier Text: chThdCreateStatic
+|—————Node:argument_list Text: (can1_rx_wa, sizeof(can1_rx_wa), NORMALPRIO + 7, can1_rx, NULL)
+|——————Node:( Text: (
+|——————Node:identifier Text: can1_rx_wa
+|——————Node:, Text: ,
+|——————Node:sizeof_expression Text: sizeof(can1_rx_wa)
+|———————Node:sizeof Text: sizeof
+|———————Node:parenthesized_expression Text: (can1_rx_wa)
+|————————Node:( Text: (
+|————————Node:identifier Text: can1_rx_wa
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:binary_expression Text: NORMALPRIO + 7
+|———————Node:identifier Text: NORMALPRIO
+|———————Node:+ Text: +
+|———————Node:number_literal Text: 7
+|——————Node:, Text: ,
+|——————Node:identifier Text: can1_rx
+|——————Node:, Text: ,
+|——————Node:null Text: NULL
+|———————Node:NULL Text: NULL
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: i = 0;
+|————Node:assignment_expression Text: i = 0
+|—————Node:identifier Text: i
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:while_statement Text: while (TRUE) 
+  {
+INDICATE_IDLE_ON();
+    
+    // maybe we need to write log, because we didnt for long time?
+    if (chTimeElapsedSince(stLastWriting) > S2ST(2))
+    {
+      if (sd_buffer_length > 0) // there is data to write
+      {
+        // request write operation
+        request_write();
+      }
+    }
+    
+    if (bReqWrite)
+    {
+      //palSetPad(GPIOD, GPIOD_PIN_15_BLUELED);
+INDICATE_IDLE_OFF();
+      if (fwrite_(sd_buffer_for_write, 1, sd_buffer_length_for_write, file) != sd_buffer_length_for_write)
+        bWriteFault = 2;
+      if (f_sync(file) != FR_OK)
+        bWriteFault = 2;
+INDICATE_IDLE_ON();        
+      bReqWrite = 0;
+      
+      stLastWriting = chTimeNow(); // record time when we did write
+      
+      //palClearPad(GPIOD, GPIOD_PIN_15_BLUELED);
+    }
+    
+    // start-stop log button handling
+    if (bButton && bButtonPrev == 0)
+    {
+      if (bLogging)
+      {
+        bLogging = 0;
+        
+        // we are in logging state -- should write the rest of log
+        request_write();
+      }
+      else
+      {
+        palClearPad(GPIOA, GPIOA_PIN5_LED_R);
+        palClearPad(GPIOA, GPIOA_PIN6_LED_B); 
+        
+        // we are not logging -- opening SD card and starting log
+        if (init_sd()) // trying to initialize sd card
+        {
+          if (read_config_file()) // trying to read configuration file
+          {
+            // maybe there is playback mode?
+            read_playback_file();
+            
+            // all done -- start loging
+            start_log();
+          }
+          else
+          {
+            palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+            palSetPad(GPIOA, GPIOA_PIN6_LED_B);
+          }
+        }
+        else
+          palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+      }
+    }
+    bButtonPrev = bButton;  
+    
+    // this loop is going very fast, so the button filtering is needed
+    bButtonNew = palReadPad(GPIOA, GPIOA_PIN2_BTN);
+    if (bButtonNew && bButton == 0)
+    {
+      iButtonStableCounter++;
+      if (iButtonStableCounter > BUTTON_COUNTER_THRESHOLD)
+      {
+        iButtonStableCounter = 0;
+        bButton = 1;
+      }
+    }
+    else
+    if (bButtonNew == 0 && bButton)
+    {
+      iButtonStableCounter++;
+      if (iButtonStableCounter > BUTTON_COUNTER_THRESHOLD)
+      {
+        iButtonStableCounter = 0;
+        bButton = 0;
+      }
+    }
+    else
+      iButtonStableCounter = 0;
+    
+    if (bWriteFault)
+      palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+
+  }
+|————Node:while Text: while
+|————Node:parenthesized_expression Text: (TRUE)
+|—————Node:( Text: (
+|—————Node:true Text: TRUE
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+INDICATE_IDLE_ON();
+    
+    // maybe we need to write log, because we didnt for long time?
+    if (chTimeElapsedSince(stLastWriting) > S2ST(2))
+    {
+      if (sd_buffer_length > 0) // there is data to write
+      {
+        // request write operation
+        request_write();
+      }
+    }
+    
+    if (bReqWrite)
+    {
+      //palSetPad(GPIOD, GPIOD_PIN_15_BLUELED);
+INDICATE_IDLE_OFF();
+      if (fwrite_(sd_buffer_for_write, 1, sd_buffer_length_for_write, file) != sd_buffer_length_for_write)
+        bWriteFault = 2;
+      if (f_sync(file) != FR_OK)
+        bWriteFault = 2;
+INDICATE_IDLE_ON();        
+      bReqWrite = 0;
+      
+      stLastWriting = chTimeNow(); // record time when we did write
+      
+      //palClearPad(GPIOD, GPIOD_PIN_15_BLUELED);
+    }
+    
+    // start-stop log button handling
+    if (bButton && bButtonPrev == 0)
+    {
+      if (bLogging)
+      {
+        bLogging = 0;
+        
+        // we are in logging state -- should write the rest of log
+        request_write();
+      }
+      else
+      {
+        palClearPad(GPIOA, GPIOA_PIN5_LED_R);
+        palClearPad(GPIOA, GPIOA_PIN6_LED_B); 
+        
+        // we are not logging -- opening SD card and starting log
+        if (init_sd()) // trying to initialize sd card
+        {
+          if (read_config_file()) // trying to read configuration file
+          {
+            // maybe there is playback mode?
+            read_playback_file();
+            
+            // all done -- start loging
+            start_log();
+          }
+          else
+          {
+            palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+            palSetPad(GPIOA, GPIOA_PIN6_LED_B);
+          }
+        }
+        else
+          palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+      }
+    }
+    bButtonPrev = bButton;  
+    
+    // this loop is going very fast, so the button filtering is needed
+    bButtonNew = palReadPad(GPIOA, GPIOA_PIN2_BTN);
+    if (bButtonNew && bButton == 0)
+    {
+      iButtonStableCounter++;
+      if (iButtonStableCounter > BUTTON_COUNTER_THRESHOLD)
+      {
+        iButtonStableCounter = 0;
+        bButton = 1;
+      }
+    }
+    else
+    if (bButtonNew == 0 && bButton)
+    {
+      iButtonStableCounter++;
+      if (iButtonStableCounter > BUTTON_COUNTER_THRESHOLD)
+      {
+        iButtonStableCounter = 0;
+        bButton = 0;
+      }
+    }
+    else
+      iButtonStableCounter = 0;
+    
+    if (bWriteFault)
+      palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+
+  }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: INDICATE_IDLE_ON();
+|——————Node:call_expression Text: INDICATE_IDLE_ON()
+|———————Node:identifier Text: INDICATE_IDLE_ON
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:if_statement Text: if (chTimeElapsedSince(stLastWriting) > S2ST(2))
+    {
+      if (sd_buffer_length > 0) // there is data to write
+      {
+        // request write operation
+        request_write();
+      }
+    }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (chTimeElapsedSince(stLastWriting) > S2ST(2))
+|———————Node:( Text: (
+|———————Node:binary_expression Text: chTimeElapsedSince(stLastWriting) > S2ST(2)
+|————————Node:call_expression Text: chTimeElapsedSince(stLastWriting)
+|—————————Node:identifier Text: chTimeElapsedSince
+|—————————Node:argument_list Text: (stLastWriting)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: stLastWriting
+|——————————Node:) Text: )
+|————————Node:> Text: >
+|————————Node:call_expression Text: S2ST(2)
+|—————————Node:identifier Text: S2ST
+|—————————Node:argument_list Text: (2)
+|——————————Node:( Text: (
+|——————————Node:number_literal Text: 2
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+      if (sd_buffer_length > 0) // there is data to write
+      {
+        // request write operation
+        request_write();
+      }
+    }
+|———————Node:{ Text: {
+|———————Node:if_statement Text: if (sd_buffer_length > 0) // there is data to write
+      {
+        // request write operation
+        request_write();
+      }
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (sd_buffer_length > 0)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: sd_buffer_length > 0
+|——————————Node:identifier Text: sd_buffer_length
+|——————————Node:> Text: >
+|——————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|————————Node:comment
+|————————Node:compound_statement Text: {
+        // request write operation
+        request_write();
+      }
+|—————————Node:{ Text: {
+|—————————Node:comment
+|—————————Node:expression_statement Text: request_write();
+|——————————Node:call_expression Text: request_write()
+|———————————Node:identifier Text: request_write
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|—————Node:if_statement Text: if (bReqWrite)
+    {
+      //palSetPad(GPIOD, GPIOD_PIN_15_BLUELED);
+INDICATE_IDLE_OFF();
+      if (fwrite_(sd_buffer_for_write, 1, sd_buffer_length_for_write, file) != sd_buffer_length_for_write)
+        bWriteFault = 2;
+      if (f_sync(file) != FR_OK)
+        bWriteFault = 2;
+INDICATE_IDLE_ON();        
+      bReqWrite = 0;
+      
+      stLastWriting = chTimeNow(); // record time when we did write
+      
+      //palClearPad(GPIOD, GPIOD_PIN_15_BLUELED);
+    }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (bReqWrite)
+|———————Node:( Text: (
+|———————Node:identifier Text: bReqWrite
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+      //palSetPad(GPIOD, GPIOD_PIN_15_BLUELED);
+INDICATE_IDLE_OFF();
+      if (fwrite_(sd_buffer_for_write, 1, sd_buffer_length_for_write, file) != sd_buffer_length_for_write)
+        bWriteFault = 2;
+      if (f_sync(file) != FR_OK)
+        bWriteFault = 2;
+INDICATE_IDLE_ON();        
+      bReqWrite = 0;
+      
+      stLastWriting = chTimeNow(); // record time when we did write
+      
+      //palClearPad(GPIOD, GPIOD_PIN_15_BLUELED);
+    }
+|———————Node:{ Text: {
+|———————Node:comment
+|———————Node:expression_statement Text: INDICATE_IDLE_OFF();
+|————————Node:call_expression Text: INDICATE_IDLE_OFF()
+|—————————Node:identifier Text: INDICATE_IDLE_OFF
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if (fwrite_(sd_buffer_for_write, 1, sd_buffer_length_for_write, file) != sd_buffer_length_for_write)
+        bWriteFault = 2;
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (fwrite_(sd_buffer_for_write, 1, sd_buffer_length_for_write, file) != sd_buffer_length_for_write)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: fwrite_(sd_buffer_for_write, 1, sd_buffer_length_for_write, file) != sd_buffer_length_for_write
+|——————————Node:call_expression Text: fwrite_(sd_buffer_for_write, 1, sd_buffer_length_for_write, file)
+|———————————Node:identifier Text: fwrite_
+|———————————Node:argument_list Text: (sd_buffer_for_write, 1, sd_buffer_length_for_write, file)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: sd_buffer_for_write
+|————————————Node:, Text: ,
+|————————————Node:number_literal Text: 1
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: sd_buffer_length_for_write
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: file
+|————————————Node:) Text: )
+|——————————Node:!= Text: !=
+|——————————Node:identifier Text: sd_buffer_length_for_write
+|—————————Node:) Text: )
+|————————Node:expression_statement Text: bWriteFault = 2;
+|—————————Node:assignment_expression Text: bWriteFault = 2
+|——————————Node:identifier Text: bWriteFault
+|——————————Node:= Text: =
+|——————————Node:number_literal Text: 2
+|—————————Node:; Text: ;
+|———————Node:if_statement Text: if (f_sync(file) != FR_OK)
+        bWriteFault = 2;
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (f_sync(file) != FR_OK)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: f_sync(file) != FR_OK
+|——————————Node:call_expression Text: f_sync(file)
+|———————————Node:identifier Text: f_sync
+|———————————Node:argument_list Text: (file)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: file
+|————————————Node:) Text: )
+|——————————Node:!= Text: !=
+|——————————Node:identifier Text: FR_OK
+|—————————Node:) Text: )
+|————————Node:expression_statement Text: bWriteFault = 2;
+|—————————Node:assignment_expression Text: bWriteFault = 2
+|——————————Node:identifier Text: bWriteFault
+|——————————Node:= Text: =
+|——————————Node:number_literal Text: 2
+|—————————Node:; Text: ;
+|———————Node:expression_statement Text: INDICATE_IDLE_ON();
+|————————Node:call_expression Text: INDICATE_IDLE_ON()
+|—————————Node:identifier Text: INDICATE_IDLE_ON
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: bReqWrite = 0;
+|————————Node:assignment_expression Text: bReqWrite = 0
+|—————————Node:identifier Text: bReqWrite
+|—————————Node:= Text: =
+|—————————Node:number_literal Text: 0
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: stLastWriting = chTimeNow();
+|————————Node:assignment_expression Text: stLastWriting = chTimeNow()
+|—————————Node:identifier Text: stLastWriting
+|—————————Node:= Text: =
+|—————————Node:call_expression Text: chTimeNow()
+|——————————Node:identifier Text: chTimeNow
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:comment
+|———————Node:comment
+|———————Node:} Text: }
+|—————Node:comment
+|—————Node:if_statement Text: if (bButton && bButtonPrev == 0)
+    {
+      if (bLogging)
+      {
+        bLogging = 0;
+        
+        // we are in logging state -- should write the rest of log
+        request_write();
+      }
+      else
+      {
+        palClearPad(GPIOA, GPIOA_PIN5_LED_R);
+        palClearPad(GPIOA, GPIOA_PIN6_LED_B); 
+        
+        // we are not logging -- opening SD card and starting log
+        if (init_sd()) // trying to initialize sd card
+        {
+          if (read_config_file()) // trying to read configuration file
+          {
+            // maybe there is playback mode?
+            read_playback_file();
+            
+            // all done -- start loging
+            start_log();
+          }
+          else
+          {
+            palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+            palSetPad(GPIOA, GPIOA_PIN6_LED_B);
+          }
+        }
+        else
+          palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+      }
+    }
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (bButton && bButtonPrev == 0)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: bButton && bButtonPrev == 0
+|————————Node:identifier Text: bButton
+|————————Node:&& Text: &&
+|————————Node:binary_expression Text: bButtonPrev == 0
+|—————————Node:identifier Text: bButtonPrev
+|—————————Node:== Text: ==
+|—————————Node:number_literal Text: 0
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+      if (bLogging)
+      {
+        bLogging = 0;
+        
+        // we are in logging state -- should write the rest of log
+        request_write();
+      }
+      else
+      {
+        palClearPad(GPIOA, GPIOA_PIN5_LED_R);
+        palClearPad(GPIOA, GPIOA_PIN6_LED_B); 
+        
+        // we are not logging -- opening SD card and starting log
+        if (init_sd()) // trying to initialize sd card
+        {
+          if (read_config_file()) // trying to read configuration file
+          {
+            // maybe there is playback mode?
+            read_playback_file();
+            
+            // all done -- start loging
+            start_log();
+          }
+          else
+          {
+            palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+            palSetPad(GPIOA, GPIOA_PIN6_LED_B);
+          }
+        }
+        else
+          palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+      }
+    }
+|———————Node:{ Text: {
+|———————Node:if_statement Text: if (bLogging)
+      {
+        bLogging = 0;
+        
+        // we are in logging state -- should write the rest of log
+        request_write();
+      }
+      else
+      {
+        palClearPad(GPIOA, GPIOA_PIN5_LED_R);
+        palClearPad(GPIOA, GPIOA_PIN6_LED_B); 
+        
+        // we are not logging -- opening SD card and starting log
+        if (init_sd()) // trying to initialize sd card
+        {
+          if (read_config_file()) // trying to read configuration file
+          {
+            // maybe there is playback mode?
+            read_playback_file();
+            
+            // all done -- start loging
+            start_log();
+          }
+          else
+          {
+            palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+            palSetPad(GPIOA, GPIOA_PIN6_LED_B);
+          }
+        }
+        else
+          palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+      }
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (bLogging)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: bLogging
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+        bLogging = 0;
+        
+        // we are in logging state -- should write the rest of log
+        request_write();
+      }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: bLogging = 0;
+|——————————Node:assignment_expression Text: bLogging = 0
+|———————————Node:identifier Text: bLogging
+|———————————Node:= Text: =
+|———————————Node:number_literal Text: 0
+|——————————Node:; Text: ;
+|—————————Node:comment
+|—————————Node:expression_statement Text: request_write();
+|——————————Node:call_expression Text: request_write()
+|———————————Node:identifier Text: request_write
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|————————Node:else_clause Text: else
+      {
+        palClearPad(GPIOA, GPIOA_PIN5_LED_R);
+        palClearPad(GPIOA, GPIOA_PIN6_LED_B); 
+        
+        // we are not logging -- opening SD card and starting log
+        if (init_sd()) // trying to initialize sd card
+        {
+          if (read_config_file()) // trying to read configuration file
+          {
+            // maybe there is playback mode?
+            read_playback_file();
+            
+            // all done -- start loging
+            start_log();
+          }
+          else
+          {
+            palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+            palSetPad(GPIOA, GPIOA_PIN6_LED_B);
+          }
+        }
+        else
+          palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+      }
+|—————————Node:else Text: else
+|—————————Node:compound_statement Text: {
+        palClearPad(GPIOA, GPIOA_PIN5_LED_R);
+        palClearPad(GPIOA, GPIOA_PIN6_LED_B); 
+        
+        // we are not logging -- opening SD card and starting log
+        if (init_sd()) // trying to initialize sd card
+        {
+          if (read_config_file()) // trying to read configuration file
+          {
+            // maybe there is playback mode?
+            read_playback_file();
+            
+            // all done -- start loging
+            start_log();
+          }
+          else
+          {
+            palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+            palSetPad(GPIOA, GPIOA_PIN6_LED_B);
+          }
+        }
+        else
+          palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+      }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: palClearPad(GPIOA, GPIOA_PIN5_LED_R);
+|———————————Node:call_expression Text: palClearPad(GPIOA, GPIOA_PIN5_LED_R)
+|————————————Node:identifier Text: palClearPad
+|————————————Node:argument_list Text: (GPIOA, GPIOA_PIN5_LED_R)
+|—————————————Node:( Text: (
+|—————————————Node:identifier Text: GPIOA
+|—————————————Node:, Text: ,
+|—————————————Node:identifier Text: GPIOA_PIN5_LED_R
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:expression_statement Text: palClearPad(GPIOA, GPIOA_PIN6_LED_B);
+|———————————Node:call_expression Text: palClearPad(GPIOA, GPIOA_PIN6_LED_B)
+|————————————Node:identifier Text: palClearPad
+|————————————Node:argument_list Text: (GPIOA, GPIOA_PIN6_LED_B)
+|—————————————Node:( Text: (
+|—————————————Node:identifier Text: GPIOA
+|—————————————Node:, Text: ,
+|—————————————Node:identifier Text: GPIOA_PIN6_LED_B
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:comment
+|——————————Node:if_statement Text: if (init_sd()) // trying to initialize sd card
+        {
+          if (read_config_file()) // trying to read configuration file
+          {
+            // maybe there is playback mode?
+            read_playback_file();
+            
+            // all done -- start loging
+            start_log();
+          }
+          else
+          {
+            palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+            palSetPad(GPIOA, GPIOA_PIN6_LED_B);
+          }
+        }
+        else
+          palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+|———————————Node:if Text: if
+|———————————Node:parenthesized_expression Text: (init_sd())
+|————————————Node:( Text: (
+|————————————Node:call_expression Text: init_sd()
+|—————————————Node:identifier Text: init_sd
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:) Text: )
+|———————————Node:comment
+|———————————Node:compound_statement Text: {
+          if (read_config_file()) // trying to read configuration file
+          {
+            // maybe there is playback mode?
+            read_playback_file();
+            
+            // all done -- start loging
+            start_log();
+          }
+          else
+          {
+            palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+            palSetPad(GPIOA, GPIOA_PIN6_LED_B);
+          }
+        }
+|————————————Node:{ Text: {
+|————————————Node:if_statement Text: if (read_config_file()) // trying to read configuration file
+          {
+            // maybe there is playback mode?
+            read_playback_file();
+            
+            // all done -- start loging
+            start_log();
+          }
+          else
+          {
+            palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+            palSetPad(GPIOA, GPIOA_PIN6_LED_B);
+          }
+|—————————————Node:if Text: if
+|—————————————Node:parenthesized_expression Text: (read_config_file())
+|——————————————Node:( Text: (
+|——————————————Node:call_expression Text: read_config_file()
+|———————————————Node:identifier Text: read_config_file
+|———————————————Node:argument_list Text: ()
+|————————————————Node:( Text: (
+|————————————————Node:) Text: )
+|——————————————Node:) Text: )
+|—————————————Node:comment
+|—————————————Node:compound_statement Text: {
+            // maybe there is playback mode?
+            read_playback_file();
+            
+            // all done -- start loging
+            start_log();
+          }
+|——————————————Node:{ Text: {
+|——————————————Node:comment
+|——————————————Node:expression_statement Text: read_playback_file();
+|———————————————Node:call_expression Text: read_playback_file()
+|————————————————Node:identifier Text: read_playback_file
+|————————————————Node:argument_list Text: ()
+|—————————————————Node:( Text: (
+|—————————————————Node:) Text: )
+|———————————————Node:; Text: ;
+|——————————————Node:comment
+|——————————————Node:expression_statement Text: start_log();
+|———————————————Node:call_expression Text: start_log()
+|————————————————Node:identifier Text: start_log
+|————————————————Node:argument_list Text: ()
+|—————————————————Node:( Text: (
+|—————————————————Node:) Text: )
+|———————————————Node:; Text: ;
+|——————————————Node:} Text: }
+|—————————————Node:else_clause Text: else
+          {
+            palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+            palSetPad(GPIOA, GPIOA_PIN6_LED_B);
+          }
+|——————————————Node:else Text: else
+|——————————————Node:compound_statement Text: {
+            palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+            palSetPad(GPIOA, GPIOA_PIN6_LED_B);
+          }
+|———————————————Node:{ Text: {
+|———————————————Node:expression_statement Text: palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+|————————————————Node:call_expression Text: palSetPad(GPIOA, GPIOA_PIN5_LED_R)
+|—————————————————Node:identifier Text: palSetPad
+|—————————————————Node:argument_list Text: (GPIOA, GPIOA_PIN5_LED_R)
+|——————————————————Node:( Text: (
+|——————————————————Node:identifier Text: GPIOA
+|——————————————————Node:, Text: ,
+|——————————————————Node:identifier Text: GPIOA_PIN5_LED_R
+|——————————————————Node:) Text: )
+|————————————————Node:; Text: ;
+|———————————————Node:expression_statement Text: palSetPad(GPIOA, GPIOA_PIN6_LED_B);
+|————————————————Node:call_expression Text: palSetPad(GPIOA, GPIOA_PIN6_LED_B)
+|—————————————————Node:identifier Text: palSetPad
+|—————————————————Node:argument_list Text: (GPIOA, GPIOA_PIN6_LED_B)
+|——————————————————Node:( Text: (
+|——————————————————Node:identifier Text: GPIOA
+|——————————————————Node:, Text: ,
+|——————————————————Node:identifier Text: GPIOA_PIN6_LED_B
+|——————————————————Node:) Text: )
+|————————————————Node:; Text: ;
+|———————————————Node:} Text: }
+|————————————Node:} Text: }
+|———————————Node:else_clause Text: else
+          palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+|————————————Node:else Text: else
+|————————————Node:expression_statement Text: palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+|—————————————Node:call_expression Text: palSetPad(GPIOA, GPIOA_PIN5_LED_R)
+|——————————————Node:identifier Text: palSetPad
+|——————————————Node:argument_list Text: (GPIOA, GPIOA_PIN5_LED_R)
+|———————————————Node:( Text: (
+|———————————————Node:identifier Text: GPIOA
+|———————————————Node:, Text: ,
+|———————————————Node:identifier Text: GPIOA_PIN5_LED_R
+|———————————————Node:) Text: )
+|—————————————Node:; Text: ;
+|——————————Node:} Text: }
+|———————Node:} Text: }
+|—————Node:expression_statement Text: bButtonPrev = bButton;
+|——————Node:assignment_expression Text: bButtonPrev = bButton
+|———————Node:identifier Text: bButtonPrev
+|———————Node:= Text: =
+|———————Node:identifier Text: bButton
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:expression_statement Text: bButtonNew = palReadPad(GPIOA, GPIOA_PIN2_BTN);
+|——————Node:assignment_expression Text: bButtonNew = palReadPad(GPIOA, GPIOA_PIN2_BTN)
+|———————Node:identifier Text: bButtonNew
+|———————Node:= Text: =
+|———————Node:call_expression Text: palReadPad(GPIOA, GPIOA_PIN2_BTN)
+|————————Node:identifier Text: palReadPad
+|————————Node:argument_list Text: (GPIOA, GPIOA_PIN2_BTN)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: GPIOA
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: GPIOA_PIN2_BTN
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if (bButtonNew && bButton == 0)
+    {
+      iButtonStableCounter++;
+      if (iButtonStableCounter > BUTTON_COUNTER_THRESHOLD)
+      {
+        iButtonStableCounter = 0;
+        bButton = 1;
+      }
+    }
+    else
+    if (bButtonNew == 0 && bButton)
+    {
+      iButtonStableCounter++;
+      if (iButtonStableCounter > BUTTON_COUNTER_THRESHOLD)
+      {
+        iButtonStableCounter = 0;
+        bButton = 0;
+      }
+    }
+    else
+      iButtonStableCounter = 0;
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (bButtonNew && bButton == 0)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: bButtonNew && bButton == 0
+|————————Node:identifier Text: bButtonNew
+|————————Node:&& Text: &&
+|————————Node:binary_expression Text: bButton == 0
+|—————————Node:identifier Text: bButton
+|—————————Node:== Text: ==
+|—————————Node:number_literal Text: 0
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+      iButtonStableCounter++;
+      if (iButtonStableCounter > BUTTON_COUNTER_THRESHOLD)
+      {
+        iButtonStableCounter = 0;
+        bButton = 1;
+      }
+    }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: iButtonStableCounter++;
+|————————Node:update_expression Text: iButtonStableCounter++
+|—————————Node:identifier Text: iButtonStableCounter
+|—————————Node:++ Text: ++
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if (iButtonStableCounter > BUTTON_COUNTER_THRESHOLD)
+      {
+        iButtonStableCounter = 0;
+        bButton = 1;
+      }
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (iButtonStableCounter > BUTTON_COUNTER_THRESHOLD)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: iButtonStableCounter > BUTTON_COUNTER_THRESHOLD
+|——————————Node:identifier Text: iButtonStableCounter
+|——————————Node:> Text: >
+|——————————Node:identifier Text: BUTTON_COUNTER_THRESHOLD
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+        iButtonStableCounter = 0;
+        bButton = 1;
+      }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: iButtonStableCounter = 0;
+|——————————Node:assignment_expression Text: iButtonStableCounter = 0
+|———————————Node:identifier Text: iButtonStableCounter
+|———————————Node:= Text: =
+|———————————Node:number_literal Text: 0
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: bButton = 1;
+|——————————Node:assignment_expression Text: bButton = 1
+|———————————Node:identifier Text: bButton
+|———————————Node:= Text: =
+|———————————Node:number_literal Text: 1
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|——————Node:else_clause Text: else
+    if (bButtonNew == 0 && bButton)
+    {
+      iButtonStableCounter++;
+      if (iButtonStableCounter > BUTTON_COUNTER_THRESHOLD)
+      {
+        iButtonStableCounter = 0;
+        bButton = 0;
+      }
+    }
+    else
+      iButtonStableCounter = 0;
+|———————Node:else Text: else
+|———————Node:if_statement Text: if (bButtonNew == 0 && bButton)
+    {
+      iButtonStableCounter++;
+      if (iButtonStableCounter > BUTTON_COUNTER_THRESHOLD)
+      {
+        iButtonStableCounter = 0;
+        bButton = 0;
+      }
+    }
+    else
+      iButtonStableCounter = 0;
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (bButtonNew == 0 && bButton)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: bButtonNew == 0 && bButton
+|——————————Node:binary_expression Text: bButtonNew == 0
+|———————————Node:identifier Text: bButtonNew
+|———————————Node:== Text: ==
+|———————————Node:number_literal Text: 0
+|——————————Node:&& Text: &&
+|——————————Node:identifier Text: bButton
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+      iButtonStableCounter++;
+      if (iButtonStableCounter > BUTTON_COUNTER_THRESHOLD)
+      {
+        iButtonStableCounter = 0;
+        bButton = 0;
+      }
+    }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: iButtonStableCounter++;
+|——————————Node:update_expression Text: iButtonStableCounter++
+|———————————Node:identifier Text: iButtonStableCounter
+|———————————Node:++ Text: ++
+|——————————Node:; Text: ;
+|—————————Node:if_statement Text: if (iButtonStableCounter > BUTTON_COUNTER_THRESHOLD)
+      {
+        iButtonStableCounter = 0;
+        bButton = 0;
+      }
+|——————————Node:if Text: if
+|——————————Node:parenthesized_expression Text: (iButtonStableCounter > BUTTON_COUNTER_THRESHOLD)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: iButtonStableCounter > BUTTON_COUNTER_THRESHOLD
+|————————————Node:identifier Text: iButtonStableCounter
+|————————————Node:> Text: >
+|————————————Node:identifier Text: BUTTON_COUNTER_THRESHOLD
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+        iButtonStableCounter = 0;
+        bButton = 0;
+      }
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: iButtonStableCounter = 0;
+|————————————Node:assignment_expression Text: iButtonStableCounter = 0
+|—————————————Node:identifier Text: iButtonStableCounter
+|—————————————Node:= Text: =
+|—————————————Node:number_literal Text: 0
+|————————————Node:; Text: ;
+|———————————Node:expression_statement Text: bButton = 0;
+|————————————Node:assignment_expression Text: bButton = 0
+|—————————————Node:identifier Text: bButton
+|—————————————Node:= Text: =
+|—————————————Node:number_literal Text: 0
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|—————————Node:} Text: }
+|————————Node:else_clause Text: else
+      iButtonStableCounter = 0;
+|—————————Node:else Text: else
+|—————————Node:expression_statement Text: iButtonStableCounter = 0;
+|——————————Node:assignment_expression Text: iButtonStableCounter = 0
+|———————————Node:identifier Text: iButtonStableCounter
+|———————————Node:= Text: =
+|———————————Node:number_literal Text: 0
+|——————————Node:; Text: ;
+|—————Node:if_statement Text: if (bWriteFault)
+      palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: (bWriteFault)
+|———————Node:( Text: (
+|———————Node:identifier Text: bWriteFault
+|———————Node:) Text: )
+|——————Node:expression_statement Text: palSetPad(GPIOA, GPIOA_PIN5_LED_R);
+|———————Node:call_expression Text: palSetPad(GPIOA, GPIOA_PIN5_LED_R)
+|————————Node:identifier Text: palSetPad
+|————————Node:argument_list Text: (GPIOA, GPIOA_PIN5_LED_R)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: GPIOA
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: GPIOA_PIN5_LED_R
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:comment

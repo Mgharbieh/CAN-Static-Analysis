@@ -1,0 +1,2030 @@
+CAN-on-DSP-TMS320F28335-src\CanBus.c
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include <CanBus.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <CanBus.h>
+|—Node:preproc_function_def Text: #define BLINK_LED() GpioDataRegs.GPATOGGLE.bit.GPIO26 = 1
+
+|——Node:#define Text: #define
+|——Node:identifier Text: BLINK_LED
+|——Node:preproc_params Text: ()
+|———Node:( Text: (
+|———Node:) Text: )
+|——Node:preproc_arg Text: GpioDataRegs.GPATOGGLE.bit.GPIO26 = 1
+|—Node:comment Text: // Global variable for this example
+|—Node:declaration Text: Uint32 ErrorCount;
+|——Node:type_identifier Text: Uint32
+|——Node:identifier Text: ErrorCount
+|——Node:; Text: ;
+|—Node:declaration Text: Uint32 PassCount;
+|——Node:type_identifier Text: Uint32
+|——Node:identifier Text: PassCount
+|——Node:; Text: ;
+|—Node:declaration Text: Uint32 MessageReceivedCount;
+|——Node:type_identifier Text: Uint32
+|——Node:identifier Text: MessageReceivedCount
+|——Node:; Text: ;
+|—Node:declaration Text: Uint32 TestMbox1 = 0;
+|——Node:type_identifier Text: Uint32
+|——Node:init_declarator Text: TestMbox1 = 0
+|———Node:identifier Text: TestMbox1
+|———Node:= Text: =
+|———Node:number_literal Text: 0
+|——Node:; Text: ;
+|—Node:declaration Text: Uint32 TestMbox2 = 0;
+|——Node:type_identifier Text: Uint32
+|——Node:init_declarator Text: TestMbox2 = 0
+|———Node:identifier Text: TestMbox2
+|———Node:= Text: =
+|———Node:number_literal Text: 0
+|——Node:; Text: ;
+|—Node:declaration Text: Uint32 TestMbox3 = 0;
+|——Node:type_identifier Text: Uint32
+|——Node:init_declarator Text: TestMbox3 = 0
+|———Node:identifier Text: TestMbox3
+|———Node:= Text: =
+|———Node:number_literal Text: 0
+|——Node:; Text: ;
+|—Node:declaration Text: struct ECAN_REGS ECanbShadow;
+|——Node:struct_specifier Text: struct ECAN_REGS
+|———Node:struct Text: struct
+|———Node:type_identifier Text: ECAN_REGS
+|——Node:identifier Text: ECanbShadow
+|——Node:; Text: ;
+|—Node:function_definition Text: void
+configureEcanB (void)
+{
+  MessageReceivedCount = 0;
+  ErrorCount = 0;
+  PassCount = 0;
+
+  TestMbox1 = 0;
+  TestMbox2 = 0;
+  TestMbox3 = 0;
+
+  InitECanbGpio ();
+
+  UserSetInt (); // Initialize interrupt and enable interrupt
+  InitECanb ();
+
+  // Mailboxs can be written to 16-bits or 32-bits at a time
+  // Write to the MSGID field of TRANSMIT mailboxes MBOX0 - 15
+  ECanbMboxes.MBOX0.MSGID.all = 0x9555AAA0;
+  ECanbMboxes.MBOX1.MSGID.all = 0x9555AAA1;
+  ECanbMboxes.MBOX2.MSGID.all = 0x9555AAA2;
+  ECanbMboxes.MBOX3.MSGID.all = 0x9555AAA3;
+  ECanbMboxes.MBOX4.MSGID.all = 0x9555AAA4;
+  ECanbMboxes.MBOX5.MSGID.all = 0x9555AAA5;
+  ECanbMboxes.MBOX6.MSGID.all = 0x9555AAA6;
+  ECanbMboxes.MBOX7.MSGID.all = 0x9555AAA7;
+  ECanbMboxes.MBOX8.MSGID.all = 0x9555AAA8;
+  ECanbMboxes.MBOX9.MSGID.all = 0x9555AAA9;
+  ECanbMboxes.MBOX10.MSGID.all = 0x9555AAAA;
+  ECanbMboxes.MBOX11.MSGID.all = 0x9555AAAB;
+  ECanbMboxes.MBOX12.MSGID.all = 0x9555AAAC;
+  ECanbMboxes.MBOX13.MSGID.all = 0x9555AAAD;
+  ECanbMboxes.MBOX14.MSGID.all = 0x9555AAAE;
+  ECanbMboxes.MBOX15.MSGID.all = 0x9555AAAF;
+
+  // Write to the MSGID field of RECEIVE mailboxes MBOX16 - 31
+  ECanbMboxes.MBOX16.MSGID.all = 0x9555AAA0;
+  ECanbMboxes.MBOX17.MSGID.all = 0x9555AAA1;
+  ECanbMboxes.MBOX18.MSGID.all = 0x9555AAA2;
+  ECanbMboxes.MBOX19.MSGID.all = 0x9555AAA3;
+  ECanbMboxes.MBOX20.MSGID.all = 0x9555AAA4;
+  ECanbMboxes.MBOX21.MSGID.all = 0x9555AAA5;
+  ECanbMboxes.MBOX22.MSGID.all = 0x9555AAA6;
+  ECanbMboxes.MBOX23.MSGID.all = 0x9555AAA7;
+  ECanbMboxes.MBOX24.MSGID.all = 0x9555AAA8;
+  ECanbMboxes.MBOX25.MSGID.all = 0x9555AAA9;
+  ECanbMboxes.MBOX26.MSGID.all = 0x9555AAAA;
+  ECanbMboxes.MBOX27.MSGID.all = 0x9555AAAB;
+  ECanbMboxes.MBOX28.MSGID.all = 0x9555AAAC;
+  ECanbMboxes.MBOX29.MSGID.all = 0x9555AAAD;
+  ECanbMboxes.MBOX30.MSGID.all = 0x9555AAAE;
+  ECanbMboxes.MBOX31.MSGID.all = 0x9555AAAF;
+
+  // Configure Mailboxes 0-15 as Tx, 16-31 as Rx
+  // Since this write is to the entire register (instead of a bit
+  // field) a shadow register is not required.
+  ECanbRegs.CANMD.all = 0xFFFF0000;
+
+  // Enable all Mailboxes */
+  // Since this write is to the entire register (instead of a bit
+  // field) a shadow register is not required.
+  ECanbRegs.CANME.all = 0xFFFFFFFF; // after this message id can not be changed
+
+  // Specify that 8 bits will be sent/received
+  ECanbMboxes.MBOX0.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX1.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX2.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX3.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX4.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX5.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX6.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX7.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX8.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX9.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX10.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX11.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX12.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX13.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX14.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX15.MSGCTRL.bit.DLC = 8;
+
+  // enable sys clock for ecanb
+  EALLOW;
+  SysCtrlRegs.PCLKCR0.bit.ECANBENCLK = 1;    // eCAN-B
+  EDIS;
+
+  // Configure the eCAN for self test mode
+  // Enable the enhanced features of the eCAN.
+  EALLOW;
+  ECanbShadow.CANMC.all = ECanbRegs.CANMC.all;
+  ECanbShadow.CANMC.bit.STM = 1;    // Configure CAN for self-test mode
+  ECanbShadow.CANMC.bit.STM = 0;    // Configure CAN for normal mode
+  ECanbRegs.CANMC.all = ECanbShadow.CANMC.all;
+  EDIS;
+
+  //Initial for interupt for receiving event only
+  EALLOW;
+  ECanbRegs.CANMIM.all = 0xFFFF0000;
+  EDIS;
+
+  EALLOW;
+  ECanbRegs.CANMIL.all = 0xFFFF0000;
+  EDIS;
+
+  EALLOW;
+  ECanbShadow.CANGIF1.all = ECanbRegs.CANGIF1.all;
+  ECanbShadow.CANGIF1.bit.GMIF1 = 1;
+  ECanbRegs.CANGIF1.all = ECanbShadow.CANGIF1.all;
+  EDIS;
+
+  EALLOW;
+  ECanbShadow.CANGIM.all = ECanbRegs.CANGIM.all;
+  ECanbShadow.CANGIM.bit.GIL = 1;
+  ECanbShadow.CANGIM.bit.I1EN = 1;
+  ECanbRegs.CANGIM.all = ECanbShadow.CANGIM.all;
+  EDIS;
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: configureEcanB (void)
+|———Node:identifier Text: configureEcanB
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  MessageReceivedCount = 0;
+  ErrorCount = 0;
+  PassCount = 0;
+
+  TestMbox1 = 0;
+  TestMbox2 = 0;
+  TestMbox3 = 0;
+
+  InitECanbGpio ();
+
+  UserSetInt (); // Initialize interrupt and enable interrupt
+  InitECanb ();
+
+  // Mailboxs can be written to 16-bits or 32-bits at a time
+  // Write to the MSGID field of TRANSMIT mailboxes MBOX0 - 15
+  ECanbMboxes.MBOX0.MSGID.all = 0x9555AAA0;
+  ECanbMboxes.MBOX1.MSGID.all = 0x9555AAA1;
+  ECanbMboxes.MBOX2.MSGID.all = 0x9555AAA2;
+  ECanbMboxes.MBOX3.MSGID.all = 0x9555AAA3;
+  ECanbMboxes.MBOX4.MSGID.all = 0x9555AAA4;
+  ECanbMboxes.MBOX5.MSGID.all = 0x9555AAA5;
+  ECanbMboxes.MBOX6.MSGID.all = 0x9555AAA6;
+  ECanbMboxes.MBOX7.MSGID.all = 0x9555AAA7;
+  ECanbMboxes.MBOX8.MSGID.all = 0x9555AAA8;
+  ECanbMboxes.MBOX9.MSGID.all = 0x9555AAA9;
+  ECanbMboxes.MBOX10.MSGID.all = 0x9555AAAA;
+  ECanbMboxes.MBOX11.MSGID.all = 0x9555AAAB;
+  ECanbMboxes.MBOX12.MSGID.all = 0x9555AAAC;
+  ECanbMboxes.MBOX13.MSGID.all = 0x9555AAAD;
+  ECanbMboxes.MBOX14.MSGID.all = 0x9555AAAE;
+  ECanbMboxes.MBOX15.MSGID.all = 0x9555AAAF;
+
+  // Write to the MSGID field of RECEIVE mailboxes MBOX16 - 31
+  ECanbMboxes.MBOX16.MSGID.all = 0x9555AAA0;
+  ECanbMboxes.MBOX17.MSGID.all = 0x9555AAA1;
+  ECanbMboxes.MBOX18.MSGID.all = 0x9555AAA2;
+  ECanbMboxes.MBOX19.MSGID.all = 0x9555AAA3;
+  ECanbMboxes.MBOX20.MSGID.all = 0x9555AAA4;
+  ECanbMboxes.MBOX21.MSGID.all = 0x9555AAA5;
+  ECanbMboxes.MBOX22.MSGID.all = 0x9555AAA6;
+  ECanbMboxes.MBOX23.MSGID.all = 0x9555AAA7;
+  ECanbMboxes.MBOX24.MSGID.all = 0x9555AAA8;
+  ECanbMboxes.MBOX25.MSGID.all = 0x9555AAA9;
+  ECanbMboxes.MBOX26.MSGID.all = 0x9555AAAA;
+  ECanbMboxes.MBOX27.MSGID.all = 0x9555AAAB;
+  ECanbMboxes.MBOX28.MSGID.all = 0x9555AAAC;
+  ECanbMboxes.MBOX29.MSGID.all = 0x9555AAAD;
+  ECanbMboxes.MBOX30.MSGID.all = 0x9555AAAE;
+  ECanbMboxes.MBOX31.MSGID.all = 0x9555AAAF;
+
+  // Configure Mailboxes 0-15 as Tx, 16-31 as Rx
+  // Since this write is to the entire register (instead of a bit
+  // field) a shadow register is not required.
+  ECanbRegs.CANMD.all = 0xFFFF0000;
+
+  // Enable all Mailboxes */
+  // Since this write is to the entire register (instead of a bit
+  // field) a shadow register is not required.
+  ECanbRegs.CANME.all = 0xFFFFFFFF; // after this message id can not be changed
+
+  // Specify that 8 bits will be sent/received
+  ECanbMboxes.MBOX0.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX1.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX2.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX3.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX4.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX5.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX6.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX7.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX8.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX9.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX10.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX11.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX12.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX13.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX14.MSGCTRL.bit.DLC = 8;
+  ECanbMboxes.MBOX15.MSGCTRL.bit.DLC = 8;
+
+  // enable sys clock for ecanb
+  EALLOW;
+  SysCtrlRegs.PCLKCR0.bit.ECANBENCLK = 1;    // eCAN-B
+  EDIS;
+
+  // Configure the eCAN for self test mode
+  // Enable the enhanced features of the eCAN.
+  EALLOW;
+  ECanbShadow.CANMC.all = ECanbRegs.CANMC.all;
+  ECanbShadow.CANMC.bit.STM = 1;    // Configure CAN for self-test mode
+  ECanbShadow.CANMC.bit.STM = 0;    // Configure CAN for normal mode
+  ECanbRegs.CANMC.all = ECanbShadow.CANMC.all;
+  EDIS;
+
+  //Initial for interupt for receiving event only
+  EALLOW;
+  ECanbRegs.CANMIM.all = 0xFFFF0000;
+  EDIS;
+
+  EALLOW;
+  ECanbRegs.CANMIL.all = 0xFFFF0000;
+  EDIS;
+
+  EALLOW;
+  ECanbShadow.CANGIF1.all = ECanbRegs.CANGIF1.all;
+  ECanbShadow.CANGIF1.bit.GMIF1 = 1;
+  ECanbRegs.CANGIF1.all = ECanbShadow.CANGIF1.all;
+  EDIS;
+
+  EALLOW;
+  ECanbShadow.CANGIM.all = ECanbRegs.CANGIM.all;
+  ECanbShadow.CANGIM.bit.GIL = 1;
+  ECanbShadow.CANGIM.bit.I1EN = 1;
+  ECanbRegs.CANGIM.all = ECanbShadow.CANGIM.all;
+  EDIS;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: MessageReceivedCount = 0;
+|————Node:assignment_expression Text: MessageReceivedCount = 0
+|—————Node:identifier Text: MessageReceivedCount
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: ErrorCount = 0;
+|————Node:assignment_expression Text: ErrorCount = 0
+|—————Node:identifier Text: ErrorCount
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: PassCount = 0;
+|————Node:assignment_expression Text: PassCount = 0
+|—————Node:identifier Text: PassCount
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: TestMbox1 = 0;
+|————Node:assignment_expression Text: TestMbox1 = 0
+|—————Node:identifier Text: TestMbox1
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: TestMbox2 = 0;
+|————Node:assignment_expression Text: TestMbox2 = 0
+|—————Node:identifier Text: TestMbox2
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: TestMbox3 = 0;
+|————Node:assignment_expression Text: TestMbox3 = 0
+|—————Node:identifier Text: TestMbox3
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: InitECanbGpio ();
+|————Node:call_expression Text: InitECanbGpio ()
+|—————Node:identifier Text: InitECanbGpio
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: UserSetInt ();
+|————Node:call_expression Text: UserSetInt ()
+|—————Node:identifier Text: UserSetInt
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment Text: // Initialize interrupt and enable interrupt
+|———Node:expression_statement Text: InitECanb ();
+|————Node:call_expression Text: InitECanb ()
+|—————Node:identifier Text: InitECanb
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment Text: // Mailboxs can be written to 16-bits or 32-bits at a time
+|———Node:comment Text: // Write to the MSGID field of TRANSMIT mailboxes MBOX0 - 15
+|———Node:expression_statement Text: ECanbMboxes.MBOX0.MSGID.all = 0x9555AAA0;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX0.MSGID.all = 0x9555AAA0
+|—————Node:field_expression Text: ECanbMboxes.MBOX0.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX0.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX0
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX0
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA0
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX1.MSGID.all = 0x9555AAA1;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX1.MSGID.all = 0x9555AAA1
+|—————Node:field_expression Text: ECanbMboxes.MBOX1.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX1.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX1
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX1
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA1
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX2.MSGID.all = 0x9555AAA2;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX2.MSGID.all = 0x9555AAA2
+|—————Node:field_expression Text: ECanbMboxes.MBOX2.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX2.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX2
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX2
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA2
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX3.MSGID.all = 0x9555AAA3;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX3.MSGID.all = 0x9555AAA3
+|—————Node:field_expression Text: ECanbMboxes.MBOX3.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX3.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX3
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX3
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA3
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX4.MSGID.all = 0x9555AAA4;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX4.MSGID.all = 0x9555AAA4
+|—————Node:field_expression Text: ECanbMboxes.MBOX4.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX4.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX4
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX4
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA4
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX5.MSGID.all = 0x9555AAA5;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX5.MSGID.all = 0x9555AAA5
+|—————Node:field_expression Text: ECanbMboxes.MBOX5.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX5.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX5
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX5
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA5
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX6.MSGID.all = 0x9555AAA6;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX6.MSGID.all = 0x9555AAA6
+|—————Node:field_expression Text: ECanbMboxes.MBOX6.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX6.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX6
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX6
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA6
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX7.MSGID.all = 0x9555AAA7;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX7.MSGID.all = 0x9555AAA7
+|—————Node:field_expression Text: ECanbMboxes.MBOX7.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX7.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX7
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX7
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA7
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX8.MSGID.all = 0x9555AAA8;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX8.MSGID.all = 0x9555AAA8
+|—————Node:field_expression Text: ECanbMboxes.MBOX8.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX8.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX8
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX8
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA8
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX9.MSGID.all = 0x9555AAA9;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX9.MSGID.all = 0x9555AAA9
+|—————Node:field_expression Text: ECanbMboxes.MBOX9.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX9.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX9
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX9
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA9
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX10.MSGID.all = 0x9555AAAA;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX10.MSGID.all = 0x9555AAAA
+|—————Node:field_expression Text: ECanbMboxes.MBOX10.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX10.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX10
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX10
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAAA
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX11.MSGID.all = 0x9555AAAB;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX11.MSGID.all = 0x9555AAAB
+|—————Node:field_expression Text: ECanbMboxes.MBOX11.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX11.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX11
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX11
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAAB
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX12.MSGID.all = 0x9555AAAC;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX12.MSGID.all = 0x9555AAAC
+|—————Node:field_expression Text: ECanbMboxes.MBOX12.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX12.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX12
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX12
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAAC
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX13.MSGID.all = 0x9555AAAD;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX13.MSGID.all = 0x9555AAAD
+|—————Node:field_expression Text: ECanbMboxes.MBOX13.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX13.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX13
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX13
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAAD
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX14.MSGID.all = 0x9555AAAE;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX14.MSGID.all = 0x9555AAAE
+|—————Node:field_expression Text: ECanbMboxes.MBOX14.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX14.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX14
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX14
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAAE
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX15.MSGID.all = 0x9555AAAF;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX15.MSGID.all = 0x9555AAAF
+|—————Node:field_expression Text: ECanbMboxes.MBOX15.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX15.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX15
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX15
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAAF
+|————Node:; Text: ;
+|———Node:comment Text: // Write to the MSGID field of RECEIVE mailboxes MBOX16 - 31
+|———Node:expression_statement Text: ECanbMboxes.MBOX16.MSGID.all = 0x9555AAA0;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX16.MSGID.all = 0x9555AAA0
+|—————Node:field_expression Text: ECanbMboxes.MBOX16.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX16.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX16
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX16
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA0
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX17.MSGID.all = 0x9555AAA1;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX17.MSGID.all = 0x9555AAA1
+|—————Node:field_expression Text: ECanbMboxes.MBOX17.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX17.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX17
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX17
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA1
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX18.MSGID.all = 0x9555AAA2;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX18.MSGID.all = 0x9555AAA2
+|—————Node:field_expression Text: ECanbMboxes.MBOX18.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX18.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX18
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX18
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA2
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX19.MSGID.all = 0x9555AAA3;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX19.MSGID.all = 0x9555AAA3
+|—————Node:field_expression Text: ECanbMboxes.MBOX19.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX19.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX19
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX19
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA3
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX20.MSGID.all = 0x9555AAA4;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX20.MSGID.all = 0x9555AAA4
+|—————Node:field_expression Text: ECanbMboxes.MBOX20.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX20.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX20
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX20
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA4
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX21.MSGID.all = 0x9555AAA5;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX21.MSGID.all = 0x9555AAA5
+|—————Node:field_expression Text: ECanbMboxes.MBOX21.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX21.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX21
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX21
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA5
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX22.MSGID.all = 0x9555AAA6;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX22.MSGID.all = 0x9555AAA6
+|—————Node:field_expression Text: ECanbMboxes.MBOX22.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX22.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX22
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX22
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA6
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX23.MSGID.all = 0x9555AAA7;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX23.MSGID.all = 0x9555AAA7
+|—————Node:field_expression Text: ECanbMboxes.MBOX23.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX23.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX23
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX23
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA7
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX24.MSGID.all = 0x9555AAA8;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX24.MSGID.all = 0x9555AAA8
+|—————Node:field_expression Text: ECanbMboxes.MBOX24.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX24.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX24
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX24
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA8
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX25.MSGID.all = 0x9555AAA9;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX25.MSGID.all = 0x9555AAA9
+|—————Node:field_expression Text: ECanbMboxes.MBOX25.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX25.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX25
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX25
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAA9
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX26.MSGID.all = 0x9555AAAA;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX26.MSGID.all = 0x9555AAAA
+|—————Node:field_expression Text: ECanbMboxes.MBOX26.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX26.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX26
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX26
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAAA
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX27.MSGID.all = 0x9555AAAB;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX27.MSGID.all = 0x9555AAAB
+|—————Node:field_expression Text: ECanbMboxes.MBOX27.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX27.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX27
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX27
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAAB
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX28.MSGID.all = 0x9555AAAC;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX28.MSGID.all = 0x9555AAAC
+|—————Node:field_expression Text: ECanbMboxes.MBOX28.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX28.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX28
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX28
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAAC
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX29.MSGID.all = 0x9555AAAD;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX29.MSGID.all = 0x9555AAAD
+|—————Node:field_expression Text: ECanbMboxes.MBOX29.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX29.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX29
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX29
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAAD
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX30.MSGID.all = 0x9555AAAE;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX30.MSGID.all = 0x9555AAAE
+|—————Node:field_expression Text: ECanbMboxes.MBOX30.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX30.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX30
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX30
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAAE
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX31.MSGID.all = 0x9555AAAF;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX31.MSGID.all = 0x9555AAAF
+|—————Node:field_expression Text: ECanbMboxes.MBOX31.MSGID.all
+|——————Node:field_expression Text: ECanbMboxes.MBOX31.MSGID
+|———————Node:field_expression Text: ECanbMboxes.MBOX31
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX31
+|———————Node:. Text: .
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x9555AAAF
+|————Node:; Text: ;
+|———Node:comment Text: // Configure Mailboxes 0-15 as Tx, 16-31 as Rx
+|———Node:comment Text: // Since this write is to the entire register (instead of a bit
+|———Node:comment Text: // field) a shadow register is not required.
+|———Node:expression_statement Text: ECanbRegs.CANMD.all = 0xFFFF0000;
+|————Node:assignment_expression Text: ECanbRegs.CANMD.all = 0xFFFF0000
+|—————Node:field_expression Text: ECanbRegs.CANMD.all
+|——————Node:field_expression Text: ECanbRegs.CANMD
+|———————Node:identifier Text: ECanbRegs
+|———————Node:. Text: .
+|———————Node:field_identifier Text: CANMD
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0xFFFF0000
+|————Node:; Text: ;
+|———Node:comment Text: // Enable all Mailboxes */
+|———Node:comment Text: // Since this write is to the entire register (instead of a bit
+|———Node:comment Text: // field) a shadow register is not required.
+|———Node:expression_statement Text: ECanbRegs.CANME.all = 0xFFFFFFFF;
+|————Node:assignment_expression Text: ECanbRegs.CANME.all = 0xFFFFFFFF
+|—————Node:field_expression Text: ECanbRegs.CANME.all
+|——————Node:field_expression Text: ECanbRegs.CANME
+|———————Node:identifier Text: ECanbRegs
+|———————Node:. Text: .
+|———————Node:field_identifier Text: CANME
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0xFFFFFFFF
+|————Node:; Text: ;
+|———Node:comment Text: // after this message id can not be changed
+|———Node:comment Text: // Specify that 8 bits will be sent/received
+|———Node:expression_statement Text: ECanbMboxes.MBOX0.MSGCTRL.bit.DLC = 8;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX0.MSGCTRL.bit.DLC = 8
+|—————Node:field_expression Text: ECanbMboxes.MBOX0.MSGCTRL.bit.DLC
+|——————Node:field_expression Text: ECanbMboxes.MBOX0.MSGCTRL.bit
+|———————Node:field_expression Text: ECanbMboxes.MBOX0.MSGCTRL
+|————————Node:field_expression Text: ECanbMboxes.MBOX0
+|—————————Node:identifier Text: ECanbMboxes
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: MBOX0
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MSGCTRL
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DLC
+|—————Node:= Text: =
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX1.MSGCTRL.bit.DLC = 8;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX1.MSGCTRL.bit.DLC = 8
+|—————Node:field_expression Text: ECanbMboxes.MBOX1.MSGCTRL.bit.DLC
+|——————Node:field_expression Text: ECanbMboxes.MBOX1.MSGCTRL.bit
+|———————Node:field_expression Text: ECanbMboxes.MBOX1.MSGCTRL
+|————————Node:field_expression Text: ECanbMboxes.MBOX1
+|—————————Node:identifier Text: ECanbMboxes
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: MBOX1
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MSGCTRL
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DLC
+|—————Node:= Text: =
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX2.MSGCTRL.bit.DLC = 8;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX2.MSGCTRL.bit.DLC = 8
+|—————Node:field_expression Text: ECanbMboxes.MBOX2.MSGCTRL.bit.DLC
+|——————Node:field_expression Text: ECanbMboxes.MBOX2.MSGCTRL.bit
+|———————Node:field_expression Text: ECanbMboxes.MBOX2.MSGCTRL
+|————————Node:field_expression Text: ECanbMboxes.MBOX2
+|—————————Node:identifier Text: ECanbMboxes
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: MBOX2
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MSGCTRL
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DLC
+|—————Node:= Text: =
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX3.MSGCTRL.bit.DLC = 8;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX3.MSGCTRL.bit.DLC = 8
+|—————Node:field_expression Text: ECanbMboxes.MBOX3.MSGCTRL.bit.DLC
+|——————Node:field_expression Text: ECanbMboxes.MBOX3.MSGCTRL.bit
+|———————Node:field_expression Text: ECanbMboxes.MBOX3.MSGCTRL
+|————————Node:field_expression Text: ECanbMboxes.MBOX3
+|—————————Node:identifier Text: ECanbMboxes
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: MBOX3
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MSGCTRL
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DLC
+|—————Node:= Text: =
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX4.MSGCTRL.bit.DLC = 8;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX4.MSGCTRL.bit.DLC = 8
+|—————Node:field_expression Text: ECanbMboxes.MBOX4.MSGCTRL.bit.DLC
+|——————Node:field_expression Text: ECanbMboxes.MBOX4.MSGCTRL.bit
+|———————Node:field_expression Text: ECanbMboxes.MBOX4.MSGCTRL
+|————————Node:field_expression Text: ECanbMboxes.MBOX4
+|—————————Node:identifier Text: ECanbMboxes
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: MBOX4
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MSGCTRL
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DLC
+|—————Node:= Text: =
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX5.MSGCTRL.bit.DLC = 8;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX5.MSGCTRL.bit.DLC = 8
+|—————Node:field_expression Text: ECanbMboxes.MBOX5.MSGCTRL.bit.DLC
+|——————Node:field_expression Text: ECanbMboxes.MBOX5.MSGCTRL.bit
+|———————Node:field_expression Text: ECanbMboxes.MBOX5.MSGCTRL
+|————————Node:field_expression Text: ECanbMboxes.MBOX5
+|—————————Node:identifier Text: ECanbMboxes
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: MBOX5
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MSGCTRL
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DLC
+|—————Node:= Text: =
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX6.MSGCTRL.bit.DLC = 8;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX6.MSGCTRL.bit.DLC = 8
+|—————Node:field_expression Text: ECanbMboxes.MBOX6.MSGCTRL.bit.DLC
+|——————Node:field_expression Text: ECanbMboxes.MBOX6.MSGCTRL.bit
+|———————Node:field_expression Text: ECanbMboxes.MBOX6.MSGCTRL
+|————————Node:field_expression Text: ECanbMboxes.MBOX6
+|—————————Node:identifier Text: ECanbMboxes
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: MBOX6
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MSGCTRL
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DLC
+|—————Node:= Text: =
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX7.MSGCTRL.bit.DLC = 8;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX7.MSGCTRL.bit.DLC = 8
+|—————Node:field_expression Text: ECanbMboxes.MBOX7.MSGCTRL.bit.DLC
+|——————Node:field_expression Text: ECanbMboxes.MBOX7.MSGCTRL.bit
+|———————Node:field_expression Text: ECanbMboxes.MBOX7.MSGCTRL
+|————————Node:field_expression Text: ECanbMboxes.MBOX7
+|—————————Node:identifier Text: ECanbMboxes
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: MBOX7
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MSGCTRL
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DLC
+|—————Node:= Text: =
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX8.MSGCTRL.bit.DLC = 8;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX8.MSGCTRL.bit.DLC = 8
+|—————Node:field_expression Text: ECanbMboxes.MBOX8.MSGCTRL.bit.DLC
+|——————Node:field_expression Text: ECanbMboxes.MBOX8.MSGCTRL.bit
+|———————Node:field_expression Text: ECanbMboxes.MBOX8.MSGCTRL
+|————————Node:field_expression Text: ECanbMboxes.MBOX8
+|—————————Node:identifier Text: ECanbMboxes
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: MBOX8
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MSGCTRL
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DLC
+|—————Node:= Text: =
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX9.MSGCTRL.bit.DLC = 8;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX9.MSGCTRL.bit.DLC = 8
+|—————Node:field_expression Text: ECanbMboxes.MBOX9.MSGCTRL.bit.DLC
+|——————Node:field_expression Text: ECanbMboxes.MBOX9.MSGCTRL.bit
+|———————Node:field_expression Text: ECanbMboxes.MBOX9.MSGCTRL
+|————————Node:field_expression Text: ECanbMboxes.MBOX9
+|—————————Node:identifier Text: ECanbMboxes
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: MBOX9
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MSGCTRL
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DLC
+|—————Node:= Text: =
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX10.MSGCTRL.bit.DLC = 8;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX10.MSGCTRL.bit.DLC = 8
+|—————Node:field_expression Text: ECanbMboxes.MBOX10.MSGCTRL.bit.DLC
+|——————Node:field_expression Text: ECanbMboxes.MBOX10.MSGCTRL.bit
+|———————Node:field_expression Text: ECanbMboxes.MBOX10.MSGCTRL
+|————————Node:field_expression Text: ECanbMboxes.MBOX10
+|—————————Node:identifier Text: ECanbMboxes
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: MBOX10
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MSGCTRL
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DLC
+|—————Node:= Text: =
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX11.MSGCTRL.bit.DLC = 8;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX11.MSGCTRL.bit.DLC = 8
+|—————Node:field_expression Text: ECanbMboxes.MBOX11.MSGCTRL.bit.DLC
+|——————Node:field_expression Text: ECanbMboxes.MBOX11.MSGCTRL.bit
+|———————Node:field_expression Text: ECanbMboxes.MBOX11.MSGCTRL
+|————————Node:field_expression Text: ECanbMboxes.MBOX11
+|—————————Node:identifier Text: ECanbMboxes
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: MBOX11
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MSGCTRL
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DLC
+|—————Node:= Text: =
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX12.MSGCTRL.bit.DLC = 8;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX12.MSGCTRL.bit.DLC = 8
+|—————Node:field_expression Text: ECanbMboxes.MBOX12.MSGCTRL.bit.DLC
+|——————Node:field_expression Text: ECanbMboxes.MBOX12.MSGCTRL.bit
+|———————Node:field_expression Text: ECanbMboxes.MBOX12.MSGCTRL
+|————————Node:field_expression Text: ECanbMboxes.MBOX12
+|—————————Node:identifier Text: ECanbMboxes
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: MBOX12
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MSGCTRL
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DLC
+|—————Node:= Text: =
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX13.MSGCTRL.bit.DLC = 8;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX13.MSGCTRL.bit.DLC = 8
+|—————Node:field_expression Text: ECanbMboxes.MBOX13.MSGCTRL.bit.DLC
+|——————Node:field_expression Text: ECanbMboxes.MBOX13.MSGCTRL.bit
+|———————Node:field_expression Text: ECanbMboxes.MBOX13.MSGCTRL
+|————————Node:field_expression Text: ECanbMboxes.MBOX13
+|—————————Node:identifier Text: ECanbMboxes
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: MBOX13
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MSGCTRL
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DLC
+|—————Node:= Text: =
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX14.MSGCTRL.bit.DLC = 8;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX14.MSGCTRL.bit.DLC = 8
+|—————Node:field_expression Text: ECanbMboxes.MBOX14.MSGCTRL.bit.DLC
+|——————Node:field_expression Text: ECanbMboxes.MBOX14.MSGCTRL.bit
+|———————Node:field_expression Text: ECanbMboxes.MBOX14.MSGCTRL
+|————————Node:field_expression Text: ECanbMboxes.MBOX14
+|—————————Node:identifier Text: ECanbMboxes
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: MBOX14
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MSGCTRL
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DLC
+|—————Node:= Text: =
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbMboxes.MBOX15.MSGCTRL.bit.DLC = 8;
+|————Node:assignment_expression Text: ECanbMboxes.MBOX15.MSGCTRL.bit.DLC = 8
+|—————Node:field_expression Text: ECanbMboxes.MBOX15.MSGCTRL.bit.DLC
+|——————Node:field_expression Text: ECanbMboxes.MBOX15.MSGCTRL.bit
+|———————Node:field_expression Text: ECanbMboxes.MBOX15.MSGCTRL
+|————————Node:field_expression Text: ECanbMboxes.MBOX15
+|—————————Node:identifier Text: ECanbMboxes
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: MBOX15
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MSGCTRL
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: DLC
+|—————Node:= Text: =
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:comment Text: // enable sys clock for ecanb
+|———Node:expression_statement Text: EALLOW;
+|————Node:identifier Text: EALLOW
+|————Node:; Text: ;
+|———Node:expression_statement Text: SysCtrlRegs.PCLKCR0.bit.ECANBENCLK = 1;
+|————Node:assignment_expression Text: SysCtrlRegs.PCLKCR0.bit.ECANBENCLK = 1
+|—————Node:field_expression Text: SysCtrlRegs.PCLKCR0.bit.ECANBENCLK
+|——————Node:field_expression Text: SysCtrlRegs.PCLKCR0.bit
+|———————Node:field_expression Text: SysCtrlRegs.PCLKCR0
+|————————Node:identifier Text: SysCtrlRegs
+|————————Node:. Text: .
+|————————Node:field_identifier Text: PCLKCR0
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: ECANBENCLK
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:comment Text: // eCAN-B
+|———Node:expression_statement Text: EDIS;
+|————Node:identifier Text: EDIS
+|————Node:; Text: ;
+|———Node:comment Text: // Configure the eCAN for self test mode
+|———Node:comment Text: // Enable the enhanced features of the eCAN.
+|———Node:expression_statement Text: EALLOW;
+|————Node:identifier Text: EALLOW
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbShadow.CANMC.all = ECanbRegs.CANMC.all;
+|————Node:assignment_expression Text: ECanbShadow.CANMC.all = ECanbRegs.CANMC.all
+|—————Node:field_expression Text: ECanbShadow.CANMC.all
+|——————Node:field_expression Text: ECanbShadow.CANMC
+|———————Node:identifier Text: ECanbShadow
+|———————Node:. Text: .
+|———————Node:field_identifier Text: CANMC
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:field_expression Text: ECanbRegs.CANMC.all
+|——————Node:field_expression Text: ECanbRegs.CANMC
+|———————Node:identifier Text: ECanbRegs
+|———————Node:. Text: .
+|———————Node:field_identifier Text: CANMC
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbShadow.CANMC.bit.STM = 1;
+|————Node:assignment_expression Text: ECanbShadow.CANMC.bit.STM = 1
+|—————Node:field_expression Text: ECanbShadow.CANMC.bit.STM
+|——————Node:field_expression Text: ECanbShadow.CANMC.bit
+|———————Node:field_expression Text: ECanbShadow.CANMC
+|————————Node:identifier Text: ECanbShadow
+|————————Node:. Text: .
+|————————Node:field_identifier Text: CANMC
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: STM
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:comment Text: // Configure CAN for self-test mode
+|———Node:expression_statement Text: ECanbShadow.CANMC.bit.STM = 0;
+|————Node:assignment_expression Text: ECanbShadow.CANMC.bit.STM = 0
+|—————Node:field_expression Text: ECanbShadow.CANMC.bit.STM
+|——————Node:field_expression Text: ECanbShadow.CANMC.bit
+|———————Node:field_expression Text: ECanbShadow.CANMC
+|————————Node:identifier Text: ECanbShadow
+|————————Node:. Text: .
+|————————Node:field_identifier Text: CANMC
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: STM
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:comment Text: // Configure CAN for normal mode
+|———Node:expression_statement Text: ECanbRegs.CANMC.all = ECanbShadow.CANMC.all;
+|————Node:assignment_expression Text: ECanbRegs.CANMC.all = ECanbShadow.CANMC.all
+|—————Node:field_expression Text: ECanbRegs.CANMC.all
+|——————Node:field_expression Text: ECanbRegs.CANMC
+|———————Node:identifier Text: ECanbRegs
+|———————Node:. Text: .
+|———————Node:field_identifier Text: CANMC
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:field_expression Text: ECanbShadow.CANMC.all
+|——————Node:field_expression Text: ECanbShadow.CANMC
+|———————Node:identifier Text: ECanbShadow
+|———————Node:. Text: .
+|———————Node:field_identifier Text: CANMC
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|————Node:; Text: ;
+|———Node:expression_statement Text: EDIS;
+|————Node:identifier Text: EDIS
+|————Node:; Text: ;
+|———Node:comment Text: //Initial for interupt for receiving event only
+|———Node:expression_statement Text: EALLOW;
+|————Node:identifier Text: EALLOW
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbRegs.CANMIM.all = 0xFFFF0000;
+|————Node:assignment_expression Text: ECanbRegs.CANMIM.all = 0xFFFF0000
+|—————Node:field_expression Text: ECanbRegs.CANMIM.all
+|——————Node:field_expression Text: ECanbRegs.CANMIM
+|———————Node:identifier Text: ECanbRegs
+|———————Node:. Text: .
+|———————Node:field_identifier Text: CANMIM
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0xFFFF0000
+|————Node:; Text: ;
+|———Node:expression_statement Text: EDIS;
+|————Node:identifier Text: EDIS
+|————Node:; Text: ;
+|———Node:expression_statement Text: EALLOW;
+|————Node:identifier Text: EALLOW
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbRegs.CANMIL.all = 0xFFFF0000;
+|————Node:assignment_expression Text: ECanbRegs.CANMIL.all = 0xFFFF0000
+|—————Node:field_expression Text: ECanbRegs.CANMIL.all
+|——————Node:field_expression Text: ECanbRegs.CANMIL
+|———————Node:identifier Text: ECanbRegs
+|———————Node:. Text: .
+|———————Node:field_identifier Text: CANMIL
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0xFFFF0000
+|————Node:; Text: ;
+|———Node:expression_statement Text: EDIS;
+|————Node:identifier Text: EDIS
+|————Node:; Text: ;
+|———Node:expression_statement Text: EALLOW;
+|————Node:identifier Text: EALLOW
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbShadow.CANGIF1.all = ECanbRegs.CANGIF1.all;
+|————Node:assignment_expression Text: ECanbShadow.CANGIF1.all = ECanbRegs.CANGIF1.all
+|—————Node:field_expression Text: ECanbShadow.CANGIF1.all
+|——————Node:field_expression Text: ECanbShadow.CANGIF1
+|———————Node:identifier Text: ECanbShadow
+|———————Node:. Text: .
+|———————Node:field_identifier Text: CANGIF1
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:field_expression Text: ECanbRegs.CANGIF1.all
+|——————Node:field_expression Text: ECanbRegs.CANGIF1
+|———————Node:identifier Text: ECanbRegs
+|———————Node:. Text: .
+|———————Node:field_identifier Text: CANGIF1
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbShadow.CANGIF1.bit.GMIF1 = 1;
+|————Node:assignment_expression Text: ECanbShadow.CANGIF1.bit.GMIF1 = 1
+|—————Node:field_expression Text: ECanbShadow.CANGIF1.bit.GMIF1
+|——————Node:field_expression Text: ECanbShadow.CANGIF1.bit
+|———————Node:field_expression Text: ECanbShadow.CANGIF1
+|————————Node:identifier Text: ECanbShadow
+|————————Node:. Text: .
+|————————Node:field_identifier Text: CANGIF1
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: GMIF1
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbRegs.CANGIF1.all = ECanbShadow.CANGIF1.all;
+|————Node:assignment_expression Text: ECanbRegs.CANGIF1.all = ECanbShadow.CANGIF1.all
+|—————Node:field_expression Text: ECanbRegs.CANGIF1.all
+|——————Node:field_expression Text: ECanbRegs.CANGIF1
+|———————Node:identifier Text: ECanbRegs
+|———————Node:. Text: .
+|———————Node:field_identifier Text: CANGIF1
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:field_expression Text: ECanbShadow.CANGIF1.all
+|——————Node:field_expression Text: ECanbShadow.CANGIF1
+|———————Node:identifier Text: ECanbShadow
+|———————Node:. Text: .
+|———————Node:field_identifier Text: CANGIF1
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|————Node:; Text: ;
+|———Node:expression_statement Text: EDIS;
+|————Node:identifier Text: EDIS
+|————Node:; Text: ;
+|———Node:expression_statement Text: EALLOW;
+|————Node:identifier Text: EALLOW
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbShadow.CANGIM.all = ECanbRegs.CANGIM.all;
+|————Node:assignment_expression Text: ECanbShadow.CANGIM.all = ECanbRegs.CANGIM.all
+|—————Node:field_expression Text: ECanbShadow.CANGIM.all
+|——————Node:field_expression Text: ECanbShadow.CANGIM
+|———————Node:identifier Text: ECanbShadow
+|———————Node:. Text: .
+|———————Node:field_identifier Text: CANGIM
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:field_expression Text: ECanbRegs.CANGIM.all
+|——————Node:field_expression Text: ECanbRegs.CANGIM
+|———————Node:identifier Text: ECanbRegs
+|———————Node:. Text: .
+|———————Node:field_identifier Text: CANGIM
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbShadow.CANGIM.bit.GIL = 1;
+|————Node:assignment_expression Text: ECanbShadow.CANGIM.bit.GIL = 1
+|—————Node:field_expression Text: ECanbShadow.CANGIM.bit.GIL
+|——————Node:field_expression Text: ECanbShadow.CANGIM.bit
+|———————Node:field_expression Text: ECanbShadow.CANGIM
+|————————Node:identifier Text: ECanbShadow
+|————————Node:. Text: .
+|————————Node:field_identifier Text: CANGIM
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: GIL
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbShadow.CANGIM.bit.I1EN = 1;
+|————Node:assignment_expression Text: ECanbShadow.CANGIM.bit.I1EN = 1
+|—————Node:field_expression Text: ECanbShadow.CANGIM.bit.I1EN
+|——————Node:field_expression Text: ECanbShadow.CANGIM.bit
+|———————Node:field_expression Text: ECanbShadow.CANGIM
+|————————Node:identifier Text: ECanbShadow
+|————————Node:. Text: .
+|————————Node:field_identifier Text: CANGIM
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: I1EN
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:expression_statement Text: ECanbRegs.CANGIM.all = ECanbShadow.CANGIM.all;
+|————Node:assignment_expression Text: ECanbRegs.CANGIM.all = ECanbShadow.CANGIM.all
+|—————Node:field_expression Text: ECanbRegs.CANGIM.all
+|——————Node:field_expression Text: ECanbRegs.CANGIM
+|———————Node:identifier Text: ECanbRegs
+|———————Node:. Text: .
+|———————Node:field_identifier Text: CANGIM
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:field_expression Text: ECanbShadow.CANGIM.all
+|——————Node:field_expression Text: ECanbShadow.CANGIM
+|———————Node:identifier Text: ECanbShadow
+|———————Node:. Text: .
+|———————Node:field_identifier Text: CANGIM
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|————Node:; Text: ;
+|———Node:expression_statement Text: EDIS;
+|————Node:identifier Text: EDIS
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void
+send_data (int16 MBXnbr, Uint32 low, Uint32 high)
+{
+
+  volatile struct MBOX *Mailbox;
+//  for(MBXnbr)
+//    {
+  Mailbox = &ECanbMboxes.MBOX0 + MBXnbr;
+  Mailbox->MDL.all = low; // = 0x9555AAAn (n is the MBX number)
+  Mailbox->MDH.all = high; // = 0x89ABCDEF (a constant)
+//    }
+//******************used for transmit begin*****************
+  ECanbRegs.CANTRS.all = 0x00000001;  // Set TRS for all transmit mailboxes
+
+  do
+    {
+      ECanbShadow.CANTA.all = ECanbRegs.CANTA.all;
+    }
+  while (ECanbShadow.CANTA.all == 0);   // Wait for TA5 bit to be set..
+
+//	while (ECanbRegs.CANTA.all != 0x0000FFFF) {
+//	}  // Wait for all TAn bits to be set..
+  ECanbRegs.CANTA.all = 0x0000FFFF;   // Clear all TAn
+//******************used for transmit end*****************
+
+  BLINK_LED();
+
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: send_data (int16 MBXnbr, Uint32 low, Uint32 high)
+|———Node:identifier Text: send_data
+|———Node:parameter_list Text: (int16 MBXnbr, Uint32 low, Uint32 high)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: int16 MBXnbr
+|—————Node:type_identifier Text: int16
+|—————Node:identifier Text: MBXnbr
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: Uint32 low
+|—————Node:type_identifier Text: Uint32
+|—————Node:identifier Text: low
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: Uint32 high
+|—————Node:type_identifier Text: Uint32
+|—————Node:identifier Text: high
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+
+  volatile struct MBOX *Mailbox;
+//  for(MBXnbr)
+//    {
+  Mailbox = &ECanbMboxes.MBOX0 + MBXnbr;
+  Mailbox->MDL.all = low; // = 0x9555AAAn (n is the MBX number)
+  Mailbox->MDH.all = high; // = 0x89ABCDEF (a constant)
+//    }
+//******************used for transmit begin*****************
+  ECanbRegs.CANTRS.all = 0x00000001;  // Set TRS for all transmit mailboxes
+
+  do
+    {
+      ECanbShadow.CANTA.all = ECanbRegs.CANTA.all;
+    }
+  while (ECanbShadow.CANTA.all == 0);   // Wait for TA5 bit to be set..
+
+//	while (ECanbRegs.CANTA.all != 0x0000FFFF) {
+//	}  // Wait for all TAn bits to be set..
+  ECanbRegs.CANTA.all = 0x0000FFFF;   // Clear all TAn
+//******************used for transmit end*****************
+
+  BLINK_LED();
+
+}
+|———Node:{ Text: {
+|———Node:declaration Text: volatile struct MBOX *Mailbox;
+|————Node:type_qualifier Text: volatile
+|—————Node:volatile Text: volatile
+|————Node:struct_specifier Text: struct MBOX
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: MBOX
+|————Node:pointer_declarator Text: *Mailbox
+|—————Node:* Text: *
+|—————Node:identifier Text: Mailbox
+|————Node:; Text: ;
+|———Node:comment Text: //  for(MBXnbr)
+|———Node:comment Text: //    {
+|———Node:expression_statement Text: Mailbox = &ECanbMboxes.MBOX0 + MBXnbr;
+|————Node:assignment_expression Text: Mailbox = &ECanbMboxes.MBOX0 + MBXnbr
+|—————Node:identifier Text: Mailbox
+|—————Node:= Text: =
+|—————Node:binary_expression Text: &ECanbMboxes.MBOX0 + MBXnbr
+|——————Node:pointer_expression Text: &ECanbMboxes.MBOX0
+|———————Node:& Text: &
+|———————Node:field_expression Text: ECanbMboxes.MBOX0
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX0
+|——————Node:+ Text: +
+|——————Node:identifier Text: MBXnbr
+|————Node:; Text: ;
+|———Node:expression_statement Text: Mailbox->MDL.all = low;
+|————Node:assignment_expression Text: Mailbox->MDL.all = low
+|—————Node:field_expression Text: Mailbox->MDL.all
+|——————Node:field_expression Text: Mailbox->MDL
+|———————Node:identifier Text: Mailbox
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: MDL
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:identifier Text: low
+|————Node:; Text: ;
+|———Node:comment Text: // = 0x9555AAAn (n is the MBX number)
+|———Node:expression_statement Text: Mailbox->MDH.all = high;
+|————Node:assignment_expression Text: Mailbox->MDH.all = high
+|—————Node:field_expression Text: Mailbox->MDH.all
+|——————Node:field_expression Text: Mailbox->MDH
+|———————Node:identifier Text: Mailbox
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: MDH
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:identifier Text: high
+|————Node:; Text: ;
+|———Node:comment Text: // = 0x89ABCDEF (a constant)
+|———Node:comment Text: //    }
+|———Node:comment Text: //******************used for transmit begin*****************
+|———Node:expression_statement Text: ECanbRegs.CANTRS.all = 0x00000001;
+|————Node:assignment_expression Text: ECanbRegs.CANTRS.all = 0x00000001
+|—————Node:field_expression Text: ECanbRegs.CANTRS.all
+|——————Node:field_expression Text: ECanbRegs.CANTRS
+|———————Node:identifier Text: ECanbRegs
+|———————Node:. Text: .
+|———————Node:field_identifier Text: CANTRS
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x00000001
+|————Node:; Text: ;
+|———Node:comment Text: // Set TRS for all transmit mailboxes
+|———Node:do_statement Text: do
+    {
+      ECanbShadow.CANTA.all = ECanbRegs.CANTA.all;
+    }
+  while (ECanbShadow.CANTA.all == 0);
+|————Node:do Text: do
+|————Node:compound_statement Text: {
+      ECanbShadow.CANTA.all = ECanbRegs.CANTA.all;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: ECanbShadow.CANTA.all = ECanbRegs.CANTA.all;
+|——————Node:assignment_expression Text: ECanbShadow.CANTA.all = ECanbRegs.CANTA.all
+|———————Node:field_expression Text: ECanbShadow.CANTA.all
+|————————Node:field_expression Text: ECanbShadow.CANTA
+|—————————Node:identifier Text: ECanbShadow
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: CANTA
+|————————Node:. Text: .
+|————————Node:field_identifier Text: all
+|———————Node:= Text: =
+|———————Node:field_expression Text: ECanbRegs.CANTA.all
+|————————Node:field_expression Text: ECanbRegs.CANTA
+|—————————Node:identifier Text: ECanbRegs
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: CANTA
+|————————Node:. Text: .
+|————————Node:field_identifier Text: all
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:while Text: while
+|————Node:parenthesized_expression Text: (ECanbShadow.CANTA.all == 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: ECanbShadow.CANTA.all == 0
+|——————Node:field_expression Text: ECanbShadow.CANTA.all
+|———————Node:field_expression Text: ECanbShadow.CANTA
+|————————Node:identifier Text: ECanbShadow
+|————————Node:. Text: .
+|————————Node:field_identifier Text: CANTA
+|———————Node:. Text: .
+|———————Node:field_identifier Text: all
+|——————Node:== Text: ==
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment Text: // Wait for TA5 bit to be set..
+|———Node:comment Text: //	while (ECanbRegs.CANTA.all != 0x0000FFFF) {
+|———Node:comment Text: //	}  // Wait for all TAn bits to be set..
+|———Node:expression_statement Text: ECanbRegs.CANTA.all = 0x0000FFFF;
+|————Node:assignment_expression Text: ECanbRegs.CANTA.all = 0x0000FFFF
+|—————Node:field_expression Text: ECanbRegs.CANTA.all
+|——————Node:field_expression Text: ECanbRegs.CANTA
+|———————Node:identifier Text: ECanbRegs
+|———————Node:. Text: .
+|———————Node:field_identifier Text: CANTA
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x0000FFFF
+|————Node:; Text: ;
+|———Node:comment Text: // Clear all TAn
+|———Node:comment Text: //******************used for transmit end*****************
+|———Node:expression_statement Text: BLINK_LED();
+|————Node:call_expression Text: BLINK_LED()
+|—————Node:identifier Text: BLINK_LED
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment Text: // This function reads out the contents of the indicated
+|—Node:comment Text: // by the Mailbox number (MBXnbr).
+|—Node:function_definition Text: static void
+mailbox_read (int16 MBXnbr)
+{
+  volatile struct MBOX *Mailbox;
+  Mailbox = &ECanbMboxes.MBOX0 + MBXnbr;
+  TestMbox1 = Mailbox->MDL.all; // = 0x9555AAAn (n is the MBX number)
+  TestMbox2 = Mailbox->MDH.all; // = 0x89ABCDEF (a constant)
+  TestMbox3 = Mailbox->MSGID.all; // = 0x9555AAAn (n is the MBX number)
+
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: mailbox_read (int16 MBXnbr)
+|———Node:identifier Text: mailbox_read
+|———Node:parameter_list Text: (int16 MBXnbr)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: int16 MBXnbr
+|—————Node:type_identifier Text: int16
+|—————Node:identifier Text: MBXnbr
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  volatile struct MBOX *Mailbox;
+  Mailbox = &ECanbMboxes.MBOX0 + MBXnbr;
+  TestMbox1 = Mailbox->MDL.all; // = 0x9555AAAn (n is the MBX number)
+  TestMbox2 = Mailbox->MDH.all; // = 0x89ABCDEF (a constant)
+  TestMbox3 = Mailbox->MSGID.all; // = 0x9555AAAn (n is the MBX number)
+
+}
+|———Node:{ Text: {
+|———Node:declaration Text: volatile struct MBOX *Mailbox;
+|————Node:type_qualifier Text: volatile
+|—————Node:volatile Text: volatile
+|————Node:struct_specifier Text: struct MBOX
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: MBOX
+|————Node:pointer_declarator Text: *Mailbox
+|—————Node:* Text: *
+|—————Node:identifier Text: Mailbox
+|————Node:; Text: ;
+|———Node:expression_statement Text: Mailbox = &ECanbMboxes.MBOX0 + MBXnbr;
+|————Node:assignment_expression Text: Mailbox = &ECanbMboxes.MBOX0 + MBXnbr
+|—————Node:identifier Text: Mailbox
+|—————Node:= Text: =
+|—————Node:binary_expression Text: &ECanbMboxes.MBOX0 + MBXnbr
+|——————Node:pointer_expression Text: &ECanbMboxes.MBOX0
+|———————Node:& Text: &
+|———————Node:field_expression Text: ECanbMboxes.MBOX0
+|————————Node:identifier Text: ECanbMboxes
+|————————Node:. Text: .
+|————————Node:field_identifier Text: MBOX0
+|——————Node:+ Text: +
+|——————Node:identifier Text: MBXnbr
+|————Node:; Text: ;
+|———Node:expression_statement Text: TestMbox1 = Mailbox->MDL.all;
+|————Node:assignment_expression Text: TestMbox1 = Mailbox->MDL.all
+|—————Node:identifier Text: TestMbox1
+|—————Node:= Text: =
+|—————Node:field_expression Text: Mailbox->MDL.all
+|——————Node:field_expression Text: Mailbox->MDL
+|———————Node:identifier Text: Mailbox
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: MDL
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|————Node:; Text: ;
+|———Node:comment Text: // = 0x9555AAAn (n is the MBX number)
+|———Node:expression_statement Text: TestMbox2 = Mailbox->MDH.all;
+|————Node:assignment_expression Text: TestMbox2 = Mailbox->MDH.all
+|—————Node:identifier Text: TestMbox2
+|—————Node:= Text: =
+|—————Node:field_expression Text: Mailbox->MDH.all
+|——————Node:field_expression Text: Mailbox->MDH
+|———————Node:identifier Text: Mailbox
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: MDH
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|————Node:; Text: ;
+|———Node:comment Text: // = 0x89ABCDEF (a constant)
+|———Node:expression_statement Text: TestMbox3 = Mailbox->MSGID.all;
+|————Node:assignment_expression Text: TestMbox3 = Mailbox->MSGID.all
+|—————Node:identifier Text: TestMbox3
+|—————Node:= Text: =
+|—————Node:field_expression Text: Mailbox->MSGID.all
+|——————Node:field_expression Text: Mailbox->MSGID
+|———————Node:identifier Text: Mailbox
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: MSGID
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|————Node:; Text: ;
+|———Node:comment Text: // = 0x9555AAAn (n is the MBX number)
+|———Node:} Text: }
+|—Node:function_definition Text: interrupt void
+ecan1_intb_isr (void)
+{
+  int j;
+  for (j = 16; j < 32; j++)         // Read 16 mailboxes
+    {
+      if ((ECanbRegs.CANRMP.all >> j) && 0x1) // only read the mail box which received message
+	{
+	  mailbox_read (j);        // This func reads the indicated mailbox data
+	  ECanbRegs.CANRMP.all = ECanbRegs.CANRMP.all || (0x1 << j); // clear the Received-Message-Pending Register
+	}
+    }
+
+  PieCtrlRegs.PIEACK.all = PIEACK_GROUP9;
+}
+|——Node:type_identifier Text: interrupt
+|——Node:ERROR Text: void
+|———Node:identifier Text: void
+|——Node:function_declarator Text: ecan1_intb_isr (void)
+|———Node:identifier Text: ecan1_intb_isr
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  int j;
+  for (j = 16; j < 32; j++)         // Read 16 mailboxes
+    {
+      if ((ECanbRegs.CANRMP.all >> j) && 0x1) // only read the mail box which received message
+	{
+	  mailbox_read (j);        // This func reads the indicated mailbox data
+	  ECanbRegs.CANRMP.all = ECanbRegs.CANRMP.all || (0x1 << j); // clear the Received-Message-Pending Register
+	}
+    }
+
+  PieCtrlRegs.PIEACK.all = PIEACK_GROUP9;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: int j;
+|————Node:primitive_type Text: int
+|————Node:identifier Text: j
+|————Node:; Text: ;
+|———Node:for_statement Text: for (j = 16; j < 32; j++)         // Read 16 mailboxes
+    {
+      if ((ECanbRegs.CANRMP.all >> j) && 0x1) // only read the mail box which received message
+	{
+	  mailbox_read (j);        // This func reads the indicated mailbox data
+	  ECanbRegs.CANRMP.all = ECanbRegs.CANRMP.all || (0x1 << j); // clear the Received-Message-Pending Register
+	}
+    }
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:assignment_expression Text: j = 16
+|—————Node:identifier Text: j
+|—————Node:= Text: =
+|—————Node:number_literal Text: 16
+|————Node:; Text: ;
+|————Node:binary_expression Text: j < 32
+|—————Node:identifier Text: j
+|—————Node:< Text: <
+|—————Node:number_literal Text: 32
+|————Node:; Text: ;
+|————Node:update_expression Text: j++
+|—————Node:identifier Text: j
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:comment Text: // Read 16 mailboxes
+|————Node:compound_statement Text: {
+      if ((ECanbRegs.CANRMP.all >> j) && 0x1) // only read the mail box which received message
+	{
+	  mailbox_read (j);        // This func reads the indicated mailbox data
+	  ECanbRegs.CANRMP.all = ECanbRegs.CANRMP.all || (0x1 << j); // clear the Received-Message-Pending Register
+	}
+    }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if ((ECanbRegs.CANRMP.all >> j) && 0x1) // only read the mail box which received message
+	{
+	  mailbox_read (j);        // This func reads the indicated mailbox data
+	  ECanbRegs.CANRMP.all = ECanbRegs.CANRMP.all || (0x1 << j); // clear the Received-Message-Pending Register
+	}
+|——————Node:if Text: if
+|——————Node:parenthesized_expression Text: ((ECanbRegs.CANRMP.all >> j) && 0x1)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: (ECanbRegs.CANRMP.all >> j) && 0x1
+|————————Node:parenthesized_expression Text: (ECanbRegs.CANRMP.all >> j)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: ECanbRegs.CANRMP.all >> j
+|——————————Node:field_expression Text: ECanbRegs.CANRMP.all
+|———————————Node:field_expression Text: ECanbRegs.CANRMP
+|————————————Node:identifier Text: ECanbRegs
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: CANRMP
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: all
+|——————————Node:>> Text: >>
+|——————————Node:identifier Text: j
+|—————————Node:) Text: )
+|————————Node:&& Text: &&
+|————————Node:number_literal Text: 0x1
+|———————Node:) Text: )
+|——————Node:comment Text: // only read the mail box which received message
+|——————Node:compound_statement Text: {
+	  mailbox_read (j);        // This func reads the indicated mailbox data
+	  ECanbRegs.CANRMP.all = ECanbRegs.CANRMP.all || (0x1 << j); // clear the Received-Message-Pending Register
+	}
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: mailbox_read (j);
+|————————Node:call_expression Text: mailbox_read (j)
+|—————————Node:identifier Text: mailbox_read
+|—————————Node:argument_list Text: (j)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: j
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:comment Text: // This func reads the indicated mailbox data
+|———————Node:expression_statement Text: ECanbRegs.CANRMP.all = ECanbRegs.CANRMP.all || (0x1 << j);
+|————————Node:assignment_expression Text: ECanbRegs.CANRMP.all = ECanbRegs.CANRMP.all || (0x1 << j)
+|—————————Node:field_expression Text: ECanbRegs.CANRMP.all
+|——————————Node:field_expression Text: ECanbRegs.CANRMP
+|———————————Node:identifier Text: ECanbRegs
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: CANRMP
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: all
+|—————————Node:= Text: =
+|—————————Node:binary_expression Text: ECanbRegs.CANRMP.all || (0x1 << j)
+|——————————Node:field_expression Text: ECanbRegs.CANRMP.all
+|———————————Node:field_expression Text: ECanbRegs.CANRMP
+|————————————Node:identifier Text: ECanbRegs
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: CANRMP
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: all
+|——————————Node:|| Text: ||
+|——————————Node:parenthesized_expression Text: (0x1 << j)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: 0x1 << j
+|————————————Node:number_literal Text: 0x1
+|————————————Node:<< Text: <<
+|————————————Node:identifier Text: j
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:comment Text: // clear the Received-Message-Pending Register
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:expression_statement Text: PieCtrlRegs.PIEACK.all = PIEACK_GROUP9;
+|————Node:assignment_expression Text: PieCtrlRegs.PIEACK.all = PIEACK_GROUP9
+|—————Node:field_expression Text: PieCtrlRegs.PIEACK.all
+|——————Node:field_expression Text: PieCtrlRegs.PIEACK
+|———————Node:identifier Text: PieCtrlRegs
+|———————Node:. Text: .
+|———————Node:field_identifier Text: PIEACK
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:identifier Text: PIEACK_GROUP9
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void
+UserSetInt ()
+{
+
+  InitPieCtrl ();           //Disable PIE interrupt, Clear interrupt flag
+
+  IER = 0x0000;           //Disable CPU interrupt, Clear interrupt flag
+  IFR = 0x0000;
+
+  InitPieVectTable (); //// This function initializes the PIE vector table to a known state.
+  EALLOW;
+  PieVectTable.ECAN1INTB = &ecan1_intb_isr;		//ECAN interrupt
+  EDIS;
+
+  IER |= M_INT9;
+  PieCtrlRegs.PIEIER9.bit.INTx8 = 1;  // ECAN-B
+  PieCtrlRegs.PIEACK.all = PIEACK_GROUP9;
+
+  // Enable global Interrupts and higher priority real-time debug events:
+  EINT;
+  // Enable Global interrupt INTM
+  ERTM;
+  // Enable Global realtime interrupt DBGM
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: UserSetInt ()
+|———Node:identifier Text: UserSetInt
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+
+  InitPieCtrl ();           //Disable PIE interrupt, Clear interrupt flag
+
+  IER = 0x0000;           //Disable CPU interrupt, Clear interrupt flag
+  IFR = 0x0000;
+
+  InitPieVectTable (); //// This function initializes the PIE vector table to a known state.
+  EALLOW;
+  PieVectTable.ECAN1INTB = &ecan1_intb_isr;		//ECAN interrupt
+  EDIS;
+
+  IER |= M_INT9;
+  PieCtrlRegs.PIEIER9.bit.INTx8 = 1;  // ECAN-B
+  PieCtrlRegs.PIEACK.all = PIEACK_GROUP9;
+
+  // Enable global Interrupts and higher priority real-time debug events:
+  EINT;
+  // Enable Global interrupt INTM
+  ERTM;
+  // Enable Global realtime interrupt DBGM
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: InitPieCtrl ();
+|————Node:call_expression Text: InitPieCtrl ()
+|—————Node:identifier Text: InitPieCtrl
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment Text: //Disable PIE interrupt, Clear interrupt flag
+|———Node:expression_statement Text: IER = 0x0000;
+|————Node:assignment_expression Text: IER = 0x0000
+|—————Node:identifier Text: IER
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x0000
+|————Node:; Text: ;
+|———Node:comment Text: //Disable CPU interrupt, Clear interrupt flag
+|———Node:expression_statement Text: IFR = 0x0000;
+|————Node:assignment_expression Text: IFR = 0x0000
+|—————Node:identifier Text: IFR
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x0000
+|————Node:; Text: ;
+|———Node:expression_statement Text: InitPieVectTable ();
+|————Node:call_expression Text: InitPieVectTable ()
+|—————Node:identifier Text: InitPieVectTable
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment Text: //// This function initializes the PIE vector table to a known state.
+|———Node:expression_statement Text: EALLOW;
+|————Node:identifier Text: EALLOW
+|————Node:; Text: ;
+|———Node:expression_statement Text: PieVectTable.ECAN1INTB = &ecan1_intb_isr;
+|————Node:assignment_expression Text: PieVectTable.ECAN1INTB = &ecan1_intb_isr
+|—————Node:field_expression Text: PieVectTable.ECAN1INTB
+|——————Node:identifier Text: PieVectTable
+|——————Node:. Text: .
+|——————Node:field_identifier Text: ECAN1INTB
+|—————Node:= Text: =
+|—————Node:pointer_expression Text: &ecan1_intb_isr
+|——————Node:& Text: &
+|——————Node:identifier Text: ecan1_intb_isr
+|————Node:; Text: ;
+|———Node:comment Text: //ECAN interrupt
+|———Node:expression_statement Text: EDIS;
+|————Node:identifier Text: EDIS
+|————Node:; Text: ;
+|———Node:expression_statement Text: IER |= M_INT9;
+|————Node:assignment_expression Text: IER |= M_INT9
+|—————Node:identifier Text: IER
+|—————Node:|= Text: |=
+|—————Node:identifier Text: M_INT9
+|————Node:; Text: ;
+|———Node:expression_statement Text: PieCtrlRegs.PIEIER9.bit.INTx8 = 1;
+|————Node:assignment_expression Text: PieCtrlRegs.PIEIER9.bit.INTx8 = 1
+|—————Node:field_expression Text: PieCtrlRegs.PIEIER9.bit.INTx8
+|——————Node:field_expression Text: PieCtrlRegs.PIEIER9.bit
+|———————Node:field_expression Text: PieCtrlRegs.PIEIER9
+|————————Node:identifier Text: PieCtrlRegs
+|————————Node:. Text: .
+|————————Node:field_identifier Text: PIEIER9
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bit
+|——————Node:. Text: .
+|——————Node:field_identifier Text: INTx8
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:comment Text: // ECAN-B
+|———Node:expression_statement Text: PieCtrlRegs.PIEACK.all = PIEACK_GROUP9;
+|————Node:assignment_expression Text: PieCtrlRegs.PIEACK.all = PIEACK_GROUP9
+|—————Node:field_expression Text: PieCtrlRegs.PIEACK.all
+|——————Node:field_expression Text: PieCtrlRegs.PIEACK
+|———————Node:identifier Text: PieCtrlRegs
+|———————Node:. Text: .
+|———————Node:field_identifier Text: PIEACK
+|——————Node:. Text: .
+|——————Node:field_identifier Text: all
+|—————Node:= Text: =
+|—————Node:identifier Text: PIEACK_GROUP9
+|————Node:; Text: ;
+|———Node:comment Text: // Enable global Interrupts and higher priority real-time debug events:
+|———Node:expression_statement Text: EINT;
+|————Node:identifier Text: EINT
+|————Node:; Text: ;
+|———Node:comment Text: // Enable Global interrupt INTM
+|———Node:expression_statement Text: ERTM;
+|————Node:identifier Text: ERTM
+|————Node:; Text: ;
+|———Node:comment Text: // Enable Global realtime interrupt DBGM
+|———Node:} Text: }

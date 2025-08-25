@@ -1,0 +1,527 @@
+J1939-Framework-CAN\CommonCanReceiver.h
+
+|Node:translation_unit
+|—Node:comment
+|—Node:preproc_ifdef Text: #ifndef COMMONCANRECEIVER_H_
+#define COMMONCANRECEIVER_H_
+
+#include <set>
+
+#include <Utils.h>
+
+#include "CanFilter.h"
+#include "CanFrame.h"
+
+typedef void (*OnReceiveFramePtr)(const Can::CanFrame& frame, const Utils::TimeStamp& tStamp, void* data);
+typedef bool (*OnTimeoutPtr)();
+
+namespace Can {
+
+class CommonCanReceiver {
+private:
+	std::set<CanFilter> mFilters;
+
+protected:
+	OnReceiveFramePtr mRcvCB = nullptr;
+	OnTimeoutPtr mTimeoutCB = nullptr;
+	void* mData = nullptr;		//Data to be passed to the OnReceiveFramePtr callback
+
+	virtual bool _initialize(const std::string& interface) = 0;
+
+	bool filter(u32 id);
+
+public:
+	CommonCanReceiver() {}
+	virtual ~CommonCanReceiver() {}
+
+	/*
+	 * Initializes the receiver to be used with the specified interface
+	 */
+	bool initialize(const std::string& interface, OnReceiveFramePtr rcvCallback, OnTimeoutPtr tmoutCallback, void* data = nullptr);
+
+	/*
+	 * Finalize the interface releasing the resources that have been taken to initialize the interface.
+	 */
+	virtual bool finalize(const std::string& interface) = 0;
+
+	/*
+	 * There is the default implementation which is based in a check in user space, but there are specific implementations that let delegate the work to kernel space
+	 */
+	virtual bool setFilters(std::set<CanFilter> filters);
+
+	/*
+	 */
+	virtual void sniff(u32 timeout) = 0;
+
+
+};
+
+} /* namespace Can */
+
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: COMMONCANRECEIVER_H_
+|——Node:preproc_def Text: #define COMMONCANRECEIVER_H_
+
+|———Node:#define Text: #define
+|———Node:identifier Text: COMMONCANRECEIVER_H_
+|——Node:preproc_include Text: #include <set>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <set>
+|——Node:preproc_include Text: #include <Utils.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <Utils.h>
+|——Node:preproc_include Text: #include "CanFilter.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "CanFilter.h"
+|————Node:" Text: "
+|————Node:string_content Text: CanFilter.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "CanFrame.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "CanFrame.h"
+|————Node:" Text: "
+|————Node:string_content Text: CanFrame.h
+|————Node:" Text: "
+|——Node:type_definition Text: typedef void (*OnReceiveFramePtr)(const Can::CanFrame& frame, const Utils::TimeStamp& tStamp, void* data);
+|———Node:typedef Text: typedef
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: (*OnReceiveFramePtr)(const Can::CanFrame& frame, const Utils::TimeStamp& tStamp, void* data)
+|————Node:parenthesized_declarator Text: (*OnReceiveFramePtr)
+|—————Node:( Text: (
+|—————Node:pointer_declarator Text: *OnReceiveFramePtr
+|——————Node:* Text: *
+|——————Node:type_identifier Text: OnReceiveFramePtr
+|—————Node:) Text: )
+|————Node:parameter_list Text: (const Can::CanFrame& frame, const Utils::TimeStamp& tStamp, void* data)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const Can::CanFrame& frame
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: Can
+|——————Node:ERROR Text: ::CanFrame&
+|———————Node:: Text: :
+|———————Node:: Text: :
+|———————Node:identifier Text: CanFrame
+|———————Node:& Text: &
+|——————Node:identifier Text: frame
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const Utils::TimeStamp& tStamp
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: Utils
+|——————Node:ERROR Text: ::TimeStamp&
+|———————Node:: Text: :
+|———————Node:: Text: :
+|———————Node:identifier Text: TimeStamp
+|———————Node:& Text: &
+|——————Node:identifier Text: tStamp
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: void* data
+|——————Node:primitive_type Text: void
+|——————Node:pointer_declarator Text: * data
+|———————Node:* Text: *
+|———————Node:identifier Text: data
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef bool (*OnTimeoutPtr)();
+|———Node:typedef Text: typedef
+|———Node:primitive_type Text: bool
+|———Node:function_declarator Text: (*OnTimeoutPtr)()
+|————Node:parenthesized_declarator Text: (*OnTimeoutPtr)
+|—————Node:( Text: (
+|—————Node:pointer_declarator Text: *OnTimeoutPtr
+|——————Node:* Text: *
+|——————Node:type_identifier Text: OnTimeoutPtr
+|—————Node:) Text: )
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:function_definition Text: namespace Can {
+
+class CommonCanReceiver {
+private:
+	std::set<CanFilter> mFilters;
+
+protected:
+	OnReceiveFramePtr mRcvCB = nullptr;
+	OnTimeoutPtr mTimeoutCB = nullptr;
+	void* mData = nullptr;		//Data to be passed to the OnReceiveFramePtr callback
+
+	virtual bool _initialize(const std::string& interface) = 0;
+
+	bool filter(u32 id);
+
+public:
+	CommonCanReceiver() {}
+	virtual ~CommonCanReceiver() {}
+
+	/*
+	 * Initializes the receiver to be used with the specified interface
+	 */
+	bool initialize(const std::string& interface, OnReceiveFramePtr rcvCallback, OnTimeoutPtr tmoutCallback, void* data = nullptr);
+
+	/*
+	 * Finalize the interface releasing the resources that have been taken to initialize the interface.
+	 */
+	virtual bool finalize(const std::string& interface) = 0;
+
+	/*
+	 * There is the default implementation which is based in a check in user space, but there are specific implementations that let delegate the work to kernel space
+	 */
+	virtual bool setFilters(std::set<CanFilter> filters);
+
+	/*
+	 */
+	virtual void sniff(u32 timeout) = 0;
+
+
+};
+
+}
+|———Node:type_identifier Text: namespace
+|———Node:identifier Text: Can
+|———Node:compound_statement Text: {
+
+class CommonCanReceiver {
+private:
+	std::set<CanFilter> mFilters;
+
+protected:
+	OnReceiveFramePtr mRcvCB = nullptr;
+	OnTimeoutPtr mTimeoutCB = nullptr;
+	void* mData = nullptr;		//Data to be passed to the OnReceiveFramePtr callback
+
+	virtual bool _initialize(const std::string& interface) = 0;
+
+	bool filter(u32 id);
+
+public:
+	CommonCanReceiver() {}
+	virtual ~CommonCanReceiver() {}
+
+	/*
+	 * Initializes the receiver to be used with the specified interface
+	 */
+	bool initialize(const std::string& interface, OnReceiveFramePtr rcvCallback, OnTimeoutPtr tmoutCallback, void* data = nullptr);
+
+	/*
+	 * Finalize the interface releasing the resources that have been taken to initialize the interface.
+	 */
+	virtual bool finalize(const std::string& interface) = 0;
+
+	/*
+	 * There is the default implementation which is based in a check in user space, but there are specific implementations that let delegate the work to kernel space
+	 */
+	virtual bool setFilters(std::set<CanFilter> filters);
+
+	/*
+	 */
+	virtual void sniff(u32 timeout) = 0;
+
+
+};
+
+}
+|————Node:{ Text: {
+|————Node:function_definition Text: class CommonCanReceiver {
+private:
+	std::set<CanFilter> mFilters;
+
+protected:
+	OnReceiveFramePtr mRcvCB = nullptr;
+	OnTimeoutPtr mTimeoutCB = nullptr;
+	void* mData = nullptr;		//Data to be passed to the OnReceiveFramePtr callback
+
+	virtual bool _initialize(const std::string& interface) = 0;
+
+	bool filter(u32 id);
+
+public:
+	CommonCanReceiver() {}
+	virtual ~CommonCanReceiver() {}
+
+	/*
+	 * Initializes the receiver to be used with the specified interface
+	 */
+	bool initialize(const std::string& interface, OnReceiveFramePtr rcvCallback, OnTimeoutPtr tmoutCallback, void* data = nullptr);
+
+	/*
+	 * Finalize the interface releasing the resources that have been taken to initialize the interface.
+	 */
+	virtual bool finalize(const std::string& interface) = 0;
+
+	/*
+	 * There is the default implementation which is based in a check in user space, but there are specific implementations that let delegate the work to kernel space
+	 */
+	virtual bool setFilters(std::set<CanFilter> filters);
+
+	/*
+	 */
+	virtual void sniff(u32 timeout) = 0;
+
+
+}
+|—————Node:type_identifier Text: class
+|—————Node:identifier Text: CommonCanReceiver
+|—————Node:compound_statement Text: {
+private:
+	std::set<CanFilter> mFilters;
+
+protected:
+	OnReceiveFramePtr mRcvCB = nullptr;
+	OnTimeoutPtr mTimeoutCB = nullptr;
+	void* mData = nullptr;		//Data to be passed to the OnReceiveFramePtr callback
+
+	virtual bool _initialize(const std::string& interface) = 0;
+
+	bool filter(u32 id);
+
+public:
+	CommonCanReceiver() {}
+	virtual ~CommonCanReceiver() {}
+
+	/*
+	 * Initializes the receiver to be used with the specified interface
+	 */
+	bool initialize(const std::string& interface, OnReceiveFramePtr rcvCallback, OnTimeoutPtr tmoutCallback, void* data = nullptr);
+
+	/*
+	 * Finalize the interface releasing the resources that have been taken to initialize the interface.
+	 */
+	virtual bool finalize(const std::string& interface) = 0;
+
+	/*
+	 * There is the default implementation which is based in a check in user space, but there are specific implementations that let delegate the work to kernel space
+	 */
+	virtual bool setFilters(std::set<CanFilter> filters);
+
+	/*
+	 */
+	virtual void sniff(u32 timeout) = 0;
+
+
+}
+|——————Node:{ Text: {
+|——————Node:labeled_statement Text: private:
+	std::set<CanFilter> mFilters;
+|———————Node:statement_identifier Text: private
+|———————Node:: Text: :
+|———————Node:labeled_statement Text: std::set<CanFilter> mFilters;
+|————————Node:statement_identifier Text: std
+|————————Node:: Text: :
+|————————Node:ERROR Text: :
+|—————————Node:: Text: :
+|————————Node:expression_statement Text: set<CanFilter> mFilters;
+|—————————Node:binary_expression Text: set<CanFilter> mFilters
+|——————————Node:binary_expression Text: set<CanFilter
+|———————————Node:identifier Text: set
+|———————————Node:< Text: <
+|———————————Node:identifier Text: CanFilter
+|——————————Node:> Text: >
+|——————————Node:identifier Text: mFilters
+|—————————Node:; Text: ;
+|——————Node:labeled_statement Text: protected:
+	OnReceiveFramePtr mRcvCB = nullptr;
+|———————Node:statement_identifier Text: protected
+|———————Node:: Text: :
+|———————Node:declaration Text: OnReceiveFramePtr mRcvCB = nullptr;
+|————————Node:type_identifier Text: OnReceiveFramePtr
+|————————Node:init_declarator Text: mRcvCB = nullptr
+|—————————Node:identifier Text: mRcvCB
+|—————————Node:= Text: =
+|—————————Node:null Text: nullptr
+|——————————Node:nullptr Text: nullptr
+|————————Node:; Text: ;
+|——————Node:declaration Text: OnTimeoutPtr mTimeoutCB = nullptr;
+|———————Node:type_identifier Text: OnTimeoutPtr
+|———————Node:init_declarator Text: mTimeoutCB = nullptr
+|————————Node:identifier Text: mTimeoutCB
+|————————Node:= Text: =
+|————————Node:null Text: nullptr
+|—————————Node:nullptr Text: nullptr
+|———————Node:; Text: ;
+|——————Node:declaration Text: void* mData = nullptr;
+|———————Node:primitive_type Text: void
+|———————Node:init_declarator Text: * mData = nullptr
+|————————Node:pointer_declarator Text: * mData
+|—————————Node:* Text: *
+|—————————Node:identifier Text: mData
+|————————Node:= Text: =
+|————————Node:null Text: nullptr
+|—————————Node:nullptr Text: nullptr
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:declaration Text: virtual bool _initialize(const std::string& interface) = 0;
+|———————Node:type_identifier Text: virtual
+|———————Node:ERROR Text: bool
+|————————Node:identifier Text: bool
+|———————Node:init_declarator Text: _initialize(const std::string& interface) = 0
+|————————Node:function_declarator Text: _initialize(const std::string& interface)
+|—————————Node:identifier Text: _initialize
+|—————————Node:parameter_list Text: (const std::string& interface)
+|——————————Node:( Text: (
+|——————————Node:parameter_declaration Text: const std::string& interface
+|———————————Node:type_qualifier Text: const
+|————————————Node:const Text: const
+|———————————Node:type_identifier Text: std
+|———————————Node:ERROR Text: ::string&
+|————————————Node:: Text: :
+|————————————Node:: Text: :
+|————————————Node:identifier Text: string
+|————————————Node:& Text: &
+|———————————Node:identifier Text: interface
+|——————————Node:) Text: )
+|————————Node:= Text: =
+|————————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:declaration Text: bool filter(u32 id);
+|———————Node:primitive_type Text: bool
+|———————Node:function_declarator Text: filter(u32 id)
+|————————Node:identifier Text: filter
+|————————Node:parameter_list Text: (u32 id)
+|—————————Node:( Text: (
+|—————————Node:parameter_declaration Text: u32 id
+|——————————Node:type_identifier Text: u32
+|——————————Node:identifier Text: id
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:labeled_statement Text: public:
+	CommonCanReceiver()
+|———————Node:statement_identifier Text: public
+|———————Node:: Text: :
+|———————Node:expression_statement Text: CommonCanReceiver()
+|————————Node:call_expression Text: CommonCanReceiver()
+|—————————Node:identifier Text: CommonCanReceiver
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:; Text: 
+|——————Node:compound_statement Text: {}
+|———————Node:{ Text: {
+|———————Node:} Text: }
+|——————Node:function_definition Text: virtual ~CommonCanReceiver() {}
+|———————Node:type_identifier Text: virtual
+|———————Node:ERROR Text: ~
+|————————Node:~ Text: ~
+|———————Node:function_declarator Text: CommonCanReceiver()
+|————————Node:identifier Text: CommonCanReceiver
+|————————Node:parameter_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:compound_statement Text: {}
+|————————Node:{ Text: {
+|————————Node:} Text: }
+|——————Node:comment
+|——————Node:declaration Text: bool initialize(const std::string& interface, OnReceiveFramePtr rcvCallback, OnTimeoutPtr tmoutCallback, void* data = nullptr);
+|———————Node:primitive_type Text: bool
+|———————Node:init_declarator Text: initialize(const std::string& interface, OnReceiveFramePtr rcvCallback, OnTimeoutPtr tmoutCallback, void* data = nullptr
+|————————Node:function_declarator Text: initialize(const std::string& interface, OnReceiveFramePtr rcvCallback, OnTimeoutPtr tmoutCallback, void* data
+|—————————Node:identifier Text: initialize
+|—————————Node:parameter_list Text: (const std::string& interface, OnReceiveFramePtr rcvCallback, OnTimeoutPtr tmoutCallback, void* data
+|——————————Node:( Text: (
+|——————————Node:parameter_declaration Text: const std::string& interface
+|———————————Node:type_qualifier Text: const
+|————————————Node:const Text: const
+|———————————Node:type_identifier Text: std
+|———————————Node:ERROR Text: ::string&
+|————————————Node:: Text: :
+|————————————Node:: Text: :
+|————————————Node:identifier Text: string
+|————————————Node:& Text: &
+|———————————Node:identifier Text: interface
+|——————————Node:, Text: ,
+|——————————Node:parameter_declaration Text: OnReceiveFramePtr rcvCallback
+|———————————Node:type_identifier Text: OnReceiveFramePtr
+|———————————Node:identifier Text: rcvCallback
+|——————————Node:, Text: ,
+|——————————Node:parameter_declaration Text: OnTimeoutPtr tmoutCallback
+|———————————Node:type_identifier Text: OnTimeoutPtr
+|———————————Node:identifier Text: tmoutCallback
+|——————————Node:, Text: ,
+|——————————Node:parameter_declaration Text: void* data
+|———————————Node:primitive_type Text: void
+|———————————Node:pointer_declarator Text: * data
+|————————————Node:* Text: *
+|————————————Node:identifier Text: data
+|——————————Node:) Text: 
+|————————Node:= Text: =
+|————————Node:null Text: nullptr
+|—————————Node:nullptr Text: nullptr
+|———————Node:ERROR Text: )
+|————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:declaration Text: virtual bool finalize(const std::string& interface) = 0;
+|———————Node:type_identifier Text: virtual
+|———————Node:ERROR Text: bool
+|————————Node:identifier Text: bool
+|———————Node:init_declarator Text: finalize(const std::string& interface) = 0
+|————————Node:function_declarator Text: finalize(const std::string& interface)
+|—————————Node:identifier Text: finalize
+|—————————Node:parameter_list Text: (const std::string& interface)
+|——————————Node:( Text: (
+|——————————Node:parameter_declaration Text: const std::string& interface
+|———————————Node:type_qualifier Text: const
+|————————————Node:const Text: const
+|———————————Node:type_identifier Text: std
+|———————————Node:ERROR Text: ::string&
+|————————————Node:: Text: :
+|————————————Node:: Text: :
+|————————————Node:identifier Text: string
+|————————————Node:& Text: &
+|———————————Node:identifier Text: interface
+|——————————Node:) Text: )
+|————————Node:= Text: =
+|————————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:declaration Text: virtual bool setFilters(std::set<CanFilter> filters);
+|———————Node:type_identifier Text: virtual
+|———————Node:ERROR Text: bool
+|————————Node:identifier Text: bool
+|———————Node:function_declarator Text: setFilters(std::set<CanFilter> filters)
+|————————Node:identifier Text: setFilters
+|————————Node:parameter_list Text: (std::set<CanFilter> filters)
+|—————————Node:( Text: (
+|—————————Node:parameter_declaration Text: std::set<CanFilter> filters
+|——————————Node:type_identifier Text: std
+|——————————Node:ERROR Text: ::set<CanFilter>
+|———————————Node:: Text: :
+|———————————Node:: Text: :
+|———————————Node:identifier Text: set
+|———————————Node:< Text: <
+|———————————Node:identifier Text: CanFilter
+|———————————Node:> Text: >
+|——————————Node:identifier Text: filters
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:declaration Text: virtual void sniff(u32 timeout) = 0;
+|———————Node:type_identifier Text: virtual
+|———————Node:ERROR Text: void
+|————————Node:identifier Text: void
+|———————Node:init_declarator Text: sniff(u32 timeout) = 0
+|————————Node:function_declarator Text: sniff(u32 timeout)
+|—————————Node:identifier Text: sniff
+|—————————Node:parameter_list Text: (u32 timeout)
+|——————————Node:( Text: (
+|——————————Node:parameter_declaration Text: u32 timeout
+|———————————Node:type_identifier Text: u32
+|———————————Node:identifier Text: timeout
+|——————————Node:) Text: )
+|————————Node:= Text: =
+|————————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:comment
+|——Node:#endif Text: #endif
+|—Node:comment

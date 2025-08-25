@@ -1,0 +1,975 @@
+acan2515-src\ACANBuffer16.h
+
+|Node:translation_unit
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:preproc_ifdef Text: #ifndef ACAN_BUFFER_16_CLASS_DEFINED
+#define ACAN_BUFFER_16_CLASS_DEFINED
+
+//----------------------------------------------------------------------------------------------------------------------
+
+#include <CANMessage.h>
+
+//----------------------------------------------------------------------------------------------------------------------
+
+class ACANBuffer16 {
+
+  //······················································································································
+  // Default constructor
+  //······················································································································
+
+public:
+  ACANBuffer16(void)
+      : mBuffer(NULL), mSize(0), mReadIndex(0), mCount(0), mPeakCount(0) {}
+
+  //······················································································································
+  // Destructor
+  //······················································································································
+
+public:
+  ~ACANBuffer16(void) { delete[] mBuffer; }
+
+  //······················································································································
+  // Private properties
+  //······················································································································
+
+private:
+  CANMessage *mBuffer;
+
+private:
+  uint16_t mSize;
+
+private:
+  uint16_t mReadIndex;
+
+private:
+  volatile uint16_t mCount;
+
+private:
+  uint16_t mPeakCount; // > mSize if overflow did occur
+
+  //······················································································································
+  // Accessors
+  //······················································································································
+
+public:
+  inline uint16_t size(void) const { return mSize; }
+
+public:
+  inline uint16_t count(void) const { return mCount; }
+
+public:
+  inline uint16_t peakCount(void) const { return mPeakCount; }
+
+  //······················································································································
+  // initWithSize
+  //······················································································································
+
+public:
+  bool initWithSize(const uint16_t inSize) {
+    delete[] mBuffer;
+    mBuffer = new CANMessage[inSize];
+    const bool ok = mBuffer != NULL;
+    mSize = ok ? inSize : 0;
+    mReadIndex = 0;
+    mCount = 0;
+    mPeakCount = 0;
+    return ok;
+  }
+
+  //······················································································································
+  // append
+  //······················································································································
+
+public:
+  bool append(const CANMessage &inMessage) {
+    const bool ok = mCount < mSize;
+    if (ok) {
+      uint16_t writeIndex = mReadIndex + mCount;
+      if (writeIndex >= mSize) {
+        writeIndex -= mSize;
+      }
+      mBuffer[writeIndex] = inMessage;
+      mCount++;
+      if (mPeakCount < mCount) {
+        mPeakCount = mCount;
+      }
+    } else {
+      mPeakCount = mSize + 1;
+    }
+    return ok;
+  }
+
+  //······················································································································
+  // Remove
+  //······················································································································
+
+public:
+  bool remove(CANMessage &outMessage) {
+    const bool ok = mCount > 0;
+    if (ok) {
+      outMessage = mBuffer[mReadIndex];
+      mCount -= 1;
+      mReadIndex += 1;
+      if (mReadIndex == mSize) {
+        mReadIndex = 0;
+      }
+    }
+    return ok;
+  }
+
+  //······················································································································
+  // Free
+  //······················································································································
+
+public:
+  void free(void) {
+    delete[] mBuffer;
+    mBuffer = nullptr;
+    mSize = 0;
+    mReadIndex = 0;
+    mCount = 0;
+    mPeakCount = 0;
+  }
+
+  //······················································································································
+  // No copy
+  //······················································································································
+
+private:
+  ACANBuffer16(const ACANBuffer16 &);
+
+private:
+  ACANBuffer16 &operator=(const ACANBuffer16 &);
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: ACAN_BUFFER_16_CLASS_DEFINED
+|——Node:preproc_def Text: #define ACAN_BUFFER_16_CLASS_DEFINED
+
+|———Node:#define Text: #define
+|———Node:identifier Text: ACAN_BUFFER_16_CLASS_DEFINED
+|——Node:comment
+|——Node:preproc_include Text: #include <CANMessage.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <CANMessage.h>
+|——Node:comment
+|——Node:function_definition Text: class ACANBuffer16 {
+
+  //······················································································································
+  // Default constructor
+  //······················································································································
+
+public:
+  ACANBuffer16(void)
+      : mBuffer(NULL), mSize(0), mReadIndex(0), mCount(0), mPeakCount(0) {}
+
+  //······················································································································
+  // Destructor
+  //······················································································································
+
+public:
+  ~ACANBuffer16(void) { delete[] mBuffer; }
+
+  //······················································································································
+  // Private properties
+  //······················································································································
+
+private:
+  CANMessage *mBuffer;
+
+private:
+  uint16_t mSize;
+
+private:
+  uint16_t mReadIndex;
+
+private:
+  volatile uint16_t mCount;
+
+private:
+  uint16_t mPeakCount; // > mSize if overflow did occur
+
+  //······················································································································
+  // Accessors
+  //······················································································································
+
+public:
+  inline uint16_t size(void) const { return mSize; }
+|———Node:type_identifier Text: class
+|———Node:identifier Text: ACANBuffer16
+|———Node:compound_statement Text: {
+
+  //······················································································································
+  // Default constructor
+  //······················································································································
+
+public:
+  ACANBuffer16(void)
+      : mBuffer(NULL), mSize(0), mReadIndex(0), mCount(0), mPeakCount(0) {}
+
+  //······················································································································
+  // Destructor
+  //······················································································································
+
+public:
+  ~ACANBuffer16(void) { delete[] mBuffer; }
+
+  //······················································································································
+  // Private properties
+  //······················································································································
+
+private:
+  CANMessage *mBuffer;
+
+private:
+  uint16_t mSize;
+
+private:
+  uint16_t mReadIndex;
+
+private:
+  volatile uint16_t mCount;
+
+private:
+  uint16_t mPeakCount; // > mSize if overflow did occur
+
+  //······················································································································
+  // Accessors
+  //······················································································································
+
+public:
+  inline uint16_t size(void) const { return mSize; }
+|————Node:{ Text: {
+|————Node:comment
+|————Node:comment
+|————Node:comment
+|————Node:labeled_statement Text: public:
+  ACANBuffer16(void)
+      : mBuffer(NULL), mSize(0), mReadIndex(0), mCount(0), mPeakCount(0)
+|—————Node:statement_identifier Text: public
+|—————Node:ERROR Text: :
+  ACANBuffer16(void)
+|——————Node:: Text: :
+|——————Node:type_identifier Text: ACANBuffer16
+|——————Node:parenthesized_declarator Text: (void)
+|———————Node:( Text: (
+|———————Node:identifier Text: void
+|———————Node:) Text: )
+|—————Node:: Text: :
+|—————Node:expression_statement Text: mBuffer(NULL), mSize(0), mReadIndex(0), mCount(0), mPeakCount(0)
+|——————Node:comma_expression Text: mBuffer(NULL), mSize(0), mReadIndex(0), mCount(0), mPeakCount(0)
+|———————Node:call_expression Text: mBuffer(NULL)
+|————————Node:identifier Text: mBuffer
+|————————Node:argument_list Text: (NULL)
+|—————————Node:( Text: (
+|—————————Node:null Text: NULL
+|——————————Node:NULL Text: NULL
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:comma_expression Text: mSize(0), mReadIndex(0), mCount(0), mPeakCount(0)
+|————————Node:call_expression Text: mSize(0)
+|—————————Node:identifier Text: mSize
+|—————————Node:argument_list Text: (0)
+|——————————Node:( Text: (
+|——————————Node:number_literal Text: 0
+|——————————Node:) Text: )
+|————————Node:, Text: ,
+|————————Node:comma_expression Text: mReadIndex(0), mCount(0), mPeakCount(0)
+|—————————Node:call_expression Text: mReadIndex(0)
+|——————————Node:identifier Text: mReadIndex
+|——————————Node:argument_list Text: (0)
+|———————————Node:( Text: (
+|———————————Node:number_literal Text: 0
+|———————————Node:) Text: )
+|—————————Node:, Text: ,
+|—————————Node:comma_expression Text: mCount(0), mPeakCount(0)
+|——————————Node:call_expression Text: mCount(0)
+|———————————Node:identifier Text: mCount
+|———————————Node:argument_list Text: (0)
+|————————————Node:( Text: (
+|————————————Node:number_literal Text: 0
+|————————————Node:) Text: )
+|——————————Node:, Text: ,
+|——————————Node:call_expression Text: mPeakCount(0)
+|———————————Node:identifier Text: mPeakCount
+|———————————Node:argument_list Text: (0)
+|————————————Node:( Text: (
+|————————————Node:number_literal Text: 0
+|————————————Node:) Text: )
+|——————Node:; Text: 
+|————Node:compound_statement Text: {}
+|—————Node:{ Text: {
+|—————Node:} Text: }
+|————Node:comment
+|————Node:comment
+|————Node:comment
+|————Node:labeled_statement Text: public:
+  ~ACANBuffer16(void)
+|—————Node:statement_identifier Text: public
+|—————Node:: Text: :
+|—————Node:expression_statement Text: ~ACANBuffer16(void)
+|——————Node:unary_expression Text: ~ACANBuffer16(void)
+|———————Node:~ Text: ~
+|———————Node:call_expression Text: ACANBuffer16(void)
+|————————Node:identifier Text: ACANBuffer16
+|————————Node:argument_list Text: (void)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: void
+|—————————Node:) Text: )
+|——————Node:; Text: 
+|————Node:compound_statement Text: { delete[] mBuffer; }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: delete[] mBuffer;
+|——————Node:subscript_expression Text: delete[] mBuffer
+|———————Node:identifier Text: delete
+|———————Node:[ Text: [
+|———————Node:ERROR Text: ]
+|————————Node:] Text: ]
+|———————Node:identifier Text: mBuffer
+|———————Node:] Text: 
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:comment
+|————Node:comment
+|————Node:comment
+|————Node:labeled_statement Text: private:
+  CANMessage *mBuffer;
+|—————Node:statement_identifier Text: private
+|—————Node:: Text: :
+|—————Node:declaration Text: CANMessage *mBuffer;
+|——————Node:type_identifier Text: CANMessage
+|——————Node:pointer_declarator Text: *mBuffer
+|———————Node:* Text: *
+|———————Node:identifier Text: mBuffer
+|——————Node:; Text: ;
+|————Node:labeled_statement Text: private:
+  uint16_t mSize;
+|—————Node:statement_identifier Text: private
+|—————Node:: Text: :
+|—————Node:declaration Text: uint16_t mSize;
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: mSize
+|——————Node:; Text: ;
+|————Node:labeled_statement Text: private:
+  uint16_t mReadIndex;
+|—————Node:statement_identifier Text: private
+|—————Node:: Text: :
+|—————Node:declaration Text: uint16_t mReadIndex;
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: mReadIndex
+|——————Node:; Text: ;
+|————Node:labeled_statement Text: private:
+  volatile uint16_t mCount;
+|—————Node:statement_identifier Text: private
+|—————Node:: Text: :
+|—————Node:declaration Text: volatile uint16_t mCount;
+|——————Node:type_qualifier Text: volatile
+|———————Node:volatile Text: volatile
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: mCount
+|——————Node:; Text: ;
+|————Node:labeled_statement Text: private:
+  uint16_t mPeakCount;
+|—————Node:statement_identifier Text: private
+|—————Node:: Text: :
+|—————Node:declaration Text: uint16_t mPeakCount;
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: mPeakCount
+|——————Node:; Text: ;
+|————Node:comment
+|————Node:comment
+|————Node:comment
+|————Node:comment
+|————Node:labeled_statement Text: public:
+  inline uint16_t size(void) const { return mSize;
+|—————Node:statement_identifier Text: public
+|—————Node:: Text: :
+|—————Node:declaration Text: inline uint16_t size(void) const { return mSize;
+|——————Node:storage_class_specifier Text: inline
+|———————Node:inline Text: inline
+|——————Node:primitive_type Text: uint16_t
+|——————Node:ERROR Text: size(void) const { return
+|———————Node:function_declarator Text: size(void) const
+|————————Node:identifier Text: size
+|————————Node:parameter_list Text: (void)
+|—————————Node:( Text: (
+|—————————Node:parameter_declaration Text: void
+|——————————Node:primitive_type Text: void
+|—————————Node:) Text: )
+|————————Node:identifier Text: const
+|———————Node:{ Text: {
+|———————Node:return Text: return
+|——————Node:identifier Text: mSize
+|——————Node:; Text: ;
+|————Node:} Text: }
+|——Node:labeled_statement Text: public:
+  inline uint16_t count(void) const { return mCount; }
+|———Node:statement_identifier Text: public
+|———Node:: Text: :
+|———Node:ERROR Text: inline uint16_t count(void) const
+|————Node:storage_class_specifier Text: inline
+|—————Node:inline Text: inline
+|————Node:primitive_type Text: uint16_t
+|————Node:function_declarator Text: count(void) const
+|—————Node:identifier Text: count
+|—————Node:parameter_list Text: (void)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: void
+|———————Node:primitive_type Text: void
+|——————Node:) Text: )
+|—————Node:identifier Text: const
+|———Node:compound_statement Text: { return mCount; }
+|————Node:{ Text: {
+|————Node:return_statement Text: return mCount;
+|—————Node:return Text: return
+|—————Node:identifier Text: mCount
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:labeled_statement Text: public:
+  inline uint16_t peakCount(void) const { return mPeakCount; }
+|———Node:statement_identifier Text: public
+|———Node:: Text: :
+|———Node:ERROR Text: inline uint16_t peakCount(void) const
+|————Node:storage_class_specifier Text: inline
+|—————Node:inline Text: inline
+|————Node:primitive_type Text: uint16_t
+|————Node:function_declarator Text: peakCount(void) const
+|—————Node:identifier Text: peakCount
+|—————Node:parameter_list Text: (void)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: void
+|———————Node:primitive_type Text: void
+|——————Node:) Text: )
+|—————Node:identifier Text: const
+|———Node:compound_statement Text: { return mPeakCount; }
+|————Node:{ Text: {
+|————Node:return_statement Text: return mPeakCount;
+|—————Node:return Text: return
+|—————Node:identifier Text: mPeakCount
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:labeled_statement Text: public:
+  bool initWithSize(const uint16_t inSize) {
+    delete[] mBuffer;
+|———Node:statement_identifier Text: public
+|———Node:: Text: :
+|———Node:declaration Text: bool initWithSize(const uint16_t inSize) {
+    delete[] mBuffer;
+|————Node:primitive_type Text: bool
+|————Node:ERROR Text: initWithSize(const uint16_t inSize) {
+    delete[]
+|—————Node:function_declarator Text: initWithSize(const uint16_t inSize)
+|——————Node:identifier Text: initWithSize
+|——————Node:parameter_list Text: (const uint16_t inSize)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const uint16_t inSize
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: uint16_t
+|————————Node:identifier Text: inSize
+|———————Node:) Text: )
+|—————Node:{ Text: {
+|—————Node:array_declarator Text: delete[]
+|——————Node:identifier Text: delete
+|——————Node:[ Text: [
+|——————Node:] Text: ]
+|————Node:identifier Text: mBuffer
+|————Node:; Text: ;
+|——Node:expression_statement Text: mBuffer = new CANMessage[inSize];
+|———Node:assignment_expression Text: mBuffer = new CANMessage[inSize]
+|————Node:identifier Text: mBuffer
+|————Node:= Text: =
+|————Node:ERROR Text: new
+|—————Node:identifier Text: new
+|————Node:subscript_expression Text: CANMessage[inSize]
+|—————Node:identifier Text: CANMessage
+|—————Node:[ Text: [
+|—————Node:identifier Text: inSize
+|—————Node:] Text: ]
+|———Node:; Text: ;
+|——Node:declaration Text: const bool ok = mBuffer != NULL;
+|———Node:type_qualifier Text: const
+|————Node:const Text: const
+|———Node:primitive_type Text: bool
+|———Node:init_declarator Text: ok = mBuffer != NULL
+|————Node:identifier Text: ok
+|————Node:= Text: =
+|————Node:binary_expression Text: mBuffer != NULL
+|—————Node:identifier Text: mBuffer
+|—————Node:!= Text: !=
+|—————Node:null Text: NULL
+|——————Node:NULL Text: NULL
+|———Node:; Text: ;
+|——Node:expression_statement Text: mSize = ok ? inSize : 0;
+|———Node:assignment_expression Text: mSize = ok ? inSize : 0
+|————Node:identifier Text: mSize
+|————Node:= Text: =
+|————Node:conditional_expression Text: ok ? inSize : 0
+|—————Node:identifier Text: ok
+|—————Node:? Text: ?
+|—————Node:identifier Text: inSize
+|—————Node:: Text: :
+|—————Node:number_literal Text: 0
+|———Node:; Text: ;
+|——Node:expression_statement Text: mReadIndex = 0;
+|———Node:assignment_expression Text: mReadIndex = 0
+|————Node:identifier Text: mReadIndex
+|————Node:= Text: =
+|————Node:number_literal Text: 0
+|———Node:; Text: ;
+|——Node:expression_statement Text: mCount = 0;
+|———Node:assignment_expression Text: mCount = 0
+|————Node:identifier Text: mCount
+|————Node:= Text: =
+|————Node:number_literal Text: 0
+|———Node:; Text: ;
+|——Node:expression_statement Text: mPeakCount = 0;
+|———Node:assignment_expression Text: mPeakCount = 0
+|————Node:identifier Text: mPeakCount
+|————Node:= Text: =
+|————Node:number_literal Text: 0
+|———Node:; Text: ;
+|——Node:return_statement Text: return ok;
+|———Node:return Text: return
+|———Node:identifier Text: ok
+|———Node:; Text: ;
+|——Node:ERROR Text: }
+|———Node:} Text: }
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:labeled_statement Text: public:
+  bool append(const CANMessage &inMessage) {
+    const bool ok = mCount < mSize;
+    if (ok) {
+      uint16_t writeIndex = mReadIndex + mCount;
+      if (writeIndex >= mSize) {
+        writeIndex -= mSize;
+      }
+      mBuffer[writeIndex] = inMessage;
+      mCount++;
+      if (mPeakCount < mCount) {
+        mPeakCount = mCount;
+      }
+    } else {
+      mPeakCount = mSize + 1;
+    }
+    return ok;
+  }
+|———Node:statement_identifier Text: public
+|———Node:: Text: :
+|———Node:ERROR Text: bool append(const CANMessage &inMessage)
+|————Node:primitive_type Text: bool
+|————Node:function_declarator Text: append(const CANMessage &inMessage)
+|—————Node:identifier Text: append
+|—————Node:parameter_list Text: (const CANMessage &inMessage)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: const CANMessage &inMessage
+|———————Node:type_qualifier Text: const
+|————————Node:const Text: const
+|———————Node:type_identifier Text: CANMessage
+|———————Node:ERROR Text: &
+|————————Node:& Text: &
+|———————Node:identifier Text: inMessage
+|——————Node:) Text: )
+|———Node:compound_statement Text: {
+    const bool ok = mCount < mSize;
+    if (ok) {
+      uint16_t writeIndex = mReadIndex + mCount;
+      if (writeIndex >= mSize) {
+        writeIndex -= mSize;
+      }
+      mBuffer[writeIndex] = inMessage;
+      mCount++;
+      if (mPeakCount < mCount) {
+        mPeakCount = mCount;
+      }
+    } else {
+      mPeakCount = mSize + 1;
+    }
+    return ok;
+  }
+|————Node:{ Text: {
+|————Node:declaration Text: const bool ok = mCount < mSize;
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: bool
+|—————Node:init_declarator Text: ok = mCount < mSize
+|——————Node:identifier Text: ok
+|——————Node:= Text: =
+|——————Node:binary_expression Text: mCount < mSize
+|———————Node:identifier Text: mCount
+|———————Node:< Text: <
+|———————Node:identifier Text: mSize
+|—————Node:; Text: ;
+|————Node:if_statement Text: if (ok) {
+      uint16_t writeIndex = mReadIndex + mCount;
+      if (writeIndex >= mSize) {
+        writeIndex -= mSize;
+      }
+      mBuffer[writeIndex] = inMessage;
+      mCount++;
+      if (mPeakCount < mCount) {
+        mPeakCount = mCount;
+      }
+    } else {
+      mPeakCount = mSize + 1;
+    }
+|—————Node:if Text: if
+|—————Node:parenthesized_expression Text: (ok)
+|——————Node:( Text: (
+|——————Node:identifier Text: ok
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+      uint16_t writeIndex = mReadIndex + mCount;
+      if (writeIndex >= mSize) {
+        writeIndex -= mSize;
+      }
+      mBuffer[writeIndex] = inMessage;
+      mCount++;
+      if (mPeakCount < mCount) {
+        mPeakCount = mCount;
+      }
+    }
+|——————Node:{ Text: {
+|——————Node:declaration Text: uint16_t writeIndex = mReadIndex + mCount;
+|———————Node:primitive_type Text: uint16_t
+|———————Node:init_declarator Text: writeIndex = mReadIndex + mCount
+|————————Node:identifier Text: writeIndex
+|————————Node:= Text: =
+|————————Node:binary_expression Text: mReadIndex + mCount
+|—————————Node:identifier Text: mReadIndex
+|—————————Node:+ Text: +
+|—————————Node:identifier Text: mCount
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (writeIndex >= mSize) {
+        writeIndex -= mSize;
+      }
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (writeIndex >= mSize)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: writeIndex >= mSize
+|—————————Node:identifier Text: writeIndex
+|—————————Node:>= Text: >=
+|—————————Node:identifier Text: mSize
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+        writeIndex -= mSize;
+      }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: writeIndex -= mSize;
+|—————————Node:assignment_expression Text: writeIndex -= mSize
+|——————————Node:identifier Text: writeIndex
+|——————————Node:-= Text: -=
+|——————————Node:identifier Text: mSize
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:expression_statement Text: mBuffer[writeIndex] = inMessage;
+|———————Node:assignment_expression Text: mBuffer[writeIndex] = inMessage
+|————————Node:subscript_expression Text: mBuffer[writeIndex]
+|—————————Node:identifier Text: mBuffer
+|—————————Node:[ Text: [
+|—————————Node:identifier Text: writeIndex
+|—————————Node:] Text: ]
+|————————Node:= Text: =
+|————————Node:identifier Text: inMessage
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: mCount++;
+|———————Node:update_expression Text: mCount++
+|————————Node:identifier Text: mCount
+|————————Node:++ Text: ++
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (mPeakCount < mCount) {
+        mPeakCount = mCount;
+      }
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (mPeakCount < mCount)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: mPeakCount < mCount
+|—————————Node:identifier Text: mPeakCount
+|—————————Node:< Text: <
+|—————————Node:identifier Text: mCount
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+        mPeakCount = mCount;
+      }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: mPeakCount = mCount;
+|—————————Node:assignment_expression Text: mPeakCount = mCount
+|——————————Node:identifier Text: mPeakCount
+|——————————Node:= Text: =
+|——————————Node:identifier Text: mCount
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:} Text: }
+|—————Node:else_clause Text: else {
+      mPeakCount = mSize + 1;
+    }
+|——————Node:else Text: else
+|——————Node:compound_statement Text: {
+      mPeakCount = mSize + 1;
+    }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: mPeakCount = mSize + 1;
+|————————Node:assignment_expression Text: mPeakCount = mSize + 1
+|—————————Node:identifier Text: mPeakCount
+|—————————Node:= Text: =
+|—————————Node:binary_expression Text: mSize + 1
+|——————————Node:identifier Text: mSize
+|——————————Node:+ Text: +
+|——————————Node:number_literal Text: 1
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|————Node:return_statement Text: return ok;
+|—————Node:return Text: return
+|—————Node:identifier Text: ok
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:labeled_statement Text: public:
+  bool remove(CANMessage &outMessage) {
+    const bool ok = mCount > 0;
+    if (ok) {
+      outMessage = mBuffer[mReadIndex];
+      mCount -= 1;
+      mReadIndex += 1;
+      if (mReadIndex == mSize) {
+        mReadIndex = 0;
+      }
+    }
+    return ok;
+  }
+|———Node:statement_identifier Text: public
+|———Node:: Text: :
+|———Node:ERROR Text: bool remove(CANMessage &outMessage)
+|————Node:primitive_type Text: bool
+|————Node:function_declarator Text: remove(CANMessage &outMessage)
+|—————Node:identifier Text: remove
+|—————Node:parameter_list Text: (CANMessage &outMessage)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: CANMessage &outMessage
+|———————Node:type_identifier Text: CANMessage
+|———————Node:ERROR Text: &
+|————————Node:& Text: &
+|———————Node:identifier Text: outMessage
+|——————Node:) Text: )
+|———Node:compound_statement Text: {
+    const bool ok = mCount > 0;
+    if (ok) {
+      outMessage = mBuffer[mReadIndex];
+      mCount -= 1;
+      mReadIndex += 1;
+      if (mReadIndex == mSize) {
+        mReadIndex = 0;
+      }
+    }
+    return ok;
+  }
+|————Node:{ Text: {
+|————Node:declaration Text: const bool ok = mCount > 0;
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: bool
+|—————Node:init_declarator Text: ok = mCount > 0
+|——————Node:identifier Text: ok
+|——————Node:= Text: =
+|——————Node:binary_expression Text: mCount > 0
+|———————Node:identifier Text: mCount
+|———————Node:> Text: >
+|———————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:if_statement Text: if (ok) {
+      outMessage = mBuffer[mReadIndex];
+      mCount -= 1;
+      mReadIndex += 1;
+      if (mReadIndex == mSize) {
+        mReadIndex = 0;
+      }
+    }
+|—————Node:if Text: if
+|—————Node:parenthesized_expression Text: (ok)
+|——————Node:( Text: (
+|——————Node:identifier Text: ok
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+      outMessage = mBuffer[mReadIndex];
+      mCount -= 1;
+      mReadIndex += 1;
+      if (mReadIndex == mSize) {
+        mReadIndex = 0;
+      }
+    }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: outMessage = mBuffer[mReadIndex];
+|———————Node:assignment_expression Text: outMessage = mBuffer[mReadIndex]
+|————————Node:identifier Text: outMessage
+|————————Node:= Text: =
+|————————Node:subscript_expression Text: mBuffer[mReadIndex]
+|—————————Node:identifier Text: mBuffer
+|—————————Node:[ Text: [
+|—————————Node:identifier Text: mReadIndex
+|—————————Node:] Text: ]
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: mCount -= 1;
+|———————Node:assignment_expression Text: mCount -= 1
+|————————Node:identifier Text: mCount
+|————————Node:-= Text: -=
+|————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: mReadIndex += 1;
+|———————Node:assignment_expression Text: mReadIndex += 1
+|————————Node:identifier Text: mReadIndex
+|————————Node:+= Text: +=
+|————————Node:number_literal Text: 1
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if (mReadIndex == mSize) {
+        mReadIndex = 0;
+      }
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (mReadIndex == mSize)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: mReadIndex == mSize
+|—————————Node:identifier Text: mReadIndex
+|—————————Node:== Text: ==
+|—————————Node:identifier Text: mSize
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+        mReadIndex = 0;
+      }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: mReadIndex = 0;
+|—————————Node:assignment_expression Text: mReadIndex = 0
+|——————————Node:identifier Text: mReadIndex
+|——————————Node:= Text: =
+|——————————Node:number_literal Text: 0
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:} Text: }
+|————Node:return_statement Text: return ok;
+|—————Node:return Text: return
+|—————Node:identifier Text: ok
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:labeled_statement Text: public:
+  void free(void) {
+    delete[] mBuffer;
+|———Node:statement_identifier Text: public
+|———Node:: Text: :
+|———Node:declaration Text: void free(void) {
+    delete[] mBuffer;
+|————Node:primitive_type Text: void
+|————Node:ERROR Text: free(void) {
+    delete[]
+|—————Node:function_declarator Text: free(void)
+|——————Node:identifier Text: free
+|——————Node:parameter_list Text: (void)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: void
+|————————Node:primitive_type Text: void
+|———————Node:) Text: )
+|—————Node:{ Text: {
+|—————Node:array_declarator Text: delete[]
+|——————Node:identifier Text: delete
+|——————Node:[ Text: [
+|——————Node:] Text: ]
+|————Node:identifier Text: mBuffer
+|————Node:; Text: ;
+|——Node:expression_statement Text: mBuffer = nullptr;
+|———Node:assignment_expression Text: mBuffer = nullptr
+|————Node:identifier Text: mBuffer
+|————Node:= Text: =
+|————Node:null Text: nullptr
+|—————Node:nullptr Text: nullptr
+|———Node:; Text: ;
+|——Node:expression_statement Text: mSize = 0;
+|———Node:assignment_expression Text: mSize = 0
+|————Node:identifier Text: mSize
+|————Node:= Text: =
+|————Node:number_literal Text: 0
+|———Node:; Text: ;
+|——Node:expression_statement Text: mReadIndex = 0;
+|———Node:assignment_expression Text: mReadIndex = 0
+|————Node:identifier Text: mReadIndex
+|————Node:= Text: =
+|————Node:number_literal Text: 0
+|———Node:; Text: ;
+|——Node:expression_statement Text: mCount = 0;
+|———Node:assignment_expression Text: mCount = 0
+|————Node:identifier Text: mCount
+|————Node:= Text: =
+|————Node:number_literal Text: 0
+|———Node:; Text: ;
+|——Node:expression_statement Text: mPeakCount = 0;
+|———Node:assignment_expression Text: mPeakCount = 0
+|————Node:identifier Text: mPeakCount
+|————Node:= Text: =
+|————Node:number_literal Text: 0
+|———Node:; Text: ;
+|——Node:ERROR Text: }
+|———Node:} Text: }
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:labeled_statement Text: private:
+  ACANBuffer16(const ACANBuffer16 &);
+|———Node:statement_identifier Text: private
+|———Node:: Text: :
+|———Node:declaration Text: ACANBuffer16(const ACANBuffer16 &);
+|————Node:macro_type_specifier Text: ACANBuffer16(const ACANBuffer16 &)
+|—————Node:identifier Text: ACANBuffer16
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: const ACANBuffer16
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: ACANBuffer16
+|—————Node:ERROR Text: &
+|——————Node:& Text: &
+|—————Node:) Text: )
+|————Node:identifier Text: 
+|————Node:; Text: ;
+|——Node:labeled_statement Text: private:
+  ACANBuffer16 &operator=(const ACANBuffer16 &);
+};
+|———Node:statement_identifier Text: private
+|———Node:: Text: :
+|———Node:expression_statement Text: ACANBuffer16 &operator=(const ACANBuffer16 &);
+};
+|————Node:binary_expression Text: ACANBuffer16 &operator
+|—————Node:identifier Text: ACANBuffer16
+|—————Node:& Text: &
+|—————Node:identifier Text: operator
+|————Node:ERROR Text: =(const ACANBuffer16 &);
+}
+|—————Node:= Text: =
+|—————Node:( Text: (
+|—————Node:type_descriptor Text: const ACANBuffer16
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: ACANBuffer16
+|—————Node:ERROR Text: &
+|——————Node:& Text: &
+|—————Node:) Text: )
+|—————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:; Text: ;
+|——Node:comment
+|——Node:#endif Text: #endif

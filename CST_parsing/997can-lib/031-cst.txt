@@ -1,0 +1,354 @@
+997can-lib-Can997.h
+
+|Node:translation_unit
+|—Node:preproc_ifdef Text: #ifndef __CAN997_H
+#define __CAN997_H
+#include <EngineMsmt.h>
+#include <mcp_can.h>
+#if defined __AVR_ATmega2560__
+#define CAN0_INT 21                             // Set INT to pin 21
+#define CAN_CS 5	
+#else
+#if defined __AVR__
+#define CAN_CS 7	
+#define CAN0_INT 2 // Set INT to pin 2
+#define DISPLAY_CAN_SLAVE
+#else
+#define CAN_CS 7	
+#define CAN0_INT 6 // Set INT to pin 2
+#define DISPLAY_CAN_SLAVE
+#endif
+#endif
+
+INT8U CAN_BeginMaster();
+
+void CAN_Spi_UnSelect();
+
+#ifdef DISPLAY_CAN_SLAVE
+INT8U CAN_BeginSlave();
+INT8U  getCANDataPrivate(long duration, EngineMsmtU& Engine);
+#else 
+INT8U sendBothPrivateCan(EngineMsmtU& _Engine);
+INT8U send442();
+INT8U  getCan242(long duration, MOTOR_1& can242);
+INT8U  getCan245(long duration, MOTOR_2& can245);
+#endif
+
+
+#ifdef FUNCS_CAN_REMOTEREQUEST
+
+INT8U  getRemoteRequest(long duration, int txid);
+INT8U SendRemoteRequest(int txid);
+#endif
+extern MCP_CAN CAN0;
+
+#define CAN_EXTENDED 0x80000000
+#define CAN_REMOTEREQUEST  0x40000000
+#define CAN_PRIVATE1 (0x17fc|CAN_EXTENDED)   // MUST BE EVEN!!
+#define CAN_PRIVATE2 (CAN_PRIVATE1|1)  
+#define CAN_ANTRIEB242 0x242
+#define CAN_ANTRIEB245 0x245
+#define CAN_ANTRIEB442 0x442
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: __CAN997_H
+|——Node:preproc_def Text: #define __CAN997_H
+
+|———Node:#define Text: #define
+|———Node:identifier Text: __CAN997_H
+|——Node:preproc_include Text: #include <EngineMsmt.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <EngineMsmt.h>
+|——Node:preproc_include Text: #include <mcp_can.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <mcp_can.h>
+|——Node:preproc_if Text: #if defined __AVR_ATmega2560__
+#define CAN0_INT 21                             // Set INT to pin 21
+#define CAN_CS 5	
+#else
+#if defined __AVR__
+#define CAN_CS 7	
+#define CAN0_INT 2 // Set INT to pin 2
+#define DISPLAY_CAN_SLAVE
+#else
+#define CAN_CS 7	
+#define CAN0_INT 6 // Set INT to pin 2
+#define DISPLAY_CAN_SLAVE
+#endif
+#endif
+|———Node:#if Text: #if
+|———Node:preproc_defined Text: defined __AVR_ATmega2560__
+|————Node:defined Text: defined
+|————Node:identifier Text: __AVR_ATmega2560__
+|———Node:
+ Text: 
+
+|———Node:preproc_def Text: #define CAN0_INT 21                             // Set INT to pin 21
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN0_INT
+|————Node:preproc_arg Text: 21                             // Set INT to pin 21
+|———Node:preproc_def Text: #define CAN_CS 5	
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_CS
+|————Node:preproc_arg Text: 5	
+|———Node:preproc_else Text: #else
+#if defined __AVR__
+#define CAN_CS 7	
+#define CAN0_INT 2 // Set INT to pin 2
+#define DISPLAY_CAN_SLAVE
+#else
+#define CAN_CS 7	
+#define CAN0_INT 6 // Set INT to pin 2
+#define DISPLAY_CAN_SLAVE
+#endif
+|————Node:#else Text: #else
+|————Node:preproc_if Text: #if defined __AVR__
+#define CAN_CS 7	
+#define CAN0_INT 2 // Set INT to pin 2
+#define DISPLAY_CAN_SLAVE
+#else
+#define CAN_CS 7	
+#define CAN0_INT 6 // Set INT to pin 2
+#define DISPLAY_CAN_SLAVE
+#endif
+|—————Node:#if Text: #if
+|—————Node:preproc_defined Text: defined __AVR__
+|——————Node:defined Text: defined
+|——————Node:identifier Text: __AVR__
+|—————Node:
+ Text: 
+
+|—————Node:preproc_def Text: #define CAN_CS 7	
+
+|——————Node:#define Text: #define
+|——————Node:identifier Text: CAN_CS
+|——————Node:preproc_arg Text: 7	
+|—————Node:preproc_def Text: #define CAN0_INT 2 // Set INT to pin 2
+
+|——————Node:#define Text: #define
+|——————Node:identifier Text: CAN0_INT
+|——————Node:preproc_arg Text: 2 // Set INT to pin 2
+|—————Node:preproc_def Text: #define DISPLAY_CAN_SLAVE
+
+|——————Node:#define Text: #define
+|——————Node:identifier Text: DISPLAY_CAN_SLAVE
+|—————Node:preproc_else Text: #else
+#define CAN_CS 7	
+#define CAN0_INT 6 // Set INT to pin 2
+#define DISPLAY_CAN_SLAVE
+
+|——————Node:#else Text: #else
+|——————Node:preproc_def Text: #define CAN_CS 7	
+
+|———————Node:#define Text: #define
+|———————Node:identifier Text: CAN_CS
+|———————Node:preproc_arg Text: 7	
+|——————Node:preproc_def Text: #define CAN0_INT 6 // Set INT to pin 2
+
+|———————Node:#define Text: #define
+|———————Node:identifier Text: CAN0_INT
+|———————Node:preproc_arg Text: 6 // Set INT to pin 2
+|——————Node:preproc_def Text: #define DISPLAY_CAN_SLAVE
+
+|———————Node:#define Text: #define
+|———————Node:identifier Text: DISPLAY_CAN_SLAVE
+|—————Node:#endif Text: #endif
+|———Node:#endif Text: #endif
+|——Node:declaration Text: INT8U CAN_BeginMaster();
+|———Node:type_identifier Text: INT8U
+|———Node:function_declarator Text: CAN_BeginMaster()
+|————Node:identifier Text: CAN_BeginMaster
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: void CAN_Spi_UnSelect();
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: CAN_Spi_UnSelect()
+|————Node:identifier Text: CAN_Spi_UnSelect
+|————Node:parameter_list Text: ()
+|—————Node:( Text: (
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:preproc_ifdef Text: #ifdef DISPLAY_CAN_SLAVE
+INT8U CAN_BeginSlave();
+INT8U  getCANDataPrivate(long duration, EngineMsmtU& Engine);
+#else 
+INT8U sendBothPrivateCan(EngineMsmtU& _Engine);
+INT8U send442();
+INT8U  getCan242(long duration, MOTOR_1& can242);
+INT8U  getCan245(long duration, MOTOR_2& can245);
+#endif
+|———Node:#ifdef Text: #ifdef
+|———Node:identifier Text: DISPLAY_CAN_SLAVE
+|———Node:declaration Text: INT8U CAN_BeginSlave();
+|————Node:type_identifier Text: INT8U
+|————Node:function_declarator Text: CAN_BeginSlave()
+|—————Node:identifier Text: CAN_BeginSlave
+|—————Node:parameter_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: INT8U  getCANDataPrivate(long duration, EngineMsmtU& Engine);
+|————Node:type_identifier Text: INT8U
+|————Node:function_declarator Text: getCANDataPrivate(long duration, EngineMsmtU& Engine)
+|—————Node:identifier Text: getCANDataPrivate
+|—————Node:parameter_list Text: (long duration, EngineMsmtU& Engine)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: long duration
+|———————Node:sized_type_specifier Text: long
+|————————Node:long Text: long
+|———————Node:identifier Text: duration
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: EngineMsmtU& Engine
+|———————Node:type_identifier Text: EngineMsmtU
+|———————Node:ERROR Text: &
+|————————Node:& Text: &
+|———————Node:identifier Text: Engine
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:preproc_else Text: #else 
+INT8U sendBothPrivateCan(EngineMsmtU& _Engine);
+INT8U send442();
+INT8U  getCan242(long duration, MOTOR_1& can242);
+INT8U  getCan245(long duration, MOTOR_2& can245);
+|————Node:#else Text: #else
+|————Node:declaration Text: INT8U sendBothPrivateCan(EngineMsmtU& _Engine);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: sendBothPrivateCan(EngineMsmtU& _Engine)
+|——————Node:identifier Text: sendBothPrivateCan
+|——————Node:parameter_list Text: (EngineMsmtU& _Engine)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: EngineMsmtU& _Engine
+|————————Node:type_identifier Text: EngineMsmtU
+|————————Node:ERROR Text: &
+|—————————Node:& Text: &
+|————————Node:identifier Text: _Engine
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U send442();
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: send442()
+|——————Node:identifier Text: send442
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U  getCan242(long duration, MOTOR_1& can242);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: getCan242(long duration, MOTOR_1& can242)
+|——————Node:identifier Text: getCan242
+|——————Node:parameter_list Text: (long duration, MOTOR_1& can242)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: long duration
+|————————Node:sized_type_specifier Text: long
+|—————————Node:long Text: long
+|————————Node:identifier Text: duration
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: MOTOR_1& can242
+|————————Node:type_identifier Text: MOTOR_1
+|————————Node:ERROR Text: &
+|—————————Node:& Text: &
+|————————Node:identifier Text: can242
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: INT8U  getCan245(long duration, MOTOR_2& can245);
+|—————Node:type_identifier Text: INT8U
+|—————Node:function_declarator Text: getCan245(long duration, MOTOR_2& can245)
+|——————Node:identifier Text: getCan245
+|——————Node:parameter_list Text: (long duration, MOTOR_2& can245)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: long duration
+|————————Node:sized_type_specifier Text: long
+|—————————Node:long Text: long
+|————————Node:identifier Text: duration
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: MOTOR_2& can245
+|————————Node:type_identifier Text: MOTOR_2
+|————————Node:ERROR Text: &
+|—————————Node:& Text: &
+|————————Node:identifier Text: can245
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:#endif Text: #endif
+|——Node:preproc_ifdef Text: #ifdef FUNCS_CAN_REMOTEREQUEST
+
+INT8U  getRemoteRequest(long duration, int txid);
+INT8U SendRemoteRequest(int txid);
+#endif
+|———Node:#ifdef Text: #ifdef
+|———Node:identifier Text: FUNCS_CAN_REMOTEREQUEST
+|———Node:declaration Text: INT8U  getRemoteRequest(long duration, int txid);
+|————Node:type_identifier Text: INT8U
+|————Node:function_declarator Text: getRemoteRequest(long duration, int txid)
+|—————Node:identifier Text: getRemoteRequest
+|—————Node:parameter_list Text: (long duration, int txid)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: long duration
+|———————Node:sized_type_specifier Text: long
+|————————Node:long Text: long
+|———————Node:identifier Text: duration
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: int txid
+|———————Node:primitive_type Text: int
+|———————Node:identifier Text: txid
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: INT8U SendRemoteRequest(int txid);
+|————Node:type_identifier Text: INT8U
+|————Node:function_declarator Text: SendRemoteRequest(int txid)
+|—————Node:identifier Text: SendRemoteRequest
+|—————Node:parameter_list Text: (int txid)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: int txid
+|———————Node:primitive_type Text: int
+|———————Node:identifier Text: txid
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:#endif Text: #endif
+|——Node:declaration Text: extern MCP_CAN CAN0;
+|———Node:storage_class_specifier Text: extern
+|————Node:extern Text: extern
+|———Node:type_identifier Text: MCP_CAN
+|———Node:identifier Text: CAN0
+|———Node:; Text: ;
+|——Node:preproc_def Text: #define CAN_EXTENDED 0x80000000
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CAN_EXTENDED
+|———Node:preproc_arg Text: 0x80000000
+|——Node:preproc_def Text: #define CAN_REMOTEREQUEST  0x40000000
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CAN_REMOTEREQUEST
+|———Node:preproc_arg Text: 0x40000000
+|——Node:preproc_def Text: #define CAN_PRIVATE1 (0x17fc|CAN_EXTENDED)   // MUST BE EVEN!!
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CAN_PRIVATE1
+|———Node:preproc_arg Text: (0x17fc|CAN_EXTENDED)   // MUST BE EVEN!!
+|——Node:preproc_def Text: #define CAN_PRIVATE2 (CAN_PRIVATE1|1)  
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CAN_PRIVATE2
+|———Node:preproc_arg Text: (CAN_PRIVATE1|1)  
+|——Node:preproc_def Text: #define CAN_ANTRIEB242 0x242
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CAN_ANTRIEB242
+|———Node:preproc_arg Text: 0x242
+|——Node:preproc_def Text: #define CAN_ANTRIEB245 0x245
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CAN_ANTRIEB245
+|———Node:preproc_arg Text: 0x245
+|——Node:preproc_def Text: #define CAN_ANTRIEB442 0x442
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CAN_ANTRIEB442
+|———Node:preproc_arg Text: 0x442
+|——Node:#endif Text: #endif

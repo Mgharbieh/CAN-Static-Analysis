@@ -1,0 +1,2937 @@
+can_bus-driver\ctu_can_fd_linux_defs.h
+
+|Node:translation_unit
+|—Node:comment Text: /*******************************************************************************
+ * 
+ * CTU CAN FD IP Core
+ * Copyright (C) 2015-2018 Ondrej Ille <ondrej.ille@gmail.com>
+ * 
+ * Project advisors and co-authors: 
+ * 	Jiri Novak <jnovak@fel.cvut.cz>
+ * 	Pavel Pisa <pisa@cmp.felk.cvut.cz>
+ * 	Martin Jerabek <jerabma7@fel.cvut.cz>
+ * 
+ * Department of Measurement         (http://meas.fel.cvut.cz/)
+ * Faculty of Electrical Engineering (http://www.fel.cvut.cz)
+ * Czech Technical University        (http://www.cvut.cz/)
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * 
+*******************************************************************************/
+|—Node:comment Text: /* Linux declarations used in the low-level driver. When using driver with
+ * SocketCAN, this file is not necessary. When using the driver outside of
+ * Linux, this file replaces common kernel headers. */
+|—Node:preproc_ifdef Text: #ifndef __CTU_CAN_FD_LINUX_DEFS__
+#define __CTU_CAN_FD_LINUX_DEFS__
+
+#include <stdint.h>
+#include <stdio.h>
+#include <stddef.h>
+//#include <linux/types.h>
+#include <linux/socket.h>
+#include <arpa/inet.h>
+#define likely(x) __builtin_expect(!!(x), 1)
+#define unlikely(x) __builtin_expect(!!(x), 0)
+#define __iomem volatile
+
+typedef uint8_t   __u8;
+typedef uint16_t  __u16;
+typedef uint32_t  __u32;
+typedef uint64_t  __u64;
+
+typedef int8_t   __s8;
+typedef int16_t  __s16;
+typedef int32_t  __s32;
+typedef int64_t  __s64;
+
+typedef __u8  u8;
+typedef __u16 u16;
+typedef __u32 u32;
+typedef __u64 u64;
+
+typedef __s8  s8;
+typedef __s16 s16;
+typedef __s32 s32;
+typedef __s64 s64;
+
+#ifndef __cplusplus
+typedef _Bool			bool;
+enum {
+	false	= 0,
+	true	= 1
+};
+#endif
+
+#define __WARN_printf printf
+#ifndef WARN
+#define WARN(condition, format...) ({						\
+int __ret_warn_on = !!(condition);				\
+if (unlikely(__ret_warn_on))					\
+    __WARN_printf(format);					\
+    unlikely(__ret_warn_on);					\
+})
+#endif
+
+/*
+// from include/uapi/linux/types.h
+#define __bitwise
+
+typedef __u16 __bitwise __le16;
+typedef __u16 __bitwise __be16;
+typedef __u32 __bitwise __le32;
+typedef __u32 __bitwise __be32;
+typedef __u64 __bitwise __le64;
+typedef __u64 __bitwise __be64;
+
+typedef __u16 __bitwise __sum16;
+typedef __u32 __bitwise __wsum;
+*/
+
+__attribute__((noinline))
+static inline void iowrite32(u32 value, void *addr) {*(volatile u32*)addr = value;}
+__attribute__((noinline))
+static inline void iowrite16(u16 value, void *addr) {*(volatile u16*)addr = value;}
+__attribute__((noinline))
+static inline void iowrite8(u8 value, void *addr) {*(volatile u8*)addr = value;}
+
+__attribute__((noinline))
+static inline u32 ioread32(const void *addr) {return *(const volatile u32*)addr;}
+__attribute__((noinline))
+static inline u16 ioread16(const void *addr) {return *(const volatile u16*)addr;}
+__attribute__((noinline))
+static inline u8 ioread8(const void *addr) {return *(const volatile u8*)addr;}
+
+static inline u32 cpu_to_be32(u32 v) {return htonl(v);}
+static inline u32 be32_to_cpu(u32 v) {return ntohl(v);}
+
+__attribute__((noinline))
+static inline void iowrite32be(u32 value, void *addr) {*(volatile u32*)addr = cpu_to_be32(value);}
+__attribute__((noinline))
+static inline u32 ioread32be(const void *addr) {return be32_to_cpu(*(const volatile u32*)addr);}
+
+/* CAN DLC to real data length conversion helpers */
+u8 can_dlc2len(u8 can_dlc);
+u8 can_len2dlc(u8 len);
+
+/*
+ * CAN bit-timing parameters
+ *
+ * For further information, please read chapter "8 BIT TIMING
+ * REQUIREMENTS" of the "Bosch CAN Specification version 2.0"
+ * at http://www.semiconductors.bosch.de/pdf/can2spec.pdf.
+ */
+struct can_bittiming {
+	__u32 bitrate;		/* Bit-rate in bits/second */
+	__u32 sample_point;	/* Sample point in one-tenth of a percent */
+	__u32 tq;		/* Time quanta (TQ) in nanoseconds */
+	__u32 prop_seg;		/* Propagation segment in TQs */
+	__u32 phase_seg1;	/* Phase buffer segment 1 in TQs */
+	__u32 phase_seg2;	/* Phase buffer segment 2 in TQs */
+	__u32 sjw;		/* Synchronisation jump width in TQs */
+	__u32 brp;		/* Bit-rate prescaler */
+};
+
+/*
+ * CAN harware-dependent bit-timing constant
+ *
+ * Used for calculating and checking bit-timing parameters
+ */
+struct can_bittiming_const {
+	char name[16];		/* Name of the CAN controller hardware */
+	__u32 tseg1_min;	/* Time segement 1 = prop_seg + phase_seg1 */
+	__u32 tseg1_max;
+	__u32 tseg2_min;	/* Time segement 2 = phase_seg2 */
+	__u32 tseg2_max;
+	__u32 sjw_max;		/* Synchronisation jump width */
+	__u32 brp_min;		/* Bit-rate prescaler */
+	__u32 brp_max;
+	__u32 brp_inc;
+};
+
+/*
+ * CAN clock parameters
+ */
+struct can_clock {
+	__u32 freq;		/* CAN system clock frequency in Hz */
+};
+
+/*
+ * CAN operational and error states
+ */
+enum can_state {
+	CAN_STATE_ERROR_ACTIVE = 0,	/* RX/TX error count < 96 */
+	CAN_STATE_ERROR_WARNING,	/* RX/TX error count < 128 */
+	CAN_STATE_ERROR_PASSIVE,	/* RX/TX error count < 256 */
+	CAN_STATE_BUS_OFF,		/* RX/TX error count >= 256 */
+	CAN_STATE_STOPPED,		/* Device is stopped */
+	CAN_STATE_SLEEPING,		/* Device is sleeping */
+	CAN_STATE_MAX
+};
+
+/*
+ * CAN bus error counters
+ */
+struct can_berr_counter {
+	__u16 txerr;
+	__u16 rxerr;
+};
+
+/*
+ * CAN controller mode
+ */
+struct can_ctrlmode {
+	__u32 mask;
+	__u32 flags;
+};
+
+#define CAN_CTRLMODE_LOOPBACK		0x01	/* Loopback mode */
+#define CAN_CTRLMODE_LISTENONLY		0x02	/* Listen-only mode */
+#define CAN_CTRLMODE_3_SAMPLES		0x04	/* Triple sampling mode */
+#define CAN_CTRLMODE_ONE_SHOT		0x08	/* One-Shot mode */
+#define CAN_CTRLMODE_BERR_REPORTING	0x10	/* Bus-error reporting */
+#define CAN_CTRLMODE_FD			0x20	/* CAN FD mode */
+#define CAN_CTRLMODE_PRESUME_ACK	0x40	/* Ignore missing CAN ACKs */
+#define CAN_CTRLMODE_FD_NON_ISO		0x80	/* CAN FD in non-ISO mode */
+
+/*
+ * CAN device statistics
+ */
+struct can_device_stats {
+	__u32 bus_error;	/* Bus errors */
+	__u32 error_warning;	/* Changes to error warning state */
+	__u32 error_passive;	/* Changes to error passive state */
+	__u32 bus_off;		/* Changes to bus off state */
+	__u32 arbitration_lost; /* Arbitration lost errors */
+	__u32 restarts;		/* CAN controller re-starts */
+};
+
+/*
+ * CAN netlink interface
+ */
+enum {
+	IFLA_CAN_UNSPEC,
+	IFLA_CAN_BITTIMING,
+	IFLA_CAN_BITTIMING_CONST,
+	IFLA_CAN_CLOCK,
+	IFLA_CAN_STATE,
+	IFLA_CAN_CTRLMODE,
+	IFLA_CAN_RESTART_MS,
+	IFLA_CAN_RESTART,
+	IFLA_CAN_BERR_COUNTER,
+	IFLA_CAN_DATA_BITTIMING,
+	IFLA_CAN_DATA_BITTIMING_CONST,
+	IFLA_CAN_TERMINATION,
+	IFLA_CAN_TERMINATION_CONST,
+	IFLA_CAN_BITRATE_CONST,
+	IFLA_CAN_DATA_BITRATE_CONST,
+	IFLA_CAN_BITRATE_MAX,
+	__IFLA_CAN_MAX
+};
+
+
+
+
+
+
+
+/* SPDX-License-Identifier: ((GPL-2.0 WITH Linux-syscall-note) OR BSD-3-Clause) */
+/*
+ * linux/can.h
+ *
+ * Definitions for CAN network layer (socket addr / CAN frame / CAN filter)
+ *
+ * Authors: Oliver Hartkopp <oliver.hartkopp@volkswagen.de>
+ *          Urs Thuermann   <urs.thuermann@volkswagen.de>
+ * Copyright (c) 2002-2007 Volkswagen Group Electronic Research
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of Volkswagen nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * Alternatively, provided that this notice is retained in full, this
+ * software may be distributed under the terms of the GNU General
+ * Public License ("GPL") version 2, in which case the provisions of the
+ * GPL apply INSTEAD OF those given above.
+ *
+ * The provided data structures and external interfaces from this code
+ * are not restricted to be used by modules with a GPL compatible license.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ */
+
+#ifndef _UAPI_CAN_H
+#define _UAPI_CAN_H
+
+
+
+
+/* controller area network (CAN) kernel definitions */
+
+/* special address description flags for the CAN_ID */
+#define CAN_EFF_FLAG 0x80000000U /* EFF/SFF is set in the MSB */
+#define CAN_RTR_FLAG 0x40000000U /* remote transmission request */
+#define CAN_ERR_FLAG 0x20000000U /* error message frame */
+
+/* valid bits in CAN ID for frame formats */
+#define CAN_SFF_MASK 0x000007FFU /* standard frame format (SFF) */
+#define CAN_EFF_MASK 0x1FFFFFFFU /* extended frame format (EFF) */
+#define CAN_ERR_MASK 0x1FFFFFFFU /* omit EFF, RTR, ERR flags */
+
+/*
+ * Controller Area Network Identifier structure
+ *
+ * bit 0-28	: CAN identifier (11/29 bit)
+ * bit 29	: error message frame flag (0 = data frame, 1 = error message)
+ * bit 30	: remote transmission request flag (1 = rtr frame)
+ * bit 31	: frame format flag (0 = standard 11 bit, 1 = extended 29 bit)
+ */
+typedef __u32 canid_t;
+
+#define CAN_SFF_ID_BITS		11
+#define CAN_EFF_ID_BITS		29
+
+/*
+ * Controller Area Network Error Message Frame Mask structure
+ *
+ * bit 0-28	: error class mask (see include/linux/can/error.h)
+ * bit 29-31	: set to zero
+ */
+typedef __u32 can_err_mask_t;
+
+/* CAN payload length and DLC definitions according to ISO 11898-1 */
+#define CAN_MAX_DLC 8
+#define CAN_MAX_DLEN 8
+
+/* CAN FD payload length and DLC definitions according to ISO 11898-7 */
+#define CANFD_MAX_DLC 15
+#define CANFD_MAX_DLEN 64
+
+/**
+ * struct can_frame - basic CAN frame structure
+ * @can_id:  CAN ID of the frame and CAN_*_FLAG flags, see canid_t definition
+ * @can_dlc: frame payload length in byte (0 .. 8) aka data length code
+ *           N.B. the DLC field from ISO 11898-1 Chapter 8.4.2.3 has a 1:1
+ *           mapping of the 'data length code' to the real payload length
+ * @__pad:   padding
+ * @__res0:  reserved / padding
+ * @__res1:  reserved / padding
+ * @data:    CAN frame payload (up to 8 byte)
+ */
+struct can_frame {
+	canid_t can_id;  /* 32 bit CAN_ID + EFF/RTR/ERR flags */
+	__u8    can_dlc; /* frame payload length in byte (0 .. CAN_MAX_DLEN) */
+	__u8    __pad;   /* padding */
+	__u8    __res0;  /* reserved / padding */
+	__u8    __res1;  /* reserved / padding */
+	__u8    data[CAN_MAX_DLEN] __attribute__((aligned(8)));
+};
+
+
+/*
+ * defined bits for canfd_frame.flags
+ *
+ * The use of struct canfd_frame implies the Extended Data Length (EDL) bit to
+ * be set in the CAN frame bitstream on the wire. The EDL bit switch turns
+ * the CAN controllers bitstream processor into the CAN FD mode which creates
+ * two new options within the CAN FD frame specification:
+ *
+ * Bit Rate Switch - to indicate a second bitrate is/was used for the payload
+ * Error State Indicator - represents the error state of the transmitting node
+ *
+ * As the CANFD_ESI bit is internally generated by the transmitting CAN
+ * controller only the CANFD_BRS bit is relevant for real CAN controllers when
+ * building a CAN FD frame for transmission. Setting the CANFD_ESI bit can make
+ * sense for virtual CAN interfaces to test applications with echoed frames.
+ */
+#define CANFD_BRS 0x01 /* bit rate switch (second bitrate for payload data) */
+#define CANFD_ESI 0x02 /* error state indicator of the transmitting node */
+
+/**
+ * struct canfd_frame - CAN flexible data rate frame structure
+ * @can_id: CAN ID of the frame and CAN_*_FLAG flags, see canid_t definition
+ * @len:    frame payload length in byte (0 .. CANFD_MAX_DLEN)
+ * @flags:  additional flags for CAN FD
+ * @__res0: reserved / padding
+ * @__res1: reserved / padding
+ * @data:   CAN FD frame payload (up to CANFD_MAX_DLEN byte)
+ */
+struct canfd_frame {
+	canid_t can_id;  /* 32 bit CAN_ID + EFF/RTR/ERR flags */
+	__u8    len;     /* frame payload length in byte */
+	__u8    flags;   /* additional flags for CAN FD */
+	__u8    __res0;  /* reserved / padding */
+	__u8    __res1;  /* reserved / padding */
+	__u8    data[CANFD_MAX_DLEN] __attribute__((aligned(8)));
+};
+
+#define CAN_MTU		(sizeof(struct can_frame))
+#define CANFD_MTU	(sizeof(struct canfd_frame))
+
+/* particular protocols of the protocol family PF_CAN */
+#define CAN_RAW		1 /* RAW sockets */
+#define CAN_BCM		2 /* Broadcast Manager */
+#define CAN_TP16	3 /* VAG Transport Protocol v1.6 */
+#define CAN_TP20	4 /* VAG Transport Protocol v2.0 */
+#define CAN_MCNET	5 /* Bosch MCNet */
+#define CAN_ISOTP	6 /* ISO 15765-2 Transport Protocol */
+#define CAN_J1939	7 /* SAE J1939 */
+#define CAN_NPROTO	8
+
+#define SOL_CAN_BASE 100
+
+/*
+ * This typedef was introduced in Linux v3.1-rc2
+ * (commit 6602a4b net: Make userland include of netlink.h more sane)
+ * in <linux/socket.h>. It must be duplicated here to make the CAN
+ * headers self-contained.
+ */
+typedef unsigned short __kernel_sa_family_t;
+
+/**
+ * struct sockaddr_can - the sockaddr structure for CAN sockets
+ * @can_family:  address family number AF_CAN.
+ * @can_ifindex: CAN network interface index.
+ * @can_addr:    protocol specific address information
+ */
+struct sockaddr_can {
+	__kernel_sa_family_t can_family;
+	int         can_ifindex;
+	union {
+		/* transport protocol class address information (e.g. ISOTP) */
+		struct {
+			canid_t rx_id;
+			canid_t tx_id;
+		} tp;
+
+		/* J1939 address information */
+		struct {
+			/* 8 byte name when using dynamic addressing */
+			__u64 name;
+
+			/* pgn:
+			 * 8 bit: PS in PDU2 case, else 0
+			 * 8 bit: PF
+			 * 1 bit: DP
+			 * 1 bit: reserved
+			 */
+			__u32 pgn;
+
+			/* 1 byte address */
+			__u8 addr;
+		} j1939;
+
+		/* reserved for future CAN protocols address information */
+	} can_addr;
+};
+
+/**
+ * struct can_filter - CAN ID based filter in can_register().
+ * @can_id:   relevant bits of CAN ID which are not masked out.
+ * @can_mask: CAN mask (see description)
+ *
+ * Description:
+ * A filter matches, when
+ *
+ *          <received_can_id> & mask == can_id & mask
+ *
+ * The filter can be inverted (CAN_INV_FILTER bit set in can_id) or it can
+ * filter for error message frames (CAN_ERR_FLAG bit set in mask).
+ */
+struct can_filter {
+	canid_t can_id;
+	canid_t can_mask;
+};
+
+#define CAN_INV_FILTER 0x20000000U /* to be set in can_filter.can_id */
+#define CAN_RAW_FILTER_MAX 512 /* maximum number of can_filter set via setsockopt() */
+#endif /* _UAPI_CAN_H */
+
+
+struct can_priv {
+    struct can_bittiming bittiming, data_bittiming;
+    const struct can_bittiming_const *bittiming_const,
+        *data_bittiming_const;
+    //const u16 *termination_const;
+    //unsigned int termination_const_cnt;
+    //u16 termination;
+    const u32 *bitrate_const;
+    unsigned int bitrate_const_cnt;
+    const u32 *data_bitrate_const;
+    unsigned int data_bitrate_const_cnt;
+    struct can_clock clock;
+};
+
+struct net_device {
+    struct can_priv can;
+};
+
+#define netdev_priv(nd) (&((nd)->can))
+
+int can_get_bittiming(struct net_device *dev, struct can_bittiming *bt,
+                      const struct can_bittiming_const *btc,
+                      const u32 *bitrate_const,
+                      const unsigned int bitrate_const_cnt);
+
+#define min(a, b) (a < b ? a : b)
+#define max(a, b) (a > b ? a : b)
+#define clamp(val, lo, hi)  min((typeof(val))max(val, lo), hi)
+
+/**
+ * do_div - returns 2 values: calculate remainder and update new dividend
+ * @n: pointer to uint64_t dividend (will be updated)
+ * @base: uint32_t divisor
+ *
+ * Summary:
+ * ``uint32_t remainder = *n % base;``
+ * ``*n = *n / base;``
+ *
+ * Return: (uint32_t)remainder
+ *
+ * NOTE: macro parameter @n is evaluated multiple times,
+ * beware of side effects!
+ */
+# define do_div(n,base) ({					\
+	uint32_t __base = (base);				\
+	uint32_t __rem;						\
+	__rem = ((uint64_t)(n)) % __base;			\
+	(n) = ((uint64_t)(n)) / __base;				\
+	__rem;							\
+ })
+/**
+ * abs - return absolute value of an argument
+ * @x: the value.  If it is unsigned type, it is converted to signed type first.
+ *     char is treated as if it was signed (regardless of whether it really is)
+ *     but the macro's return type is preserved as char.
+ *
+ * Return: an absolute value of x.
+ */
+#define abs(x)	__abs_choose_expr(x, long long,				\
+		__abs_choose_expr(x, long,				\
+		__abs_choose_expr(x, int,				\
+		__abs_choose_expr(x, short,				\
+		__abs_choose_expr(x, char,				\
+		__builtin_choose_expr(					\
+			__builtin_types_compatible_p(typeof(x), char),	\
+			(char)({ signed char __x = (x); __x<0?-__x:__x; }), \
+			((void)0)))))))
+
+#define __abs_choose_expr(x, type, other) __builtin_choose_expr(	\
+	__builtin_types_compatible_p(typeof(x),   signed type) ||	\
+	__builtin_types_compatible_p(typeof(x), unsigned type),		\
+	({ signed type __x = (x); __x < 0 ? -__x : __x; }), other)
+
+#define netdev_warn(dev, format, ...) printf("%s" format, "netdev_warn: ", ##__VA_ARGS__);
+#define netdev_err(dev, format, ...) printf("%s" format, "netdev_err: ", ##__VA_ARGS__);
+
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: __CTU_CAN_FD_LINUX_DEFS__
+|——Node:preproc_def Text: #define __CTU_CAN_FD_LINUX_DEFS__
+
+|———Node:#define Text: #define
+|———Node:identifier Text: __CTU_CAN_FD_LINUX_DEFS__
+|——Node:preproc_include Text: #include <stdint.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <stdint.h>
+|——Node:preproc_include Text: #include <stdio.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <stdio.h>
+|——Node:preproc_include Text: #include <stddef.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <stddef.h>
+|——Node:comment Text: //#include <linux/types.h>
+|——Node:preproc_include Text: #include <linux/socket.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <linux/socket.h>
+|——Node:preproc_include Text: #include <arpa/inet.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <arpa/inet.h>
+|——Node:preproc_function_def Text: #define likely(x) __builtin_expect(!!(x), 1)
+
+|———Node:#define Text: #define
+|———Node:identifier Text: likely
+|———Node:preproc_params Text: (x)
+|————Node:( Text: (
+|————Node:identifier Text: x
+|————Node:) Text: )
+|———Node:preproc_arg Text: __builtin_expect(!!(x), 1)
+|——Node:preproc_function_def Text: #define unlikely(x) __builtin_expect(!!(x), 0)
+
+|———Node:#define Text: #define
+|———Node:identifier Text: unlikely
+|———Node:preproc_params Text: (x)
+|————Node:( Text: (
+|————Node:identifier Text: x
+|————Node:) Text: )
+|———Node:preproc_arg Text: __builtin_expect(!!(x), 0)
+|——Node:preproc_def Text: #define __iomem volatile
+
+|———Node:#define Text: #define
+|———Node:identifier Text: __iomem
+|———Node:preproc_arg Text: volatile
+|——Node:type_definition Text: typedef uint8_t   __u8;
+|———Node:typedef Text: typedef
+|———Node:primitive_type Text: uint8_t
+|———Node:type_identifier Text: __u8
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef uint16_t  __u16;
+|———Node:typedef Text: typedef
+|———Node:primitive_type Text: uint16_t
+|———Node:type_identifier Text: __u16
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef uint32_t  __u32;
+|———Node:typedef Text: typedef
+|———Node:primitive_type Text: uint32_t
+|———Node:type_identifier Text: __u32
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef uint64_t  __u64;
+|———Node:typedef Text: typedef
+|———Node:primitive_type Text: uint64_t
+|———Node:type_identifier Text: __u64
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef int8_t   __s8;
+|———Node:typedef Text: typedef
+|———Node:primitive_type Text: int8_t
+|———Node:type_identifier Text: __s8
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef int16_t  __s16;
+|———Node:typedef Text: typedef
+|———Node:primitive_type Text: int16_t
+|———Node:type_identifier Text: __s16
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef int32_t  __s32;
+|———Node:typedef Text: typedef
+|———Node:primitive_type Text: int32_t
+|———Node:type_identifier Text: __s32
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef int64_t  __s64;
+|———Node:typedef Text: typedef
+|———Node:primitive_type Text: int64_t
+|———Node:type_identifier Text: __s64
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef __u8  u8;
+|———Node:typedef Text: typedef
+|———Node:type_identifier Text: __u8
+|———Node:type_identifier Text: u8
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef __u16 u16;
+|———Node:typedef Text: typedef
+|———Node:type_identifier Text: __u16
+|———Node:type_identifier Text: u16
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef __u32 u32;
+|———Node:typedef Text: typedef
+|———Node:type_identifier Text: __u32
+|———Node:type_identifier Text: u32
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef __u64 u64;
+|———Node:typedef Text: typedef
+|———Node:type_identifier Text: __u64
+|———Node:type_identifier Text: u64
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef __s8  s8;
+|———Node:typedef Text: typedef
+|———Node:type_identifier Text: __s8
+|———Node:type_identifier Text: s8
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef __s16 s16;
+|———Node:typedef Text: typedef
+|———Node:type_identifier Text: __s16
+|———Node:type_identifier Text: s16
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef __s32 s32;
+|———Node:typedef Text: typedef
+|———Node:type_identifier Text: __s32
+|———Node:type_identifier Text: s32
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef __s64 s64;
+|———Node:typedef Text: typedef
+|———Node:type_identifier Text: __s64
+|———Node:type_identifier Text: s64
+|———Node:; Text: ;
+|——Node:preproc_ifdef Text: #ifndef __cplusplus
+typedef _Bool			bool;
+enum {
+	false	= 0,
+	true	= 1
+};
+#endif
+|———Node:#ifndef Text: #ifndef
+|———Node:identifier Text: __cplusplus
+|———Node:type_definition Text: typedef _Bool			bool;
+|————Node:typedef Text: typedef
+|————Node:type_identifier Text: _Bool
+|————Node:primitive_type Text: bool
+|————Node:; Text: ;
+|———Node:enum_specifier Text: enum {
+	false	= 0,
+	true	= 1
+}
+|————Node:enum Text: enum
+|————Node:enumerator_list Text: {
+	false	= 0,
+	true	= 1
+}
+|—————Node:{ Text: {
+|—————Node:enumerator Text: false	= 0
+|——————Node:identifier Text: false
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:, Text: ,
+|—————Node:enumerator Text: true	= 1
+|——————Node:identifier Text: true
+|——————Node:= Text: =
+|——————Node:number_literal Text: 1
+|—————Node:} Text: }
+|———Node:; Text: ;
+|———Node:#endif Text: #endif
+|——Node:preproc_def Text: #define __WARN_printf printf
+
+|———Node:#define Text: #define
+|———Node:identifier Text: __WARN_printf
+|———Node:preproc_arg Text: printf
+|——Node:preproc_ifdef Text: #ifndef WARN
+#define WARN(condition, format...) ({						\
+int __ret_warn_on = !!(condition);				\
+if (unlikely(__ret_warn_on))					\
+    __WARN_printf(format);					\
+    unlikely(__ret_warn_on);					\
+})
+#endif
+|———Node:#ifndef Text: #ifndef
+|———Node:identifier Text: WARN
+|———Node:preproc_function_def Text: #define WARN(condition, format...) ({						\
+int __ret_warn_on = !!(condition);				\
+if (unlikely(__ret_warn_on))					\
+    __WARN_printf(format);					\
+    unlikely(__ret_warn_on);					\
+})
+
+|————Node:#define Text: #define
+|————Node:identifier Text: WARN
+|————Node:preproc_params Text: (condition, format...)
+|—————Node:( Text: (
+|—————Node:identifier Text: condition
+|—————Node:, Text: ,
+|—————Node:identifier Text: format
+|—————Node:ERROR Text: ...
+|——————Node:... Text: ...
+|—————Node:) Text: )
+|————Node:preproc_arg Text: ({						\
+int __ret_warn_on = !!(condition);				\
+if (unlikely(__ret_warn_on))					\
+    __WARN_printf(format);					\
+    unlikely(__ret_warn_on);					\
+})
+|———Node:#endif Text: #endif
+|——Node:comment Text: /*
+// from include/uapi/linux/types.h
+#define __bitwise
+
+typedef __u16 __bitwise __le16;
+typedef __u16 __bitwise __be16;
+typedef __u32 __bitwise __le32;
+typedef __u32 __bitwise __be32;
+typedef __u64 __bitwise __le64;
+typedef __u64 __bitwise __be64;
+
+typedef __u16 __bitwise __sum16;
+typedef __u32 __bitwise __wsum;
+*/
+|——Node:function_definition Text: __attribute__((noinline))
+static inline void iowrite32(u32 value, void *addr) {*(volatile u32*)addr = value;}
+|———Node:attribute_specifier Text: __attribute__((noinline))
+|————Node:__attribute__ Text: __attribute__
+|————Node:( Text: (
+|————Node:argument_list Text: (noinline)
+|—————Node:( Text: (
+|—————Node:identifier Text: noinline
+|—————Node:) Text: )
+|————Node:) Text: )
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:storage_class_specifier Text: inline
+|————Node:inline Text: inline
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: iowrite32(u32 value, void *addr)
+|————Node:identifier Text: iowrite32
+|————Node:parameter_list Text: (u32 value, void *addr)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: u32 value
+|——————Node:type_identifier Text: u32
+|——————Node:identifier Text: value
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: void *addr
+|——————Node:primitive_type Text: void
+|——————Node:pointer_declarator Text: *addr
+|———————Node:* Text: *
+|———————Node:identifier Text: addr
+|—————Node:) Text: )
+|———Node:compound_statement Text: {*(volatile u32*)addr = value;}
+|————Node:{ Text: {
+|————Node:expression_statement Text: *(volatile u32*)addr = value;
+|—————Node:assignment_expression Text: *(volatile u32*)addr = value
+|——————Node:pointer_expression Text: *(volatile u32*)addr
+|———————Node:* Text: *
+|———————Node:cast_expression Text: (volatile u32*)addr
+|————————Node:( Text: (
+|————————Node:type_descriptor Text: volatile u32*
+|—————————Node:type_qualifier Text: volatile
+|——————————Node:volatile Text: volatile
+|—————————Node:type_identifier Text: u32
+|—————————Node:abstract_pointer_declarator Text: *
+|——————————Node:* Text: *
+|————————Node:) Text: )
+|————————Node:identifier Text: addr
+|——————Node:= Text: =
+|——————Node:identifier Text: value
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: __attribute__((noinline))
+static inline void iowrite16(u16 value, void *addr) {*(volatile u16*)addr = value;}
+|———Node:attribute_specifier Text: __attribute__((noinline))
+|————Node:__attribute__ Text: __attribute__
+|————Node:( Text: (
+|————Node:argument_list Text: (noinline)
+|—————Node:( Text: (
+|—————Node:identifier Text: noinline
+|—————Node:) Text: )
+|————Node:) Text: )
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:storage_class_specifier Text: inline
+|————Node:inline Text: inline
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: iowrite16(u16 value, void *addr)
+|————Node:identifier Text: iowrite16
+|————Node:parameter_list Text: (u16 value, void *addr)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: u16 value
+|——————Node:type_identifier Text: u16
+|——————Node:identifier Text: value
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: void *addr
+|——————Node:primitive_type Text: void
+|——————Node:pointer_declarator Text: *addr
+|———————Node:* Text: *
+|———————Node:identifier Text: addr
+|—————Node:) Text: )
+|———Node:compound_statement Text: {*(volatile u16*)addr = value;}
+|————Node:{ Text: {
+|————Node:expression_statement Text: *(volatile u16*)addr = value;
+|—————Node:assignment_expression Text: *(volatile u16*)addr = value
+|——————Node:pointer_expression Text: *(volatile u16*)addr
+|———————Node:* Text: *
+|———————Node:cast_expression Text: (volatile u16*)addr
+|————————Node:( Text: (
+|————————Node:type_descriptor Text: volatile u16*
+|—————————Node:type_qualifier Text: volatile
+|——————————Node:volatile Text: volatile
+|—————————Node:type_identifier Text: u16
+|—————————Node:abstract_pointer_declarator Text: *
+|——————————Node:* Text: *
+|————————Node:) Text: )
+|————————Node:identifier Text: addr
+|——————Node:= Text: =
+|——————Node:identifier Text: value
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: __attribute__((noinline))
+static inline void iowrite8(u8 value, void *addr) {*(volatile u8*)addr = value;}
+|———Node:attribute_specifier Text: __attribute__((noinline))
+|————Node:__attribute__ Text: __attribute__
+|————Node:( Text: (
+|————Node:argument_list Text: (noinline)
+|—————Node:( Text: (
+|—————Node:identifier Text: noinline
+|—————Node:) Text: )
+|————Node:) Text: )
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:storage_class_specifier Text: inline
+|————Node:inline Text: inline
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: iowrite8(u8 value, void *addr)
+|————Node:identifier Text: iowrite8
+|————Node:parameter_list Text: (u8 value, void *addr)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: u8 value
+|——————Node:type_identifier Text: u8
+|——————Node:identifier Text: value
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: void *addr
+|——————Node:primitive_type Text: void
+|——————Node:pointer_declarator Text: *addr
+|———————Node:* Text: *
+|———————Node:identifier Text: addr
+|—————Node:) Text: )
+|———Node:compound_statement Text: {*(volatile u8*)addr = value;}
+|————Node:{ Text: {
+|————Node:expression_statement Text: *(volatile u8*)addr = value;
+|—————Node:assignment_expression Text: *(volatile u8*)addr = value
+|——————Node:pointer_expression Text: *(volatile u8*)addr
+|———————Node:* Text: *
+|———————Node:cast_expression Text: (volatile u8*)addr
+|————————Node:( Text: (
+|————————Node:type_descriptor Text: volatile u8*
+|—————————Node:type_qualifier Text: volatile
+|——————————Node:volatile Text: volatile
+|—————————Node:type_identifier Text: u8
+|—————————Node:abstract_pointer_declarator Text: *
+|——————————Node:* Text: *
+|————————Node:) Text: )
+|————————Node:identifier Text: addr
+|——————Node:= Text: =
+|——————Node:identifier Text: value
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: __attribute__((noinline))
+static inline u32 ioread32(const void *addr) {return *(const volatile u32*)addr;}
+|———Node:attribute_specifier Text: __attribute__((noinline))
+|————Node:__attribute__ Text: __attribute__
+|————Node:( Text: (
+|————Node:argument_list Text: (noinline)
+|—————Node:( Text: (
+|—————Node:identifier Text: noinline
+|—————Node:) Text: )
+|————Node:) Text: )
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:storage_class_specifier Text: inline
+|————Node:inline Text: inline
+|———Node:type_identifier Text: u32
+|———Node:function_declarator Text: ioread32(const void *addr)
+|————Node:identifier Text: ioread32
+|————Node:parameter_list Text: (const void *addr)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const void *addr
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: void
+|——————Node:pointer_declarator Text: *addr
+|———————Node:* Text: *
+|———————Node:identifier Text: addr
+|—————Node:) Text: )
+|———Node:compound_statement Text: {return *(const volatile u32*)addr;}
+|————Node:{ Text: {
+|————Node:return_statement Text: return *(const volatile u32*)addr;
+|—————Node:return Text: return
+|—————Node:pointer_expression Text: *(const volatile u32*)addr
+|——————Node:* Text: *
+|——————Node:cast_expression Text: (const volatile u32*)addr
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: const volatile u32*
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_qualifier Text: volatile
+|—————————Node:volatile Text: volatile
+|————————Node:type_identifier Text: u32
+|————————Node:abstract_pointer_declarator Text: *
+|—————————Node:* Text: *
+|———————Node:) Text: )
+|———————Node:identifier Text: addr
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: __attribute__((noinline))
+static inline u16 ioread16(const void *addr) {return *(const volatile u16*)addr;}
+|———Node:attribute_specifier Text: __attribute__((noinline))
+|————Node:__attribute__ Text: __attribute__
+|————Node:( Text: (
+|————Node:argument_list Text: (noinline)
+|—————Node:( Text: (
+|—————Node:identifier Text: noinline
+|—————Node:) Text: )
+|————Node:) Text: )
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:storage_class_specifier Text: inline
+|————Node:inline Text: inline
+|———Node:type_identifier Text: u16
+|———Node:function_declarator Text: ioread16(const void *addr)
+|————Node:identifier Text: ioread16
+|————Node:parameter_list Text: (const void *addr)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const void *addr
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: void
+|——————Node:pointer_declarator Text: *addr
+|———————Node:* Text: *
+|———————Node:identifier Text: addr
+|—————Node:) Text: )
+|———Node:compound_statement Text: {return *(const volatile u16*)addr;}
+|————Node:{ Text: {
+|————Node:return_statement Text: return *(const volatile u16*)addr;
+|—————Node:return Text: return
+|—————Node:pointer_expression Text: *(const volatile u16*)addr
+|——————Node:* Text: *
+|——————Node:cast_expression Text: (const volatile u16*)addr
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: const volatile u16*
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_qualifier Text: volatile
+|—————————Node:volatile Text: volatile
+|————————Node:type_identifier Text: u16
+|————————Node:abstract_pointer_declarator Text: *
+|—————————Node:* Text: *
+|———————Node:) Text: )
+|———————Node:identifier Text: addr
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: __attribute__((noinline))
+static inline u8 ioread8(const void *addr) {return *(const volatile u8*)addr;}
+|———Node:attribute_specifier Text: __attribute__((noinline))
+|————Node:__attribute__ Text: __attribute__
+|————Node:( Text: (
+|————Node:argument_list Text: (noinline)
+|—————Node:( Text: (
+|—————Node:identifier Text: noinline
+|—————Node:) Text: )
+|————Node:) Text: )
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:storage_class_specifier Text: inline
+|————Node:inline Text: inline
+|———Node:type_identifier Text: u8
+|———Node:function_declarator Text: ioread8(const void *addr)
+|————Node:identifier Text: ioread8
+|————Node:parameter_list Text: (const void *addr)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const void *addr
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: void
+|——————Node:pointer_declarator Text: *addr
+|———————Node:* Text: *
+|———————Node:identifier Text: addr
+|—————Node:) Text: )
+|———Node:compound_statement Text: {return *(const volatile u8*)addr;}
+|————Node:{ Text: {
+|————Node:return_statement Text: return *(const volatile u8*)addr;
+|—————Node:return Text: return
+|—————Node:pointer_expression Text: *(const volatile u8*)addr
+|——————Node:* Text: *
+|——————Node:cast_expression Text: (const volatile u8*)addr
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: const volatile u8*
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_qualifier Text: volatile
+|—————————Node:volatile Text: volatile
+|————————Node:type_identifier Text: u8
+|————————Node:abstract_pointer_declarator Text: *
+|—————————Node:* Text: *
+|———————Node:) Text: )
+|———————Node:identifier Text: addr
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: static inline u32 cpu_to_be32(u32 v) {return htonl(v);}
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:storage_class_specifier Text: inline
+|————Node:inline Text: inline
+|———Node:type_identifier Text: u32
+|———Node:function_declarator Text: cpu_to_be32(u32 v)
+|————Node:identifier Text: cpu_to_be32
+|————Node:parameter_list Text: (u32 v)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: u32 v
+|——————Node:type_identifier Text: u32
+|——————Node:identifier Text: v
+|—————Node:) Text: )
+|———Node:compound_statement Text: {return htonl(v);}
+|————Node:{ Text: {
+|————Node:return_statement Text: return htonl(v);
+|—————Node:return Text: return
+|—————Node:call_expression Text: htonl(v)
+|——————Node:identifier Text: htonl
+|——————Node:argument_list Text: (v)
+|———————Node:( Text: (
+|———————Node:identifier Text: v
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: static inline u32 be32_to_cpu(u32 v) {return ntohl(v);}
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:storage_class_specifier Text: inline
+|————Node:inline Text: inline
+|———Node:type_identifier Text: u32
+|———Node:function_declarator Text: be32_to_cpu(u32 v)
+|————Node:identifier Text: be32_to_cpu
+|————Node:parameter_list Text: (u32 v)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: u32 v
+|——————Node:type_identifier Text: u32
+|——————Node:identifier Text: v
+|—————Node:) Text: )
+|———Node:compound_statement Text: {return ntohl(v);}
+|————Node:{ Text: {
+|————Node:return_statement Text: return ntohl(v);
+|—————Node:return Text: return
+|—————Node:call_expression Text: ntohl(v)
+|——————Node:identifier Text: ntohl
+|——————Node:argument_list Text: (v)
+|———————Node:( Text: (
+|———————Node:identifier Text: v
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: __attribute__((noinline))
+static inline void iowrite32be(u32 value, void *addr) {*(volatile u32*)addr = cpu_to_be32(value);}
+|———Node:attribute_specifier Text: __attribute__((noinline))
+|————Node:__attribute__ Text: __attribute__
+|————Node:( Text: (
+|————Node:argument_list Text: (noinline)
+|—————Node:( Text: (
+|—————Node:identifier Text: noinline
+|—————Node:) Text: )
+|————Node:) Text: )
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:storage_class_specifier Text: inline
+|————Node:inline Text: inline
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: iowrite32be(u32 value, void *addr)
+|————Node:identifier Text: iowrite32be
+|————Node:parameter_list Text: (u32 value, void *addr)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: u32 value
+|——————Node:type_identifier Text: u32
+|——————Node:identifier Text: value
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: void *addr
+|——————Node:primitive_type Text: void
+|——————Node:pointer_declarator Text: *addr
+|———————Node:* Text: *
+|———————Node:identifier Text: addr
+|—————Node:) Text: )
+|———Node:compound_statement Text: {*(volatile u32*)addr = cpu_to_be32(value);}
+|————Node:{ Text: {
+|————Node:expression_statement Text: *(volatile u32*)addr = cpu_to_be32(value);
+|—————Node:assignment_expression Text: *(volatile u32*)addr = cpu_to_be32(value)
+|——————Node:pointer_expression Text: *(volatile u32*)addr
+|———————Node:* Text: *
+|———————Node:cast_expression Text: (volatile u32*)addr
+|————————Node:( Text: (
+|————————Node:type_descriptor Text: volatile u32*
+|—————————Node:type_qualifier Text: volatile
+|——————————Node:volatile Text: volatile
+|—————————Node:type_identifier Text: u32
+|—————————Node:abstract_pointer_declarator Text: *
+|——————————Node:* Text: *
+|————————Node:) Text: )
+|————————Node:identifier Text: addr
+|——————Node:= Text: =
+|——————Node:call_expression Text: cpu_to_be32(value)
+|———————Node:identifier Text: cpu_to_be32
+|———————Node:argument_list Text: (value)
+|————————Node:( Text: (
+|————————Node:identifier Text: value
+|————————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:function_definition Text: __attribute__((noinline))
+static inline u32 ioread32be(const void *addr) {return be32_to_cpu(*(const volatile u32*)addr);}
+|———Node:attribute_specifier Text: __attribute__((noinline))
+|————Node:__attribute__ Text: __attribute__
+|————Node:( Text: (
+|————Node:argument_list Text: (noinline)
+|—————Node:( Text: (
+|—————Node:identifier Text: noinline
+|—————Node:) Text: )
+|————Node:) Text: )
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:storage_class_specifier Text: inline
+|————Node:inline Text: inline
+|———Node:type_identifier Text: u32
+|———Node:function_declarator Text: ioread32be(const void *addr)
+|————Node:identifier Text: ioread32be
+|————Node:parameter_list Text: (const void *addr)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const void *addr
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: void
+|——————Node:pointer_declarator Text: *addr
+|———————Node:* Text: *
+|———————Node:identifier Text: addr
+|—————Node:) Text: )
+|———Node:compound_statement Text: {return be32_to_cpu(*(const volatile u32*)addr);}
+|————Node:{ Text: {
+|————Node:return_statement Text: return be32_to_cpu(*(const volatile u32*)addr);
+|—————Node:return Text: return
+|—————Node:call_expression Text: be32_to_cpu(*(const volatile u32*)addr)
+|——————Node:identifier Text: be32_to_cpu
+|——————Node:argument_list Text: (*(const volatile u32*)addr)
+|———————Node:( Text: (
+|———————Node:pointer_expression Text: *(const volatile u32*)addr
+|————————Node:* Text: *
+|————————Node:cast_expression Text: (const volatile u32*)addr
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: const volatile u32*
+|——————————Node:type_qualifier Text: const
+|———————————Node:const Text: const
+|——————————Node:type_qualifier Text: volatile
+|———————————Node:volatile Text: volatile
+|——————————Node:type_identifier Text: u32
+|——————————Node:abstract_pointer_declarator Text: *
+|———————————Node:* Text: *
+|—————————Node:) Text: )
+|—————————Node:identifier Text: addr
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:comment Text: /* CAN DLC to real data length conversion helpers */
+|——Node:declaration Text: u8 can_dlc2len(u8 can_dlc);
+|———Node:type_identifier Text: u8
+|———Node:function_declarator Text: can_dlc2len(u8 can_dlc)
+|————Node:identifier Text: can_dlc2len
+|————Node:parameter_list Text: (u8 can_dlc)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: u8 can_dlc
+|——————Node:type_identifier Text: u8
+|——————Node:identifier Text: can_dlc
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: u8 can_len2dlc(u8 len);
+|———Node:type_identifier Text: u8
+|———Node:function_declarator Text: can_len2dlc(u8 len)
+|————Node:identifier Text: can_len2dlc
+|————Node:parameter_list Text: (u8 len)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: u8 len
+|——————Node:type_identifier Text: u8
+|——————Node:identifier Text: len
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:comment Text: /*
+ * CAN bit-timing parameters
+ *
+ * For further information, please read chapter "8 BIT TIMING
+ * REQUIREMENTS" of the "Bosch CAN Specification version 2.0"
+ * at http://www.semiconductors.bosch.de/pdf/can2spec.pdf.
+ */
+|——Node:struct_specifier Text: struct can_bittiming {
+	__u32 bitrate;		/* Bit-rate in bits/second */
+	__u32 sample_point;	/* Sample point in one-tenth of a percent */
+	__u32 tq;		/* Time quanta (TQ) in nanoseconds */
+	__u32 prop_seg;		/* Propagation segment in TQs */
+	__u32 phase_seg1;	/* Phase buffer segment 1 in TQs */
+	__u32 phase_seg2;	/* Phase buffer segment 2 in TQs */
+	__u32 sjw;		/* Synchronisation jump width in TQs */
+	__u32 brp;		/* Bit-rate prescaler */
+}
+|———Node:struct Text: struct
+|———Node:type_identifier Text: can_bittiming
+|———Node:field_declaration_list Text: {
+	__u32 bitrate;		/* Bit-rate in bits/second */
+	__u32 sample_point;	/* Sample point in one-tenth of a percent */
+	__u32 tq;		/* Time quanta (TQ) in nanoseconds */
+	__u32 prop_seg;		/* Propagation segment in TQs */
+	__u32 phase_seg1;	/* Phase buffer segment 1 in TQs */
+	__u32 phase_seg2;	/* Phase buffer segment 2 in TQs */
+	__u32 sjw;		/* Synchronisation jump width in TQs */
+	__u32 brp;		/* Bit-rate prescaler */
+}
+|————Node:{ Text: {
+|————Node:field_declaration Text: __u32 bitrate;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: bitrate
+|—————Node:; Text: ;
+|————Node:comment Text: /* Bit-rate in bits/second */
+|————Node:field_declaration Text: __u32 sample_point;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: sample_point
+|—————Node:; Text: ;
+|————Node:comment Text: /* Sample point in one-tenth of a percent */
+|————Node:field_declaration Text: __u32 tq;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: tq
+|—————Node:; Text: ;
+|————Node:comment Text: /* Time quanta (TQ) in nanoseconds */
+|————Node:field_declaration Text: __u32 prop_seg;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: prop_seg
+|—————Node:; Text: ;
+|————Node:comment Text: /* Propagation segment in TQs */
+|————Node:field_declaration Text: __u32 phase_seg1;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: phase_seg1
+|—————Node:; Text: ;
+|————Node:comment Text: /* Phase buffer segment 1 in TQs */
+|————Node:field_declaration Text: __u32 phase_seg2;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: phase_seg2
+|—————Node:; Text: ;
+|————Node:comment Text: /* Phase buffer segment 2 in TQs */
+|————Node:field_declaration Text: __u32 sjw;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: sjw
+|—————Node:; Text: ;
+|————Node:comment Text: /* Synchronisation jump width in TQs */
+|————Node:field_declaration Text: __u32 brp;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: brp
+|—————Node:; Text: ;
+|————Node:comment Text: /* Bit-rate prescaler */
+|————Node:} Text: }
+|——Node:; Text: ;
+|——Node:comment Text: /*
+ * CAN harware-dependent bit-timing constant
+ *
+ * Used for calculating and checking bit-timing parameters
+ */
+|——Node:struct_specifier Text: struct can_bittiming_const {
+	char name[16];		/* Name of the CAN controller hardware */
+	__u32 tseg1_min;	/* Time segement 1 = prop_seg + phase_seg1 */
+	__u32 tseg1_max;
+	__u32 tseg2_min;	/* Time segement 2 = phase_seg2 */
+	__u32 tseg2_max;
+	__u32 sjw_max;		/* Synchronisation jump width */
+	__u32 brp_min;		/* Bit-rate prescaler */
+	__u32 brp_max;
+	__u32 brp_inc;
+}
+|———Node:struct Text: struct
+|———Node:type_identifier Text: can_bittiming_const
+|———Node:field_declaration_list Text: {
+	char name[16];		/* Name of the CAN controller hardware */
+	__u32 tseg1_min;	/* Time segement 1 = prop_seg + phase_seg1 */
+	__u32 tseg1_max;
+	__u32 tseg2_min;	/* Time segement 2 = phase_seg2 */
+	__u32 tseg2_max;
+	__u32 sjw_max;		/* Synchronisation jump width */
+	__u32 brp_min;		/* Bit-rate prescaler */
+	__u32 brp_max;
+	__u32 brp_inc;
+}
+|————Node:{ Text: {
+|————Node:field_declaration Text: char name[16];
+|—————Node:primitive_type Text: char
+|—————Node:array_declarator Text: name[16]
+|——————Node:field_identifier Text: name
+|——————Node:[ Text: [
+|——————Node:number_literal Text: 16
+|——————Node:] Text: ]
+|—————Node:; Text: ;
+|————Node:comment Text: /* Name of the CAN controller hardware */
+|————Node:field_declaration Text: __u32 tseg1_min;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: tseg1_min
+|—————Node:; Text: ;
+|————Node:comment Text: /* Time segement 1 = prop_seg + phase_seg1 */
+|————Node:field_declaration Text: __u32 tseg1_max;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: tseg1_max
+|—————Node:; Text: ;
+|————Node:field_declaration Text: __u32 tseg2_min;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: tseg2_min
+|—————Node:; Text: ;
+|————Node:comment Text: /* Time segement 2 = phase_seg2 */
+|————Node:field_declaration Text: __u32 tseg2_max;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: tseg2_max
+|—————Node:; Text: ;
+|————Node:field_declaration Text: __u32 sjw_max;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: sjw_max
+|—————Node:; Text: ;
+|————Node:comment Text: /* Synchronisation jump width */
+|————Node:field_declaration Text: __u32 brp_min;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: brp_min
+|—————Node:; Text: ;
+|————Node:comment Text: /* Bit-rate prescaler */
+|————Node:field_declaration Text: __u32 brp_max;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: brp_max
+|—————Node:; Text: ;
+|————Node:field_declaration Text: __u32 brp_inc;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: brp_inc
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:; Text: ;
+|——Node:comment Text: /*
+ * CAN clock parameters
+ */
+|——Node:struct_specifier Text: struct can_clock {
+	__u32 freq;		/* CAN system clock frequency in Hz */
+}
+|———Node:struct Text: struct
+|———Node:type_identifier Text: can_clock
+|———Node:field_declaration_list Text: {
+	__u32 freq;		/* CAN system clock frequency in Hz */
+}
+|————Node:{ Text: {
+|————Node:field_declaration Text: __u32 freq;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: freq
+|—————Node:; Text: ;
+|————Node:comment Text: /* CAN system clock frequency in Hz */
+|————Node:} Text: }
+|——Node:; Text: ;
+|——Node:comment Text: /*
+ * CAN operational and error states
+ */
+|——Node:enum_specifier Text: enum can_state {
+	CAN_STATE_ERROR_ACTIVE = 0,	/* RX/TX error count < 96 */
+	CAN_STATE_ERROR_WARNING,	/* RX/TX error count < 128 */
+	CAN_STATE_ERROR_PASSIVE,	/* RX/TX error count < 256 */
+	CAN_STATE_BUS_OFF,		/* RX/TX error count >= 256 */
+	CAN_STATE_STOPPED,		/* Device is stopped */
+	CAN_STATE_SLEEPING,		/* Device is sleeping */
+	CAN_STATE_MAX
+}
+|———Node:enum Text: enum
+|———Node:type_identifier Text: can_state
+|———Node:enumerator_list Text: {
+	CAN_STATE_ERROR_ACTIVE = 0,	/* RX/TX error count < 96 */
+	CAN_STATE_ERROR_WARNING,	/* RX/TX error count < 128 */
+	CAN_STATE_ERROR_PASSIVE,	/* RX/TX error count < 256 */
+	CAN_STATE_BUS_OFF,		/* RX/TX error count >= 256 */
+	CAN_STATE_STOPPED,		/* Device is stopped */
+	CAN_STATE_SLEEPING,		/* Device is sleeping */
+	CAN_STATE_MAX
+}
+|————Node:{ Text: {
+|————Node:enumerator Text: CAN_STATE_ERROR_ACTIVE = 0
+|—————Node:identifier Text: CAN_STATE_ERROR_ACTIVE
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:, Text: ,
+|————Node:comment Text: /* RX/TX error count < 96 */
+|————Node:enumerator Text: CAN_STATE_ERROR_WARNING
+|—————Node:identifier Text: CAN_STATE_ERROR_WARNING
+|————Node:, Text: ,
+|————Node:comment Text: /* RX/TX error count < 128 */
+|————Node:enumerator Text: CAN_STATE_ERROR_PASSIVE
+|—————Node:identifier Text: CAN_STATE_ERROR_PASSIVE
+|————Node:, Text: ,
+|————Node:comment Text: /* RX/TX error count < 256 */
+|————Node:enumerator Text: CAN_STATE_BUS_OFF
+|—————Node:identifier Text: CAN_STATE_BUS_OFF
+|————Node:, Text: ,
+|————Node:comment Text: /* RX/TX error count >= 256 */
+|————Node:enumerator Text: CAN_STATE_STOPPED
+|—————Node:identifier Text: CAN_STATE_STOPPED
+|————Node:, Text: ,
+|————Node:comment Text: /* Device is stopped */
+|————Node:enumerator Text: CAN_STATE_SLEEPING
+|—————Node:identifier Text: CAN_STATE_SLEEPING
+|————Node:, Text: ,
+|————Node:comment Text: /* Device is sleeping */
+|————Node:enumerator Text: CAN_STATE_MAX
+|—————Node:identifier Text: CAN_STATE_MAX
+|————Node:} Text: }
+|——Node:; Text: ;
+|——Node:comment Text: /*
+ * CAN bus error counters
+ */
+|——Node:struct_specifier Text: struct can_berr_counter {
+	__u16 txerr;
+	__u16 rxerr;
+}
+|———Node:struct Text: struct
+|———Node:type_identifier Text: can_berr_counter
+|———Node:field_declaration_list Text: {
+	__u16 txerr;
+	__u16 rxerr;
+}
+|————Node:{ Text: {
+|————Node:field_declaration Text: __u16 txerr;
+|—————Node:type_identifier Text: __u16
+|—————Node:field_identifier Text: txerr
+|—————Node:; Text: ;
+|————Node:field_declaration Text: __u16 rxerr;
+|—————Node:type_identifier Text: __u16
+|—————Node:field_identifier Text: rxerr
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:; Text: ;
+|——Node:comment Text: /*
+ * CAN controller mode
+ */
+|——Node:struct_specifier Text: struct can_ctrlmode {
+	__u32 mask;
+	__u32 flags;
+}
+|———Node:struct Text: struct
+|———Node:type_identifier Text: can_ctrlmode
+|———Node:field_declaration_list Text: {
+	__u32 mask;
+	__u32 flags;
+}
+|————Node:{ Text: {
+|————Node:field_declaration Text: __u32 mask;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: mask
+|—————Node:; Text: ;
+|————Node:field_declaration Text: __u32 flags;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: flags
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:; Text: ;
+|——Node:preproc_def Text: #define CAN_CTRLMODE_LOOPBACK		0x01	/* Loopback mode */
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CAN_CTRLMODE_LOOPBACK
+|———Node:preproc_arg Text: 0x01	
+|———Node:comment Text: /* Loopback mode */
+|——Node:preproc_def Text: #define CAN_CTRLMODE_LISTENONLY		0x02	/* Listen-only mode */
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CAN_CTRLMODE_LISTENONLY
+|———Node:preproc_arg Text: 0x02	
+|———Node:comment Text: /* Listen-only mode */
+|——Node:preproc_def Text: #define CAN_CTRLMODE_3_SAMPLES		0x04	/* Triple sampling mode */
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CAN_CTRLMODE_3_SAMPLES
+|———Node:preproc_arg Text: 0x04	
+|———Node:comment Text: /* Triple sampling mode */
+|——Node:preproc_def Text: #define CAN_CTRLMODE_ONE_SHOT		0x08	/* One-Shot mode */
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CAN_CTRLMODE_ONE_SHOT
+|———Node:preproc_arg Text: 0x08	
+|———Node:comment Text: /* One-Shot mode */
+|——Node:preproc_def Text: #define CAN_CTRLMODE_BERR_REPORTING	0x10	/* Bus-error reporting */
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CAN_CTRLMODE_BERR_REPORTING
+|———Node:preproc_arg Text: 0x10	
+|———Node:comment Text: /* Bus-error reporting */
+|——Node:preproc_def Text: #define CAN_CTRLMODE_FD			0x20	/* CAN FD mode */
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CAN_CTRLMODE_FD
+|———Node:preproc_arg Text: 0x20	
+|———Node:comment Text: /* CAN FD mode */
+|——Node:preproc_def Text: #define CAN_CTRLMODE_PRESUME_ACK	0x40	/* Ignore missing CAN ACKs */
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CAN_CTRLMODE_PRESUME_ACK
+|———Node:preproc_arg Text: 0x40	
+|———Node:comment Text: /* Ignore missing CAN ACKs */
+|——Node:preproc_def Text: #define CAN_CTRLMODE_FD_NON_ISO		0x80	/* CAN FD in non-ISO mode */
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CAN_CTRLMODE_FD_NON_ISO
+|———Node:preproc_arg Text: 0x80	
+|———Node:comment Text: /* CAN FD in non-ISO mode */
+|——Node:comment Text: /*
+ * CAN device statistics
+ */
+|——Node:struct_specifier Text: struct can_device_stats {
+	__u32 bus_error;	/* Bus errors */
+	__u32 error_warning;	/* Changes to error warning state */
+	__u32 error_passive;	/* Changes to error passive state */
+	__u32 bus_off;		/* Changes to bus off state */
+	__u32 arbitration_lost; /* Arbitration lost errors */
+	__u32 restarts;		/* CAN controller re-starts */
+}
+|———Node:struct Text: struct
+|———Node:type_identifier Text: can_device_stats
+|———Node:field_declaration_list Text: {
+	__u32 bus_error;	/* Bus errors */
+	__u32 error_warning;	/* Changes to error warning state */
+	__u32 error_passive;	/* Changes to error passive state */
+	__u32 bus_off;		/* Changes to bus off state */
+	__u32 arbitration_lost; /* Arbitration lost errors */
+	__u32 restarts;		/* CAN controller re-starts */
+}
+|————Node:{ Text: {
+|————Node:field_declaration Text: __u32 bus_error;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: bus_error
+|—————Node:; Text: ;
+|————Node:comment Text: /* Bus errors */
+|————Node:field_declaration Text: __u32 error_warning;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: error_warning
+|—————Node:; Text: ;
+|————Node:comment Text: /* Changes to error warning state */
+|————Node:field_declaration Text: __u32 error_passive;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: error_passive
+|—————Node:; Text: ;
+|————Node:comment Text: /* Changes to error passive state */
+|————Node:field_declaration Text: __u32 bus_off;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: bus_off
+|—————Node:; Text: ;
+|————Node:comment Text: /* Changes to bus off state */
+|————Node:field_declaration Text: __u32 arbitration_lost;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: arbitration_lost
+|—————Node:; Text: ;
+|————Node:comment Text: /* Arbitration lost errors */
+|————Node:field_declaration Text: __u32 restarts;
+|—————Node:type_identifier Text: __u32
+|—————Node:field_identifier Text: restarts
+|—————Node:; Text: ;
+|————Node:comment Text: /* CAN controller re-starts */
+|————Node:} Text: }
+|——Node:; Text: ;
+|——Node:comment Text: /*
+ * CAN netlink interface
+ */
+|——Node:enum_specifier Text: enum {
+	IFLA_CAN_UNSPEC,
+	IFLA_CAN_BITTIMING,
+	IFLA_CAN_BITTIMING_CONST,
+	IFLA_CAN_CLOCK,
+	IFLA_CAN_STATE,
+	IFLA_CAN_CTRLMODE,
+	IFLA_CAN_RESTART_MS,
+	IFLA_CAN_RESTART,
+	IFLA_CAN_BERR_COUNTER,
+	IFLA_CAN_DATA_BITTIMING,
+	IFLA_CAN_DATA_BITTIMING_CONST,
+	IFLA_CAN_TERMINATION,
+	IFLA_CAN_TERMINATION_CONST,
+	IFLA_CAN_BITRATE_CONST,
+	IFLA_CAN_DATA_BITRATE_CONST,
+	IFLA_CAN_BITRATE_MAX,
+	__IFLA_CAN_MAX
+}
+|———Node:enum Text: enum
+|———Node:enumerator_list Text: {
+	IFLA_CAN_UNSPEC,
+	IFLA_CAN_BITTIMING,
+	IFLA_CAN_BITTIMING_CONST,
+	IFLA_CAN_CLOCK,
+	IFLA_CAN_STATE,
+	IFLA_CAN_CTRLMODE,
+	IFLA_CAN_RESTART_MS,
+	IFLA_CAN_RESTART,
+	IFLA_CAN_BERR_COUNTER,
+	IFLA_CAN_DATA_BITTIMING,
+	IFLA_CAN_DATA_BITTIMING_CONST,
+	IFLA_CAN_TERMINATION,
+	IFLA_CAN_TERMINATION_CONST,
+	IFLA_CAN_BITRATE_CONST,
+	IFLA_CAN_DATA_BITRATE_CONST,
+	IFLA_CAN_BITRATE_MAX,
+	__IFLA_CAN_MAX
+}
+|————Node:{ Text: {
+|————Node:enumerator Text: IFLA_CAN_UNSPEC
+|—————Node:identifier Text: IFLA_CAN_UNSPEC
+|————Node:, Text: ,
+|————Node:enumerator Text: IFLA_CAN_BITTIMING
+|—————Node:identifier Text: IFLA_CAN_BITTIMING
+|————Node:, Text: ,
+|————Node:enumerator Text: IFLA_CAN_BITTIMING_CONST
+|—————Node:identifier Text: IFLA_CAN_BITTIMING_CONST
+|————Node:, Text: ,
+|————Node:enumerator Text: IFLA_CAN_CLOCK
+|—————Node:identifier Text: IFLA_CAN_CLOCK
+|————Node:, Text: ,
+|————Node:enumerator Text: IFLA_CAN_STATE
+|—————Node:identifier Text: IFLA_CAN_STATE
+|————Node:, Text: ,
+|————Node:enumerator Text: IFLA_CAN_CTRLMODE
+|—————Node:identifier Text: IFLA_CAN_CTRLMODE
+|————Node:, Text: ,
+|————Node:enumerator Text: IFLA_CAN_RESTART_MS
+|—————Node:identifier Text: IFLA_CAN_RESTART_MS
+|————Node:, Text: ,
+|————Node:enumerator Text: IFLA_CAN_RESTART
+|—————Node:identifier Text: IFLA_CAN_RESTART
+|————Node:, Text: ,
+|————Node:enumerator Text: IFLA_CAN_BERR_COUNTER
+|—————Node:identifier Text: IFLA_CAN_BERR_COUNTER
+|————Node:, Text: ,
+|————Node:enumerator Text: IFLA_CAN_DATA_BITTIMING
+|—————Node:identifier Text: IFLA_CAN_DATA_BITTIMING
+|————Node:, Text: ,
+|————Node:enumerator Text: IFLA_CAN_DATA_BITTIMING_CONST
+|—————Node:identifier Text: IFLA_CAN_DATA_BITTIMING_CONST
+|————Node:, Text: ,
+|————Node:enumerator Text: IFLA_CAN_TERMINATION
+|—————Node:identifier Text: IFLA_CAN_TERMINATION
+|————Node:, Text: ,
+|————Node:enumerator Text: IFLA_CAN_TERMINATION_CONST
+|—————Node:identifier Text: IFLA_CAN_TERMINATION_CONST
+|————Node:, Text: ,
+|————Node:enumerator Text: IFLA_CAN_BITRATE_CONST
+|—————Node:identifier Text: IFLA_CAN_BITRATE_CONST
+|————Node:, Text: ,
+|————Node:enumerator Text: IFLA_CAN_DATA_BITRATE_CONST
+|—————Node:identifier Text: IFLA_CAN_DATA_BITRATE_CONST
+|————Node:, Text: ,
+|————Node:enumerator Text: IFLA_CAN_BITRATE_MAX
+|—————Node:identifier Text: IFLA_CAN_BITRATE_MAX
+|————Node:, Text: ,
+|————Node:enumerator Text: __IFLA_CAN_MAX
+|—————Node:identifier Text: __IFLA_CAN_MAX
+|————Node:} Text: }
+|——Node:; Text: ;
+|——Node:comment Text: /* SPDX-License-Identifier: ((GPL-2.0 WITH Linux-syscall-note) OR BSD-3-Clause) */
+|——Node:comment Text: /*
+ * linux/can.h
+ *
+ * Definitions for CAN network layer (socket addr / CAN frame / CAN filter)
+ *
+ * Authors: Oliver Hartkopp <oliver.hartkopp@volkswagen.de>
+ *          Urs Thuermann   <urs.thuermann@volkswagen.de>
+ * Copyright (c) 2002-2007 Volkswagen Group Electronic Research
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of Volkswagen nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * Alternatively, provided that this notice is retained in full, this
+ * software may be distributed under the terms of the GNU General
+ * Public License ("GPL") version 2, in which case the provisions of the
+ * GPL apply INSTEAD OF those given above.
+ *
+ * The provided data structures and external interfaces from this code
+ * are not restricted to be used by modules with a GPL compatible license.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ */
+|——Node:preproc_ifdef Text: #ifndef _UAPI_CAN_H
+#define _UAPI_CAN_H
+
+
+
+
+/* controller area network (CAN) kernel definitions */
+
+/* special address description flags for the CAN_ID */
+#define CAN_EFF_FLAG 0x80000000U /* EFF/SFF is set in the MSB */
+#define CAN_RTR_FLAG 0x40000000U /* remote transmission request */
+#define CAN_ERR_FLAG 0x20000000U /* error message frame */
+
+/* valid bits in CAN ID for frame formats */
+#define CAN_SFF_MASK 0x000007FFU /* standard frame format (SFF) */
+#define CAN_EFF_MASK 0x1FFFFFFFU /* extended frame format (EFF) */
+#define CAN_ERR_MASK 0x1FFFFFFFU /* omit EFF, RTR, ERR flags */
+
+/*
+ * Controller Area Network Identifier structure
+ *
+ * bit 0-28	: CAN identifier (11/29 bit)
+ * bit 29	: error message frame flag (0 = data frame, 1 = error message)
+ * bit 30	: remote transmission request flag (1 = rtr frame)
+ * bit 31	: frame format flag (0 = standard 11 bit, 1 = extended 29 bit)
+ */
+typedef __u32 canid_t;
+
+#define CAN_SFF_ID_BITS		11
+#define CAN_EFF_ID_BITS		29
+
+/*
+ * Controller Area Network Error Message Frame Mask structure
+ *
+ * bit 0-28	: error class mask (see include/linux/can/error.h)
+ * bit 29-31	: set to zero
+ */
+typedef __u32 can_err_mask_t;
+
+/* CAN payload length and DLC definitions according to ISO 11898-1 */
+#define CAN_MAX_DLC 8
+#define CAN_MAX_DLEN 8
+
+/* CAN FD payload length and DLC definitions according to ISO 11898-7 */
+#define CANFD_MAX_DLC 15
+#define CANFD_MAX_DLEN 64
+
+/**
+ * struct can_frame - basic CAN frame structure
+ * @can_id:  CAN ID of the frame and CAN_*_FLAG flags, see canid_t definition
+ * @can_dlc: frame payload length in byte (0 .. 8) aka data length code
+ *           N.B. the DLC field from ISO 11898-1 Chapter 8.4.2.3 has a 1:1
+ *           mapping of the 'data length code' to the real payload length
+ * @__pad:   padding
+ * @__res0:  reserved / padding
+ * @__res1:  reserved / padding
+ * @data:    CAN frame payload (up to 8 byte)
+ */
+struct can_frame {
+	canid_t can_id;  /* 32 bit CAN_ID + EFF/RTR/ERR flags */
+	__u8    can_dlc; /* frame payload length in byte (0 .. CAN_MAX_DLEN) */
+	__u8    __pad;   /* padding */
+	__u8    __res0;  /* reserved / padding */
+	__u8    __res1;  /* reserved / padding */
+	__u8    data[CAN_MAX_DLEN] __attribute__((aligned(8)));
+};
+
+
+/*
+ * defined bits for canfd_frame.flags
+ *
+ * The use of struct canfd_frame implies the Extended Data Length (EDL) bit to
+ * be set in the CAN frame bitstream on the wire. The EDL bit switch turns
+ * the CAN controllers bitstream processor into the CAN FD mode which creates
+ * two new options within the CAN FD frame specification:
+ *
+ * Bit Rate Switch - to indicate a second bitrate is/was used for the payload
+ * Error State Indicator - represents the error state of the transmitting node
+ *
+ * As the CANFD_ESI bit is internally generated by the transmitting CAN
+ * controller only the CANFD_BRS bit is relevant for real CAN controllers when
+ * building a CAN FD frame for transmission. Setting the CANFD_ESI bit can make
+ * sense for virtual CAN interfaces to test applications with echoed frames.
+ */
+#define CANFD_BRS 0x01 /* bit rate switch (second bitrate for payload data) */
+#define CANFD_ESI 0x02 /* error state indicator of the transmitting node */
+
+/**
+ * struct canfd_frame - CAN flexible data rate frame structure
+ * @can_id: CAN ID of the frame and CAN_*_FLAG flags, see canid_t definition
+ * @len:    frame payload length in byte (0 .. CANFD_MAX_DLEN)
+ * @flags:  additional flags for CAN FD
+ * @__res0: reserved / padding
+ * @__res1: reserved / padding
+ * @data:   CAN FD frame payload (up to CANFD_MAX_DLEN byte)
+ */
+struct canfd_frame {
+	canid_t can_id;  /* 32 bit CAN_ID + EFF/RTR/ERR flags */
+	__u8    len;     /* frame payload length in byte */
+	__u8    flags;   /* additional flags for CAN FD */
+	__u8    __res0;  /* reserved / padding */
+	__u8    __res1;  /* reserved / padding */
+	__u8    data[CANFD_MAX_DLEN] __attribute__((aligned(8)));
+};
+
+#define CAN_MTU		(sizeof(struct can_frame))
+#define CANFD_MTU	(sizeof(struct canfd_frame))
+
+/* particular protocols of the protocol family PF_CAN */
+#define CAN_RAW		1 /* RAW sockets */
+#define CAN_BCM		2 /* Broadcast Manager */
+#define CAN_TP16	3 /* VAG Transport Protocol v1.6 */
+#define CAN_TP20	4 /* VAG Transport Protocol v2.0 */
+#define CAN_MCNET	5 /* Bosch MCNet */
+#define CAN_ISOTP	6 /* ISO 15765-2 Transport Protocol */
+#define CAN_J1939	7 /* SAE J1939 */
+#define CAN_NPROTO	8
+
+#define SOL_CAN_BASE 100
+
+/*
+ * This typedef was introduced in Linux v3.1-rc2
+ * (commit 6602a4b net: Make userland include of netlink.h more sane)
+ * in <linux/socket.h>. It must be duplicated here to make the CAN
+ * headers self-contained.
+ */
+typedef unsigned short __kernel_sa_family_t;
+
+/**
+ * struct sockaddr_can - the sockaddr structure for CAN sockets
+ * @can_family:  address family number AF_CAN.
+ * @can_ifindex: CAN network interface index.
+ * @can_addr:    protocol specific address information
+ */
+struct sockaddr_can {
+	__kernel_sa_family_t can_family;
+	int         can_ifindex;
+	union {
+		/* transport protocol class address information (e.g. ISOTP) */
+		struct {
+			canid_t rx_id;
+			canid_t tx_id;
+		} tp;
+
+		/* J1939 address information */
+		struct {
+			/* 8 byte name when using dynamic addressing */
+			__u64 name;
+
+			/* pgn:
+			 * 8 bit: PS in PDU2 case, else 0
+			 * 8 bit: PF
+			 * 1 bit: DP
+			 * 1 bit: reserved
+			 */
+			__u32 pgn;
+
+			/* 1 byte address */
+			__u8 addr;
+		} j1939;
+
+		/* reserved for future CAN protocols address information */
+	} can_addr;
+};
+
+/**
+ * struct can_filter - CAN ID based filter in can_register().
+ * @can_id:   relevant bits of CAN ID which are not masked out.
+ * @can_mask: CAN mask (see description)
+ *
+ * Description:
+ * A filter matches, when
+ *
+ *          <received_can_id> & mask == can_id & mask
+ *
+ * The filter can be inverted (CAN_INV_FILTER bit set in can_id) or it can
+ * filter for error message frames (CAN_ERR_FLAG bit set in mask).
+ */
+struct can_filter {
+	canid_t can_id;
+	canid_t can_mask;
+};
+
+#define CAN_INV_FILTER 0x20000000U /* to be set in can_filter.can_id */
+#define CAN_RAW_FILTER_MAX 512 /* maximum number of can_filter set via setsockopt() */
+#endif
+|———Node:#ifndef Text: #ifndef
+|———Node:identifier Text: _UAPI_CAN_H
+|———Node:preproc_def Text: #define _UAPI_CAN_H
+
+|————Node:#define Text: #define
+|————Node:identifier Text: _UAPI_CAN_H
+|———Node:comment Text: /* controller area network (CAN) kernel definitions */
+|———Node:comment Text: /* special address description flags for the CAN_ID */
+|———Node:preproc_def Text: #define CAN_EFF_FLAG 0x80000000U /* EFF/SFF is set in the MSB */
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_EFF_FLAG
+|————Node:preproc_arg Text: 0x80000000U 
+|————Node:comment Text: /* EFF/SFF is set in the MSB */
+|———Node:preproc_def Text: #define CAN_RTR_FLAG 0x40000000U /* remote transmission request */
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_RTR_FLAG
+|————Node:preproc_arg Text: 0x40000000U 
+|————Node:comment Text: /* remote transmission request */
+|———Node:preproc_def Text: #define CAN_ERR_FLAG 0x20000000U /* error message frame */
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_ERR_FLAG
+|————Node:preproc_arg Text: 0x20000000U 
+|————Node:comment Text: /* error message frame */
+|———Node:comment Text: /* valid bits in CAN ID for frame formats */
+|———Node:preproc_def Text: #define CAN_SFF_MASK 0x000007FFU /* standard frame format (SFF) */
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_SFF_MASK
+|————Node:preproc_arg Text: 0x000007FFU 
+|————Node:comment Text: /* standard frame format (SFF) */
+|———Node:preproc_def Text: #define CAN_EFF_MASK 0x1FFFFFFFU /* extended frame format (EFF) */
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_EFF_MASK
+|————Node:preproc_arg Text: 0x1FFFFFFFU 
+|————Node:comment Text: /* extended frame format (EFF) */
+|———Node:preproc_def Text: #define CAN_ERR_MASK 0x1FFFFFFFU /* omit EFF, RTR, ERR flags */
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_ERR_MASK
+|————Node:preproc_arg Text: 0x1FFFFFFFU 
+|————Node:comment Text: /* omit EFF, RTR, ERR flags */
+|———Node:comment Text: /*
+ * Controller Area Network Identifier structure
+ *
+ * bit 0-28	: CAN identifier (11/29 bit)
+ * bit 29	: error message frame flag (0 = data frame, 1 = error message)
+ * bit 30	: remote transmission request flag (1 = rtr frame)
+ * bit 31	: frame format flag (0 = standard 11 bit, 1 = extended 29 bit)
+ */
+|———Node:type_definition Text: typedef __u32 canid_t;
+|————Node:typedef Text: typedef
+|————Node:type_identifier Text: __u32
+|————Node:type_identifier Text: canid_t
+|————Node:; Text: ;
+|———Node:preproc_def Text: #define CAN_SFF_ID_BITS		11
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_SFF_ID_BITS
+|————Node:preproc_arg Text: 11
+|———Node:preproc_def Text: #define CAN_EFF_ID_BITS		29
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_EFF_ID_BITS
+|————Node:preproc_arg Text: 29
+|———Node:comment Text: /*
+ * Controller Area Network Error Message Frame Mask structure
+ *
+ * bit 0-28	: error class mask (see include/linux/can/error.h)
+ * bit 29-31	: set to zero
+ */
+|———Node:type_definition Text: typedef __u32 can_err_mask_t;
+|————Node:typedef Text: typedef
+|————Node:type_identifier Text: __u32
+|————Node:type_identifier Text: can_err_mask_t
+|————Node:; Text: ;
+|———Node:comment Text: /* CAN payload length and DLC definitions according to ISO 11898-1 */
+|———Node:preproc_def Text: #define CAN_MAX_DLC 8
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_MAX_DLC
+|————Node:preproc_arg Text: 8
+|———Node:preproc_def Text: #define CAN_MAX_DLEN 8
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_MAX_DLEN
+|————Node:preproc_arg Text: 8
+|———Node:comment Text: /* CAN FD payload length and DLC definitions according to ISO 11898-7 */
+|———Node:preproc_def Text: #define CANFD_MAX_DLC 15
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CANFD_MAX_DLC
+|————Node:preproc_arg Text: 15
+|———Node:preproc_def Text: #define CANFD_MAX_DLEN 64
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CANFD_MAX_DLEN
+|————Node:preproc_arg Text: 64
+|———Node:comment Text: /**
+ * struct can_frame - basic CAN frame structure
+ * @can_id:  CAN ID of the frame and CAN_*_FLAG flags, see canid_t definition
+ * @can_dlc: frame payload length in byte (0 .. 8) aka data length code
+ *           N.B. the DLC field from ISO 11898-1 Chapter 8.4.2.3 has a 1:1
+ *           mapping of the 'data length code' to the real payload length
+ * @__pad:   padding
+ * @__res0:  reserved / padding
+ * @__res1:  reserved / padding
+ * @data:    CAN frame payload (up to 8 byte)
+ */
+|———Node:struct_specifier Text: struct can_frame {
+	canid_t can_id;  /* 32 bit CAN_ID + EFF/RTR/ERR flags */
+	__u8    can_dlc; /* frame payload length in byte (0 .. CAN_MAX_DLEN) */
+	__u8    __pad;   /* padding */
+	__u8    __res0;  /* reserved / padding */
+	__u8    __res1;  /* reserved / padding */
+	__u8    data[CAN_MAX_DLEN] __attribute__((aligned(8)));
+}
+|————Node:struct Text: struct
+|————Node:type_identifier Text: can_frame
+|————Node:field_declaration_list Text: {
+	canid_t can_id;  /* 32 bit CAN_ID + EFF/RTR/ERR flags */
+	__u8    can_dlc; /* frame payload length in byte (0 .. CAN_MAX_DLEN) */
+	__u8    __pad;   /* padding */
+	__u8    __res0;  /* reserved / padding */
+	__u8    __res1;  /* reserved / padding */
+	__u8    data[CAN_MAX_DLEN] __attribute__((aligned(8)));
+}
+|—————Node:{ Text: {
+|—————Node:field_declaration Text: canid_t can_id;
+|——————Node:type_identifier Text: canid_t
+|——————Node:field_identifier Text: can_id
+|——————Node:; Text: ;
+|—————Node:comment Text: /* 32 bit CAN_ID + EFF/RTR/ERR flags */
+|—————Node:field_declaration Text: __u8    can_dlc;
+|——————Node:type_identifier Text: __u8
+|——————Node:field_identifier Text: can_dlc
+|——————Node:; Text: ;
+|—————Node:comment Text: /* frame payload length in byte (0 .. CAN_MAX_DLEN) */
+|—————Node:field_declaration Text: __u8    __pad;
+|——————Node:type_identifier Text: __u8
+|——————Node:field_identifier Text: __pad
+|——————Node:; Text: ;
+|—————Node:comment Text: /* padding */
+|—————Node:field_declaration Text: __u8    __res0;
+|——————Node:type_identifier Text: __u8
+|——————Node:field_identifier Text: __res0
+|——————Node:; Text: ;
+|—————Node:comment Text: /* reserved / padding */
+|—————Node:field_declaration Text: __u8    __res1;
+|——————Node:type_identifier Text: __u8
+|——————Node:field_identifier Text: __res1
+|——————Node:; Text: ;
+|—————Node:comment Text: /* reserved / padding */
+|—————Node:field_declaration Text: __u8    data[CAN_MAX_DLEN] __attribute__((aligned(8)));
+|——————Node:type_identifier Text: __u8
+|——————Node:array_declarator Text: data[CAN_MAX_DLEN]
+|———————Node:field_identifier Text: data
+|———————Node:[ Text: [
+|———————Node:identifier Text: CAN_MAX_DLEN
+|———————Node:] Text: ]
+|——————Node:attribute_specifier Text: __attribute__((aligned(8)))
+|———————Node:__attribute__ Text: __attribute__
+|———————Node:( Text: (
+|———————Node:argument_list Text: (aligned(8))
+|————————Node:( Text: (
+|————————Node:call_expression Text: aligned(8)
+|—————————Node:identifier Text: aligned
+|—————————Node:argument_list Text: (8)
+|——————————Node:( Text: (
+|——————————Node:number_literal Text: 8
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:; Text: ;
+|———Node:comment Text: /*
+ * defined bits for canfd_frame.flags
+ *
+ * The use of struct canfd_frame implies the Extended Data Length (EDL) bit to
+ * be set in the CAN frame bitstream on the wire. The EDL bit switch turns
+ * the CAN controllers bitstream processor into the CAN FD mode which creates
+ * two new options within the CAN FD frame specification:
+ *
+ * Bit Rate Switch - to indicate a second bitrate is/was used for the payload
+ * Error State Indicator - represents the error state of the transmitting node
+ *
+ * As the CANFD_ESI bit is internally generated by the transmitting CAN
+ * controller only the CANFD_BRS bit is relevant for real CAN controllers when
+ * building a CAN FD frame for transmission. Setting the CANFD_ESI bit can make
+ * sense for virtual CAN interfaces to test applications with echoed frames.
+ */
+|———Node:preproc_def Text: #define CANFD_BRS 0x01 /* bit rate switch (second bitrate for payload data) */
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CANFD_BRS
+|————Node:preproc_arg Text: 0x01 
+|————Node:comment Text: /* bit rate switch (second bitrate for payload data) */
+|———Node:preproc_def Text: #define CANFD_ESI 0x02 /* error state indicator of the transmitting node */
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CANFD_ESI
+|————Node:preproc_arg Text: 0x02 
+|————Node:comment Text: /* error state indicator of the transmitting node */
+|———Node:comment Text: /**
+ * struct canfd_frame - CAN flexible data rate frame structure
+ * @can_id: CAN ID of the frame and CAN_*_FLAG flags, see canid_t definition
+ * @len:    frame payload length in byte (0 .. CANFD_MAX_DLEN)
+ * @flags:  additional flags for CAN FD
+ * @__res0: reserved / padding
+ * @__res1: reserved / padding
+ * @data:   CAN FD frame payload (up to CANFD_MAX_DLEN byte)
+ */
+|———Node:struct_specifier Text: struct canfd_frame {
+	canid_t can_id;  /* 32 bit CAN_ID + EFF/RTR/ERR flags */
+	__u8    len;     /* frame payload length in byte */
+	__u8    flags;   /* additional flags for CAN FD */
+	__u8    __res0;  /* reserved / padding */
+	__u8    __res1;  /* reserved / padding */
+	__u8    data[CANFD_MAX_DLEN] __attribute__((aligned(8)));
+}
+|————Node:struct Text: struct
+|————Node:type_identifier Text: canfd_frame
+|————Node:field_declaration_list Text: {
+	canid_t can_id;  /* 32 bit CAN_ID + EFF/RTR/ERR flags */
+	__u8    len;     /* frame payload length in byte */
+	__u8    flags;   /* additional flags for CAN FD */
+	__u8    __res0;  /* reserved / padding */
+	__u8    __res1;  /* reserved / padding */
+	__u8    data[CANFD_MAX_DLEN] __attribute__((aligned(8)));
+}
+|—————Node:{ Text: {
+|—————Node:field_declaration Text: canid_t can_id;
+|——————Node:type_identifier Text: canid_t
+|——————Node:field_identifier Text: can_id
+|——————Node:; Text: ;
+|—————Node:comment Text: /* 32 bit CAN_ID + EFF/RTR/ERR flags */
+|—————Node:field_declaration Text: __u8    len;
+|——————Node:type_identifier Text: __u8
+|——————Node:field_identifier Text: len
+|——————Node:; Text: ;
+|—————Node:comment Text: /* frame payload length in byte */
+|—————Node:field_declaration Text: __u8    flags;
+|——————Node:type_identifier Text: __u8
+|——————Node:field_identifier Text: flags
+|——————Node:; Text: ;
+|—————Node:comment Text: /* additional flags for CAN FD */
+|—————Node:field_declaration Text: __u8    __res0;
+|——————Node:type_identifier Text: __u8
+|——————Node:field_identifier Text: __res0
+|——————Node:; Text: ;
+|—————Node:comment Text: /* reserved / padding */
+|—————Node:field_declaration Text: __u8    __res1;
+|——————Node:type_identifier Text: __u8
+|——————Node:field_identifier Text: __res1
+|——————Node:; Text: ;
+|—————Node:comment Text: /* reserved / padding */
+|—————Node:field_declaration Text: __u8    data[CANFD_MAX_DLEN] __attribute__((aligned(8)));
+|——————Node:type_identifier Text: __u8
+|——————Node:array_declarator Text: data[CANFD_MAX_DLEN]
+|———————Node:field_identifier Text: data
+|———————Node:[ Text: [
+|———————Node:identifier Text: CANFD_MAX_DLEN
+|———————Node:] Text: ]
+|——————Node:attribute_specifier Text: __attribute__((aligned(8)))
+|———————Node:__attribute__ Text: __attribute__
+|———————Node:( Text: (
+|———————Node:argument_list Text: (aligned(8))
+|————————Node:( Text: (
+|————————Node:call_expression Text: aligned(8)
+|—————————Node:identifier Text: aligned
+|—————————Node:argument_list Text: (8)
+|——————————Node:( Text: (
+|——————————Node:number_literal Text: 8
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:; Text: ;
+|———Node:preproc_def Text: #define CAN_MTU		(sizeof(struct can_frame))
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_MTU
+|————Node:preproc_arg Text: (sizeof(struct can_frame))
+|———Node:preproc_def Text: #define CANFD_MTU	(sizeof(struct canfd_frame))
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CANFD_MTU
+|————Node:preproc_arg Text: (sizeof(struct canfd_frame))
+|———Node:comment Text: /* particular protocols of the protocol family PF_CAN */
+|———Node:preproc_def Text: #define CAN_RAW		1 /* RAW sockets */
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_RAW
+|————Node:preproc_arg Text: 1 
+|————Node:comment Text: /* RAW sockets */
+|———Node:preproc_def Text: #define CAN_BCM		2 /* Broadcast Manager */
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_BCM
+|————Node:preproc_arg Text: 2 
+|————Node:comment Text: /* Broadcast Manager */
+|———Node:preproc_def Text: #define CAN_TP16	3 /* VAG Transport Protocol v1.6 */
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_TP16
+|————Node:preproc_arg Text: 3 
+|————Node:comment Text: /* VAG Transport Protocol v1.6 */
+|———Node:preproc_def Text: #define CAN_TP20	4 /* VAG Transport Protocol v2.0 */
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_TP20
+|————Node:preproc_arg Text: 4 
+|————Node:comment Text: /* VAG Transport Protocol v2.0 */
+|———Node:preproc_def Text: #define CAN_MCNET	5 /* Bosch MCNet */
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_MCNET
+|————Node:preproc_arg Text: 5 
+|————Node:comment Text: /* Bosch MCNet */
+|———Node:preproc_def Text: #define CAN_ISOTP	6 /* ISO 15765-2 Transport Protocol */
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_ISOTP
+|————Node:preproc_arg Text: 6 
+|————Node:comment Text: /* ISO 15765-2 Transport Protocol */
+|———Node:preproc_def Text: #define CAN_J1939	7 /* SAE J1939 */
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_J1939
+|————Node:preproc_arg Text: 7 
+|————Node:comment Text: /* SAE J1939 */
+|———Node:preproc_def Text: #define CAN_NPROTO	8
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_NPROTO
+|————Node:preproc_arg Text: 8
+|———Node:preproc_def Text: #define SOL_CAN_BASE 100
+
+|————Node:#define Text: #define
+|————Node:identifier Text: SOL_CAN_BASE
+|————Node:preproc_arg Text: 100
+|———Node:comment Text: /*
+ * This typedef was introduced in Linux v3.1-rc2
+ * (commit 6602a4b net: Make userland include of netlink.h more sane)
+ * in <linux/socket.h>. It must be duplicated here to make the CAN
+ * headers self-contained.
+ */
+|———Node:type_definition Text: typedef unsigned short __kernel_sa_family_t;
+|————Node:typedef Text: typedef
+|————Node:sized_type_specifier Text: unsigned short
+|—————Node:unsigned Text: unsigned
+|—————Node:short Text: short
+|————Node:type_identifier Text: __kernel_sa_family_t
+|————Node:; Text: ;
+|———Node:comment Text: /**
+ * struct sockaddr_can - the sockaddr structure for CAN sockets
+ * @can_family:  address family number AF_CAN.
+ * @can_ifindex: CAN network interface index.
+ * @can_addr:    protocol specific address information
+ */
+|———Node:struct_specifier Text: struct sockaddr_can {
+	__kernel_sa_family_t can_family;
+	int         can_ifindex;
+	union {
+		/* transport protocol class address information (e.g. ISOTP) */
+		struct {
+			canid_t rx_id;
+			canid_t tx_id;
+		} tp;
+
+		/* J1939 address information */
+		struct {
+			/* 8 byte name when using dynamic addressing */
+			__u64 name;
+
+			/* pgn:
+			 * 8 bit: PS in PDU2 case, else 0
+			 * 8 bit: PF
+			 * 1 bit: DP
+			 * 1 bit: reserved
+			 */
+			__u32 pgn;
+
+			/* 1 byte address */
+			__u8 addr;
+		} j1939;
+
+		/* reserved for future CAN protocols address information */
+	} can_addr;
+}
+|————Node:struct Text: struct
+|————Node:type_identifier Text: sockaddr_can
+|————Node:field_declaration_list Text: {
+	__kernel_sa_family_t can_family;
+	int         can_ifindex;
+	union {
+		/* transport protocol class address information (e.g. ISOTP) */
+		struct {
+			canid_t rx_id;
+			canid_t tx_id;
+		} tp;
+
+		/* J1939 address information */
+		struct {
+			/* 8 byte name when using dynamic addressing */
+			__u64 name;
+
+			/* pgn:
+			 * 8 bit: PS in PDU2 case, else 0
+			 * 8 bit: PF
+			 * 1 bit: DP
+			 * 1 bit: reserved
+			 */
+			__u32 pgn;
+
+			/* 1 byte address */
+			__u8 addr;
+		} j1939;
+
+		/* reserved for future CAN protocols address information */
+	} can_addr;
+}
+|—————Node:{ Text: {
+|—————Node:field_declaration Text: __kernel_sa_family_t can_family;
+|——————Node:type_identifier Text: __kernel_sa_family_t
+|——————Node:field_identifier Text: can_family
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: int         can_ifindex;
+|——————Node:primitive_type Text: int
+|——————Node:field_identifier Text: can_ifindex
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: union {
+		/* transport protocol class address information (e.g. ISOTP) */
+		struct {
+			canid_t rx_id;
+			canid_t tx_id;
+		} tp;
+
+		/* J1939 address information */
+		struct {
+			/* 8 byte name when using dynamic addressing */
+			__u64 name;
+
+			/* pgn:
+			 * 8 bit: PS in PDU2 case, else 0
+			 * 8 bit: PF
+			 * 1 bit: DP
+			 * 1 bit: reserved
+			 */
+			__u32 pgn;
+
+			/* 1 byte address */
+			__u8 addr;
+		} j1939;
+
+		/* reserved for future CAN protocols address information */
+	} can_addr;
+|——————Node:union_specifier Text: union {
+		/* transport protocol class address information (e.g. ISOTP) */
+		struct {
+			canid_t rx_id;
+			canid_t tx_id;
+		} tp;
+
+		/* J1939 address information */
+		struct {
+			/* 8 byte name when using dynamic addressing */
+			__u64 name;
+
+			/* pgn:
+			 * 8 bit: PS in PDU2 case, else 0
+			 * 8 bit: PF
+			 * 1 bit: DP
+			 * 1 bit: reserved
+			 */
+			__u32 pgn;
+
+			/* 1 byte address */
+			__u8 addr;
+		} j1939;
+
+		/* reserved for future CAN protocols address information */
+	}
+|———————Node:union Text: union
+|———————Node:field_declaration_list Text: {
+		/* transport protocol class address information (e.g. ISOTP) */
+		struct {
+			canid_t rx_id;
+			canid_t tx_id;
+		} tp;
+
+		/* J1939 address information */
+		struct {
+			/* 8 byte name when using dynamic addressing */
+			__u64 name;
+
+			/* pgn:
+			 * 8 bit: PS in PDU2 case, else 0
+			 * 8 bit: PF
+			 * 1 bit: DP
+			 * 1 bit: reserved
+			 */
+			__u32 pgn;
+
+			/* 1 byte address */
+			__u8 addr;
+		} j1939;
+
+		/* reserved for future CAN protocols address information */
+	}
+|————————Node:{ Text: {
+|————————Node:comment Text: /* transport protocol class address information (e.g. ISOTP) */
+|————————Node:field_declaration Text: struct {
+			canid_t rx_id;
+			canid_t tx_id;
+		} tp;
+|—————————Node:struct_specifier Text: struct {
+			canid_t rx_id;
+			canid_t tx_id;
+		}
+|——————————Node:struct Text: struct
+|——————————Node:field_declaration_list Text: {
+			canid_t rx_id;
+			canid_t tx_id;
+		}
+|———————————Node:{ Text: {
+|———————————Node:field_declaration Text: canid_t rx_id;
+|————————————Node:type_identifier Text: canid_t
+|————————————Node:field_identifier Text: rx_id
+|————————————Node:; Text: ;
+|———————————Node:field_declaration Text: canid_t tx_id;
+|————————————Node:type_identifier Text: canid_t
+|————————————Node:field_identifier Text: tx_id
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|—————————Node:field_identifier Text: tp
+|—————————Node:; Text: ;
+|————————Node:comment Text: /* J1939 address information */
+|————————Node:field_declaration Text: struct {
+			/* 8 byte name when using dynamic addressing */
+			__u64 name;
+
+			/* pgn:
+			 * 8 bit: PS in PDU2 case, else 0
+			 * 8 bit: PF
+			 * 1 bit: DP
+			 * 1 bit: reserved
+			 */
+			__u32 pgn;
+
+			/* 1 byte address */
+			__u8 addr;
+		} j1939;
+|—————————Node:struct_specifier Text: struct {
+			/* 8 byte name when using dynamic addressing */
+			__u64 name;
+
+			/* pgn:
+			 * 8 bit: PS in PDU2 case, else 0
+			 * 8 bit: PF
+			 * 1 bit: DP
+			 * 1 bit: reserved
+			 */
+			__u32 pgn;
+
+			/* 1 byte address */
+			__u8 addr;
+		}
+|——————————Node:struct Text: struct
+|——————————Node:field_declaration_list Text: {
+			/* 8 byte name when using dynamic addressing */
+			__u64 name;
+
+			/* pgn:
+			 * 8 bit: PS in PDU2 case, else 0
+			 * 8 bit: PF
+			 * 1 bit: DP
+			 * 1 bit: reserved
+			 */
+			__u32 pgn;
+
+			/* 1 byte address */
+			__u8 addr;
+		}
+|———————————Node:{ Text: {
+|———————————Node:comment Text: /* 8 byte name when using dynamic addressing */
+|———————————Node:field_declaration Text: __u64 name;
+|————————————Node:type_identifier Text: __u64
+|————————————Node:field_identifier Text: name
+|————————————Node:; Text: ;
+|———————————Node:comment Text: /* pgn:
+			 * 8 bit: PS in PDU2 case, else 0
+			 * 8 bit: PF
+			 * 1 bit: DP
+			 * 1 bit: reserved
+			 */
+|———————————Node:field_declaration Text: __u32 pgn;
+|————————————Node:type_identifier Text: __u32
+|————————————Node:field_identifier Text: pgn
+|————————————Node:; Text: ;
+|———————————Node:comment Text: /* 1 byte address */
+|———————————Node:field_declaration Text: __u8 addr;
+|————————————Node:type_identifier Text: __u8
+|————————————Node:field_identifier Text: addr
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|—————————Node:field_identifier Text: j1939
+|—————————Node:; Text: ;
+|————————Node:comment Text: /* reserved for future CAN protocols address information */
+|————————Node:} Text: }
+|——————Node:field_identifier Text: can_addr
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:; Text: ;
+|———Node:comment Text: /**
+ * struct can_filter - CAN ID based filter in can_register().
+ * @can_id:   relevant bits of CAN ID which are not masked out.
+ * @can_mask: CAN mask (see description)
+ *
+ * Description:
+ * A filter matches, when
+ *
+ *          <received_can_id> & mask == can_id & mask
+ *
+ * The filter can be inverted (CAN_INV_FILTER bit set in can_id) or it can
+ * filter for error message frames (CAN_ERR_FLAG bit set in mask).
+ */
+|———Node:struct_specifier Text: struct can_filter {
+	canid_t can_id;
+	canid_t can_mask;
+}
+|————Node:struct Text: struct
+|————Node:type_identifier Text: can_filter
+|————Node:field_declaration_list Text: {
+	canid_t can_id;
+	canid_t can_mask;
+}
+|—————Node:{ Text: {
+|—————Node:field_declaration Text: canid_t can_id;
+|——————Node:type_identifier Text: canid_t
+|——————Node:field_identifier Text: can_id
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: canid_t can_mask;
+|——————Node:type_identifier Text: canid_t
+|——————Node:field_identifier Text: can_mask
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:; Text: ;
+|———Node:preproc_def Text: #define CAN_INV_FILTER 0x20000000U /* to be set in can_filter.can_id */
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_INV_FILTER
+|————Node:preproc_arg Text: 0x20000000U 
+|————Node:comment Text: /* to be set in can_filter.can_id */
+|———Node:preproc_def Text: #define CAN_RAW_FILTER_MAX 512 /* maximum number of can_filter set via setsockopt() */
+
+|————Node:#define Text: #define
+|————Node:identifier Text: CAN_RAW_FILTER_MAX
+|————Node:preproc_arg Text: 512 
+|————Node:comment Text: /* maximum number of can_filter set via setsockopt() */
+|———Node:#endif Text: #endif
+|——Node:comment Text: /* _UAPI_CAN_H */
+|——Node:struct_specifier Text: struct can_priv {
+    struct can_bittiming bittiming, data_bittiming;
+    const struct can_bittiming_const *bittiming_const,
+        *data_bittiming_const;
+    //const u16 *termination_const;
+    //unsigned int termination_const_cnt;
+    //u16 termination;
+    const u32 *bitrate_const;
+    unsigned int bitrate_const_cnt;
+    const u32 *data_bitrate_const;
+    unsigned int data_bitrate_const_cnt;
+    struct can_clock clock;
+}
+|———Node:struct Text: struct
+|———Node:type_identifier Text: can_priv
+|———Node:field_declaration_list Text: {
+    struct can_bittiming bittiming, data_bittiming;
+    const struct can_bittiming_const *bittiming_const,
+        *data_bittiming_const;
+    //const u16 *termination_const;
+    //unsigned int termination_const_cnt;
+    //u16 termination;
+    const u32 *bitrate_const;
+    unsigned int bitrate_const_cnt;
+    const u32 *data_bitrate_const;
+    unsigned int data_bitrate_const_cnt;
+    struct can_clock clock;
+}
+|————Node:{ Text: {
+|————Node:field_declaration Text: struct can_bittiming bittiming, data_bittiming;
+|—————Node:struct_specifier Text: struct can_bittiming
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_bittiming
+|—————Node:field_identifier Text: bittiming
+|—————Node:, Text: ,
+|—————Node:field_identifier Text: data_bittiming
+|—————Node:; Text: ;
+|————Node:field_declaration Text: const struct can_bittiming_const *bittiming_const,
+        *data_bittiming_const;
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:struct_specifier Text: struct can_bittiming_const
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_bittiming_const
+|—————Node:pointer_declarator Text: *bittiming_const
+|——————Node:* Text: *
+|——————Node:field_identifier Text: bittiming_const
+|—————Node:, Text: ,
+|—————Node:pointer_declarator Text: *data_bittiming_const
+|——————Node:* Text: *
+|——————Node:field_identifier Text: data_bittiming_const
+|—————Node:; Text: ;
+|————Node:comment Text: //const u16 *termination_const;
+|————Node:comment Text: //unsigned int termination_const_cnt;
+|————Node:comment Text: //u16 termination;
+|————Node:field_declaration Text: const u32 *bitrate_const;
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:type_identifier Text: u32
+|—————Node:pointer_declarator Text: *bitrate_const
+|——————Node:* Text: *
+|——————Node:field_identifier Text: bitrate_const
+|—————Node:; Text: ;
+|————Node:field_declaration Text: unsigned int bitrate_const_cnt;
+|—————Node:sized_type_specifier Text: unsigned int
+|——————Node:unsigned Text: unsigned
+|——————Node:primitive_type Text: int
+|—————Node:field_identifier Text: bitrate_const_cnt
+|—————Node:; Text: ;
+|————Node:field_declaration Text: const u32 *data_bitrate_const;
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:type_identifier Text: u32
+|—————Node:pointer_declarator Text: *data_bitrate_const
+|——————Node:* Text: *
+|——————Node:field_identifier Text: data_bitrate_const
+|—————Node:; Text: ;
+|————Node:field_declaration Text: unsigned int data_bitrate_const_cnt;
+|—————Node:sized_type_specifier Text: unsigned int
+|——————Node:unsigned Text: unsigned
+|——————Node:primitive_type Text: int
+|—————Node:field_identifier Text: data_bitrate_const_cnt
+|—————Node:; Text: ;
+|————Node:field_declaration Text: struct can_clock clock;
+|—————Node:struct_specifier Text: struct can_clock
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_clock
+|—————Node:field_identifier Text: clock
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:; Text: ;
+|——Node:struct_specifier Text: struct net_device {
+    struct can_priv can;
+}
+|———Node:struct Text: struct
+|———Node:type_identifier Text: net_device
+|———Node:field_declaration_list Text: {
+    struct can_priv can;
+}
+|————Node:{ Text: {
+|————Node:field_declaration Text: struct can_priv can;
+|—————Node:struct_specifier Text: struct can_priv
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: can_priv
+|—————Node:field_identifier Text: can
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:; Text: ;
+|——Node:preproc_function_def Text: #define netdev_priv(nd) (&((nd)->can))
+
+|———Node:#define Text: #define
+|———Node:identifier Text: netdev_priv
+|———Node:preproc_params Text: (nd)
+|————Node:( Text: (
+|————Node:identifier Text: nd
+|————Node:) Text: )
+|———Node:preproc_arg Text: (&((nd)->can))
+|——Node:declaration Text: int can_get_bittiming(struct net_device *dev, struct can_bittiming *bt,
+                      const struct can_bittiming_const *btc,
+                      const u32 *bitrate_const,
+                      const unsigned int bitrate_const_cnt);
+|———Node:primitive_type Text: int
+|———Node:function_declarator Text: can_get_bittiming(struct net_device *dev, struct can_bittiming *bt,
+                      const struct can_bittiming_const *btc,
+                      const u32 *bitrate_const,
+                      const unsigned int bitrate_const_cnt)
+|————Node:identifier Text: can_get_bittiming
+|————Node:parameter_list Text: (struct net_device *dev, struct can_bittiming *bt,
+                      const struct can_bittiming_const *btc,
+                      const u32 *bitrate_const,
+                      const unsigned int bitrate_const_cnt)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: struct net_device *dev
+|——————Node:struct_specifier Text: struct net_device
+|———————Node:struct Text: struct
+|———————Node:type_identifier Text: net_device
+|——————Node:pointer_declarator Text: *dev
+|———————Node:* Text: *
+|———————Node:identifier Text: dev
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: struct can_bittiming *bt
+|——————Node:struct_specifier Text: struct can_bittiming
+|———————Node:struct Text: struct
+|———————Node:type_identifier Text: can_bittiming
+|——————Node:pointer_declarator Text: *bt
+|———————Node:* Text: *
+|———————Node:identifier Text: bt
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const struct can_bittiming_const *btc
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:struct_specifier Text: struct can_bittiming_const
+|———————Node:struct Text: struct
+|———————Node:type_identifier Text: can_bittiming_const
+|——————Node:pointer_declarator Text: *btc
+|———————Node:* Text: *
+|———————Node:identifier Text: btc
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const u32 *bitrate_const
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: u32
+|——————Node:pointer_declarator Text: *bitrate_const
+|———————Node:* Text: *
+|———————Node:identifier Text: bitrate_const
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const unsigned int bitrate_const_cnt
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:sized_type_specifier Text: unsigned int
+|———————Node:unsigned Text: unsigned
+|———————Node:primitive_type Text: int
+|——————Node:identifier Text: bitrate_const_cnt
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:preproc_function_def Text: #define min(a, b) (a < b ? a : b)
+
+|———Node:#define Text: #define
+|———Node:identifier Text: min
+|———Node:preproc_params Text: (a, b)
+|————Node:( Text: (
+|————Node:identifier Text: a
+|————Node:, Text: ,
+|————Node:identifier Text: b
+|————Node:) Text: )
+|———Node:preproc_arg Text: (a < b ? a : b)
+|——Node:preproc_function_def Text: #define max(a, b) (a > b ? a : b)
+
+|———Node:#define Text: #define
+|———Node:identifier Text: max
+|———Node:preproc_params Text: (a, b)
+|————Node:( Text: (
+|————Node:identifier Text: a
+|————Node:, Text: ,
+|————Node:identifier Text: b
+|————Node:) Text: )
+|———Node:preproc_arg Text: (a > b ? a : b)
+|——Node:preproc_function_def Text: #define clamp(val, lo, hi)  min((typeof(val))max(val, lo), hi)
+
+|———Node:#define Text: #define
+|———Node:identifier Text: clamp
+|———Node:preproc_params Text: (val, lo, hi)
+|————Node:( Text: (
+|————Node:identifier Text: val
+|————Node:, Text: ,
+|————Node:identifier Text: lo
+|————Node:, Text: ,
+|————Node:identifier Text: hi
+|————Node:) Text: )
+|———Node:preproc_arg Text: min((typeof(val))max(val, lo), hi)
+|——Node:comment Text: /**
+ * do_div - returns 2 values: calculate remainder and update new dividend
+ * @n: pointer to uint64_t dividend (will be updated)
+ * @base: uint32_t divisor
+ *
+ * Summary:
+ * ``uint32_t remainder = *n % base;``
+ * ``*n = *n / base;``
+ *
+ * Return: (uint32_t)remainder
+ *
+ * NOTE: macro parameter @n is evaluated multiple times,
+ * beware of side effects!
+ */
+|——Node:preproc_function_def Text: # define do_div(n,base) ({					\
+	uint32_t __base = (base);				\
+	uint32_t __rem;						\
+	__rem = ((uint64_t)(n)) % __base;			\
+	(n) = ((uint64_t)(n)) / __base;				\
+	__rem;							\
+ })
+
+|———Node:#define Text: # define
+|———Node:identifier Text: do_div
+|———Node:preproc_params Text: (n,base)
+|————Node:( Text: (
+|————Node:identifier Text: n
+|————Node:, Text: ,
+|————Node:identifier Text: base
+|————Node:) Text: )
+|———Node:preproc_arg Text: ({					\
+	uint32_t __base = (base);				\
+	uint32_t __rem;						\
+	__rem = ((uint64_t)(n)) % __base;			\
+	(n) = ((uint64_t)(n)) / __base;				\
+	__rem;							\
+ })
+|——Node:comment Text: /**
+ * abs - return absolute value of an argument
+ * @x: the value.  If it is unsigned type, it is converted to signed type first.
+ *     char is treated as if it was signed (regardless of whether it really is)
+ *     but the macro's return type is preserved as char.
+ *
+ * Return: an absolute value of x.
+ */
+|——Node:preproc_function_def Text: #define abs(x)	__abs_choose_expr(x, long long,				\
+		__abs_choose_expr(x, long,				\
+		__abs_choose_expr(x, int,				\
+		__abs_choose_expr(x, short,				\
+		__abs_choose_expr(x, char,				\
+		__builtin_choose_expr(					\
+			__builtin_types_compatible_p(typeof(x), char),	\
+			(char)({ signed char __x = (x); __x<0?-__x:__x; }), \
+			((void)0)))))))
+
+|———Node:#define Text: #define
+|———Node:identifier Text: abs
+|———Node:preproc_params Text: (x)
+|————Node:( Text: (
+|————Node:identifier Text: x
+|————Node:) Text: )
+|———Node:preproc_arg Text: __abs_choose_expr(x, long long,				\
+		__abs_choose_expr(x, long,				\
+		__abs_choose_expr(x, int,				\
+		__abs_choose_expr(x, short,				\
+		__abs_choose_expr(x, char,				\
+		__builtin_choose_expr(					\
+			__builtin_types_compatible_p(typeof(x), char),	\
+			(char)({ signed char __x = (x); __x<0?-__x:__x; }), \
+			((void)0)))))))
+|——Node:preproc_function_def Text: #define __abs_choose_expr(x, type, other) __builtin_choose_expr(	\
+	__builtin_types_compatible_p(typeof(x),   signed type) ||	\
+	__builtin_types_compatible_p(typeof(x), unsigned type),		\
+	({ signed type __x = (x); __x < 0 ? -__x : __x; }), other)
+
+|———Node:#define Text: #define
+|———Node:identifier Text: __abs_choose_expr
+|———Node:preproc_params Text: (x, type, other)
+|————Node:( Text: (
+|————Node:identifier Text: x
+|————Node:, Text: ,
+|————Node:identifier Text: type
+|————Node:, Text: ,
+|————Node:identifier Text: other
+|————Node:) Text: )
+|———Node:preproc_arg Text: __builtin_choose_expr(	\
+	__builtin_types_compatible_p(typeof(x),   signed type) ||	\
+	__builtin_types_compatible_p(typeof(x), unsigned type),		\
+	({ signed type __x = (x); __x < 0 ? -__x : __x; }), other)
+|——Node:preproc_function_def Text: #define netdev_warn(dev, format, ...) printf("%s" format, "netdev_warn: ", ##__VA_ARGS__);
+
+|———Node:#define Text: #define
+|———Node:identifier Text: netdev_warn
+|———Node:preproc_params Text: (dev, format, ...)
+|————Node:( Text: (
+|————Node:identifier Text: dev
+|————Node:, Text: ,
+|————Node:identifier Text: format
+|————Node:, Text: ,
+|————Node:... Text: ...
+|————Node:) Text: )
+|———Node:preproc_arg Text: printf("%s" format, "netdev_warn: ", ##__VA_ARGS__);
+|——Node:preproc_function_def Text: #define netdev_err(dev, format, ...) printf("%s" format, "netdev_err: ", ##__VA_ARGS__);
+
+|———Node:#define Text: #define
+|———Node:identifier Text: netdev_err
+|———Node:preproc_params Text: (dev, format, ...)
+|————Node:( Text: (
+|————Node:identifier Text: dev
+|————Node:, Text: ,
+|————Node:identifier Text: format
+|————Node:, Text: ,
+|————Node:... Text: ...
+|————Node:) Text: )
+|———Node:preproc_arg Text: printf("%s" format, "netdev_err: ", ##__VA_ARGS__);
+|——Node:#endif Text: #endif
+|—Node:comment Text: /* __CTU_CAN_FD_LINUX_DEFS__ */

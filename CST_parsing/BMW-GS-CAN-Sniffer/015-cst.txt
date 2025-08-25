@@ -1,0 +1,44 @@
+BMW-GS-CAN-Sniffer-Event_Printer\BMW_R1200_GS_K25_CAN_Bus_Defines.h
+
+|Node:translation_unit
+|—Node:comment
+|—Node:preproc_def Text: #define MSG_ID_BMSK_Control_Module     0x10C // Throttle position, engine rpm, clutch lever, kill switch & side stand switch
+
+|——Node:#define Text: #define
+|——Node:identifier Text: MSG_ID_BMSK_Control_Module
+|——Node:preproc_arg Text: 0x10C // Throttle position, engine rpm, clutch lever, kill switch & side stand switch
+|—Node:preproc_def Text: #define MSG_ID_BMSK_Control_Module_2   0x2BC // Gears, Engine Temperature & Air Temperature
+
+|——Node:#define Text: #define
+|——Node:identifier Text: MSG_ID_BMSK_Control_Module_2
+|——Node:preproc_arg Text: 0x2BC // Gears, Engine Temperature & Air Temperature
+|—Node:preproc_def Text: #define MSG_ID_ZFE_Control_Module      0x130 // Lighting: turn signals & high beam
+
+|——Node:#define Text: #define
+|——Node:identifier Text: MSG_ID_ZFE_Control_Module
+|——Node:preproc_arg Text: 0x130 // Lighting: turn signals & high beam
+|—Node:preproc_def Text: #define MSG_ID_ZFE_Control_Module_2    0x2D0 // LAMPF, Fuel Level & Control buttons: info, heated grip & esa
+
+|——Node:#define Text: #define
+|——Node:identifier Text: MSG_ID_ZFE_Control_Module_2
+|——Node:preproc_arg Text: 0x2D0 // LAMPF, Fuel Level & Control buttons: info, heated grip & esa
+|—Node:preproc_def Text: #define MSG_ID_ABS_Control_Module      0x294 // Speed and distance traveled on front wheel, ABS status & brake levers
+
+|——Node:#define Text: #define
+|——Node:identifier Text: MSG_ID_ABS_Control_Module
+|——Node:preproc_arg Text: 0x294 // Speed and distance traveled on front wheel, ABS status & brake levers
+|—Node:preproc_def Text: #define MSG_ID_ABS_Control_Module_2    0x2A8 // Speed and distance traveled on rear wheel
+
+|——Node:#define Text: #define
+|——Node:identifier Text: MSG_ID_ABS_Control_Module_2
+|——Node:preproc_arg Text: 0x2A8 // Speed and distance traveled on rear wheel
+|—Node:preproc_def Text: #define MSG_ID_Instrument_Cluster      0x3F8 // Odometer in kilometers
+
+|——Node:#define Text: #define
+|——Node:identifier Text: MSG_ID_Instrument_Cluster
+|——Node:preproc_arg Text: 0x3F8 // Odometer in kilometers
+|—Node:preproc_def Text: #define MSG_ID_Instrument_Cluster_2    0x3FF // Ambient Light, Clock
+
+|——Node:#define Text: #define
+|——Node:identifier Text: MSG_ID_Instrument_Cluster_2
+|——Node:preproc_arg Text: 0x3FF // Ambient Light, Clock

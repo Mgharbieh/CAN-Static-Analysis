@@ -1,0 +1,2492 @@
+CAN-Monitor-qt-CanAdapter\CanAdapterTritium.cpp
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include "CanAdapterTritium.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "CanAdapterTritium.h"
+|———Node:" Text: "
+|———Node:string_content Text: CanAdapterTritium.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "lib-slcan/slcan.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "lib-slcan/slcan.h"
+|———Node:" Text: "
+|———Node:string_content Text: lib-slcan/slcan.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "SlcanControlWidget.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "SlcanControlWidget.h"
+|———Node:" Text: "
+|———Node:string_content Text: SlcanControlWidget.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include <QDebug>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <QDebug>
+|—Node:preproc_include Text: #include <QCoreApplication>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <QCoreApplication>
+|—Node:preproc_include Text: #include <QTime>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <QTime>
+|—Node:preproc_include Text: #include "TritiumControlWidget.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "TritiumControlWidget.h"
+|———Node:" Text: "
+|———Node:string_content Text: TritiumControlWidget.h
+|———Node:" Text: "
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:comment
+|—Node:function_definition Text: CanAdapterTritium::CanAdapterTritium(CanHub &canHub)
+    : m_groupAddress(QStringLiteral("239.255.60.60")), m_port(4876)
+{
+    m_canHandle = canHub.getNewHandle(CanHub::f_isCanAdapter);
+    generateClientIdentifier();
+
+    m_statusTimer.setSingleShot(true);
+    connect(&m_statusTimer, SIGNAL(timeout()), this, SLOT(statusTimerTimeout()));
+    m_statusTimer.start(2000);
+
+    connect(m_canHandle, SIGNAL(received(can_message_t)), this, SLOT(transmit(can_message_t)));
+
+    m_udpSocket.bind(QHostAddress::AnyIPv4, m_port, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint);
+    m_udpSocket.joinMulticastGroup(m_groupAddress);
+    connect(&m_udpSocket, SIGNAL(readyRead()), this, SLOT(processDatagrams()));
+}
+|——Node:function_declarator Text: CanAdapterTritium::CanAdapterTritium(CanHub &canHub)
+|———Node:qualified_identifier Text: CanAdapterTritium::CanAdapterTritium
+|————Node:namespace_identifier Text: CanAdapterTritium
+|————Node::: Text: ::
+|————Node:identifier Text: CanAdapterTritium
+|———Node:parameter_list Text: (CanHub &canHub)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: CanHub &canHub
+|—————Node:type_identifier Text: CanHub
+|—————Node:reference_declarator Text: &canHub
+|——————Node:& Text: &
+|——————Node:identifier Text: canHub
+|————Node:) Text: )
+|——Node:field_initializer_list Text: : m_groupAddress(QStringLiteral("239.255.60.60")), m_port(4876)
+|———Node:: Text: :
+|———Node:field_initializer Text: m_groupAddress(QStringLiteral("239.255.60.60"))
+|————Node:field_identifier Text: m_groupAddress
+|————Node:argument_list Text: (QStringLiteral("239.255.60.60"))
+|—————Node:( Text: (
+|—————Node:call_expression Text: QStringLiteral("239.255.60.60")
+|——————Node:identifier Text: QStringLiteral
+|——————Node:argument_list Text: ("239.255.60.60")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "239.255.60.60"
+|————————Node:" Text: "
+|————————Node:string_content Text: 239.255.60.60
+|————————Node:" Text: "
+|———————Node:) Text: )
+|—————Node:) Text: )
+|———Node:, Text: ,
+|———Node:field_initializer Text: m_port(4876)
+|————Node:field_identifier Text: m_port
+|————Node:argument_list Text: (4876)
+|—————Node:( Text: (
+|—————Node:number_literal Text: 4876
+|—————Node:) Text: )
+|——Node:compound_statement Text: {
+    m_canHandle = canHub.getNewHandle(CanHub::f_isCanAdapter);
+    generateClientIdentifier();
+
+    m_statusTimer.setSingleShot(true);
+    connect(&m_statusTimer, SIGNAL(timeout()), this, SLOT(statusTimerTimeout()));
+    m_statusTimer.start(2000);
+
+    connect(m_canHandle, SIGNAL(received(can_message_t)), this, SLOT(transmit(can_message_t)));
+
+    m_udpSocket.bind(QHostAddress::AnyIPv4, m_port, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint);
+    m_udpSocket.joinMulticastGroup(m_groupAddress);
+    connect(&m_udpSocket, SIGNAL(readyRead()), this, SLOT(processDatagrams()));
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: m_canHandle = canHub.getNewHandle(CanHub::f_isCanAdapter);
+|————Node:assignment_expression Text: m_canHandle = canHub.getNewHandle(CanHub::f_isCanAdapter)
+|—————Node:identifier Text: m_canHandle
+|—————Node:= Text: =
+|—————Node:call_expression Text: canHub.getNewHandle(CanHub::f_isCanAdapter)
+|——————Node:field_expression Text: canHub.getNewHandle
+|———————Node:identifier Text: canHub
+|———————Node:. Text: .
+|———————Node:field_identifier Text: getNewHandle
+|——————Node:argument_list Text: (CanHub::f_isCanAdapter)
+|———————Node:( Text: (
+|———————Node:qualified_identifier Text: CanHub::f_isCanAdapter
+|————————Node:namespace_identifier Text: CanHub
+|————————Node::: Text: ::
+|————————Node:identifier Text: f_isCanAdapter
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: generateClientIdentifier();
+|————Node:call_expression Text: generateClientIdentifier()
+|—————Node:identifier Text: generateClientIdentifier
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_statusTimer.setSingleShot(true);
+|————Node:call_expression Text: m_statusTimer.setSingleShot(true)
+|—————Node:field_expression Text: m_statusTimer.setSingleShot
+|——————Node:identifier Text: m_statusTimer
+|——————Node:. Text: .
+|——————Node:field_identifier Text: setSingleShot
+|—————Node:argument_list Text: (true)
+|——————Node:( Text: (
+|——————Node:true Text: true
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: connect(&m_statusTimer, SIGNAL(timeout()), this, SLOT(statusTimerTimeout()));
+|————Node:call_expression Text: connect(&m_statusTimer, SIGNAL(timeout()), this, SLOT(statusTimerTimeout()))
+|—————Node:identifier Text: connect
+|—————Node:argument_list Text: (&m_statusTimer, SIGNAL(timeout()), this, SLOT(statusTimerTimeout()))
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &m_statusTimer
+|———————Node:& Text: &
+|———————Node:identifier Text: m_statusTimer
+|——————Node:, Text: ,
+|——————Node:call_expression Text: SIGNAL(timeout())
+|———————Node:identifier Text: SIGNAL
+|———————Node:argument_list Text: (timeout())
+|————————Node:( Text: (
+|————————Node:call_expression Text: timeout()
+|—————————Node:identifier Text: timeout
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:this Text: this
+|——————Node:, Text: ,
+|——————Node:call_expression Text: SLOT(statusTimerTimeout())
+|———————Node:identifier Text: SLOT
+|———————Node:argument_list Text: (statusTimerTimeout())
+|————————Node:( Text: (
+|————————Node:call_expression Text: statusTimerTimeout()
+|—————————Node:identifier Text: statusTimerTimeout
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_statusTimer.start(2000);
+|————Node:call_expression Text: m_statusTimer.start(2000)
+|—————Node:field_expression Text: m_statusTimer.start
+|——————Node:identifier Text: m_statusTimer
+|——————Node:. Text: .
+|——————Node:field_identifier Text: start
+|—————Node:argument_list Text: (2000)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 2000
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: connect(m_canHandle, SIGNAL(received(can_message_t)), this, SLOT(transmit(can_message_t)));
+|————Node:call_expression Text: connect(m_canHandle, SIGNAL(received(can_message_t)), this, SLOT(transmit(can_message_t)))
+|—————Node:identifier Text: connect
+|—————Node:argument_list Text: (m_canHandle, SIGNAL(received(can_message_t)), this, SLOT(transmit(can_message_t)))
+|——————Node:( Text: (
+|——————Node:identifier Text: m_canHandle
+|——————Node:, Text: ,
+|——————Node:call_expression Text: SIGNAL(received(can_message_t))
+|———————Node:identifier Text: SIGNAL
+|———————Node:argument_list Text: (received(can_message_t))
+|————————Node:( Text: (
+|————————Node:call_expression Text: received(can_message_t)
+|—————————Node:identifier Text: received
+|—————————Node:argument_list Text: (can_message_t)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: can_message_t
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:this Text: this
+|——————Node:, Text: ,
+|——————Node:call_expression Text: SLOT(transmit(can_message_t))
+|———————Node:identifier Text: SLOT
+|———————Node:argument_list Text: (transmit(can_message_t))
+|————————Node:( Text: (
+|————————Node:call_expression Text: transmit(can_message_t)
+|—————————Node:identifier Text: transmit
+|—————————Node:argument_list Text: (can_message_t)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: can_message_t
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_udpSocket.bind(QHostAddress::AnyIPv4, m_port, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint);
+|————Node:call_expression Text: m_udpSocket.bind(QHostAddress::AnyIPv4, m_port, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint)
+|—————Node:field_expression Text: m_udpSocket.bind
+|——————Node:identifier Text: m_udpSocket
+|——————Node:. Text: .
+|——————Node:field_identifier Text: bind
+|—————Node:argument_list Text: (QHostAddress::AnyIPv4, m_port, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint)
+|——————Node:( Text: (
+|——————Node:qualified_identifier Text: QHostAddress::AnyIPv4
+|———————Node:namespace_identifier Text: QHostAddress
+|———————Node::: Text: ::
+|———————Node:identifier Text: AnyIPv4
+|——————Node:, Text: ,
+|——————Node:identifier Text: m_port
+|——————Node:, Text: ,
+|——————Node:binary_expression Text: QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint
+|———————Node:qualified_identifier Text: QUdpSocket::ShareAddress
+|————————Node:namespace_identifier Text: QUdpSocket
+|————————Node::: Text: ::
+|————————Node:identifier Text: ShareAddress
+|———————Node:| Text: |
+|———————Node:qualified_identifier Text: QUdpSocket::ReuseAddressHint
+|————————Node:namespace_identifier Text: QUdpSocket
+|————————Node::: Text: ::
+|————————Node:identifier Text: ReuseAddressHint
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_udpSocket.joinMulticastGroup(m_groupAddress);
+|————Node:call_expression Text: m_udpSocket.joinMulticastGroup(m_groupAddress)
+|—————Node:field_expression Text: m_udpSocket.joinMulticastGroup
+|——————Node:identifier Text: m_udpSocket
+|——————Node:. Text: .
+|——————Node:field_identifier Text: joinMulticastGroup
+|—————Node:argument_list Text: (m_groupAddress)
+|——————Node:( Text: (
+|——————Node:identifier Text: m_groupAddress
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: connect(&m_udpSocket, SIGNAL(readyRead()), this, SLOT(processDatagrams()));
+|————Node:call_expression Text: connect(&m_udpSocket, SIGNAL(readyRead()), this, SLOT(processDatagrams()))
+|—————Node:identifier Text: connect
+|—————Node:argument_list Text: (&m_udpSocket, SIGNAL(readyRead()), this, SLOT(processDatagrams()))
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &m_udpSocket
+|———————Node:& Text: &
+|———————Node:identifier Text: m_udpSocket
+|——————Node:, Text: ,
+|——————Node:call_expression Text: SIGNAL(readyRead())
+|———————Node:identifier Text: SIGNAL
+|———————Node:argument_list Text: (readyRead())
+|————————Node:( Text: (
+|————————Node:call_expression Text: readyRead()
+|—————————Node:identifier Text: readyRead
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:this Text: this
+|——————Node:, Text: ,
+|——————Node:call_expression Text: SLOT(processDatagrams())
+|———————Node:identifier Text: SLOT
+|———————Node:argument_list Text: (processDatagrams())
+|————————Node:( Text: (
+|————————Node:call_expression Text: processDatagrams()
+|—————————Node:identifier Text: processDatagrams
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: CanAdapterTritium::~CanAdapterTritium(){
+    close();
+    delete m_canHandle;
+}
+|——Node:function_declarator Text: CanAdapterTritium::~CanAdapterTritium()
+|———Node:qualified_identifier Text: CanAdapterTritium::~CanAdapterTritium
+|————Node:namespace_identifier Text: CanAdapterTritium
+|————Node::: Text: ::
+|————Node:destructor_name Text: ~CanAdapterTritium
+|—————Node:~ Text: ~
+|—————Node:identifier Text: CanAdapterTritium
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    close();
+    delete m_canHandle;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: close();
+|————Node:call_expression Text: close()
+|—————Node:identifier Text: close
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: delete m_canHandle;
+|————Node:delete_expression Text: delete m_canHandle
+|—————Node:delete Text: delete
+|—————Node:identifier Text: m_canHandle
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void CanAdapterTritium::generateClientIdentifier()
+{
+    qsrand(QTime::currentTime().msec());
+    for(int i=0; i<7; i++)
+        m_clientIdentifier[i] = qrand();
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CanAdapterTritium::generateClientIdentifier()
+|———Node:qualified_identifier Text: CanAdapterTritium::generateClientIdentifier
+|————Node:namespace_identifier Text: CanAdapterTritium
+|————Node::: Text: ::
+|————Node:identifier Text: generateClientIdentifier
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    qsrand(QTime::currentTime().msec());
+    for(int i=0; i<7; i++)
+        m_clientIdentifier[i] = qrand();
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: qsrand(QTime::currentTime().msec());
+|————Node:call_expression Text: qsrand(QTime::currentTime().msec())
+|—————Node:identifier Text: qsrand
+|—————Node:argument_list Text: (QTime::currentTime().msec())
+|——————Node:( Text: (
+|——————Node:call_expression Text: QTime::currentTime().msec()
+|———————Node:field_expression Text: QTime::currentTime().msec
+|————————Node:call_expression Text: QTime::currentTime()
+|—————————Node:qualified_identifier Text: QTime::currentTime
+|——————————Node:namespace_identifier Text: QTime
+|——————————Node::: Text: ::
+|——————————Node:identifier Text: currentTime
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:. Text: .
+|————————Node:field_identifier Text: msec
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:for_statement Text: for(int i=0; i<7; i++)
+        m_clientIdentifier[i] = qrand();
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:declaration Text: int i=0;
+|—————Node:primitive_type Text: int
+|—————Node:init_declarator Text: i=0
+|——————Node:identifier Text: i
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:binary_expression Text: i<7
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:number_literal Text: 7
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:expression_statement Text: m_clientIdentifier[i] = qrand();
+|—————Node:assignment_expression Text: m_clientIdentifier[i] = qrand()
+|——————Node:subscript_expression Text: m_clientIdentifier[i]
+|———————Node:identifier Text: m_clientIdentifier
+|———————Node:subscript_argument_list Text: [i]
+|————————Node:[ Text: [
+|————————Node:identifier Text: i
+|————————Node:] Text: ]
+|——————Node:= Text: =
+|——————Node:call_expression Text: qrand()
+|———————Node:identifier Text: qrand
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:} Text: }
+|—Node:struct_specifier Text: struct TritiumHeader
+{
+    uint8_t busNumber;
+    char clientIdentifier[7];
+}
+|——Node:struct Text: struct
+|——Node:type_identifier Text: TritiumHeader
+|——Node:field_declaration_list Text: {
+    uint8_t busNumber;
+    char clientIdentifier[7];
+}
+|———Node:{ Text: {
+|———Node:field_declaration Text: uint8_t busNumber;
+|————Node:primitive_type Text: uint8_t
+|————Node:field_identifier Text: busNumber
+|————Node:; Text: ;
+|———Node:field_declaration Text: char clientIdentifier[7];
+|————Node:primitive_type Text: char
+|————Node:array_declarator Text: clientIdentifier[7]
+|—————Node:field_identifier Text: clientIdentifier
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 7
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:; Text: ;
+|—Node:struct_specifier Text: struct TritiumMessage
+{
+    uint32_t id;
+    bool H;
+    bool S;
+    bool R;
+    bool E;
+    uint8_t dlc;
+    uint8_t data[8];
+}
+|——Node:struct Text: struct
+|——Node:type_identifier Text: TritiumMessage
+|——Node:field_declaration_list Text: {
+    uint32_t id;
+    bool H;
+    bool S;
+    bool R;
+    bool E;
+    uint8_t dlc;
+    uint8_t data[8];
+}
+|———Node:{ Text: {
+|———Node:field_declaration Text: uint32_t id;
+|————Node:primitive_type Text: uint32_t
+|————Node:field_identifier Text: id
+|————Node:; Text: ;
+|———Node:field_declaration Text: bool H;
+|————Node:primitive_type Text: bool
+|————Node:field_identifier Text: H
+|————Node:; Text: ;
+|———Node:field_declaration Text: bool S;
+|————Node:primitive_type Text: bool
+|————Node:field_identifier Text: S
+|————Node:; Text: ;
+|———Node:field_declaration Text: bool R;
+|————Node:primitive_type Text: bool
+|————Node:field_identifier Text: R
+|————Node:; Text: ;
+|———Node:field_declaration Text: bool E;
+|————Node:primitive_type Text: bool
+|————Node:field_identifier Text: E
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint8_t dlc;
+|————Node:primitive_type Text: uint8_t
+|————Node:field_identifier Text: dlc
+|————Node:; Text: ;
+|———Node:field_declaration Text: uint8_t data[8];
+|————Node:primitive_type Text: uint8_t
+|————Node:array_declarator Text: data[8]
+|—————Node:field_identifier Text: data
+|—————Node:[ Text: [
+|—————Node:number_literal Text: 8
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:; Text: ;
+|—Node:function_definition Text: static bool decodeHeader(TritiumHeader &h, const char * data)
+{
+    if(memcmp(&data[1], "Tritiu", 6)) // check magic (first 6 bytes)
+        return false;
+    if((data[7] & 0xF0) != 0x60) // check magic (last nibble)
+        return false;
+
+    h.busNumber = data[7] & 0x0F;
+    memcpy(h.clientIdentifier, &data[9], 7);
+
+    return true;
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: decodeHeader(TritiumHeader &h, const char * data)
+|———Node:identifier Text: decodeHeader
+|———Node:parameter_list Text: (TritiumHeader &h, const char * data)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: TritiumHeader &h
+|—————Node:type_identifier Text: TritiumHeader
+|—————Node:reference_declarator Text: &h
+|——————Node:& Text: &
+|——————Node:identifier Text: h
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: const char * data
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: * data
+|——————Node:* Text: *
+|——————Node:identifier Text: data
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if(memcmp(&data[1], "Tritiu", 6)) // check magic (first 6 bytes)
+        return false;
+    if((data[7] & 0xF0) != 0x60) // check magic (last nibble)
+        return false;
+
+    h.busNumber = data[7] & 0x0F;
+    memcpy(h.clientIdentifier, &data[9], 7);
+
+    return true;
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if(memcmp(&data[1], "Tritiu", 6)) // check magic (first 6 bytes)
+        return false;
+|————Node:if Text: if
+|————Node:condition_clause Text: (memcmp(&data[1], "Tritiu", 6))
+|—————Node:( Text: (
+|—————Node:call_expression Text: memcmp(&data[1], "Tritiu", 6)
+|——————Node:identifier Text: memcmp
+|——————Node:argument_list Text: (&data[1], "Tritiu", 6)
+|———————Node:( Text: (
+|———————Node:pointer_expression Text: &data[1]
+|————————Node:& Text: &
+|————————Node:subscript_expression Text: data[1]
+|—————————Node:identifier Text: data
+|—————————Node:subscript_argument_list Text: [1]
+|——————————Node:[ Text: [
+|——————————Node:number_literal Text: 1
+|——————————Node:] Text: ]
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "Tritiu"
+|————————Node:" Text: "
+|————————Node:string_content Text: Tritiu
+|————————Node:" Text: "
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 6
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:comment
+|————Node:return_statement Text: return false;
+|—————Node:return Text: return
+|—————Node:false Text: false
+|—————Node:; Text: ;
+|———Node:if_statement Text: if((data[7] & 0xF0) != 0x60) // check magic (last nibble)
+        return false;
+|————Node:if Text: if
+|————Node:condition_clause Text: ((data[7] & 0xF0) != 0x60)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: (data[7] & 0xF0) != 0x60
+|——————Node:parenthesized_expression Text: (data[7] & 0xF0)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: data[7] & 0xF0
+|————————Node:subscript_expression Text: data[7]
+|—————————Node:identifier Text: data
+|—————————Node:subscript_argument_list Text: [7]
+|——————————Node:[ Text: [
+|——————————Node:number_literal Text: 7
+|——————————Node:] Text: ]
+|————————Node:& Text: &
+|————————Node:number_literal Text: 0xF0
+|———————Node:) Text: )
+|——————Node:!= Text: !=
+|——————Node:number_literal Text: 0x60
+|—————Node:) Text: )
+|————Node:comment
+|————Node:return_statement Text: return false;
+|—————Node:return Text: return
+|—————Node:false Text: false
+|—————Node:; Text: ;
+|———Node:expression_statement Text: h.busNumber = data[7] & 0x0F;
+|————Node:assignment_expression Text: h.busNumber = data[7] & 0x0F
+|—————Node:field_expression Text: h.busNumber
+|——————Node:identifier Text: h
+|——————Node:. Text: .
+|——————Node:field_identifier Text: busNumber
+|—————Node:= Text: =
+|—————Node:binary_expression Text: data[7] & 0x0F
+|——————Node:subscript_expression Text: data[7]
+|———————Node:identifier Text: data
+|———————Node:subscript_argument_list Text: [7]
+|————————Node:[ Text: [
+|————————Node:number_literal Text: 7
+|————————Node:] Text: ]
+|——————Node:& Text: &
+|——————Node:number_literal Text: 0x0F
+|————Node:; Text: ;
+|———Node:expression_statement Text: memcpy(h.clientIdentifier, &data[9], 7);
+|————Node:call_expression Text: memcpy(h.clientIdentifier, &data[9], 7)
+|—————Node:identifier Text: memcpy
+|—————Node:argument_list Text: (h.clientIdentifier, &data[9], 7)
+|——————Node:( Text: (
+|——————Node:field_expression Text: h.clientIdentifier
+|———————Node:identifier Text: h
+|———————Node:. Text: .
+|———————Node:field_identifier Text: clientIdentifier
+|——————Node:, Text: ,
+|——————Node:pointer_expression Text: &data[9]
+|———————Node:& Text: &
+|———————Node:subscript_expression Text: data[9]
+|————————Node:identifier Text: data
+|————————Node:subscript_argument_list Text: [9]
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 9
+|—————————Node:] Text: ]
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 7
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return true;
+|————Node:return Text: return
+|————Node:true Text: true
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: static void encodeHeader(char * data, const char * clientIdentifier, uint8_t busNumber)
+{
+    memcpy(data, "\x00Tritiu\x60", 8);
+    data[7] |= busNumber & 0x0f;
+    data[8] = 0;
+    memcpy(&data[9], clientIdentifier, 7);
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: encodeHeader(char * data, const char * clientIdentifier, uint8_t busNumber)
+|———Node:identifier Text: encodeHeader
+|———Node:parameter_list Text: (char * data, const char * clientIdentifier, uint8_t busNumber)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: char * data
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: * data
+|——————Node:* Text: *
+|——————Node:identifier Text: data
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: const char * clientIdentifier
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: * clientIdentifier
+|——————Node:* Text: *
+|——————Node:identifier Text: clientIdentifier
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint8_t busNumber
+|—————Node:primitive_type Text: uint8_t
+|—————Node:identifier Text: busNumber
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    memcpy(data, "\x00Tritiu\x60", 8);
+    data[7] |= busNumber & 0x0f;
+    data[8] = 0;
+    memcpy(&data[9], clientIdentifier, 7);
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: memcpy(data, "\x00Tritiu\x60", 8);
+|————Node:call_expression Text: memcpy(data, "\x00Tritiu\x60", 8)
+|—————Node:identifier Text: memcpy
+|—————Node:argument_list Text: (data, "\x00Tritiu\x60", 8)
+|——————Node:( Text: (
+|——————Node:identifier Text: data
+|——————Node:, Text: ,
+|——————Node:string_literal Text: "\x00Tritiu\x60"
+|———————Node:" Text: "
+|———————Node:escape_sequence Text: \x00
+|———————Node:string_content Text: Tritiu
+|———————Node:escape_sequence Text: \x60
+|———————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 8
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: data[7] |= busNumber & 0x0f;
+|————Node:assignment_expression Text: data[7] |= busNumber & 0x0f
+|—————Node:subscript_expression Text: data[7]
+|——————Node:identifier Text: data
+|——————Node:subscript_argument_list Text: [7]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 7
+|———————Node:] Text: ]
+|—————Node:|= Text: |=
+|—————Node:binary_expression Text: busNumber & 0x0f
+|——————Node:identifier Text: busNumber
+|——————Node:& Text: &
+|——————Node:number_literal Text: 0x0f
+|————Node:; Text: ;
+|———Node:expression_statement Text: data[8] = 0;
+|————Node:assignment_expression Text: data[8] = 0
+|—————Node:subscript_expression Text: data[8]
+|——————Node:identifier Text: data
+|——————Node:subscript_argument_list Text: [8]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 8
+|———————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: memcpy(&data[9], clientIdentifier, 7);
+|————Node:call_expression Text: memcpy(&data[9], clientIdentifier, 7)
+|—————Node:identifier Text: memcpy
+|—————Node:argument_list Text: (&data[9], clientIdentifier, 7)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &data[9]
+|———————Node:& Text: &
+|———————Node:subscript_expression Text: data[9]
+|————————Node:identifier Text: data
+|————————Node:subscript_argument_list Text: [9]
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 9
+|—————————Node:] Text: ]
+|——————Node:, Text: ,
+|——————Node:identifier Text: clientIdentifier
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 7
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: static void decodeMessage(TritiumMessage &m, const char * data)
+{
+    const uint8_t * d = reinterpret_cast<const uint8_t *>(data);
+    m.id  = d[0] << 24;
+    m.id |= d[1] << 16;
+    m.id |= d[2] <<  8;
+    m.id |= d[3] <<  0;
+    m.H = d[4] & 0x80 ? 1:0;
+    m.S = d[4] & 0x40 ? 1:0;
+    m.R = d[4] & 0x02 ? 1:0;
+    m.E = d[4] & 0x01 ? 1:0;
+    m.dlc = d[5];
+    memcpy(m.data, &d[6], 8);
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: decodeMessage(TritiumMessage &m, const char * data)
+|———Node:identifier Text: decodeMessage
+|———Node:parameter_list Text: (TritiumMessage &m, const char * data)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: TritiumMessage &m
+|—————Node:type_identifier Text: TritiumMessage
+|—————Node:reference_declarator Text: &m
+|——————Node:& Text: &
+|——————Node:identifier Text: m
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: const char * data
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: * data
+|——————Node:* Text: *
+|——————Node:identifier Text: data
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    const uint8_t * d = reinterpret_cast<const uint8_t *>(data);
+    m.id  = d[0] << 24;
+    m.id |= d[1] << 16;
+    m.id |= d[2] <<  8;
+    m.id |= d[3] <<  0;
+    m.H = d[4] & 0x80 ? 1:0;
+    m.S = d[4] & 0x40 ? 1:0;
+    m.R = d[4] & 0x02 ? 1:0;
+    m.E = d[4] & 0x01 ? 1:0;
+    m.dlc = d[5];
+    memcpy(m.data, &d[6], 8);
+}
+|———Node:{ Text: {
+|———Node:declaration Text: const uint8_t * d = reinterpret_cast<const uint8_t *>(data);
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:primitive_type Text: uint8_t
+|————Node:init_declarator Text: * d = reinterpret_cast<const uint8_t *>(data)
+|—————Node:pointer_declarator Text: * d
+|——————Node:* Text: *
+|——————Node:identifier Text: d
+|—————Node:= Text: =
+|—————Node:call_expression Text: reinterpret_cast<const uint8_t *>(data)
+|——————Node:template_function Text: reinterpret_cast<const uint8_t *>
+|———————Node:identifier Text: reinterpret_cast
+|———————Node:template_argument_list Text: <const uint8_t *>
+|————————Node:< Text: <
+|————————Node:type_descriptor Text: const uint8_t *
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:primitive_type Text: uint8_t
+|—————————Node:abstract_pointer_declarator Text: *
+|——————————Node:* Text: *
+|————————Node:> Text: >
+|——————Node:argument_list Text: (data)
+|———————Node:( Text: (
+|———————Node:identifier Text: data
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: m.id  = d[0] << 24;
+|————Node:assignment_expression Text: m.id  = d[0] << 24
+|—————Node:field_expression Text: m.id
+|——————Node:identifier Text: m
+|——————Node:. Text: .
+|——————Node:field_identifier Text: id
+|—————Node:= Text: =
+|—————Node:binary_expression Text: d[0] << 24
+|——————Node:subscript_expression Text: d[0]
+|———————Node:identifier Text: d
+|———————Node:subscript_argument_list Text: [0]
+|————————Node:[ Text: [
+|————————Node:number_literal Text: 0
+|————————Node:] Text: ]
+|——————Node:<< Text: <<
+|——————Node:number_literal Text: 24
+|————Node:; Text: ;
+|———Node:expression_statement Text: m.id |= d[1] << 16;
+|————Node:assignment_expression Text: m.id |= d[1] << 16
+|—————Node:field_expression Text: m.id
+|——————Node:identifier Text: m
+|——————Node:. Text: .
+|——————Node:field_identifier Text: id
+|—————Node:|= Text: |=
+|—————Node:binary_expression Text: d[1] << 16
+|——————Node:subscript_expression Text: d[1]
+|———————Node:identifier Text: d
+|———————Node:subscript_argument_list Text: [1]
+|————————Node:[ Text: [
+|————————Node:number_literal Text: 1
+|————————Node:] Text: ]
+|——————Node:<< Text: <<
+|——————Node:number_literal Text: 16
+|————Node:; Text: ;
+|———Node:expression_statement Text: m.id |= d[2] <<  8;
+|————Node:assignment_expression Text: m.id |= d[2] <<  8
+|—————Node:field_expression Text: m.id
+|——————Node:identifier Text: m
+|——————Node:. Text: .
+|——————Node:field_identifier Text: id
+|—————Node:|= Text: |=
+|—————Node:binary_expression Text: d[2] <<  8
+|——————Node:subscript_expression Text: d[2]
+|———————Node:identifier Text: d
+|———————Node:subscript_argument_list Text: [2]
+|————————Node:[ Text: [
+|————————Node:number_literal Text: 2
+|————————Node:] Text: ]
+|——————Node:<< Text: <<
+|——————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: m.id |= d[3] <<  0;
+|————Node:assignment_expression Text: m.id |= d[3] <<  0
+|—————Node:field_expression Text: m.id
+|——————Node:identifier Text: m
+|——————Node:. Text: .
+|——————Node:field_identifier Text: id
+|—————Node:|= Text: |=
+|—————Node:binary_expression Text: d[3] <<  0
+|——————Node:subscript_expression Text: d[3]
+|———————Node:identifier Text: d
+|———————Node:subscript_argument_list Text: [3]
+|————————Node:[ Text: [
+|————————Node:number_literal Text: 3
+|————————Node:] Text: ]
+|——————Node:<< Text: <<
+|——————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: m.H = d[4] & 0x80 ? 1:0;
+|————Node:assignment_expression Text: m.H = d[4] & 0x80 ? 1:0
+|—————Node:field_expression Text: m.H
+|——————Node:identifier Text: m
+|——————Node:. Text: .
+|——————Node:field_identifier Text: H
+|—————Node:= Text: =
+|—————Node:conditional_expression Text: d[4] & 0x80 ? 1:0
+|——————Node:binary_expression Text: d[4] & 0x80
+|———————Node:subscript_expression Text: d[4]
+|————————Node:identifier Text: d
+|————————Node:subscript_argument_list Text: [4]
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 4
+|—————————Node:] Text: ]
+|———————Node:& Text: &
+|———————Node:number_literal Text: 0x80
+|——————Node:? Text: ?
+|——————Node:number_literal Text: 1
+|——————Node:: Text: :
+|——————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: m.S = d[4] & 0x40 ? 1:0;
+|————Node:assignment_expression Text: m.S = d[4] & 0x40 ? 1:0
+|—————Node:field_expression Text: m.S
+|——————Node:identifier Text: m
+|——————Node:. Text: .
+|——————Node:field_identifier Text: S
+|—————Node:= Text: =
+|—————Node:conditional_expression Text: d[4] & 0x40 ? 1:0
+|——————Node:binary_expression Text: d[4] & 0x40
+|———————Node:subscript_expression Text: d[4]
+|————————Node:identifier Text: d
+|————————Node:subscript_argument_list Text: [4]
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 4
+|—————————Node:] Text: ]
+|———————Node:& Text: &
+|———————Node:number_literal Text: 0x40
+|——————Node:? Text: ?
+|——————Node:number_literal Text: 1
+|——————Node:: Text: :
+|——————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: m.R = d[4] & 0x02 ? 1:0;
+|————Node:assignment_expression Text: m.R = d[4] & 0x02 ? 1:0
+|—————Node:field_expression Text: m.R
+|——————Node:identifier Text: m
+|——————Node:. Text: .
+|——————Node:field_identifier Text: R
+|—————Node:= Text: =
+|—————Node:conditional_expression Text: d[4] & 0x02 ? 1:0
+|——————Node:binary_expression Text: d[4] & 0x02
+|———————Node:subscript_expression Text: d[4]
+|————————Node:identifier Text: d
+|————————Node:subscript_argument_list Text: [4]
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 4
+|—————————Node:] Text: ]
+|———————Node:& Text: &
+|———————Node:number_literal Text: 0x02
+|——————Node:? Text: ?
+|——————Node:number_literal Text: 1
+|——————Node:: Text: :
+|——————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: m.E = d[4] & 0x01 ? 1:0;
+|————Node:assignment_expression Text: m.E = d[4] & 0x01 ? 1:0
+|—————Node:field_expression Text: m.E
+|——————Node:identifier Text: m
+|——————Node:. Text: .
+|——————Node:field_identifier Text: E
+|—————Node:= Text: =
+|—————Node:conditional_expression Text: d[4] & 0x01 ? 1:0
+|——————Node:binary_expression Text: d[4] & 0x01
+|———————Node:subscript_expression Text: d[4]
+|————————Node:identifier Text: d
+|————————Node:subscript_argument_list Text: [4]
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 4
+|—————————Node:] Text: ]
+|———————Node:& Text: &
+|———————Node:number_literal Text: 0x01
+|——————Node:? Text: ?
+|——————Node:number_literal Text: 1
+|——————Node:: Text: :
+|——————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: m.dlc = d[5];
+|————Node:assignment_expression Text: m.dlc = d[5]
+|—————Node:field_expression Text: m.dlc
+|——————Node:identifier Text: m
+|——————Node:. Text: .
+|——————Node:field_identifier Text: dlc
+|—————Node:= Text: =
+|—————Node:subscript_expression Text: d[5]
+|——————Node:identifier Text: d
+|——————Node:subscript_argument_list Text: [5]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 5
+|———————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:expression_statement Text: memcpy(m.data, &d[6], 8);
+|————Node:call_expression Text: memcpy(m.data, &d[6], 8)
+|—————Node:identifier Text: memcpy
+|—————Node:argument_list Text: (m.data, &d[6], 8)
+|——————Node:( Text: (
+|——————Node:field_expression Text: m.data
+|———————Node:identifier Text: m
+|———————Node:. Text: .
+|———————Node:field_identifier Text: data
+|——————Node:, Text: ,
+|——————Node:pointer_expression Text: &d[6]
+|———————Node:& Text: &
+|———————Node:subscript_expression Text: d[6]
+|————————Node:identifier Text: d
+|————————Node:subscript_argument_list Text: [6]
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 6
+|—————————Node:] Text: ]
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 8
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: static void encodeCanMessage(char * data, const can_message_t & cmsg)
+{
+    data[0] = cmsg.id >> 24;
+    data[1] = cmsg.id >> 16;
+    data[2] = cmsg.id >>  8;
+    data[3] = cmsg.id >>  0;
+    data[4]  = cmsg.IDE ? 0x01:0x00;
+    data[4] |= cmsg.RTR ? 0x02:0x00;
+    data[5] = cmsg.dlc;
+    memcpy(&data[6], cmsg.data, cmsg.dlc);
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: encodeCanMessage(char * data, const can_message_t & cmsg)
+|———Node:identifier Text: encodeCanMessage
+|———Node:parameter_list Text: (char * data, const can_message_t & cmsg)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: char * data
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: * data
+|——————Node:* Text: *
+|——————Node:identifier Text: data
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: const can_message_t & cmsg
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:type_identifier Text: can_message_t
+|—————Node:reference_declarator Text: & cmsg
+|——————Node:& Text: &
+|——————Node:identifier Text: cmsg
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    data[0] = cmsg.id >> 24;
+    data[1] = cmsg.id >> 16;
+    data[2] = cmsg.id >>  8;
+    data[3] = cmsg.id >>  0;
+    data[4]  = cmsg.IDE ? 0x01:0x00;
+    data[4] |= cmsg.RTR ? 0x02:0x00;
+    data[5] = cmsg.dlc;
+    memcpy(&data[6], cmsg.data, cmsg.dlc);
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: data[0] = cmsg.id >> 24;
+|————Node:assignment_expression Text: data[0] = cmsg.id >> 24
+|—————Node:subscript_expression Text: data[0]
+|——————Node:identifier Text: data
+|——————Node:subscript_argument_list Text: [0]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 0
+|———————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:binary_expression Text: cmsg.id >> 24
+|——————Node:field_expression Text: cmsg.id
+|———————Node:identifier Text: cmsg
+|———————Node:. Text: .
+|———————Node:field_identifier Text: id
+|——————Node:>> Text: >>
+|——————Node:number_literal Text: 24
+|————Node:; Text: ;
+|———Node:expression_statement Text: data[1] = cmsg.id >> 16;
+|————Node:assignment_expression Text: data[1] = cmsg.id >> 16
+|—————Node:subscript_expression Text: data[1]
+|——————Node:identifier Text: data
+|——————Node:subscript_argument_list Text: [1]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 1
+|———————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:binary_expression Text: cmsg.id >> 16
+|——————Node:field_expression Text: cmsg.id
+|———————Node:identifier Text: cmsg
+|———————Node:. Text: .
+|———————Node:field_identifier Text: id
+|——————Node:>> Text: >>
+|——————Node:number_literal Text: 16
+|————Node:; Text: ;
+|———Node:expression_statement Text: data[2] = cmsg.id >>  8;
+|————Node:assignment_expression Text: data[2] = cmsg.id >>  8
+|—————Node:subscript_expression Text: data[2]
+|——————Node:identifier Text: data
+|——————Node:subscript_argument_list Text: [2]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 2
+|———————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:binary_expression Text: cmsg.id >>  8
+|——————Node:field_expression Text: cmsg.id
+|———————Node:identifier Text: cmsg
+|———————Node:. Text: .
+|———————Node:field_identifier Text: id
+|——————Node:>> Text: >>
+|——————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: data[3] = cmsg.id >>  0;
+|————Node:assignment_expression Text: data[3] = cmsg.id >>  0
+|—————Node:subscript_expression Text: data[3]
+|——————Node:identifier Text: data
+|——————Node:subscript_argument_list Text: [3]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 3
+|———————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:binary_expression Text: cmsg.id >>  0
+|——————Node:field_expression Text: cmsg.id
+|———————Node:identifier Text: cmsg
+|———————Node:. Text: .
+|———————Node:field_identifier Text: id
+|——————Node:>> Text: >>
+|——————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: data[4]  = cmsg.IDE ? 0x01:0x00;
+|————Node:assignment_expression Text: data[4]  = cmsg.IDE ? 0x01:0x00
+|—————Node:subscript_expression Text: data[4]
+|——————Node:identifier Text: data
+|——————Node:subscript_argument_list Text: [4]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 4
+|———————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:conditional_expression Text: cmsg.IDE ? 0x01:0x00
+|——————Node:field_expression Text: cmsg.IDE
+|———————Node:identifier Text: cmsg
+|———————Node:. Text: .
+|———————Node:field_identifier Text: IDE
+|——————Node:? Text: ?
+|——————Node:number_literal Text: 0x01
+|——————Node:: Text: :
+|——————Node:number_literal Text: 0x00
+|————Node:; Text: ;
+|———Node:expression_statement Text: data[4] |= cmsg.RTR ? 0x02:0x00;
+|————Node:assignment_expression Text: data[4] |= cmsg.RTR ? 0x02:0x00
+|—————Node:subscript_expression Text: data[4]
+|——————Node:identifier Text: data
+|——————Node:subscript_argument_list Text: [4]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 4
+|———————Node:] Text: ]
+|—————Node:|= Text: |=
+|—————Node:conditional_expression Text: cmsg.RTR ? 0x02:0x00
+|——————Node:field_expression Text: cmsg.RTR
+|———————Node:identifier Text: cmsg
+|———————Node:. Text: .
+|———————Node:field_identifier Text: RTR
+|——————Node:? Text: ?
+|——————Node:number_literal Text: 0x02
+|——————Node:: Text: :
+|——————Node:number_literal Text: 0x00
+|————Node:; Text: ;
+|———Node:expression_statement Text: data[5] = cmsg.dlc;
+|————Node:assignment_expression Text: data[5] = cmsg.dlc
+|—————Node:subscript_expression Text: data[5]
+|——————Node:identifier Text: data
+|——————Node:subscript_argument_list Text: [5]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 5
+|———————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:field_expression Text: cmsg.dlc
+|——————Node:identifier Text: cmsg
+|——————Node:. Text: .
+|——————Node:field_identifier Text: dlc
+|————Node:; Text: ;
+|———Node:expression_statement Text: memcpy(&data[6], cmsg.data, cmsg.dlc);
+|————Node:call_expression Text: memcpy(&data[6], cmsg.data, cmsg.dlc)
+|—————Node:identifier Text: memcpy
+|—————Node:argument_list Text: (&data[6], cmsg.data, cmsg.dlc)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &data[6]
+|———————Node:& Text: &
+|———————Node:subscript_expression Text: data[6]
+|————————Node:identifier Text: data
+|————————Node:subscript_argument_list Text: [6]
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 6
+|—————————Node:] Text: ]
+|——————Node:, Text: ,
+|——————Node:field_expression Text: cmsg.data
+|———————Node:identifier Text: cmsg
+|———————Node:. Text: .
+|———————Node:field_identifier Text: data
+|——————Node:, Text: ,
+|——————Node:field_expression Text: cmsg.dlc
+|———————Node:identifier Text: cmsg
+|———————Node:. Text: .
+|———————Node:field_identifier Text: dlc
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void CanAdapterTritium::statusTimerTimeout()
+{
+    emit(updateStatus("Receiving no CAN Bridge on network"));
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CanAdapterTritium::statusTimerTimeout()
+|———Node:qualified_identifier Text: CanAdapterTritium::statusTimerTimeout
+|————Node:namespace_identifier Text: CanAdapterTritium
+|————Node::: Text: ::
+|————Node:identifier Text: statusTimerTimeout
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    emit(updateStatus("Receiving no CAN Bridge on network"));
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: emit(updateStatus("Receiving no CAN Bridge on network"));
+|————Node:call_expression Text: emit(updateStatus("Receiving no CAN Bridge on network"))
+|—————Node:identifier Text: emit
+|—————Node:argument_list Text: (updateStatus("Receiving no CAN Bridge on network"))
+|——————Node:( Text: (
+|——————Node:call_expression Text: updateStatus("Receiving no CAN Bridge on network")
+|———————Node:identifier Text: updateStatus
+|———————Node:argument_list Text: ("Receiving no CAN Bridge on network")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "Receiving no CAN Bridge on network"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: Receiving no CAN Bridge on network
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void CanAdapterTritium::processMessage(const TritiumMessage &message, const TritiumHeader &header, const QHostAddress &sourceAddress)
+{
+    if(message.H) // heartbeat
+    {
+        int baud = message.data[0] << 8;
+        baud |= message.data[1];
+
+        emit(updateStatus("CAN Bridge at " + sourceAddress.toString() +
+                          "  Bus=" + QString().number(header.busNumber) +
+                          "  Baud=" + QString().number(baud) + "k" ));
+        m_statusTimer.start(2000);
+    }
+    else if(message.S) // setting
+    {
+    }
+    else // CAN message
+    {
+        if(m_isOpen)
+        {
+            can_message_t cmsg;
+            cmsg.IDE = message.E;
+            cmsg.RTR = message.R;
+            cmsg.id = message.id;
+            cmsg.dlc = message.dlc;
+            memcpy(cmsg.data, message.data, 8);
+            m_canHandle->transmit(cmsg);
+        }
+    }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CanAdapterTritium::processMessage(const TritiumMessage &message, const TritiumHeader &header, const QHostAddress &sourceAddress)
+|———Node:qualified_identifier Text: CanAdapterTritium::processMessage
+|————Node:namespace_identifier Text: CanAdapterTritium
+|————Node::: Text: ::
+|————Node:identifier Text: processMessage
+|———Node:parameter_list Text: (const TritiumMessage &message, const TritiumHeader &header, const QHostAddress &sourceAddress)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: const TritiumMessage &message
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:type_identifier Text: TritiumMessage
+|—————Node:reference_declarator Text: &message
+|——————Node:& Text: &
+|——————Node:identifier Text: message
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: const TritiumHeader &header
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:type_identifier Text: TritiumHeader
+|—————Node:reference_declarator Text: &header
+|——————Node:& Text: &
+|——————Node:identifier Text: header
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: const QHostAddress &sourceAddress
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:type_identifier Text: QHostAddress
+|—————Node:reference_declarator Text: &sourceAddress
+|——————Node:& Text: &
+|——————Node:identifier Text: sourceAddress
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if(message.H) // heartbeat
+    {
+        int baud = message.data[0] << 8;
+        baud |= message.data[1];
+
+        emit(updateStatus("CAN Bridge at " + sourceAddress.toString() +
+                          "  Bus=" + QString().number(header.busNumber) +
+                          "  Baud=" + QString().number(baud) + "k" ));
+        m_statusTimer.start(2000);
+    }
+    else if(message.S) // setting
+    {
+    }
+    else // CAN message
+    {
+        if(m_isOpen)
+        {
+            can_message_t cmsg;
+            cmsg.IDE = message.E;
+            cmsg.RTR = message.R;
+            cmsg.id = message.id;
+            cmsg.dlc = message.dlc;
+            memcpy(cmsg.data, message.data, 8);
+            m_canHandle->transmit(cmsg);
+        }
+    }
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if(message.H) // heartbeat
+    {
+        int baud = message.data[0] << 8;
+        baud |= message.data[1];
+
+        emit(updateStatus("CAN Bridge at " + sourceAddress.toString() +
+                          "  Bus=" + QString().number(header.busNumber) +
+                          "  Baud=" + QString().number(baud) + "k" ));
+        m_statusTimer.start(2000);
+    }
+    else if(message.S) // setting
+    {
+    }
+    else // CAN message
+    {
+        if(m_isOpen)
+        {
+            can_message_t cmsg;
+            cmsg.IDE = message.E;
+            cmsg.RTR = message.R;
+            cmsg.id = message.id;
+            cmsg.dlc = message.dlc;
+            memcpy(cmsg.data, message.data, 8);
+            m_canHandle->transmit(cmsg);
+        }
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (message.H)
+|—————Node:( Text: (
+|—————Node:field_expression Text: message.H
+|——————Node:identifier Text: message
+|——————Node:. Text: .
+|——————Node:field_identifier Text: H
+|—————Node:) Text: )
+|————Node:comment
+|————Node:compound_statement Text: {
+        int baud = message.data[0] << 8;
+        baud |= message.data[1];
+
+        emit(updateStatus("CAN Bridge at " + sourceAddress.toString() +
+                          "  Bus=" + QString().number(header.busNumber) +
+                          "  Baud=" + QString().number(baud) + "k" ));
+        m_statusTimer.start(2000);
+    }
+|—————Node:{ Text: {
+|—————Node:declaration Text: int baud = message.data[0] << 8;
+|——————Node:primitive_type Text: int
+|——————Node:init_declarator Text: baud = message.data[0] << 8
+|———————Node:identifier Text: baud
+|———————Node:= Text: =
+|———————Node:binary_expression Text: message.data[0] << 8
+|————————Node:subscript_expression Text: message.data[0]
+|—————————Node:field_expression Text: message.data
+|——————————Node:identifier Text: message
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: data
+|—————————Node:subscript_argument_list Text: [0]
+|——————————Node:[ Text: [
+|——————————Node:number_literal Text: 0
+|——————————Node:] Text: ]
+|————————Node:<< Text: <<
+|————————Node:number_literal Text: 8
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: baud |= message.data[1];
+|——————Node:assignment_expression Text: baud |= message.data[1]
+|———————Node:identifier Text: baud
+|———————Node:|= Text: |=
+|———————Node:subscript_expression Text: message.data[1]
+|————————Node:field_expression Text: message.data
+|—————————Node:identifier Text: message
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: data
+|————————Node:subscript_argument_list Text: [1]
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 1
+|—————————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: emit(updateStatus("CAN Bridge at " + sourceAddress.toString() +
+                          "  Bus=" + QString().number(header.busNumber) +
+                          "  Baud=" + QString().number(baud) + "k" ));
+|——————Node:call_expression Text: emit(updateStatus("CAN Bridge at " + sourceAddress.toString() +
+                          "  Bus=" + QString().number(header.busNumber) +
+                          "  Baud=" + QString().number(baud) + "k" ))
+|———————Node:identifier Text: emit
+|———————Node:argument_list Text: (updateStatus("CAN Bridge at " + sourceAddress.toString() +
+                          "  Bus=" + QString().number(header.busNumber) +
+                          "  Baud=" + QString().number(baud) + "k" ))
+|————————Node:( Text: (
+|————————Node:call_expression Text: updateStatus("CAN Bridge at " + sourceAddress.toString() +
+                          "  Bus=" + QString().number(header.busNumber) +
+                          "  Baud=" + QString().number(baud) + "k" )
+|—————————Node:identifier Text: updateStatus
+|—————————Node:argument_list Text: ("CAN Bridge at " + sourceAddress.toString() +
+                          "  Bus=" + QString().number(header.busNumber) +
+                          "  Baud=" + QString().number(baud) + "k" )
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: "CAN Bridge at " + sourceAddress.toString() +
+                          "  Bus=" + QString().number(header.busNumber) +
+                          "  Baud=" + QString().number(baud) + "k"
+|———————————Node:binary_expression Text: "CAN Bridge at " + sourceAddress.toString() +
+                          "  Bus=" + QString().number(header.busNumber) +
+                          "  Baud=" + QString().number(baud)
+|————————————Node:binary_expression Text: "CAN Bridge at " + sourceAddress.toString() +
+                          "  Bus=" + QString().number(header.busNumber) +
+                          "  Baud="
+|—————————————Node:binary_expression Text: "CAN Bridge at " + sourceAddress.toString() +
+                          "  Bus=" + QString().number(header.busNumber)
+|——————————————Node:binary_expression Text: "CAN Bridge at " + sourceAddress.toString() +
+                          "  Bus="
+|———————————————Node:binary_expression Text: "CAN Bridge at " + sourceAddress.toString()
+|————————————————Node:string_literal Text: "CAN Bridge at "
+|—————————————————Node:" Text: "
+|—————————————————Node:string_content Text: CAN Bridge at 
+|—————————————————Node:" Text: "
+|————————————————Node:+ Text: +
+|————————————————Node:call_expression Text: sourceAddress.toString()
+|—————————————————Node:field_expression Text: sourceAddress.toString
+|——————————————————Node:identifier Text: sourceAddress
+|——————————————————Node:. Text: .
+|——————————————————Node:field_identifier Text: toString
+|—————————————————Node:argument_list Text: ()
+|——————————————————Node:( Text: (
+|——————————————————Node:) Text: )
+|———————————————Node:+ Text: +
+|———————————————Node:string_literal Text: "  Bus="
+|————————————————Node:" Text: "
+|————————————————Node:string_content Text:   Bus=
+|————————————————Node:" Text: "
+|——————————————Node:+ Text: +
+|——————————————Node:call_expression Text: QString().number(header.busNumber)
+|———————————————Node:field_expression Text: QString().number
+|————————————————Node:call_expression Text: QString()
+|—————————————————Node:identifier Text: QString
+|—————————————————Node:argument_list Text: ()
+|——————————————————Node:( Text: (
+|——————————————————Node:) Text: )
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: number
+|———————————————Node:argument_list Text: (header.busNumber)
+|————————————————Node:( Text: (
+|————————————————Node:field_expression Text: header.busNumber
+|—————————————————Node:identifier Text: header
+|—————————————————Node:. Text: .
+|—————————————————Node:field_identifier Text: busNumber
+|————————————————Node:) Text: )
+|—————————————Node:+ Text: +
+|—————————————Node:string_literal Text: "  Baud="
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text:   Baud=
+|——————————————Node:" Text: "
+|————————————Node:+ Text: +
+|————————————Node:call_expression Text: QString().number(baud)
+|—————————————Node:field_expression Text: QString().number
+|——————————————Node:call_expression Text: QString()
+|———————————————Node:identifier Text: QString
+|———————————————Node:argument_list Text: ()
+|————————————————Node:( Text: (
+|————————————————Node:) Text: )
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: number
+|—————————————Node:argument_list Text: (baud)
+|——————————————Node:( Text: (
+|——————————————Node:identifier Text: baud
+|——————————————Node:) Text: )
+|———————————Node:+ Text: +
+|———————————Node:string_literal Text: "k"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: k
+|————————————Node:" Text: "
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: m_statusTimer.start(2000);
+|——————Node:call_expression Text: m_statusTimer.start(2000)
+|———————Node:field_expression Text: m_statusTimer.start
+|————————Node:identifier Text: m_statusTimer
+|————————Node:. Text: .
+|————————Node:field_identifier Text: start
+|———————Node:argument_list Text: (2000)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 2000
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else if(message.S) // setting
+    {
+    }
+    else // CAN message
+    {
+        if(m_isOpen)
+        {
+            can_message_t cmsg;
+            cmsg.IDE = message.E;
+            cmsg.RTR = message.R;
+            cmsg.id = message.id;
+            cmsg.dlc = message.dlc;
+            memcpy(cmsg.data, message.data, 8);
+            m_canHandle->transmit(cmsg);
+        }
+    }
+|—————Node:else Text: else
+|—————Node:if_statement Text: if(message.S) // setting
+    {
+    }
+    else // CAN message
+    {
+        if(m_isOpen)
+        {
+            can_message_t cmsg;
+            cmsg.IDE = message.E;
+            cmsg.RTR = message.R;
+            cmsg.id = message.id;
+            cmsg.dlc = message.dlc;
+            memcpy(cmsg.data, message.data, 8);
+            m_canHandle->transmit(cmsg);
+        }
+    }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (message.S)
+|———————Node:( Text: (
+|———————Node:field_expression Text: message.S
+|————————Node:identifier Text: message
+|————————Node:. Text: .
+|————————Node:field_identifier Text: S
+|———————Node:) Text: )
+|——————Node:comment
+|——————Node:compound_statement Text: {
+    }
+|———————Node:{ Text: {
+|———————Node:} Text: }
+|——————Node:else_clause Text: else // CAN message
+    {
+        if(m_isOpen)
+        {
+            can_message_t cmsg;
+            cmsg.IDE = message.E;
+            cmsg.RTR = message.R;
+            cmsg.id = message.id;
+            cmsg.dlc = message.dlc;
+            memcpy(cmsg.data, message.data, 8);
+            m_canHandle->transmit(cmsg);
+        }
+    }
+|———————Node:else Text: else
+|———————Node:comment
+|———————Node:compound_statement Text: {
+        if(m_isOpen)
+        {
+            can_message_t cmsg;
+            cmsg.IDE = message.E;
+            cmsg.RTR = message.R;
+            cmsg.id = message.id;
+            cmsg.dlc = message.dlc;
+            memcpy(cmsg.data, message.data, 8);
+            m_canHandle->transmit(cmsg);
+        }
+    }
+|————————Node:{ Text: {
+|————————Node:if_statement Text: if(m_isOpen)
+        {
+            can_message_t cmsg;
+            cmsg.IDE = message.E;
+            cmsg.RTR = message.R;
+            cmsg.id = message.id;
+            cmsg.dlc = message.dlc;
+            memcpy(cmsg.data, message.data, 8);
+            m_canHandle->transmit(cmsg);
+        }
+|—————————Node:if Text: if
+|—————————Node:condition_clause Text: (m_isOpen)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: m_isOpen
+|——————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+            can_message_t cmsg;
+            cmsg.IDE = message.E;
+            cmsg.RTR = message.R;
+            cmsg.id = message.id;
+            cmsg.dlc = message.dlc;
+            memcpy(cmsg.data, message.data, 8);
+            m_canHandle->transmit(cmsg);
+        }
+|——————————Node:{ Text: {
+|——————————Node:declaration Text: can_message_t cmsg;
+|———————————Node:type_identifier Text: can_message_t
+|———————————Node:identifier Text: cmsg
+|———————————Node:; Text: ;
+|——————————Node:expression_statement Text: cmsg.IDE = message.E;
+|———————————Node:assignment_expression Text: cmsg.IDE = message.E
+|————————————Node:field_expression Text: cmsg.IDE
+|—————————————Node:identifier Text: cmsg
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: IDE
+|————————————Node:= Text: =
+|————————————Node:field_expression Text: message.E
+|—————————————Node:identifier Text: message
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: E
+|———————————Node:; Text: ;
+|——————————Node:expression_statement Text: cmsg.RTR = message.R;
+|———————————Node:assignment_expression Text: cmsg.RTR = message.R
+|————————————Node:field_expression Text: cmsg.RTR
+|—————————————Node:identifier Text: cmsg
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: RTR
+|————————————Node:= Text: =
+|————————————Node:field_expression Text: message.R
+|—————————————Node:identifier Text: message
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: R
+|———————————Node:; Text: ;
+|——————————Node:expression_statement Text: cmsg.id = message.id;
+|———————————Node:assignment_expression Text: cmsg.id = message.id
+|————————————Node:field_expression Text: cmsg.id
+|—————————————Node:identifier Text: cmsg
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: id
+|————————————Node:= Text: =
+|————————————Node:field_expression Text: message.id
+|—————————————Node:identifier Text: message
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: id
+|———————————Node:; Text: ;
+|——————————Node:expression_statement Text: cmsg.dlc = message.dlc;
+|———————————Node:assignment_expression Text: cmsg.dlc = message.dlc
+|————————————Node:field_expression Text: cmsg.dlc
+|—————————————Node:identifier Text: cmsg
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: dlc
+|————————————Node:= Text: =
+|————————————Node:field_expression Text: message.dlc
+|—————————————Node:identifier Text: message
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: dlc
+|———————————Node:; Text: ;
+|——————————Node:expression_statement Text: memcpy(cmsg.data, message.data, 8);
+|———————————Node:call_expression Text: memcpy(cmsg.data, message.data, 8)
+|————————————Node:identifier Text: memcpy
+|————————————Node:argument_list Text: (cmsg.data, message.data, 8)
+|—————————————Node:( Text: (
+|—————————————Node:field_expression Text: cmsg.data
+|——————————————Node:identifier Text: cmsg
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: data
+|—————————————Node:, Text: ,
+|—————————————Node:field_expression Text: message.data
+|——————————————Node:identifier Text: message
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: data
+|—————————————Node:, Text: ,
+|—————————————Node:number_literal Text: 8
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:expression_statement Text: m_canHandle->transmit(cmsg);
+|———————————Node:call_expression Text: m_canHandle->transmit(cmsg)
+|————————————Node:field_expression Text: m_canHandle->transmit
+|—————————————Node:identifier Text: m_canHandle
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: transmit
+|————————————Node:argument_list Text: (cmsg)
+|—————————————Node:( Text: (
+|—————————————Node:identifier Text: cmsg
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|————————Node:} Text: }
+|———Node:} Text: }
+|—Node:function_definition Text: void CanAdapterTritium::processDatagrams()
+{
+    QByteArray data;
+
+    while (m_udpSocket.hasPendingDatagrams()) {
+        data.resize(int(m_udpSocket.pendingDatagramSize()));
+        QHostAddress sourceAddress;
+        m_udpSocket.readDatagram(data.data(), data.size(), &sourceAddress);
+        // qDebug() << data.toHex();
+        if(data.length() < 30) // minimum datagram length
+            continue;
+
+        const char * d = data.data();
+        TritiumHeader header;
+        if(!decodeHeader(header, d))
+            continue;
+
+        // don't feed on our own milk
+        if(memcmp(header.clientIdentifier, m_clientIdentifier, sizeof(m_clientIdentifier)) == 0)
+            continue;
+
+        int offset = 16;
+        int length = data.length() - 16;
+        while (length >= 14) {
+            TritiumMessage message;
+            decodeMessage(message, &d[offset]);
+            processMessage(message, header, sourceAddress);
+
+            offset += 14;
+            length -= 14;
+        }
+    }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CanAdapterTritium::processDatagrams()
+|———Node:qualified_identifier Text: CanAdapterTritium::processDatagrams
+|————Node:namespace_identifier Text: CanAdapterTritium
+|————Node::: Text: ::
+|————Node:identifier Text: processDatagrams
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    QByteArray data;
+
+    while (m_udpSocket.hasPendingDatagrams()) {
+        data.resize(int(m_udpSocket.pendingDatagramSize()));
+        QHostAddress sourceAddress;
+        m_udpSocket.readDatagram(data.data(), data.size(), &sourceAddress);
+        // qDebug() << data.toHex();
+        if(data.length() < 30) // minimum datagram length
+            continue;
+
+        const char * d = data.data();
+        TritiumHeader header;
+        if(!decodeHeader(header, d))
+            continue;
+
+        // don't feed on our own milk
+        if(memcmp(header.clientIdentifier, m_clientIdentifier, sizeof(m_clientIdentifier)) == 0)
+            continue;
+
+        int offset = 16;
+        int length = data.length() - 16;
+        while (length >= 14) {
+            TritiumMessage message;
+            decodeMessage(message, &d[offset]);
+            processMessage(message, header, sourceAddress);
+
+            offset += 14;
+            length -= 14;
+        }
+    }
+}
+|———Node:{ Text: {
+|———Node:declaration Text: QByteArray data;
+|————Node:type_identifier Text: QByteArray
+|————Node:identifier Text: data
+|————Node:; Text: ;
+|———Node:while_statement Text: while (m_udpSocket.hasPendingDatagrams()) {
+        data.resize(int(m_udpSocket.pendingDatagramSize()));
+        QHostAddress sourceAddress;
+        m_udpSocket.readDatagram(data.data(), data.size(), &sourceAddress);
+        // qDebug() << data.toHex();
+        if(data.length() < 30) // minimum datagram length
+            continue;
+
+        const char * d = data.data();
+        TritiumHeader header;
+        if(!decodeHeader(header, d))
+            continue;
+
+        // don't feed on our own milk
+        if(memcmp(header.clientIdentifier, m_clientIdentifier, sizeof(m_clientIdentifier)) == 0)
+            continue;
+
+        int offset = 16;
+        int length = data.length() - 16;
+        while (length >= 14) {
+            TritiumMessage message;
+            decodeMessage(message, &d[offset]);
+            processMessage(message, header, sourceAddress);
+
+            offset += 14;
+            length -= 14;
+        }
+    }
+|————Node:while Text: while
+|————Node:condition_clause Text: (m_udpSocket.hasPendingDatagrams())
+|—————Node:( Text: (
+|—————Node:call_expression Text: m_udpSocket.hasPendingDatagrams()
+|——————Node:field_expression Text: m_udpSocket.hasPendingDatagrams
+|———————Node:identifier Text: m_udpSocket
+|———————Node:. Text: .
+|———————Node:field_identifier Text: hasPendingDatagrams
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        data.resize(int(m_udpSocket.pendingDatagramSize()));
+        QHostAddress sourceAddress;
+        m_udpSocket.readDatagram(data.data(), data.size(), &sourceAddress);
+        // qDebug() << data.toHex();
+        if(data.length() < 30) // minimum datagram length
+            continue;
+
+        const char * d = data.data();
+        TritiumHeader header;
+        if(!decodeHeader(header, d))
+            continue;
+
+        // don't feed on our own milk
+        if(memcmp(header.clientIdentifier, m_clientIdentifier, sizeof(m_clientIdentifier)) == 0)
+            continue;
+
+        int offset = 16;
+        int length = data.length() - 16;
+        while (length >= 14) {
+            TritiumMessage message;
+            decodeMessage(message, &d[offset]);
+            processMessage(message, header, sourceAddress);
+
+            offset += 14;
+            length -= 14;
+        }
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: data.resize(int(m_udpSocket.pendingDatagramSize()));
+|——————Node:call_expression Text: data.resize(int(m_udpSocket.pendingDatagramSize()))
+|———————Node:field_expression Text: data.resize
+|————————Node:identifier Text: data
+|————————Node:. Text: .
+|————————Node:field_identifier Text: resize
+|———————Node:argument_list Text: (int(m_udpSocket.pendingDatagramSize()))
+|————————Node:( Text: (
+|————————Node:call_expression Text: int(m_udpSocket.pendingDatagramSize())
+|—————————Node:primitive_type Text: int
+|—————————Node:argument_list Text: (m_udpSocket.pendingDatagramSize())
+|——————————Node:( Text: (
+|——————————Node:call_expression Text: m_udpSocket.pendingDatagramSize()
+|———————————Node:field_expression Text: m_udpSocket.pendingDatagramSize
+|————————————Node:identifier Text: m_udpSocket
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: pendingDatagramSize
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: QHostAddress sourceAddress;
+|——————Node:type_identifier Text: QHostAddress
+|——————Node:identifier Text: sourceAddress
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: m_udpSocket.readDatagram(data.data(), data.size(), &sourceAddress);
+|——————Node:call_expression Text: m_udpSocket.readDatagram(data.data(), data.size(), &sourceAddress)
+|———————Node:field_expression Text: m_udpSocket.readDatagram
+|————————Node:identifier Text: m_udpSocket
+|————————Node:. Text: .
+|————————Node:field_identifier Text: readDatagram
+|———————Node:argument_list Text: (data.data(), data.size(), &sourceAddress)
+|————————Node:( Text: (
+|————————Node:call_expression Text: data.data()
+|—————————Node:field_expression Text: data.data
+|——————————Node:identifier Text: data
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: data
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:, Text: ,
+|————————Node:call_expression Text: data.size()
+|—————————Node:field_expression Text: data.size
+|——————————Node:identifier Text: data
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: size
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:, Text: ,
+|————————Node:pointer_expression Text: &sourceAddress
+|—————————Node:& Text: &
+|—————————Node:identifier Text: sourceAddress
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:if_statement Text: if(data.length() < 30) // minimum datagram length
+            continue;
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (data.length() < 30)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: data.length() < 30
+|————————Node:call_expression Text: data.length()
+|—————————Node:field_expression Text: data.length
+|——————————Node:identifier Text: data
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: length
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:< Text: <
+|————————Node:number_literal Text: 30
+|———————Node:) Text: )
+|——————Node:comment
+|——————Node:continue_statement Text: continue;
+|———————Node:continue Text: continue
+|———————Node:; Text: ;
+|—————Node:declaration Text: const char * d = data.data();
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: char
+|——————Node:init_declarator Text: * d = data.data()
+|———————Node:pointer_declarator Text: * d
+|————————Node:* Text: *
+|————————Node:identifier Text: d
+|———————Node:= Text: =
+|———————Node:call_expression Text: data.data()
+|————————Node:field_expression Text: data.data
+|—————————Node:identifier Text: data
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: data
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: TritiumHeader header;
+|——————Node:type_identifier Text: TritiumHeader
+|——————Node:identifier Text: header
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if(!decodeHeader(header, d))
+            continue;
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (!decodeHeader(header, d))
+|———————Node:( Text: (
+|———————Node:unary_expression Text: !decodeHeader(header, d)
+|————————Node:! Text: !
+|————————Node:call_expression Text: decodeHeader(header, d)
+|—————————Node:identifier Text: decodeHeader
+|—————————Node:argument_list Text: (header, d)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: header
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: d
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:continue_statement Text: continue;
+|———————Node:continue Text: continue
+|———————Node:; Text: ;
+|—————Node:comment
+|—————Node:if_statement Text: if(memcmp(header.clientIdentifier, m_clientIdentifier, sizeof(m_clientIdentifier)) == 0)
+            continue;
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (memcmp(header.clientIdentifier, m_clientIdentifier, sizeof(m_clientIdentifier)) == 0)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: memcmp(header.clientIdentifier, m_clientIdentifier, sizeof(m_clientIdentifier)) == 0
+|————————Node:call_expression Text: memcmp(header.clientIdentifier, m_clientIdentifier, sizeof(m_clientIdentifier))
+|—————————Node:identifier Text: memcmp
+|—————————Node:argument_list Text: (header.clientIdentifier, m_clientIdentifier, sizeof(m_clientIdentifier))
+|——————————Node:( Text: (
+|——————————Node:field_expression Text: header.clientIdentifier
+|———————————Node:identifier Text: header
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: clientIdentifier
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: m_clientIdentifier
+|——————————Node:, Text: ,
+|——————————Node:sizeof_expression Text: sizeof(m_clientIdentifier)
+|———————————Node:sizeof Text: sizeof
+|———————————Node:parenthesized_expression Text: (m_clientIdentifier)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: m_clientIdentifier
+|————————————Node:) Text: )
+|——————————Node:) Text: )
+|————————Node:== Text: ==
+|————————Node:number_literal Text: 0
+|———————Node:) Text: )
+|——————Node:continue_statement Text: continue;
+|———————Node:continue Text: continue
+|———————Node:; Text: ;
+|—————Node:declaration Text: int offset = 16;
+|——————Node:primitive_type Text: int
+|——————Node:init_declarator Text: offset = 16
+|———————Node:identifier Text: offset
+|———————Node:= Text: =
+|———————Node:number_literal Text: 16
+|——————Node:; Text: ;
+|—————Node:declaration Text: int length = data.length() - 16;
+|——————Node:primitive_type Text: int
+|——————Node:init_declarator Text: length = data.length() - 16
+|———————Node:identifier Text: length
+|———————Node:= Text: =
+|———————Node:binary_expression Text: data.length() - 16
+|————————Node:call_expression Text: data.length()
+|—————————Node:field_expression Text: data.length
+|——————————Node:identifier Text: data
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: length
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:- Text: -
+|————————Node:number_literal Text: 16
+|——————Node:; Text: ;
+|—————Node:while_statement Text: while (length >= 14) {
+            TritiumMessage message;
+            decodeMessage(message, &d[offset]);
+            processMessage(message, header, sourceAddress);
+
+            offset += 14;
+            length -= 14;
+        }
+|——————Node:while Text: while
+|——————Node:condition_clause Text: (length >= 14)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: length >= 14
+|————————Node:identifier Text: length
+|————————Node:>= Text: >=
+|————————Node:number_literal Text: 14
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            TritiumMessage message;
+            decodeMessage(message, &d[offset]);
+            processMessage(message, header, sourceAddress);
+
+            offset += 14;
+            length -= 14;
+        }
+|———————Node:{ Text: {
+|———————Node:declaration Text: TritiumMessage message;
+|————————Node:type_identifier Text: TritiumMessage
+|————————Node:identifier Text: message
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: decodeMessage(message, &d[offset]);
+|————————Node:call_expression Text: decodeMessage(message, &d[offset])
+|—————————Node:identifier Text: decodeMessage
+|—————————Node:argument_list Text: (message, &d[offset])
+|——————————Node:( Text: (
+|——————————Node:identifier Text: message
+|——————————Node:, Text: ,
+|——————————Node:pointer_expression Text: &d[offset]
+|———————————Node:& Text: &
+|———————————Node:subscript_expression Text: d[offset]
+|————————————Node:identifier Text: d
+|————————————Node:subscript_argument_list Text: [offset]
+|—————————————Node:[ Text: [
+|—————————————Node:identifier Text: offset
+|—————————————Node:] Text: ]
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: processMessage(message, header, sourceAddress);
+|————————Node:call_expression Text: processMessage(message, header, sourceAddress)
+|—————————Node:identifier Text: processMessage
+|—————————Node:argument_list Text: (message, header, sourceAddress)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: message
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: header
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: sourceAddress
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: offset += 14;
+|————————Node:assignment_expression Text: offset += 14
+|—————————Node:identifier Text: offset
+|—————————Node:+= Text: +=
+|—————————Node:number_literal Text: 14
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: length -= 14;
+|————————Node:assignment_expression Text: length -= 14
+|—————————Node:identifier Text: length
+|—————————Node:-= Text: -=
+|—————————Node:number_literal Text: 14
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:function_definition Text: void CanAdapterTritium::transmit(can_message_t cmsg)
+{
+    if(m_isOpen)
+    {
+        QByteArray data(30, 0);
+        encodeHeader(data.data(), m_clientIdentifier, 13);
+        encodeCanMessage(data.data()+16, cmsg);
+        m_udpSocket.writeDatagram(data.data(), data.size(), m_groupAddress, m_port);
+    }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CanAdapterTritium::transmit(can_message_t cmsg)
+|———Node:qualified_identifier Text: CanAdapterTritium::transmit
+|————Node:namespace_identifier Text: CanAdapterTritium
+|————Node::: Text: ::
+|————Node:identifier Text: transmit
+|———Node:parameter_list Text: (can_message_t cmsg)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: can_message_t cmsg
+|—————Node:type_identifier Text: can_message_t
+|—————Node:identifier Text: cmsg
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if(m_isOpen)
+    {
+        QByteArray data(30, 0);
+        encodeHeader(data.data(), m_clientIdentifier, 13);
+        encodeCanMessage(data.data()+16, cmsg);
+        m_udpSocket.writeDatagram(data.data(), data.size(), m_groupAddress, m_port);
+    }
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if(m_isOpen)
+    {
+        QByteArray data(30, 0);
+        encodeHeader(data.data(), m_clientIdentifier, 13);
+        encodeCanMessage(data.data()+16, cmsg);
+        m_udpSocket.writeDatagram(data.data(), data.size(), m_groupAddress, m_port);
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (m_isOpen)
+|—————Node:( Text: (
+|—————Node:identifier Text: m_isOpen
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        QByteArray data(30, 0);
+        encodeHeader(data.data(), m_clientIdentifier, 13);
+        encodeCanMessage(data.data()+16, cmsg);
+        m_udpSocket.writeDatagram(data.data(), data.size(), m_groupAddress, m_port);
+    }
+|—————Node:{ Text: {
+|—————Node:declaration Text: QByteArray data(30, 0);
+|——————Node:type_identifier Text: QByteArray
+|——————Node:init_declarator Text: data(30, 0)
+|———————Node:identifier Text: data
+|———————Node:argument_list Text: (30, 0)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 30
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 0
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: encodeHeader(data.data(), m_clientIdentifier, 13);
+|——————Node:call_expression Text: encodeHeader(data.data(), m_clientIdentifier, 13)
+|———————Node:identifier Text: encodeHeader
+|———————Node:argument_list Text: (data.data(), m_clientIdentifier, 13)
+|————————Node:( Text: (
+|————————Node:call_expression Text: data.data()
+|—————————Node:field_expression Text: data.data
+|——————————Node:identifier Text: data
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: data
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:, Text: ,
+|————————Node:identifier Text: m_clientIdentifier
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 13
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: encodeCanMessage(data.data()+16, cmsg);
+|——————Node:call_expression Text: encodeCanMessage(data.data()+16, cmsg)
+|———————Node:identifier Text: encodeCanMessage
+|———————Node:argument_list Text: (data.data()+16, cmsg)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: data.data()+16
+|—————————Node:call_expression Text: data.data()
+|——————————Node:field_expression Text: data.data
+|———————————Node:identifier Text: data
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: data
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:+ Text: +
+|—————————Node:number_literal Text: 16
+|————————Node:, Text: ,
+|————————Node:identifier Text: cmsg
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: m_udpSocket.writeDatagram(data.data(), data.size(), m_groupAddress, m_port);
+|——————Node:call_expression Text: m_udpSocket.writeDatagram(data.data(), data.size(), m_groupAddress, m_port)
+|———————Node:field_expression Text: m_udpSocket.writeDatagram
+|————————Node:identifier Text: m_udpSocket
+|————————Node:. Text: .
+|————————Node:field_identifier Text: writeDatagram
+|———————Node:argument_list Text: (data.data(), data.size(), m_groupAddress, m_port)
+|————————Node:( Text: (
+|————————Node:call_expression Text: data.data()
+|—————————Node:field_expression Text: data.data
+|——————————Node:identifier Text: data
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: data
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:, Text: ,
+|————————Node:call_expression Text: data.size()
+|—————————Node:field_expression Text: data.size
+|——————————Node:identifier Text: data
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: size
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:, Text: ,
+|————————Node:identifier Text: m_groupAddress
+|————————Node:, Text: ,
+|————————Node:identifier Text: m_port
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:function_definition Text: QWidget * CanAdapterTritium::getControlWidget(QWidget *parent){
+    auto w = new TritiumControlWidget(parent);
+    connect(w, SIGNAL(openClicked()), this, SLOT(openClicked()));
+    connect(w, SIGNAL(closeClicked()), this, SLOT(closeClicked()));
+    connect(this, SIGNAL(updateStatus(QString)), w, SLOT(displayStatus(QString)));
+    return w;
+}
+|——Node:type_identifier Text: QWidget
+|——Node:pointer_declarator Text: * CanAdapterTritium::getControlWidget(QWidget *parent)
+|———Node:* Text: *
+|———Node:function_declarator Text: CanAdapterTritium::getControlWidget(QWidget *parent)
+|————Node:qualified_identifier Text: CanAdapterTritium::getControlWidget
+|—————Node:namespace_identifier Text: CanAdapterTritium
+|—————Node::: Text: ::
+|—————Node:identifier Text: getControlWidget
+|————Node:parameter_list Text: (QWidget *parent)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: QWidget *parent
+|——————Node:type_identifier Text: QWidget
+|——————Node:pointer_declarator Text: *parent
+|———————Node:* Text: *
+|———————Node:identifier Text: parent
+|—————Node:) Text: )
+|——Node:compound_statement Text: {
+    auto w = new TritiumControlWidget(parent);
+    connect(w, SIGNAL(openClicked()), this, SLOT(openClicked()));
+    connect(w, SIGNAL(closeClicked()), this, SLOT(closeClicked()));
+    connect(this, SIGNAL(updateStatus(QString)), w, SLOT(displayStatus(QString)));
+    return w;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: auto w = new TritiumControlWidget(parent);
+|————Node:placeholder_type_specifier Text: auto
+|—————Node:auto Text: auto
+|————Node:init_declarator Text: w = new TritiumControlWidget(parent)
+|—————Node:identifier Text: w
+|—————Node:= Text: =
+|—————Node:new_expression Text: new TritiumControlWidget(parent)
+|——————Node:new Text: new
+|——————Node:type_identifier Text: TritiumControlWidget
+|——————Node:argument_list Text: (parent)
+|———————Node:( Text: (
+|———————Node:identifier Text: parent
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: connect(w, SIGNAL(openClicked()), this, SLOT(openClicked()));
+|————Node:call_expression Text: connect(w, SIGNAL(openClicked()), this, SLOT(openClicked()))
+|—————Node:identifier Text: connect
+|—————Node:argument_list Text: (w, SIGNAL(openClicked()), this, SLOT(openClicked()))
+|——————Node:( Text: (
+|——————Node:identifier Text: w
+|——————Node:, Text: ,
+|——————Node:call_expression Text: SIGNAL(openClicked())
+|———————Node:identifier Text: SIGNAL
+|———————Node:argument_list Text: (openClicked())
+|————————Node:( Text: (
+|————————Node:call_expression Text: openClicked()
+|—————————Node:identifier Text: openClicked
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:this Text: this
+|——————Node:, Text: ,
+|——————Node:call_expression Text: SLOT(openClicked())
+|———————Node:identifier Text: SLOT
+|———————Node:argument_list Text: (openClicked())
+|————————Node:( Text: (
+|————————Node:call_expression Text: openClicked()
+|—————————Node:identifier Text: openClicked
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: connect(w, SIGNAL(closeClicked()), this, SLOT(closeClicked()));
+|————Node:call_expression Text: connect(w, SIGNAL(closeClicked()), this, SLOT(closeClicked()))
+|—————Node:identifier Text: connect
+|—————Node:argument_list Text: (w, SIGNAL(closeClicked()), this, SLOT(closeClicked()))
+|——————Node:( Text: (
+|——————Node:identifier Text: w
+|——————Node:, Text: ,
+|——————Node:call_expression Text: SIGNAL(closeClicked())
+|———————Node:identifier Text: SIGNAL
+|———————Node:argument_list Text: (closeClicked())
+|————————Node:( Text: (
+|————————Node:call_expression Text: closeClicked()
+|—————————Node:identifier Text: closeClicked
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:this Text: this
+|——————Node:, Text: ,
+|——————Node:call_expression Text: SLOT(closeClicked())
+|———————Node:identifier Text: SLOT
+|———————Node:argument_list Text: (closeClicked())
+|————————Node:( Text: (
+|————————Node:call_expression Text: closeClicked()
+|—————————Node:identifier Text: closeClicked
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: connect(this, SIGNAL(updateStatus(QString)), w, SLOT(displayStatus(QString)));
+|————Node:call_expression Text: connect(this, SIGNAL(updateStatus(QString)), w, SLOT(displayStatus(QString)))
+|—————Node:identifier Text: connect
+|—————Node:argument_list Text: (this, SIGNAL(updateStatus(QString)), w, SLOT(displayStatus(QString)))
+|——————Node:( Text: (
+|——————Node:this Text: this
+|——————Node:, Text: ,
+|——————Node:call_expression Text: SIGNAL(updateStatus(QString))
+|———————Node:identifier Text: SIGNAL
+|———————Node:argument_list Text: (updateStatus(QString))
+|————————Node:( Text: (
+|————————Node:call_expression Text: updateStatus(QString)
+|—————————Node:identifier Text: updateStatus
+|—————————Node:argument_list Text: (QString)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: QString
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:identifier Text: w
+|——————Node:, Text: ,
+|——————Node:call_expression Text: SLOT(displayStatus(QString))
+|———————Node:identifier Text: SLOT
+|———————Node:argument_list Text: (displayStatus(QString))
+|————————Node:( Text: (
+|————————Node:call_expression Text: displayStatus(QString)
+|—————————Node:identifier Text: displayStatus
+|—————————Node:argument_list Text: (QString)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: QString
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return w;
+|————Node:return Text: return
+|————Node:identifier Text: w
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: bool CanAdapterTritium::open()
+{
+    m_isOpen = true;
+    return true;
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: CanAdapterTritium::open()
+|———Node:qualified_identifier Text: CanAdapterTritium::open
+|————Node:namespace_identifier Text: CanAdapterTritium
+|————Node::: Text: ::
+|————Node:identifier Text: open
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    m_isOpen = true;
+    return true;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: m_isOpen = true;
+|————Node:assignment_expression Text: m_isOpen = true
+|—————Node:identifier Text: m_isOpen
+|—————Node:= Text: =
+|—————Node:true Text: true
+|————Node:; Text: ;
+|———Node:return_statement Text: return true;
+|————Node:return Text: return
+|————Node:true Text: true
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void CanAdapterTritium::close()
+{
+    m_isOpen = false;
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CanAdapterTritium::close()
+|———Node:qualified_identifier Text: CanAdapterTritium::close
+|————Node:namespace_identifier Text: CanAdapterTritium
+|————Node::: Text: ::
+|————Node:identifier Text: close
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    m_isOpen = false;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: m_isOpen = false;
+|————Node:assignment_expression Text: m_isOpen = false
+|—————Node:identifier Text: m_isOpen
+|—————Node:= Text: =
+|—————Node:false Text: false
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: bool CanAdapterTritium::isOpen()
+{
+    return m_isOpen;
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: CanAdapterTritium::isOpen()
+|———Node:qualified_identifier Text: CanAdapterTritium::isOpen
+|————Node:namespace_identifier Text: CanAdapterTritium
+|————Node::: Text: ::
+|————Node:identifier Text: isOpen
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    return m_isOpen;
+}
+|———Node:{ Text: {
+|———Node:return_statement Text: return m_isOpen;
+|————Node:return Text: return
+|————Node:identifier Text: m_isOpen
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void CanAdapterTritium::openClicked(){
+    open();
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CanAdapterTritium::openClicked()
+|———Node:qualified_identifier Text: CanAdapterTritium::openClicked
+|————Node:namespace_identifier Text: CanAdapterTritium
+|————Node::: Text: ::
+|————Node:identifier Text: openClicked
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    open();
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: open();
+|————Node:call_expression Text: open()
+|—————Node:identifier Text: open
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void CanAdapterTritium::closeClicked(){
+    close();
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CanAdapterTritium::closeClicked()
+|———Node:qualified_identifier Text: CanAdapterTritium::closeClicked
+|————Node:namespace_identifier Text: CanAdapterTritium
+|————Node::: Text: ::
+|————Node:identifier Text: closeClicked
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    close();
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: close();
+|————Node:call_expression Text: close()
+|—————Node:identifier Text: close
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }

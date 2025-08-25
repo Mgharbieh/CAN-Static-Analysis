@@ -1,0 +1,2043 @@
+acan2515-src\ACAN2515.h
+
+|Node:translation_unit
+|—Node:comment Text: //··································································································
+|—Node:comment Text: // A CAN driver for MCP2515
+|—Node:comment Text: // by Pierre Molinaro
+|—Node:comment Text: // https://github.com/pierremolinaro/acan2515
+|—Node:comment Text: //··································································································
+|—Node:preproc_call Text: #pragma once
+
+|——Node:preproc_directive Text: #pragma
+|——Node:preproc_arg Text: once
+|—Node:comment Text: //··································································································
+|—Node:preproc_include Text: #include <ACAN2515_Buffer16.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <ACAN2515_Buffer16.h>
+|—Node:preproc_include Text: #include <ACAN2515Settings.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <ACAN2515Settings.h>
+|—Node:preproc_include Text: #include <MCP2515ReceiveFilters.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <MCP2515ReceiveFilters.h>
+|—Node:preproc_include Text: #include <SPI.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <SPI.h>
+|—Node:comment Text: //··································································································
+|—Node:function_definition Text: class ACAN2515 {
+
+//··································································································
+//    Constructor: using hardware SPI
+//··································································································
+
+  public: ACAN2515 (const uint8_t inCS,  // CS input of MCP2515
+                    SPIClass & inSPI, // Hardware SPI object
+                    const uint8_t inINT) ; // INT output of MCP2515
+
+
+//··································································································
+//    Initialisation: returns 0 if ok, otherwise see error codes below
+//··································································································
+
+  public: uint16_t begin (const ACAN2515Settings & inSettings,
+                          void (* inInterruptServiceRoutine) (void)) ;
+
+  public: uint16_t begin (const ACAN2515Settings & inSettings,
+                          void (* inInterruptServiceRoutine) (void),
+                          const ACAN2515Mask inRXM0,
+                          const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                          const uint8_t inAcceptanceFilterCount) ;
+
+  public: uint16_t begin (const ACAN2515Settings & inSettings,
+                          void (* inInterruptServiceRoutine) (void),
+                          const ACAN2515Mask inRXM0,
+                          const ACAN2515Mask inRXM1,
+                          const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                          const uint8_t inAcceptanceFilterCount) ;
+
+//··································································································
+//    Error codes returned by begin
+//··································································································
+
+  public: static const uint16_t kNoMCP2515                   = 1 <<  0 ;
+  public: static const uint16_t kTooFarFromDesiredBitRate    = 1 <<  1 ;
+  public: static const uint16_t kInconsistentBitRateSettings = 1 <<  2 ;
+  public: static const uint16_t kINTPinIsNotAnInterrupt      = 1 <<  3 ;
+  public: static const uint16_t kISRIsNull                   = 1 <<  4 ;
+  public: static const uint16_t kRequestedModeTimeOut        = 1 <<  5 ;
+  public: static const uint16_t kAcceptanceFilterArrayIsNULL = 1 << 6 ;
+  public: static const uint16_t kOneFilterMaskRequiresOneOrTwoAcceptanceFilters = 1 << 7 ;
+  public: static const uint16_t kTwoFilterMasksRequireThreeToSixAcceptanceFilters = 1 << 8 ;
+  public: static const uint16_t kCannotAllocateReceiveBuffer = 1 << 9 ;
+  public: static const uint16_t kCannotAllocateTransmitBuffer0 = 1 << 10 ;
+  public: static const uint16_t kCannotAllocateTransmitBuffer1 = 1 << 11 ;
+  public: static const uint16_t kCannotAllocateTransmitBuffer2 = 1 << 12 ;
+  public: static const uint32_t kISRNotNullAndNoIntPin         = 1 << 13 ;
+
+
+//··································································································
+//    Change Mode on the fly
+//··································································································
+
+  public: uint16_t changeModeOnTheFly (const ACAN2515Settings::RequestedMode inRequestedMode) ;
+
+
+//··································································································
+//    Set filters on the fly
+//··································································································
+
+  public: uint16_t setFiltersOnTheFly (void) ;
+
+  public: uint16_t setFiltersOnTheFly (const ACAN2515Mask inRXM0,
+                                       const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                       const uint8_t inAcceptanceFilterCount) ;
+
+  public: uint16_t setFiltersOnTheFly (const ACAN2515Mask inRXM0,
+                                       const ACAN2515Mask inRXM1,
+                                       const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                       const uint8_t inAcceptanceFilterCount) ;
+
+
+//··································································································
+//    end
+//··································································································
+
+  public: void end (void) ;
+
+
+//··································································································
+//    Receiving messages
+//··································································································
+
+  public: bool available (void) ;
+
+  public: bool receive (CANMessage & outFrame) ;
+
+  public: typedef void (*tFilterMatchCallBack) (const uint8_t inFilterIndex) ;
+
+  public: bool dispatchReceivedMessage (const tFilterMatchCallBack inFilterMatchCallBack = NULL) ;
+
+
+//··································································································
+//    Handling messages to send and receiving messages
+//··································································································
+
+  public: void isr (void) ;
+  public: bool isr_core (void) ;
+  private: void handleTXBInterrupt (const uint8_t inTXB) ;
+  private: void handleRXBInterrupt (void) ;
+
+
+//··································································································
+//    Properties
+//··································································································
+
+  private: SPIClass & mSPI ;
+  private: const SPISettings mSPISettings ;
+  private: const uint8_t mCS ;
+  private: const uint8_t mINT ;
+  private: bool mRolloverEnable ;
+  #ifdef ARDUINO_ARCH_ESP32
+    public: SemaphoreHandle_t mISRSemaphore ;
+  #endif
+
+
+//··································································································
+//    Receive buffer
+//··································································································
+
+  private: ACAN2515_Buffer16 mReceiveBuffer ;
+
+
+//··································································································
+//    Receive buffer size
+//··································································································
+
+  public: inline uint16_t receiveBufferSize (void) const {
+    return mReceiveBuffer.size () ;
+  }
+
+
+//··································································································
+//    Receive buffer count
+//··································································································
+
+  public: inline uint16_t receiveBufferCount (void) const {
+    return mReceiveBuffer.count () ;
+  }
+
+
+//··································································································
+//    Receive buffer peak count
+//··································································································
+
+  public: inline uint16_t receiveBufferPeakCount (void) const {
+    return mReceiveBuffer.peakCount () ;
+  }
+
+
+//··································································································
+//    Call back function array
+//··································································································
+
+  private: ACANCallBackRoutine mCallBackFunctionArray [6] ;
+
+
+//··································································································
+//    Transmitting messages
+//··································································································
+
+  public: bool tryToSend (const CANMessage & inMessage) ;
+
+
+//··································································································
+//    Driver transmit buffer
+//··································································································
+
+  private: ACAN2515_Buffer16 mTransmitBuffer [3] ;
+  private: bool mTXBIsFree [3] ;
+
+  public: inline uint16_t transmitBufferSize (const uint8_t inIndex) const {
+    return mTransmitBuffer [inIndex].size () ;
+  }
+
+  public: inline uint16_t transmitBufferCount (const uint8_t inIndex) const {
+    return mTransmitBuffer [inIndex].count () ;
+  }
+
+  public: inline uint16_t transmitBufferPeakCount (const uint8_t inIndex) const {
+    return mTransmitBuffer [inIndex].peakCount () ;
+  }
+  private: void internalSendMessage (const CANMessage & inFrame, const uint8_t inTXB) ;
+
+
+//··································································································
+//    Polling
+//··································································································
+
+  public: void poll (void) ;
+
+
+//··································································································
+//    Private methods
+//··································································································
+
+  private: inline void select (void) { digitalWrite (mCS, LOW) ; }
+|——Node:type_identifier Text: class
+|——Node:identifier Text: ACAN2515
+|——Node:compound_statement Text: {
+
+//··································································································
+//    Constructor: using hardware SPI
+//··································································································
+
+  public: ACAN2515 (const uint8_t inCS,  // CS input of MCP2515
+                    SPIClass & inSPI, // Hardware SPI object
+                    const uint8_t inINT) ; // INT output of MCP2515
+
+
+//··································································································
+//    Initialisation: returns 0 if ok, otherwise see error codes below
+//··································································································
+
+  public: uint16_t begin (const ACAN2515Settings & inSettings,
+                          void (* inInterruptServiceRoutine) (void)) ;
+
+  public: uint16_t begin (const ACAN2515Settings & inSettings,
+                          void (* inInterruptServiceRoutine) (void),
+                          const ACAN2515Mask inRXM0,
+                          const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                          const uint8_t inAcceptanceFilterCount) ;
+
+  public: uint16_t begin (const ACAN2515Settings & inSettings,
+                          void (* inInterruptServiceRoutine) (void),
+                          const ACAN2515Mask inRXM0,
+                          const ACAN2515Mask inRXM1,
+                          const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                          const uint8_t inAcceptanceFilterCount) ;
+
+//··································································································
+//    Error codes returned by begin
+//··································································································
+
+  public: static const uint16_t kNoMCP2515                   = 1 <<  0 ;
+  public: static const uint16_t kTooFarFromDesiredBitRate    = 1 <<  1 ;
+  public: static const uint16_t kInconsistentBitRateSettings = 1 <<  2 ;
+  public: static const uint16_t kINTPinIsNotAnInterrupt      = 1 <<  3 ;
+  public: static const uint16_t kISRIsNull                   = 1 <<  4 ;
+  public: static const uint16_t kRequestedModeTimeOut        = 1 <<  5 ;
+  public: static const uint16_t kAcceptanceFilterArrayIsNULL = 1 << 6 ;
+  public: static const uint16_t kOneFilterMaskRequiresOneOrTwoAcceptanceFilters = 1 << 7 ;
+  public: static const uint16_t kTwoFilterMasksRequireThreeToSixAcceptanceFilters = 1 << 8 ;
+  public: static const uint16_t kCannotAllocateReceiveBuffer = 1 << 9 ;
+  public: static const uint16_t kCannotAllocateTransmitBuffer0 = 1 << 10 ;
+  public: static const uint16_t kCannotAllocateTransmitBuffer1 = 1 << 11 ;
+  public: static const uint16_t kCannotAllocateTransmitBuffer2 = 1 << 12 ;
+  public: static const uint32_t kISRNotNullAndNoIntPin         = 1 << 13 ;
+
+
+//··································································································
+//    Change Mode on the fly
+//··································································································
+
+  public: uint16_t changeModeOnTheFly (const ACAN2515Settings::RequestedMode inRequestedMode) ;
+
+
+//··································································································
+//    Set filters on the fly
+//··································································································
+
+  public: uint16_t setFiltersOnTheFly (void) ;
+
+  public: uint16_t setFiltersOnTheFly (const ACAN2515Mask inRXM0,
+                                       const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                       const uint8_t inAcceptanceFilterCount) ;
+
+  public: uint16_t setFiltersOnTheFly (const ACAN2515Mask inRXM0,
+                                       const ACAN2515Mask inRXM1,
+                                       const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                       const uint8_t inAcceptanceFilterCount) ;
+
+
+//··································································································
+//    end
+//··································································································
+
+  public: void end (void) ;
+
+
+//··································································································
+//    Receiving messages
+//··································································································
+
+  public: bool available (void) ;
+
+  public: bool receive (CANMessage & outFrame) ;
+
+  public: typedef void (*tFilterMatchCallBack) (const uint8_t inFilterIndex) ;
+
+  public: bool dispatchReceivedMessage (const tFilterMatchCallBack inFilterMatchCallBack = NULL) ;
+
+
+//··································································································
+//    Handling messages to send and receiving messages
+//··································································································
+
+  public: void isr (void) ;
+  public: bool isr_core (void) ;
+  private: void handleTXBInterrupt (const uint8_t inTXB) ;
+  private: void handleRXBInterrupt (void) ;
+
+
+//··································································································
+//    Properties
+//··································································································
+
+  private: SPIClass & mSPI ;
+  private: const SPISettings mSPISettings ;
+  private: const uint8_t mCS ;
+  private: const uint8_t mINT ;
+  private: bool mRolloverEnable ;
+  #ifdef ARDUINO_ARCH_ESP32
+    public: SemaphoreHandle_t mISRSemaphore ;
+  #endif
+
+
+//··································································································
+//    Receive buffer
+//··································································································
+
+  private: ACAN2515_Buffer16 mReceiveBuffer ;
+
+
+//··································································································
+//    Receive buffer size
+//··································································································
+
+  public: inline uint16_t receiveBufferSize (void) const {
+    return mReceiveBuffer.size () ;
+  }
+
+
+//··································································································
+//    Receive buffer count
+//··································································································
+
+  public: inline uint16_t receiveBufferCount (void) const {
+    return mReceiveBuffer.count () ;
+  }
+
+
+//··································································································
+//    Receive buffer peak count
+//··································································································
+
+  public: inline uint16_t receiveBufferPeakCount (void) const {
+    return mReceiveBuffer.peakCount () ;
+  }
+
+
+//··································································································
+//    Call back function array
+//··································································································
+
+  private: ACANCallBackRoutine mCallBackFunctionArray [6] ;
+
+
+//··································································································
+//    Transmitting messages
+//··································································································
+
+  public: bool tryToSend (const CANMessage & inMessage) ;
+
+
+//··································································································
+//    Driver transmit buffer
+//··································································································
+
+  private: ACAN2515_Buffer16 mTransmitBuffer [3] ;
+  private: bool mTXBIsFree [3] ;
+
+  public: inline uint16_t transmitBufferSize (const uint8_t inIndex) const {
+    return mTransmitBuffer [inIndex].size () ;
+  }
+
+  public: inline uint16_t transmitBufferCount (const uint8_t inIndex) const {
+    return mTransmitBuffer [inIndex].count () ;
+  }
+
+  public: inline uint16_t transmitBufferPeakCount (const uint8_t inIndex) const {
+    return mTransmitBuffer [inIndex].peakCount () ;
+  }
+  private: void internalSendMessage (const CANMessage & inFrame, const uint8_t inTXB) ;
+
+
+//··································································································
+//    Polling
+//··································································································
+
+  public: void poll (void) ;
+
+
+//··································································································
+//    Private methods
+//··································································································
+
+  private: inline void select (void) { digitalWrite (mCS, LOW) ; }
+|———Node:{ Text: {
+|———Node:comment Text: //··································································································
+|———Node:comment Text: //    Constructor: using hardware SPI
+|———Node:comment Text: //··································································································
+|———Node:labeled_statement Text: public: ACAN2515 (const uint8_t inCS,  // CS input of MCP2515
+                    SPIClass & inSPI, // Hardware SPI object
+                    const uint8_t inINT) ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: ACAN2515 (const uint8_t inCS,  // CS input of MCP2515
+                    SPIClass & inSPI, // Hardware SPI object
+                    const uint8_t inINT) ;
+|—————Node:macro_type_specifier Text: ACAN2515 (const uint8_t
+|——————Node:identifier Text: ACAN2515
+|——————Node:( Text: (
+|——————Node:type_descriptor Text: const uint8_t
+|———————Node:type_qualifier Text: const
+|————————Node:const Text: const
+|———————Node:primitive_type Text: uint8_t
+|——————Node:) Text: 
+|—————Node:identifier Text: inCS
+|—————Node:, Text: ,
+|—————Node:comment Text: // CS input of MCP2515
+|—————Node:identifier Text: SPIClass
+|—————Node:ERROR Text: & inSPI
+|——————Node:& Text: &
+|——————Node:identifier Text: inSPI
+|—————Node:, Text: ,
+|—————Node:comment Text: // Hardware SPI object
+|—————Node:identifier Text: const
+|—————Node:ERROR Text: uint8_t inINT)
+|——————Node:identifier Text: uint8_t
+|——————Node:identifier Text: inINT
+|——————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:comment Text: // INT output of MCP2515
+|———Node:comment Text: //··································································································
+|———Node:comment Text: //    Initialisation: returns 0 if ok, otherwise see error codes below
+|———Node:comment Text: //··································································································
+|———Node:labeled_statement Text: public: uint16_t begin (const ACAN2515Settings & inSettings,
+                          void (* inInterruptServiceRoutine) (void)) ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: uint16_t begin (const ACAN2515Settings & inSettings,
+                          void (* inInterruptServiceRoutine) (void)) ;
+|—————Node:primitive_type Text: uint16_t
+|—————Node:function_declarator Text: begin (const ACAN2515Settings & inSettings,
+                          void (* inInterruptServiceRoutine) (void))
+|——————Node:identifier Text: begin
+|——————Node:parameter_list Text: (const ACAN2515Settings & inSettings,
+                          void (* inInterruptServiceRoutine) (void))
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const ACAN2515Settings & inSettings
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: ACAN2515Settings
+|————————Node:ERROR Text: &
+|—————————Node:& Text: &
+|————————Node:identifier Text: inSettings
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: void (* inInterruptServiceRoutine) (void)
+|————————Node:primitive_type Text: void
+|————————Node:function_declarator Text: (* inInterruptServiceRoutine) (void)
+|—————————Node:parenthesized_declarator Text: (* inInterruptServiceRoutine)
+|——————————Node:( Text: (
+|——————————Node:pointer_declarator Text: * inInterruptServiceRoutine
+|———————————Node:* Text: *
+|———————————Node:identifier Text: inInterruptServiceRoutine
+|——————————Node:) Text: )
+|—————————Node:parameter_list Text: (void)
+|——————————Node:( Text: (
+|——————————Node:parameter_declaration Text: void
+|———————————Node:primitive_type Text: void
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: uint16_t begin (const ACAN2515Settings & inSettings,
+                          void (* inInterruptServiceRoutine) (void),
+                          const ACAN2515Mask inRXM0,
+                          const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                          const uint8_t inAcceptanceFilterCount) ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: uint16_t begin (const ACAN2515Settings & inSettings,
+                          void (* inInterruptServiceRoutine) (void),
+                          const ACAN2515Mask inRXM0,
+                          const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                          const uint8_t inAcceptanceFilterCount) ;
+|—————Node:primitive_type Text: uint16_t
+|—————Node:function_declarator Text: begin (const ACAN2515Settings & inSettings,
+                          void (* inInterruptServiceRoutine) (void),
+                          const ACAN2515Mask inRXM0,
+                          const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                          const uint8_t inAcceptanceFilterCount)
+|——————Node:identifier Text: begin
+|——————Node:parameter_list Text: (const ACAN2515Settings & inSettings,
+                          void (* inInterruptServiceRoutine) (void),
+                          const ACAN2515Mask inRXM0,
+                          const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                          const uint8_t inAcceptanceFilterCount)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const ACAN2515Settings & inSettings
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: ACAN2515Settings
+|————————Node:ERROR Text: &
+|—————————Node:& Text: &
+|————————Node:identifier Text: inSettings
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: void (* inInterruptServiceRoutine) (void)
+|————————Node:primitive_type Text: void
+|————————Node:function_declarator Text: (* inInterruptServiceRoutine) (void)
+|—————————Node:parenthesized_declarator Text: (* inInterruptServiceRoutine)
+|——————————Node:( Text: (
+|——————————Node:pointer_declarator Text: * inInterruptServiceRoutine
+|———————————Node:* Text: *
+|———————————Node:identifier Text: inInterruptServiceRoutine
+|——————————Node:) Text: )
+|—————————Node:parameter_list Text: (void)
+|——————————Node:( Text: (
+|——————————Node:parameter_declaration Text: void
+|———————————Node:primitive_type Text: void
+|——————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const ACAN2515Mask inRXM0
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: ACAN2515Mask
+|————————Node:identifier Text: inRXM0
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const ACAN2515AcceptanceFilter inAcceptanceFilters []
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: ACAN2515AcceptanceFilter
+|————————Node:array_declarator Text: inAcceptanceFilters []
+|—————————Node:identifier Text: inAcceptanceFilters
+|—————————Node:[ Text: [
+|—————————Node:] Text: ]
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const uint8_t inAcceptanceFilterCount
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: inAcceptanceFilterCount
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: uint16_t begin (const ACAN2515Settings & inSettings,
+                          void (* inInterruptServiceRoutine) (void),
+                          const ACAN2515Mask inRXM0,
+                          const ACAN2515Mask inRXM1,
+                          const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                          const uint8_t inAcceptanceFilterCount) ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: uint16_t begin (const ACAN2515Settings & inSettings,
+                          void (* inInterruptServiceRoutine) (void),
+                          const ACAN2515Mask inRXM0,
+                          const ACAN2515Mask inRXM1,
+                          const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                          const uint8_t inAcceptanceFilterCount) ;
+|—————Node:primitive_type Text: uint16_t
+|—————Node:function_declarator Text: begin (const ACAN2515Settings & inSettings,
+                          void (* inInterruptServiceRoutine) (void),
+                          const ACAN2515Mask inRXM0,
+                          const ACAN2515Mask inRXM1,
+                          const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                          const uint8_t inAcceptanceFilterCount)
+|——————Node:identifier Text: begin
+|——————Node:parameter_list Text: (const ACAN2515Settings & inSettings,
+                          void (* inInterruptServiceRoutine) (void),
+                          const ACAN2515Mask inRXM0,
+                          const ACAN2515Mask inRXM1,
+                          const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                          const uint8_t inAcceptanceFilterCount)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const ACAN2515Settings & inSettings
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: ACAN2515Settings
+|————————Node:ERROR Text: &
+|—————————Node:& Text: &
+|————————Node:identifier Text: inSettings
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: void (* inInterruptServiceRoutine) (void)
+|————————Node:primitive_type Text: void
+|————————Node:function_declarator Text: (* inInterruptServiceRoutine) (void)
+|—————————Node:parenthesized_declarator Text: (* inInterruptServiceRoutine)
+|——————————Node:( Text: (
+|——————————Node:pointer_declarator Text: * inInterruptServiceRoutine
+|———————————Node:* Text: *
+|———————————Node:identifier Text: inInterruptServiceRoutine
+|——————————Node:) Text: )
+|—————————Node:parameter_list Text: (void)
+|——————————Node:( Text: (
+|——————————Node:parameter_declaration Text: void
+|———————————Node:primitive_type Text: void
+|——————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const ACAN2515Mask inRXM0
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: ACAN2515Mask
+|————————Node:identifier Text: inRXM0
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const ACAN2515Mask inRXM1
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: ACAN2515Mask
+|————————Node:identifier Text: inRXM1
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const ACAN2515AcceptanceFilter inAcceptanceFilters []
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: ACAN2515AcceptanceFilter
+|————————Node:array_declarator Text: inAcceptanceFilters []
+|—————————Node:identifier Text: inAcceptanceFilters
+|—————————Node:[ Text: [
+|—————————Node:] Text: ]
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const uint8_t inAcceptanceFilterCount
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: inAcceptanceFilterCount
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:comment Text: //··································································································
+|———Node:comment Text: //    Error codes returned by begin
+|———Node:comment Text: //··································································································
+|———Node:labeled_statement Text: public: static const uint16_t kNoMCP2515                   = 1 <<  0 ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: static const uint16_t kNoMCP2515                   = 1 <<  0 ;
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: uint16_t
+|—————Node:init_declarator Text: kNoMCP2515                   = 1 <<  0
+|——————Node:identifier Text: kNoMCP2515
+|——————Node:= Text: =
+|——————Node:binary_expression Text: 1 <<  0
+|———————Node:number_literal Text: 1
+|———————Node:<< Text: <<
+|———————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: static const uint16_t kTooFarFromDesiredBitRate    = 1 <<  1 ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: static const uint16_t kTooFarFromDesiredBitRate    = 1 <<  1 ;
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: uint16_t
+|—————Node:init_declarator Text: kTooFarFromDesiredBitRate    = 1 <<  1
+|——————Node:identifier Text: kTooFarFromDesiredBitRate
+|——————Node:= Text: =
+|——————Node:binary_expression Text: 1 <<  1
+|———————Node:number_literal Text: 1
+|———————Node:<< Text: <<
+|———————Node:number_literal Text: 1
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: static const uint16_t kInconsistentBitRateSettings = 1 <<  2 ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: static const uint16_t kInconsistentBitRateSettings = 1 <<  2 ;
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: uint16_t
+|—————Node:init_declarator Text: kInconsistentBitRateSettings = 1 <<  2
+|——————Node:identifier Text: kInconsistentBitRateSettings
+|——————Node:= Text: =
+|——————Node:binary_expression Text: 1 <<  2
+|———————Node:number_literal Text: 1
+|———————Node:<< Text: <<
+|———————Node:number_literal Text: 2
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: static const uint16_t kINTPinIsNotAnInterrupt      = 1 <<  3 ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: static const uint16_t kINTPinIsNotAnInterrupt      = 1 <<  3 ;
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: uint16_t
+|—————Node:init_declarator Text: kINTPinIsNotAnInterrupt      = 1 <<  3
+|——————Node:identifier Text: kINTPinIsNotAnInterrupt
+|——————Node:= Text: =
+|——————Node:binary_expression Text: 1 <<  3
+|———————Node:number_literal Text: 1
+|———————Node:<< Text: <<
+|———————Node:number_literal Text: 3
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: static const uint16_t kISRIsNull                   = 1 <<  4 ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: static const uint16_t kISRIsNull                   = 1 <<  4 ;
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: uint16_t
+|—————Node:init_declarator Text: kISRIsNull                   = 1 <<  4
+|——————Node:identifier Text: kISRIsNull
+|——————Node:= Text: =
+|——————Node:binary_expression Text: 1 <<  4
+|———————Node:number_literal Text: 1
+|———————Node:<< Text: <<
+|———————Node:number_literal Text: 4
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: static const uint16_t kRequestedModeTimeOut        = 1 <<  5 ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: static const uint16_t kRequestedModeTimeOut        = 1 <<  5 ;
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: uint16_t
+|—————Node:init_declarator Text: kRequestedModeTimeOut        = 1 <<  5
+|——————Node:identifier Text: kRequestedModeTimeOut
+|——————Node:= Text: =
+|——————Node:binary_expression Text: 1 <<  5
+|———————Node:number_literal Text: 1
+|———————Node:<< Text: <<
+|———————Node:number_literal Text: 5
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: static const uint16_t kAcceptanceFilterArrayIsNULL = 1 << 6 ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: static const uint16_t kAcceptanceFilterArrayIsNULL = 1 << 6 ;
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: uint16_t
+|—————Node:init_declarator Text: kAcceptanceFilterArrayIsNULL = 1 << 6
+|——————Node:identifier Text: kAcceptanceFilterArrayIsNULL
+|——————Node:= Text: =
+|——————Node:binary_expression Text: 1 << 6
+|———————Node:number_literal Text: 1
+|———————Node:<< Text: <<
+|———————Node:number_literal Text: 6
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: static const uint16_t kOneFilterMaskRequiresOneOrTwoAcceptanceFilters = 1 << 7 ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: static const uint16_t kOneFilterMaskRequiresOneOrTwoAcceptanceFilters = 1 << 7 ;
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: uint16_t
+|—————Node:init_declarator Text: kOneFilterMaskRequiresOneOrTwoAcceptanceFilters = 1 << 7
+|——————Node:identifier Text: kOneFilterMaskRequiresOneOrTwoAcceptanceFilters
+|——————Node:= Text: =
+|——————Node:binary_expression Text: 1 << 7
+|———————Node:number_literal Text: 1
+|———————Node:<< Text: <<
+|———————Node:number_literal Text: 7
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: static const uint16_t kTwoFilterMasksRequireThreeToSixAcceptanceFilters = 1 << 8 ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: static const uint16_t kTwoFilterMasksRequireThreeToSixAcceptanceFilters = 1 << 8 ;
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: uint16_t
+|—————Node:init_declarator Text: kTwoFilterMasksRequireThreeToSixAcceptanceFilters = 1 << 8
+|——————Node:identifier Text: kTwoFilterMasksRequireThreeToSixAcceptanceFilters
+|——————Node:= Text: =
+|——————Node:binary_expression Text: 1 << 8
+|———————Node:number_literal Text: 1
+|———————Node:<< Text: <<
+|———————Node:number_literal Text: 8
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: static const uint16_t kCannotAllocateReceiveBuffer = 1 << 9 ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: static const uint16_t kCannotAllocateReceiveBuffer = 1 << 9 ;
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: uint16_t
+|—————Node:init_declarator Text: kCannotAllocateReceiveBuffer = 1 << 9
+|——————Node:identifier Text: kCannotAllocateReceiveBuffer
+|——————Node:= Text: =
+|——————Node:binary_expression Text: 1 << 9
+|———————Node:number_literal Text: 1
+|———————Node:<< Text: <<
+|———————Node:number_literal Text: 9
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: static const uint16_t kCannotAllocateTransmitBuffer0 = 1 << 10 ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: static const uint16_t kCannotAllocateTransmitBuffer0 = 1 << 10 ;
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: uint16_t
+|—————Node:init_declarator Text: kCannotAllocateTransmitBuffer0 = 1 << 10
+|——————Node:identifier Text: kCannotAllocateTransmitBuffer0
+|——————Node:= Text: =
+|——————Node:binary_expression Text: 1 << 10
+|———————Node:number_literal Text: 1
+|———————Node:<< Text: <<
+|———————Node:number_literal Text: 10
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: static const uint16_t kCannotAllocateTransmitBuffer1 = 1 << 11 ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: static const uint16_t kCannotAllocateTransmitBuffer1 = 1 << 11 ;
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: uint16_t
+|—————Node:init_declarator Text: kCannotAllocateTransmitBuffer1 = 1 << 11
+|——————Node:identifier Text: kCannotAllocateTransmitBuffer1
+|——————Node:= Text: =
+|——————Node:binary_expression Text: 1 << 11
+|———————Node:number_literal Text: 1
+|———————Node:<< Text: <<
+|———————Node:number_literal Text: 11
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: static const uint16_t kCannotAllocateTransmitBuffer2 = 1 << 12 ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: static const uint16_t kCannotAllocateTransmitBuffer2 = 1 << 12 ;
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: uint16_t
+|—————Node:init_declarator Text: kCannotAllocateTransmitBuffer2 = 1 << 12
+|——————Node:identifier Text: kCannotAllocateTransmitBuffer2
+|——————Node:= Text: =
+|——————Node:binary_expression Text: 1 << 12
+|———————Node:number_literal Text: 1
+|———————Node:<< Text: <<
+|———————Node:number_literal Text: 12
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: static const uint32_t kISRNotNullAndNoIntPin         = 1 << 13 ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: static const uint32_t kISRNotNullAndNoIntPin         = 1 << 13 ;
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: uint32_t
+|—————Node:init_declarator Text: kISRNotNullAndNoIntPin         = 1 << 13
+|——————Node:identifier Text: kISRNotNullAndNoIntPin
+|——————Node:= Text: =
+|——————Node:binary_expression Text: 1 << 13
+|———————Node:number_literal Text: 1
+|———————Node:<< Text: <<
+|———————Node:number_literal Text: 13
+|—————Node:; Text: ;
+|———Node:comment Text: //··································································································
+|———Node:comment Text: //    Change Mode on the fly
+|———Node:comment Text: //··································································································
+|———Node:labeled_statement Text: public: uint16_t changeModeOnTheFly (const ACAN2515Settings::RequestedMode inRequestedMode) ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: uint16_t changeModeOnTheFly (const ACAN2515Settings::RequestedMode inRequestedMode) ;
+|—————Node:primitive_type Text: uint16_t
+|—————Node:function_declarator Text: changeModeOnTheFly (const ACAN2515Settings::RequestedMode inRequestedMode)
+|——————Node:identifier Text: changeModeOnTheFly
+|——————Node:parameter_list Text: (const ACAN2515Settings::RequestedMode inRequestedMode)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const ACAN2515Settings::RequestedMode inRequestedMode
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: ACAN2515Settings
+|————————Node:ERROR Text: ::RequestedMode
+|—————————Node:: Text: :
+|—————————Node:: Text: :
+|—————————Node:identifier Text: RequestedMode
+|————————Node:identifier Text: inRequestedMode
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:comment Text: //··································································································
+|———Node:comment Text: //    Set filters on the fly
+|———Node:comment Text: //··································································································
+|———Node:labeled_statement Text: public: uint16_t setFiltersOnTheFly (void) ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: uint16_t setFiltersOnTheFly (void) ;
+|—————Node:primitive_type Text: uint16_t
+|—————Node:function_declarator Text: setFiltersOnTheFly (void)
+|——————Node:identifier Text: setFiltersOnTheFly
+|——————Node:parameter_list Text: (void)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: void
+|————————Node:primitive_type Text: void
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: uint16_t setFiltersOnTheFly (const ACAN2515Mask inRXM0,
+                                       const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                       const uint8_t inAcceptanceFilterCount) ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: uint16_t setFiltersOnTheFly (const ACAN2515Mask inRXM0,
+                                       const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                       const uint8_t inAcceptanceFilterCount) ;
+|—————Node:primitive_type Text: uint16_t
+|—————Node:function_declarator Text: setFiltersOnTheFly (const ACAN2515Mask inRXM0,
+                                       const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                       const uint8_t inAcceptanceFilterCount)
+|——————Node:identifier Text: setFiltersOnTheFly
+|——————Node:parameter_list Text: (const ACAN2515Mask inRXM0,
+                                       const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                       const uint8_t inAcceptanceFilterCount)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const ACAN2515Mask inRXM0
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: ACAN2515Mask
+|————————Node:identifier Text: inRXM0
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const ACAN2515AcceptanceFilter inAcceptanceFilters []
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: ACAN2515AcceptanceFilter
+|————————Node:array_declarator Text: inAcceptanceFilters []
+|—————————Node:identifier Text: inAcceptanceFilters
+|—————————Node:[ Text: [
+|—————————Node:] Text: ]
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const uint8_t inAcceptanceFilterCount
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: inAcceptanceFilterCount
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: uint16_t setFiltersOnTheFly (const ACAN2515Mask inRXM0,
+                                       const ACAN2515Mask inRXM1,
+                                       const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                       const uint8_t inAcceptanceFilterCount) ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: uint16_t setFiltersOnTheFly (const ACAN2515Mask inRXM0,
+                                       const ACAN2515Mask inRXM1,
+                                       const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                       const uint8_t inAcceptanceFilterCount) ;
+|—————Node:primitive_type Text: uint16_t
+|—————Node:function_declarator Text: setFiltersOnTheFly (const ACAN2515Mask inRXM0,
+                                       const ACAN2515Mask inRXM1,
+                                       const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                       const uint8_t inAcceptanceFilterCount)
+|——————Node:identifier Text: setFiltersOnTheFly
+|——————Node:parameter_list Text: (const ACAN2515Mask inRXM0,
+                                       const ACAN2515Mask inRXM1,
+                                       const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                       const uint8_t inAcceptanceFilterCount)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const ACAN2515Mask inRXM0
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: ACAN2515Mask
+|————————Node:identifier Text: inRXM0
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const ACAN2515Mask inRXM1
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: ACAN2515Mask
+|————————Node:identifier Text: inRXM1
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const ACAN2515AcceptanceFilter inAcceptanceFilters []
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: ACAN2515AcceptanceFilter
+|————————Node:array_declarator Text: inAcceptanceFilters []
+|—————————Node:identifier Text: inAcceptanceFilters
+|—————————Node:[ Text: [
+|—————————Node:] Text: ]
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const uint8_t inAcceptanceFilterCount
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: inAcceptanceFilterCount
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:comment Text: //··································································································
+|———Node:comment Text: //    end
+|———Node:comment Text: //··································································································
+|———Node:labeled_statement Text: public: void end (void) ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: void end (void) ;
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: end (void)
+|——————Node:identifier Text: end
+|——————Node:parameter_list Text: (void)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: void
+|————————Node:primitive_type Text: void
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:comment Text: //··································································································
+|———Node:comment Text: //    Receiving messages
+|———Node:comment Text: //··································································································
+|———Node:labeled_statement Text: public: bool available (void) ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: bool available (void) ;
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: available (void)
+|——————Node:identifier Text: available
+|——————Node:parameter_list Text: (void)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: void
+|————————Node:primitive_type Text: void
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: bool receive (CANMessage & outFrame) ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: bool receive (CANMessage & outFrame) ;
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: receive (CANMessage & outFrame)
+|——————Node:identifier Text: receive
+|——————Node:parameter_list Text: (CANMessage & outFrame)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: CANMessage & outFrame
+|————————Node:type_identifier Text: CANMessage
+|————————Node:ERROR Text: &
+|—————————Node:& Text: &
+|————————Node:identifier Text: outFrame
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: typedef void (*tFilterMatchCallBack) (const uint8_t inFilterIndex) ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: typedef void (*tFilterMatchCallBack) (const uint8_t inFilterIndex) ;
+|—————Node:type_identifier Text: typedef
+|—————Node:function_declarator Text: void (*tFilterMatchCallBack) (const uint8_t inFilterIndex)
+|——————Node:function_declarator Text: void (*tFilterMatchCallBack)
+|———————Node:identifier Text: void
+|———————Node:parameter_list Text: (*tFilterMatchCallBack)
+|————————Node:( Text: (
+|————————Node:ERROR Text: *
+|—————————Node:* Text: *
+|————————Node:parameter_declaration Text: tFilterMatchCallBack
+|—————————Node:type_identifier Text: tFilterMatchCallBack
+|————————Node:) Text: )
+|——————Node:parameter_list Text: (const uint8_t inFilterIndex)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const uint8_t inFilterIndex
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: inFilterIndex
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: bool dispatchReceivedMessage (const tFilterMatchCallBack inFilterMatchCallBack = NULL) ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: bool dispatchReceivedMessage (const tFilterMatchCallBack inFilterMatchCallBack = NULL) ;
+|—————Node:primitive_type Text: bool
+|—————Node:init_declarator Text: dispatchReceivedMessage (const tFilterMatchCallBack inFilterMatchCallBack = NULL
+|——————Node:function_declarator Text: dispatchReceivedMessage (const tFilterMatchCallBack inFilterMatchCallBack
+|———————Node:identifier Text: dispatchReceivedMessage
+|———————Node:parameter_list Text: (const tFilterMatchCallBack inFilterMatchCallBack
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const tFilterMatchCallBack inFilterMatchCallBack
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:type_identifier Text: tFilterMatchCallBack
+|—————————Node:identifier Text: inFilterMatchCallBack
+|————————Node:) Text: 
+|——————Node:= Text: =
+|——————Node:null Text: NULL
+|———————Node:NULL Text: NULL
+|—————Node:ERROR Text: )
+|——————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:comment Text: //··································································································
+|———Node:comment Text: //    Handling messages to send and receiving messages
+|———Node:comment Text: //··································································································
+|———Node:labeled_statement Text: public: void isr (void) ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: void isr (void) ;
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: isr (void)
+|——————Node:identifier Text: isr
+|——————Node:parameter_list Text: (void)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: void
+|————————Node:primitive_type Text: void
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: bool isr_core (void) ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: bool isr_core (void) ;
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: isr_core (void)
+|——————Node:identifier Text: isr_core
+|——————Node:parameter_list Text: (void)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: void
+|————————Node:primitive_type Text: void
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: private: void handleTXBInterrupt (const uint8_t inTXB) ;
+|————Node:statement_identifier Text: private
+|————Node:: Text: :
+|————Node:declaration Text: void handleTXBInterrupt (const uint8_t inTXB) ;
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: handleTXBInterrupt (const uint8_t inTXB)
+|——————Node:identifier Text: handleTXBInterrupt
+|——————Node:parameter_list Text: (const uint8_t inTXB)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const uint8_t inTXB
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: inTXB
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: private: void handleRXBInterrupt (void) ;
+|————Node:statement_identifier Text: private
+|————Node:: Text: :
+|————Node:declaration Text: void handleRXBInterrupt (void) ;
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: handleRXBInterrupt (void)
+|——————Node:identifier Text: handleRXBInterrupt
+|——————Node:parameter_list Text: (void)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: void
+|————————Node:primitive_type Text: void
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:comment Text: //··································································································
+|———Node:comment Text: //    Properties
+|———Node:comment Text: //··································································································
+|———Node:labeled_statement Text: private: SPIClass & mSPI ;
+|————Node:statement_identifier Text: private
+|————Node:: Text: :
+|————Node:expression_statement Text: SPIClass & mSPI ;
+|—————Node:binary_expression Text: SPIClass & mSPI
+|——————Node:identifier Text: SPIClass
+|——————Node:& Text: &
+|——————Node:identifier Text: mSPI
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: private: const SPISettings mSPISettings ;
+|————Node:statement_identifier Text: private
+|————Node:: Text: :
+|————Node:declaration Text: const SPISettings mSPISettings ;
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:type_identifier Text: SPISettings
+|—————Node:identifier Text: mSPISettings
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: private: const uint8_t mCS ;
+|————Node:statement_identifier Text: private
+|————Node:: Text: :
+|————Node:declaration Text: const uint8_t mCS ;
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: uint8_t
+|—————Node:identifier Text: mCS
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: private: const uint8_t mINT ;
+|————Node:statement_identifier Text: private
+|————Node:: Text: :
+|————Node:declaration Text: const uint8_t mINT ;
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:primitive_type Text: uint8_t
+|—————Node:identifier Text: mINT
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: private: bool mRolloverEnable ;
+|————Node:statement_identifier Text: private
+|————Node:: Text: :
+|————Node:declaration Text: bool mRolloverEnable ;
+|—————Node:primitive_type Text: bool
+|—————Node:identifier Text: mRolloverEnable
+|—————Node:; Text: ;
+|———Node:preproc_ifdef Text: #ifdef ARDUINO_ARCH_ESP32
+    public: SemaphoreHandle_t mISRSemaphore ;
+  #endif
+|————Node:#ifdef Text: #ifdef
+|————Node:identifier Text: ARDUINO_ARCH_ESP32
+|————Node:labeled_statement Text: public: SemaphoreHandle_t mISRSemaphore ;
+|—————Node:statement_identifier Text: public
+|—————Node:: Text: :
+|—————Node:declaration Text: SemaphoreHandle_t mISRSemaphore ;
+|——————Node:type_identifier Text: SemaphoreHandle_t
+|——————Node:identifier Text: mISRSemaphore
+|——————Node:; Text: ;
+|————Node:#endif Text: #endif
+|———Node:comment Text: //··································································································
+|———Node:comment Text: //    Receive buffer
+|———Node:comment Text: //··································································································
+|———Node:labeled_statement Text: private: ACAN2515_Buffer16 mReceiveBuffer ;
+|————Node:statement_identifier Text: private
+|————Node:: Text: :
+|————Node:declaration Text: ACAN2515_Buffer16 mReceiveBuffer ;
+|—————Node:type_identifier Text: ACAN2515_Buffer16
+|—————Node:identifier Text: mReceiveBuffer
+|—————Node:; Text: ;
+|———Node:comment Text: //··································································································
+|———Node:comment Text: //    Receive buffer size
+|———Node:comment Text: //··································································································
+|———Node:labeled_statement Text: public: inline uint16_t receiveBufferSize (void) const {
+    return mReceiveBuffer.size () ;
+  }
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:ERROR Text: inline uint16_t receiveBufferSize (void) const
+|—————Node:storage_class_specifier Text: inline
+|——————Node:inline Text: inline
+|—————Node:primitive_type Text: uint16_t
+|—————Node:function_declarator Text: receiveBufferSize (void) const
+|——————Node:identifier Text: receiveBufferSize
+|——————Node:parameter_list Text: (void)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: void
+|————————Node:primitive_type Text: void
+|———————Node:) Text: )
+|——————Node:identifier Text: const
+|————Node:compound_statement Text: {
+    return mReceiveBuffer.size () ;
+  }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return mReceiveBuffer.size () ;
+|——————Node:return Text: return
+|——————Node:call_expression Text: mReceiveBuffer.size ()
+|———————Node:field_expression Text: mReceiveBuffer.size
+|————————Node:identifier Text: mReceiveBuffer
+|————————Node:. Text: .
+|————————Node:field_identifier Text: size
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:comment Text: //··································································································
+|———Node:comment Text: //    Receive buffer count
+|———Node:comment Text: //··································································································
+|———Node:labeled_statement Text: public: inline uint16_t receiveBufferCount (void) const {
+    return mReceiveBuffer.count () ;
+  }
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:ERROR Text: inline uint16_t receiveBufferCount (void) const
+|—————Node:storage_class_specifier Text: inline
+|——————Node:inline Text: inline
+|—————Node:primitive_type Text: uint16_t
+|—————Node:function_declarator Text: receiveBufferCount (void) const
+|——————Node:identifier Text: receiveBufferCount
+|——————Node:parameter_list Text: (void)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: void
+|————————Node:primitive_type Text: void
+|———————Node:) Text: )
+|——————Node:identifier Text: const
+|————Node:compound_statement Text: {
+    return mReceiveBuffer.count () ;
+  }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return mReceiveBuffer.count () ;
+|——————Node:return Text: return
+|——————Node:call_expression Text: mReceiveBuffer.count ()
+|———————Node:field_expression Text: mReceiveBuffer.count
+|————————Node:identifier Text: mReceiveBuffer
+|————————Node:. Text: .
+|————————Node:field_identifier Text: count
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:comment Text: //··································································································
+|———Node:comment Text: //    Receive buffer peak count
+|———Node:comment Text: //··································································································
+|———Node:labeled_statement Text: public: inline uint16_t receiveBufferPeakCount (void) const {
+    return mReceiveBuffer.peakCount () ;
+  }
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:ERROR Text: inline uint16_t receiveBufferPeakCount (void) const
+|—————Node:storage_class_specifier Text: inline
+|——————Node:inline Text: inline
+|—————Node:primitive_type Text: uint16_t
+|—————Node:function_declarator Text: receiveBufferPeakCount (void) const
+|——————Node:identifier Text: receiveBufferPeakCount
+|——————Node:parameter_list Text: (void)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: void
+|————————Node:primitive_type Text: void
+|———————Node:) Text: )
+|——————Node:identifier Text: const
+|————Node:compound_statement Text: {
+    return mReceiveBuffer.peakCount () ;
+  }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return mReceiveBuffer.peakCount () ;
+|——————Node:return Text: return
+|——————Node:call_expression Text: mReceiveBuffer.peakCount ()
+|———————Node:field_expression Text: mReceiveBuffer.peakCount
+|————————Node:identifier Text: mReceiveBuffer
+|————————Node:. Text: .
+|————————Node:field_identifier Text: peakCount
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:comment Text: //··································································································
+|———Node:comment Text: //    Call back function array
+|———Node:comment Text: //··································································································
+|———Node:labeled_statement Text: private: ACANCallBackRoutine mCallBackFunctionArray [6] ;
+|————Node:statement_identifier Text: private
+|————Node:: Text: :
+|————Node:declaration Text: ACANCallBackRoutine mCallBackFunctionArray [6] ;
+|—————Node:type_identifier Text: ACANCallBackRoutine
+|—————Node:array_declarator Text: mCallBackFunctionArray [6]
+|——————Node:identifier Text: mCallBackFunctionArray
+|——————Node:[ Text: [
+|——————Node:number_literal Text: 6
+|——————Node:] Text: ]
+|—————Node:; Text: ;
+|———Node:comment Text: //··································································································
+|———Node:comment Text: //    Transmitting messages
+|———Node:comment Text: //··································································································
+|———Node:labeled_statement Text: public: bool tryToSend (const CANMessage & inMessage) ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: bool tryToSend (const CANMessage & inMessage) ;
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: tryToSend (const CANMessage & inMessage)
+|——————Node:identifier Text: tryToSend
+|——————Node:parameter_list Text: (const CANMessage & inMessage)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const CANMessage & inMessage
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: CANMessage
+|————————Node:ERROR Text: &
+|—————————Node:& Text: &
+|————————Node:identifier Text: inMessage
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:comment Text: //··································································································
+|———Node:comment Text: //    Driver transmit buffer
+|———Node:comment Text: //··································································································
+|———Node:labeled_statement Text: private: ACAN2515_Buffer16 mTransmitBuffer [3] ;
+|————Node:statement_identifier Text: private
+|————Node:: Text: :
+|————Node:declaration Text: ACAN2515_Buffer16 mTransmitBuffer [3] ;
+|—————Node:type_identifier Text: ACAN2515_Buffer16
+|—————Node:array_declarator Text: mTransmitBuffer [3]
+|——————Node:identifier Text: mTransmitBuffer
+|——————Node:[ Text: [
+|——————Node:number_literal Text: 3
+|——————Node:] Text: ]
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: private: bool mTXBIsFree [3] ;
+|————Node:statement_identifier Text: private
+|————Node:: Text: :
+|————Node:declaration Text: bool mTXBIsFree [3] ;
+|—————Node:primitive_type Text: bool
+|—————Node:array_declarator Text: mTXBIsFree [3]
+|——————Node:identifier Text: mTXBIsFree
+|——————Node:[ Text: [
+|——————Node:number_literal Text: 3
+|——————Node:] Text: ]
+|—————Node:; Text: ;
+|———Node:labeled_statement Text: public: inline uint16_t transmitBufferSize (const uint8_t inIndex) const {
+    return mTransmitBuffer [inIndex].size () ;
+  }
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:ERROR Text: inline uint16_t transmitBufferSize (const uint8_t inIndex) const
+|—————Node:storage_class_specifier Text: inline
+|——————Node:inline Text: inline
+|—————Node:primitive_type Text: uint16_t
+|—————Node:function_declarator Text: transmitBufferSize (const uint8_t inIndex) const
+|——————Node:identifier Text: transmitBufferSize
+|——————Node:parameter_list Text: (const uint8_t inIndex)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const uint8_t inIndex
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: inIndex
+|———————Node:) Text: )
+|——————Node:identifier Text: const
+|————Node:compound_statement Text: {
+    return mTransmitBuffer [inIndex].size () ;
+  }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return mTransmitBuffer [inIndex].size () ;
+|——————Node:return Text: return
+|——————Node:call_expression Text: mTransmitBuffer [inIndex].size ()
+|———————Node:field_expression Text: mTransmitBuffer [inIndex].size
+|————————Node:subscript_expression Text: mTransmitBuffer [inIndex]
+|—————————Node:identifier Text: mTransmitBuffer
+|—————————Node:[ Text: [
+|—————————Node:identifier Text: inIndex
+|—————————Node:] Text: ]
+|————————Node:. Text: .
+|————————Node:field_identifier Text: size
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:labeled_statement Text: public: inline uint16_t transmitBufferCount (const uint8_t inIndex) const {
+    return mTransmitBuffer [inIndex].count () ;
+  }
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:ERROR Text: inline uint16_t transmitBufferCount (const uint8_t inIndex) const
+|—————Node:storage_class_specifier Text: inline
+|——————Node:inline Text: inline
+|—————Node:primitive_type Text: uint16_t
+|—————Node:function_declarator Text: transmitBufferCount (const uint8_t inIndex) const
+|——————Node:identifier Text: transmitBufferCount
+|——————Node:parameter_list Text: (const uint8_t inIndex)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const uint8_t inIndex
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: inIndex
+|———————Node:) Text: )
+|——————Node:identifier Text: const
+|————Node:compound_statement Text: {
+    return mTransmitBuffer [inIndex].count () ;
+  }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return mTransmitBuffer [inIndex].count () ;
+|——————Node:return Text: return
+|——————Node:call_expression Text: mTransmitBuffer [inIndex].count ()
+|———————Node:field_expression Text: mTransmitBuffer [inIndex].count
+|————————Node:subscript_expression Text: mTransmitBuffer [inIndex]
+|—————————Node:identifier Text: mTransmitBuffer
+|—————————Node:[ Text: [
+|—————————Node:identifier Text: inIndex
+|—————————Node:] Text: ]
+|————————Node:. Text: .
+|————————Node:field_identifier Text: count
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:labeled_statement Text: public: inline uint16_t transmitBufferPeakCount (const uint8_t inIndex) const {
+    return mTransmitBuffer [inIndex].peakCount () ;
+  }
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:ERROR Text: inline uint16_t transmitBufferPeakCount (const uint8_t inIndex) const
+|—————Node:storage_class_specifier Text: inline
+|——————Node:inline Text: inline
+|—————Node:primitive_type Text: uint16_t
+|—————Node:function_declarator Text: transmitBufferPeakCount (const uint8_t inIndex) const
+|——————Node:identifier Text: transmitBufferPeakCount
+|——————Node:parameter_list Text: (const uint8_t inIndex)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const uint8_t inIndex
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: inIndex
+|———————Node:) Text: )
+|——————Node:identifier Text: const
+|————Node:compound_statement Text: {
+    return mTransmitBuffer [inIndex].peakCount () ;
+  }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return mTransmitBuffer [inIndex].peakCount () ;
+|——————Node:return Text: return
+|——————Node:call_expression Text: mTransmitBuffer [inIndex].peakCount ()
+|———————Node:field_expression Text: mTransmitBuffer [inIndex].peakCount
+|————————Node:subscript_expression Text: mTransmitBuffer [inIndex]
+|—————————Node:identifier Text: mTransmitBuffer
+|—————————Node:[ Text: [
+|—————————Node:identifier Text: inIndex
+|—————————Node:] Text: ]
+|————————Node:. Text: .
+|————————Node:field_identifier Text: peakCount
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:labeled_statement Text: private: void internalSendMessage (const CANMessage & inFrame, const uint8_t inTXB) ;
+|————Node:statement_identifier Text: private
+|————Node:: Text: :
+|————Node:declaration Text: void internalSendMessage (const CANMessage & inFrame, const uint8_t inTXB) ;
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: internalSendMessage (const CANMessage & inFrame, const uint8_t inTXB)
+|——————Node:identifier Text: internalSendMessage
+|——————Node:parameter_list Text: (const CANMessage & inFrame, const uint8_t inTXB)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const CANMessage & inFrame
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: CANMessage
+|————————Node:ERROR Text: &
+|—————————Node:& Text: &
+|————————Node:identifier Text: inFrame
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const uint8_t inTXB
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: inTXB
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:comment Text: //··································································································
+|———Node:comment Text: //    Polling
+|———Node:comment Text: //··································································································
+|———Node:labeled_statement Text: public: void poll (void) ;
+|————Node:statement_identifier Text: public
+|————Node:: Text: :
+|————Node:declaration Text: void poll (void) ;
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: poll (void)
+|——————Node:identifier Text: poll
+|——————Node:parameter_list Text: (void)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: void
+|————————Node:primitive_type Text: void
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:comment Text: //··································································································
+|———Node:comment Text: //    Private methods
+|———Node:comment Text: //··································································································
+|———Node:labeled_statement Text: private: inline void select (void) { digitalWrite (mCS, LOW) ;
+|————Node:statement_identifier Text: private
+|————Node:: Text: :
+|————Node:declaration Text: inline void select (void) { digitalWrite (mCS, LOW) ;
+|—————Node:storage_class_specifier Text: inline
+|——————Node:inline Text: inline
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: select (void) { digitalWrite (mCS, LOW)
+|——————Node:function_declarator Text: select (void)
+|———————Node:identifier Text: select
+|———————Node:parameter_list Text: (void)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: void
+|—————————Node:primitive_type Text: void
+|————————Node:) Text: )
+|——————Node:ERROR Text: { digitalWrite
+|———————Node:{ Text: {
+|———————Node:identifier Text: digitalWrite
+|——————Node:parameter_list Text: (mCS, LOW)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: mCS
+|————————Node:type_identifier Text: mCS
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: LOW
+|————————Node:type_identifier Text: LOW
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:} Text: }
+|—Node:labeled_statement Text: private: inline void unselect (void) { digitalWrite (mCS, HIGH) ; }
+|——Node:statement_identifier Text: private
+|——Node:: Text: :
+|——Node:ERROR Text: inline void unselect (void)
+|———Node:storage_class_specifier Text: inline
+|————Node:inline Text: inline
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: unselect (void)
+|————Node:identifier Text: unselect
+|————Node:parameter_list Text: (void)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: void
+|——————Node:primitive_type Text: void
+|—————Node:) Text: )
+|——Node:compound_statement Text: { digitalWrite (mCS, HIGH) ; }
+|———Node:{ Text: {
+|———Node:expression_statement Text: digitalWrite (mCS, HIGH) ;
+|————Node:call_expression Text: digitalWrite (mCS, HIGH)
+|—————Node:identifier Text: digitalWrite
+|—————Node:argument_list Text: (mCS, HIGH)
+|——————Node:( Text: (
+|——————Node:identifier Text: mCS
+|——————Node:, Text: ,
+|——————Node:identifier Text: HIGH
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:labeled_statement Text: private: uint16_t beginWithoutFilterCheck (const ACAN2515Settings & inSettings,
+                                             void (* inInterruptServiceRoutine) (void),
+                                             const ACAN2515Mask inRXM0,
+                                             const ACAN2515Mask inRXM1,
+                                             const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                             const uint8_t inAcceptanceFilterCount) ;
+|——Node:statement_identifier Text: private
+|——Node:: Text: :
+|——Node:declaration Text: uint16_t beginWithoutFilterCheck (const ACAN2515Settings & inSettings,
+                                             void (* inInterruptServiceRoutine) (void),
+                                             const ACAN2515Mask inRXM0,
+                                             const ACAN2515Mask inRXM1,
+                                             const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                             const uint8_t inAcceptanceFilterCount) ;
+|———Node:primitive_type Text: uint16_t
+|———Node:function_declarator Text: beginWithoutFilterCheck (const ACAN2515Settings & inSettings,
+                                             void (* inInterruptServiceRoutine) (void),
+                                             const ACAN2515Mask inRXM0,
+                                             const ACAN2515Mask inRXM1,
+                                             const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                             const uint8_t inAcceptanceFilterCount)
+|————Node:identifier Text: beginWithoutFilterCheck
+|————Node:parameter_list Text: (const ACAN2515Settings & inSettings,
+                                             void (* inInterruptServiceRoutine) (void),
+                                             const ACAN2515Mask inRXM0,
+                                             const ACAN2515Mask inRXM1,
+                                             const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                             const uint8_t inAcceptanceFilterCount)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const ACAN2515Settings & inSettings
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: ACAN2515Settings
+|——————Node:ERROR Text: &
+|———————Node:& Text: &
+|——————Node:identifier Text: inSettings
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: void (* inInterruptServiceRoutine) (void)
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: (* inInterruptServiceRoutine) (void)
+|———————Node:parenthesized_declarator Text: (* inInterruptServiceRoutine)
+|————————Node:( Text: (
+|————————Node:pointer_declarator Text: * inInterruptServiceRoutine
+|—————————Node:* Text: *
+|—————————Node:identifier Text: inInterruptServiceRoutine
+|————————Node:) Text: )
+|———————Node:parameter_list Text: (void)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: void
+|—————————Node:primitive_type Text: void
+|————————Node:) Text: )
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const ACAN2515Mask inRXM0
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: ACAN2515Mask
+|——————Node:identifier Text: inRXM0
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const ACAN2515Mask inRXM1
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: ACAN2515Mask
+|——————Node:identifier Text: inRXM1
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const ACAN2515AcceptanceFilter inAcceptanceFilters []
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: ACAN2515AcceptanceFilter
+|——————Node:array_declarator Text: inAcceptanceFilters []
+|———————Node:identifier Text: inAcceptanceFilters
+|———————Node:[ Text: [
+|———————Node:] Text: ]
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const uint8_t inAcceptanceFilterCount
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: inAcceptanceFilterCount
+|—————Node:) Text: )
+|———Node:; Text: ;
+|—Node:labeled_statement Text: private: uint16_t internalBeginOperation (const ACAN2515Settings & inSettings,
+                                            const ACAN2515Mask inRXM0,
+                                            const ACAN2515Mask inRXM1,
+                                            const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                            const uint8_t inAcceptanceFilterCount) ;
+|——Node:statement_identifier Text: private
+|——Node:: Text: :
+|——Node:declaration Text: uint16_t internalBeginOperation (const ACAN2515Settings & inSettings,
+                                            const ACAN2515Mask inRXM0,
+                                            const ACAN2515Mask inRXM1,
+                                            const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                            const uint8_t inAcceptanceFilterCount) ;
+|———Node:primitive_type Text: uint16_t
+|———Node:function_declarator Text: internalBeginOperation (const ACAN2515Settings & inSettings,
+                                            const ACAN2515Mask inRXM0,
+                                            const ACAN2515Mask inRXM1,
+                                            const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                            const uint8_t inAcceptanceFilterCount)
+|————Node:identifier Text: internalBeginOperation
+|————Node:parameter_list Text: (const ACAN2515Settings & inSettings,
+                                            const ACAN2515Mask inRXM0,
+                                            const ACAN2515Mask inRXM1,
+                                            const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                            const uint8_t inAcceptanceFilterCount)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const ACAN2515Settings & inSettings
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: ACAN2515Settings
+|——————Node:ERROR Text: &
+|———————Node:& Text: &
+|——————Node:identifier Text: inSettings
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const ACAN2515Mask inRXM0
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: ACAN2515Mask
+|——————Node:identifier Text: inRXM0
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const ACAN2515Mask inRXM1
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: ACAN2515Mask
+|——————Node:identifier Text: inRXM1
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const ACAN2515AcceptanceFilter inAcceptanceFilters []
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: ACAN2515AcceptanceFilter
+|——————Node:array_declarator Text: inAcceptanceFilters []
+|———————Node:identifier Text: inAcceptanceFilters
+|———————Node:[ Text: [
+|———————Node:] Text: ]
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const uint8_t inAcceptanceFilterCount
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: inAcceptanceFilterCount
+|—————Node:) Text: )
+|———Node:; Text: ;
+|—Node:labeled_statement Text: private: void write2515Register (const uint8_t inRegister, const uint8_t inValue) ;
+|——Node:statement_identifier Text: private
+|——Node:: Text: :
+|——Node:declaration Text: void write2515Register (const uint8_t inRegister, const uint8_t inValue) ;
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: write2515Register (const uint8_t inRegister, const uint8_t inValue)
+|————Node:identifier Text: write2515Register
+|————Node:parameter_list Text: (const uint8_t inRegister, const uint8_t inValue)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const uint8_t inRegister
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: inRegister
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const uint8_t inValue
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: inValue
+|—————Node:) Text: )
+|———Node:; Text: ;
+|—Node:labeled_statement Text: private: uint8_t read2515Register (const uint8_t inRegister) ;
+|——Node:statement_identifier Text: private
+|——Node:: Text: :
+|——Node:declaration Text: uint8_t read2515Register (const uint8_t inRegister) ;
+|———Node:primitive_type Text: uint8_t
+|———Node:function_declarator Text: read2515Register (const uint8_t inRegister)
+|————Node:identifier Text: read2515Register
+|————Node:parameter_list Text: (const uint8_t inRegister)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const uint8_t inRegister
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: inRegister
+|—————Node:) Text: )
+|———Node:; Text: ;
+|—Node:labeled_statement Text: private: uint8_t read2515Status (void) ;
+|——Node:statement_identifier Text: private
+|——Node:: Text: :
+|——Node:declaration Text: uint8_t read2515Status (void) ;
+|———Node:primitive_type Text: uint8_t
+|———Node:function_declarator Text: read2515Status (void)
+|————Node:identifier Text: read2515Status
+|————Node:parameter_list Text: (void)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: void
+|——————Node:primitive_type Text: void
+|—————Node:) Text: )
+|———Node:; Text: ;
+|—Node:labeled_statement Text: private: uint8_t read2515RxStatus (void) ;
+|——Node:statement_identifier Text: private
+|——Node:: Text: :
+|——Node:declaration Text: uint8_t read2515RxStatus (void) ;
+|———Node:primitive_type Text: uint8_t
+|———Node:function_declarator Text: read2515RxStatus (void)
+|————Node:identifier Text: read2515RxStatus
+|————Node:parameter_list Text: (void)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: void
+|——————Node:primitive_type Text: void
+|—————Node:) Text: )
+|———Node:; Text: ;
+|—Node:labeled_statement Text: private: void bitModify2515Register (const uint8_t inRegister, const uint8_t inMask, const uint8_t inData) ;
+|——Node:statement_identifier Text: private
+|——Node:: Text: :
+|——Node:declaration Text: void bitModify2515Register (const uint8_t inRegister, const uint8_t inMask, const uint8_t inData) ;
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: bitModify2515Register (const uint8_t inRegister, const uint8_t inMask, const uint8_t inData)
+|————Node:identifier Text: bitModify2515Register
+|————Node:parameter_list Text: (const uint8_t inRegister, const uint8_t inMask, const uint8_t inData)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const uint8_t inRegister
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: inRegister
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const uint8_t inMask
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: inMask
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const uint8_t inData
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: inData
+|—————Node:) Text: )
+|———Node:; Text: ;
+|—Node:labeled_statement Text: private: void setupMaskRegister (const ACAN2515Mask inMask, const uint8_t inRegister) ;
+|——Node:statement_identifier Text: private
+|——Node:: Text: :
+|——Node:declaration Text: void setupMaskRegister (const ACAN2515Mask inMask, const uint8_t inRegister) ;
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: setupMaskRegister (const ACAN2515Mask inMask, const uint8_t inRegister)
+|————Node:identifier Text: setupMaskRegister
+|————Node:parameter_list Text: (const ACAN2515Mask inMask, const uint8_t inRegister)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const ACAN2515Mask inMask
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: ACAN2515Mask
+|——————Node:identifier Text: inMask
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const uint8_t inRegister
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: inRegister
+|—————Node:) Text: )
+|———Node:; Text: ;
+|—Node:labeled_statement Text: private: uint16_t setRequestedMode (const uint8_t inCANControlRegister) ;
+|——Node:statement_identifier Text: private
+|——Node:: Text: :
+|——Node:declaration Text: uint16_t setRequestedMode (const uint8_t inCANControlRegister) ;
+|———Node:primitive_type Text: uint16_t
+|———Node:function_declarator Text: setRequestedMode (const uint8_t inCANControlRegister)
+|————Node:identifier Text: setRequestedMode
+|————Node:parameter_list Text: (const uint8_t inCANControlRegister)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const uint8_t inCANControlRegister
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: inCANControlRegister
+|—————Node:) Text: )
+|———Node:; Text: ;
+|—Node:labeled_statement Text: private: uint16_t internalSetFiltersOnTheFly (const ACAN2515Mask inRXM0,
+                                                const ACAN2515Mask inRXM1,
+                                                const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                                const uint8_t inAcceptanceFilterCount) ;
+|——Node:statement_identifier Text: private
+|——Node:: Text: :
+|——Node:declaration Text: uint16_t internalSetFiltersOnTheFly (const ACAN2515Mask inRXM0,
+                                                const ACAN2515Mask inRXM1,
+                                                const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                                const uint8_t inAcceptanceFilterCount) ;
+|———Node:primitive_type Text: uint16_t
+|———Node:function_declarator Text: internalSetFiltersOnTheFly (const ACAN2515Mask inRXM0,
+                                                const ACAN2515Mask inRXM1,
+                                                const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                                const uint8_t inAcceptanceFilterCount)
+|————Node:identifier Text: internalSetFiltersOnTheFly
+|————Node:parameter_list Text: (const ACAN2515Mask inRXM0,
+                                                const ACAN2515Mask inRXM1,
+                                                const ACAN2515AcceptanceFilter inAcceptanceFilters [],
+                                                const uint8_t inAcceptanceFilterCount)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: const ACAN2515Mask inRXM0
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: ACAN2515Mask
+|——————Node:identifier Text: inRXM0
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const ACAN2515Mask inRXM1
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: ACAN2515Mask
+|——————Node:identifier Text: inRXM1
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const ACAN2515AcceptanceFilter inAcceptanceFilters []
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:type_identifier Text: ACAN2515AcceptanceFilter
+|——————Node:array_declarator Text: inAcceptanceFilters []
+|———————Node:identifier Text: inAcceptanceFilters
+|———————Node:[ Text: [
+|———————Node:] Text: ]
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: const uint8_t inAcceptanceFilterCount
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: inAcceptanceFilterCount
+|—————Node:) Text: )
+|———Node:; Text: ;
+|—Node:comment Text: //··································································································
+|—Node:comment Text: //    MCP2515 controller state
+|—Node:comment Text: //··································································································
+|—Node:labeled_statement Text: public: uint8_t receiveErrorCounter (void) ;
+|——Node:statement_identifier Text: public
+|——Node:: Text: :
+|——Node:declaration Text: uint8_t receiveErrorCounter (void) ;
+|———Node:primitive_type Text: uint8_t
+|———Node:function_declarator Text: receiveErrorCounter (void)
+|————Node:identifier Text: receiveErrorCounter
+|————Node:parameter_list Text: (void)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: void
+|——————Node:primitive_type Text: void
+|—————Node:) Text: )
+|———Node:; Text: ;
+|—Node:labeled_statement Text: public: uint8_t transmitErrorCounter (void) ;
+|——Node:statement_identifier Text: public
+|——Node:: Text: :
+|——Node:declaration Text: uint8_t transmitErrorCounter (void) ;
+|———Node:primitive_type Text: uint8_t
+|———Node:function_declarator Text: transmitErrorCounter (void)
+|————Node:identifier Text: transmitErrorCounter
+|————Node:parameter_list Text: (void)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: void
+|——————Node:primitive_type Text: void
+|—————Node:) Text: )
+|———Node:; Text: ;
+|—Node:labeled_statement Text: public: uint8_t errorFlagRegister (void) ;
+|——Node:statement_identifier Text: public
+|——Node:: Text: :
+|——Node:declaration Text: uint8_t errorFlagRegister (void) ;
+|———Node:primitive_type Text: uint8_t
+|———Node:function_declarator Text: errorFlagRegister (void)
+|————Node:identifier Text: errorFlagRegister
+|————Node:parameter_list Text: (void)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: void
+|——————Node:primitive_type Text: void
+|—————Node:) Text: )
+|———Node:; Text: ;
+|—Node:comment Text: //··································································································
+|—Node:comment Text: //    No Copy
+|—Node:comment Text: //··································································································
+|—Node:labeled_statement Text: private: ACAN2515 (const ACAN2515 &) = delete ;
+|——Node:statement_identifier Text: private
+|——Node:: Text: :
+|——Node:declaration Text: ACAN2515 (const ACAN2515 &) = delete ;
+|———Node:macro_type_specifier Text: ACAN2515 (const ACAN2515 &)
+|————Node:identifier Text: ACAN2515
+|————Node:( Text: (
+|————Node:type_descriptor Text: const ACAN2515
+|—————Node:type_qualifier Text: const
+|——————Node:const Text: const
+|—————Node:type_identifier Text: ACAN2515
+|————Node:ERROR Text: &
+|—————Node:& Text: &
+|————Node:) Text: )
+|———Node:ERROR Text: =
+|————Node:= Text: =
+|———Node:identifier Text: delete
+|———Node:; Text: ;
+|—Node:labeled_statement Text: private: ACAN2515 & operator = (const ACAN2515 &) = delete ;
+|——Node:statement_identifier Text: private
+|——Node:: Text: :
+|——Node:expression_statement Text: ACAN2515 & operator = (const ACAN2515 &) = delete ;
+|———Node:binary_expression Text: ACAN2515 & operator = (const ACAN2515 &) = delete
+|————Node:identifier Text: ACAN2515
+|————Node:& Text: &
+|————Node:assignment_expression Text: operator = (const ACAN2515 &) = delete
+|—————Node:identifier Text: operator
+|—————Node:= Text: =
+|—————Node:cast_expression Text: (const ACAN2515 &) = delete
+|——————Node:( Text: (
+|——————Node:type_descriptor Text: const ACAN2515
+|———————Node:type_qualifier Text: const
+|————————Node:const Text: const
+|———————Node:type_identifier Text: ACAN2515
+|——————Node:ERROR Text: &
+|———————Node:& Text: &
+|——————Node:) Text: )
+|——————Node:ERROR Text: =
+|———————Node:= Text: =
+|——————Node:identifier Text: delete
+|———Node:; Text: ;
+|—Node:comment Text: //··································································································
+|—Node:ERROR Text: }
+|——Node:} Text: }
+|—Node:expression_statement Text: ;
+|——Node:; Text: ;
+|—Node:comment Text: //··································································································

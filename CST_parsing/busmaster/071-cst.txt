@@ -1,0 +1,2536 @@
+busmaster-Sources\CommonClass\GUI_FormatMsgCAN.cpp
+
+|Node:translation_unit
+|—Node:comment
+|—Node:comment
+|—Node:preproc_include Text: #include "CommonClass_stdafx.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "CommonClass_stdafx.h"
+|———Node:" Text: "
+|———Node:string_content Text: CommonClass_stdafx.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "GUI_FormatMsgCAN.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "GUI_FormatMsgCAN.h"
+|———Node:" Text: "
+|———Node:string_content Text: GUI_FormatMsgCAN.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "include/Utils_macro.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "include/Utils_macro.h"
+|———Node:" Text: "
+|———Node:string_content Text: include/Utils_macro.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "Include/CAN_Error_Defs.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "Include/CAN_Error_Defs.h"
+|———Node:" Text: "
+|———Node:string_content Text: Include/CAN_Error_Defs.h
+|———Node:" Text: "
+|—Node:struct_specifier Text: struct sERRORMSGINFO
+{
+    unsigned short m_usErrorCode; // Error code
+    char* m_ptcErorMsg;          // Error message
+}
+|——Node:struct Text: struct
+|——Node:type_identifier Text: sERRORMSGINFO
+|——Node:field_declaration_list Text: {
+    unsigned short m_usErrorCode; // Error code
+    char* m_ptcErorMsg;          // Error message
+}
+|———Node:{ Text: {
+|———Node:field_declaration Text: unsigned short m_usErrorCode;
+|————Node:sized_type_specifier Text: unsigned short
+|—————Node:unsigned Text: unsigned
+|—————Node:short Text: short
+|————Node:field_identifier Text: m_usErrorCode
+|————Node:; Text: ;
+|———Node:comment
+|———Node:field_declaration Text: char* m_ptcErorMsg;
+|————Node:primitive_type Text: char
+|————Node:pointer_declarator Text: * m_ptcErorMsg
+|—————Node:* Text: *
+|—————Node:field_identifier Text: m_ptcErorMsg
+|————Node:; Text: ;
+|———Node:comment
+|———Node:} Text: }
+|—Node:; Text: ;
+|—Node:type_definition Text: typedef sERRORMSGINFO SERRORMSGINFO;
+|——Node:typedef Text: typedef
+|——Node:type_identifier Text: sERRORMSGINFO
+|——Node:type_identifier Text: SERRORMSGINFO
+|——Node:; Text: ;
+|—Node:type_definition Text: typedef sERRORMSGINFO* PERRORMSGINFO;
+|——Node:typedef Text: typedef
+|——Node:type_identifier Text: sERRORMSGINFO
+|——Node:pointer_declarator Text: * PERRORMSGINFO
+|———Node:* Text: *
+|———Node:type_identifier Text: PERRORMSGINFO
+|——Node:; Text: ;
+|—Node:declaration Text: const int ERRORS_DEFINED = 13;
+|——Node:type_qualifier Text: const
+|———Node:const Text: const
+|——Node:primitive_type Text: int
+|——Node:init_declarator Text: ERRORS_DEFINED = 13
+|———Node:identifier Text: ERRORS_DEFINED
+|———Node:= Text: =
+|———Node:number_literal Text: 13
+|——Node:; Text: ;
+|—Node:declaration Text: static SERRORMSGINFO sg_asErrorEntry[ERRORS_DEFINED] =
+{
+    {ERROR_UNKNOWN,       _T("Unknown Error")},
+    {BIT_ERROR_RX,        _T("Bus Error - Bit Error(Rx)")},
+    {FORM_ERROR_RX,       _T("Bus Error - Form Error(Rx)")},
+    {STUFF_ERROR_RX,      _T("Error Frame - Stuff error(Rx)")},
+    {OTHER_ERROR_RX,      _T("Bus Error - Other Error(Rx)")},
+    {BIT_ERROR_TX,        _T("Bus Error - Bit Error(Tx)")},
+    {FORM_ERROR_TX,       _T("Bus Error - Form Error(Tx)")},
+    {STUFF_ERROR_TX,      _T("Bus Error - Stuff Error(Tx)")},
+    {OTHER_ERROR_TX,      _T("Bus Error - Other Error(Tx)")},
+    {ERROR_DEVICE_BUFF_OVERFLOW,        _T("Controller Buffer Overflow")},
+    {ERROR_DRIVER_BUFF_OVERFLOW,        _T("Driver Buffer Overflow")},
+    {ERROR_APPLICATION_BUFF_OVERFLOW,   _T("Application Buffer Overflow")},
+    {ERROR_DLLMSG_BUFF_OVERFLOW,        _T("DLL message buffer Overflow")}
+};
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:type_identifier Text: SERRORMSGINFO
+|——Node:init_declarator Text: sg_asErrorEntry[ERRORS_DEFINED] =
+{
+    {ERROR_UNKNOWN,       _T("Unknown Error")},
+    {BIT_ERROR_RX,        _T("Bus Error - Bit Error(Rx)")},
+    {FORM_ERROR_RX,       _T("Bus Error - Form Error(Rx)")},
+    {STUFF_ERROR_RX,      _T("Error Frame - Stuff error(Rx)")},
+    {OTHER_ERROR_RX,      _T("Bus Error - Other Error(Rx)")},
+    {BIT_ERROR_TX,        _T("Bus Error - Bit Error(Tx)")},
+    {FORM_ERROR_TX,       _T("Bus Error - Form Error(Tx)")},
+    {STUFF_ERROR_TX,      _T("Bus Error - Stuff Error(Tx)")},
+    {OTHER_ERROR_TX,      _T("Bus Error - Other Error(Tx)")},
+    {ERROR_DEVICE_BUFF_OVERFLOW,        _T("Controller Buffer Overflow")},
+    {ERROR_DRIVER_BUFF_OVERFLOW,        _T("Driver Buffer Overflow")},
+    {ERROR_APPLICATION_BUFF_OVERFLOW,   _T("Application Buffer Overflow")},
+    {ERROR_DLLMSG_BUFF_OVERFLOW,        _T("DLL message buffer Overflow")}
+}
+|———Node:array_declarator Text: sg_asErrorEntry[ERRORS_DEFINED]
+|————Node:identifier Text: sg_asErrorEntry
+|————Node:[ Text: [
+|————Node:identifier Text: ERRORS_DEFINED
+|————Node:] Text: ]
+|———Node:= Text: =
+|———Node:initializer_list Text: {
+    {ERROR_UNKNOWN,       _T("Unknown Error")},
+    {BIT_ERROR_RX,        _T("Bus Error - Bit Error(Rx)")},
+    {FORM_ERROR_RX,       _T("Bus Error - Form Error(Rx)")},
+    {STUFF_ERROR_RX,      _T("Error Frame - Stuff error(Rx)")},
+    {OTHER_ERROR_RX,      _T("Bus Error - Other Error(Rx)")},
+    {BIT_ERROR_TX,        _T("Bus Error - Bit Error(Tx)")},
+    {FORM_ERROR_TX,       _T("Bus Error - Form Error(Tx)")},
+    {STUFF_ERROR_TX,      _T("Bus Error - Stuff Error(Tx)")},
+    {OTHER_ERROR_TX,      _T("Bus Error - Other Error(Tx)")},
+    {ERROR_DEVICE_BUFF_OVERFLOW,        _T("Controller Buffer Overflow")},
+    {ERROR_DRIVER_BUFF_OVERFLOW,        _T("Driver Buffer Overflow")},
+    {ERROR_APPLICATION_BUFF_OVERFLOW,   _T("Application Buffer Overflow")},
+    {ERROR_DLLMSG_BUFF_OVERFLOW,        _T("DLL message buffer Overflow")}
+}
+|————Node:{ Text: {
+|————Node:initializer_list Text: {ERROR_UNKNOWN,       _T("Unknown Error")}
+|—————Node:{ Text: {
+|—————Node:identifier Text: ERROR_UNKNOWN
+|—————Node:, Text: ,
+|—————Node:call_expression Text: _T("Unknown Error")
+|——————Node:identifier Text: _T
+|——————Node:argument_list Text: ("Unknown Error")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "Unknown Error"
+|————————Node:" Text: "
+|————————Node:string_content Text: Unknown Error
+|————————Node:" Text: "
+|———————Node:) Text: )
+|—————Node:} Text: }
+|————Node:, Text: ,
+|————Node:initializer_list Text: {BIT_ERROR_RX,        _T("Bus Error - Bit Error(Rx)")}
+|—————Node:{ Text: {
+|—————Node:identifier Text: BIT_ERROR_RX
+|—————Node:, Text: ,
+|—————Node:call_expression Text: _T("Bus Error - Bit Error(Rx)")
+|——————Node:identifier Text: _T
+|——————Node:argument_list Text: ("Bus Error - Bit Error(Rx)")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "Bus Error - Bit Error(Rx)"
+|————————Node:" Text: "
+|————————Node:string_content Text: Bus Error - Bit Error(Rx)
+|————————Node:" Text: "
+|———————Node:) Text: )
+|—————Node:} Text: }
+|————Node:, Text: ,
+|————Node:initializer_list Text: {FORM_ERROR_RX,       _T("Bus Error - Form Error(Rx)")}
+|—————Node:{ Text: {
+|—————Node:identifier Text: FORM_ERROR_RX
+|—————Node:, Text: ,
+|—————Node:call_expression Text: _T("Bus Error - Form Error(Rx)")
+|——————Node:identifier Text: _T
+|——————Node:argument_list Text: ("Bus Error - Form Error(Rx)")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "Bus Error - Form Error(Rx)"
+|————————Node:" Text: "
+|————————Node:string_content Text: Bus Error - Form Error(Rx)
+|————————Node:" Text: "
+|———————Node:) Text: )
+|—————Node:} Text: }
+|————Node:, Text: ,
+|————Node:initializer_list Text: {STUFF_ERROR_RX,      _T("Error Frame - Stuff error(Rx)")}
+|—————Node:{ Text: {
+|—————Node:identifier Text: STUFF_ERROR_RX
+|—————Node:, Text: ,
+|—————Node:call_expression Text: _T("Error Frame - Stuff error(Rx)")
+|——————Node:identifier Text: _T
+|——————Node:argument_list Text: ("Error Frame - Stuff error(Rx)")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "Error Frame - Stuff error(Rx)"
+|————————Node:" Text: "
+|————————Node:string_content Text: Error Frame - Stuff error(Rx)
+|————————Node:" Text: "
+|———————Node:) Text: )
+|—————Node:} Text: }
+|————Node:, Text: ,
+|————Node:initializer_list Text: {OTHER_ERROR_RX,      _T("Bus Error - Other Error(Rx)")}
+|—————Node:{ Text: {
+|—————Node:identifier Text: OTHER_ERROR_RX
+|—————Node:, Text: ,
+|—————Node:call_expression Text: _T("Bus Error - Other Error(Rx)")
+|——————Node:identifier Text: _T
+|——————Node:argument_list Text: ("Bus Error - Other Error(Rx)")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "Bus Error - Other Error(Rx)"
+|————————Node:" Text: "
+|————————Node:string_content Text: Bus Error - Other Error(Rx)
+|————————Node:" Text: "
+|———————Node:) Text: )
+|—————Node:} Text: }
+|————Node:, Text: ,
+|————Node:initializer_list Text: {BIT_ERROR_TX,        _T("Bus Error - Bit Error(Tx)")}
+|—————Node:{ Text: {
+|—————Node:identifier Text: BIT_ERROR_TX
+|—————Node:, Text: ,
+|—————Node:call_expression Text: _T("Bus Error - Bit Error(Tx)")
+|——————Node:identifier Text: _T
+|——————Node:argument_list Text: ("Bus Error - Bit Error(Tx)")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "Bus Error - Bit Error(Tx)"
+|————————Node:" Text: "
+|————————Node:string_content Text: Bus Error - Bit Error(Tx)
+|————————Node:" Text: "
+|———————Node:) Text: )
+|—————Node:} Text: }
+|————Node:, Text: ,
+|————Node:initializer_list Text: {FORM_ERROR_TX,       _T("Bus Error - Form Error(Tx)")}
+|—————Node:{ Text: {
+|—————Node:identifier Text: FORM_ERROR_TX
+|—————Node:, Text: ,
+|—————Node:call_expression Text: _T("Bus Error - Form Error(Tx)")
+|——————Node:identifier Text: _T
+|——————Node:argument_list Text: ("Bus Error - Form Error(Tx)")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "Bus Error - Form Error(Tx)"
+|————————Node:" Text: "
+|————————Node:string_content Text: Bus Error - Form Error(Tx)
+|————————Node:" Text: "
+|———————Node:) Text: )
+|—————Node:} Text: }
+|————Node:, Text: ,
+|————Node:initializer_list Text: {STUFF_ERROR_TX,      _T("Bus Error - Stuff Error(Tx)")}
+|—————Node:{ Text: {
+|—————Node:identifier Text: STUFF_ERROR_TX
+|—————Node:, Text: ,
+|—————Node:call_expression Text: _T("Bus Error - Stuff Error(Tx)")
+|——————Node:identifier Text: _T
+|——————Node:argument_list Text: ("Bus Error - Stuff Error(Tx)")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "Bus Error - Stuff Error(Tx)"
+|————————Node:" Text: "
+|————————Node:string_content Text: Bus Error - Stuff Error(Tx)
+|————————Node:" Text: "
+|———————Node:) Text: )
+|—————Node:} Text: }
+|————Node:, Text: ,
+|————Node:initializer_list Text: {OTHER_ERROR_TX,      _T("Bus Error - Other Error(Tx)")}
+|—————Node:{ Text: {
+|—————Node:identifier Text: OTHER_ERROR_TX
+|—————Node:, Text: ,
+|—————Node:call_expression Text: _T("Bus Error - Other Error(Tx)")
+|——————Node:identifier Text: _T
+|——————Node:argument_list Text: ("Bus Error - Other Error(Tx)")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "Bus Error - Other Error(Tx)"
+|————————Node:" Text: "
+|————————Node:string_content Text: Bus Error - Other Error(Tx)
+|————————Node:" Text: "
+|———————Node:) Text: )
+|—————Node:} Text: }
+|————Node:, Text: ,
+|————Node:initializer_list Text: {ERROR_DEVICE_BUFF_OVERFLOW,        _T("Controller Buffer Overflow")}
+|—————Node:{ Text: {
+|—————Node:identifier Text: ERROR_DEVICE_BUFF_OVERFLOW
+|—————Node:, Text: ,
+|—————Node:call_expression Text: _T("Controller Buffer Overflow")
+|——————Node:identifier Text: _T
+|——————Node:argument_list Text: ("Controller Buffer Overflow")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "Controller Buffer Overflow"
+|————————Node:" Text: "
+|————————Node:string_content Text: Controller Buffer Overflow
+|————————Node:" Text: "
+|———————Node:) Text: )
+|—————Node:} Text: }
+|————Node:, Text: ,
+|————Node:initializer_list Text: {ERROR_DRIVER_BUFF_OVERFLOW,        _T("Driver Buffer Overflow")}
+|—————Node:{ Text: {
+|—————Node:identifier Text: ERROR_DRIVER_BUFF_OVERFLOW
+|—————Node:, Text: ,
+|—————Node:call_expression Text: _T("Driver Buffer Overflow")
+|——————Node:identifier Text: _T
+|——————Node:argument_list Text: ("Driver Buffer Overflow")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "Driver Buffer Overflow"
+|————————Node:" Text: "
+|————————Node:string_content Text: Driver Buffer Overflow
+|————————Node:" Text: "
+|———————Node:) Text: )
+|—————Node:} Text: }
+|————Node:, Text: ,
+|————Node:initializer_list Text: {ERROR_APPLICATION_BUFF_OVERFLOW,   _T("Application Buffer Overflow")}
+|—————Node:{ Text: {
+|—————Node:identifier Text: ERROR_APPLICATION_BUFF_OVERFLOW
+|—————Node:, Text: ,
+|—————Node:call_expression Text: _T("Application Buffer Overflow")
+|——————Node:identifier Text: _T
+|——————Node:argument_list Text: ("Application Buffer Overflow")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "Application Buffer Overflow"
+|————————Node:" Text: "
+|————————Node:string_content Text: Application Buffer Overflow
+|————————Node:" Text: "
+|———————Node:) Text: )
+|—————Node:} Text: }
+|————Node:, Text: ,
+|————Node:initializer_list Text: {ERROR_DLLMSG_BUFF_OVERFLOW,        _T("DLL message buffer Overflow")}
+|—————Node:{ Text: {
+|—————Node:identifier Text: ERROR_DLLMSG_BUFF_OVERFLOW
+|—————Node:, Text: ,
+|—————Node:call_expression Text: _T("DLL message buffer Overflow")
+|——————Node:identifier Text: _T
+|——————Node:argument_list Text: ("DLL message buffer Overflow")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "DLL message buffer Overflow"
+|————————Node:" Text: "
+|————————Node:string_content Text: DLL message buffer Overflow
+|————————Node:" Text: "
+|———————Node:) Text: )
+|—————Node:} Text: }
+|————Node:} Text: }
+|——Node:; Text: ;
+|—Node:comment
+|—Node:function_definition Text: CFormatMsgCAN::CFormatMsgCAN(void)
+{
+}
+|——Node:function_declarator Text: CFormatMsgCAN::CFormatMsgCAN(void)
+|———Node:qualified_identifier Text: CFormatMsgCAN::CFormatMsgCAN
+|————Node:namespace_identifier Text: CFormatMsgCAN
+|————Node::: Text: ::
+|————Node:identifier Text: CFormatMsgCAN
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: CFormatMsgCAN::~CFormatMsgCAN(void)
+{
+}
+|——Node:function_declarator Text: CFormatMsgCAN::~CFormatMsgCAN(void)
+|———Node:qualified_identifier Text: CFormatMsgCAN::~CFormatMsgCAN
+|————Node:namespace_identifier Text: CFormatMsgCAN
+|————Node::: Text: ::
+|————Node:destructor_name Text: ~CFormatMsgCAN
+|—————Node:~ Text: ~
+|—————Node:identifier Text: CFormatMsgCAN
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: void CFormatMsgCAN::vFormatTime(BYTE bExprnFlag,
+                                SFORMATTEDDATA_CAN* CurrDataCAN)
+{
+    BYTE bTmpExprnFlag = bExprnFlag;
+
+    if (IS_TM_ABS_SET(bExprnFlag))
+    {
+        CLEAR_EXPR_TM_BITS(bTmpExprnFlag);
+        SET_TM_ABS(bTmpExprnFlag);
+        vCalculateAndFormatTM(bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeAbs);
+    }
+
+    if (IS_TM_REL_SET(bExprnFlag))
+    {
+        CLEAR_EXPR_TM_BITS(bTmpExprnFlag);
+        SET_TM_REL(bTmpExprnFlag);
+        vCalculateAndFormatTM(bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeRel);
+    }
+
+    if (IS_TM_SYS_SET(bExprnFlag))
+    {
+        CLEAR_EXPR_TM_BITS(bTmpExprnFlag);
+        SET_TM_SYS(bTmpExprnFlag);
+        vCalculateAndFormatTM(bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeSys);
+    }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CFormatMsgCAN::vFormatTime(BYTE bExprnFlag,
+                                SFORMATTEDDATA_CAN* CurrDataCAN)
+|———Node:qualified_identifier Text: CFormatMsgCAN::vFormatTime
+|————Node:namespace_identifier Text: CFormatMsgCAN
+|————Node::: Text: ::
+|————Node:identifier Text: vFormatTime
+|———Node:parameter_list Text: (BYTE bExprnFlag,
+                                SFORMATTEDDATA_CAN* CurrDataCAN)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: BYTE bExprnFlag
+|—————Node:type_identifier Text: BYTE
+|—————Node:identifier Text: bExprnFlag
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: SFORMATTEDDATA_CAN* CurrDataCAN
+|—————Node:type_identifier Text: SFORMATTEDDATA_CAN
+|—————Node:pointer_declarator Text: * CurrDataCAN
+|——————Node:* Text: *
+|——————Node:identifier Text: CurrDataCAN
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    BYTE bTmpExprnFlag = bExprnFlag;
+
+    if (IS_TM_ABS_SET(bExprnFlag))
+    {
+        CLEAR_EXPR_TM_BITS(bTmpExprnFlag);
+        SET_TM_ABS(bTmpExprnFlag);
+        vCalculateAndFormatTM(bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeAbs);
+    }
+
+    if (IS_TM_REL_SET(bExprnFlag))
+    {
+        CLEAR_EXPR_TM_BITS(bTmpExprnFlag);
+        SET_TM_REL(bTmpExprnFlag);
+        vCalculateAndFormatTM(bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeRel);
+    }
+
+    if (IS_TM_SYS_SET(bExprnFlag))
+    {
+        CLEAR_EXPR_TM_BITS(bTmpExprnFlag);
+        SET_TM_SYS(bTmpExprnFlag);
+        vCalculateAndFormatTM(bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeSys);
+    }
+}
+|———Node:{ Text: {
+|———Node:declaration Text: BYTE bTmpExprnFlag = bExprnFlag;
+|————Node:type_identifier Text: BYTE
+|————Node:init_declarator Text: bTmpExprnFlag = bExprnFlag
+|—————Node:identifier Text: bTmpExprnFlag
+|—————Node:= Text: =
+|—————Node:identifier Text: bExprnFlag
+|————Node:; Text: ;
+|———Node:if_statement Text: if (IS_TM_ABS_SET(bExprnFlag))
+    {
+        CLEAR_EXPR_TM_BITS(bTmpExprnFlag);
+        SET_TM_ABS(bTmpExprnFlag);
+        vCalculateAndFormatTM(bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeAbs);
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (IS_TM_ABS_SET(bExprnFlag))
+|—————Node:( Text: (
+|—————Node:call_expression Text: IS_TM_ABS_SET(bExprnFlag)
+|——————Node:identifier Text: IS_TM_ABS_SET
+|——————Node:argument_list Text: (bExprnFlag)
+|———————Node:( Text: (
+|———————Node:identifier Text: bExprnFlag
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        CLEAR_EXPR_TM_BITS(bTmpExprnFlag);
+        SET_TM_ABS(bTmpExprnFlag);
+        vCalculateAndFormatTM(bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeAbs);
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: CLEAR_EXPR_TM_BITS(bTmpExprnFlag);
+|——————Node:call_expression Text: CLEAR_EXPR_TM_BITS(bTmpExprnFlag)
+|———————Node:identifier Text: CLEAR_EXPR_TM_BITS
+|———————Node:argument_list Text: (bTmpExprnFlag)
+|————————Node:( Text: (
+|————————Node:identifier Text: bTmpExprnFlag
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: SET_TM_ABS(bTmpExprnFlag);
+|——————Node:call_expression Text: SET_TM_ABS(bTmpExprnFlag)
+|———————Node:identifier Text: SET_TM_ABS
+|———————Node:argument_list Text: (bTmpExprnFlag)
+|————————Node:( Text: (
+|————————Node:identifier Text: bTmpExprnFlag
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: vCalculateAndFormatTM(bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeAbs);
+|——————Node:call_expression Text: vCalculateAndFormatTM(bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeAbs)
+|———————Node:identifier Text: vCalculateAndFormatTM
+|———————Node:argument_list Text: (bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeAbs)
+|————————Node:( Text: (
+|————————Node:identifier Text: bTmpExprnFlag
+|————————Node:, Text: ,
+|————————Node:field_expression Text: CurrDataCAN->m_u64TimeStamp
+|—————————Node:identifier Text: CurrDataCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_u64TimeStamp
+|————————Node:, Text: ,
+|————————Node:field_expression Text: CurrDataCAN->m_acTimeAbs
+|—————————Node:identifier Text: CurrDataCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_acTimeAbs
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if (IS_TM_REL_SET(bExprnFlag))
+    {
+        CLEAR_EXPR_TM_BITS(bTmpExprnFlag);
+        SET_TM_REL(bTmpExprnFlag);
+        vCalculateAndFormatTM(bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeRel);
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (IS_TM_REL_SET(bExprnFlag))
+|—————Node:( Text: (
+|—————Node:call_expression Text: IS_TM_REL_SET(bExprnFlag)
+|——————Node:identifier Text: IS_TM_REL_SET
+|——————Node:argument_list Text: (bExprnFlag)
+|———————Node:( Text: (
+|———————Node:identifier Text: bExprnFlag
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        CLEAR_EXPR_TM_BITS(bTmpExprnFlag);
+        SET_TM_REL(bTmpExprnFlag);
+        vCalculateAndFormatTM(bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeRel);
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: CLEAR_EXPR_TM_BITS(bTmpExprnFlag);
+|——————Node:call_expression Text: CLEAR_EXPR_TM_BITS(bTmpExprnFlag)
+|———————Node:identifier Text: CLEAR_EXPR_TM_BITS
+|———————Node:argument_list Text: (bTmpExprnFlag)
+|————————Node:( Text: (
+|————————Node:identifier Text: bTmpExprnFlag
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: SET_TM_REL(bTmpExprnFlag);
+|——————Node:call_expression Text: SET_TM_REL(bTmpExprnFlag)
+|———————Node:identifier Text: SET_TM_REL
+|———————Node:argument_list Text: (bTmpExprnFlag)
+|————————Node:( Text: (
+|————————Node:identifier Text: bTmpExprnFlag
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: vCalculateAndFormatTM(bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeRel);
+|——————Node:call_expression Text: vCalculateAndFormatTM(bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeRel)
+|———————Node:identifier Text: vCalculateAndFormatTM
+|———————Node:argument_list Text: (bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeRel)
+|————————Node:( Text: (
+|————————Node:identifier Text: bTmpExprnFlag
+|————————Node:, Text: ,
+|————————Node:field_expression Text: CurrDataCAN->m_u64TimeStamp
+|—————————Node:identifier Text: CurrDataCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_u64TimeStamp
+|————————Node:, Text: ,
+|————————Node:field_expression Text: CurrDataCAN->m_acTimeRel
+|—————————Node:identifier Text: CurrDataCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_acTimeRel
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:if_statement Text: if (IS_TM_SYS_SET(bExprnFlag))
+    {
+        CLEAR_EXPR_TM_BITS(bTmpExprnFlag);
+        SET_TM_SYS(bTmpExprnFlag);
+        vCalculateAndFormatTM(bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeSys);
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (IS_TM_SYS_SET(bExprnFlag))
+|—————Node:( Text: (
+|—————Node:call_expression Text: IS_TM_SYS_SET(bExprnFlag)
+|——————Node:identifier Text: IS_TM_SYS_SET
+|——————Node:argument_list Text: (bExprnFlag)
+|———————Node:( Text: (
+|———————Node:identifier Text: bExprnFlag
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        CLEAR_EXPR_TM_BITS(bTmpExprnFlag);
+        SET_TM_SYS(bTmpExprnFlag);
+        vCalculateAndFormatTM(bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeSys);
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: CLEAR_EXPR_TM_BITS(bTmpExprnFlag);
+|——————Node:call_expression Text: CLEAR_EXPR_TM_BITS(bTmpExprnFlag)
+|———————Node:identifier Text: CLEAR_EXPR_TM_BITS
+|———————Node:argument_list Text: (bTmpExprnFlag)
+|————————Node:( Text: (
+|————————Node:identifier Text: bTmpExprnFlag
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: SET_TM_SYS(bTmpExprnFlag);
+|——————Node:call_expression Text: SET_TM_SYS(bTmpExprnFlag)
+|———————Node:identifier Text: SET_TM_SYS
+|———————Node:argument_list Text: (bTmpExprnFlag)
+|————————Node:( Text: (
+|————————Node:identifier Text: bTmpExprnFlag
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: vCalculateAndFormatTM(bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeSys);
+|——————Node:call_expression Text: vCalculateAndFormatTM(bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeSys)
+|———————Node:identifier Text: vCalculateAndFormatTM
+|———————Node:argument_list Text: (bTmpExprnFlag, CurrDataCAN->m_u64TimeStamp,
+                              CurrDataCAN->m_acTimeSys)
+|————————Node:( Text: (
+|————————Node:identifier Text: bTmpExprnFlag
+|————————Node:, Text: ,
+|————————Node:field_expression Text: CurrDataCAN->m_u64TimeStamp
+|—————————Node:identifier Text: CurrDataCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_u64TimeStamp
+|————————Node:, Text: ,
+|————————Node:field_expression Text: CurrDataCAN->m_acTimeSys
+|—————————Node:identifier Text: CurrDataCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_acTimeSys
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: void CFormatMsgCAN::vFormatDataAndId(BYTE bExprnFlag,
+                                     SFORMATTEDDATA_CAN* CurrDataCAN)
+{
+    if (IS_NUM_HEX_SET(bExprnFlag))
+    {
+        sprintf_s(CurrDataCAN->m_acMsgIDHex, FORMAT_STR_ID_HEX, CurrDataCAN->m_dwMsgID);
+        
+    	//If an RTR message, Databyte(s) not required to be displayed
+		if ( ! ( CurrDataCAN->m_byMsgType & TYPE_MSG_CAN_RTR ) )
+		{
+			int j = 0;  // j declared outside
+			for (int i = 0; i < CurrDataCAN->m_byDataLength; i++)
+			{
+				BYTE CurrDat = CurrDataCAN->m_abData[i];
+				_stprintf(&(CurrDataCAN->m_acDataHex[j]), FORMAT_STR_DATA_HEX, CurrDat);
+				j += 3;
+			}
+			CurrDataCAN->m_acDataHex[j] = L'\0';
+		}
+    }
+
+    if (IS_NUM_DEC_SET(bExprnFlag))
+    {
+        sprintf_s(CurrDataCAN->m_acMsgIDDec, FORMAT_STR_ID_DEC, CurrDataCAN->m_dwMsgID);
+        
+    	//If an RTR message, Databyte(s) not required to be displayed
+		if ( ! ( CurrDataCAN->m_byMsgType & TYPE_MSG_CAN_RTR ) )
+		{
+			int j = 0;
+			for (int i = 0; i < CurrDataCAN->m_byDataLength; i++)
+			{
+				BYTE CurrDat = CurrDataCAN->m_abData[i];
+				_stprintf(&(CurrDataCAN->m_acDataDec[j]), FORMAT_STR_DATA_DEC, CurrDat);
+				j += 4;
+				CurrDataCAN->m_acDataDec[j-1] = L' ';            
+			}
+			CurrDataCAN->m_acDataDec[j-1] = L'\0';
+		}        
+    }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CFormatMsgCAN::vFormatDataAndId(BYTE bExprnFlag,
+                                     SFORMATTEDDATA_CAN* CurrDataCAN)
+|———Node:qualified_identifier Text: CFormatMsgCAN::vFormatDataAndId
+|————Node:namespace_identifier Text: CFormatMsgCAN
+|————Node::: Text: ::
+|————Node:identifier Text: vFormatDataAndId
+|———Node:parameter_list Text: (BYTE bExprnFlag,
+                                     SFORMATTEDDATA_CAN* CurrDataCAN)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: BYTE bExprnFlag
+|—————Node:type_identifier Text: BYTE
+|—————Node:identifier Text: bExprnFlag
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: SFORMATTEDDATA_CAN* CurrDataCAN
+|—————Node:type_identifier Text: SFORMATTEDDATA_CAN
+|—————Node:pointer_declarator Text: * CurrDataCAN
+|——————Node:* Text: *
+|——————Node:identifier Text: CurrDataCAN
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if (IS_NUM_HEX_SET(bExprnFlag))
+    {
+        sprintf_s(CurrDataCAN->m_acMsgIDHex, FORMAT_STR_ID_HEX, CurrDataCAN->m_dwMsgID);
+        
+    	//If an RTR message, Databyte(s) not required to be displayed
+		if ( ! ( CurrDataCAN->m_byMsgType & TYPE_MSG_CAN_RTR ) )
+		{
+			int j = 0;  // j declared outside
+			for (int i = 0; i < CurrDataCAN->m_byDataLength; i++)
+			{
+				BYTE CurrDat = CurrDataCAN->m_abData[i];
+				_stprintf(&(CurrDataCAN->m_acDataHex[j]), FORMAT_STR_DATA_HEX, CurrDat);
+				j += 3;
+			}
+			CurrDataCAN->m_acDataHex[j] = L'\0';
+		}
+    }
+
+    if (IS_NUM_DEC_SET(bExprnFlag))
+    {
+        sprintf_s(CurrDataCAN->m_acMsgIDDec, FORMAT_STR_ID_DEC, CurrDataCAN->m_dwMsgID);
+        
+    	//If an RTR message, Databyte(s) not required to be displayed
+		if ( ! ( CurrDataCAN->m_byMsgType & TYPE_MSG_CAN_RTR ) )
+		{
+			int j = 0;
+			for (int i = 0; i < CurrDataCAN->m_byDataLength; i++)
+			{
+				BYTE CurrDat = CurrDataCAN->m_abData[i];
+				_stprintf(&(CurrDataCAN->m_acDataDec[j]), FORMAT_STR_DATA_DEC, CurrDat);
+				j += 4;
+				CurrDataCAN->m_acDataDec[j-1] = L' ';            
+			}
+			CurrDataCAN->m_acDataDec[j-1] = L'\0';
+		}        
+    }
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (IS_NUM_HEX_SET(bExprnFlag))
+    {
+        sprintf_s(CurrDataCAN->m_acMsgIDHex, FORMAT_STR_ID_HEX, CurrDataCAN->m_dwMsgID);
+        
+    	//If an RTR message, Databyte(s) not required to be displayed
+		if ( ! ( CurrDataCAN->m_byMsgType & TYPE_MSG_CAN_RTR ) )
+		{
+			int j = 0;  // j declared outside
+			for (int i = 0; i < CurrDataCAN->m_byDataLength; i++)
+			{
+				BYTE CurrDat = CurrDataCAN->m_abData[i];
+				_stprintf(&(CurrDataCAN->m_acDataHex[j]), FORMAT_STR_DATA_HEX, CurrDat);
+				j += 3;
+			}
+			CurrDataCAN->m_acDataHex[j] = L'\0';
+		}
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (IS_NUM_HEX_SET(bExprnFlag))
+|—————Node:( Text: (
+|—————Node:call_expression Text: IS_NUM_HEX_SET(bExprnFlag)
+|——————Node:identifier Text: IS_NUM_HEX_SET
+|——————Node:argument_list Text: (bExprnFlag)
+|———————Node:( Text: (
+|———————Node:identifier Text: bExprnFlag
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        sprintf_s(CurrDataCAN->m_acMsgIDHex, FORMAT_STR_ID_HEX, CurrDataCAN->m_dwMsgID);
+        
+    	//If an RTR message, Databyte(s) not required to be displayed
+		if ( ! ( CurrDataCAN->m_byMsgType & TYPE_MSG_CAN_RTR ) )
+		{
+			int j = 0;  // j declared outside
+			for (int i = 0; i < CurrDataCAN->m_byDataLength; i++)
+			{
+				BYTE CurrDat = CurrDataCAN->m_abData[i];
+				_stprintf(&(CurrDataCAN->m_acDataHex[j]), FORMAT_STR_DATA_HEX, CurrDat);
+				j += 3;
+			}
+			CurrDataCAN->m_acDataHex[j] = L'\0';
+		}
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: sprintf_s(CurrDataCAN->m_acMsgIDHex, FORMAT_STR_ID_HEX, CurrDataCAN->m_dwMsgID);
+|——————Node:call_expression Text: sprintf_s(CurrDataCAN->m_acMsgIDHex, FORMAT_STR_ID_HEX, CurrDataCAN->m_dwMsgID)
+|———————Node:identifier Text: sprintf_s
+|———————Node:argument_list Text: (CurrDataCAN->m_acMsgIDHex, FORMAT_STR_ID_HEX, CurrDataCAN->m_dwMsgID)
+|————————Node:( Text: (
+|————————Node:field_expression Text: CurrDataCAN->m_acMsgIDHex
+|—————————Node:identifier Text: CurrDataCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_acMsgIDHex
+|————————Node:, Text: ,
+|————————Node:identifier Text: FORMAT_STR_ID_HEX
+|————————Node:, Text: ,
+|————————Node:field_expression Text: CurrDataCAN->m_dwMsgID
+|—————————Node:identifier Text: CurrDataCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_dwMsgID
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:if_statement Text: if ( ! ( CurrDataCAN->m_byMsgType & TYPE_MSG_CAN_RTR ) )
+		{
+			int j = 0;  // j declared outside
+			for (int i = 0; i < CurrDataCAN->m_byDataLength; i++)
+			{
+				BYTE CurrDat = CurrDataCAN->m_abData[i];
+				_stprintf(&(CurrDataCAN->m_acDataHex[j]), FORMAT_STR_DATA_HEX, CurrDat);
+				j += 3;
+			}
+			CurrDataCAN->m_acDataHex[j] = L'\0';
+		}
+|——————Node:if Text: if
+|——————Node:condition_clause Text: ( ! ( CurrDataCAN->m_byMsgType & TYPE_MSG_CAN_RTR ) )
+|———————Node:( Text: (
+|———————Node:unary_expression Text: ! ( CurrDataCAN->m_byMsgType & TYPE_MSG_CAN_RTR )
+|————————Node:! Text: !
+|————————Node:parenthesized_expression Text: ( CurrDataCAN->m_byMsgType & TYPE_MSG_CAN_RTR )
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: CurrDataCAN->m_byMsgType & TYPE_MSG_CAN_RTR
+|——————————Node:field_expression Text: CurrDataCAN->m_byMsgType
+|———————————Node:identifier Text: CurrDataCAN
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: m_byMsgType
+|——————————Node:& Text: &
+|——————————Node:identifier Text: TYPE_MSG_CAN_RTR
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+			int j = 0;  // j declared outside
+			for (int i = 0; i < CurrDataCAN->m_byDataLength; i++)
+			{
+				BYTE CurrDat = CurrDataCAN->m_abData[i];
+				_stprintf(&(CurrDataCAN->m_acDataHex[j]), FORMAT_STR_DATA_HEX, CurrDat);
+				j += 3;
+			}
+			CurrDataCAN->m_acDataHex[j] = L'\0';
+		}
+|———————Node:{ Text: {
+|———————Node:declaration Text: int j = 0;
+|————————Node:primitive_type Text: int
+|————————Node:init_declarator Text: j = 0
+|—————————Node:identifier Text: j
+|—————————Node:= Text: =
+|—————————Node:number_literal Text: 0
+|————————Node:; Text: ;
+|———————Node:comment
+|———————Node:for_statement Text: for (int i = 0; i < CurrDataCAN->m_byDataLength; i++)
+			{
+				BYTE CurrDat = CurrDataCAN->m_abData[i];
+				_stprintf(&(CurrDataCAN->m_acDataHex[j]), FORMAT_STR_DATA_HEX, CurrDat);
+				j += 3;
+			}
+|————————Node:for Text: for
+|————————Node:( Text: (
+|————————Node:declaration Text: int i = 0;
+|—————————Node:primitive_type Text: int
+|—————————Node:init_declarator Text: i = 0
+|——————————Node:identifier Text: i
+|——————————Node:= Text: =
+|——————————Node:number_literal Text: 0
+|—————————Node:; Text: ;
+|————————Node:binary_expression Text: i < CurrDataCAN->m_byDataLength
+|—————————Node:identifier Text: i
+|—————————Node:< Text: <
+|—————————Node:field_expression Text: CurrDataCAN->m_byDataLength
+|——————————Node:identifier Text: CurrDataCAN
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: m_byDataLength
+|————————Node:; Text: ;
+|————————Node:update_expression Text: i++
+|—————————Node:identifier Text: i
+|—————————Node:++ Text: ++
+|————————Node:) Text: )
+|————————Node:compound_statement Text: {
+				BYTE CurrDat = CurrDataCAN->m_abData[i];
+				_stprintf(&(CurrDataCAN->m_acDataHex[j]), FORMAT_STR_DATA_HEX, CurrDat);
+				j += 3;
+			}
+|—————————Node:{ Text: {
+|—————————Node:declaration Text: BYTE CurrDat = CurrDataCAN->m_abData[i];
+|——————————Node:type_identifier Text: BYTE
+|——————————Node:init_declarator Text: CurrDat = CurrDataCAN->m_abData[i]
+|———————————Node:identifier Text: CurrDat
+|———————————Node:= Text: =
+|———————————Node:subscript_expression Text: CurrDataCAN->m_abData[i]
+|————————————Node:field_expression Text: CurrDataCAN->m_abData
+|—————————————Node:identifier Text: CurrDataCAN
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: m_abData
+|————————————Node:subscript_argument_list Text: [i]
+|—————————————Node:[ Text: [
+|—————————————Node:identifier Text: i
+|—————————————Node:] Text: ]
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: _stprintf(&(CurrDataCAN->m_acDataHex[j]), FORMAT_STR_DATA_HEX, CurrDat);
+|——————————Node:call_expression Text: _stprintf(&(CurrDataCAN->m_acDataHex[j]), FORMAT_STR_DATA_HEX, CurrDat)
+|———————————Node:identifier Text: _stprintf
+|———————————Node:argument_list Text: (&(CurrDataCAN->m_acDataHex[j]), FORMAT_STR_DATA_HEX, CurrDat)
+|————————————Node:( Text: (
+|————————————Node:pointer_expression Text: &(CurrDataCAN->m_acDataHex[j])
+|—————————————Node:& Text: &
+|—————————————Node:parenthesized_expression Text: (CurrDataCAN->m_acDataHex[j])
+|——————————————Node:( Text: (
+|——————————————Node:subscript_expression Text: CurrDataCAN->m_acDataHex[j]
+|———————————————Node:field_expression Text: CurrDataCAN->m_acDataHex
+|————————————————Node:identifier Text: CurrDataCAN
+|————————————————Node:-> Text: ->
+|————————————————Node:field_identifier Text: m_acDataHex
+|———————————————Node:subscript_argument_list Text: [j]
+|————————————————Node:[ Text: [
+|————————————————Node:identifier Text: j
+|————————————————Node:] Text: ]
+|——————————————Node:) Text: )
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: FORMAT_STR_DATA_HEX
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: CurrDat
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: j += 3;
+|——————————Node:assignment_expression Text: j += 3
+|———————————Node:identifier Text: j
+|———————————Node:+= Text: +=
+|———————————Node:number_literal Text: 3
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:expression_statement Text: CurrDataCAN->m_acDataHex[j] = L'\0';
+|————————Node:assignment_expression Text: CurrDataCAN->m_acDataHex[j] = L'\0'
+|—————————Node:subscript_expression Text: CurrDataCAN->m_acDataHex[j]
+|——————————Node:field_expression Text: CurrDataCAN->m_acDataHex
+|———————————Node:identifier Text: CurrDataCAN
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: m_acDataHex
+|——————————Node:subscript_argument_list Text: [j]
+|———————————Node:[ Text: [
+|———————————Node:identifier Text: j
+|———————————Node:] Text: ]
+|—————————Node:= Text: =
+|—————————Node:char_literal Text: L'\0'
+|——————————Node:L' Text: L'
+|——————————Node:escape_sequence Text: \0
+|——————————Node:' Text: '
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:if_statement Text: if (IS_NUM_DEC_SET(bExprnFlag))
+    {
+        sprintf_s(CurrDataCAN->m_acMsgIDDec, FORMAT_STR_ID_DEC, CurrDataCAN->m_dwMsgID);
+        
+    	//If an RTR message, Databyte(s) not required to be displayed
+		if ( ! ( CurrDataCAN->m_byMsgType & TYPE_MSG_CAN_RTR ) )
+		{
+			int j = 0;
+			for (int i = 0; i < CurrDataCAN->m_byDataLength; i++)
+			{
+				BYTE CurrDat = CurrDataCAN->m_abData[i];
+				_stprintf(&(CurrDataCAN->m_acDataDec[j]), FORMAT_STR_DATA_DEC, CurrDat);
+				j += 4;
+				CurrDataCAN->m_acDataDec[j-1] = L' ';            
+			}
+			CurrDataCAN->m_acDataDec[j-1] = L'\0';
+		}        
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (IS_NUM_DEC_SET(bExprnFlag))
+|—————Node:( Text: (
+|—————Node:call_expression Text: IS_NUM_DEC_SET(bExprnFlag)
+|——————Node:identifier Text: IS_NUM_DEC_SET
+|——————Node:argument_list Text: (bExprnFlag)
+|———————Node:( Text: (
+|———————Node:identifier Text: bExprnFlag
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        sprintf_s(CurrDataCAN->m_acMsgIDDec, FORMAT_STR_ID_DEC, CurrDataCAN->m_dwMsgID);
+        
+    	//If an RTR message, Databyte(s) not required to be displayed
+		if ( ! ( CurrDataCAN->m_byMsgType & TYPE_MSG_CAN_RTR ) )
+		{
+			int j = 0;
+			for (int i = 0; i < CurrDataCAN->m_byDataLength; i++)
+			{
+				BYTE CurrDat = CurrDataCAN->m_abData[i];
+				_stprintf(&(CurrDataCAN->m_acDataDec[j]), FORMAT_STR_DATA_DEC, CurrDat);
+				j += 4;
+				CurrDataCAN->m_acDataDec[j-1] = L' ';            
+			}
+			CurrDataCAN->m_acDataDec[j-1] = L'\0';
+		}        
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: sprintf_s(CurrDataCAN->m_acMsgIDDec, FORMAT_STR_ID_DEC, CurrDataCAN->m_dwMsgID);
+|——————Node:call_expression Text: sprintf_s(CurrDataCAN->m_acMsgIDDec, FORMAT_STR_ID_DEC, CurrDataCAN->m_dwMsgID)
+|———————Node:identifier Text: sprintf_s
+|———————Node:argument_list Text: (CurrDataCAN->m_acMsgIDDec, FORMAT_STR_ID_DEC, CurrDataCAN->m_dwMsgID)
+|————————Node:( Text: (
+|————————Node:field_expression Text: CurrDataCAN->m_acMsgIDDec
+|—————————Node:identifier Text: CurrDataCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_acMsgIDDec
+|————————Node:, Text: ,
+|————————Node:identifier Text: FORMAT_STR_ID_DEC
+|————————Node:, Text: ,
+|————————Node:field_expression Text: CurrDataCAN->m_dwMsgID
+|—————————Node:identifier Text: CurrDataCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_dwMsgID
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:if_statement Text: if ( ! ( CurrDataCAN->m_byMsgType & TYPE_MSG_CAN_RTR ) )
+		{
+			int j = 0;
+			for (int i = 0; i < CurrDataCAN->m_byDataLength; i++)
+			{
+				BYTE CurrDat = CurrDataCAN->m_abData[i];
+				_stprintf(&(CurrDataCAN->m_acDataDec[j]), FORMAT_STR_DATA_DEC, CurrDat);
+				j += 4;
+				CurrDataCAN->m_acDataDec[j-1] = L' ';            
+			}
+			CurrDataCAN->m_acDataDec[j-1] = L'\0';
+		}
+|——————Node:if Text: if
+|——————Node:condition_clause Text: ( ! ( CurrDataCAN->m_byMsgType & TYPE_MSG_CAN_RTR ) )
+|———————Node:( Text: (
+|———————Node:unary_expression Text: ! ( CurrDataCAN->m_byMsgType & TYPE_MSG_CAN_RTR )
+|————————Node:! Text: !
+|————————Node:parenthesized_expression Text: ( CurrDataCAN->m_byMsgType & TYPE_MSG_CAN_RTR )
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: CurrDataCAN->m_byMsgType & TYPE_MSG_CAN_RTR
+|——————————Node:field_expression Text: CurrDataCAN->m_byMsgType
+|———————————Node:identifier Text: CurrDataCAN
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: m_byMsgType
+|——————————Node:& Text: &
+|——————————Node:identifier Text: TYPE_MSG_CAN_RTR
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+			int j = 0;
+			for (int i = 0; i < CurrDataCAN->m_byDataLength; i++)
+			{
+				BYTE CurrDat = CurrDataCAN->m_abData[i];
+				_stprintf(&(CurrDataCAN->m_acDataDec[j]), FORMAT_STR_DATA_DEC, CurrDat);
+				j += 4;
+				CurrDataCAN->m_acDataDec[j-1] = L' ';            
+			}
+			CurrDataCAN->m_acDataDec[j-1] = L'\0';
+		}
+|———————Node:{ Text: {
+|———————Node:declaration Text: int j = 0;
+|————————Node:primitive_type Text: int
+|————————Node:init_declarator Text: j = 0
+|—————————Node:identifier Text: j
+|—————————Node:= Text: =
+|—————————Node:number_literal Text: 0
+|————————Node:; Text: ;
+|———————Node:for_statement Text: for (int i = 0; i < CurrDataCAN->m_byDataLength; i++)
+			{
+				BYTE CurrDat = CurrDataCAN->m_abData[i];
+				_stprintf(&(CurrDataCAN->m_acDataDec[j]), FORMAT_STR_DATA_DEC, CurrDat);
+				j += 4;
+				CurrDataCAN->m_acDataDec[j-1] = L' ';            
+			}
+|————————Node:for Text: for
+|————————Node:( Text: (
+|————————Node:declaration Text: int i = 0;
+|—————————Node:primitive_type Text: int
+|—————————Node:init_declarator Text: i = 0
+|——————————Node:identifier Text: i
+|——————————Node:= Text: =
+|——————————Node:number_literal Text: 0
+|—————————Node:; Text: ;
+|————————Node:binary_expression Text: i < CurrDataCAN->m_byDataLength
+|—————————Node:identifier Text: i
+|—————————Node:< Text: <
+|—————————Node:field_expression Text: CurrDataCAN->m_byDataLength
+|——————————Node:identifier Text: CurrDataCAN
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: m_byDataLength
+|————————Node:; Text: ;
+|————————Node:update_expression Text: i++
+|—————————Node:identifier Text: i
+|—————————Node:++ Text: ++
+|————————Node:) Text: )
+|————————Node:compound_statement Text: {
+				BYTE CurrDat = CurrDataCAN->m_abData[i];
+				_stprintf(&(CurrDataCAN->m_acDataDec[j]), FORMAT_STR_DATA_DEC, CurrDat);
+				j += 4;
+				CurrDataCAN->m_acDataDec[j-1] = L' ';            
+			}
+|—————————Node:{ Text: {
+|—————————Node:declaration Text: BYTE CurrDat = CurrDataCAN->m_abData[i];
+|——————————Node:type_identifier Text: BYTE
+|——————————Node:init_declarator Text: CurrDat = CurrDataCAN->m_abData[i]
+|———————————Node:identifier Text: CurrDat
+|———————————Node:= Text: =
+|———————————Node:subscript_expression Text: CurrDataCAN->m_abData[i]
+|————————————Node:field_expression Text: CurrDataCAN->m_abData
+|—————————————Node:identifier Text: CurrDataCAN
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: m_abData
+|————————————Node:subscript_argument_list Text: [i]
+|—————————————Node:[ Text: [
+|—————————————Node:identifier Text: i
+|—————————————Node:] Text: ]
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: _stprintf(&(CurrDataCAN->m_acDataDec[j]), FORMAT_STR_DATA_DEC, CurrDat);
+|——————————Node:call_expression Text: _stprintf(&(CurrDataCAN->m_acDataDec[j]), FORMAT_STR_DATA_DEC, CurrDat)
+|———————————Node:identifier Text: _stprintf
+|———————————Node:argument_list Text: (&(CurrDataCAN->m_acDataDec[j]), FORMAT_STR_DATA_DEC, CurrDat)
+|————————————Node:( Text: (
+|————————————Node:pointer_expression Text: &(CurrDataCAN->m_acDataDec[j])
+|—————————————Node:& Text: &
+|—————————————Node:parenthesized_expression Text: (CurrDataCAN->m_acDataDec[j])
+|——————————————Node:( Text: (
+|——————————————Node:subscript_expression Text: CurrDataCAN->m_acDataDec[j]
+|———————————————Node:field_expression Text: CurrDataCAN->m_acDataDec
+|————————————————Node:identifier Text: CurrDataCAN
+|————————————————Node:-> Text: ->
+|————————————————Node:field_identifier Text: m_acDataDec
+|———————————————Node:subscript_argument_list Text: [j]
+|————————————————Node:[ Text: [
+|————————————————Node:identifier Text: j
+|————————————————Node:] Text: ]
+|——————————————Node:) Text: )
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: FORMAT_STR_DATA_DEC
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: CurrDat
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: j += 4;
+|——————————Node:assignment_expression Text: j += 4
+|———————————Node:identifier Text: j
+|———————————Node:+= Text: +=
+|———————————Node:number_literal Text: 4
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: CurrDataCAN->m_acDataDec[j-1] = L' ';
+|——————————Node:assignment_expression Text: CurrDataCAN->m_acDataDec[j-1] = L' '
+|———————————Node:subscript_expression Text: CurrDataCAN->m_acDataDec[j-1]
+|————————————Node:field_expression Text: CurrDataCAN->m_acDataDec
+|—————————————Node:identifier Text: CurrDataCAN
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: m_acDataDec
+|————————————Node:subscript_argument_list Text: [j-1]
+|—————————————Node:[ Text: [
+|—————————————Node:binary_expression Text: j-1
+|——————————————Node:identifier Text: j
+|——————————————Node:- Text: -
+|——————————————Node:number_literal Text: 1
+|—————————————Node:] Text: ]
+|———————————Node:= Text: =
+|———————————Node:char_literal Text: L' '
+|————————————Node:L' Text: L'
+|————————————Node:character Text:  
+|————————————Node:' Text: '
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:expression_statement Text: CurrDataCAN->m_acDataDec[j-1] = L'\0';
+|————————Node:assignment_expression Text: CurrDataCAN->m_acDataDec[j-1] = L'\0'
+|—————————Node:subscript_expression Text: CurrDataCAN->m_acDataDec[j-1]
+|——————————Node:field_expression Text: CurrDataCAN->m_acDataDec
+|———————————Node:identifier Text: CurrDataCAN
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: m_acDataDec
+|——————————Node:subscript_argument_list Text: [j-1]
+|———————————Node:[ Text: [
+|———————————Node:binary_expression Text: j-1
+|————————————Node:identifier Text: j
+|————————————Node:- Text: -
+|————————————Node:number_literal Text: 1
+|———————————Node:] Text: ]
+|—————————Node:= Text: =
+|—————————Node:char_literal Text: L'\0'
+|——————————Node:L' Text: L'
+|——————————Node:escape_sequence Text: \0
+|——————————Node:' Text: '
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: USHORT CFormatMsgCAN::usProcessCurrErrorEntry(SERROR_INFO& sErrorInfo)
+{
+    // Get the Error code
+    USHORT usErrorID;
+
+    if (sErrorInfo.m_ucErrType == ERROR_BUS)
+    {
+        // Update Statistics information
+        usErrorID = sErrorInfo.m_ucReg_ErrCap & 0xE0;
+    }
+    else if (sErrorInfo.m_ucErrType == ERROR_WARNING_LIMIT_REACHED)
+    {
+        usErrorID = ERROR_UNKNOWN;
+    }
+    else if (sErrorInfo.m_ucErrType == ERROR_INTERRUPT)
+    {
+        usErrorID = ERROR_UNKNOWN;
+    }
+    else
+    {
+        usErrorID = sErrorInfo.m_ucErrType;
+    }
+
+    return usErrorID;
+}
+|——Node:type_identifier Text: USHORT
+|——Node:function_declarator Text: CFormatMsgCAN::usProcessCurrErrorEntry(SERROR_INFO& sErrorInfo)
+|———Node:qualified_identifier Text: CFormatMsgCAN::usProcessCurrErrorEntry
+|————Node:namespace_identifier Text: CFormatMsgCAN
+|————Node::: Text: ::
+|————Node:identifier Text: usProcessCurrErrorEntry
+|———Node:parameter_list Text: (SERROR_INFO& sErrorInfo)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: SERROR_INFO& sErrorInfo
+|—————Node:type_identifier Text: SERROR_INFO
+|—————Node:reference_declarator Text: & sErrorInfo
+|——————Node:& Text: &
+|——————Node:identifier Text: sErrorInfo
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    // Get the Error code
+    USHORT usErrorID;
+
+    if (sErrorInfo.m_ucErrType == ERROR_BUS)
+    {
+        // Update Statistics information
+        usErrorID = sErrorInfo.m_ucReg_ErrCap & 0xE0;
+    }
+    else if (sErrorInfo.m_ucErrType == ERROR_WARNING_LIMIT_REACHED)
+    {
+        usErrorID = ERROR_UNKNOWN;
+    }
+    else if (sErrorInfo.m_ucErrType == ERROR_INTERRUPT)
+    {
+        usErrorID = ERROR_UNKNOWN;
+    }
+    else
+    {
+        usErrorID = sErrorInfo.m_ucErrType;
+    }
+
+    return usErrorID;
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:declaration Text: USHORT usErrorID;
+|————Node:type_identifier Text: USHORT
+|————Node:identifier Text: usErrorID
+|————Node:; Text: ;
+|———Node:if_statement Text: if (sErrorInfo.m_ucErrType == ERROR_BUS)
+    {
+        // Update Statistics information
+        usErrorID = sErrorInfo.m_ucReg_ErrCap & 0xE0;
+    }
+    else if (sErrorInfo.m_ucErrType == ERROR_WARNING_LIMIT_REACHED)
+    {
+        usErrorID = ERROR_UNKNOWN;
+    }
+    else if (sErrorInfo.m_ucErrType == ERROR_INTERRUPT)
+    {
+        usErrorID = ERROR_UNKNOWN;
+    }
+    else
+    {
+        usErrorID = sErrorInfo.m_ucErrType;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (sErrorInfo.m_ucErrType == ERROR_BUS)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: sErrorInfo.m_ucErrType == ERROR_BUS
+|——————Node:field_expression Text: sErrorInfo.m_ucErrType
+|———————Node:identifier Text: sErrorInfo
+|———————Node:. Text: .
+|———————Node:field_identifier Text: m_ucErrType
+|——————Node:== Text: ==
+|——————Node:identifier Text: ERROR_BUS
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        // Update Statistics information
+        usErrorID = sErrorInfo.m_ucReg_ErrCap & 0xE0;
+    }
+|—————Node:{ Text: {
+|—————Node:comment
+|—————Node:expression_statement Text: usErrorID = sErrorInfo.m_ucReg_ErrCap & 0xE0;
+|——————Node:assignment_expression Text: usErrorID = sErrorInfo.m_ucReg_ErrCap & 0xE0
+|———————Node:identifier Text: usErrorID
+|———————Node:= Text: =
+|———————Node:binary_expression Text: sErrorInfo.m_ucReg_ErrCap & 0xE0
+|————————Node:field_expression Text: sErrorInfo.m_ucReg_ErrCap
+|—————————Node:identifier Text: sErrorInfo
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: m_ucReg_ErrCap
+|————————Node:& Text: &
+|————————Node:number_literal Text: 0xE0
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else if (sErrorInfo.m_ucErrType == ERROR_WARNING_LIMIT_REACHED)
+    {
+        usErrorID = ERROR_UNKNOWN;
+    }
+    else if (sErrorInfo.m_ucErrType == ERROR_INTERRUPT)
+    {
+        usErrorID = ERROR_UNKNOWN;
+    }
+    else
+    {
+        usErrorID = sErrorInfo.m_ucErrType;
+    }
+|—————Node:else Text: else
+|—————Node:if_statement Text: if (sErrorInfo.m_ucErrType == ERROR_WARNING_LIMIT_REACHED)
+    {
+        usErrorID = ERROR_UNKNOWN;
+    }
+    else if (sErrorInfo.m_ucErrType == ERROR_INTERRUPT)
+    {
+        usErrorID = ERROR_UNKNOWN;
+    }
+    else
+    {
+        usErrorID = sErrorInfo.m_ucErrType;
+    }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (sErrorInfo.m_ucErrType == ERROR_WARNING_LIMIT_REACHED)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: sErrorInfo.m_ucErrType == ERROR_WARNING_LIMIT_REACHED
+|————————Node:field_expression Text: sErrorInfo.m_ucErrType
+|—————————Node:identifier Text: sErrorInfo
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: m_ucErrType
+|————————Node:== Text: ==
+|————————Node:identifier Text: ERROR_WARNING_LIMIT_REACHED
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+        usErrorID = ERROR_UNKNOWN;
+    }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: usErrorID = ERROR_UNKNOWN;
+|————————Node:assignment_expression Text: usErrorID = ERROR_UNKNOWN
+|—————————Node:identifier Text: usErrorID
+|—————————Node:= Text: =
+|—————————Node:identifier Text: ERROR_UNKNOWN
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|——————Node:else_clause Text: else if (sErrorInfo.m_ucErrType == ERROR_INTERRUPT)
+    {
+        usErrorID = ERROR_UNKNOWN;
+    }
+    else
+    {
+        usErrorID = sErrorInfo.m_ucErrType;
+    }
+|———————Node:else Text: else
+|———————Node:if_statement Text: if (sErrorInfo.m_ucErrType == ERROR_INTERRUPT)
+    {
+        usErrorID = ERROR_UNKNOWN;
+    }
+    else
+    {
+        usErrorID = sErrorInfo.m_ucErrType;
+    }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (sErrorInfo.m_ucErrType == ERROR_INTERRUPT)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: sErrorInfo.m_ucErrType == ERROR_INTERRUPT
+|——————————Node:field_expression Text: sErrorInfo.m_ucErrType
+|———————————Node:identifier Text: sErrorInfo
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: m_ucErrType
+|——————————Node:== Text: ==
+|——————————Node:identifier Text: ERROR_INTERRUPT
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+        usErrorID = ERROR_UNKNOWN;
+    }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: usErrorID = ERROR_UNKNOWN;
+|——————————Node:assignment_expression Text: usErrorID = ERROR_UNKNOWN
+|———————————Node:identifier Text: usErrorID
+|———————————Node:= Text: =
+|———————————Node:identifier Text: ERROR_UNKNOWN
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|————————Node:else_clause Text: else
+    {
+        usErrorID = sErrorInfo.m_ucErrType;
+    }
+|—————————Node:else Text: else
+|—————————Node:compound_statement Text: {
+        usErrorID = sErrorInfo.m_ucErrType;
+    }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: usErrorID = sErrorInfo.m_ucErrType;
+|———————————Node:assignment_expression Text: usErrorID = sErrorInfo.m_ucErrType
+|————————————Node:identifier Text: usErrorID
+|————————————Node:= Text: =
+|————————————Node:field_expression Text: sErrorInfo.m_ucErrType
+|—————————————Node:identifier Text: sErrorInfo
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: m_ucErrType
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|———Node:return_statement Text: return usErrorID;
+|————Node:return Text: return
+|————Node:identifier Text: usErrorID
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: char* CFormatMsgCAN::vFormatCurrErrorEntry(USHORT usErrorID)
+{
+    BOOL bErrProcessed = FALSE;
+    int nCount = 0;
+
+    while ((nCount < ERRORS_DEFINED) && (bErrProcessed == FALSE))
+    {
+        if (usErrorID == sg_asErrorEntry[nCount].m_usErrorCode)
+        {
+            bErrProcessed = TRUE;
+            return sg_asErrorEntry[nCount].m_ptcErorMsg;
+        }
+
+        nCount++;
+    }
+
+    return NULL;
+}
+|——Node:primitive_type Text: char
+|——Node:pointer_declarator Text: * CFormatMsgCAN::vFormatCurrErrorEntry(USHORT usErrorID)
+|———Node:* Text: *
+|———Node:function_declarator Text: CFormatMsgCAN::vFormatCurrErrorEntry(USHORT usErrorID)
+|————Node:qualified_identifier Text: CFormatMsgCAN::vFormatCurrErrorEntry
+|—————Node:namespace_identifier Text: CFormatMsgCAN
+|—————Node::: Text: ::
+|—————Node:identifier Text: vFormatCurrErrorEntry
+|————Node:parameter_list Text: (USHORT usErrorID)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: USHORT usErrorID
+|——————Node:type_identifier Text: USHORT
+|——————Node:identifier Text: usErrorID
+|—————Node:) Text: )
+|——Node:compound_statement Text: {
+    BOOL bErrProcessed = FALSE;
+    int nCount = 0;
+
+    while ((nCount < ERRORS_DEFINED) && (bErrProcessed == FALSE))
+    {
+        if (usErrorID == sg_asErrorEntry[nCount].m_usErrorCode)
+        {
+            bErrProcessed = TRUE;
+            return sg_asErrorEntry[nCount].m_ptcErorMsg;
+        }
+
+        nCount++;
+    }
+
+    return NULL;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: BOOL bErrProcessed = FALSE;
+|————Node:type_identifier Text: BOOL
+|————Node:init_declarator Text: bErrProcessed = FALSE
+|—————Node:identifier Text: bErrProcessed
+|—————Node:= Text: =
+|—————Node:false Text: FALSE
+|————Node:; Text: ;
+|———Node:declaration Text: int nCount = 0;
+|————Node:primitive_type Text: int
+|————Node:init_declarator Text: nCount = 0
+|—————Node:identifier Text: nCount
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:while_statement Text: while ((nCount < ERRORS_DEFINED) && (bErrProcessed == FALSE))
+    {
+        if (usErrorID == sg_asErrorEntry[nCount].m_usErrorCode)
+        {
+            bErrProcessed = TRUE;
+            return sg_asErrorEntry[nCount].m_ptcErorMsg;
+        }
+
+        nCount++;
+    }
+|————Node:while Text: while
+|————Node:condition_clause Text: ((nCount < ERRORS_DEFINED) && (bErrProcessed == FALSE))
+|—————Node:( Text: (
+|—————Node:binary_expression Text: (nCount < ERRORS_DEFINED) && (bErrProcessed == FALSE)
+|——————Node:parenthesized_expression Text: (nCount < ERRORS_DEFINED)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: nCount < ERRORS_DEFINED
+|————————Node:identifier Text: nCount
+|————————Node:< Text: <
+|————————Node:identifier Text: ERRORS_DEFINED
+|———————Node:) Text: )
+|——————Node:&& Text: &&
+|——————Node:parenthesized_expression Text: (bErrProcessed == FALSE)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: bErrProcessed == FALSE
+|————————Node:identifier Text: bErrProcessed
+|————————Node:== Text: ==
+|————————Node:false Text: FALSE
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        if (usErrorID == sg_asErrorEntry[nCount].m_usErrorCode)
+        {
+            bErrProcessed = TRUE;
+            return sg_asErrorEntry[nCount].m_ptcErorMsg;
+        }
+
+        nCount++;
+    }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if (usErrorID == sg_asErrorEntry[nCount].m_usErrorCode)
+        {
+            bErrProcessed = TRUE;
+            return sg_asErrorEntry[nCount].m_ptcErorMsg;
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (usErrorID == sg_asErrorEntry[nCount].m_usErrorCode)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: usErrorID == sg_asErrorEntry[nCount].m_usErrorCode
+|————————Node:identifier Text: usErrorID
+|————————Node:== Text: ==
+|————————Node:field_expression Text: sg_asErrorEntry[nCount].m_usErrorCode
+|—————————Node:subscript_expression Text: sg_asErrorEntry[nCount]
+|——————————Node:identifier Text: sg_asErrorEntry
+|——————————Node:subscript_argument_list Text: [nCount]
+|———————————Node:[ Text: [
+|———————————Node:identifier Text: nCount
+|———————————Node:] Text: ]
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: m_usErrorCode
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            bErrProcessed = TRUE;
+            return sg_asErrorEntry[nCount].m_ptcErorMsg;
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: bErrProcessed = TRUE;
+|————————Node:assignment_expression Text: bErrProcessed = TRUE
+|—————————Node:identifier Text: bErrProcessed
+|—————————Node:= Text: =
+|—————————Node:true Text: TRUE
+|————————Node:; Text: ;
+|———————Node:return_statement Text: return sg_asErrorEntry[nCount].m_ptcErorMsg;
+|————————Node:return Text: return
+|————————Node:field_expression Text: sg_asErrorEntry[nCount].m_ptcErorMsg
+|—————————Node:subscript_expression Text: sg_asErrorEntry[nCount]
+|——————————Node:identifier Text: sg_asErrorEntry
+|——————————Node:subscript_argument_list Text: [nCount]
+|———————————Node:[ Text: [
+|———————————Node:identifier Text: nCount
+|———————————Node:] Text: ]
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: m_ptcErorMsg
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:expression_statement Text: nCount++;
+|——————Node:update_expression Text: nCount++
+|———————Node:identifier Text: nCount
+|———————Node:++ Text: ++
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return NULL;
+|————Node:return Text: return
+|————Node:null Text: NULL
+|—————Node:NULL Text: NULL
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: void CFormatMsgCAN::vFormatCANDataMsg(STCANDATA* pMsgCAN,
+                                      SFORMATTEDDATA_CAN* CurrDataCAN,
+                                      BYTE bExprnFlag_Log)
+{
+    if (RX_FLAG == pMsgCAN->m_ucDataType)
+    {
+        CurrDataCAN->m_eDirection = DIR_RX;
+        CurrDataCAN->m_acMsgDir[0] = _T('R');
+    }
+    else if (TX_FLAG == pMsgCAN->m_ucDataType)
+    {
+        CurrDataCAN->m_eDirection = DIR_TX;
+        CurrDataCAN->m_acMsgDir[0] = _T('T');
+    }
+
+    CurrDataCAN->m_acMsgDir[1] = _T('x');
+    TYPE_CHANNEL CurrChannel = pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucChannel;
+
+    if ((CurrChannel >= CHANNEL_CAN_MIN) && (CurrChannel <= CHANNEL_CAN_MAX ))
+    {
+        sprintf_s(CurrDataCAN->m_acChannel, _T("%d"), CurrChannel);
+    }
+
+    memset(CurrDataCAN->m_acType,_T('\0'),sizeof(CurrDataCAN->m_acType));
+
+    if (pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucEXTENDED != 0)
+    {
+        CurrDataCAN->m_byIDType = TYPE_ID_CAN_EXTENDED;
+        CurrDataCAN->m_acType[0] = _T('x');
+    }
+    else
+    {
+        CurrDataCAN->m_byIDType = TYPE_ID_CAN_STANDARD;
+        CurrDataCAN->m_acType[0] = _T('s');
+    }
+
+    if (pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucRTR != 0)
+    {
+        CurrDataCAN->m_byMsgType |= TYPE_MSG_CAN_RTR;
+        CurrDataCAN->m_acType[1] = _T('r');
+    }
+
+    _itoa_s(pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucDataLen, CurrDataCAN->m_acDataLen, 10);
+    strcpy_s(CurrDataCAN->m_acMsgDesc, _T("Description"));
+    CurrDataCAN->m_u64TimeStamp = pMsgCAN->m_lTickCount;
+    CurrDataCAN->m_dwMsgID = pMsgCAN->m_uDataInfo.m_sCANMsg.m_unMsgID;
+    CurrDataCAN->m_byDataLength = pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucDataLen;
+    memcpy(CurrDataCAN->m_abData, pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucData,
+           CurrDataCAN->m_byDataLength);
+
+    /*PROCESS ERROR MSGS: If Error Message type. Change the data and type fields. */
+    if(ERR_FLAG == pMsgCAN->m_ucDataType)
+    {
+        USHORT usErrCode = usProcessCurrErrorEntry(pMsgCAN->m_uDataInfo.m_sErrInfo);
+
+        if( usErrCode != ERROR_UNKNOWN )
+        {
+            // Format error message
+            char* ptrStrErrName = NULL;
+            ptrStrErrName = vFormatCurrErrorEntry(usErrCode);
+
+            if(ptrStrErrName)
+            {
+                strcpy_s(CurrDataCAN->m_acDataDec, ptrStrErrName);
+                strcpy_s(CurrDataCAN->m_acDataHex, ptrStrErrName);
+            }
+        }
+
+        CurrDataCAN->m_dwMsgID = pMsgCAN->m_uDataInfo.m_sCANMsg.m_unMsgID;
+        sprintf_s(CurrDataCAN->m_acMsgIDDec, FORMAT_STR_ID_DEC, CurrDataCAN->m_dwMsgID);
+        strcpy_s(CurrDataCAN->m_acType, _T("ERR"));
+    }
+
+    /* PROCESS ERROR MSGS ENDS */
+    vFormatTime(bExprnFlag_Log, CurrDataCAN);
+    vFormatDataAndId(bExprnFlag_Log, CurrDataCAN);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: CFormatMsgCAN::vFormatCANDataMsg(STCANDATA* pMsgCAN,
+                                      SFORMATTEDDATA_CAN* CurrDataCAN,
+                                      BYTE bExprnFlag_Log)
+|———Node:qualified_identifier Text: CFormatMsgCAN::vFormatCANDataMsg
+|————Node:namespace_identifier Text: CFormatMsgCAN
+|————Node::: Text: ::
+|————Node:identifier Text: vFormatCANDataMsg
+|———Node:parameter_list Text: (STCANDATA* pMsgCAN,
+                                      SFORMATTEDDATA_CAN* CurrDataCAN,
+                                      BYTE bExprnFlag_Log)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: STCANDATA* pMsgCAN
+|—————Node:type_identifier Text: STCANDATA
+|—————Node:pointer_declarator Text: * pMsgCAN
+|——————Node:* Text: *
+|——————Node:identifier Text: pMsgCAN
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: SFORMATTEDDATA_CAN* CurrDataCAN
+|—————Node:type_identifier Text: SFORMATTEDDATA_CAN
+|—————Node:pointer_declarator Text: * CurrDataCAN
+|——————Node:* Text: *
+|——————Node:identifier Text: CurrDataCAN
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: BYTE bExprnFlag_Log
+|—————Node:type_identifier Text: BYTE
+|—————Node:identifier Text: bExprnFlag_Log
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if (RX_FLAG == pMsgCAN->m_ucDataType)
+    {
+        CurrDataCAN->m_eDirection = DIR_RX;
+        CurrDataCAN->m_acMsgDir[0] = _T('R');
+    }
+    else if (TX_FLAG == pMsgCAN->m_ucDataType)
+    {
+        CurrDataCAN->m_eDirection = DIR_TX;
+        CurrDataCAN->m_acMsgDir[0] = _T('T');
+    }
+
+    CurrDataCAN->m_acMsgDir[1] = _T('x');
+    TYPE_CHANNEL CurrChannel = pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucChannel;
+
+    if ((CurrChannel >= CHANNEL_CAN_MIN) && (CurrChannel <= CHANNEL_CAN_MAX ))
+    {
+        sprintf_s(CurrDataCAN->m_acChannel, _T("%d"), CurrChannel);
+    }
+
+    memset(CurrDataCAN->m_acType,_T('\0'),sizeof(CurrDataCAN->m_acType));
+
+    if (pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucEXTENDED != 0)
+    {
+        CurrDataCAN->m_byIDType = TYPE_ID_CAN_EXTENDED;
+        CurrDataCAN->m_acType[0] = _T('x');
+    }
+    else
+    {
+        CurrDataCAN->m_byIDType = TYPE_ID_CAN_STANDARD;
+        CurrDataCAN->m_acType[0] = _T('s');
+    }
+
+    if (pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucRTR != 0)
+    {
+        CurrDataCAN->m_byMsgType |= TYPE_MSG_CAN_RTR;
+        CurrDataCAN->m_acType[1] = _T('r');
+    }
+
+    _itoa_s(pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucDataLen, CurrDataCAN->m_acDataLen, 10);
+    strcpy_s(CurrDataCAN->m_acMsgDesc, _T("Description"));
+    CurrDataCAN->m_u64TimeStamp = pMsgCAN->m_lTickCount;
+    CurrDataCAN->m_dwMsgID = pMsgCAN->m_uDataInfo.m_sCANMsg.m_unMsgID;
+    CurrDataCAN->m_byDataLength = pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucDataLen;
+    memcpy(CurrDataCAN->m_abData, pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucData,
+           CurrDataCAN->m_byDataLength);
+
+    /*PROCESS ERROR MSGS: If Error Message type. Change the data and type fields. */
+    if(ERR_FLAG == pMsgCAN->m_ucDataType)
+    {
+        USHORT usErrCode = usProcessCurrErrorEntry(pMsgCAN->m_uDataInfo.m_sErrInfo);
+
+        if( usErrCode != ERROR_UNKNOWN )
+        {
+            // Format error message
+            char* ptrStrErrName = NULL;
+            ptrStrErrName = vFormatCurrErrorEntry(usErrCode);
+
+            if(ptrStrErrName)
+            {
+                strcpy_s(CurrDataCAN->m_acDataDec, ptrStrErrName);
+                strcpy_s(CurrDataCAN->m_acDataHex, ptrStrErrName);
+            }
+        }
+
+        CurrDataCAN->m_dwMsgID = pMsgCAN->m_uDataInfo.m_sCANMsg.m_unMsgID;
+        sprintf_s(CurrDataCAN->m_acMsgIDDec, FORMAT_STR_ID_DEC, CurrDataCAN->m_dwMsgID);
+        strcpy_s(CurrDataCAN->m_acType, _T("ERR"));
+    }
+
+    /* PROCESS ERROR MSGS ENDS */
+    vFormatTime(bExprnFlag_Log, CurrDataCAN);
+    vFormatDataAndId(bExprnFlag_Log, CurrDataCAN);
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (RX_FLAG == pMsgCAN->m_ucDataType)
+    {
+        CurrDataCAN->m_eDirection = DIR_RX;
+        CurrDataCAN->m_acMsgDir[0] = _T('R');
+    }
+    else if (TX_FLAG == pMsgCAN->m_ucDataType)
+    {
+        CurrDataCAN->m_eDirection = DIR_TX;
+        CurrDataCAN->m_acMsgDir[0] = _T('T');
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (RX_FLAG == pMsgCAN->m_ucDataType)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: RX_FLAG == pMsgCAN->m_ucDataType
+|——————Node:identifier Text: RX_FLAG
+|——————Node:== Text: ==
+|——————Node:field_expression Text: pMsgCAN->m_ucDataType
+|———————Node:identifier Text: pMsgCAN
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: m_ucDataType
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        CurrDataCAN->m_eDirection = DIR_RX;
+        CurrDataCAN->m_acMsgDir[0] = _T('R');
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: CurrDataCAN->m_eDirection = DIR_RX;
+|——————Node:assignment_expression Text: CurrDataCAN->m_eDirection = DIR_RX
+|———————Node:field_expression Text: CurrDataCAN->m_eDirection
+|————————Node:identifier Text: CurrDataCAN
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: m_eDirection
+|———————Node:= Text: =
+|———————Node:identifier Text: DIR_RX
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: CurrDataCAN->m_acMsgDir[0] = _T('R');
+|——————Node:assignment_expression Text: CurrDataCAN->m_acMsgDir[0] = _T('R')
+|———————Node:subscript_expression Text: CurrDataCAN->m_acMsgDir[0]
+|————————Node:field_expression Text: CurrDataCAN->m_acMsgDir
+|—————————Node:identifier Text: CurrDataCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_acMsgDir
+|————————Node:subscript_argument_list Text: [0]
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 0
+|—————————Node:] Text: ]
+|———————Node:= Text: =
+|———————Node:call_expression Text: _T('R')
+|————————Node:identifier Text: _T
+|————————Node:argument_list Text: ('R')
+|—————————Node:( Text: (
+|—————————Node:char_literal Text: 'R'
+|——————————Node:' Text: '
+|——————————Node:character Text: R
+|——————————Node:' Text: '
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else if (TX_FLAG == pMsgCAN->m_ucDataType)
+    {
+        CurrDataCAN->m_eDirection = DIR_TX;
+        CurrDataCAN->m_acMsgDir[0] = _T('T');
+    }
+|—————Node:else Text: else
+|—————Node:if_statement Text: if (TX_FLAG == pMsgCAN->m_ucDataType)
+    {
+        CurrDataCAN->m_eDirection = DIR_TX;
+        CurrDataCAN->m_acMsgDir[0] = _T('T');
+    }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (TX_FLAG == pMsgCAN->m_ucDataType)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: TX_FLAG == pMsgCAN->m_ucDataType
+|————————Node:identifier Text: TX_FLAG
+|————————Node:== Text: ==
+|————————Node:field_expression Text: pMsgCAN->m_ucDataType
+|—————————Node:identifier Text: pMsgCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_ucDataType
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+        CurrDataCAN->m_eDirection = DIR_TX;
+        CurrDataCAN->m_acMsgDir[0] = _T('T');
+    }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: CurrDataCAN->m_eDirection = DIR_TX;
+|————————Node:assignment_expression Text: CurrDataCAN->m_eDirection = DIR_TX
+|—————————Node:field_expression Text: CurrDataCAN->m_eDirection
+|——————————Node:identifier Text: CurrDataCAN
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: m_eDirection
+|—————————Node:= Text: =
+|—————————Node:identifier Text: DIR_TX
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: CurrDataCAN->m_acMsgDir[0] = _T('T');
+|————————Node:assignment_expression Text: CurrDataCAN->m_acMsgDir[0] = _T('T')
+|—————————Node:subscript_expression Text: CurrDataCAN->m_acMsgDir[0]
+|——————————Node:field_expression Text: CurrDataCAN->m_acMsgDir
+|———————————Node:identifier Text: CurrDataCAN
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: m_acMsgDir
+|——————————Node:subscript_argument_list Text: [0]
+|———————————Node:[ Text: [
+|———————————Node:number_literal Text: 0
+|———————————Node:] Text: ]
+|—————————Node:= Text: =
+|—————————Node:call_expression Text: _T('T')
+|——————————Node:identifier Text: _T
+|——————————Node:argument_list Text: ('T')
+|———————————Node:( Text: (
+|———————————Node:char_literal Text: 'T'
+|————————————Node:' Text: '
+|————————————Node:character Text: T
+|————————————Node:' Text: '
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|———Node:expression_statement Text: CurrDataCAN->m_acMsgDir[1] = _T('x');
+|————Node:assignment_expression Text: CurrDataCAN->m_acMsgDir[1] = _T('x')
+|—————Node:subscript_expression Text: CurrDataCAN->m_acMsgDir[1]
+|——————Node:field_expression Text: CurrDataCAN->m_acMsgDir
+|———————Node:identifier Text: CurrDataCAN
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: m_acMsgDir
+|——————Node:subscript_argument_list Text: [1]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 1
+|———————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:call_expression Text: _T('x')
+|——————Node:identifier Text: _T
+|——————Node:argument_list Text: ('x')
+|———————Node:( Text: (
+|———————Node:char_literal Text: 'x'
+|————————Node:' Text: '
+|————————Node:character Text: x
+|————————Node:' Text: '
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: TYPE_CHANNEL CurrChannel = pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucChannel;
+|————Node:type_identifier Text: TYPE_CHANNEL
+|————Node:init_declarator Text: CurrChannel = pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucChannel
+|—————Node:identifier Text: CurrChannel
+|—————Node:= Text: =
+|—————Node:field_expression Text: pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucChannel
+|——————Node:field_expression Text: pMsgCAN->m_uDataInfo.m_sCANMsg
+|———————Node:field_expression Text: pMsgCAN->m_uDataInfo
+|————————Node:identifier Text: pMsgCAN
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: m_uDataInfo
+|———————Node:. Text: .
+|———————Node:field_identifier Text: m_sCANMsg
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_ucChannel
+|————Node:; Text: ;
+|———Node:if_statement Text: if ((CurrChannel >= CHANNEL_CAN_MIN) && (CurrChannel <= CHANNEL_CAN_MAX ))
+    {
+        sprintf_s(CurrDataCAN->m_acChannel, _T("%d"), CurrChannel);
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: ((CurrChannel >= CHANNEL_CAN_MIN) && (CurrChannel <= CHANNEL_CAN_MAX ))
+|—————Node:( Text: (
+|—————Node:binary_expression Text: (CurrChannel >= CHANNEL_CAN_MIN) && (CurrChannel <= CHANNEL_CAN_MAX )
+|——————Node:parenthesized_expression Text: (CurrChannel >= CHANNEL_CAN_MIN)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: CurrChannel >= CHANNEL_CAN_MIN
+|————————Node:identifier Text: CurrChannel
+|————————Node:>= Text: >=
+|————————Node:identifier Text: CHANNEL_CAN_MIN
+|———————Node:) Text: )
+|——————Node:&& Text: &&
+|——————Node:parenthesized_expression Text: (CurrChannel <= CHANNEL_CAN_MAX )
+|———————Node:( Text: (
+|———————Node:binary_expression Text: CurrChannel <= CHANNEL_CAN_MAX
+|————————Node:identifier Text: CurrChannel
+|————————Node:<= Text: <=
+|————————Node:identifier Text: CHANNEL_CAN_MAX
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        sprintf_s(CurrDataCAN->m_acChannel, _T("%d"), CurrChannel);
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: sprintf_s(CurrDataCAN->m_acChannel, _T("%d"), CurrChannel);
+|——————Node:call_expression Text: sprintf_s(CurrDataCAN->m_acChannel, _T("%d"), CurrChannel)
+|———————Node:identifier Text: sprintf_s
+|———————Node:argument_list Text: (CurrDataCAN->m_acChannel, _T("%d"), CurrChannel)
+|————————Node:( Text: (
+|————————Node:field_expression Text: CurrDataCAN->m_acChannel
+|—————————Node:identifier Text: CurrDataCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_acChannel
+|————————Node:, Text: ,
+|————————Node:call_expression Text: _T("%d")
+|—————————Node:identifier Text: _T
+|—————————Node:argument_list Text: ("%d")
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "%d"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: %d
+|———————————Node:" Text: "
+|——————————Node:) Text: )
+|————————Node:, Text: ,
+|————————Node:identifier Text: CurrChannel
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: memset(CurrDataCAN->m_acType,_T('\0'),sizeof(CurrDataCAN->m_acType));
+|————Node:call_expression Text: memset(CurrDataCAN->m_acType,_T('\0'),sizeof(CurrDataCAN->m_acType))
+|—————Node:identifier Text: memset
+|—————Node:argument_list Text: (CurrDataCAN->m_acType,_T('\0'),sizeof(CurrDataCAN->m_acType))
+|——————Node:( Text: (
+|——————Node:field_expression Text: CurrDataCAN->m_acType
+|———————Node:identifier Text: CurrDataCAN
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: m_acType
+|——————Node:, Text: ,
+|——————Node:call_expression Text: _T('\0')
+|———————Node:identifier Text: _T
+|———————Node:argument_list Text: ('\0')
+|————————Node:( Text: (
+|————————Node:char_literal Text: '\0'
+|—————————Node:' Text: '
+|—————————Node:escape_sequence Text: \0
+|—————————Node:' Text: '
+|————————Node:) Text: )
+|——————Node:, Text: ,
+|——————Node:sizeof_expression Text: sizeof(CurrDataCAN->m_acType)
+|———————Node:sizeof Text: sizeof
+|———————Node:parenthesized_expression Text: (CurrDataCAN->m_acType)
+|————————Node:( Text: (
+|————————Node:field_expression Text: CurrDataCAN->m_acType
+|—————————Node:identifier Text: CurrDataCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_acType
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucEXTENDED != 0)
+    {
+        CurrDataCAN->m_byIDType = TYPE_ID_CAN_EXTENDED;
+        CurrDataCAN->m_acType[0] = _T('x');
+    }
+    else
+    {
+        CurrDataCAN->m_byIDType = TYPE_ID_CAN_STANDARD;
+        CurrDataCAN->m_acType[0] = _T('s');
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucEXTENDED != 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucEXTENDED != 0
+|——————Node:field_expression Text: pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucEXTENDED
+|———————Node:field_expression Text: pMsgCAN->m_uDataInfo.m_sCANMsg
+|————————Node:field_expression Text: pMsgCAN->m_uDataInfo
+|—————————Node:identifier Text: pMsgCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_uDataInfo
+|————————Node:. Text: .
+|————————Node:field_identifier Text: m_sCANMsg
+|———————Node:. Text: .
+|———————Node:field_identifier Text: m_ucEXTENDED
+|——————Node:!= Text: !=
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        CurrDataCAN->m_byIDType = TYPE_ID_CAN_EXTENDED;
+        CurrDataCAN->m_acType[0] = _T('x');
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: CurrDataCAN->m_byIDType = TYPE_ID_CAN_EXTENDED;
+|——————Node:assignment_expression Text: CurrDataCAN->m_byIDType = TYPE_ID_CAN_EXTENDED
+|———————Node:field_expression Text: CurrDataCAN->m_byIDType
+|————————Node:identifier Text: CurrDataCAN
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: m_byIDType
+|———————Node:= Text: =
+|———————Node:identifier Text: TYPE_ID_CAN_EXTENDED
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: CurrDataCAN->m_acType[0] = _T('x');
+|——————Node:assignment_expression Text: CurrDataCAN->m_acType[0] = _T('x')
+|———————Node:subscript_expression Text: CurrDataCAN->m_acType[0]
+|————————Node:field_expression Text: CurrDataCAN->m_acType
+|—————————Node:identifier Text: CurrDataCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_acType
+|————————Node:subscript_argument_list Text: [0]
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 0
+|—————————Node:] Text: ]
+|———————Node:= Text: =
+|———————Node:call_expression Text: _T('x')
+|————————Node:identifier Text: _T
+|————————Node:argument_list Text: ('x')
+|—————————Node:( Text: (
+|—————————Node:char_literal Text: 'x'
+|——————————Node:' Text: '
+|——————————Node:character Text: x
+|——————————Node:' Text: '
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else
+    {
+        CurrDataCAN->m_byIDType = TYPE_ID_CAN_STANDARD;
+        CurrDataCAN->m_acType[0] = _T('s');
+    }
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+        CurrDataCAN->m_byIDType = TYPE_ID_CAN_STANDARD;
+        CurrDataCAN->m_acType[0] = _T('s');
+    }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: CurrDataCAN->m_byIDType = TYPE_ID_CAN_STANDARD;
+|———————Node:assignment_expression Text: CurrDataCAN->m_byIDType = TYPE_ID_CAN_STANDARD
+|————————Node:field_expression Text: CurrDataCAN->m_byIDType
+|—————————Node:identifier Text: CurrDataCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_byIDType
+|————————Node:= Text: =
+|————————Node:identifier Text: TYPE_ID_CAN_STANDARD
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: CurrDataCAN->m_acType[0] = _T('s');
+|———————Node:assignment_expression Text: CurrDataCAN->m_acType[0] = _T('s')
+|————————Node:subscript_expression Text: CurrDataCAN->m_acType[0]
+|—————————Node:field_expression Text: CurrDataCAN->m_acType
+|——————————Node:identifier Text: CurrDataCAN
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: m_acType
+|—————————Node:subscript_argument_list Text: [0]
+|——————————Node:[ Text: [
+|——————————Node:number_literal Text: 0
+|——————————Node:] Text: ]
+|————————Node:= Text: =
+|————————Node:call_expression Text: _T('s')
+|—————————Node:identifier Text: _T
+|—————————Node:argument_list Text: ('s')
+|——————————Node:( Text: (
+|——————————Node:char_literal Text: 's'
+|———————————Node:' Text: '
+|———————————Node:character Text: s
+|———————————Node:' Text: '
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:if_statement Text: if (pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucRTR != 0)
+    {
+        CurrDataCAN->m_byMsgType |= TYPE_MSG_CAN_RTR;
+        CurrDataCAN->m_acType[1] = _T('r');
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucRTR != 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucRTR != 0
+|——————Node:field_expression Text: pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucRTR
+|———————Node:field_expression Text: pMsgCAN->m_uDataInfo.m_sCANMsg
+|————————Node:field_expression Text: pMsgCAN->m_uDataInfo
+|—————————Node:identifier Text: pMsgCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_uDataInfo
+|————————Node:. Text: .
+|————————Node:field_identifier Text: m_sCANMsg
+|———————Node:. Text: .
+|———————Node:field_identifier Text: m_ucRTR
+|——————Node:!= Text: !=
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        CurrDataCAN->m_byMsgType |= TYPE_MSG_CAN_RTR;
+        CurrDataCAN->m_acType[1] = _T('r');
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: CurrDataCAN->m_byMsgType |= TYPE_MSG_CAN_RTR;
+|——————Node:assignment_expression Text: CurrDataCAN->m_byMsgType |= TYPE_MSG_CAN_RTR
+|———————Node:field_expression Text: CurrDataCAN->m_byMsgType
+|————————Node:identifier Text: CurrDataCAN
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: m_byMsgType
+|———————Node:|= Text: |=
+|———————Node:identifier Text: TYPE_MSG_CAN_RTR
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: CurrDataCAN->m_acType[1] = _T('r');
+|——————Node:assignment_expression Text: CurrDataCAN->m_acType[1] = _T('r')
+|———————Node:subscript_expression Text: CurrDataCAN->m_acType[1]
+|————————Node:field_expression Text: CurrDataCAN->m_acType
+|—————————Node:identifier Text: CurrDataCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_acType
+|————————Node:subscript_argument_list Text: [1]
+|—————————Node:[ Text: [
+|—————————Node:number_literal Text: 1
+|—————————Node:] Text: ]
+|———————Node:= Text: =
+|———————Node:call_expression Text: _T('r')
+|————————Node:identifier Text: _T
+|————————Node:argument_list Text: ('r')
+|—————————Node:( Text: (
+|—————————Node:char_literal Text: 'r'
+|——————————Node:' Text: '
+|——————————Node:character Text: r
+|——————————Node:' Text: '
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: _itoa_s(pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucDataLen, CurrDataCAN->m_acDataLen, 10);
+|————Node:call_expression Text: _itoa_s(pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucDataLen, CurrDataCAN->m_acDataLen, 10)
+|—————Node:identifier Text: _itoa_s
+|—————Node:argument_list Text: (pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucDataLen, CurrDataCAN->m_acDataLen, 10)
+|——————Node:( Text: (
+|——————Node:field_expression Text: pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucDataLen
+|———————Node:field_expression Text: pMsgCAN->m_uDataInfo.m_sCANMsg
+|————————Node:field_expression Text: pMsgCAN->m_uDataInfo
+|—————————Node:identifier Text: pMsgCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_uDataInfo
+|————————Node:. Text: .
+|————————Node:field_identifier Text: m_sCANMsg
+|———————Node:. Text: .
+|———————Node:field_identifier Text: m_ucDataLen
+|——————Node:, Text: ,
+|——————Node:field_expression Text: CurrDataCAN->m_acDataLen
+|———————Node:identifier Text: CurrDataCAN
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: m_acDataLen
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 10
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: strcpy_s(CurrDataCAN->m_acMsgDesc, _T("Description"));
+|————Node:call_expression Text: strcpy_s(CurrDataCAN->m_acMsgDesc, _T("Description"))
+|—————Node:identifier Text: strcpy_s
+|—————Node:argument_list Text: (CurrDataCAN->m_acMsgDesc, _T("Description"))
+|——————Node:( Text: (
+|——————Node:field_expression Text: CurrDataCAN->m_acMsgDesc
+|———————Node:identifier Text: CurrDataCAN
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: m_acMsgDesc
+|——————Node:, Text: ,
+|——————Node:call_expression Text: _T("Description")
+|———————Node:identifier Text: _T
+|———————Node:argument_list Text: ("Description")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "Description"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: Description
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: CurrDataCAN->m_u64TimeStamp = pMsgCAN->m_lTickCount;
+|————Node:assignment_expression Text: CurrDataCAN->m_u64TimeStamp = pMsgCAN->m_lTickCount
+|—————Node:field_expression Text: CurrDataCAN->m_u64TimeStamp
+|——————Node:identifier Text: CurrDataCAN
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: m_u64TimeStamp
+|—————Node:= Text: =
+|—————Node:field_expression Text: pMsgCAN->m_lTickCount
+|——————Node:identifier Text: pMsgCAN
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: m_lTickCount
+|————Node:; Text: ;
+|———Node:expression_statement Text: CurrDataCAN->m_dwMsgID = pMsgCAN->m_uDataInfo.m_sCANMsg.m_unMsgID;
+|————Node:assignment_expression Text: CurrDataCAN->m_dwMsgID = pMsgCAN->m_uDataInfo.m_sCANMsg.m_unMsgID
+|—————Node:field_expression Text: CurrDataCAN->m_dwMsgID
+|——————Node:identifier Text: CurrDataCAN
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: m_dwMsgID
+|—————Node:= Text: =
+|—————Node:field_expression Text: pMsgCAN->m_uDataInfo.m_sCANMsg.m_unMsgID
+|——————Node:field_expression Text: pMsgCAN->m_uDataInfo.m_sCANMsg
+|———————Node:field_expression Text: pMsgCAN->m_uDataInfo
+|————————Node:identifier Text: pMsgCAN
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: m_uDataInfo
+|———————Node:. Text: .
+|———————Node:field_identifier Text: m_sCANMsg
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_unMsgID
+|————Node:; Text: ;
+|———Node:expression_statement Text: CurrDataCAN->m_byDataLength = pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucDataLen;
+|————Node:assignment_expression Text: CurrDataCAN->m_byDataLength = pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucDataLen
+|—————Node:field_expression Text: CurrDataCAN->m_byDataLength
+|——————Node:identifier Text: CurrDataCAN
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: m_byDataLength
+|—————Node:= Text: =
+|—————Node:field_expression Text: pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucDataLen
+|——————Node:field_expression Text: pMsgCAN->m_uDataInfo.m_sCANMsg
+|———————Node:field_expression Text: pMsgCAN->m_uDataInfo
+|————————Node:identifier Text: pMsgCAN
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: m_uDataInfo
+|———————Node:. Text: .
+|———————Node:field_identifier Text: m_sCANMsg
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_ucDataLen
+|————Node:; Text: ;
+|———Node:expression_statement Text: memcpy(CurrDataCAN->m_abData, pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucData,
+           CurrDataCAN->m_byDataLength);
+|————Node:call_expression Text: memcpy(CurrDataCAN->m_abData, pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucData,
+           CurrDataCAN->m_byDataLength)
+|—————Node:identifier Text: memcpy
+|—————Node:argument_list Text: (CurrDataCAN->m_abData, pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucData,
+           CurrDataCAN->m_byDataLength)
+|——————Node:( Text: (
+|——————Node:field_expression Text: CurrDataCAN->m_abData
+|———————Node:identifier Text: CurrDataCAN
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: m_abData
+|——————Node:, Text: ,
+|——————Node:field_expression Text: pMsgCAN->m_uDataInfo.m_sCANMsg.m_ucData
+|———————Node:field_expression Text: pMsgCAN->m_uDataInfo.m_sCANMsg
+|————————Node:field_expression Text: pMsgCAN->m_uDataInfo
+|—————————Node:identifier Text: pMsgCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_uDataInfo
+|————————Node:. Text: .
+|————————Node:field_identifier Text: m_sCANMsg
+|———————Node:. Text: .
+|———————Node:field_identifier Text: m_ucData
+|——————Node:, Text: ,
+|——————Node:field_expression Text: CurrDataCAN->m_byDataLength
+|———————Node:identifier Text: CurrDataCAN
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: m_byDataLength
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:if_statement Text: if(ERR_FLAG == pMsgCAN->m_ucDataType)
+    {
+        USHORT usErrCode = usProcessCurrErrorEntry(pMsgCAN->m_uDataInfo.m_sErrInfo);
+
+        if( usErrCode != ERROR_UNKNOWN )
+        {
+            // Format error message
+            char* ptrStrErrName = NULL;
+            ptrStrErrName = vFormatCurrErrorEntry(usErrCode);
+
+            if(ptrStrErrName)
+            {
+                strcpy_s(CurrDataCAN->m_acDataDec, ptrStrErrName);
+                strcpy_s(CurrDataCAN->m_acDataHex, ptrStrErrName);
+            }
+        }
+
+        CurrDataCAN->m_dwMsgID = pMsgCAN->m_uDataInfo.m_sCANMsg.m_unMsgID;
+        sprintf_s(CurrDataCAN->m_acMsgIDDec, FORMAT_STR_ID_DEC, CurrDataCAN->m_dwMsgID);
+        strcpy_s(CurrDataCAN->m_acType, _T("ERR"));
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (ERR_FLAG == pMsgCAN->m_ucDataType)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: ERR_FLAG == pMsgCAN->m_ucDataType
+|——————Node:identifier Text: ERR_FLAG
+|——————Node:== Text: ==
+|——————Node:field_expression Text: pMsgCAN->m_ucDataType
+|———————Node:identifier Text: pMsgCAN
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: m_ucDataType
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        USHORT usErrCode = usProcessCurrErrorEntry(pMsgCAN->m_uDataInfo.m_sErrInfo);
+
+        if( usErrCode != ERROR_UNKNOWN )
+        {
+            // Format error message
+            char* ptrStrErrName = NULL;
+            ptrStrErrName = vFormatCurrErrorEntry(usErrCode);
+
+            if(ptrStrErrName)
+            {
+                strcpy_s(CurrDataCAN->m_acDataDec, ptrStrErrName);
+                strcpy_s(CurrDataCAN->m_acDataHex, ptrStrErrName);
+            }
+        }
+
+        CurrDataCAN->m_dwMsgID = pMsgCAN->m_uDataInfo.m_sCANMsg.m_unMsgID;
+        sprintf_s(CurrDataCAN->m_acMsgIDDec, FORMAT_STR_ID_DEC, CurrDataCAN->m_dwMsgID);
+        strcpy_s(CurrDataCAN->m_acType, _T("ERR"));
+    }
+|—————Node:{ Text: {
+|—————Node:declaration Text: USHORT usErrCode = usProcessCurrErrorEntry(pMsgCAN->m_uDataInfo.m_sErrInfo);
+|——————Node:type_identifier Text: USHORT
+|——————Node:init_declarator Text: usErrCode = usProcessCurrErrorEntry(pMsgCAN->m_uDataInfo.m_sErrInfo)
+|———————Node:identifier Text: usErrCode
+|———————Node:= Text: =
+|———————Node:call_expression Text: usProcessCurrErrorEntry(pMsgCAN->m_uDataInfo.m_sErrInfo)
+|————————Node:identifier Text: usProcessCurrErrorEntry
+|————————Node:argument_list Text: (pMsgCAN->m_uDataInfo.m_sErrInfo)
+|—————————Node:( Text: (
+|—————————Node:field_expression Text: pMsgCAN->m_uDataInfo.m_sErrInfo
+|——————————Node:field_expression Text: pMsgCAN->m_uDataInfo
+|———————————Node:identifier Text: pMsgCAN
+|———————————Node:-> Text: ->
+|———————————Node:field_identifier Text: m_uDataInfo
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: m_sErrInfo
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if( usErrCode != ERROR_UNKNOWN )
+        {
+            // Format error message
+            char* ptrStrErrName = NULL;
+            ptrStrErrName = vFormatCurrErrorEntry(usErrCode);
+
+            if(ptrStrErrName)
+            {
+                strcpy_s(CurrDataCAN->m_acDataDec, ptrStrErrName);
+                strcpy_s(CurrDataCAN->m_acDataHex, ptrStrErrName);
+            }
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: ( usErrCode != ERROR_UNKNOWN )
+|———————Node:( Text: (
+|———————Node:binary_expression Text: usErrCode != ERROR_UNKNOWN
+|————————Node:identifier Text: usErrCode
+|————————Node:!= Text: !=
+|————————Node:identifier Text: ERROR_UNKNOWN
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            // Format error message
+            char* ptrStrErrName = NULL;
+            ptrStrErrName = vFormatCurrErrorEntry(usErrCode);
+
+            if(ptrStrErrName)
+            {
+                strcpy_s(CurrDataCAN->m_acDataDec, ptrStrErrName);
+                strcpy_s(CurrDataCAN->m_acDataHex, ptrStrErrName);
+            }
+        }
+|———————Node:{ Text: {
+|———————Node:comment
+|———————Node:declaration Text: char* ptrStrErrName = NULL;
+|————————Node:primitive_type Text: char
+|————————Node:init_declarator Text: * ptrStrErrName = NULL
+|—————————Node:pointer_declarator Text: * ptrStrErrName
+|——————————Node:* Text: *
+|——————————Node:identifier Text: ptrStrErrName
+|—————————Node:= Text: =
+|—————————Node:null Text: NULL
+|——————————Node:NULL Text: NULL
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: ptrStrErrName = vFormatCurrErrorEntry(usErrCode);
+|————————Node:assignment_expression Text: ptrStrErrName = vFormatCurrErrorEntry(usErrCode)
+|—————————Node:identifier Text: ptrStrErrName
+|—————————Node:= Text: =
+|—————————Node:call_expression Text: vFormatCurrErrorEntry(usErrCode)
+|——————————Node:identifier Text: vFormatCurrErrorEntry
+|——————————Node:argument_list Text: (usErrCode)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: usErrCode
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if(ptrStrErrName)
+            {
+                strcpy_s(CurrDataCAN->m_acDataDec, ptrStrErrName);
+                strcpy_s(CurrDataCAN->m_acDataHex, ptrStrErrName);
+            }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (ptrStrErrName)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: ptrStrErrName
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                strcpy_s(CurrDataCAN->m_acDataDec, ptrStrErrName);
+                strcpy_s(CurrDataCAN->m_acDataHex, ptrStrErrName);
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: strcpy_s(CurrDataCAN->m_acDataDec, ptrStrErrName);
+|——————————Node:call_expression Text: strcpy_s(CurrDataCAN->m_acDataDec, ptrStrErrName)
+|———————————Node:identifier Text: strcpy_s
+|———————————Node:argument_list Text: (CurrDataCAN->m_acDataDec, ptrStrErrName)
+|————————————Node:( Text: (
+|————————————Node:field_expression Text: CurrDataCAN->m_acDataDec
+|—————————————Node:identifier Text: CurrDataCAN
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: m_acDataDec
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: ptrStrErrName
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: strcpy_s(CurrDataCAN->m_acDataHex, ptrStrErrName);
+|——————————Node:call_expression Text: strcpy_s(CurrDataCAN->m_acDataHex, ptrStrErrName)
+|———————————Node:identifier Text: strcpy_s
+|———————————Node:argument_list Text: (CurrDataCAN->m_acDataHex, ptrStrErrName)
+|————————————Node:( Text: (
+|————————————Node:field_expression Text: CurrDataCAN->m_acDataHex
+|—————————————Node:identifier Text: CurrDataCAN
+|—————————————Node:-> Text: ->
+|—————————————Node:field_identifier Text: m_acDataHex
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: ptrStrErrName
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|—————Node:expression_statement Text: CurrDataCAN->m_dwMsgID = pMsgCAN->m_uDataInfo.m_sCANMsg.m_unMsgID;
+|——————Node:assignment_expression Text: CurrDataCAN->m_dwMsgID = pMsgCAN->m_uDataInfo.m_sCANMsg.m_unMsgID
+|———————Node:field_expression Text: CurrDataCAN->m_dwMsgID
+|————————Node:identifier Text: CurrDataCAN
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: m_dwMsgID
+|———————Node:= Text: =
+|———————Node:field_expression Text: pMsgCAN->m_uDataInfo.m_sCANMsg.m_unMsgID
+|————————Node:field_expression Text: pMsgCAN->m_uDataInfo.m_sCANMsg
+|—————————Node:field_expression Text: pMsgCAN->m_uDataInfo
+|——————————Node:identifier Text: pMsgCAN
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: m_uDataInfo
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: m_sCANMsg
+|————————Node:. Text: .
+|————————Node:field_identifier Text: m_unMsgID
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: sprintf_s(CurrDataCAN->m_acMsgIDDec, FORMAT_STR_ID_DEC, CurrDataCAN->m_dwMsgID);
+|——————Node:call_expression Text: sprintf_s(CurrDataCAN->m_acMsgIDDec, FORMAT_STR_ID_DEC, CurrDataCAN->m_dwMsgID)
+|———————Node:identifier Text: sprintf_s
+|———————Node:argument_list Text: (CurrDataCAN->m_acMsgIDDec, FORMAT_STR_ID_DEC, CurrDataCAN->m_dwMsgID)
+|————————Node:( Text: (
+|————————Node:field_expression Text: CurrDataCAN->m_acMsgIDDec
+|—————————Node:identifier Text: CurrDataCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_acMsgIDDec
+|————————Node:, Text: ,
+|————————Node:identifier Text: FORMAT_STR_ID_DEC
+|————————Node:, Text: ,
+|————————Node:field_expression Text: CurrDataCAN->m_dwMsgID
+|—————————Node:identifier Text: CurrDataCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_dwMsgID
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: strcpy_s(CurrDataCAN->m_acType, _T("ERR"));
+|——————Node:call_expression Text: strcpy_s(CurrDataCAN->m_acType, _T("ERR"))
+|———————Node:identifier Text: strcpy_s
+|———————Node:argument_list Text: (CurrDataCAN->m_acType, _T("ERR"))
+|————————Node:( Text: (
+|————————Node:field_expression Text: CurrDataCAN->m_acType
+|—————————Node:identifier Text: CurrDataCAN
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: m_acType
+|————————Node:, Text: ,
+|————————Node:call_expression Text: _T("ERR")
+|—————————Node:identifier Text: _T
+|—————————Node:argument_list Text: ("ERR")
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "ERR"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: ERR
+|———————————Node:" Text: "
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:comment
+|———Node:expression_statement Text: vFormatTime(bExprnFlag_Log, CurrDataCAN);
+|————Node:call_expression Text: vFormatTime(bExprnFlag_Log, CurrDataCAN)
+|—————Node:identifier Text: vFormatTime
+|—————Node:argument_list Text: (bExprnFlag_Log, CurrDataCAN)
+|——————Node:( Text: (
+|——————Node:identifier Text: bExprnFlag_Log
+|——————Node:, Text: ,
+|——————Node:identifier Text: CurrDataCAN
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: vFormatDataAndId(bExprnFlag_Log, CurrDataCAN);
+|————Node:call_expression Text: vFormatDataAndId(bExprnFlag_Log, CurrDataCAN)
+|—————Node:identifier Text: vFormatDataAndId
+|—————Node:argument_list Text: (bExprnFlag_Log, CurrDataCAN)
+|——————Node:( Text: (
+|——————Node:identifier Text: bExprnFlag_Log
+|——————Node:, Text: ,
+|——————Node:identifier Text: CurrDataCAN
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }

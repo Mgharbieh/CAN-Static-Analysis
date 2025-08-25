@@ -1,0 +1,1109 @@
+mergCanBus-MergCBUSThrottle.cpp
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include "MergCBUSThrottle.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "MergCBUSThrottle.h"
+|———Node:" Text: "
+|———Node:string_content Text: MergCBUSThrottle.h
+|———Node:" Text: "
+|—Node:function_definition Text: MergCBUSThrottle::MergCBUSThrottle(MergCBUS *cbus)
+{
+    //ctor
+    this->cbus=cbus;
+    //this->message=message;
+    for (uint8_t i=0;i<NUM_SESSIONS;i++){
+        tinfo[i].setSession(255);
+        tinfo[i].setLoco(0);
+    }
+    setKeepAliveInterval(2000);
+}
+|——Node:function_declarator Text: MergCBUSThrottle::MergCBUSThrottle(MergCBUS *cbus)
+|———Node:qualified_identifier Text: MergCBUSThrottle::MergCBUSThrottle
+|————Node:namespace_identifier Text: MergCBUSThrottle
+|————Node::: Text: ::
+|————Node:identifier Text: MergCBUSThrottle
+|———Node:parameter_list Text: (MergCBUS *cbus)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: MergCBUS *cbus
+|—————Node:type_identifier Text: MergCBUS
+|—————Node:pointer_declarator Text: *cbus
+|——————Node:* Text: *
+|——————Node:identifier Text: cbus
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    //ctor
+    this->cbus=cbus;
+    //this->message=message;
+    for (uint8_t i=0;i<NUM_SESSIONS;i++){
+        tinfo[i].setSession(255);
+        tinfo[i].setLoco(0);
+    }
+    setKeepAliveInterval(2000);
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:expression_statement Text: this->cbus=cbus;
+|————Node:assignment_expression Text: this->cbus=cbus
+|—————Node:field_expression Text: this->cbus
+|——————Node:this Text: this
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: cbus
+|—————Node:= Text: =
+|—————Node:identifier Text: cbus
+|————Node:; Text: ;
+|———Node:comment
+|———Node:for_statement Text: for (uint8_t i=0;i<NUM_SESSIONS;i++){
+        tinfo[i].setSession(255);
+        tinfo[i].setLoco(0);
+    }
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:declaration Text: uint8_t i=0;
+|—————Node:primitive_type Text: uint8_t
+|—————Node:init_declarator Text: i=0
+|——————Node:identifier Text: i
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:binary_expression Text: i<NUM_SESSIONS
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:identifier Text: NUM_SESSIONS
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+        tinfo[i].setSession(255);
+        tinfo[i].setLoco(0);
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: tinfo[i].setSession(255);
+|——————Node:call_expression Text: tinfo[i].setSession(255)
+|———————Node:field_expression Text: tinfo[i].setSession
+|————————Node:subscript_expression Text: tinfo[i]
+|—————————Node:identifier Text: tinfo
+|—————————Node:subscript_argument_list Text: [i]
+|——————————Node:[ Text: [
+|——————————Node:identifier Text: i
+|——————————Node:] Text: ]
+|————————Node:. Text: .
+|————————Node:field_identifier Text: setSession
+|———————Node:argument_list Text: (255)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 255
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: tinfo[i].setLoco(0);
+|——————Node:call_expression Text: tinfo[i].setLoco(0)
+|———————Node:field_expression Text: tinfo[i].setLoco
+|————————Node:subscript_expression Text: tinfo[i]
+|—————————Node:identifier Text: tinfo
+|—————————Node:subscript_argument_list Text: [i]
+|——————————Node:[ Text: [
+|——————————Node:identifier Text: i
+|——————————Node:] Text: ]
+|————————Node:. Text: .
+|————————Node:field_identifier Text: setLoco
+|———————Node:argument_list Text: (0)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 0
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: setKeepAliveInterval(2000);
+|————Node:call_expression Text: setKeepAliveInterval(2000)
+|—————Node:identifier Text: setKeepAliveInterval
+|—————Node:argument_list Text: (2000)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 2000
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: MergCBUSThrottle::~MergCBUSThrottle()
+{
+    //dtor
+}
+|——Node:function_declarator Text: MergCBUSThrottle::~MergCBUSThrottle()
+|———Node:qualified_identifier Text: MergCBUSThrottle::~MergCBUSThrottle
+|————Node:namespace_identifier Text: MergCBUSThrottle
+|————Node::: Text: ::
+|————Node:destructor_name Text: ~MergCBUSThrottle
+|—————Node:~ Text: ~
+|—————Node:identifier Text: MergCBUSThrottle
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    //dtor
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:} Text: }
+|—Node:function_definition Text: void MergCBUSThrottle::run(){
+    sendKeepAlive();
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: MergCBUSThrottle::run()
+|———Node:qualified_identifier Text: MergCBUSThrottle::run
+|————Node:namespace_identifier Text: MergCBUSThrottle
+|————Node::: Text: ::
+|————Node:identifier Text: run
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    sendKeepAlive();
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: sendKeepAlive();
+|————Node:call_expression Text: sendKeepAlive()
+|—————Node:identifier Text: sendKeepAlive
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void MergCBUSThrottle::sendKeepAlive(){
+
+    uint32_t t;
+    for (uint8_t i=0;i<NUM_SESSIONS;i++){
+        t=millis();
+        if (tinfo[i].getLoco() != 0){
+            if ((t-tinfo[i].getTime())>keepalive_interval){
+                tinfo[i].setTime(t);
+                Serial.println("keep alive");
+                cbus->sendKeepAliveSession(tinfo[i].getSession());
+            }
+        }
+    }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: MergCBUSThrottle::sendKeepAlive()
+|———Node:qualified_identifier Text: MergCBUSThrottle::sendKeepAlive
+|————Node:namespace_identifier Text: MergCBUSThrottle
+|————Node::: Text: ::
+|————Node:identifier Text: sendKeepAlive
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+
+    uint32_t t;
+    for (uint8_t i=0;i<NUM_SESSIONS;i++){
+        t=millis();
+        if (tinfo[i].getLoco() != 0){
+            if ((t-tinfo[i].getTime())>keepalive_interval){
+                tinfo[i].setTime(t);
+                Serial.println("keep alive");
+                cbus->sendKeepAliveSession(tinfo[i].getSession());
+            }
+        }
+    }
+}
+|———Node:{ Text: {
+|———Node:declaration Text: uint32_t t;
+|————Node:primitive_type Text: uint32_t
+|————Node:identifier Text: t
+|————Node:; Text: ;
+|———Node:for_statement Text: for (uint8_t i=0;i<NUM_SESSIONS;i++){
+        t=millis();
+        if (tinfo[i].getLoco() != 0){
+            if ((t-tinfo[i].getTime())>keepalive_interval){
+                tinfo[i].setTime(t);
+                Serial.println("keep alive");
+                cbus->sendKeepAliveSession(tinfo[i].getSession());
+            }
+        }
+    }
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:declaration Text: uint8_t i=0;
+|—————Node:primitive_type Text: uint8_t
+|—————Node:init_declarator Text: i=0
+|——————Node:identifier Text: i
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:binary_expression Text: i<NUM_SESSIONS
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:identifier Text: NUM_SESSIONS
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+        t=millis();
+        if (tinfo[i].getLoco() != 0){
+            if ((t-tinfo[i].getTime())>keepalive_interval){
+                tinfo[i].setTime(t);
+                Serial.println("keep alive");
+                cbus->sendKeepAliveSession(tinfo[i].getSession());
+            }
+        }
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: t=millis();
+|——————Node:assignment_expression Text: t=millis()
+|———————Node:identifier Text: t
+|———————Node:= Text: =
+|———————Node:call_expression Text: millis()
+|————————Node:identifier Text: millis
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if (tinfo[i].getLoco() != 0){
+            if ((t-tinfo[i].getTime())>keepalive_interval){
+                tinfo[i].setTime(t);
+                Serial.println("keep alive");
+                cbus->sendKeepAliveSession(tinfo[i].getSession());
+            }
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (tinfo[i].getLoco() != 0)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: tinfo[i].getLoco() != 0
+|————————Node:call_expression Text: tinfo[i].getLoco()
+|—————————Node:field_expression Text: tinfo[i].getLoco
+|——————————Node:subscript_expression Text: tinfo[i]
+|———————————Node:identifier Text: tinfo
+|———————————Node:subscript_argument_list Text: [i]
+|————————————Node:[ Text: [
+|————————————Node:identifier Text: i
+|————————————Node:] Text: ]
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: getLoco
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:!= Text: !=
+|————————Node:number_literal Text: 0
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            if ((t-tinfo[i].getTime())>keepalive_interval){
+                tinfo[i].setTime(t);
+                Serial.println("keep alive");
+                cbus->sendKeepAliveSession(tinfo[i].getSession());
+            }
+        }
+|———————Node:{ Text: {
+|———————Node:if_statement Text: if ((t-tinfo[i].getTime())>keepalive_interval){
+                tinfo[i].setTime(t);
+                Serial.println("keep alive");
+                cbus->sendKeepAliveSession(tinfo[i].getSession());
+            }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: ((t-tinfo[i].getTime())>keepalive_interval)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: (t-tinfo[i].getTime())>keepalive_interval
+|——————————Node:parenthesized_expression Text: (t-tinfo[i].getTime())
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: t-tinfo[i].getTime()
+|————————————Node:identifier Text: t
+|————————————Node:- Text: -
+|————————————Node:call_expression Text: tinfo[i].getTime()
+|—————————————Node:field_expression Text: tinfo[i].getTime
+|——————————————Node:subscript_expression Text: tinfo[i]
+|———————————————Node:identifier Text: tinfo
+|———————————————Node:subscript_argument_list Text: [i]
+|————————————————Node:[ Text: [
+|————————————————Node:identifier Text: i
+|————————————————Node:] Text: ]
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: getTime
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|———————————Node:) Text: )
+|——————————Node:> Text: >
+|——————————Node:identifier Text: keepalive_interval
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                tinfo[i].setTime(t);
+                Serial.println("keep alive");
+                cbus->sendKeepAliveSession(tinfo[i].getSession());
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: tinfo[i].setTime(t);
+|——————————Node:call_expression Text: tinfo[i].setTime(t)
+|———————————Node:field_expression Text: tinfo[i].setTime
+|————————————Node:subscript_expression Text: tinfo[i]
+|—————————————Node:identifier Text: tinfo
+|—————————————Node:subscript_argument_list Text: [i]
+|——————————————Node:[ Text: [
+|——————————————Node:identifier Text: i
+|——————————————Node:] Text: ]
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: setTime
+|———————————Node:argument_list Text: (t)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: t
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: Serial.println("keep alive");
+|——————————Node:call_expression Text: Serial.println("keep alive")
+|———————————Node:field_expression Text: Serial.println
+|————————————Node:identifier Text: Serial
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: println
+|———————————Node:argument_list Text: ("keep alive")
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "keep alive"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: keep alive
+|—————————————Node:" Text: "
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: cbus->sendKeepAliveSession(tinfo[i].getSession());
+|——————————Node:call_expression Text: cbus->sendKeepAliveSession(tinfo[i].getSession())
+|———————————Node:field_expression Text: cbus->sendKeepAliveSession
+|————————————Node:identifier Text: cbus
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: sendKeepAliveSession
+|———————————Node:argument_list Text: (tinfo[i].getSession())
+|————————————Node:( Text: (
+|————————————Node:call_expression Text: tinfo[i].getSession()
+|—————————————Node:field_expression Text: tinfo[i].getSession
+|——————————————Node:subscript_expression Text: tinfo[i]
+|———————————————Node:identifier Text: tinfo
+|———————————————Node:subscript_argument_list Text: [i]
+|————————————————Node:[ Text: [
+|————————————————Node:identifier Text: i
+|————————————————Node:] Text: ]
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: getSession
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:function_definition Text: bool MergCBUSThrottle::getSession(uint16_t loco){
+    if (cbus->sendGetSession(loco) == 0){
+        return true;
+    }
+    return false;
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: MergCBUSThrottle::getSession(uint16_t loco)
+|———Node:qualified_identifier Text: MergCBUSThrottle::getSession
+|————Node:namespace_identifier Text: MergCBUSThrottle
+|————Node::: Text: ::
+|————Node:identifier Text: getSession
+|———Node:parameter_list Text: (uint16_t loco)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint16_t loco
+|—————Node:primitive_type Text: uint16_t
+|—————Node:identifier Text: loco
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if (cbus->sendGetSession(loco) == 0){
+        return true;
+    }
+    return false;
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (cbus->sendGetSession(loco) == 0){
+        return true;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (cbus->sendGetSession(loco) == 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: cbus->sendGetSession(loco) == 0
+|——————Node:call_expression Text: cbus->sendGetSession(loco)
+|———————Node:field_expression Text: cbus->sendGetSession
+|————————Node:identifier Text: cbus
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: sendGetSession
+|———————Node:argument_list Text: (loco)
+|————————Node:( Text: (
+|————————Node:identifier Text: loco
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        return true;
+    }
+|—————Node:{ Text: {
+|—————Node:return_statement Text: return true;
+|——————Node:return Text: return
+|——————Node:true Text: true
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return false;
+|————Node:return Text: return
+|————Node:false Text: false
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: bool MergCBUSThrottle::releaseSession(uint8_t session){
+    if (cbus->sendReleaseSession(session) == 0){
+        for (uint8_t i=0;i<NUM_SESSIONS;i++){
+            if (tinfo[i].getSession() == session){
+                tinfo[i].setLoco(0);
+                tinfo[i].setSession(0);
+                break;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: MergCBUSThrottle::releaseSession(uint8_t session)
+|———Node:qualified_identifier Text: MergCBUSThrottle::releaseSession
+|————Node:namespace_identifier Text: MergCBUSThrottle
+|————Node::: Text: ::
+|————Node:identifier Text: releaseSession
+|———Node:parameter_list Text: (uint8_t session)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint8_t session
+|—————Node:primitive_type Text: uint8_t
+|—————Node:identifier Text: session
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if (cbus->sendReleaseSession(session) == 0){
+        for (uint8_t i=0;i<NUM_SESSIONS;i++){
+            if (tinfo[i].getSession() == session){
+                tinfo[i].setLoco(0);
+                tinfo[i].setSession(0);
+                break;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (cbus->sendReleaseSession(session) == 0){
+        for (uint8_t i=0;i<NUM_SESSIONS;i++){
+            if (tinfo[i].getSession() == session){
+                tinfo[i].setLoco(0);
+                tinfo[i].setSession(0);
+                break;
+            }
+        }
+        return true;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (cbus->sendReleaseSession(session) == 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: cbus->sendReleaseSession(session) == 0
+|——————Node:call_expression Text: cbus->sendReleaseSession(session)
+|———————Node:field_expression Text: cbus->sendReleaseSession
+|————————Node:identifier Text: cbus
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: sendReleaseSession
+|———————Node:argument_list Text: (session)
+|————————Node:( Text: (
+|————————Node:identifier Text: session
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        for (uint8_t i=0;i<NUM_SESSIONS;i++){
+            if (tinfo[i].getSession() == session){
+                tinfo[i].setLoco(0);
+                tinfo[i].setSession(0);
+                break;
+            }
+        }
+        return true;
+    }
+|—————Node:{ Text: {
+|—————Node:for_statement Text: for (uint8_t i=0;i<NUM_SESSIONS;i++){
+            if (tinfo[i].getSession() == session){
+                tinfo[i].setLoco(0);
+                tinfo[i].setSession(0);
+                break;
+            }
+        }
+|——————Node:for Text: for
+|——————Node:( Text: (
+|——————Node:declaration Text: uint8_t i=0;
+|———————Node:primitive_type Text: uint8_t
+|———————Node:init_declarator Text: i=0
+|————————Node:identifier Text: i
+|————————Node:= Text: =
+|————————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:binary_expression Text: i<NUM_SESSIONS
+|———————Node:identifier Text: i
+|———————Node:< Text: <
+|———————Node:identifier Text: NUM_SESSIONS
+|——————Node:; Text: ;
+|——————Node:update_expression Text: i++
+|———————Node:identifier Text: i
+|———————Node:++ Text: ++
+|——————Node:) Text: )
+|——————Node:compound_statement Text: {
+            if (tinfo[i].getSession() == session){
+                tinfo[i].setLoco(0);
+                tinfo[i].setSession(0);
+                break;
+            }
+        }
+|———————Node:{ Text: {
+|———————Node:if_statement Text: if (tinfo[i].getSession() == session){
+                tinfo[i].setLoco(0);
+                tinfo[i].setSession(0);
+                break;
+            }
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (tinfo[i].getSession() == session)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: tinfo[i].getSession() == session
+|——————————Node:call_expression Text: tinfo[i].getSession()
+|———————————Node:field_expression Text: tinfo[i].getSession
+|————————————Node:subscript_expression Text: tinfo[i]
+|—————————————Node:identifier Text: tinfo
+|—————————————Node:subscript_argument_list Text: [i]
+|——————————————Node:[ Text: [
+|——————————————Node:identifier Text: i
+|——————————————Node:] Text: ]
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: getSession
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:== Text: ==
+|——————————Node:identifier Text: session
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+                tinfo[i].setLoco(0);
+                tinfo[i].setSession(0);
+                break;
+            }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: tinfo[i].setLoco(0);
+|——————————Node:call_expression Text: tinfo[i].setLoco(0)
+|———————————Node:field_expression Text: tinfo[i].setLoco
+|————————————Node:subscript_expression Text: tinfo[i]
+|—————————————Node:identifier Text: tinfo
+|—————————————Node:subscript_argument_list Text: [i]
+|——————————————Node:[ Text: [
+|——————————————Node:identifier Text: i
+|——————————————Node:] Text: ]
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: setLoco
+|———————————Node:argument_list Text: (0)
+|————————————Node:( Text: (
+|————————————Node:number_literal Text: 0
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: tinfo[i].setSession(0);
+|——————————Node:call_expression Text: tinfo[i].setSession(0)
+|———————————Node:field_expression Text: tinfo[i].setSession
+|————————————Node:subscript_expression Text: tinfo[i]
+|—————————————Node:identifier Text: tinfo
+|—————————————Node:subscript_argument_list Text: [i]
+|——————————————Node:[ Text: [
+|——————————————Node:identifier Text: i
+|——————————————Node:] Text: ]
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: setSession
+|———————————Node:argument_list Text: (0)
+|————————————Node:( Text: (
+|————————————Node:number_literal Text: 0
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:break_statement Text: break;
+|——————————Node:break Text: break
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|—————Node:return_statement Text: return true;
+|——————Node:return Text: return
+|——————Node:true Text: true
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return false;
+|————Node:return Text: return
+|————Node:false Text: false
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: bool MergCBUSThrottle::setSession(uint8_t session,uint16_t loco){
+
+    for (uint8_t i=0;i<NUM_SESSIONS;i++){
+        if (tinfo[i].getLoco() == 0 ){
+            tinfo[i].setTime(millis());
+            tinfo[i].setSession(session);
+            tinfo[i].setLoco(loco);
+            return true;
+        }
+    }
+    return false;
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: MergCBUSThrottle::setSession(uint8_t session,uint16_t loco)
+|———Node:qualified_identifier Text: MergCBUSThrottle::setSession
+|————Node:namespace_identifier Text: MergCBUSThrottle
+|————Node::: Text: ::
+|————Node:identifier Text: setSession
+|———Node:parameter_list Text: (uint8_t session,uint16_t loco)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint8_t session
+|—————Node:primitive_type Text: uint8_t
+|—————Node:identifier Text: session
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint16_t loco
+|—————Node:primitive_type Text: uint16_t
+|—————Node:identifier Text: loco
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+
+    for (uint8_t i=0;i<NUM_SESSIONS;i++){
+        if (tinfo[i].getLoco() == 0 ){
+            tinfo[i].setTime(millis());
+            tinfo[i].setSession(session);
+            tinfo[i].setLoco(loco);
+            return true;
+        }
+    }
+    return false;
+}
+|———Node:{ Text: {
+|———Node:for_statement Text: for (uint8_t i=0;i<NUM_SESSIONS;i++){
+        if (tinfo[i].getLoco() == 0 ){
+            tinfo[i].setTime(millis());
+            tinfo[i].setSession(session);
+            tinfo[i].setLoco(loco);
+            return true;
+        }
+    }
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:declaration Text: uint8_t i=0;
+|—————Node:primitive_type Text: uint8_t
+|—————Node:init_declarator Text: i=0
+|——————Node:identifier Text: i
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:binary_expression Text: i<NUM_SESSIONS
+|—————Node:identifier Text: i
+|—————Node:< Text: <
+|—————Node:identifier Text: NUM_SESSIONS
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+        if (tinfo[i].getLoco() == 0 ){
+            tinfo[i].setTime(millis());
+            tinfo[i].setSession(session);
+            tinfo[i].setLoco(loco);
+            return true;
+        }
+    }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if (tinfo[i].getLoco() == 0 ){
+            tinfo[i].setTime(millis());
+            tinfo[i].setSession(session);
+            tinfo[i].setLoco(loco);
+            return true;
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (tinfo[i].getLoco() == 0 )
+|———————Node:( Text: (
+|———————Node:binary_expression Text: tinfo[i].getLoco() == 0
+|————————Node:call_expression Text: tinfo[i].getLoco()
+|—————————Node:field_expression Text: tinfo[i].getLoco
+|——————————Node:subscript_expression Text: tinfo[i]
+|———————————Node:identifier Text: tinfo
+|———————————Node:subscript_argument_list Text: [i]
+|————————————Node:[ Text: [
+|————————————Node:identifier Text: i
+|————————————Node:] Text: ]
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: getLoco
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:== Text: ==
+|————————Node:number_literal Text: 0
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            tinfo[i].setTime(millis());
+            tinfo[i].setSession(session);
+            tinfo[i].setLoco(loco);
+            return true;
+        }
+|———————Node:{ Text: {
+|———————Node:expression_statement Text: tinfo[i].setTime(millis());
+|————————Node:call_expression Text: tinfo[i].setTime(millis())
+|—————————Node:field_expression Text: tinfo[i].setTime
+|——————————Node:subscript_expression Text: tinfo[i]
+|———————————Node:identifier Text: tinfo
+|———————————Node:subscript_argument_list Text: [i]
+|————————————Node:[ Text: [
+|————————————Node:identifier Text: i
+|————————————Node:] Text: ]
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: setTime
+|—————————Node:argument_list Text: (millis())
+|——————————Node:( Text: (
+|——————————Node:call_expression Text: millis()
+|———————————Node:identifier Text: millis
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: tinfo[i].setSession(session);
+|————————Node:call_expression Text: tinfo[i].setSession(session)
+|—————————Node:field_expression Text: tinfo[i].setSession
+|——————————Node:subscript_expression Text: tinfo[i]
+|———————————Node:identifier Text: tinfo
+|———————————Node:subscript_argument_list Text: [i]
+|————————————Node:[ Text: [
+|————————————Node:identifier Text: i
+|————————————Node:] Text: ]
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: setSession
+|—————————Node:argument_list Text: (session)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: session
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: tinfo[i].setLoco(loco);
+|————————Node:call_expression Text: tinfo[i].setLoco(loco)
+|—————————Node:field_expression Text: tinfo[i].setLoco
+|——————————Node:subscript_expression Text: tinfo[i]
+|———————————Node:identifier Text: tinfo
+|———————————Node:subscript_argument_list Text: [i]
+|————————————Node:[ Text: [
+|————————————Node:identifier Text: i
+|————————————Node:] Text: ]
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: setLoco
+|—————————Node:argument_list Text: (loco)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: loco
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:return_statement Text: return true;
+|————————Node:return Text: return
+|————————Node:true Text: true
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:return_statement Text: return false;
+|————Node:return Text: return
+|————Node:false Text: false
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: bool MergCBUSThrottle::consist(uint16_t loco1,uint16_t loco2){
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: MergCBUSThrottle::consist(uint16_t loco1,uint16_t loco2)
+|———Node:qualified_identifier Text: MergCBUSThrottle::consist
+|————Node:namespace_identifier Text: MergCBUSThrottle
+|————Node::: Text: ::
+|————Node:identifier Text: consist
+|———Node:parameter_list Text: (uint16_t loco1,uint16_t loco2)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint16_t loco1
+|—————Node:primitive_type Text: uint16_t
+|—————Node:identifier Text: loco1
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint16_t loco2
+|—————Node:primitive_type Text: uint16_t
+|—————Node:identifier Text: loco2
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:function_definition Text: void MergCBUSThrottle::setKeepAliveInterval(uint16_t interval_milli){
+    this->keepalive_interval=interval_milli;
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: MergCBUSThrottle::setKeepAliveInterval(uint16_t interval_milli)
+|———Node:qualified_identifier Text: MergCBUSThrottle::setKeepAliveInterval
+|————Node:namespace_identifier Text: MergCBUSThrottle
+|————Node::: Text: ::
+|————Node:identifier Text: setKeepAliveInterval
+|———Node:parameter_list Text: (uint16_t interval_milli)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint16_t interval_milli
+|—————Node:primitive_type Text: uint16_t
+|—————Node:identifier Text: interval_milli
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    this->keepalive_interval=interval_milli;
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: this->keepalive_interval=interval_milli;
+|————Node:assignment_expression Text: this->keepalive_interval=interval_milli
+|—————Node:field_expression Text: this->keepalive_interval
+|——————Node:this Text: this
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: keepalive_interval
+|—————Node:= Text: =
+|—————Node:identifier Text: interval_milli
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: uint16_t MergCBUSThrottle::getKeepAliveInterval(){
+    return this->keepalive_interval;
+}
+|——Node:primitive_type Text: uint16_t
+|——Node:function_declarator Text: MergCBUSThrottle::getKeepAliveInterval()
+|———Node:qualified_identifier Text: MergCBUSThrottle::getKeepAliveInterval
+|————Node:namespace_identifier Text: MergCBUSThrottle
+|————Node::: Text: ::
+|————Node:identifier Text: getKeepAliveInterval
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    return this->keepalive_interval;
+}
+|———Node:{ Text: {
+|———Node:return_statement Text: return this->keepalive_interval;
+|————Node:return Text: return
+|————Node:field_expression Text: this->keepalive_interval
+|—————Node:this Text: this
+|—————Node:-> Text: ->
+|—————Node:field_identifier Text: keepalive_interval
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void MergCBUSThrottle::setFOn(uint8_t session,uint8_t f){
+    cbus->sendSetFun(session,f);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: MergCBUSThrottle::setFOn(uint8_t session,uint8_t f)
+|———Node:qualified_identifier Text: MergCBUSThrottle::setFOn
+|————Node:namespace_identifier Text: MergCBUSThrottle
+|————Node::: Text: ::
+|————Node:identifier Text: setFOn
+|———Node:parameter_list Text: (uint8_t session,uint8_t f)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint8_t session
+|—————Node:primitive_type Text: uint8_t
+|—————Node:identifier Text: session
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint8_t f
+|—————Node:primitive_type Text: uint8_t
+|—————Node:identifier Text: f
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    cbus->sendSetFun(session,f);
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: cbus->sendSetFun(session,f);
+|————Node:call_expression Text: cbus->sendSetFun(session,f)
+|—————Node:field_expression Text: cbus->sendSetFun
+|——————Node:identifier Text: cbus
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: sendSetFun
+|—————Node:argument_list Text: (session,f)
+|——————Node:( Text: (
+|——————Node:identifier Text: session
+|——————Node:, Text: ,
+|——————Node:identifier Text: f
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void MergCBUSThrottle::setFOff(uint8_t session, uint8_t f){
+    cbus->sendUnsetFun(session,f);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: MergCBUSThrottle::setFOff(uint8_t session, uint8_t f)
+|———Node:qualified_identifier Text: MergCBUSThrottle::setFOff
+|————Node:namespace_identifier Text: MergCBUSThrottle
+|————Node::: Text: ::
+|————Node:identifier Text: setFOff
+|———Node:parameter_list Text: (uint8_t session, uint8_t f)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint8_t session
+|—————Node:primitive_type Text: uint8_t
+|—————Node:identifier Text: session
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint8_t f
+|—————Node:primitive_type Text: uint8_t
+|—————Node:identifier Text: f
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    cbus->sendUnsetFun(session,f);
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: cbus->sendUnsetFun(session,f);
+|————Node:call_expression Text: cbus->sendUnsetFun(session,f)
+|—————Node:field_expression Text: cbus->sendUnsetFun
+|——————Node:identifier Text: cbus
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: sendUnsetFun
+|—————Node:argument_list Text: (session,f)
+|——————Node:( Text: (
+|——————Node:identifier Text: session
+|——————Node:, Text: ,
+|——————Node:identifier Text: f
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void MergCBUSThrottle::setSpeedMode(uint8_t session){
+    cbus->sendSpeedMode(session,0);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: MergCBUSThrottle::setSpeedMode(uint8_t session)
+|———Node:qualified_identifier Text: MergCBUSThrottle::setSpeedMode
+|————Node:namespace_identifier Text: MergCBUSThrottle
+|————Node::: Text: ::
+|————Node:identifier Text: setSpeedMode
+|———Node:parameter_list Text: (uint8_t session)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint8_t session
+|—————Node:primitive_type Text: uint8_t
+|—————Node:identifier Text: session
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    cbus->sendSpeedMode(session,0);
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: cbus->sendSpeedMode(session,0);
+|————Node:call_expression Text: cbus->sendSpeedMode(session,0)
+|—————Node:field_expression Text: cbus->sendSpeedMode
+|——————Node:identifier Text: cbus
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: sendSpeedMode
+|—————Node:argument_list Text: (session,0)
+|——————Node:( Text: (
+|——————Node:identifier Text: session
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: uint8_t MergCBUSThrottle::getSpeed(){
+}
+|——Node:primitive_type Text: uint8_t
+|——Node:function_declarator Text: MergCBUSThrottle::getSpeed()
+|———Node:qualified_identifier Text: MergCBUSThrottle::getSpeed
+|————Node:namespace_identifier Text: MergCBUSThrottle
+|————Node::: Text: ::
+|————Node:identifier Text: getSpeed
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:function_definition Text: void MergCBUSThrottle::setDirection(bool d_forward){
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: MergCBUSThrottle::setDirection(bool d_forward)
+|———Node:qualified_identifier Text: MergCBUSThrottle::setDirection
+|————Node:namespace_identifier Text: MergCBUSThrottle
+|————Node::: Text: ::
+|————Node:identifier Text: setDirection
+|———Node:parameter_list Text: (bool d_forward)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: bool d_forward
+|—————Node:primitive_type Text: bool
+|—————Node:identifier Text: d_forward
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:function_definition Text: bool MergCBUSThrottle::getDirection(){
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: MergCBUSThrottle::getDirection()
+|———Node:qualified_identifier Text: MergCBUSThrottle::getDirection
+|————Node:namespace_identifier Text: MergCBUSThrottle
+|————Node::: Text: ::
+|————Node:identifier Text: getDirection
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:function_definition Text: bool MergCBUSThrottle::setSpeedDirection(uint8_t session, uint8_t v,bool d_forward){
+    cbus->sendSpeedDir(session,v,d_forward);
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: MergCBUSThrottle::setSpeedDirection(uint8_t session, uint8_t v,bool d_forward)
+|———Node:qualified_identifier Text: MergCBUSThrottle::setSpeedDirection
+|————Node:namespace_identifier Text: MergCBUSThrottle
+|————Node::: Text: ::
+|————Node:identifier Text: setSpeedDirection
+|———Node:parameter_list Text: (uint8_t session, uint8_t v,bool d_forward)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: uint8_t session
+|—————Node:primitive_type Text: uint8_t
+|—————Node:identifier Text: session
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: uint8_t v
+|—————Node:primitive_type Text: uint8_t
+|—————Node:identifier Text: v
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: bool d_forward
+|—————Node:primitive_type Text: bool
+|—————Node:identifier Text: d_forward
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    cbus->sendSpeedDir(session,v,d_forward);
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: cbus->sendSpeedDir(session,v,d_forward);
+|————Node:call_expression Text: cbus->sendSpeedDir(session,v,d_forward)
+|—————Node:field_expression Text: cbus->sendSpeedDir
+|——————Node:identifier Text: cbus
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: sendSpeedDir
+|—————Node:argument_list Text: (session,v,d_forward)
+|——————Node:( Text: (
+|——————Node:identifier Text: session
+|——————Node:, Text: ,
+|——————Node:identifier Text: v
+|——————Node:, Text: ,
+|——————Node:identifier Text: d_forward
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: bool MergCBUSThrottle::stealLoco(){
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: MergCBUSThrottle::stealLoco()
+|———Node:qualified_identifier Text: MergCBUSThrottle::stealLoco
+|————Node:namespace_identifier Text: MergCBUSThrottle
+|————Node::: Text: ::
+|————Node:identifier Text: stealLoco
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }
+|—Node:function_definition Text: bool MergCBUSThrottle::shareLoco(){
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: MergCBUSThrottle::shareLoco()
+|———Node:qualified_identifier Text: MergCBUSThrottle::shareLoco
+|————Node:namespace_identifier Text: MergCBUSThrottle
+|————Node::: Text: ::
+|————Node:identifier Text: shareLoco
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+}
+|———Node:{ Text: {
+|———Node:} Text: }

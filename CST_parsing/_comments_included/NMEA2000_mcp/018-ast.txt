@@ -1,0 +1,343 @@
+NMEA2000_mcp-NMEA2000_mcp.h
+
+|Node:translation_unit
+|—Node:comment Text: /* 
+NMEA2000_mcp.h
+
+2015-2016 Copyright (c) Kave Oy, www.kave.fi  All right reserved.
+
+Author: Timo Lappalainen
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-
+  1301  USA
+  
+Inherited NMEA2000 object for Arduino CAN_BUS shield or any MCP2515 CAN controller
+based setup. See also NMEA2000 library.
+*/
+|—Node:preproc_ifdef Text: #ifndef _NMEA2000_MCP_H_
+#define _NMEA2000_MCP_H_
+
+// CAN_BUS_shield libraries will be originally found on https://github.com/Seeed-Studio/CAN_BUS_Shield
+// That does not work completely with N2k or with Maple mini. So there is developed
+// branch found on https://github.com/peppeve/CAN_BUS_Shield 
+#include <mcp_can.h>
+#include <NMEA2000.h> 
+#include <N2kMsg.h>
+
+// Define size of 
+#ifndef MCP_CAN_RX_BUFFER_SIZE
+#define MCP_CAN_RX_BUFFER_SIZE 50 
+#endif
+
+class tNMEA2000_mcp : public tNMEA2000
+{
+private:
+  MCP_CAN N2kCAN;
+  unsigned char N2k_CAN_CS_pin;
+  unsigned char N2k_CAN_clockset;
+  unsigned char N2k_CAN_int_pin;
+  bool IsOpen;
+  
+protected:
+    bool CANSendFrame(unsigned long id, unsigned char len, const unsigned char *buf, bool wait_sent=true);
+    bool CANOpen();
+    bool CANGetFrame(unsigned long &id, unsigned char &len, unsigned char *buf);
+    bool UseInterrupt() { return N2k_CAN_int_pin!=0xff; }
+    
+public:
+    tNMEA2000_mcp(unsigned char _N2k_CAN_CS_pin, unsigned char _N2k_CAN_clockset = MCP_16MHz, 
+                  unsigned char _N2k_CAN_int_pin = 0xff, uint16_t rx_frame_buf_size=MCP_CAN_RX_BUFFER_SIZE);
+    void SetSPI(SPIClass *_pSPI) { N2kCAN.setSPI(_pSPI); }
+};
+
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: _NMEA2000_MCP_H_
+|——Node:preproc_def Text: #define _NMEA2000_MCP_H_
+
+|———Node:#define Text: #define
+|———Node:identifier Text: _NMEA2000_MCP_H_
+|——Node:comment Text: // CAN_BUS_shield libraries will be originally found on https://github.com/Seeed-Studio/CAN_BUS_Shield
+|——Node:comment Text: // That does not work completely with N2k or with Maple mini. So there is developed
+|——Node:comment Text: // branch found on https://github.com/peppeve/CAN_BUS_Shield 
+|——Node:preproc_include Text: #include <mcp_can.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <mcp_can.h>
+|——Node:preproc_include Text: #include <NMEA2000.h>
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <NMEA2000.h>
+|——Node:preproc_include Text: #include <N2kMsg.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <N2kMsg.h>
+|——Node:comment Text: // Define size of 
+|——Node:preproc_ifdef Text: #ifndef MCP_CAN_RX_BUFFER_SIZE
+#define MCP_CAN_RX_BUFFER_SIZE 50 
+#endif
+|———Node:#ifndef Text: #ifndef
+|———Node:identifier Text: MCP_CAN_RX_BUFFER_SIZE
+|———Node:preproc_def Text: #define MCP_CAN_RX_BUFFER_SIZE 50 
+
+|————Node:#define Text: #define
+|————Node:identifier Text: MCP_CAN_RX_BUFFER_SIZE
+|————Node:preproc_arg Text: 50 
+|———Node:#endif Text: #endif
+|——Node:function_definition Text: class tNMEA2000_mcp : public tNMEA2000
+{
+private:
+  MCP_CAN N2kCAN;
+  unsigned char N2k_CAN_CS_pin;
+  unsigned char N2k_CAN_clockset;
+  unsigned char N2k_CAN_int_pin;
+  bool IsOpen;
+  
+protected:
+    bool CANSendFrame(unsigned long id, unsigned char len, const unsigned char *buf, bool wait_sent=true);
+    bool CANOpen();
+    bool CANGetFrame(unsigned long &id, unsigned char &len, unsigned char *buf);
+    bool UseInterrupt() { return N2k_CAN_int_pin!=0xff; }
+    
+public:
+    tNMEA2000_mcp(unsigned char _N2k_CAN_CS_pin, unsigned char _N2k_CAN_clockset = MCP_16MHz, 
+                  unsigned char _N2k_CAN_int_pin = 0xff, uint16_t rx_frame_buf_size=MCP_CAN_RX_BUFFER_SIZE);
+    void SetSPI(SPIClass *_pSPI) { N2kCAN.setSPI(_pSPI); }
+}
+|———Node:type_identifier Text: class
+|———Node:identifier Text: tNMEA2000_mcp
+|———Node:ERROR Text: : public tNMEA2000
+|————Node:: Text: :
+|————Node:identifier Text: public
+|————Node:identifier Text: tNMEA2000
+|———Node:compound_statement Text: {
+private:
+  MCP_CAN N2kCAN;
+  unsigned char N2k_CAN_CS_pin;
+  unsigned char N2k_CAN_clockset;
+  unsigned char N2k_CAN_int_pin;
+  bool IsOpen;
+  
+protected:
+    bool CANSendFrame(unsigned long id, unsigned char len, const unsigned char *buf, bool wait_sent=true);
+    bool CANOpen();
+    bool CANGetFrame(unsigned long &id, unsigned char &len, unsigned char *buf);
+    bool UseInterrupt() { return N2k_CAN_int_pin!=0xff; }
+    
+public:
+    tNMEA2000_mcp(unsigned char _N2k_CAN_CS_pin, unsigned char _N2k_CAN_clockset = MCP_16MHz, 
+                  unsigned char _N2k_CAN_int_pin = 0xff, uint16_t rx_frame_buf_size=MCP_CAN_RX_BUFFER_SIZE);
+    void SetSPI(SPIClass *_pSPI) { N2kCAN.setSPI(_pSPI); }
+}
+|————Node:{ Text: {
+|————Node:labeled_statement Text: private:
+  MCP_CAN N2kCAN;
+|—————Node:statement_identifier Text: private
+|—————Node:: Text: :
+|—————Node:declaration Text: MCP_CAN N2kCAN;
+|——————Node:type_identifier Text: MCP_CAN
+|——————Node:identifier Text: N2kCAN
+|——————Node:; Text: ;
+|————Node:declaration Text: unsigned char N2k_CAN_CS_pin;
+|—————Node:sized_type_specifier Text: unsigned char
+|——————Node:unsigned Text: unsigned
+|——————Node:primitive_type Text: char
+|—————Node:identifier Text: N2k_CAN_CS_pin
+|—————Node:; Text: ;
+|————Node:declaration Text: unsigned char N2k_CAN_clockset;
+|—————Node:sized_type_specifier Text: unsigned char
+|——————Node:unsigned Text: unsigned
+|——————Node:primitive_type Text: char
+|—————Node:identifier Text: N2k_CAN_clockset
+|—————Node:; Text: ;
+|————Node:declaration Text: unsigned char N2k_CAN_int_pin;
+|—————Node:sized_type_specifier Text: unsigned char
+|——————Node:unsigned Text: unsigned
+|——————Node:primitive_type Text: char
+|—————Node:identifier Text: N2k_CAN_int_pin
+|—————Node:; Text: ;
+|————Node:declaration Text: bool IsOpen;
+|—————Node:primitive_type Text: bool
+|—————Node:identifier Text: IsOpen
+|—————Node:; Text: ;
+|————Node:labeled_statement Text: protected:
+    bool CANSendFrame(unsigned long id, unsigned char len, const unsigned char *buf, bool wait_sent=true);
+|—————Node:statement_identifier Text: protected
+|—————Node:: Text: :
+|—————Node:declaration Text: bool CANSendFrame(unsigned long id, unsigned char len, const unsigned char *buf, bool wait_sent=true);
+|——————Node:primitive_type Text: bool
+|——————Node:init_declarator Text: CANSendFrame(unsigned long id, unsigned char len, const unsigned char *buf, bool wait_sent=true
+|———————Node:function_declarator Text: CANSendFrame(unsigned long id, unsigned char len, const unsigned char *buf, bool wait_sent
+|————————Node:identifier Text: CANSendFrame
+|————————Node:parameter_list Text: (unsigned long id, unsigned char len, const unsigned char *buf, bool wait_sent
+|—————————Node:( Text: (
+|—————————Node:parameter_declaration Text: unsigned long id
+|——————————Node:sized_type_specifier Text: unsigned long
+|———————————Node:unsigned Text: unsigned
+|———————————Node:long Text: long
+|——————————Node:identifier Text: id
+|—————————Node:, Text: ,
+|—————————Node:parameter_declaration Text: unsigned char len
+|——————————Node:sized_type_specifier Text: unsigned char
+|———————————Node:unsigned Text: unsigned
+|———————————Node:primitive_type Text: char
+|——————————Node:identifier Text: len
+|—————————Node:, Text: ,
+|—————————Node:parameter_declaration Text: const unsigned char *buf
+|——————————Node:type_qualifier Text: const
+|———————————Node:const Text: const
+|——————————Node:sized_type_specifier Text: unsigned char
+|———————————Node:unsigned Text: unsigned
+|———————————Node:primitive_type Text: char
+|——————————Node:pointer_declarator Text: *buf
+|———————————Node:* Text: *
+|———————————Node:identifier Text: buf
+|—————————Node:, Text: ,
+|—————————Node:parameter_declaration Text: bool wait_sent
+|——————————Node:primitive_type Text: bool
+|——————————Node:identifier Text: wait_sent
+|—————————Node:) Text: 
+|———————Node:= Text: =
+|———————Node:true Text: true
+|——————Node:ERROR Text: )
+|———————Node:) Text: )
+|——————Node:; Text: ;
+|————Node:declaration Text: bool CANOpen();
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: CANOpen()
+|——————Node:identifier Text: CANOpen
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: bool CANGetFrame(unsigned long &id, unsigned char &len, unsigned char *buf);
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: CANGetFrame(unsigned long &id, unsigned char &len, unsigned char *buf)
+|——————Node:identifier Text: CANGetFrame
+|——————Node:parameter_list Text: (unsigned long &id, unsigned char &len, unsigned char *buf)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: unsigned long &id
+|————————Node:sized_type_specifier Text: unsigned long
+|—————————Node:unsigned Text: unsigned
+|—————————Node:long Text: long
+|————————Node:ERROR Text: &
+|—————————Node:& Text: &
+|————————Node:identifier Text: id
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: unsigned char &len
+|————————Node:sized_type_specifier Text: unsigned char
+|—————————Node:unsigned Text: unsigned
+|—————————Node:primitive_type Text: char
+|————————Node:ERROR Text: &
+|—————————Node:& Text: &
+|————————Node:identifier Text: len
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: unsigned char *buf
+|————————Node:sized_type_specifier Text: unsigned char
+|—————————Node:unsigned Text: unsigned
+|—————————Node:primitive_type Text: char
+|————————Node:pointer_declarator Text: *buf
+|—————————Node:* Text: *
+|—————————Node:identifier Text: buf
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:function_definition Text: bool UseInterrupt() { return N2k_CAN_int_pin!=0xff; }
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: UseInterrupt()
+|——————Node:identifier Text: UseInterrupt
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:compound_statement Text: { return N2k_CAN_int_pin!=0xff; }
+|——————Node:{ Text: {
+|——————Node:return_statement Text: return N2k_CAN_int_pin!=0xff;
+|———————Node:return Text: return
+|———————Node:binary_expression Text: N2k_CAN_int_pin!=0xff
+|————————Node:identifier Text: N2k_CAN_int_pin
+|————————Node:!= Text: !=
+|————————Node:number_literal Text: 0xff
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:labeled_statement Text: public:
+    tNMEA2000_mcp(unsigned char _N2k_CAN_CS_pin, unsigned char _N2k_CAN_clockset = MCP_16MHz, 
+                  unsigned char _N2k_CAN_int_pin = 0xff, uint16_t rx_frame_buf_size=MCP_CAN_RX_BUFFER_SIZE);
+|—————Node:statement_identifier Text: public
+|—————Node:: Text: :
+|—————Node:declaration Text: tNMEA2000_mcp(unsigned char _N2k_CAN_CS_pin, unsigned char _N2k_CAN_clockset = MCP_16MHz, 
+                  unsigned char _N2k_CAN_int_pin = 0xff, uint16_t rx_frame_buf_size=MCP_CAN_RX_BUFFER_SIZE);
+|——————Node:macro_type_specifier Text: tNMEA2000_mcp(unsigned char
+|———————Node:identifier Text: tNMEA2000_mcp
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: unsigned char
+|————————Node:sized_type_specifier Text: unsigned char
+|—————————Node:unsigned Text: unsigned
+|—————————Node:primitive_type Text: char
+|———————Node:) Text: 
+|——————Node:identifier Text: _N2k_CAN_CS_pin
+|——————Node:, Text: ,
+|——————Node:ERROR Text: unsigned char
+|———————Node:identifier Text: unsigned
+|———————Node:identifier Text: char
+|——————Node:init_declarator Text: _N2k_CAN_clockset = MCP_16MHz
+|———————Node:identifier Text: _N2k_CAN_clockset
+|———————Node:= Text: =
+|———————Node:identifier Text: MCP_16MHz
+|——————Node:, Text: ,
+|——————Node:ERROR Text: unsigned char
+|———————Node:identifier Text: unsigned
+|———————Node:identifier Text: char
+|——————Node:init_declarator Text: _N2k_CAN_int_pin = 0xff
+|———————Node:identifier Text: _N2k_CAN_int_pin
+|———————Node:= Text: =
+|———————Node:number_literal Text: 0xff
+|——————Node:, Text: ,
+|——————Node:ERROR Text: uint16_t
+|———————Node:identifier Text: uint16_t
+|——————Node:init_declarator Text: rx_frame_buf_size=MCP_CAN_RX_BUFFER_SIZE
+|———————Node:identifier Text: rx_frame_buf_size
+|———————Node:= Text: =
+|———————Node:identifier Text: MCP_CAN_RX_BUFFER_SIZE
+|——————Node:ERROR Text: )
+|———————Node:) Text: )
+|——————Node:; Text: ;
+|————Node:function_definition Text: void SetSPI(SPIClass *_pSPI) { N2kCAN.setSPI(_pSPI); }
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: SetSPI(SPIClass *_pSPI)
+|——————Node:identifier Text: SetSPI
+|——————Node:parameter_list Text: (SPIClass *_pSPI)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: SPIClass *_pSPI
+|————————Node:type_identifier Text: SPIClass
+|————————Node:pointer_declarator Text: *_pSPI
+|—————————Node:* Text: *
+|—————————Node:identifier Text: _pSPI
+|———————Node:) Text: )
+|—————Node:compound_statement Text: { N2kCAN.setSPI(_pSPI); }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: N2kCAN.setSPI(_pSPI);
+|———————Node:call_expression Text: N2kCAN.setSPI(_pSPI)
+|————————Node:field_expression Text: N2kCAN.setSPI
+|—————————Node:identifier Text: N2kCAN
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: setSPI
+|————————Node:argument_list Text: (_pSPI)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: _pSPI
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:} Text: }
+|——Node:expression_statement Text: ;
+|———Node:; Text: ;
+|——Node:#endif Text: #endif

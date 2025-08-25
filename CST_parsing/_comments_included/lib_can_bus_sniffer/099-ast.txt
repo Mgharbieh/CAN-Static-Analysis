@@ -1,0 +1,413 @@
+lib_can_bus_sniffer-inc\lib_CAN_bus_decode.h
+
+|Node:translation_unit
+|—Node:comment Text: /* Author : Matthew Kaiser */
+|—Node:preproc_ifdef Text: #ifndef LIB_CAN_BUS_DECODE_H_
+#define LIB_CAN_BUS_DECODE_H_
+
+#include "stdio.h"
+#include "lib_pid.h"
+
+#define NUM_CAN_DECODE 25
+
+#define DECODE_ENGINE_RPM_PID MODE1_ENGINE_RPM
+#define DECODE_ENGINE_RRPM_ID 0x090
+
+#define DECODE_ACCEL_PEDAL_POS_PID  MODE1_REL_ACCELERATOR_PEDAL_POS
+#define DECODE_ACCEL_PEDAL_POS_ID   0x080
+
+#define DECODE_BOOST_PRESSURE_PID   MODE1_TURBO_INLET_PRESSURE
+#define DECODE_BOOST_PRESSURE_ID    0xF8
+
+#define DECODE_ENGINE_OIL_TEMP_PID MODE1_ENGINE_OIL_TEMPERATURE
+#define DECODE_ENGINE_OIL_TEMP_ID  0xF8
+
+typedef void (*CAN_DECODE_FLAG_UPDATE)( uint16_t flag, uint8_t bit );
+typedef void (*CAN_DECODE_FILTER)( uint16_t id );
+
+typedef enum _can_bus_decode {
+    CAN_DECODE_IDLE,
+    CAN_DECODE_NEW_DATA
+} CAN_BUS_DECODE, *PCAN_BUS_DECODE;
+
+typedef enum _pid_supported_status {
+    PID_NOT_SUPPORTED,
+    PID_SUPPORTED
+} PID_SUPPORTED_STATUS, *PPID_SUPPORTED_STATUS;
+
+typedef struct _can_decode_packet_manager {
+	uint8_t status;
+		#define CAN_DECODE_INIT 0x0001
+
+	/* Number of PIDs being streamed */
+    uint8_t num_pids;
+
+    /* PID requested */
+    uint16_t pid_request[NUM_CAN_DECODE];
+
+    /* Float value of the PID */
+    float pid_results[NUM_CAN_DECODE];
+
+    /* Callback to add a CAN bus filter */
+    CAN_DECODE_FILTER filter;
+
+    PTR_PID_DATA stream[NUM_CAN_DECODE];
+
+} CAN_DECODE_PACKET_MANAGER, *PCAN_DECODE_PACKET_MANAGER;
+
+PID_SUPPORTED_STATUS CAN_Decode_Supported( PTR_PID_DATA pid );
+PID_SUPPORTED_STATUS CAN_Decode_Add_PID(  PCAN_DECODE_PACKET_MANAGER dev, PTR_PID_DATA pid );
+float CAN_Decode_Get_Value_Byte_PID( PCAN_DECODE_PACKET_MANAGER dev, uint16_t pid );
+void CAN_Decode_Add_Packet( PCAN_DECODE_PACKET_MANAGER dev, uint16_t arbitration_id, uint8_t* packet_data );
+void CAN_Decode_Initialize( PCAN_DECODE_PACKET_MANAGER dev );
+
+
+
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: LIB_CAN_BUS_DECODE_H_
+|——Node:preproc_def Text: #define LIB_CAN_BUS_DECODE_H_
+
+|———Node:#define Text: #define
+|———Node:identifier Text: LIB_CAN_BUS_DECODE_H_
+|——Node:preproc_include Text: #include "stdio.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "stdio.h"
+|————Node:" Text: "
+|————Node:string_content Text: stdio.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "lib_pid.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "lib_pid.h"
+|————Node:" Text: "
+|————Node:string_content Text: lib_pid.h
+|————Node:" Text: "
+|——Node:preproc_def Text: #define NUM_CAN_DECODE 25
+
+|———Node:#define Text: #define
+|———Node:identifier Text: NUM_CAN_DECODE
+|———Node:preproc_arg Text: 25
+|——Node:preproc_def Text: #define DECODE_ENGINE_RPM_PID MODE1_ENGINE_RPM
+
+|———Node:#define Text: #define
+|———Node:identifier Text: DECODE_ENGINE_RPM_PID
+|———Node:preproc_arg Text: MODE1_ENGINE_RPM
+|——Node:preproc_def Text: #define DECODE_ENGINE_RRPM_ID 0x090
+
+|———Node:#define Text: #define
+|———Node:identifier Text: DECODE_ENGINE_RRPM_ID
+|———Node:preproc_arg Text: 0x090
+|——Node:preproc_def Text: #define DECODE_ACCEL_PEDAL_POS_PID  MODE1_REL_ACCELERATOR_PEDAL_POS
+
+|———Node:#define Text: #define
+|———Node:identifier Text: DECODE_ACCEL_PEDAL_POS_PID
+|———Node:preproc_arg Text: MODE1_REL_ACCELERATOR_PEDAL_POS
+|——Node:preproc_def Text: #define DECODE_ACCEL_PEDAL_POS_ID   0x080
+
+|———Node:#define Text: #define
+|———Node:identifier Text: DECODE_ACCEL_PEDAL_POS_ID
+|———Node:preproc_arg Text: 0x080
+|——Node:preproc_def Text: #define DECODE_BOOST_PRESSURE_PID   MODE1_TURBO_INLET_PRESSURE
+
+|———Node:#define Text: #define
+|———Node:identifier Text: DECODE_BOOST_PRESSURE_PID
+|———Node:preproc_arg Text: MODE1_TURBO_INLET_PRESSURE
+|——Node:preproc_def Text: #define DECODE_BOOST_PRESSURE_ID    0xF8
+
+|———Node:#define Text: #define
+|———Node:identifier Text: DECODE_BOOST_PRESSURE_ID
+|———Node:preproc_arg Text: 0xF8
+|——Node:preproc_def Text: #define DECODE_ENGINE_OIL_TEMP_PID MODE1_ENGINE_OIL_TEMPERATURE
+
+|———Node:#define Text: #define
+|———Node:identifier Text: DECODE_ENGINE_OIL_TEMP_PID
+|———Node:preproc_arg Text: MODE1_ENGINE_OIL_TEMPERATURE
+|——Node:preproc_def Text: #define DECODE_ENGINE_OIL_TEMP_ID  0xF8
+
+|———Node:#define Text: #define
+|———Node:identifier Text: DECODE_ENGINE_OIL_TEMP_ID
+|———Node:preproc_arg Text: 0xF8
+|——Node:type_definition Text: typedef void (*CAN_DECODE_FLAG_UPDATE)( uint16_t flag, uint8_t bit );
+|———Node:typedef Text: typedef
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: (*CAN_DECODE_FLAG_UPDATE)( uint16_t flag, uint8_t bit )
+|————Node:parenthesized_declarator Text: (*CAN_DECODE_FLAG_UPDATE)
+|—————Node:( Text: (
+|—————Node:pointer_declarator Text: *CAN_DECODE_FLAG_UPDATE
+|——————Node:* Text: *
+|——————Node:type_identifier Text: CAN_DECODE_FLAG_UPDATE
+|—————Node:) Text: )
+|————Node:parameter_list Text: ( uint16_t flag, uint8_t bit )
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint16_t flag
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: flag
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint8_t bit
+|——————Node:primitive_type Text: uint8_t
+|——————Node:identifier Text: bit
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef void (*CAN_DECODE_FILTER)( uint16_t id );
+|———Node:typedef Text: typedef
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: (*CAN_DECODE_FILTER)( uint16_t id )
+|————Node:parenthesized_declarator Text: (*CAN_DECODE_FILTER)
+|—————Node:( Text: (
+|—————Node:pointer_declarator Text: *CAN_DECODE_FILTER
+|——————Node:* Text: *
+|——————Node:type_identifier Text: CAN_DECODE_FILTER
+|—————Node:) Text: )
+|————Node:parameter_list Text: ( uint16_t id )
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: uint16_t id
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: id
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef enum _can_bus_decode {
+    CAN_DECODE_IDLE,
+    CAN_DECODE_NEW_DATA
+} CAN_BUS_DECODE, *PCAN_BUS_DECODE;
+|———Node:typedef Text: typedef
+|———Node:enum_specifier Text: enum _can_bus_decode {
+    CAN_DECODE_IDLE,
+    CAN_DECODE_NEW_DATA
+}
+|————Node:enum Text: enum
+|————Node:type_identifier Text: _can_bus_decode
+|————Node:enumerator_list Text: {
+    CAN_DECODE_IDLE,
+    CAN_DECODE_NEW_DATA
+}
+|—————Node:{ Text: {
+|—————Node:enumerator Text: CAN_DECODE_IDLE
+|——————Node:identifier Text: CAN_DECODE_IDLE
+|—————Node:, Text: ,
+|—————Node:enumerator Text: CAN_DECODE_NEW_DATA
+|——————Node:identifier Text: CAN_DECODE_NEW_DATA
+|—————Node:} Text: }
+|———Node:type_identifier Text: CAN_BUS_DECODE
+|———Node:, Text: ,
+|———Node:pointer_declarator Text: *PCAN_BUS_DECODE
+|————Node:* Text: *
+|————Node:type_identifier Text: PCAN_BUS_DECODE
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef enum _pid_supported_status {
+    PID_NOT_SUPPORTED,
+    PID_SUPPORTED
+} PID_SUPPORTED_STATUS, *PPID_SUPPORTED_STATUS;
+|———Node:typedef Text: typedef
+|———Node:enum_specifier Text: enum _pid_supported_status {
+    PID_NOT_SUPPORTED,
+    PID_SUPPORTED
+}
+|————Node:enum Text: enum
+|————Node:type_identifier Text: _pid_supported_status
+|————Node:enumerator_list Text: {
+    PID_NOT_SUPPORTED,
+    PID_SUPPORTED
+}
+|—————Node:{ Text: {
+|—————Node:enumerator Text: PID_NOT_SUPPORTED
+|——————Node:identifier Text: PID_NOT_SUPPORTED
+|—————Node:, Text: ,
+|—————Node:enumerator Text: PID_SUPPORTED
+|——————Node:identifier Text: PID_SUPPORTED
+|—————Node:} Text: }
+|———Node:type_identifier Text: PID_SUPPORTED_STATUS
+|———Node:, Text: ,
+|———Node:pointer_declarator Text: *PPID_SUPPORTED_STATUS
+|————Node:* Text: *
+|————Node:type_identifier Text: PPID_SUPPORTED_STATUS
+|———Node:; Text: ;
+|——Node:type_definition Text: typedef struct _can_decode_packet_manager {
+	uint8_t status;
+		#define CAN_DECODE_INIT 0x0001
+
+	/* Number of PIDs being streamed */
+    uint8_t num_pids;
+
+    /* PID requested */
+    uint16_t pid_request[NUM_CAN_DECODE];
+
+    /* Float value of the PID */
+    float pid_results[NUM_CAN_DECODE];
+
+    /* Callback to add a CAN bus filter */
+    CAN_DECODE_FILTER filter;
+
+    PTR_PID_DATA stream[NUM_CAN_DECODE];
+
+} CAN_DECODE_PACKET_MANAGER, *PCAN_DECODE_PACKET_MANAGER;
+|———Node:typedef Text: typedef
+|———Node:struct_specifier Text: struct _can_decode_packet_manager {
+	uint8_t status;
+		#define CAN_DECODE_INIT 0x0001
+
+	/* Number of PIDs being streamed */
+    uint8_t num_pids;
+
+    /* PID requested */
+    uint16_t pid_request[NUM_CAN_DECODE];
+
+    /* Float value of the PID */
+    float pid_results[NUM_CAN_DECODE];
+
+    /* Callback to add a CAN bus filter */
+    CAN_DECODE_FILTER filter;
+
+    PTR_PID_DATA stream[NUM_CAN_DECODE];
+
+}
+|————Node:struct Text: struct
+|————Node:type_identifier Text: _can_decode_packet_manager
+|————Node:field_declaration_list Text: {
+	uint8_t status;
+		#define CAN_DECODE_INIT 0x0001
+
+	/* Number of PIDs being streamed */
+    uint8_t num_pids;
+
+    /* PID requested */
+    uint16_t pid_request[NUM_CAN_DECODE];
+
+    /* Float value of the PID */
+    float pid_results[NUM_CAN_DECODE];
+
+    /* Callback to add a CAN bus filter */
+    CAN_DECODE_FILTER filter;
+
+    PTR_PID_DATA stream[NUM_CAN_DECODE];
+
+}
+|—————Node:{ Text: {
+|—————Node:field_declaration Text: uint8_t status;
+|——————Node:primitive_type Text: uint8_t
+|——————Node:field_identifier Text: status
+|——————Node:; Text: ;
+|—————Node:preproc_def Text: #define CAN_DECODE_INIT 0x0001
+
+|——————Node:#define Text: #define
+|——————Node:identifier Text: CAN_DECODE_INIT
+|——————Node:preproc_arg Text: 0x0001
+|—————Node:comment Text: /* Number of PIDs being streamed */
+|—————Node:field_declaration Text: uint8_t num_pids;
+|——————Node:primitive_type Text: uint8_t
+|——————Node:field_identifier Text: num_pids
+|——————Node:; Text: ;
+|—————Node:comment Text: /* PID requested */
+|—————Node:field_declaration Text: uint16_t pid_request[NUM_CAN_DECODE];
+|——————Node:primitive_type Text: uint16_t
+|——————Node:array_declarator Text: pid_request[NUM_CAN_DECODE]
+|———————Node:field_identifier Text: pid_request
+|———————Node:[ Text: [
+|———————Node:identifier Text: NUM_CAN_DECODE
+|———————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:comment Text: /* Float value of the PID */
+|—————Node:field_declaration Text: float pid_results[NUM_CAN_DECODE];
+|——————Node:primitive_type Text: float
+|——————Node:array_declarator Text: pid_results[NUM_CAN_DECODE]
+|———————Node:field_identifier Text: pid_results
+|———————Node:[ Text: [
+|———————Node:identifier Text: NUM_CAN_DECODE
+|———————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:comment Text: /* Callback to add a CAN bus filter */
+|—————Node:field_declaration Text: CAN_DECODE_FILTER filter;
+|——————Node:type_identifier Text: CAN_DECODE_FILTER
+|——————Node:field_identifier Text: filter
+|——————Node:; Text: ;
+|—————Node:field_declaration Text: PTR_PID_DATA stream[NUM_CAN_DECODE];
+|——————Node:type_identifier Text: PTR_PID_DATA
+|——————Node:array_declarator Text: stream[NUM_CAN_DECODE]
+|———————Node:field_identifier Text: stream
+|———————Node:[ Text: [
+|———————Node:identifier Text: NUM_CAN_DECODE
+|———————Node:] Text: ]
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:type_identifier Text: CAN_DECODE_PACKET_MANAGER
+|———Node:, Text: ,
+|———Node:pointer_declarator Text: *PCAN_DECODE_PACKET_MANAGER
+|————Node:* Text: *
+|————Node:type_identifier Text: PCAN_DECODE_PACKET_MANAGER
+|———Node:; Text: ;
+|——Node:declaration Text: PID_SUPPORTED_STATUS CAN_Decode_Supported( PTR_PID_DATA pid );
+|———Node:type_identifier Text: PID_SUPPORTED_STATUS
+|———Node:function_declarator Text: CAN_Decode_Supported( PTR_PID_DATA pid )
+|————Node:identifier Text: CAN_Decode_Supported
+|————Node:parameter_list Text: ( PTR_PID_DATA pid )
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: PTR_PID_DATA pid
+|——————Node:type_identifier Text: PTR_PID_DATA
+|——————Node:identifier Text: pid
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: PID_SUPPORTED_STATUS CAN_Decode_Add_PID(  PCAN_DECODE_PACKET_MANAGER dev, PTR_PID_DATA pid );
+|———Node:type_identifier Text: PID_SUPPORTED_STATUS
+|———Node:function_declarator Text: CAN_Decode_Add_PID(  PCAN_DECODE_PACKET_MANAGER dev, PTR_PID_DATA pid )
+|————Node:identifier Text: CAN_Decode_Add_PID
+|————Node:parameter_list Text: (  PCAN_DECODE_PACKET_MANAGER dev, PTR_PID_DATA pid )
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: PCAN_DECODE_PACKET_MANAGER dev
+|——————Node:type_identifier Text: PCAN_DECODE_PACKET_MANAGER
+|——————Node:identifier Text: dev
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: PTR_PID_DATA pid
+|——————Node:type_identifier Text: PTR_PID_DATA
+|——————Node:identifier Text: pid
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: float CAN_Decode_Get_Value_Byte_PID( PCAN_DECODE_PACKET_MANAGER dev, uint16_t pid );
+|———Node:primitive_type Text: float
+|———Node:function_declarator Text: CAN_Decode_Get_Value_Byte_PID( PCAN_DECODE_PACKET_MANAGER dev, uint16_t pid )
+|————Node:identifier Text: CAN_Decode_Get_Value_Byte_PID
+|————Node:parameter_list Text: ( PCAN_DECODE_PACKET_MANAGER dev, uint16_t pid )
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: PCAN_DECODE_PACKET_MANAGER dev
+|——————Node:type_identifier Text: PCAN_DECODE_PACKET_MANAGER
+|——————Node:identifier Text: dev
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint16_t pid
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: pid
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: void CAN_Decode_Add_Packet( PCAN_DECODE_PACKET_MANAGER dev, uint16_t arbitration_id, uint8_t* packet_data );
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: CAN_Decode_Add_Packet( PCAN_DECODE_PACKET_MANAGER dev, uint16_t arbitration_id, uint8_t* packet_data )
+|————Node:identifier Text: CAN_Decode_Add_Packet
+|————Node:parameter_list Text: ( PCAN_DECODE_PACKET_MANAGER dev, uint16_t arbitration_id, uint8_t* packet_data )
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: PCAN_DECODE_PACKET_MANAGER dev
+|——————Node:type_identifier Text: PCAN_DECODE_PACKET_MANAGER
+|——————Node:identifier Text: dev
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint16_t arbitration_id
+|——————Node:primitive_type Text: uint16_t
+|——————Node:identifier Text: arbitration_id
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: uint8_t* packet_data
+|——————Node:primitive_type Text: uint8_t
+|——————Node:pointer_declarator Text: * packet_data
+|———————Node:* Text: *
+|———————Node:identifier Text: packet_data
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:declaration Text: void CAN_Decode_Initialize( PCAN_DECODE_PACKET_MANAGER dev );
+|———Node:primitive_type Text: void
+|———Node:function_declarator Text: CAN_Decode_Initialize( PCAN_DECODE_PACKET_MANAGER dev )
+|————Node:identifier Text: CAN_Decode_Initialize
+|————Node:parameter_list Text: ( PCAN_DECODE_PACKET_MANAGER dev )
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: PCAN_DECODE_PACKET_MANAGER dev
+|——————Node:type_identifier Text: PCAN_DECODE_PACKET_MANAGER
+|——————Node:identifier Text: dev
+|—————Node:) Text: )
+|———Node:; Text: ;
+|——Node:#endif Text: #endif
+|—Node:comment Text: // LIB_CAN_BUS_DECODE_H

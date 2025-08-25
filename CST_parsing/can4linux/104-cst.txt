@@ -1,0 +1,3796 @@
+can4linux-can4linux\ems_pci2.c
+
+|Node:translation_unit
+|—Node:comment
+|—Node:comment
+|—Node:preproc_include Text: #include "defs.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "defs.h"
+|———Node:" Text: "
+|———Node:string_content Text: defs.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include <linux/pci.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <linux/pci.h>
+|—Node:preproc_ifdef Text: #ifdef CAN4LINUX_PCI
+# ifndef CONFIG_PCI
+#   error "trying to compile a PCI driver for a kernel without CONFIG_PCI"
+# endif
+
+#ifdef CAN4LINUX_PCI
+
+
+int Can_RequestIrq(int minor, int irq,
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,18) 
+    irqreturn_t (*handler)(int, void *))
+#else
+    irqreturn_t (*handler)(int, void *, struct pt_regs *))
+#endif
+{
+int err = 0;
+
+    DBGin();
+    /*
+
+    int request_irq(unsigned int irq,			// interrupt number  
+              void (*handler)(int, void *, struct pt_regs *), // pointer to ISR
+		              irq, dev_id, registers on stack
+              unsigned long irqflags, const char *devname,
+              void *dev_id);
+
+       dev_id - The device ID of this handler (see below).       
+       This parameter is usually set to NULL,
+       but should be non-null if you wish to do  IRQ  sharing.
+       This  doesn't  matter when hooking the
+       interrupt, but is required so  that,  when  free_irq()  is
+       called,  the  correct driver is unhooked.  Since this is a
+       void *, it can point to anything (such  as  a  device-spe-
+       cific  structure,  or even empty space), but make sure you
+       pass the same pointer to free_irq().
+
+    */
+
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,18) 
+    err = request_irq(irq, handler, IRQF_SHARED, "Can", &Can_minors[minor]);
+#else
+    err = request_irq(irq, handler, SA_SHIRQ, "Can", &Can_minors[minor]);
+#endif
+
+
+    if( !err ){
+      DBGprint(DBG_BRANCH,("Requested IRQ: %d @ 0x%lx",
+      				irq, (unsigned long)handler));
+      IRQ_requested[minor] = 1;
+    }
+    DBGout(); return err;
+
+
+    	disable_irq(irq);
+	/* enable IRQ in PLX 9030 */
+	writel(PLX9030_ICR_ENABLE_IRQ0,
+          (void __iomem *)Can_pitapci_control[minor] + PLX9030_ICR);
+	enable_irq(irq);
+
+}
+
+
+int Can_FreeIrq(int minor, int irq )
+{
+    DBGin();
+    IRQ_requested[minor] = 0;
+    /* printk(" Free IRQ %d  minor %d\n", irq, minor);  */
+    free_irq(irq, &Can_minors[minor]);
+    DBGout();
+    return 0;
+}
+
+/*
+ * Perform Vendor-Init, that means sometimes CAN controller
+ * or only board manufacturer specific initialization.
+ *
+ * Mainly it gets needed IO and IRQ ressources and initilaizes 
+ * special hardware functions.
+ *
+ */
+
+int CAN_VendorInit (int minor)
+{
+    DBGin();
+    can_range[minor] = CAN_RANGE;
+    
+    /* PCI scan for CPC-PCI (or others ) has already remapped the address */
+    /* printk(" assign address direct\n"); */
+    can_base[minor] = (void __iomem *)Base[minor];
+
+    /* The Interrupt Line is alrady requestes by th PC CARD Services
+     * (in case of CPC-Card: cpc-card_cs.c) 
+    */ 
+
+    /* printk("MAX_IRQNUMBER %d/IRQ %d\n", MAX_IRQNUMBER, IRQ[minor]); */
+    if( IRQ[minor] > 0 && IRQ[minor] < MAX_IRQNUMBER ){
+        if( Can_RequestIrq( minor, IRQ[minor] , CAN_Interrupt) ) {
+	     printk("Can[%d]: Can't request IRQ %d \n", minor, IRQ[minor]);
+	     DBGout(); return -EBUSY;
+        }
+    } else {
+	/* Invalid IRQ number in /proc/.../IRQ */
+	DBGout(); return -EINVAL;
+    }
+    DBGout(); return 0;
+}
+
+
+
+
+
+
+
+
+/* reset both CAN controllers on the EMS-Wnsche CPC-PCI Board */
+/* writing to the control range at BAR1 of the PCI board */
+void reset_CPC_PCI(unsigned long address)
+{
+unsigned long ptr = (unsigned long)ioremap(address, 32);
+    writeb(0x01, (void __iomem *)ptr);
+}
+
+/* check memory region if there is a CAN controller
+*  assume the controller was resetted before testing 
+*
+*  The check for an avaliable controller is difficult !
+*  After an Hardware Reset (or power on) the Conroller 
+*  is in the so-called 'BasicCAN' mode.
+*     we can check for: 
+*         adress  name      value
+*	    0x00  mode       0x21
+*           0x02  status     0xc0
+*           0x03  interrupt  0xe0
+* Once loaded the driver switches into 'PeliCAN' mode and things are getting
+* difficult, because we now have only a 'soft reset' with not so  unique
+* values. The values have to be masked before comparing.
+*         adress  name       mask   value
+*	    0x00  mode               
+*           0x01  command    0xff    0x00
+*           0x02  status     0x37    0x34
+*           0x03  interrupt  0xfb    0x00
+*
+*/
+int controller_available(upointer_t address, int offset)
+{
+/* unsigned long ptr = (unsigned long)ioremap(address, 32 * offset); */
+void __iomem *ptr = ioremap(address, CAN_RANGE);
+
+
+#if 0     /* debugging */
+    printk("controller_available 0x%0lx, offset used %d\n",
+    			address, offset);
+
+    printk("0x%0x, ", readb(ptr) );
+    printk("0x%0x, ", readb(ptr + (2 * offset)) );
+    printk("0x%0x\n", readb(ptr + (3 * offset)) );
+
+    /* return 1; */
+
+#endif
+    /* Try to reset the CAN Controller before reading it.
+     * Not really correct, in case it's not a CAN card, anyway.
+     */
+    writeb(CAN_RESET_REQUEST, ptr);
+
+    if ( 0x21 == readb(ptr))  {
+	/* compare reset values of status and interrupt register */
+	if(   0x0c == readb(ptr + (2 * offset))
+	   && 0xe0 == readb(ptr + (3 * offset)) ) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+    } else {
+	/* may be called after a 'soft reset' in 'PeliCAN' mode */
+	/*   value     address                     mask    */
+	if(   0x00 ==  readb(ptr + (1 * offset))
+	   && 0x34 == (readb(ptr + (2 * offset))    & 0x37)
+	   && 0x00 == (readb(ptr + (3 * offset))    & 0xfb)
+	  ) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+
+    }
+}
+#endif
+
+
+
+
+#define PCI_BASE_ADDRESS0(dev) (dev->resource[0].start)
+#define PCI_BASE_ADDRESS1(dev) (dev->resource[1].start)
+#define PCI_BASE_ADDRESS2(dev) (dev->resource[2].start)
+#define PCI_BASE_ADDRESS3(dev) (dev->resource[3].start)
+
+/* used for storing the global pci register address */
+void __iomem *Can_pitapci_control[MAX_CHANNELS];
+
+# if defined(CPC_PCI2)
+
+
+
+#ifndef PCI_DEVICE_ID_PLX_9030
+#define PCI_DEVICE_ID_PLX_9030 0x9030
+#endif
+
+#if 0
+static struct pci_device_id  ems_pci_tbl[] = {
+      { PCI_DEVICE(PCI_VENDOR_ID_PLX, PCI_DEVICE_ID_PLX_9030), },
+      { 0, },                 /* End of list */
+};
+#endif
+
+int register_new_cpcpci(struct pci_dev *pdev, int i)
+{
+void __iomem *ptr;		/* ptr to PCI control registers*/
+void __iomem *cptr;		/* ptr to start of CAN control registers*/
+int j;				/* loop through possible CAN controllers */
+int minor = -1;			/* to make DBGin() happy */
+
+    DBGin();
+    	                 /* dev, bar, size */
+    ptr		= pci_iomap(pdev, 0, 128);      /* control base address */
+    cptr	= pci_iomap(pdev, 2, 2048);     /* CAN pointer */
+
+    err("register_new_cpcpci %d", i);
+    printk("cptr= %p \n", cptr);
+
+    /* look for a CAN controllers starting at 0x400 */
+    for(j = 0; j < 4; j++) {   
+	if(controller_available(PCI_BASE_ADDRESS2(pdev) 
+		+ CPC_PCI_CHANNEL_BASE + (CPC_PCI_CHANNEL_WIDTH * j), 1)) {
+	    err(" CAN controller %d. at pos %d\n", i + 1, j);
+	    if(i > MAX_CHANNELS) {
+		err("only %d devices supported", MAX_CHANNELS);
+		break; /* the devices scan loop */
+	    }
+	    IOModel[i]	= 'm';
+	    IRQ[i]	= pdev->irq;
+	    Base[i]	= (upointer_t) cptr
+	                  + CPC_PCI_CHANNEL_BASE
+	                  + (CPC_PCI_CHANNEL_WIDTH * j);
+	    Clock = 16000;	/* all EMS PCI Boards use the sam clock for all CAN */
+#ifdef __x86_64__
+	  /*  err("Base %llx/%lld",
+		(long long unsigned) Base[i], (long long unsigned)Base[i]); */
+#else
+	    err("Base %lx", Base[i]);
+#endif
+	    /* store pointer to control reg */
+	    Can_pitapci_control[i] = ptr;
+	    i++;
+	}
+    }
+    disable_irq(IRQ[i]);
+    /* enable IRQ in PLX 9030 */
+    writel(PLX9030_ICR_ENABLE_IRQ0, ptr + PLX9030_ICR);
+    enable_irq(IRQ[i]);
+    DBGout();
+    return i;	/* returns last CAN controller number found */
+}
+
+/* Scan the PCI bus for CAN board with PLX_9030
+ * and test if a CAN controller is on it.
+ * If yes fill our internal structures
+ */
+int pcimod_scan(void)
+{
+struct	pci_dev *pdev = NULL;
+int	candev = 0;			/* number of found devices */
+int	minor = -1;			/* to make DBGin() happy */
+
+    DBGin();
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+    /* Testing the PCI presence is no longer neccessary
+     * On a non  PCI kernel, insmod will just complain
+     */
+    if (pci_present ()) {
+#endif
+
+    for_each_pci_dev(pdev) {
+	/* too many devices are using a PLX9030,
+	   we have to check  sub-system ids as well */
+	if(   pdev->vendor           == PCI_VENDOR_ID_PLX
+	   && pdev->device           == PCI_DEVICE_ID_PLX_9030
+	   && pdev->subsystem_vendor == 0x10b5
+	   ) {
+	    err("found new EMS pci board %d", candev);
+	    printk("Subsystem Vendor 0x%0x\n", pdev->subsystem_vendor);
+	    printk("Subsystem Device 0x%0x\n", pdev->subsystem_device);
+	    /* reading delivers 0x10b5, 0x4000 */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		candev += register_new_cpcpci(pdev, candev);
+	    }
+	}
+	if(pdev->vendor == PCI_VENDOR_CAN_EMS
+	&& pdev->device == PCI_DEVICE_CAN) {
+	    err("found old EMS pci board %d\nUse TARGET=CPC_PCI compiled module", candev);
+	    continue;
+	    /* following code not used yet */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		/* candev += register_old_cpcpci(pdev, candev); */
+		;
+	    }
+	}
+    }
+    if(candev == 0) {
+	err("No CAN device found");
+	return -ENODEV;
+    } else {
+    	err("found %d CAN controllers", candev);
+    }
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+    } else { 
+        err("No PCI bios present");
+        return -ENODEV;
+    }
+#endif
+    DBGout();
+    return 0;
+}
+
+
+
+void board_clear_interrupts(int minor)
+{
+    /* err("board_clear_interrupts %d", minor); */
+
+    writel(PLX9030_ICR_CLEAR_IRQ0 | PLX9030_ICR_ENABLE_IRQ0,
+          (void __iomem *)Can_pitapci_control[minor] + PLX9030_ICR);
+}
+# endif 	/* defined(CPC_PCI) */
+
+
+
+
+
+#if CONFIG_TIME_MEASURE
+/* Functions to Switch the stet of output pins
+   used for time measurement within the CAN ISR
+ */
+void init_measure(void)
+{
+}
+
+void set_measure_pin(void) 
+{
+}
+
+void reset_measure_pin(void) 
+{
+}
+#endif
+
+
+#endif
+|——Node:#ifdef Text: #ifdef
+|——Node:identifier Text: CAN4LINUX_PCI
+|——Node:preproc_ifdef Text: # ifndef CONFIG_PCI
+#   error "trying to compile a PCI driver for a kernel without CONFIG_PCI"
+# endif
+|———Node:#ifndef Text: # ifndef
+|———Node:identifier Text: CONFIG_PCI
+|———Node:preproc_call Text: #   error "trying to compile a PCI driver for a kernel without CONFIG_PCI"
+
+|————Node:preproc_directive Text: #   error
+|————Node:preproc_arg Text: "trying to compile a PCI driver for a kernel without CONFIG_PCI"
+|———Node:#endif Text: # endif
+|——Node:preproc_ifdef Text: #ifdef CAN4LINUX_PCI
+
+
+int Can_RequestIrq(int minor, int irq,
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,18) 
+    irqreturn_t (*handler)(int, void *))
+#else
+    irqreturn_t (*handler)(int, void *, struct pt_regs *))
+#endif
+{
+int err = 0;
+
+    DBGin();
+    /*
+
+    int request_irq(unsigned int irq,			// interrupt number  
+              void (*handler)(int, void *, struct pt_regs *), // pointer to ISR
+		              irq, dev_id, registers on stack
+              unsigned long irqflags, const char *devname,
+              void *dev_id);
+
+       dev_id - The device ID of this handler (see below).       
+       This parameter is usually set to NULL,
+       but should be non-null if you wish to do  IRQ  sharing.
+       This  doesn't  matter when hooking the
+       interrupt, but is required so  that,  when  free_irq()  is
+       called,  the  correct driver is unhooked.  Since this is a
+       void *, it can point to anything (such  as  a  device-spe-
+       cific  structure,  or even empty space), but make sure you
+       pass the same pointer to free_irq().
+
+    */
+
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,18) 
+    err = request_irq(irq, handler, IRQF_SHARED, "Can", &Can_minors[minor]);
+#else
+    err = request_irq(irq, handler, SA_SHIRQ, "Can", &Can_minors[minor]);
+#endif
+
+
+    if( !err ){
+      DBGprint(DBG_BRANCH,("Requested IRQ: %d @ 0x%lx",
+      				irq, (unsigned long)handler));
+      IRQ_requested[minor] = 1;
+    }
+    DBGout(); return err;
+
+
+    	disable_irq(irq);
+	/* enable IRQ in PLX 9030 */
+	writel(PLX9030_ICR_ENABLE_IRQ0,
+          (void __iomem *)Can_pitapci_control[minor] + PLX9030_ICR);
+	enable_irq(irq);
+
+}
+
+
+int Can_FreeIrq(int minor, int irq )
+{
+    DBGin();
+    IRQ_requested[minor] = 0;
+    /* printk(" Free IRQ %d  minor %d\n", irq, minor);  */
+    free_irq(irq, &Can_minors[minor]);
+    DBGout();
+    return 0;
+}
+
+/*
+ * Perform Vendor-Init, that means sometimes CAN controller
+ * or only board manufacturer specific initialization.
+ *
+ * Mainly it gets needed IO and IRQ ressources and initilaizes 
+ * special hardware functions.
+ *
+ */
+
+int CAN_VendorInit (int minor)
+{
+    DBGin();
+    can_range[minor] = CAN_RANGE;
+    
+    /* PCI scan for CPC-PCI (or others ) has already remapped the address */
+    /* printk(" assign address direct\n"); */
+    can_base[minor] = (void __iomem *)Base[minor];
+
+    /* The Interrupt Line is alrady requestes by th PC CARD Services
+     * (in case of CPC-Card: cpc-card_cs.c) 
+    */ 
+
+    /* printk("MAX_IRQNUMBER %d/IRQ %d\n", MAX_IRQNUMBER, IRQ[minor]); */
+    if( IRQ[minor] > 0 && IRQ[minor] < MAX_IRQNUMBER ){
+        if( Can_RequestIrq( minor, IRQ[minor] , CAN_Interrupt) ) {
+	     printk("Can[%d]: Can't request IRQ %d \n", minor, IRQ[minor]);
+	     DBGout(); return -EBUSY;
+        }
+    } else {
+	/* Invalid IRQ number in /proc/.../IRQ */
+	DBGout(); return -EINVAL;
+    }
+    DBGout(); return 0;
+}
+
+
+
+
+
+
+
+
+/* reset both CAN controllers on the EMS-Wnsche CPC-PCI Board */
+/* writing to the control range at BAR1 of the PCI board */
+void reset_CPC_PCI(unsigned long address)
+{
+unsigned long ptr = (unsigned long)ioremap(address, 32);
+    writeb(0x01, (void __iomem *)ptr);
+}
+
+/* check memory region if there is a CAN controller
+*  assume the controller was resetted before testing 
+*
+*  The check for an avaliable controller is difficult !
+*  After an Hardware Reset (or power on) the Conroller 
+*  is in the so-called 'BasicCAN' mode.
+*     we can check for: 
+*         adress  name      value
+*	    0x00  mode       0x21
+*           0x02  status     0xc0
+*           0x03  interrupt  0xe0
+* Once loaded the driver switches into 'PeliCAN' mode and things are getting
+* difficult, because we now have only a 'soft reset' with not so  unique
+* values. The values have to be masked before comparing.
+*         adress  name       mask   value
+*	    0x00  mode               
+*           0x01  command    0xff    0x00
+*           0x02  status     0x37    0x34
+*           0x03  interrupt  0xfb    0x00
+*
+*/
+int controller_available(upointer_t address, int offset)
+{
+/* unsigned long ptr = (unsigned long)ioremap(address, 32 * offset); */
+void __iomem *ptr = ioremap(address, CAN_RANGE);
+
+
+#if 0     /* debugging */
+    printk("controller_available 0x%0lx, offset used %d\n",
+    			address, offset);
+
+    printk("0x%0x, ", readb(ptr) );
+    printk("0x%0x, ", readb(ptr + (2 * offset)) );
+    printk("0x%0x\n", readb(ptr + (3 * offset)) );
+
+    /* return 1; */
+
+#endif
+    /* Try to reset the CAN Controller before reading it.
+     * Not really correct, in case it's not a CAN card, anyway.
+     */
+    writeb(CAN_RESET_REQUEST, ptr);
+
+    if ( 0x21 == readb(ptr))  {
+	/* compare reset values of status and interrupt register */
+	if(   0x0c == readb(ptr + (2 * offset))
+	   && 0xe0 == readb(ptr + (3 * offset)) ) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+    } else {
+	/* may be called after a 'soft reset' in 'PeliCAN' mode */
+	/*   value     address                     mask    */
+	if(   0x00 ==  readb(ptr + (1 * offset))
+	   && 0x34 == (readb(ptr + (2 * offset))    & 0x37)
+	   && 0x00 == (readb(ptr + (3 * offset))    & 0xfb)
+	  ) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+
+    }
+}
+#endif
+|———Node:#ifdef Text: #ifdef
+|———Node:identifier Text: CAN4LINUX_PCI
+|———Node:ERROR Text: int Can_RequestIrq(int minor, int irq,
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,18) 
+    irqreturn_t (*handler)(int, void *))
+|————Node:primitive_type Text: int
+|————Node:function_declarator Text: Can_RequestIrq(int minor, int irq,
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,18) 
+    irqreturn_t (*handler)(int, void *)
+|—————Node:function_declarator Text: Can_RequestIrq(int minor, int irq,
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,18) 
+    irqreturn_t (*handler)
+|——————Node:identifier Text: Can_RequestIrq
+|——————Node:parameter_list Text: (int minor, int irq,
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,18) 
+    irqreturn_t (*handler)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: int minor
+|————————Node:primitive_type Text: int
+|————————Node:identifier Text: minor
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: int irq
+|————————Node:primitive_type Text: int
+|————————Node:identifier Text: irq
+|———————Node:, Text: ,
+|———————Node:ERROR Text: #if
+|————————Node:#if Text: #if
+|———————Node:parameter_declaration Text: LINUX_VERSION_CODE > KERNEL_VERSION(2,6,18) 
+    irqreturn_t (*handler
+|————————Node:type_identifier Text: LINUX_VERSION_CODE
+|————————Node:ERROR Text: > KERNEL_VERSION(2,6,18) 
+    irqreturn_t (
+|—————————Node:> Text: >
+|—————————Node:identifier Text: KERNEL_VERSION
+|—————————Node:parameter_list Text: (2,6,18)
+|——————————Node:( Text: (
+|——————————Node:ERROR Text: 2,6,18
+|———————————Node:number_literal Text: 2
+|———————————Node:, Text: ,
+|———————————Node:number_literal Text: 6
+|———————————Node:, Text: ,
+|———————————Node:number_literal Text: 18
+|——————————Node:) Text: )
+|—————————Node:identifier Text: irqreturn_t
+|—————————Node:( Text: (
+|————————Node:pointer_declarator Text: *handler
+|—————————Node:* Text: *
+|—————————Node:identifier Text: handler
+|———————Node:) Text: )
+|—————Node:parameter_list Text: (int, void *)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: int
+|———————Node:primitive_type Text: int
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: void *
+|———————Node:primitive_type Text: void
+|———————Node:abstract_pointer_declarator Text: *
+|————————Node:* Text: *
+|——————Node:) Text: )
+|————Node:) Text: )
+|———Node:preproc_else Text: #else
+    irqreturn_t (*handler)(int, void *, struct pt_regs *))
+#endif
+{
+int err = 0;
+
+    DBGin();
+    /*
+
+    int request_irq(unsigned int irq,			// interrupt number  
+              void (*handler)(int, void *, struct pt_regs *), // pointer to ISR
+		              irq, dev_id, registers on stack
+              unsigned long irqflags, const char *devname,
+              void *dev_id);
+
+       dev_id - The device ID of this handler (see below).       
+       This parameter is usually set to NULL,
+       but should be non-null if you wish to do  IRQ  sharing.
+       This  doesn't  matter when hooking the
+       interrupt, but is required so  that,  when  free_irq()  is
+       called,  the  correct driver is unhooked.  Since this is a
+       void *, it can point to anything (such  as  a  device-spe-
+       cific  structure,  or even empty space), but make sure you
+       pass the same pointer to free_irq().
+
+    */
+
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,18) 
+    err = request_irq(irq, handler, IRQF_SHARED, "Can", &Can_minors[minor]);
+#else
+    err = request_irq(irq, handler, SA_SHIRQ, "Can", &Can_minors[minor]);
+#endif
+
+
+    if( !err ){
+      DBGprint(DBG_BRANCH,("Requested IRQ: %d @ 0x%lx",
+      				irq, (unsigned long)handler));
+      IRQ_requested[minor] = 1;
+    }
+    DBGout(); return err;
+
+
+    	disable_irq(irq);
+	/* enable IRQ in PLX 9030 */
+	writel(PLX9030_ICR_ENABLE_IRQ0,
+          (void __iomem *)Can_pitapci_control[minor] + PLX9030_ICR);
+	enable_irq(irq);
+
+}
+
+
+int Can_FreeIrq(int minor, int irq )
+{
+    DBGin();
+    IRQ_requested[minor] = 0;
+    /* printk(" Free IRQ %d  minor %d\n", irq, minor);  */
+    free_irq(irq, &Can_minors[minor]);
+    DBGout();
+    return 0;
+}
+
+/*
+ * Perform Vendor-Init, that means sometimes CAN controller
+ * or only board manufacturer specific initialization.
+ *
+ * Mainly it gets needed IO and IRQ ressources and initilaizes 
+ * special hardware functions.
+ *
+ */
+
+int CAN_VendorInit (int minor)
+{
+    DBGin();
+    can_range[minor] = CAN_RANGE;
+    
+    /* PCI scan for CPC-PCI (or others ) has already remapped the address */
+    /* printk(" assign address direct\n"); */
+    can_base[minor] = (void __iomem *)Base[minor];
+
+    /* The Interrupt Line is alrady requestes by th PC CARD Services
+     * (in case of CPC-Card: cpc-card_cs.c) 
+    */ 
+
+    /* printk("MAX_IRQNUMBER %d/IRQ %d\n", MAX_IRQNUMBER, IRQ[minor]); */
+    if( IRQ[minor] > 0 && IRQ[minor] < MAX_IRQNUMBER ){
+        if( Can_RequestIrq( minor, IRQ[minor] , CAN_Interrupt) ) {
+	     printk("Can[%d]: Can't request IRQ %d \n", minor, IRQ[minor]);
+	     DBGout(); return -EBUSY;
+        }
+    } else {
+	/* Invalid IRQ number in /proc/.../IRQ */
+	DBGout(); return -EINVAL;
+    }
+    DBGout(); return 0;
+}
+
+
+
+
+
+
+
+
+/* reset both CAN controllers on the EMS-Wnsche CPC-PCI Board */
+/* writing to the control range at BAR1 of the PCI board */
+void reset_CPC_PCI(unsigned long address)
+{
+unsigned long ptr = (unsigned long)ioremap(address, 32);
+    writeb(0x01, (void __iomem *)ptr);
+}
+
+/* check memory region if there is a CAN controller
+*  assume the controller was resetted before testing 
+*
+*  The check for an avaliable controller is difficult !
+*  After an Hardware Reset (or power on) the Conroller 
+*  is in the so-called 'BasicCAN' mode.
+*     we can check for: 
+*         adress  name      value
+*	    0x00  mode       0x21
+*           0x02  status     0xc0
+*           0x03  interrupt  0xe0
+* Once loaded the driver switches into 'PeliCAN' mode and things are getting
+* difficult, because we now have only a 'soft reset' with not so  unique
+* values. The values have to be masked before comparing.
+*         adress  name       mask   value
+*	    0x00  mode               
+*           0x01  command    0xff    0x00
+*           0x02  status     0x37    0x34
+*           0x03  interrupt  0xfb    0x00
+*
+*/
+int controller_available(upointer_t address, int offset)
+{
+/* unsigned long ptr = (unsigned long)ioremap(address, 32 * offset); */
+void __iomem *ptr = ioremap(address, CAN_RANGE);
+
+
+#if 0     /* debugging */
+    printk("controller_available 0x%0lx, offset used %d\n",
+    			address, offset);
+
+    printk("0x%0x, ", readb(ptr) );
+    printk("0x%0x, ", readb(ptr + (2 * offset)) );
+    printk("0x%0x\n", readb(ptr + (3 * offset)) );
+
+    /* return 1; */
+
+#endif
+    /* Try to reset the CAN Controller before reading it.
+     * Not really correct, in case it's not a CAN card, anyway.
+     */
+    writeb(CAN_RESET_REQUEST, ptr);
+
+    if ( 0x21 == readb(ptr))  {
+	/* compare reset values of status and interrupt register */
+	if(   0x0c == readb(ptr + (2 * offset))
+	   && 0xe0 == readb(ptr + (3 * offset)) ) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+    } else {
+	/* may be called after a 'soft reset' in 'PeliCAN' mode */
+	/*   value     address                     mask    */
+	if(   0x00 ==  readb(ptr + (1 * offset))
+	   && 0x34 == (readb(ptr + (2 * offset))    & 0x37)
+	   && 0x00 == (readb(ptr + (3 * offset))    & 0xfb)
+	  ) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+
+    }
+}
+|————Node:#else Text: #else
+|————Node:function_definition Text: irqreturn_t (*handler)(int, void *, struct pt_regs *))
+#endif
+{
+int err = 0;
+
+    DBGin();
+    /*
+
+    int request_irq(unsigned int irq,			// interrupt number  
+              void (*handler)(int, void *, struct pt_regs *), // pointer to ISR
+		              irq, dev_id, registers on stack
+              unsigned long irqflags, const char *devname,
+              void *dev_id);
+
+       dev_id - The device ID of this handler (see below).       
+       This parameter is usually set to NULL,
+       but should be non-null if you wish to do  IRQ  sharing.
+       This  doesn't  matter when hooking the
+       interrupt, but is required so  that,  when  free_irq()  is
+       called,  the  correct driver is unhooked.  Since this is a
+       void *, it can point to anything (such  as  a  device-spe-
+       cific  structure,  or even empty space), but make sure you
+       pass the same pointer to free_irq().
+
+    */
+
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,18) 
+    err = request_irq(irq, handler, IRQF_SHARED, "Can", &Can_minors[minor]);
+#else
+    err = request_irq(irq, handler, SA_SHIRQ, "Can", &Can_minors[minor]);
+#endif
+
+
+    if( !err ){
+      DBGprint(DBG_BRANCH,("Requested IRQ: %d @ 0x%lx",
+      				irq, (unsigned long)handler));
+      IRQ_requested[minor] = 1;
+    }
+    DBGout(); return err;
+
+
+    	disable_irq(irq);
+	/* enable IRQ in PLX 9030 */
+	writel(PLX9030_ICR_ENABLE_IRQ0,
+          (void __iomem *)Can_pitapci_control[minor] + PLX9030_ICR);
+	enable_irq(irq);
+
+}
+|—————Node:type_identifier Text: irqreturn_t
+|—————Node:function_declarator Text: (*handler)(int, void *, struct pt_regs *)
+|——————Node:parenthesized_declarator Text: (*handler)
+|———————Node:( Text: (
+|———————Node:pointer_declarator Text: *handler
+|————————Node:* Text: *
+|————————Node:identifier Text: handler
+|———————Node:) Text: )
+|——————Node:parameter_list Text: (int, void *, struct pt_regs *)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: int
+|————————Node:primitive_type Text: int
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: void *
+|————————Node:primitive_type Text: void
+|————————Node:abstract_pointer_declarator Text: *
+|—————————Node:* Text: *
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: struct pt_regs *
+|————————Node:struct_specifier Text: struct pt_regs
+|—————————Node:struct Text: struct
+|—————————Node:type_identifier Text: pt_regs
+|————————Node:abstract_pointer_declarator Text: *
+|—————————Node:* Text: *
+|———————Node:) Text: )
+|—————Node:ERROR Text: )
+#endif
+|——————Node:) Text: )
+|——————Node:#endif Text: #endif
+|—————Node:compound_statement Text: {
+int err = 0;
+
+    DBGin();
+    /*
+
+    int request_irq(unsigned int irq,			// interrupt number  
+              void (*handler)(int, void *, struct pt_regs *), // pointer to ISR
+		              irq, dev_id, registers on stack
+              unsigned long irqflags, const char *devname,
+              void *dev_id);
+
+       dev_id - The device ID of this handler (see below).       
+       This parameter is usually set to NULL,
+       but should be non-null if you wish to do  IRQ  sharing.
+       This  doesn't  matter when hooking the
+       interrupt, but is required so  that,  when  free_irq()  is
+       called,  the  correct driver is unhooked.  Since this is a
+       void *, it can point to anything (such  as  a  device-spe-
+       cific  structure,  or even empty space), but make sure you
+       pass the same pointer to free_irq().
+
+    */
+
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,18) 
+    err = request_irq(irq, handler, IRQF_SHARED, "Can", &Can_minors[minor]);
+#else
+    err = request_irq(irq, handler, SA_SHIRQ, "Can", &Can_minors[minor]);
+#endif
+
+
+    if( !err ){
+      DBGprint(DBG_BRANCH,("Requested IRQ: %d @ 0x%lx",
+      				irq, (unsigned long)handler));
+      IRQ_requested[minor] = 1;
+    }
+    DBGout(); return err;
+
+
+    	disable_irq(irq);
+	/* enable IRQ in PLX 9030 */
+	writel(PLX9030_ICR_ENABLE_IRQ0,
+          (void __iomem *)Can_pitapci_control[minor] + PLX9030_ICR);
+	enable_irq(irq);
+
+}
+|——————Node:{ Text: {
+|——————Node:declaration Text: int err = 0;
+|———————Node:primitive_type Text: int
+|———————Node:init_declarator Text: err = 0
+|————————Node:identifier Text: err
+|————————Node:= Text: =
+|————————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: DBGin();
+|———————Node:call_expression Text: DBGin()
+|————————Node:identifier Text: DBGin
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:preproc_if Text: #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,18) 
+    err = request_irq(irq, handler, IRQF_SHARED, "Can", &Can_minors[minor]);
+#else
+    err = request_irq(irq, handler, SA_SHIRQ, "Can", &Can_minors[minor]);
+#endif
+|———————Node:#if Text: #if
+|———————Node:binary_expression Text: LINUX_VERSION_CODE > KERNEL_VERSION(2,6,18)
+|————————Node:identifier Text: LINUX_VERSION_CODE
+|————————Node:> Text: >
+|————————Node:call_expression Text: KERNEL_VERSION(2,6,18)
+|—————————Node:identifier Text: KERNEL_VERSION
+|—————————Node:argument_list Text: (2,6,18)
+|——————————Node:( Text: (
+|——————————Node:number_literal Text: 2
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 6
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 18
+|——————————Node:) Text: )
+|———————Node:
+ Text: 
+
+|———————Node:expression_statement Text: err = request_irq(irq, handler, IRQF_SHARED, "Can", &Can_minors[minor]);
+|————————Node:assignment_expression Text: err = request_irq(irq, handler, IRQF_SHARED, "Can", &Can_minors[minor])
+|—————————Node:identifier Text: err
+|—————————Node:= Text: =
+|—————————Node:call_expression Text: request_irq(irq, handler, IRQF_SHARED, "Can", &Can_minors[minor])
+|——————————Node:identifier Text: request_irq
+|——————————Node:argument_list Text: (irq, handler, IRQF_SHARED, "Can", &Can_minors[minor])
+|———————————Node:( Text: (
+|———————————Node:identifier Text: irq
+|———————————Node:, Text: ,
+|———————————Node:identifier Text: handler
+|———————————Node:, Text: ,
+|———————————Node:identifier Text: IRQF_SHARED
+|———————————Node:, Text: ,
+|———————————Node:string_literal Text: "Can"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: Can
+|————————————Node:" Text: "
+|———————————Node:, Text: ,
+|———————————Node:pointer_expression Text: &Can_minors[minor]
+|————————————Node:& Text: &
+|————————————Node:subscript_expression Text: Can_minors[minor]
+|—————————————Node:identifier Text: Can_minors
+|—————————————Node:[ Text: [
+|—————————————Node:identifier Text: minor
+|—————————————Node:] Text: ]
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:preproc_else Text: #else
+    err = request_irq(irq, handler, SA_SHIRQ, "Can", &Can_minors[minor]);
+|————————Node:#else Text: #else
+|————————Node:expression_statement Text: err = request_irq(irq, handler, SA_SHIRQ, "Can", &Can_minors[minor]);
+|—————————Node:assignment_expression Text: err = request_irq(irq, handler, SA_SHIRQ, "Can", &Can_minors[minor])
+|——————————Node:identifier Text: err
+|——————————Node:= Text: =
+|——————————Node:call_expression Text: request_irq(irq, handler, SA_SHIRQ, "Can", &Can_minors[minor])
+|———————————Node:identifier Text: request_irq
+|———————————Node:argument_list Text: (irq, handler, SA_SHIRQ, "Can", &Can_minors[minor])
+|————————————Node:( Text: (
+|————————————Node:identifier Text: irq
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: handler
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: SA_SHIRQ
+|————————————Node:, Text: ,
+|————————————Node:string_literal Text: "Can"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: Can
+|—————————————Node:" Text: "
+|————————————Node:, Text: ,
+|————————————Node:pointer_expression Text: &Can_minors[minor]
+|—————————————Node:& Text: &
+|—————————————Node:subscript_expression Text: Can_minors[minor]
+|——————————————Node:identifier Text: Can_minors
+|——————————————Node:[ Text: [
+|——————————————Node:identifier Text: minor
+|——————————————Node:] Text: ]
+|————————————Node:) Text: )
+|—————————Node:; Text: ;
+|———————Node:#endif Text: #endif
+|——————Node:if_statement Text: if( !err ){
+      DBGprint(DBG_BRANCH,("Requested IRQ: %d @ 0x%lx",
+      				irq, (unsigned long)handler));
+      IRQ_requested[minor] = 1;
+    }
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: ( !err )
+|————————Node:( Text: (
+|————————Node:unary_expression Text: !err
+|—————————Node:! Text: !
+|—————————Node:identifier Text: err
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+      DBGprint(DBG_BRANCH,("Requested IRQ: %d @ 0x%lx",
+      				irq, (unsigned long)handler));
+      IRQ_requested[minor] = 1;
+    }
+|————————Node:{ Text: {
+|————————Node:expression_statement Text: DBGprint(DBG_BRANCH,("Requested IRQ: %d @ 0x%lx",
+      				irq, (unsigned long)handler));
+|—————————Node:call_expression Text: DBGprint(DBG_BRANCH,("Requested IRQ: %d @ 0x%lx",
+      				irq, (unsigned long)handler))
+|——————————Node:identifier Text: DBGprint
+|——————————Node:argument_list Text: (DBG_BRANCH,("Requested IRQ: %d @ 0x%lx",
+      				irq, (unsigned long)handler))
+|———————————Node:( Text: (
+|———————————Node:identifier Text: DBG_BRANCH
+|———————————Node:, Text: ,
+|———————————Node:parenthesized_expression Text: ("Requested IRQ: %d @ 0x%lx",
+      				irq, (unsigned long)handler)
+|————————————Node:( Text: (
+|————————————Node:comma_expression Text: "Requested IRQ: %d @ 0x%lx",
+      				irq, (unsigned long)handler
+|—————————————Node:string_literal Text: "Requested IRQ: %d @ 0x%lx"
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: Requested IRQ: %d @ 0x%lx
+|——————————————Node:" Text: "
+|—————————————Node:, Text: ,
+|—————————————Node:comma_expression Text: irq, (unsigned long)handler
+|——————————————Node:identifier Text: irq
+|——————————————Node:, Text: ,
+|——————————————Node:cast_expression Text: (unsigned long)handler
+|———————————————Node:( Text: (
+|———————————————Node:type_descriptor Text: unsigned long
+|————————————————Node:sized_type_specifier Text: unsigned long
+|—————————————————Node:unsigned Text: unsigned
+|—————————————————Node:long Text: long
+|———————————————Node:) Text: )
+|———————————————Node:identifier Text: handler
+|————————————Node:) Text: )
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:expression_statement Text: IRQ_requested[minor] = 1;
+|—————————Node:assignment_expression Text: IRQ_requested[minor] = 1
+|——————————Node:subscript_expression Text: IRQ_requested[minor]
+|———————————Node:identifier Text: IRQ_requested
+|———————————Node:[ Text: [
+|———————————Node:identifier Text: minor
+|———————————Node:] Text: ]
+|——————————Node:= Text: =
+|——————————Node:number_literal Text: 1
+|—————————Node:; Text: ;
+|————————Node:} Text: }
+|——————Node:expression_statement Text: DBGout();
+|———————Node:call_expression Text: DBGout()
+|————————Node:identifier Text: DBGout
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:return_statement Text: return err;
+|———————Node:return Text: return
+|———————Node:identifier Text: err
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: disable_irq(irq);
+|———————Node:call_expression Text: disable_irq(irq)
+|————————Node:identifier Text: disable_irq
+|————————Node:argument_list Text: (irq)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: irq
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:expression_statement Text: writel(PLX9030_ICR_ENABLE_IRQ0,
+          (void __iomem *)Can_pitapci_control[minor] + PLX9030_ICR);
+|———————Node:call_expression Text: writel(PLX9030_ICR_ENABLE_IRQ0,
+          (void __iomem *)Can_pitapci_control[minor] + PLX9030_ICR)
+|————————Node:identifier Text: writel
+|————————Node:argument_list Text: (PLX9030_ICR_ENABLE_IRQ0,
+          (void __iomem *)Can_pitapci_control[minor] + PLX9030_ICR)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: PLX9030_ICR_ENABLE_IRQ0
+|—————————Node:, Text: ,
+|—————————Node:binary_expression Text: (void __iomem *)Can_pitapci_control[minor] + PLX9030_ICR
+|——————————Node:cast_expression Text: (void __iomem *)Can_pitapci_control[minor]
+|———————————Node:( Text: (
+|———————————Node:ERROR Text: void
+|————————————Node:primitive_type Text: void
+|———————————Node:type_descriptor Text: __iomem *
+|————————————Node:type_identifier Text: __iomem
+|————————————Node:abstract_pointer_declarator Text: *
+|—————————————Node:* Text: *
+|———————————Node:) Text: )
+|———————————Node:subscript_expression Text: Can_pitapci_control[minor]
+|————————————Node:identifier Text: Can_pitapci_control
+|————————————Node:[ Text: [
+|————————————Node:identifier Text: minor
+|————————————Node:] Text: ]
+|——————————Node:+ Text: +
+|——————————Node:identifier Text: PLX9030_ICR
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: enable_irq(irq);
+|———————Node:call_expression Text: enable_irq(irq)
+|————————Node:identifier Text: enable_irq
+|————————Node:argument_list Text: (irq)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: irq
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:function_definition Text: int Can_FreeIrq(int minor, int irq )
+{
+    DBGin();
+    IRQ_requested[minor] = 0;
+    /* printk(" Free IRQ %d  minor %d\n", irq, minor);  */
+    free_irq(irq, &Can_minors[minor]);
+    DBGout();
+    return 0;
+}
+|—————Node:primitive_type Text: int
+|—————Node:function_declarator Text: Can_FreeIrq(int minor, int irq )
+|——————Node:identifier Text: Can_FreeIrq
+|——————Node:parameter_list Text: (int minor, int irq )
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: int minor
+|————————Node:primitive_type Text: int
+|————————Node:identifier Text: minor
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: int irq
+|————————Node:primitive_type Text: int
+|————————Node:identifier Text: irq
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {
+    DBGin();
+    IRQ_requested[minor] = 0;
+    /* printk(" Free IRQ %d  minor %d\n", irq, minor);  */
+    free_irq(irq, &Can_minors[minor]);
+    DBGout();
+    return 0;
+}
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: DBGin();
+|———————Node:call_expression Text: DBGin()
+|————————Node:identifier Text: DBGin
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: IRQ_requested[minor] = 0;
+|———————Node:assignment_expression Text: IRQ_requested[minor] = 0
+|————————Node:subscript_expression Text: IRQ_requested[minor]
+|—————————Node:identifier Text: IRQ_requested
+|—————————Node:[ Text: [
+|—————————Node:identifier Text: minor
+|—————————Node:] Text: ]
+|————————Node:= Text: =
+|————————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:expression_statement Text: free_irq(irq, &Can_minors[minor]);
+|———————Node:call_expression Text: free_irq(irq, &Can_minors[minor])
+|————————Node:identifier Text: free_irq
+|————————Node:argument_list Text: (irq, &Can_minors[minor])
+|—————————Node:( Text: (
+|—————————Node:identifier Text: irq
+|—————————Node:, Text: ,
+|—————————Node:pointer_expression Text: &Can_minors[minor]
+|——————————Node:& Text: &
+|——————————Node:subscript_expression Text: Can_minors[minor]
+|———————————Node:identifier Text: Can_minors
+|———————————Node:[ Text: [
+|———————————Node:identifier Text: minor
+|———————————Node:] Text: ]
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: DBGout();
+|———————Node:call_expression Text: DBGout()
+|————————Node:identifier Text: DBGout
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:return_statement Text: return 0;
+|———————Node:return Text: return
+|———————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:comment
+|————Node:function_definition Text: int CAN_VendorInit (int minor)
+{
+    DBGin();
+    can_range[minor] = CAN_RANGE;
+    
+    /* PCI scan for CPC-PCI (or others ) has already remapped the address */
+    /* printk(" assign address direct\n"); */
+    can_base[minor] = (void __iomem *)Base[minor];
+
+    /* The Interrupt Line is alrady requestes by th PC CARD Services
+     * (in case of CPC-Card: cpc-card_cs.c) 
+    */ 
+
+    /* printk("MAX_IRQNUMBER %d/IRQ %d\n", MAX_IRQNUMBER, IRQ[minor]); */
+    if( IRQ[minor] > 0 && IRQ[minor] < MAX_IRQNUMBER ){
+        if( Can_RequestIrq( minor, IRQ[minor] , CAN_Interrupt) ) {
+	     printk("Can[%d]: Can't request IRQ %d \n", minor, IRQ[minor]);
+	     DBGout(); return -EBUSY;
+        }
+    } else {
+	/* Invalid IRQ number in /proc/.../IRQ */
+	DBGout(); return -EINVAL;
+    }
+    DBGout(); return 0;
+}
+|—————Node:primitive_type Text: int
+|—————Node:function_declarator Text: CAN_VendorInit (int minor)
+|——————Node:identifier Text: CAN_VendorInit
+|——————Node:parameter_list Text: (int minor)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: int minor
+|————————Node:primitive_type Text: int
+|————————Node:identifier Text: minor
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {
+    DBGin();
+    can_range[minor] = CAN_RANGE;
+    
+    /* PCI scan for CPC-PCI (or others ) has already remapped the address */
+    /* printk(" assign address direct\n"); */
+    can_base[minor] = (void __iomem *)Base[minor];
+
+    /* The Interrupt Line is alrady requestes by th PC CARD Services
+     * (in case of CPC-Card: cpc-card_cs.c) 
+    */ 
+
+    /* printk("MAX_IRQNUMBER %d/IRQ %d\n", MAX_IRQNUMBER, IRQ[minor]); */
+    if( IRQ[minor] > 0 && IRQ[minor] < MAX_IRQNUMBER ){
+        if( Can_RequestIrq( minor, IRQ[minor] , CAN_Interrupt) ) {
+	     printk("Can[%d]: Can't request IRQ %d \n", minor, IRQ[minor]);
+	     DBGout(); return -EBUSY;
+        }
+    } else {
+	/* Invalid IRQ number in /proc/.../IRQ */
+	DBGout(); return -EINVAL;
+    }
+    DBGout(); return 0;
+}
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: DBGin();
+|———————Node:call_expression Text: DBGin()
+|————————Node:identifier Text: DBGin
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: can_range[minor] = CAN_RANGE;
+|———————Node:assignment_expression Text: can_range[minor] = CAN_RANGE
+|————————Node:subscript_expression Text: can_range[minor]
+|—————————Node:identifier Text: can_range
+|—————————Node:[ Text: [
+|—————————Node:identifier Text: minor
+|—————————Node:] Text: ]
+|————————Node:= Text: =
+|————————Node:identifier Text: CAN_RANGE
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:comment
+|——————Node:expression_statement Text: can_base[minor] = (void __iomem *)Base[minor];
+|———————Node:assignment_expression Text: can_base[minor] = (void __iomem *)Base[minor]
+|————————Node:subscript_expression Text: can_base[minor]
+|—————————Node:identifier Text: can_base
+|—————————Node:[ Text: [
+|—————————Node:identifier Text: minor
+|—————————Node:] Text: ]
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (void __iomem *)Base[minor]
+|—————————Node:( Text: (
+|—————————Node:ERROR Text: void
+|——————————Node:primitive_type Text: void
+|—————————Node:type_descriptor Text: __iomem *
+|——————————Node:type_identifier Text: __iomem
+|——————————Node:abstract_pointer_declarator Text: *
+|———————————Node:* Text: *
+|—————————Node:) Text: )
+|—————————Node:subscript_expression Text: Base[minor]
+|——————————Node:identifier Text: Base
+|——————————Node:[ Text: [
+|——————————Node:identifier Text: minor
+|——————————Node:] Text: ]
+|———————Node:; Text: ;
+|——————Node:comment
+|——————Node:comment
+|——————Node:if_statement Text: if( IRQ[minor] > 0 && IRQ[minor] < MAX_IRQNUMBER ){
+        if( Can_RequestIrq( minor, IRQ[minor] , CAN_Interrupt) ) {
+	     printk("Can[%d]: Can't request IRQ %d \n", minor, IRQ[minor]);
+	     DBGout(); return -EBUSY;
+        }
+    } else {
+	/* Invalid IRQ number in /proc/.../IRQ */
+	DBGout(); return -EINVAL;
+    }
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: ( IRQ[minor] > 0 && IRQ[minor] < MAX_IRQNUMBER )
+|————————Node:( Text: (
+|————————Node:binary_expression Text: IRQ[minor] > 0 && IRQ[minor] < MAX_IRQNUMBER
+|—————————Node:binary_expression Text: IRQ[minor] > 0
+|——————————Node:subscript_expression Text: IRQ[minor]
+|———————————Node:identifier Text: IRQ
+|———————————Node:[ Text: [
+|———————————Node:identifier Text: minor
+|———————————Node:] Text: ]
+|——————————Node:> Text: >
+|——————————Node:number_literal Text: 0
+|—————————Node:&& Text: &&
+|—————————Node:binary_expression Text: IRQ[minor] < MAX_IRQNUMBER
+|——————————Node:subscript_expression Text: IRQ[minor]
+|———————————Node:identifier Text: IRQ
+|———————————Node:[ Text: [
+|———————————Node:identifier Text: minor
+|———————————Node:] Text: ]
+|——————————Node:< Text: <
+|——————————Node:identifier Text: MAX_IRQNUMBER
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+        if( Can_RequestIrq( minor, IRQ[minor] , CAN_Interrupt) ) {
+	     printk("Can[%d]: Can't request IRQ %d \n", minor, IRQ[minor]);
+	     DBGout(); return -EBUSY;
+        }
+    }
+|————————Node:{ Text: {
+|————————Node:if_statement Text: if( Can_RequestIrq( minor, IRQ[minor] , CAN_Interrupt) ) {
+	     printk("Can[%d]: Can't request IRQ %d \n", minor, IRQ[minor]);
+	     DBGout(); return -EBUSY;
+        }
+|—————————Node:if Text: if
+|—————————Node:parenthesized_expression Text: ( Can_RequestIrq( minor, IRQ[minor] , CAN_Interrupt) )
+|——————————Node:( Text: (
+|——————————Node:call_expression Text: Can_RequestIrq( minor, IRQ[minor] , CAN_Interrupt)
+|———————————Node:identifier Text: Can_RequestIrq
+|———————————Node:argument_list Text: ( minor, IRQ[minor] , CAN_Interrupt)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: minor
+|————————————Node:, Text: ,
+|————————————Node:subscript_expression Text: IRQ[minor]
+|—————————————Node:identifier Text: IRQ
+|—————————————Node:[ Text: [
+|—————————————Node:identifier Text: minor
+|—————————————Node:] Text: ]
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: CAN_Interrupt
+|————————————Node:) Text: )
+|——————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+	     printk("Can[%d]: Can't request IRQ %d \n", minor, IRQ[minor]);
+	     DBGout(); return -EBUSY;
+        }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: printk("Can[%d]: Can't request IRQ %d \n", minor, IRQ[minor]);
+|———————————Node:call_expression Text: printk("Can[%d]: Can't request IRQ %d \n", minor, IRQ[minor])
+|————————————Node:identifier Text: printk
+|————————————Node:argument_list Text: ("Can[%d]: Can't request IRQ %d \n", minor, IRQ[minor])
+|—————————————Node:( Text: (
+|—————————————Node:string_literal Text: "Can[%d]: Can't request IRQ %d \n"
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: Can[%d]: Can't request IRQ %d 
+|——————————————Node:escape_sequence Text: \n
+|——————————————Node:" Text: "
+|—————————————Node:, Text: ,
+|—————————————Node:identifier Text: minor
+|—————————————Node:, Text: ,
+|—————————————Node:subscript_expression Text: IRQ[minor]
+|——————————————Node:identifier Text: IRQ
+|——————————————Node:[ Text: [
+|——————————————Node:identifier Text: minor
+|——————————————Node:] Text: ]
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:expression_statement Text: DBGout();
+|———————————Node:call_expression Text: DBGout()
+|————————————Node:identifier Text: DBGout
+|————————————Node:argument_list Text: ()
+|—————————————Node:( Text: (
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:return_statement Text: return -EBUSY;
+|———————————Node:return Text: return
+|———————————Node:unary_expression Text: -EBUSY
+|————————————Node:- Text: -
+|————————————Node:identifier Text: EBUSY
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|————————Node:} Text: }
+|———————Node:else_clause Text: else {
+	/* Invalid IRQ number in /proc/.../IRQ */
+	DBGout(); return -EINVAL;
+    }
+|————————Node:else Text: else
+|————————Node:compound_statement Text: {
+	/* Invalid IRQ number in /proc/.../IRQ */
+	DBGout(); return -EINVAL;
+    }
+|—————————Node:{ Text: {
+|—————————Node:comment
+|—————————Node:expression_statement Text: DBGout();
+|——————————Node:call_expression Text: DBGout()
+|———————————Node:identifier Text: DBGout
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:return_statement Text: return -EINVAL;
+|——————————Node:return Text: return
+|——————————Node:unary_expression Text: -EINVAL
+|———————————Node:- Text: -
+|———————————Node:identifier Text: EINVAL
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|——————Node:expression_statement Text: DBGout();
+|———————Node:call_expression Text: DBGout()
+|————————Node:identifier Text: DBGout
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:return_statement Text: return 0;
+|———————Node:return Text: return
+|———————Node:number_literal Text: 0
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:comment
+|————Node:comment
+|————Node:function_definition Text: void reset_CPC_PCI(unsigned long address)
+{
+unsigned long ptr = (unsigned long)ioremap(address, 32);
+    writeb(0x01, (void __iomem *)ptr);
+}
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: reset_CPC_PCI(unsigned long address)
+|——————Node:identifier Text: reset_CPC_PCI
+|——————Node:parameter_list Text: (unsigned long address)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: unsigned long address
+|————————Node:sized_type_specifier Text: unsigned long
+|—————————Node:unsigned Text: unsigned
+|—————————Node:long Text: long
+|————————Node:identifier Text: address
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {
+unsigned long ptr = (unsigned long)ioremap(address, 32);
+    writeb(0x01, (void __iomem *)ptr);
+}
+|——————Node:{ Text: {
+|——————Node:declaration Text: unsigned long ptr = (unsigned long)ioremap(address, 32);
+|———————Node:sized_type_specifier Text: unsigned long
+|————————Node:unsigned Text: unsigned
+|————————Node:long Text: long
+|———————Node:init_declarator Text: ptr = (unsigned long)ioremap(address, 32)
+|————————Node:identifier Text: ptr
+|————————Node:= Text: =
+|————————Node:cast_expression Text: (unsigned long)ioremap(address, 32)
+|—————————Node:( Text: (
+|—————————Node:type_descriptor Text: unsigned long
+|——————————Node:sized_type_specifier Text: unsigned long
+|———————————Node:unsigned Text: unsigned
+|———————————Node:long Text: long
+|—————————Node:) Text: )
+|—————————Node:call_expression Text: ioremap(address, 32)
+|——————————Node:identifier Text: ioremap
+|——————————Node:argument_list Text: (address, 32)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: address
+|———————————Node:, Text: ,
+|———————————Node:number_literal Text: 32
+|———————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: writeb(0x01, (void __iomem *)ptr);
+|———————Node:call_expression Text: writeb(0x01, (void __iomem *)ptr)
+|————————Node:identifier Text: writeb
+|————————Node:argument_list Text: (0x01, (void __iomem *)ptr)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 0x01
+|—————————Node:, Text: ,
+|—————————Node:cast_expression Text: (void __iomem *)ptr
+|——————————Node:( Text: (
+|——————————Node:ERROR Text: void
+|———————————Node:primitive_type Text: void
+|——————————Node:type_descriptor Text: __iomem *
+|———————————Node:type_identifier Text: __iomem
+|———————————Node:abstract_pointer_declarator Text: *
+|————————————Node:* Text: *
+|——————————Node:) Text: )
+|——————————Node:identifier Text: ptr
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:comment
+|————Node:function_definition Text: int controller_available(upointer_t address, int offset)
+{
+/* unsigned long ptr = (unsigned long)ioremap(address, 32 * offset); */
+void __iomem *ptr = ioremap(address, CAN_RANGE);
+
+
+#if 0     /* debugging */
+    printk("controller_available 0x%0lx, offset used %d\n",
+    			address, offset);
+
+    printk("0x%0x, ", readb(ptr) );
+    printk("0x%0x, ", readb(ptr + (2 * offset)) );
+    printk("0x%0x\n", readb(ptr + (3 * offset)) );
+
+    /* return 1; */
+
+#endif
+    /* Try to reset the CAN Controller before reading it.
+     * Not really correct, in case it's not a CAN card, anyway.
+     */
+    writeb(CAN_RESET_REQUEST, ptr);
+
+    if ( 0x21 == readb(ptr))  {
+	/* compare reset values of status and interrupt register */
+	if(   0x0c == readb(ptr + (2 * offset))
+	   && 0xe0 == readb(ptr + (3 * offset)) ) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+    } else {
+	/* may be called after a 'soft reset' in 'PeliCAN' mode */
+	/*   value     address                     mask    */
+	if(   0x00 ==  readb(ptr + (1 * offset))
+	   && 0x34 == (readb(ptr + (2 * offset))    & 0x37)
+	   && 0x00 == (readb(ptr + (3 * offset))    & 0xfb)
+	  ) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+
+    }
+}
+|—————Node:primitive_type Text: int
+|—————Node:function_declarator Text: controller_available(upointer_t address, int offset)
+|——————Node:identifier Text: controller_available
+|——————Node:parameter_list Text: (upointer_t address, int offset)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: upointer_t address
+|————————Node:type_identifier Text: upointer_t
+|————————Node:identifier Text: address
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: int offset
+|————————Node:primitive_type Text: int
+|————————Node:identifier Text: offset
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {
+/* unsigned long ptr = (unsigned long)ioremap(address, 32 * offset); */
+void __iomem *ptr = ioremap(address, CAN_RANGE);
+
+
+#if 0     /* debugging */
+    printk("controller_available 0x%0lx, offset used %d\n",
+    			address, offset);
+
+    printk("0x%0x, ", readb(ptr) );
+    printk("0x%0x, ", readb(ptr + (2 * offset)) );
+    printk("0x%0x\n", readb(ptr + (3 * offset)) );
+
+    /* return 1; */
+
+#endif
+    /* Try to reset the CAN Controller before reading it.
+     * Not really correct, in case it's not a CAN card, anyway.
+     */
+    writeb(CAN_RESET_REQUEST, ptr);
+
+    if ( 0x21 == readb(ptr))  {
+	/* compare reset values of status and interrupt register */
+	if(   0x0c == readb(ptr + (2 * offset))
+	   && 0xe0 == readb(ptr + (3 * offset)) ) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+    } else {
+	/* may be called after a 'soft reset' in 'PeliCAN' mode */
+	/*   value     address                     mask    */
+	if(   0x00 ==  readb(ptr + (1 * offset))
+	   && 0x34 == (readb(ptr + (2 * offset))    & 0x37)
+	   && 0x00 == (readb(ptr + (3 * offset))    & 0xfb)
+	  ) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+
+    }
+}
+|——————Node:{ Text: {
+|——————Node:comment
+|——————Node:declaration Text: void __iomem *ptr = ioremap(address, CAN_RANGE);
+|———————Node:primitive_type Text: void
+|———————Node:ERROR Text: __iomem
+|————————Node:identifier Text: __iomem
+|———————Node:init_declarator Text: *ptr = ioremap(address, CAN_RANGE)
+|————————Node:pointer_declarator Text: *ptr
+|—————————Node:* Text: *
+|—————————Node:identifier Text: ptr
+|————————Node:= Text: =
+|————————Node:call_expression Text: ioremap(address, CAN_RANGE)
+|—————————Node:identifier Text: ioremap
+|—————————Node:argument_list Text: (address, CAN_RANGE)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: address
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: CAN_RANGE
+|——————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:preproc_if Text: #if 0     /* debugging */
+    printk("controller_available 0x%0lx, offset used %d\n",
+    			address, offset);
+
+    printk("0x%0x, ", readb(ptr) );
+    printk("0x%0x, ", readb(ptr + (2 * offset)) );
+    printk("0x%0x\n", readb(ptr + (3 * offset)) );
+
+    /* return 1; */
+
+#endif
+|———————Node:#if Text: #if
+|———————Node:number_literal Text: 0
+|———————Node:comment
+|———————Node:
+ Text: 
+
+|———————Node:expression_statement Text: printk("controller_available 0x%0lx, offset used %d\n",
+    			address, offset);
+|————————Node:call_expression Text: printk("controller_available 0x%0lx, offset used %d\n",
+    			address, offset)
+|—————————Node:identifier Text: printk
+|—————————Node:argument_list Text: ("controller_available 0x%0lx, offset used %d\n",
+    			address, offset)
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "controller_available 0x%0lx, offset used %d\n"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: controller_available 0x%0lx, offset used %d
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: address
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: offset
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: printk("0x%0x, ", readb(ptr) );
+|————————Node:call_expression Text: printk("0x%0x, ", readb(ptr) )
+|—————————Node:identifier Text: printk
+|—————————Node:argument_list Text: ("0x%0x, ", readb(ptr) )
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "0x%0x, "
+|———————————Node:" Text: "
+|———————————Node:string_content Text: 0x%0x, 
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:call_expression Text: readb(ptr)
+|———————————Node:identifier Text: readb
+|———————————Node:argument_list Text: (ptr)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: ptr
+|————————————Node:) Text: )
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: printk("0x%0x, ", readb(ptr + (2 * offset)) );
+|————————Node:call_expression Text: printk("0x%0x, ", readb(ptr + (2 * offset)) )
+|—————————Node:identifier Text: printk
+|—————————Node:argument_list Text: ("0x%0x, ", readb(ptr + (2 * offset)) )
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "0x%0x, "
+|———————————Node:" Text: "
+|———————————Node:string_content Text: 0x%0x, 
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:call_expression Text: readb(ptr + (2 * offset))
+|———————————Node:identifier Text: readb
+|———————————Node:argument_list Text: (ptr + (2 * offset))
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: ptr + (2 * offset)
+|—————————————Node:identifier Text: ptr
+|—————————————Node:+ Text: +
+|—————————————Node:parenthesized_expression Text: (2 * offset)
+|——————————————Node:( Text: (
+|——————————————Node:binary_expression Text: 2 * offset
+|———————————————Node:number_literal Text: 2
+|———————————————Node:* Text: *
+|———————————————Node:identifier Text: offset
+|——————————————Node:) Text: )
+|————————————Node:) Text: )
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: printk("0x%0x\n", readb(ptr + (3 * offset)) );
+|————————Node:call_expression Text: printk("0x%0x\n", readb(ptr + (3 * offset)) )
+|—————————Node:identifier Text: printk
+|—————————Node:argument_list Text: ("0x%0x\n", readb(ptr + (3 * offset)) )
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "0x%0x\n"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: 0x%0x
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:call_expression Text: readb(ptr + (3 * offset))
+|———————————Node:identifier Text: readb
+|———————————Node:argument_list Text: (ptr + (3 * offset))
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: ptr + (3 * offset)
+|—————————————Node:identifier Text: ptr
+|—————————————Node:+ Text: +
+|—————————————Node:parenthesized_expression Text: (3 * offset)
+|——————————————Node:( Text: (
+|——————————————Node:binary_expression Text: 3 * offset
+|———————————————Node:number_literal Text: 3
+|———————————————Node:* Text: *
+|———————————————Node:identifier Text: offset
+|——————————————Node:) Text: )
+|————————————Node:) Text: )
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:comment
+|———————Node:#endif Text: #endif
+|——————Node:comment
+|——————Node:expression_statement Text: writeb(CAN_RESET_REQUEST, ptr);
+|———————Node:call_expression Text: writeb(CAN_RESET_REQUEST, ptr)
+|————————Node:identifier Text: writeb
+|————————Node:argument_list Text: (CAN_RESET_REQUEST, ptr)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: CAN_RESET_REQUEST
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: ptr
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:if_statement Text: if ( 0x21 == readb(ptr))  {
+	/* compare reset values of status and interrupt register */
+	if(   0x0c == readb(ptr + (2 * offset))
+	   && 0xe0 == readb(ptr + (3 * offset)) ) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+    } else {
+	/* may be called after a 'soft reset' in 'PeliCAN' mode */
+	/*   value     address                     mask    */
+	if(   0x00 ==  readb(ptr + (1 * offset))
+	   && 0x34 == (readb(ptr + (2 * offset))    & 0x37)
+	   && 0x00 == (readb(ptr + (3 * offset))    & 0xfb)
+	  ) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+
+    }
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: ( 0x21 == readb(ptr))
+|————————Node:( Text: (
+|————————Node:binary_expression Text: 0x21 == readb(ptr)
+|—————————Node:number_literal Text: 0x21
+|—————————Node:== Text: ==
+|—————————Node:call_expression Text: readb(ptr)
+|——————————Node:identifier Text: readb
+|——————————Node:argument_list Text: (ptr)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: ptr
+|———————————Node:) Text: )
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+	/* compare reset values of status and interrupt register */
+	if(   0x0c == readb(ptr + (2 * offset))
+	   && 0xe0 == readb(ptr + (3 * offset)) ) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+    }
+|————————Node:{ Text: {
+|————————Node:comment
+|————————Node:if_statement Text: if(   0x0c == readb(ptr + (2 * offset))
+	   && 0xe0 == readb(ptr + (3 * offset)) ) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+|—————————Node:if Text: if
+|—————————Node:parenthesized_expression Text: (   0x0c == readb(ptr + (2 * offset))
+	   && 0xe0 == readb(ptr + (3 * offset)) )
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: 0x0c == readb(ptr + (2 * offset))
+	   && 0xe0 == readb(ptr + (3 * offset))
+|———————————Node:binary_expression Text: 0x0c == readb(ptr + (2 * offset))
+|————————————Node:number_literal Text: 0x0c
+|————————————Node:== Text: ==
+|————————————Node:call_expression Text: readb(ptr + (2 * offset))
+|—————————————Node:identifier Text: readb
+|—————————————Node:argument_list Text: (ptr + (2 * offset))
+|——————————————Node:( Text: (
+|——————————————Node:binary_expression Text: ptr + (2 * offset)
+|———————————————Node:identifier Text: ptr
+|———————————————Node:+ Text: +
+|———————————————Node:parenthesized_expression Text: (2 * offset)
+|————————————————Node:( Text: (
+|————————————————Node:binary_expression Text: 2 * offset
+|—————————————————Node:number_literal Text: 2
+|—————————————————Node:* Text: *
+|—————————————————Node:identifier Text: offset
+|————————————————Node:) Text: )
+|——————————————Node:) Text: )
+|———————————Node:&& Text: &&
+|———————————Node:binary_expression Text: 0xe0 == readb(ptr + (3 * offset))
+|————————————Node:number_literal Text: 0xe0
+|————————————Node:== Text: ==
+|————————————Node:call_expression Text: readb(ptr + (3 * offset))
+|—————————————Node:identifier Text: readb
+|—————————————Node:argument_list Text: (ptr + (3 * offset))
+|——————————————Node:( Text: (
+|——————————————Node:binary_expression Text: ptr + (3 * offset)
+|———————————————Node:identifier Text: ptr
+|———————————————Node:+ Text: +
+|———————————————Node:parenthesized_expression Text: (3 * offset)
+|————————————————Node:( Text: (
+|————————————————Node:binary_expression Text: 3 * offset
+|—————————————————Node:number_literal Text: 3
+|—————————————————Node:* Text: *
+|—————————————————Node:identifier Text: offset
+|————————————————Node:) Text: )
+|——————————————Node:) Text: )
+|——————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+	    return 1;
+	}
+|——————————Node:{ Text: {
+|——————————Node:return_statement Text: return 1;
+|———————————Node:return Text: return
+|———————————Node:number_literal Text: 1
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|—————————Node:else_clause Text: else {
+	    return 0;
+	}
+|——————————Node:else Text: else
+|——————————Node:compound_statement Text: {
+	    return 0;
+	}
+|———————————Node:{ Text: {
+|———————————Node:return_statement Text: return 0;
+|————————————Node:return Text: return
+|————————————Node:number_literal Text: 0
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|————————Node:} Text: }
+|———————Node:else_clause Text: else {
+	/* may be called after a 'soft reset' in 'PeliCAN' mode */
+	/*   value     address                     mask    */
+	if(   0x00 ==  readb(ptr + (1 * offset))
+	   && 0x34 == (readb(ptr + (2 * offset))    & 0x37)
+	   && 0x00 == (readb(ptr + (3 * offset))    & 0xfb)
+	  ) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+
+    }
+|————————Node:else Text: else
+|————————Node:compound_statement Text: {
+	/* may be called after a 'soft reset' in 'PeliCAN' mode */
+	/*   value     address                     mask    */
+	if(   0x00 ==  readb(ptr + (1 * offset))
+	   && 0x34 == (readb(ptr + (2 * offset))    & 0x37)
+	   && 0x00 == (readb(ptr + (3 * offset))    & 0xfb)
+	  ) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+
+    }
+|—————————Node:{ Text: {
+|—————————Node:comment
+|—————————Node:comment
+|—————————Node:if_statement Text: if(   0x00 ==  readb(ptr + (1 * offset))
+	   && 0x34 == (readb(ptr + (2 * offset))    & 0x37)
+	   && 0x00 == (readb(ptr + (3 * offset))    & 0xfb)
+	  ) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+|——————————Node:if Text: if
+|——————————Node:parenthesized_expression Text: (   0x00 ==  readb(ptr + (1 * offset))
+	   && 0x34 == (readb(ptr + (2 * offset))    & 0x37)
+	   && 0x00 == (readb(ptr + (3 * offset))    & 0xfb)
+	  )
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: 0x00 ==  readb(ptr + (1 * offset))
+	   && 0x34 == (readb(ptr + (2 * offset))    & 0x37)
+	   && 0x00 == (readb(ptr + (3 * offset))    & 0xfb)
+|————————————Node:binary_expression Text: 0x00 ==  readb(ptr + (1 * offset))
+	   && 0x34 == (readb(ptr + (2 * offset))    & 0x37)
+|—————————————Node:binary_expression Text: 0x00 ==  readb(ptr + (1 * offset))
+|——————————————Node:number_literal Text: 0x00
+|——————————————Node:== Text: ==
+|——————————————Node:call_expression Text: readb(ptr + (1 * offset))
+|———————————————Node:identifier Text: readb
+|———————————————Node:argument_list Text: (ptr + (1 * offset))
+|————————————————Node:( Text: (
+|————————————————Node:binary_expression Text: ptr + (1 * offset)
+|—————————————————Node:identifier Text: ptr
+|—————————————————Node:+ Text: +
+|—————————————————Node:parenthesized_expression Text: (1 * offset)
+|——————————————————Node:( Text: (
+|——————————————————Node:binary_expression Text: 1 * offset
+|———————————————————Node:number_literal Text: 1
+|———————————————————Node:* Text: *
+|———————————————————Node:identifier Text: offset
+|——————————————————Node:) Text: )
+|————————————————Node:) Text: )
+|—————————————Node:&& Text: &&
+|—————————————Node:binary_expression Text: 0x34 == (readb(ptr + (2 * offset))    & 0x37)
+|——————————————Node:number_literal Text: 0x34
+|——————————————Node:== Text: ==
+|——————————————Node:parenthesized_expression Text: (readb(ptr + (2 * offset))    & 0x37)
+|———————————————Node:( Text: (
+|———————————————Node:binary_expression Text: readb(ptr + (2 * offset))    & 0x37
+|————————————————Node:call_expression Text: readb(ptr + (2 * offset))
+|—————————————————Node:identifier Text: readb
+|—————————————————Node:argument_list Text: (ptr + (2 * offset))
+|——————————————————Node:( Text: (
+|——————————————————Node:binary_expression Text: ptr + (2 * offset)
+|———————————————————Node:identifier Text: ptr
+|———————————————————Node:+ Text: +
+|———————————————————Node:parenthesized_expression Text: (2 * offset)
+|————————————————————Node:( Text: (
+|————————————————————Node:binary_expression Text: 2 * offset
+|—————————————————————Node:number_literal Text: 2
+|—————————————————————Node:* Text: *
+|—————————————————————Node:identifier Text: offset
+|————————————————————Node:) Text: )
+|——————————————————Node:) Text: )
+|————————————————Node:& Text: &
+|————————————————Node:number_literal Text: 0x37
+|———————————————Node:) Text: )
+|————————————Node:&& Text: &&
+|————————————Node:binary_expression Text: 0x00 == (readb(ptr + (3 * offset))    & 0xfb)
+|—————————————Node:number_literal Text: 0x00
+|—————————————Node:== Text: ==
+|—————————————Node:parenthesized_expression Text: (readb(ptr + (3 * offset))    & 0xfb)
+|——————————————Node:( Text: (
+|——————————————Node:binary_expression Text: readb(ptr + (3 * offset))    & 0xfb
+|———————————————Node:call_expression Text: readb(ptr + (3 * offset))
+|————————————————Node:identifier Text: readb
+|————————————————Node:argument_list Text: (ptr + (3 * offset))
+|—————————————————Node:( Text: (
+|—————————————————Node:binary_expression Text: ptr + (3 * offset)
+|——————————————————Node:identifier Text: ptr
+|——————————————————Node:+ Text: +
+|——————————————————Node:parenthesized_expression Text: (3 * offset)
+|———————————————————Node:( Text: (
+|———————————————————Node:binary_expression Text: 3 * offset
+|————————————————————Node:number_literal Text: 3
+|————————————————————Node:* Text: *
+|————————————————————Node:identifier Text: offset
+|———————————————————Node:) Text: )
+|—————————————————Node:) Text: )
+|———————————————Node:& Text: &
+|———————————————Node:number_literal Text: 0xfb
+|——————————————Node:) Text: )
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+	    return 1;
+	}
+|———————————Node:{ Text: {
+|———————————Node:return_statement Text: return 1;
+|————————————Node:return Text: return
+|————————————Node:number_literal Text: 1
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|——————————Node:else_clause Text: else {
+	    return 0;
+	}
+|———————————Node:else Text: else
+|———————————Node:compound_statement Text: {
+	    return 0;
+	}
+|————————————Node:{ Text: {
+|————————————Node:return_statement Text: return 0;
+|—————————————Node:return Text: return
+|—————————————Node:number_literal Text: 0
+|—————————————Node:; Text: ;
+|————————————Node:} Text: }
+|—————————Node:} Text: }
+|——————Node:} Text: }
+|———Node:#endif Text: #endif
+|——Node:preproc_function_def Text: #define PCI_BASE_ADDRESS0(dev) (dev->resource[0].start)
+
+|———Node:#define Text: #define
+|———Node:identifier Text: PCI_BASE_ADDRESS0
+|———Node:preproc_params Text: (dev)
+|————Node:( Text: (
+|————Node:identifier Text: dev
+|————Node:) Text: )
+|———Node:preproc_arg Text: (dev->resource[0].start)
+|——Node:preproc_function_def Text: #define PCI_BASE_ADDRESS1(dev) (dev->resource[1].start)
+
+|———Node:#define Text: #define
+|———Node:identifier Text: PCI_BASE_ADDRESS1
+|———Node:preproc_params Text: (dev)
+|————Node:( Text: (
+|————Node:identifier Text: dev
+|————Node:) Text: )
+|———Node:preproc_arg Text: (dev->resource[1].start)
+|——Node:preproc_function_def Text: #define PCI_BASE_ADDRESS2(dev) (dev->resource[2].start)
+
+|———Node:#define Text: #define
+|———Node:identifier Text: PCI_BASE_ADDRESS2
+|———Node:preproc_params Text: (dev)
+|————Node:( Text: (
+|————Node:identifier Text: dev
+|————Node:) Text: )
+|———Node:preproc_arg Text: (dev->resource[2].start)
+|——Node:preproc_function_def Text: #define PCI_BASE_ADDRESS3(dev) (dev->resource[3].start)
+
+|———Node:#define Text: #define
+|———Node:identifier Text: PCI_BASE_ADDRESS3
+|———Node:preproc_params Text: (dev)
+|————Node:( Text: (
+|————Node:identifier Text: dev
+|————Node:) Text: )
+|———Node:preproc_arg Text: (dev->resource[3].start)
+|——Node:comment
+|——Node:declaration Text: void __iomem *Can_pitapci_control[MAX_CHANNELS];
+|———Node:primitive_type Text: void
+|———Node:ERROR Text: __iomem
+|————Node:identifier Text: __iomem
+|———Node:pointer_declarator Text: *Can_pitapci_control[MAX_CHANNELS]
+|————Node:* Text: *
+|————Node:array_declarator Text: Can_pitapci_control[MAX_CHANNELS]
+|—————Node:identifier Text: Can_pitapci_control
+|—————Node:[ Text: [
+|—————Node:identifier Text: MAX_CHANNELS
+|—————Node:] Text: ]
+|———Node:; Text: ;
+|——Node:preproc_if Text: # if defined(CPC_PCI2)
+
+
+
+#ifndef PCI_DEVICE_ID_PLX_9030
+#define PCI_DEVICE_ID_PLX_9030 0x9030
+#endif
+
+#if 0
+static struct pci_device_id  ems_pci_tbl[] = {
+      { PCI_DEVICE(PCI_VENDOR_ID_PLX, PCI_DEVICE_ID_PLX_9030), },
+      { 0, },                 /* End of list */
+};
+#endif
+
+int register_new_cpcpci(struct pci_dev *pdev, int i)
+{
+void __iomem *ptr;		/* ptr to PCI control registers*/
+void __iomem *cptr;		/* ptr to start of CAN control registers*/
+int j;				/* loop through possible CAN controllers */
+int minor = -1;			/* to make DBGin() happy */
+
+    DBGin();
+    	                 /* dev, bar, size */
+    ptr		= pci_iomap(pdev, 0, 128);      /* control base address */
+    cptr	= pci_iomap(pdev, 2, 2048);     /* CAN pointer */
+
+    err("register_new_cpcpci %d", i);
+    printk("cptr= %p \n", cptr);
+
+    /* look for a CAN controllers starting at 0x400 */
+    for(j = 0; j < 4; j++) {   
+	if(controller_available(PCI_BASE_ADDRESS2(pdev) 
+		+ CPC_PCI_CHANNEL_BASE + (CPC_PCI_CHANNEL_WIDTH * j), 1)) {
+	    err(" CAN controller %d. at pos %d\n", i + 1, j);
+	    if(i > MAX_CHANNELS) {
+		err("only %d devices supported", MAX_CHANNELS);
+		break; /* the devices scan loop */
+	    }
+	    IOModel[i]	= 'm';
+	    IRQ[i]	= pdev->irq;
+	    Base[i]	= (upointer_t) cptr
+	                  + CPC_PCI_CHANNEL_BASE
+	                  + (CPC_PCI_CHANNEL_WIDTH * j);
+	    Clock = 16000;	/* all EMS PCI Boards use the sam clock for all CAN */
+#ifdef __x86_64__
+	  /*  err("Base %llx/%lld",
+		(long long unsigned) Base[i], (long long unsigned)Base[i]); */
+#else
+	    err("Base %lx", Base[i]);
+#endif
+	    /* store pointer to control reg */
+	    Can_pitapci_control[i] = ptr;
+	    i++;
+	}
+    }
+    disable_irq(IRQ[i]);
+    /* enable IRQ in PLX 9030 */
+    writel(PLX9030_ICR_ENABLE_IRQ0, ptr + PLX9030_ICR);
+    enable_irq(IRQ[i]);
+    DBGout();
+    return i;	/* returns last CAN controller number found */
+}
+
+/* Scan the PCI bus for CAN board with PLX_9030
+ * and test if a CAN controller is on it.
+ * If yes fill our internal structures
+ */
+int pcimod_scan(void)
+{
+struct	pci_dev *pdev = NULL;
+int	candev = 0;			/* number of found devices */
+int	minor = -1;			/* to make DBGin() happy */
+
+    DBGin();
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+    /* Testing the PCI presence is no longer neccessary
+     * On a non  PCI kernel, insmod will just complain
+     */
+    if (pci_present ()) {
+#endif
+
+    for_each_pci_dev(pdev) {
+	/* too many devices are using a PLX9030,
+	   we have to check  sub-system ids as well */
+	if(   pdev->vendor           == PCI_VENDOR_ID_PLX
+	   && pdev->device           == PCI_DEVICE_ID_PLX_9030
+	   && pdev->subsystem_vendor == 0x10b5
+	   ) {
+	    err("found new EMS pci board %d", candev);
+	    printk("Subsystem Vendor 0x%0x\n", pdev->subsystem_vendor);
+	    printk("Subsystem Device 0x%0x\n", pdev->subsystem_device);
+	    /* reading delivers 0x10b5, 0x4000 */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		candev += register_new_cpcpci(pdev, candev);
+	    }
+	}
+	if(pdev->vendor == PCI_VENDOR_CAN_EMS
+	&& pdev->device == PCI_DEVICE_CAN) {
+	    err("found old EMS pci board %d\nUse TARGET=CPC_PCI compiled module", candev);
+	    continue;
+	    /* following code not used yet */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		/* candev += register_old_cpcpci(pdev, candev); */
+		;
+	    }
+	}
+    }
+    if(candev == 0) {
+	err("No CAN device found");
+	return -ENODEV;
+    } else {
+    	err("found %d CAN controllers", candev);
+    }
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+    } else { 
+        err("No PCI bios present");
+        return -ENODEV;
+    }
+#endif
+    DBGout();
+    return 0;
+}
+
+
+
+void board_clear_interrupts(int minor)
+{
+    /* err("board_clear_interrupts %d", minor); */
+
+    writel(PLX9030_ICR_CLEAR_IRQ0 | PLX9030_ICR_ENABLE_IRQ0,
+          (void __iomem *)Can_pitapci_control[minor] + PLX9030_ICR);
+}
+# endif
+|———Node:#if Text: # if
+|———Node:preproc_defined Text: defined(CPC_PCI2)
+|————Node:defined Text: defined
+|————Node:( Text: (
+|————Node:identifier Text: CPC_PCI2
+|————Node:) Text: )
+|———Node:
+ Text: 
+
+
+
+
+|———Node:preproc_ifdef Text: #ifndef PCI_DEVICE_ID_PLX_9030
+#define PCI_DEVICE_ID_PLX_9030 0x9030
+#endif
+|————Node:#ifndef Text: #ifndef
+|————Node:identifier Text: PCI_DEVICE_ID_PLX_9030
+|————Node:preproc_def Text: #define PCI_DEVICE_ID_PLX_9030 0x9030
+
+|—————Node:#define Text: #define
+|—————Node:identifier Text: PCI_DEVICE_ID_PLX_9030
+|—————Node:preproc_arg Text: 0x9030
+|————Node:#endif Text: #endif
+|———Node:preproc_if Text: #if 0
+static struct pci_device_id  ems_pci_tbl[] = {
+      { PCI_DEVICE(PCI_VENDOR_ID_PLX, PCI_DEVICE_ID_PLX_9030), },
+      { 0, },                 /* End of list */
+};
+#endif
+|————Node:#if Text: #if
+|————Node:number_literal Text: 0
+|————Node:
+ Text: 
+
+|————Node:declaration Text: static struct pci_device_id  ems_pci_tbl[] = {
+      { PCI_DEVICE(PCI_VENDOR_ID_PLX, PCI_DEVICE_ID_PLX_9030), },
+      { 0, },                 /* End of list */
+};
+|—————Node:storage_class_specifier Text: static
+|——————Node:static Text: static
+|—————Node:struct_specifier Text: struct pci_device_id
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: pci_device_id
+|—————Node:init_declarator Text: ems_pci_tbl[] = {
+      { PCI_DEVICE(PCI_VENDOR_ID_PLX, PCI_DEVICE_ID_PLX_9030), },
+      { 0, },                 /* End of list */
+}
+|——————Node:array_declarator Text: ems_pci_tbl[]
+|———————Node:identifier Text: ems_pci_tbl
+|———————Node:[ Text: [
+|———————Node:] Text: ]
+|——————Node:= Text: =
+|——————Node:initializer_list Text: {
+      { PCI_DEVICE(PCI_VENDOR_ID_PLX, PCI_DEVICE_ID_PLX_9030), },
+      { 0, },                 /* End of list */
+}
+|———————Node:{ Text: {
+|———————Node:initializer_list Text: { PCI_DEVICE(PCI_VENDOR_ID_PLX, PCI_DEVICE_ID_PLX_9030), }
+|————————Node:{ Text: {
+|————————Node:call_expression Text: PCI_DEVICE(PCI_VENDOR_ID_PLX, PCI_DEVICE_ID_PLX_9030)
+|—————————Node:identifier Text: PCI_DEVICE
+|—————————Node:argument_list Text: (PCI_VENDOR_ID_PLX, PCI_DEVICE_ID_PLX_9030)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: PCI_VENDOR_ID_PLX
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: PCI_DEVICE_ID_PLX_9030
+|——————————Node:) Text: )
+|————————Node:, Text: ,
+|————————Node:} Text: }
+|———————Node:, Text: ,
+|———————Node:initializer_list Text: { 0, }
+|————————Node:{ Text: {
+|————————Node:number_literal Text: 0
+|————————Node:, Text: ,
+|————————Node:} Text: }
+|———————Node:, Text: ,
+|———————Node:comment
+|———————Node:} Text: }
+|—————Node:; Text: ;
+|————Node:#endif Text: #endif
+|———Node:function_definition Text: int register_new_cpcpci(struct pci_dev *pdev, int i)
+{
+void __iomem *ptr;		/* ptr to PCI control registers*/
+void __iomem *cptr;		/* ptr to start of CAN control registers*/
+int j;				/* loop through possible CAN controllers */
+int minor = -1;			/* to make DBGin() happy */
+
+    DBGin();
+    	                 /* dev, bar, size */
+    ptr		= pci_iomap(pdev, 0, 128);      /* control base address */
+    cptr	= pci_iomap(pdev, 2, 2048);     /* CAN pointer */
+
+    err("register_new_cpcpci %d", i);
+    printk("cptr= %p \n", cptr);
+
+    /* look for a CAN controllers starting at 0x400 */
+    for(j = 0; j < 4; j++) {   
+	if(controller_available(PCI_BASE_ADDRESS2(pdev) 
+		+ CPC_PCI_CHANNEL_BASE + (CPC_PCI_CHANNEL_WIDTH * j), 1)) {
+	    err(" CAN controller %d. at pos %d\n", i + 1, j);
+	    if(i > MAX_CHANNELS) {
+		err("only %d devices supported", MAX_CHANNELS);
+		break; /* the devices scan loop */
+	    }
+	    IOModel[i]	= 'm';
+	    IRQ[i]	= pdev->irq;
+	    Base[i]	= (upointer_t) cptr
+	                  + CPC_PCI_CHANNEL_BASE
+	                  + (CPC_PCI_CHANNEL_WIDTH * j);
+	    Clock = 16000;	/* all EMS PCI Boards use the sam clock for all CAN */
+#ifdef __x86_64__
+	  /*  err("Base %llx/%lld",
+		(long long unsigned) Base[i], (long long unsigned)Base[i]); */
+#else
+	    err("Base %lx", Base[i]);
+#endif
+	    /* store pointer to control reg */
+	    Can_pitapci_control[i] = ptr;
+	    i++;
+	}
+    }
+    disable_irq(IRQ[i]);
+    /* enable IRQ in PLX 9030 */
+    writel(PLX9030_ICR_ENABLE_IRQ0, ptr + PLX9030_ICR);
+    enable_irq(IRQ[i]);
+    DBGout();
+    return i;	/* returns last CAN controller number found */
+}
+|————Node:primitive_type Text: int
+|————Node:function_declarator Text: register_new_cpcpci(struct pci_dev *pdev, int i)
+|—————Node:identifier Text: register_new_cpcpci
+|—————Node:parameter_list Text: (struct pci_dev *pdev, int i)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: struct pci_dev *pdev
+|———————Node:struct_specifier Text: struct pci_dev
+|————————Node:struct Text: struct
+|————————Node:type_identifier Text: pci_dev
+|———————Node:pointer_declarator Text: *pdev
+|————————Node:* Text: *
+|————————Node:identifier Text: pdev
+|——————Node:, Text: ,
+|——————Node:parameter_declaration Text: int i
+|———————Node:primitive_type Text: int
+|———————Node:identifier Text: i
+|——————Node:) Text: )
+|————Node:compound_statement Text: {
+void __iomem *ptr;		/* ptr to PCI control registers*/
+void __iomem *cptr;		/* ptr to start of CAN control registers*/
+int j;				/* loop through possible CAN controllers */
+int minor = -1;			/* to make DBGin() happy */
+
+    DBGin();
+    	                 /* dev, bar, size */
+    ptr		= pci_iomap(pdev, 0, 128);      /* control base address */
+    cptr	= pci_iomap(pdev, 2, 2048);     /* CAN pointer */
+
+    err("register_new_cpcpci %d", i);
+    printk("cptr= %p \n", cptr);
+
+    /* look for a CAN controllers starting at 0x400 */
+    for(j = 0; j < 4; j++) {   
+	if(controller_available(PCI_BASE_ADDRESS2(pdev) 
+		+ CPC_PCI_CHANNEL_BASE + (CPC_PCI_CHANNEL_WIDTH * j), 1)) {
+	    err(" CAN controller %d. at pos %d\n", i + 1, j);
+	    if(i > MAX_CHANNELS) {
+		err("only %d devices supported", MAX_CHANNELS);
+		break; /* the devices scan loop */
+	    }
+	    IOModel[i]	= 'm';
+	    IRQ[i]	= pdev->irq;
+	    Base[i]	= (upointer_t) cptr
+	                  + CPC_PCI_CHANNEL_BASE
+	                  + (CPC_PCI_CHANNEL_WIDTH * j);
+	    Clock = 16000;	/* all EMS PCI Boards use the sam clock for all CAN */
+#ifdef __x86_64__
+	  /*  err("Base %llx/%lld",
+		(long long unsigned) Base[i], (long long unsigned)Base[i]); */
+#else
+	    err("Base %lx", Base[i]);
+#endif
+	    /* store pointer to control reg */
+	    Can_pitapci_control[i] = ptr;
+	    i++;
+	}
+    }
+    disable_irq(IRQ[i]);
+    /* enable IRQ in PLX 9030 */
+    writel(PLX9030_ICR_ENABLE_IRQ0, ptr + PLX9030_ICR);
+    enable_irq(IRQ[i]);
+    DBGout();
+    return i;	/* returns last CAN controller number found */
+}
+|—————Node:{ Text: {
+|—————Node:declaration Text: void __iomem *ptr;
+|——————Node:primitive_type Text: void
+|——————Node:ERROR Text: __iomem
+|———————Node:identifier Text: __iomem
+|——————Node:pointer_declarator Text: *ptr
+|———————Node:* Text: *
+|———————Node:identifier Text: ptr
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:declaration Text: void __iomem *cptr;
+|——————Node:primitive_type Text: void
+|——————Node:ERROR Text: __iomem
+|———————Node:identifier Text: __iomem
+|——————Node:pointer_declarator Text: *cptr
+|———————Node:* Text: *
+|———————Node:identifier Text: cptr
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:declaration Text: int j;
+|——————Node:primitive_type Text: int
+|——————Node:identifier Text: j
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:declaration Text: int minor = -1;
+|——————Node:primitive_type Text: int
+|——————Node:init_declarator Text: minor = -1
+|———————Node:identifier Text: minor
+|———————Node:= Text: =
+|———————Node:number_literal Text: -1
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:expression_statement Text: DBGin();
+|——————Node:call_expression Text: DBGin()
+|———————Node:identifier Text: DBGin
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:expression_statement Text: ptr		= pci_iomap(pdev, 0, 128);
+|——————Node:assignment_expression Text: ptr		= pci_iomap(pdev, 0, 128)
+|———————Node:identifier Text: ptr
+|———————Node:= Text: =
+|———————Node:call_expression Text: pci_iomap(pdev, 0, 128)
+|————————Node:identifier Text: pci_iomap
+|————————Node:argument_list Text: (pdev, 0, 128)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: pdev
+|—————————Node:, Text: ,
+|—————————Node:number_literal Text: 0
+|—————————Node:, Text: ,
+|—————————Node:number_literal Text: 128
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:expression_statement Text: cptr	= pci_iomap(pdev, 2, 2048);
+|——————Node:assignment_expression Text: cptr	= pci_iomap(pdev, 2, 2048)
+|———————Node:identifier Text: cptr
+|———————Node:= Text: =
+|———————Node:call_expression Text: pci_iomap(pdev, 2, 2048)
+|————————Node:identifier Text: pci_iomap
+|————————Node:argument_list Text: (pdev, 2, 2048)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: pdev
+|—————————Node:, Text: ,
+|—————————Node:number_literal Text: 2
+|—————————Node:, Text: ,
+|—————————Node:number_literal Text: 2048
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:expression_statement Text: err("register_new_cpcpci %d", i);
+|——————Node:call_expression Text: err("register_new_cpcpci %d", i)
+|———————Node:identifier Text: err
+|———————Node:argument_list Text: ("register_new_cpcpci %d", i)
+|————————Node:( Text: (
+|————————Node:string_literal Text: "register_new_cpcpci %d"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: register_new_cpcpci %d
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:identifier Text: i
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: printk("cptr= %p \n", cptr);
+|——————Node:call_expression Text: printk("cptr= %p \n", cptr)
+|———————Node:identifier Text: printk
+|———————Node:argument_list Text: ("cptr= %p \n", cptr)
+|————————Node:( Text: (
+|————————Node:string_literal Text: "cptr= %p \n"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: cptr= %p 
+|—————————Node:escape_sequence Text: \n
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:identifier Text: cptr
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:for_statement Text: for(j = 0; j < 4; j++) {   
+	if(controller_available(PCI_BASE_ADDRESS2(pdev) 
+		+ CPC_PCI_CHANNEL_BASE + (CPC_PCI_CHANNEL_WIDTH * j), 1)) {
+	    err(" CAN controller %d. at pos %d\n", i + 1, j);
+	    if(i > MAX_CHANNELS) {
+		err("only %d devices supported", MAX_CHANNELS);
+		break; /* the devices scan loop */
+	    }
+	    IOModel[i]	= 'm';
+	    IRQ[i]	= pdev->irq;
+	    Base[i]	= (upointer_t) cptr
+	                  + CPC_PCI_CHANNEL_BASE
+	                  + (CPC_PCI_CHANNEL_WIDTH * j);
+	    Clock = 16000;	/* all EMS PCI Boards use the sam clock for all CAN */
+#ifdef __x86_64__
+	  /*  err("Base %llx/%lld",
+		(long long unsigned) Base[i], (long long unsigned)Base[i]); */
+#else
+	    err("Base %lx", Base[i]);
+#endif
+	    /* store pointer to control reg */
+	    Can_pitapci_control[i] = ptr;
+	    i++;
+	}
+    }
+|——————Node:for Text: for
+|——————Node:( Text: (
+|——————Node:assignment_expression Text: j = 0
+|———————Node:identifier Text: j
+|———————Node:= Text: =
+|———————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|——————Node:binary_expression Text: j < 4
+|———————Node:identifier Text: j
+|———————Node:< Text: <
+|———————Node:number_literal Text: 4
+|——————Node:; Text: ;
+|——————Node:update_expression Text: j++
+|———————Node:identifier Text: j
+|———————Node:++ Text: ++
+|——————Node:) Text: )
+|——————Node:compound_statement Text: {   
+	if(controller_available(PCI_BASE_ADDRESS2(pdev) 
+		+ CPC_PCI_CHANNEL_BASE + (CPC_PCI_CHANNEL_WIDTH * j), 1)) {
+	    err(" CAN controller %d. at pos %d\n", i + 1, j);
+	    if(i > MAX_CHANNELS) {
+		err("only %d devices supported", MAX_CHANNELS);
+		break; /* the devices scan loop */
+	    }
+	    IOModel[i]	= 'm';
+	    IRQ[i]	= pdev->irq;
+	    Base[i]	= (upointer_t) cptr
+	                  + CPC_PCI_CHANNEL_BASE
+	                  + (CPC_PCI_CHANNEL_WIDTH * j);
+	    Clock = 16000;	/* all EMS PCI Boards use the sam clock for all CAN */
+#ifdef __x86_64__
+	  /*  err("Base %llx/%lld",
+		(long long unsigned) Base[i], (long long unsigned)Base[i]); */
+#else
+	    err("Base %lx", Base[i]);
+#endif
+	    /* store pointer to control reg */
+	    Can_pitapci_control[i] = ptr;
+	    i++;
+	}
+    }
+|———————Node:{ Text: {
+|———————Node:if_statement Text: if(controller_available(PCI_BASE_ADDRESS2(pdev) 
+		+ CPC_PCI_CHANNEL_BASE + (CPC_PCI_CHANNEL_WIDTH * j), 1)) {
+	    err(" CAN controller %d. at pos %d\n", i + 1, j);
+	    if(i > MAX_CHANNELS) {
+		err("only %d devices supported", MAX_CHANNELS);
+		break; /* the devices scan loop */
+	    }
+	    IOModel[i]	= 'm';
+	    IRQ[i]	= pdev->irq;
+	    Base[i]	= (upointer_t) cptr
+	                  + CPC_PCI_CHANNEL_BASE
+	                  + (CPC_PCI_CHANNEL_WIDTH * j);
+	    Clock = 16000;	/* all EMS PCI Boards use the sam clock for all CAN */
+#ifdef __x86_64__
+	  /*  err("Base %llx/%lld",
+		(long long unsigned) Base[i], (long long unsigned)Base[i]); */
+#else
+	    err("Base %lx", Base[i]);
+#endif
+	    /* store pointer to control reg */
+	    Can_pitapci_control[i] = ptr;
+	    i++;
+	}
+|————————Node:if Text: if
+|————————Node:parenthesized_expression Text: (controller_available(PCI_BASE_ADDRESS2(pdev) 
+		+ CPC_PCI_CHANNEL_BASE + (CPC_PCI_CHANNEL_WIDTH * j), 1))
+|—————————Node:( Text: (
+|—————————Node:call_expression Text: controller_available(PCI_BASE_ADDRESS2(pdev) 
+		+ CPC_PCI_CHANNEL_BASE + (CPC_PCI_CHANNEL_WIDTH * j), 1)
+|——————————Node:identifier Text: controller_available
+|——————————Node:argument_list Text: (PCI_BASE_ADDRESS2(pdev) 
+		+ CPC_PCI_CHANNEL_BASE + (CPC_PCI_CHANNEL_WIDTH * j), 1)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: PCI_BASE_ADDRESS2(pdev) 
+		+ CPC_PCI_CHANNEL_BASE + (CPC_PCI_CHANNEL_WIDTH * j)
+|————————————Node:binary_expression Text: PCI_BASE_ADDRESS2(pdev) 
+		+ CPC_PCI_CHANNEL_BASE
+|—————————————Node:call_expression Text: PCI_BASE_ADDRESS2(pdev)
+|——————————————Node:identifier Text: PCI_BASE_ADDRESS2
+|——————————————Node:argument_list Text: (pdev)
+|———————————————Node:( Text: (
+|———————————————Node:identifier Text: pdev
+|———————————————Node:) Text: )
+|—————————————Node:+ Text: +
+|—————————————Node:identifier Text: CPC_PCI_CHANNEL_BASE
+|————————————Node:+ Text: +
+|————————————Node:parenthesized_expression Text: (CPC_PCI_CHANNEL_WIDTH * j)
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: CPC_PCI_CHANNEL_WIDTH * j
+|——————————————Node:identifier Text: CPC_PCI_CHANNEL_WIDTH
+|——————————————Node:* Text: *
+|——————————————Node:identifier Text: j
+|—————————————Node:) Text: )
+|———————————Node:, Text: ,
+|———————————Node:number_literal Text: 1
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+	    err(" CAN controller %d. at pos %d\n", i + 1, j);
+	    if(i > MAX_CHANNELS) {
+		err("only %d devices supported", MAX_CHANNELS);
+		break; /* the devices scan loop */
+	    }
+	    IOModel[i]	= 'm';
+	    IRQ[i]	= pdev->irq;
+	    Base[i]	= (upointer_t) cptr
+	                  + CPC_PCI_CHANNEL_BASE
+	                  + (CPC_PCI_CHANNEL_WIDTH * j);
+	    Clock = 16000;	/* all EMS PCI Boards use the sam clock for all CAN */
+#ifdef __x86_64__
+	  /*  err("Base %llx/%lld",
+		(long long unsigned) Base[i], (long long unsigned)Base[i]); */
+#else
+	    err("Base %lx", Base[i]);
+#endif
+	    /* store pointer to control reg */
+	    Can_pitapci_control[i] = ptr;
+	    i++;
+	}
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: err(" CAN controller %d. at pos %d\n", i + 1, j);
+|——————————Node:call_expression Text: err(" CAN controller %d. at pos %d\n", i + 1, j)
+|———————————Node:identifier Text: err
+|———————————Node:argument_list Text: (" CAN controller %d. at pos %d\n", i + 1, j)
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: " CAN controller %d. at pos %d\n"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text:  CAN controller %d. at pos %d
+|—————————————Node:escape_sequence Text: \n
+|—————————————Node:" Text: "
+|————————————Node:, Text: ,
+|————————————Node:binary_expression Text: i + 1
+|—————————————Node:identifier Text: i
+|—————————————Node:+ Text: +
+|—————————————Node:number_literal Text: 1
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: j
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:if_statement Text: if(i > MAX_CHANNELS) {
+		err("only %d devices supported", MAX_CHANNELS);
+		break; /* the devices scan loop */
+	    }
+|——————————Node:if Text: if
+|——————————Node:parenthesized_expression Text: (i > MAX_CHANNELS)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: i > MAX_CHANNELS
+|————————————Node:identifier Text: i
+|————————————Node:> Text: >
+|————————————Node:identifier Text: MAX_CHANNELS
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+		err("only %d devices supported", MAX_CHANNELS);
+		break; /* the devices scan loop */
+	    }
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: err("only %d devices supported", MAX_CHANNELS);
+|————————————Node:call_expression Text: err("only %d devices supported", MAX_CHANNELS)
+|—————————————Node:identifier Text: err
+|—————————————Node:argument_list Text: ("only %d devices supported", MAX_CHANNELS)
+|——————————————Node:( Text: (
+|——————————————Node:string_literal Text: "only %d devices supported"
+|———————————————Node:" Text: "
+|———————————————Node:string_content Text: only %d devices supported
+|———————————————Node:" Text: "
+|——————————————Node:, Text: ,
+|——————————————Node:identifier Text: MAX_CHANNELS
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:break_statement Text: break;
+|————————————Node:break Text: break
+|————————————Node:; Text: ;
+|———————————Node:comment
+|———————————Node:} Text: }
+|—————————Node:expression_statement Text: IOModel[i]	= 'm';
+|——————————Node:assignment_expression Text: IOModel[i]	= 'm'
+|———————————Node:subscript_expression Text: IOModel[i]
+|————————————Node:identifier Text: IOModel
+|————————————Node:[ Text: [
+|————————————Node:identifier Text: i
+|————————————Node:] Text: ]
+|———————————Node:= Text: =
+|———————————Node:char_literal Text: 'm'
+|————————————Node:' Text: '
+|————————————Node:character Text: m
+|————————————Node:' Text: '
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: IRQ[i]	= pdev->irq;
+|——————————Node:assignment_expression Text: IRQ[i]	= pdev->irq
+|———————————Node:subscript_expression Text: IRQ[i]
+|————————————Node:identifier Text: IRQ
+|————————————Node:[ Text: [
+|————————————Node:identifier Text: i
+|————————————Node:] Text: ]
+|———————————Node:= Text: =
+|———————————Node:field_expression Text: pdev->irq
+|————————————Node:identifier Text: pdev
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: irq
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: Base[i]	= (upointer_t) cptr
+	                  + CPC_PCI_CHANNEL_BASE
+	                  + (CPC_PCI_CHANNEL_WIDTH * j);
+|——————————Node:assignment_expression Text: Base[i]	= (upointer_t) cptr
+	                  + CPC_PCI_CHANNEL_BASE
+	                  + (CPC_PCI_CHANNEL_WIDTH * j)
+|———————————Node:subscript_expression Text: Base[i]
+|————————————Node:identifier Text: Base
+|————————————Node:[ Text: [
+|————————————Node:identifier Text: i
+|————————————Node:] Text: ]
+|———————————Node:= Text: =
+|———————————Node:binary_expression Text: (upointer_t) cptr
+	                  + CPC_PCI_CHANNEL_BASE
+	                  + (CPC_PCI_CHANNEL_WIDTH * j)
+|————————————Node:binary_expression Text: (upointer_t) cptr
+	                  + CPC_PCI_CHANNEL_BASE
+|—————————————Node:cast_expression Text: (upointer_t) cptr
+|——————————————Node:( Text: (
+|——————————————Node:type_descriptor Text: upointer_t
+|———————————————Node:type_identifier Text: upointer_t
+|——————————————Node:) Text: )
+|——————————————Node:identifier Text: cptr
+|—————————————Node:+ Text: +
+|—————————————Node:identifier Text: CPC_PCI_CHANNEL_BASE
+|————————————Node:+ Text: +
+|————————————Node:parenthesized_expression Text: (CPC_PCI_CHANNEL_WIDTH * j)
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: CPC_PCI_CHANNEL_WIDTH * j
+|——————————————Node:identifier Text: CPC_PCI_CHANNEL_WIDTH
+|——————————————Node:* Text: *
+|——————————————Node:identifier Text: j
+|—————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: Clock = 16000;
+|——————————Node:assignment_expression Text: Clock = 16000
+|———————————Node:identifier Text: Clock
+|———————————Node:= Text: =
+|———————————Node:number_literal Text: 16000
+|——————————Node:; Text: ;
+|—————————Node:comment
+|—————————Node:preproc_ifdef Text: #ifdef __x86_64__
+	  /*  err("Base %llx/%lld",
+		(long long unsigned) Base[i], (long long unsigned)Base[i]); */
+#else
+	    err("Base %lx", Base[i]);
+#endif
+|——————————Node:#ifdef Text: #ifdef
+|——————————Node:identifier Text: __x86_64__
+|——————————Node:comment
+|——————————Node:preproc_else Text: #else
+	    err("Base %lx", Base[i]);
+|———————————Node:#else Text: #else
+|———————————Node:expression_statement Text: err("Base %lx", Base[i]);
+|————————————Node:call_expression Text: err("Base %lx", Base[i])
+|—————————————Node:identifier Text: err
+|—————————————Node:argument_list Text: ("Base %lx", Base[i])
+|——————————————Node:( Text: (
+|——————————————Node:string_literal Text: "Base %lx"
+|———————————————Node:" Text: "
+|———————————————Node:string_content Text: Base %lx
+|———————————————Node:" Text: "
+|——————————————Node:, Text: ,
+|——————————————Node:subscript_expression Text: Base[i]
+|———————————————Node:identifier Text: Base
+|———————————————Node:[ Text: [
+|———————————————Node:identifier Text: i
+|———————————————Node:] Text: ]
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|——————————Node:#endif Text: #endif
+|—————————Node:comment
+|—————————Node:expression_statement Text: Can_pitapci_control[i] = ptr;
+|——————————Node:assignment_expression Text: Can_pitapci_control[i] = ptr
+|———————————Node:subscript_expression Text: Can_pitapci_control[i]
+|————————————Node:identifier Text: Can_pitapci_control
+|————————————Node:[ Text: [
+|————————————Node:identifier Text: i
+|————————————Node:] Text: ]
+|———————————Node:= Text: =
+|———————————Node:identifier Text: ptr
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: i++;
+|——————————Node:update_expression Text: i++
+|———————————Node:identifier Text: i
+|———————————Node:++ Text: ++
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:} Text: }
+|—————Node:expression_statement Text: disable_irq(IRQ[i]);
+|——————Node:call_expression Text: disable_irq(IRQ[i])
+|———————Node:identifier Text: disable_irq
+|———————Node:argument_list Text: (IRQ[i])
+|————————Node:( Text: (
+|————————Node:subscript_expression Text: IRQ[i]
+|—————————Node:identifier Text: IRQ
+|—————————Node:[ Text: [
+|—————————Node:identifier Text: i
+|—————————Node:] Text: ]
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:expression_statement Text: writel(PLX9030_ICR_ENABLE_IRQ0, ptr + PLX9030_ICR);
+|——————Node:call_expression Text: writel(PLX9030_ICR_ENABLE_IRQ0, ptr + PLX9030_ICR)
+|———————Node:identifier Text: writel
+|———————Node:argument_list Text: (PLX9030_ICR_ENABLE_IRQ0, ptr + PLX9030_ICR)
+|————————Node:( Text: (
+|————————Node:identifier Text: PLX9030_ICR_ENABLE_IRQ0
+|————————Node:, Text: ,
+|————————Node:binary_expression Text: ptr + PLX9030_ICR
+|—————————Node:identifier Text: ptr
+|—————————Node:+ Text: +
+|—————————Node:identifier Text: PLX9030_ICR
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: enable_irq(IRQ[i]);
+|——————Node:call_expression Text: enable_irq(IRQ[i])
+|———————Node:identifier Text: enable_irq
+|———————Node:argument_list Text: (IRQ[i])
+|————————Node:( Text: (
+|————————Node:subscript_expression Text: IRQ[i]
+|—————————Node:identifier Text: IRQ
+|—————————Node:[ Text: [
+|—————————Node:identifier Text: i
+|—————————Node:] Text: ]
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: DBGout();
+|——————Node:call_expression Text: DBGout()
+|———————Node:identifier Text: DBGout
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return i;
+|——————Node:return Text: return
+|——————Node:identifier Text: i
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:} Text: }
+|———Node:comment
+|———Node:function_definition Text: int pcimod_scan(void)
+{
+struct	pci_dev *pdev = NULL;
+int	candev = 0;			/* number of found devices */
+int	minor = -1;			/* to make DBGin() happy */
+
+    DBGin();
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+    /* Testing the PCI presence is no longer neccessary
+     * On a non  PCI kernel, insmod will just complain
+     */
+    if (pci_present ()) {
+#endif
+
+    for_each_pci_dev(pdev) {
+	/* too many devices are using a PLX9030,
+	   we have to check  sub-system ids as well */
+	if(   pdev->vendor           == PCI_VENDOR_ID_PLX
+	   && pdev->device           == PCI_DEVICE_ID_PLX_9030
+	   && pdev->subsystem_vendor == 0x10b5
+	   ) {
+	    err("found new EMS pci board %d", candev);
+	    printk("Subsystem Vendor 0x%0x\n", pdev->subsystem_vendor);
+	    printk("Subsystem Device 0x%0x\n", pdev->subsystem_device);
+	    /* reading delivers 0x10b5, 0x4000 */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		candev += register_new_cpcpci(pdev, candev);
+	    }
+	}
+	if(pdev->vendor == PCI_VENDOR_CAN_EMS
+	&& pdev->device == PCI_DEVICE_CAN) {
+	    err("found old EMS pci board %d\nUse TARGET=CPC_PCI compiled module", candev);
+	    continue;
+	    /* following code not used yet */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		/* candev += register_old_cpcpci(pdev, candev); */
+		;
+	    }
+	}
+    }
+    if(candev == 0) {
+	err("No CAN device found");
+	return -ENODEV;
+    } else {
+    	err("found %d CAN controllers", candev);
+    }
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+    } else { 
+        err("No PCI bios present");
+        return -ENODEV;
+    }
+#endif
+    DBGout();
+    return 0;
+}
+|————Node:primitive_type Text: int
+|————Node:function_declarator Text: pcimod_scan(void)
+|—————Node:identifier Text: pcimod_scan
+|—————Node:parameter_list Text: (void)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: void
+|———————Node:primitive_type Text: void
+|——————Node:) Text: )
+|————Node:compound_statement Text: {
+struct	pci_dev *pdev = NULL;
+int	candev = 0;			/* number of found devices */
+int	minor = -1;			/* to make DBGin() happy */
+
+    DBGin();
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+    /* Testing the PCI presence is no longer neccessary
+     * On a non  PCI kernel, insmod will just complain
+     */
+    if (pci_present ()) {
+#endif
+
+    for_each_pci_dev(pdev) {
+	/* too many devices are using a PLX9030,
+	   we have to check  sub-system ids as well */
+	if(   pdev->vendor           == PCI_VENDOR_ID_PLX
+	   && pdev->device           == PCI_DEVICE_ID_PLX_9030
+	   && pdev->subsystem_vendor == 0x10b5
+	   ) {
+	    err("found new EMS pci board %d", candev);
+	    printk("Subsystem Vendor 0x%0x\n", pdev->subsystem_vendor);
+	    printk("Subsystem Device 0x%0x\n", pdev->subsystem_device);
+	    /* reading delivers 0x10b5, 0x4000 */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		candev += register_new_cpcpci(pdev, candev);
+	    }
+	}
+	if(pdev->vendor == PCI_VENDOR_CAN_EMS
+	&& pdev->device == PCI_DEVICE_CAN) {
+	    err("found old EMS pci board %d\nUse TARGET=CPC_PCI compiled module", candev);
+	    continue;
+	    /* following code not used yet */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		/* candev += register_old_cpcpci(pdev, candev); */
+		;
+	    }
+	}
+    }
+    if(candev == 0) {
+	err("No CAN device found");
+	return -ENODEV;
+    } else {
+    	err("found %d CAN controllers", candev);
+    }
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+    } else { 
+        err("No PCI bios present");
+        return -ENODEV;
+    }
+#endif
+    DBGout();
+    return 0;
+}
+|—————Node:{ Text: {
+|—————Node:declaration Text: struct	pci_dev *pdev = NULL;
+|——————Node:struct_specifier Text: struct	pci_dev
+|———————Node:struct Text: struct
+|———————Node:type_identifier Text: pci_dev
+|——————Node:init_declarator Text: *pdev = NULL
+|———————Node:pointer_declarator Text: *pdev
+|————————Node:* Text: *
+|————————Node:identifier Text: pdev
+|———————Node:= Text: =
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|——————Node:; Text: ;
+|—————Node:declaration Text: int	candev = 0;
+|——————Node:primitive_type Text: int
+|——————Node:init_declarator Text: candev = 0
+|———————Node:identifier Text: candev
+|———————Node:= Text: =
+|———————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:declaration Text: int	minor = -1;
+|——————Node:primitive_type Text: int
+|——————Node:init_declarator Text: minor = -1
+|———————Node:identifier Text: minor
+|———————Node:= Text: =
+|———————Node:number_literal Text: -1
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:expression_statement Text: DBGin();
+|——————Node:call_expression Text: DBGin()
+|———————Node:identifier Text: DBGin
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:preproc_if Text: #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+    /* Testing the PCI presence is no longer neccessary
+     * On a non  PCI kernel, insmod will just complain
+     */
+    if (pci_present ()) {
+#endif
+
+    for_each_pci_dev(pdev) {
+	/* too many devices are using a PLX9030,
+	   we have to check  sub-system ids as well */
+	if(   pdev->vendor           == PCI_VENDOR_ID_PLX
+	   && pdev->device           == PCI_DEVICE_ID_PLX_9030
+	   && pdev->subsystem_vendor == 0x10b5
+	   ) {
+	    err("found new EMS pci board %d", candev);
+	    printk("Subsystem Vendor 0x%0x\n", pdev->subsystem_vendor);
+	    printk("Subsystem Device 0x%0x\n", pdev->subsystem_device);
+	    /* reading delivers 0x10b5, 0x4000 */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		candev += register_new_cpcpci(pdev, candev);
+	    }
+	}
+	if(pdev->vendor == PCI_VENDOR_CAN_EMS
+	&& pdev->device == PCI_DEVICE_CAN) {
+	    err("found old EMS pci board %d\nUse TARGET=CPC_PCI compiled module", candev);
+	    continue;
+	    /* following code not used yet */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		/* candev += register_old_cpcpci(pdev, candev); */
+		;
+	    }
+	}
+    }
+    if(candev == 0) {
+	err("No CAN device found");
+	return -ENODEV;
+    } else {
+    	err("found %d CAN controllers", candev);
+    }
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+    } else { 
+        err("No PCI bios present");
+        return -ENODEV;
+    }
+#endif
+|——————Node:#if Text: #if
+|——————Node:binary_expression Text: LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+|———————Node:identifier Text: LINUX_VERSION_CODE
+|———————Node:< Text: <
+|———————Node:call_expression Text: KERNEL_VERSION(2,5,0)
+|————————Node:identifier Text: KERNEL_VERSION
+|————————Node:argument_list Text: (2,5,0)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: 2
+|—————————Node:, Text: ,
+|—————————Node:number_literal Text: 5
+|—————————Node:, Text: ,
+|—————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|——————Node:
+ Text: 
+
+|——————Node:comment
+|——————Node:if_statement Text: if (pci_present ()) {
+#endif
+
+    for_each_pci_dev(pdev) {
+	/* too many devices are using a PLX9030,
+	   we have to check  sub-system ids as well */
+	if(   pdev->vendor           == PCI_VENDOR_ID_PLX
+	   && pdev->device           == PCI_DEVICE_ID_PLX_9030
+	   && pdev->subsystem_vendor == 0x10b5
+	   ) {
+	    err("found new EMS pci board %d", candev);
+	    printk("Subsystem Vendor 0x%0x\n", pdev->subsystem_vendor);
+	    printk("Subsystem Device 0x%0x\n", pdev->subsystem_device);
+	    /* reading delivers 0x10b5, 0x4000 */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		candev += register_new_cpcpci(pdev, candev);
+	    }
+	}
+	if(pdev->vendor == PCI_VENDOR_CAN_EMS
+	&& pdev->device == PCI_DEVICE_CAN) {
+	    err("found old EMS pci board %d\nUse TARGET=CPC_PCI compiled module", candev);
+	    continue;
+	    /* following code not used yet */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		/* candev += register_old_cpcpci(pdev, candev); */
+		;
+	    }
+	}
+    }
+    if(candev == 0) {
+	err("No CAN device found");
+	return -ENODEV;
+    } else {
+    	err("found %d CAN controllers", candev);
+    }
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+    } else { 
+        err("No PCI bios present");
+        return -ENODEV;
+    }
+|———————Node:if Text: if
+|———————Node:parenthesized_expression Text: (pci_present ())
+|————————Node:( Text: (
+|————————Node:call_expression Text: pci_present ()
+|—————————Node:identifier Text: pci_present
+|—————————Node:argument_list Text: ()
+|——————————Node:( Text: (
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|———————Node:compound_statement Text: {
+#endif
+
+    for_each_pci_dev(pdev) {
+	/* too many devices are using a PLX9030,
+	   we have to check  sub-system ids as well */
+	if(   pdev->vendor           == PCI_VENDOR_ID_PLX
+	   && pdev->device           == PCI_DEVICE_ID_PLX_9030
+	   && pdev->subsystem_vendor == 0x10b5
+	   ) {
+	    err("found new EMS pci board %d", candev);
+	    printk("Subsystem Vendor 0x%0x\n", pdev->subsystem_vendor);
+	    printk("Subsystem Device 0x%0x\n", pdev->subsystem_device);
+	    /* reading delivers 0x10b5, 0x4000 */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		candev += register_new_cpcpci(pdev, candev);
+	    }
+	}
+	if(pdev->vendor == PCI_VENDOR_CAN_EMS
+	&& pdev->device == PCI_DEVICE_CAN) {
+	    err("found old EMS pci board %d\nUse TARGET=CPC_PCI compiled module", candev);
+	    continue;
+	    /* following code not used yet */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		/* candev += register_old_cpcpci(pdev, candev); */
+		;
+	    }
+	}
+    }
+    if(candev == 0) {
+	err("No CAN device found");
+	return -ENODEV;
+    } else {
+    	err("found %d CAN controllers", candev);
+    }
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+    }
+|————————Node:{ Text: {
+|————————Node:preproc_call Text: #endif
+
+|—————————Node:preproc_directive Text: #endif
+|————————Node:function_definition Text: for_each_pci_dev(pdev) {
+	/* too many devices are using a PLX9030,
+	   we have to check  sub-system ids as well */
+	if(   pdev->vendor           == PCI_VENDOR_ID_PLX
+	   && pdev->device           == PCI_DEVICE_ID_PLX_9030
+	   && pdev->subsystem_vendor == 0x10b5
+	   ) {
+	    err("found new EMS pci board %d", candev);
+	    printk("Subsystem Vendor 0x%0x\n", pdev->subsystem_vendor);
+	    printk("Subsystem Device 0x%0x\n", pdev->subsystem_device);
+	    /* reading delivers 0x10b5, 0x4000 */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		candev += register_new_cpcpci(pdev, candev);
+	    }
+	}
+	if(pdev->vendor == PCI_VENDOR_CAN_EMS
+	&& pdev->device == PCI_DEVICE_CAN) {
+	    err("found old EMS pci board %d\nUse TARGET=CPC_PCI compiled module", candev);
+	    continue;
+	    /* following code not used yet */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		/* candev += register_old_cpcpci(pdev, candev); */
+		;
+	    }
+	}
+    }
+|—————————Node:type_identifier Text: for_each_pci_dev
+|—————————Node:parenthesized_declarator Text: (pdev)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: pdev
+|——————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+	/* too many devices are using a PLX9030,
+	   we have to check  sub-system ids as well */
+	if(   pdev->vendor           == PCI_VENDOR_ID_PLX
+	   && pdev->device           == PCI_DEVICE_ID_PLX_9030
+	   && pdev->subsystem_vendor == 0x10b5
+	   ) {
+	    err("found new EMS pci board %d", candev);
+	    printk("Subsystem Vendor 0x%0x\n", pdev->subsystem_vendor);
+	    printk("Subsystem Device 0x%0x\n", pdev->subsystem_device);
+	    /* reading delivers 0x10b5, 0x4000 */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		candev += register_new_cpcpci(pdev, candev);
+	    }
+	}
+	if(pdev->vendor == PCI_VENDOR_CAN_EMS
+	&& pdev->device == PCI_DEVICE_CAN) {
+	    err("found old EMS pci board %d\nUse TARGET=CPC_PCI compiled module", candev);
+	    continue;
+	    /* following code not used yet */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		/* candev += register_old_cpcpci(pdev, candev); */
+		;
+	    }
+	}
+    }
+|——————————Node:{ Text: {
+|——————————Node:comment
+|——————————Node:if_statement Text: if(   pdev->vendor           == PCI_VENDOR_ID_PLX
+	   && pdev->device           == PCI_DEVICE_ID_PLX_9030
+	   && pdev->subsystem_vendor == 0x10b5
+	   ) {
+	    err("found new EMS pci board %d", candev);
+	    printk("Subsystem Vendor 0x%0x\n", pdev->subsystem_vendor);
+	    printk("Subsystem Device 0x%0x\n", pdev->subsystem_device);
+	    /* reading delivers 0x10b5, 0x4000 */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		candev += register_new_cpcpci(pdev, candev);
+	    }
+	}
+|———————————Node:if Text: if
+|———————————Node:parenthesized_expression Text: (   pdev->vendor           == PCI_VENDOR_ID_PLX
+	   && pdev->device           == PCI_DEVICE_ID_PLX_9030
+	   && pdev->subsystem_vendor == 0x10b5
+	   )
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: pdev->vendor           == PCI_VENDOR_ID_PLX
+	   && pdev->device           == PCI_DEVICE_ID_PLX_9030
+	   && pdev->subsystem_vendor == 0x10b5
+|—————————————Node:binary_expression Text: pdev->vendor           == PCI_VENDOR_ID_PLX
+	   && pdev->device           == PCI_DEVICE_ID_PLX_9030
+|——————————————Node:binary_expression Text: pdev->vendor           == PCI_VENDOR_ID_PLX
+|———————————————Node:field_expression Text: pdev->vendor
+|————————————————Node:identifier Text: pdev
+|————————————————Node:-> Text: ->
+|————————————————Node:field_identifier Text: vendor
+|———————————————Node:== Text: ==
+|———————————————Node:identifier Text: PCI_VENDOR_ID_PLX
+|——————————————Node:&& Text: &&
+|——————————————Node:binary_expression Text: pdev->device           == PCI_DEVICE_ID_PLX_9030
+|———————————————Node:field_expression Text: pdev->device
+|————————————————Node:identifier Text: pdev
+|————————————————Node:-> Text: ->
+|————————————————Node:field_identifier Text: device
+|———————————————Node:== Text: ==
+|———————————————Node:identifier Text: PCI_DEVICE_ID_PLX_9030
+|—————————————Node:&& Text: &&
+|—————————————Node:binary_expression Text: pdev->subsystem_vendor == 0x10b5
+|——————————————Node:field_expression Text: pdev->subsystem_vendor
+|———————————————Node:identifier Text: pdev
+|———————————————Node:-> Text: ->
+|———————————————Node:field_identifier Text: subsystem_vendor
+|——————————————Node:== Text: ==
+|——————————————Node:number_literal Text: 0x10b5
+|————————————Node:) Text: )
+|———————————Node:compound_statement Text: {
+	    err("found new EMS pci board %d", candev);
+	    printk("Subsystem Vendor 0x%0x\n", pdev->subsystem_vendor);
+	    printk("Subsystem Device 0x%0x\n", pdev->subsystem_device);
+	    /* reading delivers 0x10b5, 0x4000 */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		candev += register_new_cpcpci(pdev, candev);
+	    }
+	}
+|————————————Node:{ Text: {
+|————————————Node:expression_statement Text: err("found new EMS pci board %d", candev);
+|—————————————Node:call_expression Text: err("found new EMS pci board %d", candev)
+|——————————————Node:identifier Text: err
+|——————————————Node:argument_list Text: ("found new EMS pci board %d", candev)
+|———————————————Node:( Text: (
+|———————————————Node:string_literal Text: "found new EMS pci board %d"
+|————————————————Node:" Text: "
+|————————————————Node:string_content Text: found new EMS pci board %d
+|————————————————Node:" Text: "
+|———————————————Node:, Text: ,
+|———————————————Node:identifier Text: candev
+|———————————————Node:) Text: )
+|—————————————Node:; Text: ;
+|————————————Node:expression_statement Text: printk("Subsystem Vendor 0x%0x\n", pdev->subsystem_vendor);
+|—————————————Node:call_expression Text: printk("Subsystem Vendor 0x%0x\n", pdev->subsystem_vendor)
+|——————————————Node:identifier Text: printk
+|——————————————Node:argument_list Text: ("Subsystem Vendor 0x%0x\n", pdev->subsystem_vendor)
+|———————————————Node:( Text: (
+|———————————————Node:string_literal Text: "Subsystem Vendor 0x%0x\n"
+|————————————————Node:" Text: "
+|————————————————Node:string_content Text: Subsystem Vendor 0x%0x
+|————————————————Node:escape_sequence Text: \n
+|————————————————Node:" Text: "
+|———————————————Node:, Text: ,
+|———————————————Node:field_expression Text: pdev->subsystem_vendor
+|————————————————Node:identifier Text: pdev
+|————————————————Node:-> Text: ->
+|————————————————Node:field_identifier Text: subsystem_vendor
+|———————————————Node:) Text: )
+|—————————————Node:; Text: ;
+|————————————Node:expression_statement Text: printk("Subsystem Device 0x%0x\n", pdev->subsystem_device);
+|—————————————Node:call_expression Text: printk("Subsystem Device 0x%0x\n", pdev->subsystem_device)
+|——————————————Node:identifier Text: printk
+|——————————————Node:argument_list Text: ("Subsystem Device 0x%0x\n", pdev->subsystem_device)
+|———————————————Node:( Text: (
+|———————————————Node:string_literal Text: "Subsystem Device 0x%0x\n"
+|————————————————Node:" Text: "
+|————————————————Node:string_content Text: Subsystem Device 0x%0x
+|————————————————Node:escape_sequence Text: \n
+|————————————————Node:" Text: "
+|———————————————Node:, Text: ,
+|———————————————Node:field_expression Text: pdev->subsystem_device
+|————————————————Node:identifier Text: pdev
+|————————————————Node:-> Text: ->
+|————————————————Node:field_identifier Text: subsystem_device
+|———————————————Node:) Text: )
+|—————————————Node:; Text: ;
+|————————————Node:comment
+|————————————Node:if_statement Text: if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		candev += register_new_cpcpci(pdev, candev);
+	    }
+|—————————————Node:if Text: if
+|—————————————Node:parenthesized_expression Text: (pci_enable_device(pdev))
+|——————————————Node:( Text: (
+|——————————————Node:call_expression Text: pci_enable_device(pdev)
+|———————————————Node:identifier Text: pci_enable_device
+|———————————————Node:argument_list Text: (pdev)
+|————————————————Node:( Text: (
+|————————————————Node:identifier Text: pdev
+|————————————————Node:) Text: )
+|——————————————Node:) Text: )
+|—————————————Node:compound_statement Text: {
+		    continue;
+	    }
+|——————————————Node:{ Text: {
+|——————————————Node:continue_statement Text: continue;
+|———————————————Node:continue Text: continue
+|———————————————Node:; Text: ;
+|——————————————Node:} Text: }
+|—————————————Node:else_clause Text: else {
+		candev += register_new_cpcpci(pdev, candev);
+	    }
+|——————————————Node:else Text: else
+|——————————————Node:compound_statement Text: {
+		candev += register_new_cpcpci(pdev, candev);
+	    }
+|———————————————Node:{ Text: {
+|———————————————Node:expression_statement Text: candev += register_new_cpcpci(pdev, candev);
+|————————————————Node:assignment_expression Text: candev += register_new_cpcpci(pdev, candev)
+|—————————————————Node:identifier Text: candev
+|—————————————————Node:+= Text: +=
+|—————————————————Node:call_expression Text: register_new_cpcpci(pdev, candev)
+|——————————————————Node:identifier Text: register_new_cpcpci
+|——————————————————Node:argument_list Text: (pdev, candev)
+|———————————————————Node:( Text: (
+|———————————————————Node:identifier Text: pdev
+|———————————————————Node:, Text: ,
+|———————————————————Node:identifier Text: candev
+|———————————————————Node:) Text: )
+|————————————————Node:; Text: ;
+|———————————————Node:} Text: }
+|————————————Node:} Text: }
+|——————————Node:if_statement Text: if(pdev->vendor == PCI_VENDOR_CAN_EMS
+	&& pdev->device == PCI_DEVICE_CAN) {
+	    err("found old EMS pci board %d\nUse TARGET=CPC_PCI compiled module", candev);
+	    continue;
+	    /* following code not used yet */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		/* candev += register_old_cpcpci(pdev, candev); */
+		;
+	    }
+	}
+|———————————Node:if Text: if
+|———————————Node:parenthesized_expression Text: (pdev->vendor == PCI_VENDOR_CAN_EMS
+	&& pdev->device == PCI_DEVICE_CAN)
+|————————————Node:( Text: (
+|————————————Node:binary_expression Text: pdev->vendor == PCI_VENDOR_CAN_EMS
+	&& pdev->device == PCI_DEVICE_CAN
+|—————————————Node:binary_expression Text: pdev->vendor == PCI_VENDOR_CAN_EMS
+|——————————————Node:field_expression Text: pdev->vendor
+|———————————————Node:identifier Text: pdev
+|———————————————Node:-> Text: ->
+|———————————————Node:field_identifier Text: vendor
+|——————————————Node:== Text: ==
+|——————————————Node:identifier Text: PCI_VENDOR_CAN_EMS
+|—————————————Node:&& Text: &&
+|—————————————Node:binary_expression Text: pdev->device == PCI_DEVICE_CAN
+|——————————————Node:field_expression Text: pdev->device
+|———————————————Node:identifier Text: pdev
+|———————————————Node:-> Text: ->
+|———————————————Node:field_identifier Text: device
+|——————————————Node:== Text: ==
+|——————————————Node:identifier Text: PCI_DEVICE_CAN
+|————————————Node:) Text: )
+|———————————Node:compound_statement Text: {
+	    err("found old EMS pci board %d\nUse TARGET=CPC_PCI compiled module", candev);
+	    continue;
+	    /* following code not used yet */
+	    if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		/* candev += register_old_cpcpci(pdev, candev); */
+		;
+	    }
+	}
+|————————————Node:{ Text: {
+|————————————Node:expression_statement Text: err("found old EMS pci board %d\nUse TARGET=CPC_PCI compiled module", candev);
+|—————————————Node:call_expression Text: err("found old EMS pci board %d\nUse TARGET=CPC_PCI compiled module", candev)
+|——————————————Node:identifier Text: err
+|——————————————Node:argument_list Text: ("found old EMS pci board %d\nUse TARGET=CPC_PCI compiled module", candev)
+|———————————————Node:( Text: (
+|———————————————Node:string_literal Text: "found old EMS pci board %d\nUse TARGET=CPC_PCI compiled module"
+|————————————————Node:" Text: "
+|————————————————Node:string_content Text: found old EMS pci board %d
+|————————————————Node:escape_sequence Text: \n
+|————————————————Node:string_content Text: Use TARGET=CPC_PCI compiled module
+|————————————————Node:" Text: "
+|———————————————Node:, Text: ,
+|———————————————Node:identifier Text: candev
+|———————————————Node:) Text: )
+|—————————————Node:; Text: ;
+|————————————Node:continue_statement Text: continue;
+|—————————————Node:continue Text: continue
+|—————————————Node:; Text: ;
+|————————————Node:comment
+|————————————Node:if_statement Text: if (pci_enable_device(pdev)) {
+		    continue;
+	    } else {
+		/* candev += register_old_cpcpci(pdev, candev); */
+		;
+	    }
+|—————————————Node:if Text: if
+|—————————————Node:parenthesized_expression Text: (pci_enable_device(pdev))
+|——————————————Node:( Text: (
+|——————————————Node:call_expression Text: pci_enable_device(pdev)
+|———————————————Node:identifier Text: pci_enable_device
+|———————————————Node:argument_list Text: (pdev)
+|————————————————Node:( Text: (
+|————————————————Node:identifier Text: pdev
+|————————————————Node:) Text: )
+|——————————————Node:) Text: )
+|—————————————Node:compound_statement Text: {
+		    continue;
+	    }
+|——————————————Node:{ Text: {
+|——————————————Node:continue_statement Text: continue;
+|———————————————Node:continue Text: continue
+|———————————————Node:; Text: ;
+|——————————————Node:} Text: }
+|—————————————Node:else_clause Text: else {
+		/* candev += register_old_cpcpci(pdev, candev); */
+		;
+	    }
+|——————————————Node:else Text: else
+|——————————————Node:compound_statement Text: {
+		/* candev += register_old_cpcpci(pdev, candev); */
+		;
+	    }
+|———————————————Node:{ Text: {
+|———————————————Node:comment
+|———————————————Node:expression_statement Text: ;
+|————————————————Node:; Text: ;
+|———————————————Node:} Text: }
+|————————————Node:} Text: }
+|——————————Node:} Text: }
+|————————Node:if_statement Text: if(candev == 0) {
+	err("No CAN device found");
+	return -ENODEV;
+    } else {
+    	err("found %d CAN controllers", candev);
+    }
+|—————————Node:if Text: if
+|—————————Node:parenthesized_expression Text: (candev == 0)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: candev == 0
+|———————————Node:identifier Text: candev
+|———————————Node:== Text: ==
+|———————————Node:number_literal Text: 0
+|——————————Node:) Text: )
+|—————————Node:compound_statement Text: {
+	err("No CAN device found");
+	return -ENODEV;
+    }
+|——————————Node:{ Text: {
+|——————————Node:expression_statement Text: err("No CAN device found");
+|———————————Node:call_expression Text: err("No CAN device found")
+|————————————Node:identifier Text: err
+|————————————Node:argument_list Text: ("No CAN device found")
+|—————————————Node:( Text: (
+|—————————————Node:string_literal Text: "No CAN device found"
+|——————————————Node:" Text: "
+|——————————————Node:string_content Text: No CAN device found
+|——————————————Node:" Text: "
+|—————————————Node:) Text: )
+|———————————Node:; Text: ;
+|——————————Node:return_statement Text: return -ENODEV;
+|———————————Node:return Text: return
+|———————————Node:unary_expression Text: -ENODEV
+|————————————Node:- Text: -
+|————————————Node:identifier Text: ENODEV
+|———————————Node:; Text: ;
+|——————————Node:} Text: }
+|—————————Node:else_clause Text: else {
+    	err("found %d CAN controllers", candev);
+    }
+|——————————Node:else Text: else
+|——————————Node:compound_statement Text: {
+    	err("found %d CAN controllers", candev);
+    }
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: err("found %d CAN controllers", candev);
+|————————————Node:call_expression Text: err("found %d CAN controllers", candev)
+|—————————————Node:identifier Text: err
+|—————————————Node:argument_list Text: ("found %d CAN controllers", candev)
+|——————————————Node:( Text: (
+|——————————————Node:string_literal Text: "found %d CAN controllers"
+|———————————————Node:" Text: "
+|———————————————Node:string_content Text: found %d CAN controllers
+|———————————————Node:" Text: "
+|——————————————Node:, Text: ,
+|——————————————Node:identifier Text: candev
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|————————Node:preproc_if Text: #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+
+|—————————Node:#if Text: #if
+|—————————Node:binary_expression Text: LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+|——————————Node:identifier Text: LINUX_VERSION_CODE
+|——————————Node:< Text: <
+|——————————Node:call_expression Text: KERNEL_VERSION(2,5,0)
+|———————————Node:identifier Text: KERNEL_VERSION
+|———————————Node:argument_list Text: (2,5,0)
+|————————————Node:( Text: (
+|————————————Node:number_literal Text: 2
+|————————————Node:, Text: ,
+|————————————Node:number_literal Text: 5
+|————————————Node:, Text: ,
+|————————————Node:number_literal Text: 0
+|————————————Node:) Text: )
+|—————————Node:
+ Text: 
+
+|—————————Node:#endif Text: 
+|————————Node:} Text: }
+|———————Node:else_clause Text: else { 
+        err("No PCI bios present");
+        return -ENODEV;
+    }
+|————————Node:else Text: else
+|————————Node:compound_statement Text: { 
+        err("No PCI bios present");
+        return -ENODEV;
+    }
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: err("No PCI bios present");
+|——————————Node:call_expression Text: err("No PCI bios present")
+|———————————Node:identifier Text: err
+|———————————Node:argument_list Text: ("No PCI bios present")
+|————————————Node:( Text: (
+|————————————Node:string_literal Text: "No PCI bios present"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: No PCI bios present
+|—————————————Node:" Text: "
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:return_statement Text: return -ENODEV;
+|——————————Node:return Text: return
+|——————————Node:unary_expression Text: -ENODEV
+|———————————Node:- Text: -
+|———————————Node:identifier Text: ENODEV
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|——————Node:#endif Text: #endif
+|—————Node:expression_statement Text: DBGout();
+|——————Node:call_expression Text: DBGout()
+|———————Node:identifier Text: DBGout
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return 0;
+|——————Node:return Text: return
+|——————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:function_definition Text: void board_clear_interrupts(int minor)
+{
+    /* err("board_clear_interrupts %d", minor); */
+
+    writel(PLX9030_ICR_CLEAR_IRQ0 | PLX9030_ICR_ENABLE_IRQ0,
+          (void __iomem *)Can_pitapci_control[minor] + PLX9030_ICR);
+}
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: board_clear_interrupts(int minor)
+|—————Node:identifier Text: board_clear_interrupts
+|—————Node:parameter_list Text: (int minor)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: int minor
+|———————Node:primitive_type Text: int
+|———————Node:identifier Text: minor
+|——————Node:) Text: )
+|————Node:compound_statement Text: {
+    /* err("board_clear_interrupts %d", minor); */
+
+    writel(PLX9030_ICR_CLEAR_IRQ0 | PLX9030_ICR_ENABLE_IRQ0,
+          (void __iomem *)Can_pitapci_control[minor] + PLX9030_ICR);
+}
+|—————Node:{ Text: {
+|—————Node:comment
+|—————Node:expression_statement Text: writel(PLX9030_ICR_CLEAR_IRQ0 | PLX9030_ICR_ENABLE_IRQ0,
+          (void __iomem *)Can_pitapci_control[minor] + PLX9030_ICR);
+|——————Node:call_expression Text: writel(PLX9030_ICR_CLEAR_IRQ0 | PLX9030_ICR_ENABLE_IRQ0,
+          (void __iomem *)Can_pitapci_control[minor] + PLX9030_ICR)
+|———————Node:identifier Text: writel
+|———————Node:argument_list Text: (PLX9030_ICR_CLEAR_IRQ0 | PLX9030_ICR_ENABLE_IRQ0,
+          (void __iomem *)Can_pitapci_control[minor] + PLX9030_ICR)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: PLX9030_ICR_CLEAR_IRQ0 | PLX9030_ICR_ENABLE_IRQ0
+|—————————Node:identifier Text: PLX9030_ICR_CLEAR_IRQ0
+|—————————Node:| Text: |
+|—————————Node:identifier Text: PLX9030_ICR_ENABLE_IRQ0
+|————————Node:, Text: ,
+|————————Node:binary_expression Text: (void __iomem *)Can_pitapci_control[minor] + PLX9030_ICR
+|—————————Node:cast_expression Text: (void __iomem *)Can_pitapci_control[minor]
+|——————————Node:( Text: (
+|——————————Node:ERROR Text: void
+|———————————Node:primitive_type Text: void
+|——————————Node:type_descriptor Text: __iomem *
+|———————————Node:type_identifier Text: __iomem
+|———————————Node:abstract_pointer_declarator Text: *
+|————————————Node:* Text: *
+|——————————Node:) Text: )
+|——————————Node:subscript_expression Text: Can_pitapci_control[minor]
+|———————————Node:identifier Text: Can_pitapci_control
+|———————————Node:[ Text: [
+|———————————Node:identifier Text: minor
+|———————————Node:] Text: ]
+|—————————Node:+ Text: +
+|—————————Node:identifier Text: PLX9030_ICR
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:#endif Text: # endif
+|——Node:comment
+|——Node:preproc_if Text: #if CONFIG_TIME_MEASURE
+/* Functions to Switch the stet of output pins
+   used for time measurement within the CAN ISR
+ */
+void init_measure(void)
+{
+}
+
+void set_measure_pin(void) 
+{
+}
+
+void reset_measure_pin(void) 
+{
+}
+#endif
+|———Node:#if Text: #if
+|———Node:identifier Text: CONFIG_TIME_MEASURE
+|———Node:
+ Text: 
+
+|———Node:comment
+|———Node:function_definition Text: void init_measure(void)
+{
+}
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: init_measure(void)
+|—————Node:identifier Text: init_measure
+|—————Node:parameter_list Text: (void)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: void
+|———————Node:primitive_type Text: void
+|——————Node:) Text: )
+|————Node:compound_statement Text: {
+}
+|—————Node:{ Text: {
+|—————Node:} Text: }
+|———Node:function_definition Text: void set_measure_pin(void) 
+{
+}
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: set_measure_pin(void)
+|—————Node:identifier Text: set_measure_pin
+|—————Node:parameter_list Text: (void)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: void
+|———————Node:primitive_type Text: void
+|——————Node:) Text: )
+|————Node:compound_statement Text: {
+}
+|—————Node:{ Text: {
+|—————Node:} Text: }
+|———Node:function_definition Text: void reset_measure_pin(void) 
+{
+}
+|————Node:primitive_type Text: void
+|————Node:function_declarator Text: reset_measure_pin(void)
+|—————Node:identifier Text: reset_measure_pin
+|—————Node:parameter_list Text: (void)
+|——————Node:( Text: (
+|——————Node:parameter_declaration Text: void
+|———————Node:primitive_type Text: void
+|——————Node:) Text: )
+|————Node:compound_statement Text: {
+}
+|—————Node:{ Text: {
+|—————Node:} Text: }
+|———Node:#endif Text: #endif
+|——Node:#endif Text: #endif

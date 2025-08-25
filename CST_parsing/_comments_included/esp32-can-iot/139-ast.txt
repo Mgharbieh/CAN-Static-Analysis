@@ -1,0 +1,928 @@
+esp32-can-iot-Coding\fw\lib\Lawicel\CANInterface.h
+
+|Node:translation_unit
+|—Node:comment Text: /***************************************************************************************************
+  (c) NewTec GmbH 2020   -   www.newtec.de
+  $URL: https://github.com/NewTec-GmbH/esp32-can-iot $
+***************************************************************************************************/
+|—Node:comment Text: /**
+@addtogroup Lawicel
+@{
+@file       CANInterface.h
+
+CAN-Controller Interface for Lawicel Protocol
+
+* @}
+***************************************************************************************************/
+|—Node:ERROR Text: #ifndef CAN_INTERFACE_H
+#define CAN_INTERFACE_H
+
+/* INCLUDES ***************************************************************************************/
+
+/* C-Interface ************************************************************************************/
+extern "C"
+{
+}
+
+/* FORWARD DECLARATIONS ***************************************************************************/
+
+class CANInterface
+{
+public:
+    /* CONSTANTS ******************************************************************************/
+
+    /* TYPES **********************************************************************************/
+
+    /** Enum of Possible States of the CAN Channel
+     */
+    enum BUS_STATE
+    {
+        CLOSED,
+        NORMAL,
+        LISTEN_ONLY,
+    };
+
+    /**
+    * Format of a CAN Frame with an empty constructor
+    */
+    struct Frame
+    {
+        uint32_t ID;   //CAN ID
+        bool RTR;      //Identifies a RTR Frame
+        bool Extended; //Identifies an Extended Frame
+        uint8_t DLC;   //Data Length
+        uint8_t *Data; //Data of the Frame
+
+        Frame() : ID(0),
+                  RTR(false),
+                  Extended(false),
+                  DLC(0)
+        {
+            Data =  new uint8_t[8];
+            for( int i = 0; i <8; i++)
+            {
+                Data[i] = 0;
+            }
+        }
+    };
+
+    /**
+    * Default constructor.
+    */
+    CANInterface()
+    {
+    }
+
+    /**
+    * Default destructor.
+    */
+    virtual ~CANInterface()
+    {
+    }
+
+    /**
+    * Send a Data String.
+    * @param[in] Frame         Frame to be sended via CAN BUS
+    */
+    virtual uint8_t send(const Frame &Frame) = 0;
+
+    /**
+    * Set the State of the CAN Channel.
+    * @param[in] state         Channel State to be set
+    */
+    virtual uint8_t setState(const BUS_STATE state) = 0;
+
+    /**
+    * Set the Baudrate of the CAN Channel.
+    * @param[in] baudrate      Channel Baudrate to be set
+    */
+    virtual uint8_t setBaudrate(const long baudrate) = 0;
+
+    /**
+    * Sent the BTR Registers of the CAN Channel.
+    * @param[in] BTR0, BTR1       Registers that set a Channel Baudrate directly
+    */
+    virtual uint8_t setBTR(const uint8_t BTR0, const uint8_t BTR1) = 0;
+
+    /**
+    * Set the Filter Mode of the CAN Channel.
+    * @param[in] Filter        When FALSE (default), set to Dual Filter Mode. When TRUE, Single Filter Mode
+    */
+    virtual uint8_t setFilterMode(const bool Filter) = 0;
+
+    /**
+    * Set the Acceptance Code Register.
+    * @param[in] ACn        Byte Array of 4 Registers that define the Filter Aceptance Code Register
+    */
+    virtual uint8_t setACn(const uint8_t *ACn) = 0;
+
+    /**
+    * Set the Acceptance Mask Register.
+    * @param[in] AMn        Byte Array of 4 Registers that define the Filter Mask Register
+    */
+    virtual uint8_t setAMn(const uint8_t *AMn) = 0;
+
+    /**
+    * Gets the Channel State from the CAN Controller.
+    */
+    virtual uint8_t getChannelState() = 0;
+
+    /**
+    * Gets the Status and Error Flags from the CAN Controller.
+    * @param[in] _flags         Array that contains the state of each Flag
+    */
+    virtual uint8_t getStatusFlags(bool *_flags) = 0;
+
+    /**
+    * Polls one Message from the FIFO Buffer.
+    * @todo
+    */
+    virtual Frame pollSingle() = 0;
+
+
+private:
+};
+
+/* INLINE FUNCTIONS ***************************************************************************/
+
+/* PROTOTYPES *********************************************************************************/
+
+#endif /* SERIAL_INTERFACE_H */
+
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: CAN_INTERFACE_H
+|——Node:preproc_def Text: #define CAN_INTERFACE_H
+
+|———Node:#define Text: #define
+|———Node:identifier Text: CAN_INTERFACE_H
+|——Node:comment Text: /* INCLUDES ***************************************************************************************/
+|——Node:comment Text: /* C-Interface ************************************************************************************/
+|——Node:linkage_specification Text: extern "C"
+{
+}
+|———Node:extern Text: extern
+|———Node:string_literal Text: "C"
+|————Node:" Text: "
+|————Node:string_content Text: C
+|————Node:" Text: "
+|———Node:declaration_list Text: {
+}
+|————Node:{ Text: {
+|————Node:} Text: }
+|——Node:comment Text: /* FORWARD DECLARATIONS ***************************************************************************/
+|——Node:type_identifier Text: class
+|——Node:identifier Text: CANInterface
+|——Node:{ Text: {
+|——Node:labeled_statement Text: public:
+    /* CONSTANTS ******************************************************************************/
+
+    /* TYPES **********************************************************************************/
+
+    /** Enum of Possible States of the CAN Channel
+     */
+    enum BUS_STATE
+    {
+        CLOSED,
+        NORMAL,
+        LISTEN_ONLY,
+    };
+|———Node:statement_identifier Text: public
+|———Node:: Text: :
+|———Node:comment Text: /* CONSTANTS ******************************************************************************/
+|———Node:comment Text: /* TYPES **********************************************************************************/
+|———Node:comment Text: /** Enum of Possible States of the CAN Channel
+     */
+|———Node:declaration Text: enum BUS_STATE
+    {
+        CLOSED,
+        NORMAL,
+        LISTEN_ONLY,
+    };
+|————Node:enum_specifier Text: enum BUS_STATE
+    {
+        CLOSED,
+        NORMAL,
+        LISTEN_ONLY,
+    }
+|—————Node:enum Text: enum
+|—————Node:type_identifier Text: BUS_STATE
+|—————Node:enumerator_list Text: {
+        CLOSED,
+        NORMAL,
+        LISTEN_ONLY,
+    }
+|——————Node:{ Text: {
+|——————Node:enumerator Text: CLOSED
+|———————Node:identifier Text: CLOSED
+|——————Node:, Text: ,
+|——————Node:enumerator Text: NORMAL
+|———————Node:identifier Text: NORMAL
+|——————Node:, Text: ,
+|——————Node:enumerator Text: LISTEN_ONLY
+|———————Node:identifier Text: LISTEN_ONLY
+|——————Node:, Text: ,
+|——————Node:} Text: }
+|————Node:identifier Text: 
+|————Node:; Text: ;
+|——Node:comment Text: /**
+    * Format of a CAN Frame with an empty constructor
+    */
+|——Node:struct_specifier Text: struct Frame
+    {
+        uint32_t ID;   //CAN ID
+        bool RTR;      //Identifies a RTR Frame
+        bool Extended; //Identifies an Extended Frame
+        uint8_t DLC;   //Data Length
+        uint8_t *Data; //Data of the Frame
+
+        Frame() : ID(0),
+                  RTR(false),
+                  Extended(false),
+                  DLC(0)
+        {
+            Data =  new uint8_t[8];
+            for( int i = 0; i <8; i++)
+            {
+                Data[i] = 0;
+            }
+        }
+    };
+
+    /**
+    * Default constructor.
+    */
+    CANInterface()
+    {
+    }
+
+    /**
+    * Default destructor.
+    */
+    virtual ~CANInterface()
+    {
+    }
+
+    /**
+    * Send a Data String.
+    * @param[in] Frame         Frame to be sended via CAN BUS
+    */
+    virtual uint8_t send(const Frame &Frame) = 0;
+
+    /**
+    * Set the State of the CAN Channel.
+    * @param[in] state         Channel State to be set
+    */
+    virtual uint8_t setState(const BUS_STATE state) = 0;
+
+    /**
+    * Set the Baudrate of the CAN Channel.
+    * @param[in] baudrate      Channel Baudrate to be set
+    */
+    virtual uint8_t setBaudrate(const long baudrate) = 0;
+
+    /**
+    * Sent the BTR Registers of the CAN Channel.
+    * @param[in] BTR0, BTR1       Registers that set a Channel Baudrate directly
+    */
+    virtual uint8_t setBTR(const uint8_t BTR0, const uint8_t BTR1) = 0;
+
+    /**
+    * Set the Filter Mode of the CAN Channel.
+    * @param[in] Filter        When FALSE (default), set to Dual Filter Mode. When TRUE, Single Filter Mode
+    */
+    virtual uint8_t setFilterMode(const bool Filter) = 0;
+
+    /**
+    * Set the Acceptance Code Register.
+    * @param[in] ACn        Byte Array of 4 Registers that define the Filter Aceptance Code Register
+    */
+    virtual uint8_t setACn(const uint8_t *ACn) = 0;
+
+    /**
+    * Set the Acceptance Mask Register.
+    * @param[in] AMn        Byte Array of 4 Registers that define the Filter Mask Register
+    */
+    virtual uint8_t setAMn(const uint8_t *AMn) = 0;
+
+    /**
+    * Gets the Channel State from the CAN Controller.
+    */
+    virtual uint8_t getChannelState() = 0;
+
+    /**
+    * Gets the Status and Error Flags from the CAN Controller.
+    * @param[in] _flags         Array that contains the state of each Flag
+    */
+    virtual uint8_t getStatusFlags(bool *_flags) = 0;
+
+    /**
+    * Polls one Message from the FIFO Buffer.
+    * @todo
+    */
+    virtual Frame pollSingle() = 0;
+
+
+private:
+}
+|———Node:struct Text: struct
+|———Node:type_identifier Text: Frame
+|———Node:field_declaration_list Text: {
+        uint32_t ID;   //CAN ID
+        bool RTR;      //Identifies a RTR Frame
+        bool Extended; //Identifies an Extended Frame
+        uint8_t DLC;   //Data Length
+        uint8_t *Data; //Data of the Frame
+
+        Frame() : ID(0),
+                  RTR(false),
+                  Extended(false),
+                  DLC(0)
+        {
+            Data =  new uint8_t[8];
+            for( int i = 0; i <8; i++)
+            {
+                Data[i] = 0;
+            }
+        }
+    };
+
+    /**
+    * Default constructor.
+    */
+    CANInterface()
+    {
+    }
+
+    /**
+    * Default destructor.
+    */
+    virtual ~CANInterface()
+    {
+    }
+
+    /**
+    * Send a Data String.
+    * @param[in] Frame         Frame to be sended via CAN BUS
+    */
+    virtual uint8_t send(const Frame &Frame) = 0;
+
+    /**
+    * Set the State of the CAN Channel.
+    * @param[in] state         Channel State to be set
+    */
+    virtual uint8_t setState(const BUS_STATE state) = 0;
+
+    /**
+    * Set the Baudrate of the CAN Channel.
+    * @param[in] baudrate      Channel Baudrate to be set
+    */
+    virtual uint8_t setBaudrate(const long baudrate) = 0;
+
+    /**
+    * Sent the BTR Registers of the CAN Channel.
+    * @param[in] BTR0, BTR1       Registers that set a Channel Baudrate directly
+    */
+    virtual uint8_t setBTR(const uint8_t BTR0, const uint8_t BTR1) = 0;
+
+    /**
+    * Set the Filter Mode of the CAN Channel.
+    * @param[in] Filter        When FALSE (default), set to Dual Filter Mode. When TRUE, Single Filter Mode
+    */
+    virtual uint8_t setFilterMode(const bool Filter) = 0;
+
+    /**
+    * Set the Acceptance Code Register.
+    * @param[in] ACn        Byte Array of 4 Registers that define the Filter Aceptance Code Register
+    */
+    virtual uint8_t setACn(const uint8_t *ACn) = 0;
+
+    /**
+    * Set the Acceptance Mask Register.
+    * @param[in] AMn        Byte Array of 4 Registers that define the Filter Mask Register
+    */
+    virtual uint8_t setAMn(const uint8_t *AMn) = 0;
+
+    /**
+    * Gets the Channel State from the CAN Controller.
+    */
+    virtual uint8_t getChannelState() = 0;
+
+    /**
+    * Gets the Status and Error Flags from the CAN Controller.
+    * @param[in] _flags         Array that contains the state of each Flag
+    */
+    virtual uint8_t getStatusFlags(bool *_flags) = 0;
+
+    /**
+    * Polls one Message from the FIFO Buffer.
+    * @todo
+    */
+    virtual Frame pollSingle() = 0;
+
+
+private:
+}
+|————Node:{ Text: {
+|————Node:field_declaration Text: uint32_t ID;
+|—————Node:primitive_type Text: uint32_t
+|—————Node:field_identifier Text: ID
+|—————Node:; Text: ;
+|————Node:comment Text: //CAN ID
+|————Node:field_declaration Text: bool RTR;
+|—————Node:primitive_type Text: bool
+|—————Node:field_identifier Text: RTR
+|—————Node:; Text: ;
+|————Node:comment Text: //Identifies a RTR Frame
+|————Node:field_declaration Text: bool Extended;
+|—————Node:primitive_type Text: bool
+|—————Node:field_identifier Text: Extended
+|—————Node:; Text: ;
+|————Node:comment Text: //Identifies an Extended Frame
+|————Node:field_declaration Text: uint8_t DLC;
+|—————Node:primitive_type Text: uint8_t
+|—————Node:field_identifier Text: DLC
+|—————Node:; Text: ;
+|————Node:comment Text: //Data Length
+|————Node:field_declaration Text: uint8_t *Data;
+|—————Node:primitive_type Text: uint8_t
+|—————Node:pointer_declarator Text: *Data
+|——————Node:* Text: *
+|——————Node:field_identifier Text: Data
+|—————Node:; Text: ;
+|————Node:comment Text: //Data of the Frame
+|————Node:field_declaration Text: Frame() : ID(0),
+                  RTR(false),
+                  Extended(false),
+                  DLC(0)
+        {
+            Data =  new uint8_t[8];
+            for( int i = 0; i <8; i++)
+            {
+                Data[i] = 0;
+            }
+        }
+    };
+
+    /**
+    * Default constructor.
+    */
+    CANInterface()
+    {
+    }
+
+    /**
+    * Default destructor.
+    */
+    virtual ~CANInterface()
+    {
+    }
+
+    /**
+    * Send a Data String.
+    * @param[in] Frame         Frame to be sended via CAN BUS
+    */
+    virtual uint8_t send(const Frame &Frame) = 0;
+|—————Node:macro_type_specifier Text: Frame() : ID(0),
+                  RTR(false),
+                  Extended(false),
+                  DLC(0)
+        {
+            Data =  new uint8_t[8];
+            for( int i = 0; i <8; i++)
+            {
+                Data[i] = 0;
+            }
+        }
+    };
+
+    /**
+    * Default constructor.
+    */
+    CANInterface()
+    {
+    }
+
+    /**
+    * Default destructor.
+    */
+    virtual ~CANInterface()
+    {
+    }
+
+    /**
+    * Send a Data String.
+    * @param[in] Frame         Frame to be sended via CAN BUS
+    */
+    virtual uint8_t send(const Frame &Frame)
+|——————Node:identifier Text: Frame
+|——————Node:( Text: (
+|——————Node:ERROR Text: ) :
+|———————Node:) Text: )
+|———————Node:: Text: :
+|——————Node:type_descriptor Text: ID(0),
+                  RTR(false),
+                  Extended(false),
+                  DLC(0)
+        {
+            Data =  new uint8_t[8];
+            for( int i = 0; i <8; i++)
+            {
+                Data[i] = 0;
+            }
+        }
+    };
+
+    /**
+    * Default constructor.
+    */
+    CANInterface()
+    {
+    }
+
+    /**
+    * Default destructor.
+    */
+    virtual ~CANInterface()
+    {
+    }
+
+    /**
+    * Send a Data String.
+    * @param[in] Frame         Frame to be sended via CAN BUS
+    */
+    virtual uint8_t send(const
+|———————Node:macro_type_specifier Text: ID(0),
+                  RTR(false),
+                  Extended(false),
+                  DLC(0)
+        {
+            Data =  new uint8_t[8];
+            for( int i = 0; i <8; i++)
+            {
+                Data[i] = 0;
+            }
+        }
+    };
+
+    /**
+    * Default constructor.
+    */
+    CANInterface()
+    {
+    }
+
+    /**
+    * Default destructor.
+    */
+    virtual ~CANInterface()
+|————————Node:identifier Text: ID
+|————————Node:( Text: (
+|————————Node:ERROR Text: 0),
+                  RTR(false),
+                  Extended(false),
+                  DLC(0)
+        {
+            Data =  new uint8_t[8];
+            for( int i = 0; i <8; i++)
+            {
+                Data[i] = 0;
+            }
+        }
+    };
+|—————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|—————————Node:, Text: ,
+|—————————Node:type_descriptor Text: RTR(false)
+|——————————Node:type_identifier Text: RTR
+|——————————Node:abstract_function_declarator Text: (false)
+|———————————Node:parameter_list Text: (false)
+|————————————Node:( Text: (
+|————————————Node:parameter_declaration Text: false
+|—————————————Node:type_identifier Text: false
+|————————————Node:) Text: )
+|—————————Node:, Text: ,
+|—————————Node:type_descriptor Text: Extended(false)
+|——————————Node:type_identifier Text: Extended
+|——————————Node:abstract_function_declarator Text: (false)
+|———————————Node:parameter_list Text: (false)
+|————————————Node:( Text: (
+|————————————Node:parameter_declaration Text: false
+|—————————————Node:type_identifier Text: false
+|————————————Node:) Text: )
+|—————————Node:, Text: ,
+|—————————Node:macro_type_specifier Text: DLC(0)
+        {
+            Data =  new uint8_t[8];
+            for( int i = 0; i <8; i++)
+|——————————Node:identifier Text: DLC
+|——————————Node:( Text: (
+|——————————Node:ERROR Text: 0)
+        {
+            Data =  new uint8_t[8];
+            for( int i = 0;
+|———————————Node:number_literal Text: 0
+|———————————Node:) Text: )
+|———————————Node:{ Text: {
+|———————————Node:identifier Text: Data
+|———————————Node:= Text: =
+|———————————Node:identifier Text: new
+|———————————Node:type_descriptor Text: uint8_t[8]
+|————————————Node:primitive_type Text: uint8_t
+|————————————Node:abstract_array_declarator Text: [8]
+|—————————————Node:[ Text: [
+|—————————————Node:number_literal Text: 8
+|—————————————Node:] Text: ]
+|———————————Node:; Text: ;
+|———————————Node:for Text: for
+|———————————Node:( Text: (
+|———————————Node:primitive_type Text: int
+|———————————Node:identifier Text: i
+|———————————Node:= Text: =
+|———————————Node:number_literal Text: 0
+|———————————Node:; Text: ;
+|——————————Node:type_descriptor Text: i
+|———————————Node:type_identifier Text: i
+|——————————Node:ERROR Text: <8; i++
+|———————————Node:< Text: <
+|———————————Node:number_literal Text: 8
+|———————————Node:; Text: ;
+|———————————Node:identifier Text: i
+|———————————Node:++ Text: ++
+|——————————Node:) Text: )
+|—————————Node:{ Text: {
+|—————————Node:type_descriptor Text: Data[i]
+|——————————Node:type_identifier Text: Data
+|——————————Node:abstract_array_declarator Text: [i]
+|———————————Node:[ Text: [
+|———————————Node:identifier Text: i
+|———————————Node:] Text: ]
+|—————————Node:= Text: =
+|—————————Node:number_literal Text: 0
+|—————————Node:; Text: ;
+|—————————Node:} Text: }
+|—————————Node:} Text: }
+|—————————Node:} Text: }
+|—————————Node:; Text: ;
+|————————Node:comment Text: /**
+    * Default constructor.
+    */
+|————————Node:ERROR Text: CANInterface()
+    {
+    }
+|—————————Node:type_descriptor Text: CANInterface()
+|——————————Node:type_identifier Text: CANInterface
+|——————————Node:abstract_function_declarator Text: ()
+|———————————Node:parameter_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|—————————Node:{ Text: {
+|—————————Node:} Text: }
+|————————Node:comment Text: /**
+    * Default destructor.
+    */
+|————————Node:type_descriptor Text: virtual
+|—————————Node:type_identifier Text: virtual
+|————————Node:ERROR Text: ~CANInterface(
+|—————————Node:~ Text: ~
+|—————————Node:identifier Text: CANInterface
+|—————————Node:( Text: (
+|————————Node:) Text: )
+|———————Node:ERROR Text: {
+    }
+
+    /**
+    * Send a Data String.
+    * @param[in] Frame         Frame to be sended via CAN BUS
+    */
+    virtual uint8_t send(
+|————————Node:{ Text: {
+|————————Node:} Text: }
+|————————Node:comment Text: /**
+    * Send a Data String.
+    * @param[in] Frame         Frame to be sended via CAN BUS
+    */
+|————————Node:identifier Text: virtual
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: send
+|————————Node:( Text: (
+|———————Node:type_qualifier Text: const
+|————————Node:const Text: const
+|——————Node:ERROR Text: Frame &Frame
+|———————Node:identifier Text: Frame
+|———————Node:& Text: &
+|———————Node:identifier Text: Frame
+|——————Node:) Text: )
+|—————Node:ERROR Text: = 0
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:comment Text: /**
+    * Set the State of the CAN Channel.
+    * @param[in] state         Channel State to be set
+    */
+|————Node:field_declaration Text: virtual uint8_t setState(const BUS_STATE state) = 0;
+|—————Node:type_identifier Text: virtual
+|—————Node:ERROR Text: uint8_t
+|——————Node:field_identifier Text: uint8_t
+|—————Node:function_declarator Text: setState(const BUS_STATE state)
+|——————Node:field_identifier Text: setState
+|——————Node:parameter_list Text: (const BUS_STATE state)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const BUS_STATE state
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:type_identifier Text: BUS_STATE
+|————————Node:identifier Text: state
+|———————Node:) Text: )
+|—————Node:ERROR Text: = 0
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:comment Text: /**
+    * Set the Baudrate of the CAN Channel.
+    * @param[in] baudrate      Channel Baudrate to be set
+    */
+|————Node:field_declaration Text: virtual uint8_t setBaudrate(const long baudrate) = 0;
+|—————Node:type_identifier Text: virtual
+|—————Node:ERROR Text: uint8_t
+|——————Node:field_identifier Text: uint8_t
+|—————Node:function_declarator Text: setBaudrate(const long baudrate)
+|——————Node:field_identifier Text: setBaudrate
+|——————Node:parameter_list Text: (const long baudrate)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const long baudrate
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:sized_type_specifier Text: long
+|—————————Node:long Text: long
+|————————Node:identifier Text: baudrate
+|———————Node:) Text: )
+|—————Node:ERROR Text: = 0
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:comment Text: /**
+    * Sent the BTR Registers of the CAN Channel.
+    * @param[in] BTR0, BTR1       Registers that set a Channel Baudrate directly
+    */
+|————Node:field_declaration Text: virtual uint8_t setBTR(const uint8_t BTR0, const uint8_t BTR1) = 0;
+|—————Node:type_identifier Text: virtual
+|—————Node:ERROR Text: uint8_t
+|——————Node:field_identifier Text: uint8_t
+|—————Node:function_declarator Text: setBTR(const uint8_t BTR0, const uint8_t BTR1)
+|——————Node:field_identifier Text: setBTR
+|——————Node:parameter_list Text: (const uint8_t BTR0, const uint8_t BTR1)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const uint8_t BTR0
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: BTR0
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const uint8_t BTR1
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: BTR1
+|———————Node:) Text: )
+|—————Node:ERROR Text: = 0
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:comment Text: /**
+    * Set the Filter Mode of the CAN Channel.
+    * @param[in] Filter        When FALSE (default), set to Dual Filter Mode. When TRUE, Single Filter Mode
+    */
+|————Node:field_declaration Text: virtual uint8_t setFilterMode(const bool Filter) = 0;
+|—————Node:type_identifier Text: virtual
+|—————Node:ERROR Text: uint8_t
+|——————Node:field_identifier Text: uint8_t
+|—————Node:function_declarator Text: setFilterMode(const bool Filter)
+|——————Node:field_identifier Text: setFilterMode
+|——————Node:parameter_list Text: (const bool Filter)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const bool Filter
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: bool
+|————————Node:identifier Text: Filter
+|———————Node:) Text: )
+|—————Node:ERROR Text: = 0
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:comment Text: /**
+    * Set the Acceptance Code Register.
+    * @param[in] ACn        Byte Array of 4 Registers that define the Filter Aceptance Code Register
+    */
+|————Node:field_declaration Text: virtual uint8_t setACn(const uint8_t *ACn) = 0;
+|—————Node:type_identifier Text: virtual
+|—————Node:ERROR Text: uint8_t
+|——————Node:field_identifier Text: uint8_t
+|—————Node:function_declarator Text: setACn(const uint8_t *ACn)
+|——————Node:field_identifier Text: setACn
+|——————Node:parameter_list Text: (const uint8_t *ACn)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const uint8_t *ACn
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: uint8_t
+|————————Node:pointer_declarator Text: *ACn
+|—————————Node:* Text: *
+|—————————Node:identifier Text: ACn
+|———————Node:) Text: )
+|—————Node:ERROR Text: = 0
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:comment Text: /**
+    * Set the Acceptance Mask Register.
+    * @param[in] AMn        Byte Array of 4 Registers that define the Filter Mask Register
+    */
+|————Node:field_declaration Text: virtual uint8_t setAMn(const uint8_t *AMn) = 0;
+|—————Node:type_identifier Text: virtual
+|—————Node:ERROR Text: uint8_t
+|——————Node:field_identifier Text: uint8_t
+|—————Node:function_declarator Text: setAMn(const uint8_t *AMn)
+|——————Node:field_identifier Text: setAMn
+|——————Node:parameter_list Text: (const uint8_t *AMn)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: const uint8_t *AMn
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: uint8_t
+|————————Node:pointer_declarator Text: *AMn
+|—————————Node:* Text: *
+|—————————Node:identifier Text: AMn
+|———————Node:) Text: )
+|—————Node:ERROR Text: = 0
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:comment Text: /**
+    * Gets the Channel State from the CAN Controller.
+    */
+|————Node:field_declaration Text: virtual uint8_t getChannelState() = 0;
+|—————Node:type_identifier Text: virtual
+|—————Node:ERROR Text: uint8_t
+|——————Node:field_identifier Text: uint8_t
+|—————Node:function_declarator Text: getChannelState()
+|——————Node:field_identifier Text: getChannelState
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:ERROR Text: = 0
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:comment Text: /**
+    * Gets the Status and Error Flags from the CAN Controller.
+    * @param[in] _flags         Array that contains the state of each Flag
+    */
+|————Node:field_declaration Text: virtual uint8_t getStatusFlags(bool *_flags) = 0;
+|—————Node:type_identifier Text: virtual
+|—————Node:ERROR Text: uint8_t
+|——————Node:field_identifier Text: uint8_t
+|—————Node:function_declarator Text: getStatusFlags(bool *_flags)
+|——————Node:field_identifier Text: getStatusFlags
+|——————Node:parameter_list Text: (bool *_flags)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: bool *_flags
+|————————Node:primitive_type Text: bool
+|————————Node:pointer_declarator Text: *_flags
+|—————————Node:* Text: *
+|—————————Node:identifier Text: _flags
+|———————Node:) Text: )
+|—————Node:ERROR Text: = 0
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:comment Text: /**
+    * Polls one Message from the FIFO Buffer.
+    * @todo
+    */
+|————Node:field_declaration Text: virtual Frame pollSingle() = 0;
+|—————Node:type_identifier Text: virtual
+|—————Node:ERROR Text: Frame
+|——————Node:field_identifier Text: Frame
+|—————Node:function_declarator Text: pollSingle()
+|——————Node:field_identifier Text: pollSingle
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:ERROR Text: = 0
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:; Text: ;
+|————Node:ERROR Text: private:
+|—————Node:type_identifier Text: private
+|—————Node:: Text: :
+|————Node:} Text: }
+|——Node:; Text: ;
+|——Node:comment Text: /* INLINE FUNCTIONS ***************************************************************************/
+|——Node:comment Text: /* PROTOTYPES *********************************************************************************/
+|——Node:preproc_call Text: #endif /* SERIAL_INTERFACE_H */
+
+|———Node:preproc_directive Text: #endif
+|———Node:comment Text: /* SERIAL_INTERFACE_H */
+|—Node:comment Text: /** @} */

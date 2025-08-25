@@ -1,0 +1,391 @@
+CAN-on-DSP-TMS320F28335-src\main.c
+
+|Node:translation_unit
+|—Node:comment Text: /*
+ * main.c
+ */
+|—Node:preproc_include Text: #include "DSP2833x_Device.h"     // Device Header Include File
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "DSP2833x_Device.h"
+|———Node:" Text: "
+|———Node:string_content Text: DSP2833x_Device.h
+|———Node:" Text: "
+|——Node:comment Text: // Device Header Include File
+|—Node:preproc_include Text: #include "DSP2833x_Examples.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "DSP2833x_Examples.h"
+|———Node:" Text: "
+|———Node:string_content Text: DSP2833x_Examples.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "GPIO_Driver.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "GPIO_Driver.h"
+|———Node:" Text: "
+|———Node:string_content Text: GPIO_Driver.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "usDelay.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "usDelay.h"
+|———Node:" Text: "
+|———Node:string_content Text: usDelay.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include <CanBus.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <CanBus.h>
+|—Node:preproc_def Text: #define READY 1
+
+|——Node:#define Text: #define
+|——Node:identifier Text: READY
+|——Node:preproc_arg Text: 1
+|—Node:preproc_def Text: #define SOFTSTART 2
+
+|——Node:#define Text: #define
+|——Node:identifier Text: SOFTSTART
+|——Node:preproc_arg Text: 2
+|—Node:preproc_def Text: #define RUN	3
+
+|——Node:#define Text: #define
+|——Node:identifier Text: RUN
+|——Node:preproc_arg Text: 3
+|—Node:preproc_def Text: #define SOFTOFF 4
+
+|——Node:#define Text: #define
+|——Node:identifier Text: SOFTOFF
+|——Node:preproc_arg Text: 4
+|—Node:preproc_def Text: #define FAULT 5
+
+|——Node:#define Text: #define
+|——Node:identifier Text: FAULT
+|——Node:preproc_arg Text: 5
+|—Node:preproc_def Text: #define DEBUG 6
+
+|——Node:#define Text: #define
+|——Node:identifier Text: DEBUG
+|——Node:preproc_arg Text: 6
+|—Node:function_definition Text: void
+main (void)
+{
+
+  //0. init Sys
+  //0. init Sys
+  InitSysCtrl ();
+  InitPieCtrl ();
+
+  //1. =========================interrupt=============================================
+  // Disable CPU interrupts and clear all CPU interrupt flags:
+  DINT;
+  IER = 0x0000;
+  IFR = 0x0000;
+
+  //ram Funcs
+
+  MemCopy (&RamfuncsLoadStart, &RamfuncsLoadEnd, &RamfuncsRunStart);
+
+  InitFlash ();
+  // Initialize the PIE vector table with pointers to the shell Interrupt
+  // Service Routines (ISR).
+  // This will populate the entire table, even if the interrupt
+  // is not used in this example.  This is useful for debug purposes.
+  // The shell ISR routines are found in DSP2833x_DefaultIsr.c.
+  // This function is found in DSP2833x_PieVect.c.c0
+  InitPieVectTable ();
+
+  // Interrupts that are used in this example are re-mapped to
+  // ISR functions found within this file.
+  EALLOW;
+  // This is needed to write to EALLOW protected registers
+//	PieVectTable.SEQ1INT = &ADC_SEQ1_EOC_isr;
+  EDIS;
+
+  // Enable CPU INT1 which is connected to SEQ INT:
+//	IER |= M_INT1;
+  // Enable SEQ1 INT in the PIE: Group 1 interrupt 1-1
+//	PieCtrlRegs.PIEIER1.bit.INTx1 = 1 ;
+//	PieCtrlRegs.PIEIER1.bit.INTx7 = 1 ;
+
+  EINT;
+  // Enable Global interrupt INTM
+  ERTM;
+  // Enable Global realtime interrupt DBGM
+
+  //=========================Core Module=============
+
+  //====================Tmr============================
+//	initUserTmr1(I2C_TMR) ; //in ms
+//	EvMgrPrt->addEvent(EvMgrPrt,&UserTmr1) ;
+//	UserTmr1.addEvCallback(&UserTmr1,Response_UserTmr1) ;
+  //===============user module=======================
+  //initialize GPIO
+  InitGpio ();
+  //eCan
+  InitECanbGpio ();
+
+  configureEcanB ();
+  Uint32 i = 0;
+  for (i = 0;; i++)
+    {
+      //      send_data (int16 MBXnbr, Uint32 low, Uint32 high, Uint32 id);
+      send_data (0, i, i + 1);
+      DELAY_US(1000000);
+    }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: main (void)
+|———Node:identifier Text: main
+|———Node:parameter_list Text: (void)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: void
+|—————Node:primitive_type Text: void
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+
+  //0. init Sys
+  //0. init Sys
+  InitSysCtrl ();
+  InitPieCtrl ();
+
+  //1. =========================interrupt=============================================
+  // Disable CPU interrupts and clear all CPU interrupt flags:
+  DINT;
+  IER = 0x0000;
+  IFR = 0x0000;
+
+  //ram Funcs
+
+  MemCopy (&RamfuncsLoadStart, &RamfuncsLoadEnd, &RamfuncsRunStart);
+
+  InitFlash ();
+  // Initialize the PIE vector table with pointers to the shell Interrupt
+  // Service Routines (ISR).
+  // This will populate the entire table, even if the interrupt
+  // is not used in this example.  This is useful for debug purposes.
+  // The shell ISR routines are found in DSP2833x_DefaultIsr.c.
+  // This function is found in DSP2833x_PieVect.c.c0
+  InitPieVectTable ();
+
+  // Interrupts that are used in this example are re-mapped to
+  // ISR functions found within this file.
+  EALLOW;
+  // This is needed to write to EALLOW protected registers
+//	PieVectTable.SEQ1INT = &ADC_SEQ1_EOC_isr;
+  EDIS;
+
+  // Enable CPU INT1 which is connected to SEQ INT:
+//	IER |= M_INT1;
+  // Enable SEQ1 INT in the PIE: Group 1 interrupt 1-1
+//	PieCtrlRegs.PIEIER1.bit.INTx1 = 1 ;
+//	PieCtrlRegs.PIEIER1.bit.INTx7 = 1 ;
+
+  EINT;
+  // Enable Global interrupt INTM
+  ERTM;
+  // Enable Global realtime interrupt DBGM
+
+  //=========================Core Module=============
+
+  //====================Tmr============================
+//	initUserTmr1(I2C_TMR) ; //in ms
+//	EvMgrPrt->addEvent(EvMgrPrt,&UserTmr1) ;
+//	UserTmr1.addEvCallback(&UserTmr1,Response_UserTmr1) ;
+  //===============user module=======================
+  //initialize GPIO
+  InitGpio ();
+  //eCan
+  InitECanbGpio ();
+
+  configureEcanB ();
+  Uint32 i = 0;
+  for (i = 0;; i++)
+    {
+      //      send_data (int16 MBXnbr, Uint32 low, Uint32 high, Uint32 id);
+      send_data (0, i, i + 1);
+      DELAY_US(1000000);
+    }
+}
+|———Node:{ Text: {
+|———Node:comment Text: //0. init Sys
+|———Node:comment Text: //0. init Sys
+|———Node:expression_statement Text: InitSysCtrl ();
+|————Node:call_expression Text: InitSysCtrl ()
+|—————Node:identifier Text: InitSysCtrl
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: InitPieCtrl ();
+|————Node:call_expression Text: InitPieCtrl ()
+|—————Node:identifier Text: InitPieCtrl
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment Text: //1. =========================interrupt=============================================
+|———Node:comment Text: // Disable CPU interrupts and clear all CPU interrupt flags:
+|———Node:expression_statement Text: DINT;
+|————Node:identifier Text: DINT
+|————Node:; Text: ;
+|———Node:expression_statement Text: IER = 0x0000;
+|————Node:assignment_expression Text: IER = 0x0000
+|—————Node:identifier Text: IER
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x0000
+|————Node:; Text: ;
+|———Node:expression_statement Text: IFR = 0x0000;
+|————Node:assignment_expression Text: IFR = 0x0000
+|—————Node:identifier Text: IFR
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x0000
+|————Node:; Text: ;
+|———Node:comment Text: //ram Funcs
+|———Node:expression_statement Text: MemCopy (&RamfuncsLoadStart, &RamfuncsLoadEnd, &RamfuncsRunStart);
+|————Node:call_expression Text: MemCopy (&RamfuncsLoadStart, &RamfuncsLoadEnd, &RamfuncsRunStart)
+|—————Node:identifier Text: MemCopy
+|—————Node:argument_list Text: (&RamfuncsLoadStart, &RamfuncsLoadEnd, &RamfuncsRunStart)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &RamfuncsLoadStart
+|———————Node:& Text: &
+|———————Node:identifier Text: RamfuncsLoadStart
+|——————Node:, Text: ,
+|——————Node:pointer_expression Text: &RamfuncsLoadEnd
+|———————Node:& Text: &
+|———————Node:identifier Text: RamfuncsLoadEnd
+|——————Node:, Text: ,
+|——————Node:pointer_expression Text: &RamfuncsRunStart
+|———————Node:& Text: &
+|———————Node:identifier Text: RamfuncsRunStart
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: InitFlash ();
+|————Node:call_expression Text: InitFlash ()
+|—————Node:identifier Text: InitFlash
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment Text: // Initialize the PIE vector table with pointers to the shell Interrupt
+|———Node:comment Text: // Service Routines (ISR).
+|———Node:comment Text: // This will populate the entire table, even if the interrupt
+|———Node:comment Text: // is not used in this example.  This is useful for debug purposes.
+|———Node:comment Text: // The shell ISR routines are found in DSP2833x_DefaultIsr.c.
+|———Node:comment Text: // This function is found in DSP2833x_PieVect.c.c0
+|———Node:expression_statement Text: InitPieVectTable ();
+|————Node:call_expression Text: InitPieVectTable ()
+|—————Node:identifier Text: InitPieVectTable
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment Text: // Interrupts that are used in this example are re-mapped to
+|———Node:comment Text: // ISR functions found within this file.
+|———Node:expression_statement Text: EALLOW;
+|————Node:identifier Text: EALLOW
+|————Node:; Text: ;
+|———Node:comment Text: // This is needed to write to EALLOW protected registers
+|———Node:comment Text: //	PieVectTable.SEQ1INT = &ADC_SEQ1_EOC_isr;
+|———Node:expression_statement Text: EDIS;
+|————Node:identifier Text: EDIS
+|————Node:; Text: ;
+|———Node:comment Text: // Enable CPU INT1 which is connected to SEQ INT:
+|———Node:comment Text: //	IER |= M_INT1;
+|———Node:comment Text: // Enable SEQ1 INT in the PIE: Group 1 interrupt 1-1
+|———Node:comment Text: //	PieCtrlRegs.PIEIER1.bit.INTx1 = 1 ;
+|———Node:comment Text: //	PieCtrlRegs.PIEIER1.bit.INTx7 = 1 ;
+|———Node:expression_statement Text: EINT;
+|————Node:identifier Text: EINT
+|————Node:; Text: ;
+|———Node:comment Text: // Enable Global interrupt INTM
+|———Node:expression_statement Text: ERTM;
+|————Node:identifier Text: ERTM
+|————Node:; Text: ;
+|———Node:comment Text: // Enable Global realtime interrupt DBGM
+|———Node:comment Text: //=========================Core Module=============
+|———Node:comment Text: //====================Tmr============================
+|———Node:comment Text: //	initUserTmr1(I2C_TMR) ; //in ms
+|———Node:comment Text: //	EvMgrPrt->addEvent(EvMgrPrt,&UserTmr1) ;
+|———Node:comment Text: //	UserTmr1.addEvCallback(&UserTmr1,Response_UserTmr1) ;
+|———Node:comment Text: //===============user module=======================
+|———Node:comment Text: //initialize GPIO
+|———Node:expression_statement Text: InitGpio ();
+|————Node:call_expression Text: InitGpio ()
+|—————Node:identifier Text: InitGpio
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment Text: //eCan
+|———Node:expression_statement Text: InitECanbGpio ();
+|————Node:call_expression Text: InitECanbGpio ()
+|—————Node:identifier Text: InitECanbGpio
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: configureEcanB ();
+|————Node:call_expression Text: configureEcanB ()
+|—————Node:identifier Text: configureEcanB
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: Uint32 i = 0;
+|————Node:type_identifier Text: Uint32
+|————Node:init_declarator Text: i = 0
+|—————Node:identifier Text: i
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:for_statement Text: for (i = 0;; i++)
+    {
+      //      send_data (int16 MBXnbr, Uint32 low, Uint32 high, Uint32 id);
+      send_data (0, i, i + 1);
+      DELAY_US(1000000);
+    }
+|————Node:for Text: for
+|————Node:( Text: (
+|————Node:assignment_expression Text: i = 0
+|—————Node:identifier Text: i
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|————Node:; Text: ;
+|————Node:update_expression Text: i++
+|—————Node:identifier Text: i
+|—————Node:++ Text: ++
+|————Node:) Text: )
+|————Node:compound_statement Text: {
+      //      send_data (int16 MBXnbr, Uint32 low, Uint32 high, Uint32 id);
+      send_data (0, i, i + 1);
+      DELAY_US(1000000);
+    }
+|—————Node:{ Text: {
+|—————Node:comment Text: //      send_data (int16 MBXnbr, Uint32 low, Uint32 high, Uint32 id);
+|—————Node:expression_statement Text: send_data (0, i, i + 1);
+|——————Node:call_expression Text: send_data (0, i, i + 1)
+|———————Node:identifier Text: send_data
+|———————Node:argument_list Text: (0, i, i + 1)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 0
+|————————Node:, Text: ,
+|————————Node:identifier Text: i
+|————————Node:, Text: ,
+|————————Node:binary_expression Text: i + 1
+|—————————Node:identifier Text: i
+|—————————Node:+ Text: +
+|—————————Node:number_literal Text: 1
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: DELAY_US(1000000);
+|——————Node:call_expression Text: DELAY_US(1000000)
+|———————Node:identifier Text: DELAY_US
+|———————Node:argument_list Text: (1000000)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 1000000
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:} Text: }

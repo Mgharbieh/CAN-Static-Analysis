@@ -1,0 +1,2477 @@
+mergCanBus-MergCBUS.h
+
+|Node:translation_unit
+|—Node:preproc_ifdef Text: #ifndef BYTE_TYPE
+#define BYTE_TYPE
+//typedef char byte;
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: BYTE_TYPE
+|——Node:preproc_def Text: #define BYTE_TYPE
+
+|———Node:#define Text: #define
+|———Node:identifier Text: BYTE_TYPE
+|——Node:comment
+|——Node:#endif Text: #endif
+|—Node:comment
+|—Node:preproc_ifdef Text: #ifndef MESSAGEPARSER_H
+#define MESSAGEPARSER_H
+
+//#define DEBUGDEF 1
+//#define DEBUGMSG 1
+
+#include <Arduino.h>
+#include <EEPROM.h>
+#include <SPI.h>
+#include <avr/wdt.h>
+#include "Message.h"
+#include "MergNodeIdentification.h"
+#include "mcp_can.h"
+#include "MergMemoryManagement.h"
+#include "CircularBuffer.h"
+
+#define Reset_AVR() asm volatile ("  jmp 0");
+
+#define SELF_ENUM_TIME 1000      /** Defines the timeout used for self ennumeration mode.Milliseconds*/
+#define TEMP_BUFFER_SIZE 128    /** Size of a internal buffer for general usage.*/
+#define SELF_ENUM_BUFFER_SIZE 99
+#define BLINK_RATE 100
+
+//#define lowByte(w) ((uint8_t) ((w) & 0xff))
+//#define highByte(w) ((uint8_t) ((w) >> 8))
+
+/**
+*
+*/
+//enum process_mode{AUTOMATIC,MANUAL};
+/**
+*   Enum that contains the node state.
+*/
+enum state {LEARN=0,              /**< Learn mode. The node is read to learn events.*/
+            UNLEARN=1,            /**< Unlearn mode. The node is read to erase events.*/
+            BOOT=2,               /**< Boot mode. The node is prepared to receive a new firmware. Not supported by this library. Present just to be consistent with Merg modes.*/
+            NORMAL=3,             /**< Normal mode of operarion. Receives On/Off events and do actions based on them.*/
+            SELF_ENUMERATION=4,   /**< Node getting a new CAN ID for transmission.*/
+            SETUP=5               /**< Node getting a new Node number or device number.*/
+            };
+
+/**
+*   Enum that defines the return of messages.
+*/
+enum can_error {OK=0,                   /**< Message sent.*/
+                UNKNOWN_MSG_TYPE=1,     /**< Unknown message.*/
+                NO_MESSAGE=2            /**< No message received.*/
+                };
+
+/**
+*   A general class that support the MergCBUS protocol.
+*   The class is used to all operations regarding the protocol, but is flexible enough to allow you to use general can messages.
+*   It uses a modified version of mcp_can.h, that included the CAN header manipulation and RTR messages.
+*   When using the CBUS the user has to set the node information:
+*   -The manufacturer ID as a HEX numeric (If the manufacturer has a NMRA number this can be used)
+*   -Minor code version as an alphabetic character (ASCII)
+*   -Manufacturer’s module identifier as a HEX numeric
+*   -Number of supported events as a HEX numeric
+*   -Number of Event Variables per event as a HEX numeric
+*   -Number of supported Node Variables as a HEX numeric
+*   -Major version as a HEX numeric. (can be 0 if no major version allocated)
+*   -Node Flags
+*   You has to start the CAN by calling initCanBus(...);
+*   If your board follows the Merg boards with on push button and red and yellow leds, you can specify then with setLeds() and setPushButton()
+*   If you want the library to take care of a lot of stuff, you need to define your user function that implements the node logic and tell the lib
+*   about it calling setUserHandlerFunction() and on the arduino loop() call the run() method. See the examples.
+*   If you want to take care of all messages by yourself just read the messages using readCanBus() or readCanBus(header[],data[]) and use the getMessage() to get a wrapper over the can message.
+*/
+
+class MergCBUS
+{
+    public:
+
+        typedef void (*userHandlerType)(Message*,MergCBUS*);/**< This is the user function for processing other messages. It receives a reference to a Message and a reference to MergCBUS.*/
+
+        MergCBUS(byte num_node_vars,byte num_events,byte num_events_vars,byte max_device_numbers);
+        virtual ~MergCBUS();
+        /**\brief Set to skip processing certain message.
+        * @param msg Message type not to process.
+        */
+        void skipMessage(message_type msg){setBitMessage (msg,true);};
+        /**\brief Set to process certain message.
+        * @param msg Message type to process.
+        */
+        void processMessage(message_type msg){setBitMessage (msg,false);};
+
+        uint8_t run();
+
+        bool hasMessageToHandle();
+        /**\brief Get a reference to node identification.
+        * @return Pointer to a @see MergNodeIdentification
+        */
+        MergNodeIdentification *getNodeId(){return &nodeId;};
+
+        bool initCanBus(uint8_t port,unsigned int rate, unsigned int retries,unsigned int retryIntervalMilliseconds);
+        bool initCanBus(uint8_t port);
+        bool initCanBus(uint8_t port,unsigned int rate, const uint8_t clock, unsigned int retries,unsigned int retryIntervalMilliseconds);
+        bool initCanBus(uint8_t port, const uint8_t clock);
+        /**\brief Set the user function to handle other messages.*/
+        void setUserHandlerFunction(userHandlerType f) {userHandler=f;};
+        void setDCCHandlerFunction(userHandlerType f) {dccHandler=f;};
+        void sendERRMessage(byte code);
+        bool hasThisEvent();
+        void cbusRead();
+        void printSentMessage();
+        void printReceivedMessage();
+        /**\brief Set the node to slim mode.*/
+        void setSlimMode();
+        /**\brief Set the node to flim mode.*/
+        void setFlimMode();
+        /**\brief Get the node mode.*/
+        byte getNodeMode(){return node_mode;};
+        /**\brief Reset EEPROM.*/
+        void setUpNewMemory();
+        /**\brief Print all EEPROM values. Works just if DEBUGREF is set.*/
+        void dumpMemory(){memory.dumpMemory();};
+        /**\brief Set the CBUS modules stardard leds.*/
+        void setLeds(byte green,byte yellow);
+        /**\brief Set the CBUS modules stardard push button.*/
+        void setPushButton(byte pb) {push_button=pb;pinMode(pb,INPUT_PULLUP);};
+
+        /**\brief Set the standard node number for slim mode.
+        * The user of this library has to create its own way of letting a customer set a node number in SLIM mode.
+        * If a standard value is not set and a push button is set then the library will use the value 0 if it is a consumer and 4444 if it is a producer.
+        * @param new node number
+        */
+        void setStdNN(unsigned int val){std_nn=val;};
+        /**\brief Get the standard node number.
+        * @return node number
+        */
+        unsigned int getStdNN(){return std_nn;};
+        void saveNodeFlags();
+        void sendMessage(Message *msg);
+        //methods for getting parameters
+        bool isAccOn();
+        bool isAccOff();
+        bool eventMatch(){return eventmatch;};
+        uint8_t getEventIndex(Message *msg);
+        byte getNodeVar(byte varIndex);
+        bool setNodeVariable(byte ind, byte val);
+        byte getInternalNodeVar(byte varIndex);
+        void setInternalNodeVariable(byte ind, byte val);
+
+        byte getEventVar(Message *msg,byte varIndex);
+
+        void setDeviceNumber(unsigned int val,byte port);           //2 bytes representation for dn
+        unsigned int getDeviceNumber(byte port);                    //2 bytes representation
+        byte getDeviceNumberIndex(){return deviceNumberIdx;};
+        state getNodeState(){return state_mode;};
+
+        //send on/off events
+        byte sendOnEvent(bool longEvent,unsigned int event);
+        byte sendOffEvent(bool longEvent,unsigned int event);
+        byte sendOnEvent1(bool longEvent,unsigned int event,byte var1);
+        byte sendOffEvent1(bool longEvent,unsigned int event,byte var1);
+        byte sendOnEvent2(bool longEvent,unsigned int event,byte var1,byte var2);
+        byte sendOffEvent2(bool longEvent,unsigned int event,byte var1,byte var2);
+        byte sendOnEvent3(bool longEvent,unsigned int event,byte var1,byte var2,byte var3);
+        byte sendOffEvent3(bool longEvent,unsigned int event,byte var1,byte var2,byte var3);
+
+        //send DCC Events
+        byte sendGetSession(uint16_t loco);
+        byte sendReleaseSession(uint8_t locsession);
+        byte sendShareSession(uint16_t loco);
+        byte sendStealSession(uint16_t loco);
+        byte sendKeepAliveSession(uint8_t locsession);
+        byte sendSpeedDir(uint8_t locsession,uint8_t speed,bool dforward);
+        byte sendSetFun(uint8_t locsession,uint8_t fn);
+        byte sendUnsetFun(uint8_t locsession, uint8_t fn);
+        byte sendSpeedMode(uint8_t locsession, uint8_t mode);
+
+        void doSelfEnnumeration(bool soft); //put the node in the self enummeration mode
+        void doSetup();                     // put the node in the setup mode
+        bool isSelfEnumMode();              //check if the node is in the self enum mode
+        uint16_t getPromNN();
+        uint16_t getNN();
+        MergMemoryManagement memory;            //organize the eeprom memory and maintain a copy in RAM
+
+    protected:
+    private:
+        //let the bus level lib private
+        MCP_CAN Can;                            /** The CAN object. Deal with the transport layer.*/
+        byte node_mode;                         /** Slim or Flim*/
+        byte mergCanData[CANDATA_SIZE];         //can data . CANDATA_SIZE defined in message.h
+        Message message;                        //canbus message representation
+        MergNodeIdentification nodeId;          //node identification:name,manufacuter , ...
+        byte messageFilter;                     //bit filter about each message to handle. by default avoid reserved messages
+
+        bool softwareEnum;                      //true if the node is doing self ennumeration
+        bool eventmatch;                        //true if the received message is found on learned events
+        unsigned long std_nn;                   //standard node number for slim
+        bool typeEventMatch;                    //true is long event, false is short event
+        byte deviceNumberIdx;                   //in case of match set the devicenumber index starting on 0
+        CircularBuffer msgBuffer;
+
+        state state_mode;                       //actual state of the node
+        unsigned long startTime;                //used for self ennumeration
+        byte buffer[TEMP_BUFFER_SIZE];          //buffer to store can ids for self enum
+        byte bufferIndex;                     //index that indicates the buffer size
+        //unsigned int (*userHandler)(message*);  //pointer to function
+        userHandlerType userHandler;
+        userHandlerType dccHandler;
+        bool messageToHandle;                   //true if the message was not automatically handled
+
+        void setBitMessage(byte pos,bool val);  /** set or unset the bit on pos for messageFilter*/
+        void getStoredEvents();                 //events that were learned
+        void getStoredIDs();                    //node number,canId,device Number
+        bool matchEvent();                      //
+        uint8_t runAutomatic();            //process the majority of events automatic
+        bool setNodeVariableAuto(byte ind, byte val,bool autoErr);
+
+        bool readCanBus();
+        bool readCanBus(byte buf_num);
+        bool readCanBus(byte *msg,byte *header,byte *length,byte buf_num);
+
+        byte handleConfigMessages();            //process config messages
+        byte handleDCCMessages();               //process dcc messages
+        byte handleACCMessages();               //process accessory messages
+        byte handleGeneralMessages();           //process general messages
+
+
+        void finishSelfEnumeration();           //finish the self ennumeration procedures
+        void clearMsgToSend();                  //clear internal buffer
+        byte sendCanMessage();                  //send the message in the buffer
+        void loadMemory();                      //load the saved data to ram. not the events
+
+        void sortArray(byte *a, byte n);        //used in selfennum
+        void prepareMessage(byte opc);          //fill the buffer with specific messages
+        void prepareMessageBuff(byte data0=0,byte data1=0,byte data2=0,byte data3=0,byte data4=0,byte data5=0,byte data6=0,byte data7=0);//fill the buffer byte by byte
+        byte getMessageSize(byte opc);          //return the
+        //leds and the push button controls
+        void controlLeds();
+        byte greenLed;
+        byte yellowLed;
+        byte ledGreenState;
+        byte ledYellowState;
+        long ledtimer;
+        void controlPushButton();
+        byte push_button;
+        byte pb_state;
+
+        void(* resetFunc) (void);           //declare reset function @ address 0. resets the arduino
+        void learnEvent();                  //put the node in the learn event mode
+        uint8_t mainProcess();
+
+        void doOutOfService();              //put the node in the out of service node
+        void initMemory();                  //load the eprom memory
+
+
+        /**\brief Set the node state to a new state.
+        * @param newstate One of states @see state
+        */
+        void setNodeState(state newstate){ state_mode=newstate;};
+        byte accExtraData();
+        byte getAccExtraData(byte idx);//idx starts at 1
+
+        //timer functions for reading messages
+        long timerInterval;
+
+        //DCC functions
+        byte sendShareStealSession(uint16_t loco,uint8_t mode);
+
+};
+
+#endif
+|——Node:#ifndef Text: #ifndef
+|——Node:identifier Text: MESSAGEPARSER_H
+|——Node:preproc_def Text: #define MESSAGEPARSER_H
+
+|———Node:#define Text: #define
+|———Node:identifier Text: MESSAGEPARSER_H
+|——Node:comment
+|——Node:comment
+|——Node:preproc_include Text: #include <Arduino.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <Arduino.h>
+|——Node:preproc_include Text: #include <EEPROM.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <EEPROM.h>
+|——Node:preproc_include Text: #include <SPI.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <SPI.h>
+|——Node:preproc_include Text: #include <avr/wdt.h>
+
+|———Node:#include Text: #include
+|———Node:system_lib_string Text: <avr/wdt.h>
+|——Node:preproc_include Text: #include "Message.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "Message.h"
+|————Node:" Text: "
+|————Node:string_content Text: Message.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "MergNodeIdentification.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "MergNodeIdentification.h"
+|————Node:" Text: "
+|————Node:string_content Text: MergNodeIdentification.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "mcp_can.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "mcp_can.h"
+|————Node:" Text: "
+|————Node:string_content Text: mcp_can.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "MergMemoryManagement.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "MergMemoryManagement.h"
+|————Node:" Text: "
+|————Node:string_content Text: MergMemoryManagement.h
+|————Node:" Text: "
+|——Node:preproc_include Text: #include "CircularBuffer.h"
+
+|———Node:#include Text: #include
+|———Node:string_literal Text: "CircularBuffer.h"
+|————Node:" Text: "
+|————Node:string_content Text: CircularBuffer.h
+|————Node:" Text: "
+|——Node:preproc_function_def Text: #define Reset_AVR() asm volatile ("  jmp 0");
+
+|———Node:#define Text: #define
+|———Node:identifier Text: Reset_AVR
+|———Node:preproc_params Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|———Node:preproc_arg Text: asm volatile ("  jmp 0");
+|——Node:preproc_def Text: #define SELF_ENUM_TIME 1000      /** Defines the timeout used for self ennumeration mode.Milliseconds*/
+
+|———Node:#define Text: #define
+|———Node:identifier Text: SELF_ENUM_TIME
+|———Node:preproc_arg Text: 1000      
+|———Node:comment
+|——Node:preproc_def Text: #define TEMP_BUFFER_SIZE 128    /** Size of a internal buffer for general usage.*/
+
+|———Node:#define Text: #define
+|———Node:identifier Text: TEMP_BUFFER_SIZE
+|———Node:preproc_arg Text: 128    
+|———Node:comment
+|——Node:preproc_def Text: #define SELF_ENUM_BUFFER_SIZE 99
+
+|———Node:#define Text: #define
+|———Node:identifier Text: SELF_ENUM_BUFFER_SIZE
+|———Node:preproc_arg Text: 99
+|——Node:preproc_def Text: #define BLINK_RATE 100
+
+|———Node:#define Text: #define
+|———Node:identifier Text: BLINK_RATE
+|———Node:preproc_arg Text: 100
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:comment
+|——Node:enum_specifier Text: enum state {LEARN=0,              /**< Learn mode. The node is read to learn events.*/
+            UNLEARN=1,            /**< Unlearn mode. The node is read to erase events.*/
+            BOOT=2,               /**< Boot mode. The node is prepared to receive a new firmware. Not supported by this library. Present just to be consistent with Merg modes.*/
+            NORMAL=3,             /**< Normal mode of operarion. Receives On/Off events and do actions based on them.*/
+            SELF_ENUMERATION=4,   /**< Node getting a new CAN ID for transmission.*/
+            SETUP=5               /**< Node getting a new Node number or device number.*/
+            }
+|———Node:enum Text: enum
+|———Node:type_identifier Text: state
+|———Node:enumerator_list Text: {LEARN=0,              /**< Learn mode. The node is read to learn events.*/
+            UNLEARN=1,            /**< Unlearn mode. The node is read to erase events.*/
+            BOOT=2,               /**< Boot mode. The node is prepared to receive a new firmware. Not supported by this library. Present just to be consistent with Merg modes.*/
+            NORMAL=3,             /**< Normal mode of operarion. Receives On/Off events and do actions based on them.*/
+            SELF_ENUMERATION=4,   /**< Node getting a new CAN ID for transmission.*/
+            SETUP=5               /**< Node getting a new Node number or device number.*/
+            }
+|————Node:{ Text: {
+|————Node:enumerator Text: LEARN=0
+|—————Node:identifier Text: LEARN
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:, Text: ,
+|————Node:comment
+|————Node:enumerator Text: UNLEARN=1
+|—————Node:identifier Text: UNLEARN
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:, Text: ,
+|————Node:comment
+|————Node:enumerator Text: BOOT=2
+|—————Node:identifier Text: BOOT
+|—————Node:= Text: =
+|—————Node:number_literal Text: 2
+|————Node:, Text: ,
+|————Node:comment
+|————Node:enumerator Text: NORMAL=3
+|—————Node:identifier Text: NORMAL
+|—————Node:= Text: =
+|—————Node:number_literal Text: 3
+|————Node:, Text: ,
+|————Node:comment
+|————Node:enumerator Text: SELF_ENUMERATION=4
+|—————Node:identifier Text: SELF_ENUMERATION
+|—————Node:= Text: =
+|—————Node:number_literal Text: 4
+|————Node:, Text: ,
+|————Node:comment
+|————Node:enumerator Text: SETUP=5
+|—————Node:identifier Text: SETUP
+|—————Node:= Text: =
+|—————Node:number_literal Text: 5
+|————Node:comment
+|————Node:} Text: }
+|——Node:; Text: ;
+|——Node:comment
+|——Node:enum_specifier Text: enum can_error {OK=0,                   /**< Message sent.*/
+                UNKNOWN_MSG_TYPE=1,     /**< Unknown message.*/
+                NO_MESSAGE=2            /**< No message received.*/
+                }
+|———Node:enum Text: enum
+|———Node:type_identifier Text: can_error
+|———Node:enumerator_list Text: {OK=0,                   /**< Message sent.*/
+                UNKNOWN_MSG_TYPE=1,     /**< Unknown message.*/
+                NO_MESSAGE=2            /**< No message received.*/
+                }
+|————Node:{ Text: {
+|————Node:enumerator Text: OK=0
+|—————Node:identifier Text: OK
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:, Text: ,
+|————Node:comment
+|————Node:enumerator Text: UNKNOWN_MSG_TYPE=1
+|—————Node:identifier Text: UNKNOWN_MSG_TYPE
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:, Text: ,
+|————Node:comment
+|————Node:enumerator Text: NO_MESSAGE=2
+|—————Node:identifier Text: NO_MESSAGE
+|—————Node:= Text: =
+|—————Node:number_literal Text: 2
+|————Node:comment
+|————Node:} Text: }
+|——Node:; Text: ;
+|——Node:comment
+|——Node:function_definition Text: class MergCBUS
+{
+    public:
+
+        typedef void (*userHandlerType)(Message*,MergCBUS*);/**< This is the user function for processing other messages. It receives a reference to a Message and a reference to MergCBUS.*/
+
+        MergCBUS(byte num_node_vars,byte num_events,byte num_events_vars,byte max_device_numbers);
+        virtual ~MergCBUS();
+        /**\brief Set to skip processing certain message.
+        * @param msg Message type not to process.
+        */
+        void skipMessage(message_type msg){setBitMessage (msg,true);};
+        /**\brief Set to process certain message.
+        * @param msg Message type to process.
+        */
+        void processMessage(message_type msg){setBitMessage (msg,false);};
+
+        uint8_t run();
+
+        bool hasMessageToHandle();
+        /**\brief Get a reference to node identification.
+        * @return Pointer to a @see MergNodeIdentification
+        */
+        MergNodeIdentification *getNodeId(){return &nodeId;};
+
+        bool initCanBus(uint8_t port,unsigned int rate, unsigned int retries,unsigned int retryIntervalMilliseconds);
+        bool initCanBus(uint8_t port);
+        bool initCanBus(uint8_t port,unsigned int rate, const uint8_t clock, unsigned int retries,unsigned int retryIntervalMilliseconds);
+        bool initCanBus(uint8_t port, const uint8_t clock);
+        /**\brief Set the user function to handle other messages.*/
+        void setUserHandlerFunction(userHandlerType f) {userHandler=f;};
+        void setDCCHandlerFunction(userHandlerType f) {dccHandler=f;};
+        void sendERRMessage(byte code);
+        bool hasThisEvent();
+        void cbusRead();
+        void printSentMessage();
+        void printReceivedMessage();
+        /**\brief Set the node to slim mode.*/
+        void setSlimMode();
+        /**\brief Set the node to flim mode.*/
+        void setFlimMode();
+        /**\brief Get the node mode.*/
+        byte getNodeMode(){return node_mode;};
+        /**\brief Reset EEPROM.*/
+        void setUpNewMemory();
+        /**\brief Print all EEPROM values. Works just if DEBUGREF is set.*/
+        void dumpMemory(){memory.dumpMemory();};
+        /**\brief Set the CBUS modules stardard leds.*/
+        void setLeds(byte green,byte yellow);
+        /**\brief Set the CBUS modules stardard push button.*/
+        void setPushButton(byte pb) {push_button=pb;pinMode(pb,INPUT_PULLUP);};
+
+        /**\brief Set the standard node number for slim mode.
+        * The user of this library has to create its own way of letting a customer set a node number in SLIM mode.
+        * If a standard value is not set and a push button is set then the library will use the value 0 if it is a consumer and 4444 if it is a producer.
+        * @param new node number
+        */
+        void setStdNN(unsigned int val){std_nn=val;};
+        /**\brief Get the standard node number.
+        * @return node number
+        */
+        unsigned int getStdNN(){return std_nn;};
+        void saveNodeFlags();
+        void sendMessage(Message *msg);
+        //methods for getting parameters
+        bool isAccOn();
+        bool isAccOff();
+        bool eventMatch(){return eventmatch;};
+        uint8_t getEventIndex(Message *msg);
+        byte getNodeVar(byte varIndex);
+        bool setNodeVariable(byte ind, byte val);
+        byte getInternalNodeVar(byte varIndex);
+        void setInternalNodeVariable(byte ind, byte val);
+
+        byte getEventVar(Message *msg,byte varIndex);
+
+        void setDeviceNumber(unsigned int val,byte port);           //2 bytes representation for dn
+        unsigned int getDeviceNumber(byte port);                    //2 bytes representation
+        byte getDeviceNumberIndex(){return deviceNumberIdx;};
+        state getNodeState(){return state_mode;};
+
+        //send on/off events
+        byte sendOnEvent(bool longEvent,unsigned int event);
+        byte sendOffEvent(bool longEvent,unsigned int event);
+        byte sendOnEvent1(bool longEvent,unsigned int event,byte var1);
+        byte sendOffEvent1(bool longEvent,unsigned int event,byte var1);
+        byte sendOnEvent2(bool longEvent,unsigned int event,byte var1,byte var2);
+        byte sendOffEvent2(bool longEvent,unsigned int event,byte var1,byte var2);
+        byte sendOnEvent3(bool longEvent,unsigned int event,byte var1,byte var2,byte var3);
+        byte sendOffEvent3(bool longEvent,unsigned int event,byte var1,byte var2,byte var3);
+
+        //send DCC Events
+        byte sendGetSession(uint16_t loco);
+        byte sendReleaseSession(uint8_t locsession);
+        byte sendShareSession(uint16_t loco);
+        byte sendStealSession(uint16_t loco);
+        byte sendKeepAliveSession(uint8_t locsession);
+        byte sendSpeedDir(uint8_t locsession,uint8_t speed,bool dforward);
+        byte sendSetFun(uint8_t locsession,uint8_t fn);
+        byte sendUnsetFun(uint8_t locsession, uint8_t fn);
+        byte sendSpeedMode(uint8_t locsession, uint8_t mode);
+
+        void doSelfEnnumeration(bool soft); //put the node in the self enummeration mode
+        void doSetup();                     // put the node in the setup mode
+        bool isSelfEnumMode();              //check if the node is in the self enum mode
+        uint16_t getPromNN();
+        uint16_t getNN();
+        MergMemoryManagement memory;            //organize the eeprom memory and maintain a copy in RAM
+
+    protected:
+    private:
+        //let the bus level lib private
+        MCP_CAN Can;                            /** The CAN object. Deal with the transport layer.*/
+        byte node_mode;                         /** Slim or Flim*/
+        byte mergCanData[CANDATA_SIZE];         //can data . CANDATA_SIZE defined in message.h
+        Message message;                        //canbus message representation
+        MergNodeIdentification nodeId;          //node identification:name,manufacuter , ...
+        byte messageFilter;                     //bit filter about each message to handle. by default avoid reserved messages
+
+        bool softwareEnum;                      //true if the node is doing self ennumeration
+        bool eventmatch;                        //true if the received message is found on learned events
+        unsigned long std_nn;                   //standard node number for slim
+        bool typeEventMatch;                    //true is long event, false is short event
+        byte deviceNumberIdx;                   //in case of match set the devicenumber index starting on 0
+        CircularBuffer msgBuffer;
+
+        state state_mode;                       //actual state of the node
+        unsigned long startTime;                //used for self ennumeration
+        byte buffer[TEMP_BUFFER_SIZE];          //buffer to store can ids for self enum
+        byte bufferIndex;                     //index that indicates the buffer size
+        //unsigned int (*userHandler)(message*);  //pointer to function
+        userHandlerType userHandler;
+        userHandlerType dccHandler;
+        bool messageToHandle;                   //true if the message was not automatically handled
+
+        void setBitMessage(byte pos,bool val);  /** set or unset the bit on pos for messageFilter*/
+        void getStoredEvents();                 //events that were learned
+        void getStoredIDs();                    //node number,canId,device Number
+        bool matchEvent();                      //
+        uint8_t runAutomatic();            //process the majority of events automatic
+        bool setNodeVariableAuto(byte ind, byte val,bool autoErr);
+
+        bool readCanBus();
+        bool readCanBus(byte buf_num);
+        bool readCanBus(byte *msg,byte *header,byte *length,byte buf_num);
+
+        byte handleConfigMessages();            //process config messages
+        byte handleDCCMessages();               //process dcc messages
+        byte handleACCMessages();               //process accessory messages
+        byte handleGeneralMessages();           //process general messages
+
+
+        void finishSelfEnumeration();           //finish the self ennumeration procedures
+        void clearMsgToSend();                  //clear internal buffer
+        byte sendCanMessage();                  //send the message in the buffer
+        void loadMemory();                      //load the saved data to ram. not the events
+
+        void sortArray(byte *a, byte n);        //used in selfennum
+        void prepareMessage(byte opc);          //fill the buffer with specific messages
+        void prepareMessageBuff(byte data0=0,byte data1=0,byte data2=0,byte data3=0,byte data4=0,byte data5=0,byte data6=0,byte data7=0);//fill the buffer byte by byte
+        byte getMessageSize(byte opc);          //return the
+        //leds and the push button controls
+        void controlLeds();
+        byte greenLed;
+        byte yellowLed;
+        byte ledGreenState;
+        byte ledYellowState;
+        long ledtimer;
+        void controlPushButton();
+        byte push_button;
+        byte pb_state;
+
+        void(* resetFunc) (void);           //declare reset function @ address 0. resets the arduino
+        void learnEvent();                  //put the node in the learn event mode
+        uint8_t mainProcess();
+
+        void doOutOfService();              //put the node in the out of service node
+        void initMemory();                  //load the eprom memory
+
+
+        /**\brief Set the node state to a new state.
+        * @param newstate One of states @see state
+        */
+        void setNodeState(state newstate){ state_mode=newstate;};
+        byte accExtraData();
+        byte getAccExtraData(byte idx);//idx starts at 1
+
+        //timer functions for reading messages
+        long timerInterval;
+
+        //DCC functions
+        byte sendShareStealSession(uint16_t loco,uint8_t mode);
+
+}
+|———Node:type_identifier Text: class
+|———Node:identifier Text: MergCBUS
+|———Node:compound_statement Text: {
+    public:
+
+        typedef void (*userHandlerType)(Message*,MergCBUS*);/**< This is the user function for processing other messages. It receives a reference to a Message and a reference to MergCBUS.*/
+
+        MergCBUS(byte num_node_vars,byte num_events,byte num_events_vars,byte max_device_numbers);
+        virtual ~MergCBUS();
+        /**\brief Set to skip processing certain message.
+        * @param msg Message type not to process.
+        */
+        void skipMessage(message_type msg){setBitMessage (msg,true);};
+        /**\brief Set to process certain message.
+        * @param msg Message type to process.
+        */
+        void processMessage(message_type msg){setBitMessage (msg,false);};
+
+        uint8_t run();
+
+        bool hasMessageToHandle();
+        /**\brief Get a reference to node identification.
+        * @return Pointer to a @see MergNodeIdentification
+        */
+        MergNodeIdentification *getNodeId(){return &nodeId;};
+
+        bool initCanBus(uint8_t port,unsigned int rate, unsigned int retries,unsigned int retryIntervalMilliseconds);
+        bool initCanBus(uint8_t port);
+        bool initCanBus(uint8_t port,unsigned int rate, const uint8_t clock, unsigned int retries,unsigned int retryIntervalMilliseconds);
+        bool initCanBus(uint8_t port, const uint8_t clock);
+        /**\brief Set the user function to handle other messages.*/
+        void setUserHandlerFunction(userHandlerType f) {userHandler=f;};
+        void setDCCHandlerFunction(userHandlerType f) {dccHandler=f;};
+        void sendERRMessage(byte code);
+        bool hasThisEvent();
+        void cbusRead();
+        void printSentMessage();
+        void printReceivedMessage();
+        /**\brief Set the node to slim mode.*/
+        void setSlimMode();
+        /**\brief Set the node to flim mode.*/
+        void setFlimMode();
+        /**\brief Get the node mode.*/
+        byte getNodeMode(){return node_mode;};
+        /**\brief Reset EEPROM.*/
+        void setUpNewMemory();
+        /**\brief Print all EEPROM values. Works just if DEBUGREF is set.*/
+        void dumpMemory(){memory.dumpMemory();};
+        /**\brief Set the CBUS modules stardard leds.*/
+        void setLeds(byte green,byte yellow);
+        /**\brief Set the CBUS modules stardard push button.*/
+        void setPushButton(byte pb) {push_button=pb;pinMode(pb,INPUT_PULLUP);};
+
+        /**\brief Set the standard node number for slim mode.
+        * The user of this library has to create its own way of letting a customer set a node number in SLIM mode.
+        * If a standard value is not set and a push button is set then the library will use the value 0 if it is a consumer and 4444 if it is a producer.
+        * @param new node number
+        */
+        void setStdNN(unsigned int val){std_nn=val;};
+        /**\brief Get the standard node number.
+        * @return node number
+        */
+        unsigned int getStdNN(){return std_nn;};
+        void saveNodeFlags();
+        void sendMessage(Message *msg);
+        //methods for getting parameters
+        bool isAccOn();
+        bool isAccOff();
+        bool eventMatch(){return eventmatch;};
+        uint8_t getEventIndex(Message *msg);
+        byte getNodeVar(byte varIndex);
+        bool setNodeVariable(byte ind, byte val);
+        byte getInternalNodeVar(byte varIndex);
+        void setInternalNodeVariable(byte ind, byte val);
+
+        byte getEventVar(Message *msg,byte varIndex);
+
+        void setDeviceNumber(unsigned int val,byte port);           //2 bytes representation for dn
+        unsigned int getDeviceNumber(byte port);                    //2 bytes representation
+        byte getDeviceNumberIndex(){return deviceNumberIdx;};
+        state getNodeState(){return state_mode;};
+
+        //send on/off events
+        byte sendOnEvent(bool longEvent,unsigned int event);
+        byte sendOffEvent(bool longEvent,unsigned int event);
+        byte sendOnEvent1(bool longEvent,unsigned int event,byte var1);
+        byte sendOffEvent1(bool longEvent,unsigned int event,byte var1);
+        byte sendOnEvent2(bool longEvent,unsigned int event,byte var1,byte var2);
+        byte sendOffEvent2(bool longEvent,unsigned int event,byte var1,byte var2);
+        byte sendOnEvent3(bool longEvent,unsigned int event,byte var1,byte var2,byte var3);
+        byte sendOffEvent3(bool longEvent,unsigned int event,byte var1,byte var2,byte var3);
+
+        //send DCC Events
+        byte sendGetSession(uint16_t loco);
+        byte sendReleaseSession(uint8_t locsession);
+        byte sendShareSession(uint16_t loco);
+        byte sendStealSession(uint16_t loco);
+        byte sendKeepAliveSession(uint8_t locsession);
+        byte sendSpeedDir(uint8_t locsession,uint8_t speed,bool dforward);
+        byte sendSetFun(uint8_t locsession,uint8_t fn);
+        byte sendUnsetFun(uint8_t locsession, uint8_t fn);
+        byte sendSpeedMode(uint8_t locsession, uint8_t mode);
+
+        void doSelfEnnumeration(bool soft); //put the node in the self enummeration mode
+        void doSetup();                     // put the node in the setup mode
+        bool isSelfEnumMode();              //check if the node is in the self enum mode
+        uint16_t getPromNN();
+        uint16_t getNN();
+        MergMemoryManagement memory;            //organize the eeprom memory and maintain a copy in RAM
+
+    protected:
+    private:
+        //let the bus level lib private
+        MCP_CAN Can;                            /** The CAN object. Deal with the transport layer.*/
+        byte node_mode;                         /** Slim or Flim*/
+        byte mergCanData[CANDATA_SIZE];         //can data . CANDATA_SIZE defined in message.h
+        Message message;                        //canbus message representation
+        MergNodeIdentification nodeId;          //node identification:name,manufacuter , ...
+        byte messageFilter;                     //bit filter about each message to handle. by default avoid reserved messages
+
+        bool softwareEnum;                      //true if the node is doing self ennumeration
+        bool eventmatch;                        //true if the received message is found on learned events
+        unsigned long std_nn;                   //standard node number for slim
+        bool typeEventMatch;                    //true is long event, false is short event
+        byte deviceNumberIdx;                   //in case of match set the devicenumber index starting on 0
+        CircularBuffer msgBuffer;
+
+        state state_mode;                       //actual state of the node
+        unsigned long startTime;                //used for self ennumeration
+        byte buffer[TEMP_BUFFER_SIZE];          //buffer to store can ids for self enum
+        byte bufferIndex;                     //index that indicates the buffer size
+        //unsigned int (*userHandler)(message*);  //pointer to function
+        userHandlerType userHandler;
+        userHandlerType dccHandler;
+        bool messageToHandle;                   //true if the message was not automatically handled
+
+        void setBitMessage(byte pos,bool val);  /** set or unset the bit on pos for messageFilter*/
+        void getStoredEvents();                 //events that were learned
+        void getStoredIDs();                    //node number,canId,device Number
+        bool matchEvent();                      //
+        uint8_t runAutomatic();            //process the majority of events automatic
+        bool setNodeVariableAuto(byte ind, byte val,bool autoErr);
+
+        bool readCanBus();
+        bool readCanBus(byte buf_num);
+        bool readCanBus(byte *msg,byte *header,byte *length,byte buf_num);
+
+        byte handleConfigMessages();            //process config messages
+        byte handleDCCMessages();               //process dcc messages
+        byte handleACCMessages();               //process accessory messages
+        byte handleGeneralMessages();           //process general messages
+
+
+        void finishSelfEnumeration();           //finish the self ennumeration procedures
+        void clearMsgToSend();                  //clear internal buffer
+        byte sendCanMessage();                  //send the message in the buffer
+        void loadMemory();                      //load the saved data to ram. not the events
+
+        void sortArray(byte *a, byte n);        //used in selfennum
+        void prepareMessage(byte opc);          //fill the buffer with specific messages
+        void prepareMessageBuff(byte data0=0,byte data1=0,byte data2=0,byte data3=0,byte data4=0,byte data5=0,byte data6=0,byte data7=0);//fill the buffer byte by byte
+        byte getMessageSize(byte opc);          //return the
+        //leds and the push button controls
+        void controlLeds();
+        byte greenLed;
+        byte yellowLed;
+        byte ledGreenState;
+        byte ledYellowState;
+        long ledtimer;
+        void controlPushButton();
+        byte push_button;
+        byte pb_state;
+
+        void(* resetFunc) (void);           //declare reset function @ address 0. resets the arduino
+        void learnEvent();                  //put the node in the learn event mode
+        uint8_t mainProcess();
+
+        void doOutOfService();              //put the node in the out of service node
+        void initMemory();                  //load the eprom memory
+
+
+        /**\brief Set the node state to a new state.
+        * @param newstate One of states @see state
+        */
+        void setNodeState(state newstate){ state_mode=newstate;};
+        byte accExtraData();
+        byte getAccExtraData(byte idx);//idx starts at 1
+
+        //timer functions for reading messages
+        long timerInterval;
+
+        //DCC functions
+        byte sendShareStealSession(uint16_t loco,uint8_t mode);
+
+}
+|————Node:{ Text: {
+|————Node:labeled_statement Text: public:
+
+        typedef void (*userHandlerType)(Message*,MergCBUS*);
+|—————Node:statement_identifier Text: public
+|—————Node:: Text: :
+|—————Node:declaration Text: typedef void (*userHandlerType)(Message*,MergCBUS*);
+|——————Node:type_identifier Text: typedef
+|——————Node:function_declarator Text: void (*userHandlerType)(Message*,MergCBUS*)
+|———————Node:function_declarator Text: void (*userHandlerType)
+|————————Node:identifier Text: void
+|————————Node:parameter_list Text: (*userHandlerType)
+|—————————Node:( Text: (
+|—————————Node:ERROR Text: *
+|——————————Node:* Text: *
+|—————————Node:parameter_declaration Text: userHandlerType
+|——————————Node:type_identifier Text: userHandlerType
+|—————————Node:) Text: )
+|———————Node:parameter_list Text: (Message*,MergCBUS*)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: Message*
+|—————————Node:type_identifier Text: Message
+|—————————Node:abstract_pointer_declarator Text: *
+|——————————Node:* Text: *
+|————————Node:, Text: ,
+|————————Node:parameter_declaration Text: MergCBUS*
+|—————————Node:type_identifier Text: MergCBUS
+|—————————Node:abstract_pointer_declarator Text: *
+|——————————Node:* Text: *
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: MergCBUS(byte num_node_vars,byte num_events,byte num_events_vars,byte max_device_numbers);
+|—————Node:macro_type_specifier Text: MergCBUS(byte
+|——————Node:identifier Text: MergCBUS
+|——————Node:( Text: (
+|——————Node:type_descriptor Text: byte
+|———————Node:type_identifier Text: byte
+|——————Node:) Text: 
+|—————Node:identifier Text: num_node_vars
+|—————Node:, Text: ,
+|—————Node:ERROR Text: byte
+|——————Node:identifier Text: byte
+|—————Node:identifier Text: num_events
+|—————Node:, Text: ,
+|—————Node:ERROR Text: byte
+|——————Node:identifier Text: byte
+|—————Node:identifier Text: num_events_vars
+|—————Node:, Text: ,
+|—————Node:identifier Text: byte
+|—————Node:ERROR Text: max_device_numbers)
+|——————Node:identifier Text: max_device_numbers
+|——————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: virtual ~MergCBUS();
+|—————Node:type_identifier Text: virtual
+|—————Node:ERROR Text: ~
+|——————Node:~ Text: ~
+|—————Node:function_declarator Text: MergCBUS()
+|——————Node:identifier Text: MergCBUS
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:function_definition Text: void skipMessage(message_type msg){setBitMessage (msg,true);}
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: skipMessage(message_type msg)
+|——————Node:identifier Text: skipMessage
+|——————Node:parameter_list Text: (message_type msg)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: message_type msg
+|————————Node:type_identifier Text: message_type
+|————————Node:identifier Text: msg
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {setBitMessage (msg,true);}
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: setBitMessage (msg,true);
+|———————Node:call_expression Text: setBitMessage (msg,true)
+|————————Node:identifier Text: setBitMessage
+|————————Node:argument_list Text: (msg,true)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: msg
+|—————————Node:, Text: ,
+|—————————Node:true Text: true
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:function_definition Text: void processMessage(message_type msg){setBitMessage (msg,false);}
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: processMessage(message_type msg)
+|——————Node:identifier Text: processMessage
+|——————Node:parameter_list Text: (message_type msg)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: message_type msg
+|————————Node:type_identifier Text: message_type
+|————————Node:identifier Text: msg
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {setBitMessage (msg,false);}
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: setBitMessage (msg,false);
+|———————Node:call_expression Text: setBitMessage (msg,false)
+|————————Node:identifier Text: setBitMessage
+|————————Node:argument_list Text: (msg,false)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: msg
+|—————————Node:, Text: ,
+|—————————Node:false Text: false
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|————Node:declaration Text: uint8_t run();
+|—————Node:primitive_type Text: uint8_t
+|—————Node:function_declarator Text: run()
+|——————Node:identifier Text: run
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: bool hasMessageToHandle();
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: hasMessageToHandle()
+|——————Node:identifier Text: hasMessageToHandle
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:function_definition Text: MergNodeIdentification *getNodeId(){return &nodeId;}
+|—————Node:type_identifier Text: MergNodeIdentification
+|—————Node:pointer_declarator Text: *getNodeId()
+|——————Node:* Text: *
+|——————Node:function_declarator Text: getNodeId()
+|———————Node:identifier Text: getNodeId
+|———————Node:parameter_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|—————Node:compound_statement Text: {return &nodeId;}
+|——————Node:{ Text: {
+|——————Node:return_statement Text: return &nodeId;
+|———————Node:return Text: return
+|———————Node:pointer_expression Text: &nodeId
+|————————Node:& Text: &
+|————————Node:identifier Text: nodeId
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|————Node:declaration Text: bool initCanBus(uint8_t port,unsigned int rate, unsigned int retries,unsigned int retryIntervalMilliseconds);
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: initCanBus(uint8_t port,unsigned int rate, unsigned int retries,unsigned int retryIntervalMilliseconds)
+|——————Node:identifier Text: initCanBus
+|——————Node:parameter_list Text: (uint8_t port,unsigned int rate, unsigned int retries,unsigned int retryIntervalMilliseconds)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint8_t port
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: port
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: unsigned int rate
+|————————Node:sized_type_specifier Text: unsigned int
+|—————————Node:unsigned Text: unsigned
+|—————————Node:primitive_type Text: int
+|————————Node:identifier Text: rate
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: unsigned int retries
+|————————Node:sized_type_specifier Text: unsigned int
+|—————————Node:unsigned Text: unsigned
+|—————————Node:primitive_type Text: int
+|————————Node:identifier Text: retries
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: unsigned int retryIntervalMilliseconds
+|————————Node:sized_type_specifier Text: unsigned int
+|—————————Node:unsigned Text: unsigned
+|—————————Node:primitive_type Text: int
+|————————Node:identifier Text: retryIntervalMilliseconds
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: bool initCanBus(uint8_t port);
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: initCanBus(uint8_t port)
+|——————Node:identifier Text: initCanBus
+|——————Node:parameter_list Text: (uint8_t port)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint8_t port
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: port
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: bool initCanBus(uint8_t port,unsigned int rate, const uint8_t clock, unsigned int retries,unsigned int retryIntervalMilliseconds);
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: initCanBus(uint8_t port,unsigned int rate, const uint8_t clock, unsigned int retries,unsigned int retryIntervalMilliseconds)
+|——————Node:identifier Text: initCanBus
+|——————Node:parameter_list Text: (uint8_t port,unsigned int rate, const uint8_t clock, unsigned int retries,unsigned int retryIntervalMilliseconds)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint8_t port
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: port
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: unsigned int rate
+|————————Node:sized_type_specifier Text: unsigned int
+|—————————Node:unsigned Text: unsigned
+|—————————Node:primitive_type Text: int
+|————————Node:identifier Text: rate
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const uint8_t clock
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: clock
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: unsigned int retries
+|————————Node:sized_type_specifier Text: unsigned int
+|—————————Node:unsigned Text: unsigned
+|—————————Node:primitive_type Text: int
+|————————Node:identifier Text: retries
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: unsigned int retryIntervalMilliseconds
+|————————Node:sized_type_specifier Text: unsigned int
+|—————————Node:unsigned Text: unsigned
+|—————————Node:primitive_type Text: int
+|————————Node:identifier Text: retryIntervalMilliseconds
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: bool initCanBus(uint8_t port, const uint8_t clock);
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: initCanBus(uint8_t port, const uint8_t clock)
+|——————Node:identifier Text: initCanBus
+|——————Node:parameter_list Text: (uint8_t port, const uint8_t clock)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint8_t port
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: port
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: const uint8_t clock
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: clock
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:function_definition Text: void setUserHandlerFunction(userHandlerType f) {userHandler=f;}
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setUserHandlerFunction(userHandlerType f)
+|——————Node:identifier Text: setUserHandlerFunction
+|——————Node:parameter_list Text: (userHandlerType f)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: userHandlerType f
+|————————Node:type_identifier Text: userHandlerType
+|————————Node:identifier Text: f
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {userHandler=f;}
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: userHandler=f;
+|———————Node:assignment_expression Text: userHandler=f
+|————————Node:identifier Text: userHandler
+|————————Node:= Text: =
+|————————Node:identifier Text: f
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|————Node:function_definition Text: void setDCCHandlerFunction(userHandlerType f) {dccHandler=f;}
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setDCCHandlerFunction(userHandlerType f)
+|——————Node:identifier Text: setDCCHandlerFunction
+|——————Node:parameter_list Text: (userHandlerType f)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: userHandlerType f
+|————————Node:type_identifier Text: userHandlerType
+|————————Node:identifier Text: f
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {dccHandler=f;}
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: dccHandler=f;
+|———————Node:assignment_expression Text: dccHandler=f
+|————————Node:identifier Text: dccHandler
+|————————Node:= Text: =
+|————————Node:identifier Text: f
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|————Node:declaration Text: void sendERRMessage(byte code);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: sendERRMessage(byte code)
+|——————Node:identifier Text: sendERRMessage
+|——————Node:parameter_list Text: (byte code)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: byte code
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: code
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: bool hasThisEvent();
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: hasThisEvent()
+|——————Node:identifier Text: hasThisEvent
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void cbusRead();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: cbusRead()
+|——————Node:identifier Text: cbusRead
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void printSentMessage();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: printSentMessage()
+|——————Node:identifier Text: printSentMessage
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void printReceivedMessage();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: printReceivedMessage()
+|——————Node:identifier Text: printReceivedMessage
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: void setSlimMode();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setSlimMode()
+|——————Node:identifier Text: setSlimMode
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: void setFlimMode();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setFlimMode()
+|——————Node:identifier Text: setFlimMode
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:function_definition Text: byte getNodeMode(){return node_mode;}
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: getNodeMode()
+|——————Node:identifier Text: getNodeMode
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {return node_mode;}
+|——————Node:{ Text: {
+|——————Node:return_statement Text: return node_mode;
+|———————Node:return Text: return
+|———————Node:identifier Text: node_mode
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: void setUpNewMemory();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setUpNewMemory()
+|——————Node:identifier Text: setUpNewMemory
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:function_definition Text: void dumpMemory(){memory.dumpMemory();}
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: dumpMemory()
+|——————Node:identifier Text: dumpMemory
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {memory.dumpMemory();}
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: memory.dumpMemory();
+|———————Node:call_expression Text: memory.dumpMemory()
+|————————Node:field_expression Text: memory.dumpMemory
+|—————————Node:identifier Text: memory
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: dumpMemory
+|————————Node:argument_list Text: ()
+|—————————Node:( Text: (
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: void setLeds(byte green,byte yellow);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setLeds(byte green,byte yellow)
+|——————Node:identifier Text: setLeds
+|——————Node:parameter_list Text: (byte green,byte yellow)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: byte green
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: green
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte yellow
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: yellow
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:function_definition Text: void setPushButton(byte pb) {push_button=pb;pinMode(pb,INPUT_PULLUP);}
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setPushButton(byte pb)
+|——————Node:identifier Text: setPushButton
+|——————Node:parameter_list Text: (byte pb)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: byte pb
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: pb
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {push_button=pb;pinMode(pb,INPUT_PULLUP);}
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: push_button=pb;
+|———————Node:assignment_expression Text: push_button=pb
+|————————Node:identifier Text: push_button
+|————————Node:= Text: =
+|————————Node:identifier Text: pb
+|———————Node:; Text: ;
+|——————Node:expression_statement Text: pinMode(pb,INPUT_PULLUP);
+|———————Node:call_expression Text: pinMode(pb,INPUT_PULLUP)
+|————————Node:identifier Text: pinMode
+|————————Node:argument_list Text: (pb,INPUT_PULLUP)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: pb
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: INPUT_PULLUP
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:function_definition Text: void setStdNN(unsigned int val){std_nn=val;}
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setStdNN(unsigned int val)
+|——————Node:identifier Text: setStdNN
+|——————Node:parameter_list Text: (unsigned int val)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: unsigned int val
+|————————Node:sized_type_specifier Text: unsigned int
+|—————————Node:unsigned Text: unsigned
+|—————————Node:primitive_type Text: int
+|————————Node:identifier Text: val
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {std_nn=val;}
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: std_nn=val;
+|———————Node:assignment_expression Text: std_nn=val
+|————————Node:identifier Text: std_nn
+|————————Node:= Text: =
+|————————Node:identifier Text: val
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:function_definition Text: unsigned int getStdNN(){return std_nn;}
+|—————Node:sized_type_specifier Text: unsigned int
+|——————Node:unsigned Text: unsigned
+|——————Node:primitive_type Text: int
+|—————Node:function_declarator Text: getStdNN()
+|——————Node:identifier Text: getStdNN
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {return std_nn;}
+|——————Node:{ Text: {
+|——————Node:return_statement Text: return std_nn;
+|———————Node:return Text: return
+|———————Node:identifier Text: std_nn
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|————Node:declaration Text: void saveNodeFlags();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: saveNodeFlags()
+|——————Node:identifier Text: saveNodeFlags
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void sendMessage(Message *msg);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: sendMessage(Message *msg)
+|——————Node:identifier Text: sendMessage
+|——————Node:parameter_list Text: (Message *msg)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: Message *msg
+|————————Node:type_identifier Text: Message
+|————————Node:pointer_declarator Text: *msg
+|—————————Node:* Text: *
+|—————————Node:identifier Text: msg
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: bool isAccOn();
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: isAccOn()
+|——————Node:identifier Text: isAccOn
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: bool isAccOff();
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: isAccOff()
+|——————Node:identifier Text: isAccOff
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:function_definition Text: bool eventMatch(){return eventmatch;}
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: eventMatch()
+|——————Node:identifier Text: eventMatch
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {return eventmatch;}
+|——————Node:{ Text: {
+|——————Node:return_statement Text: return eventmatch;
+|———————Node:return Text: return
+|———————Node:identifier Text: eventmatch
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|————Node:declaration Text: uint8_t getEventIndex(Message *msg);
+|—————Node:primitive_type Text: uint8_t
+|—————Node:function_declarator Text: getEventIndex(Message *msg)
+|——————Node:identifier Text: getEventIndex
+|——————Node:parameter_list Text: (Message *msg)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: Message *msg
+|————————Node:type_identifier Text: Message
+|————————Node:pointer_declarator Text: *msg
+|—————————Node:* Text: *
+|—————————Node:identifier Text: msg
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte getNodeVar(byte varIndex);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: getNodeVar(byte varIndex)
+|——————Node:identifier Text: getNodeVar
+|——————Node:parameter_list Text: (byte varIndex)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: byte varIndex
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: varIndex
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: bool setNodeVariable(byte ind, byte val);
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: setNodeVariable(byte ind, byte val)
+|——————Node:identifier Text: setNodeVariable
+|——————Node:parameter_list Text: (byte ind, byte val)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: byte ind
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: ind
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte val
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: val
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte getInternalNodeVar(byte varIndex);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: getInternalNodeVar(byte varIndex)
+|——————Node:identifier Text: getInternalNodeVar
+|——————Node:parameter_list Text: (byte varIndex)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: byte varIndex
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: varIndex
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void setInternalNodeVariable(byte ind, byte val);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setInternalNodeVariable(byte ind, byte val)
+|——————Node:identifier Text: setInternalNodeVariable
+|——————Node:parameter_list Text: (byte ind, byte val)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: byte ind
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: ind
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte val
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: val
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte getEventVar(Message *msg,byte varIndex);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: getEventVar(Message *msg,byte varIndex)
+|——————Node:identifier Text: getEventVar
+|——————Node:parameter_list Text: (Message *msg,byte varIndex)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: Message *msg
+|————————Node:type_identifier Text: Message
+|————————Node:pointer_declarator Text: *msg
+|—————————Node:* Text: *
+|—————————Node:identifier Text: msg
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte varIndex
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: varIndex
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void setDeviceNumber(unsigned int val,byte port);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setDeviceNumber(unsigned int val,byte port)
+|——————Node:identifier Text: setDeviceNumber
+|——————Node:parameter_list Text: (unsigned int val,byte port)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: unsigned int val
+|————————Node:sized_type_specifier Text: unsigned int
+|—————————Node:unsigned Text: unsigned
+|—————————Node:primitive_type Text: int
+|————————Node:identifier Text: val
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte port
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: port
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: unsigned int getDeviceNumber(byte port);
+|—————Node:sized_type_specifier Text: unsigned int
+|——————Node:unsigned Text: unsigned
+|——————Node:primitive_type Text: int
+|—————Node:function_declarator Text: getDeviceNumber(byte port)
+|——————Node:identifier Text: getDeviceNumber
+|——————Node:parameter_list Text: (byte port)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: byte port
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: port
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:function_definition Text: byte getDeviceNumberIndex(){return deviceNumberIdx;}
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: getDeviceNumberIndex()
+|——————Node:identifier Text: getDeviceNumberIndex
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {return deviceNumberIdx;}
+|——————Node:{ Text: {
+|——————Node:return_statement Text: return deviceNumberIdx;
+|———————Node:return Text: return
+|———————Node:identifier Text: deviceNumberIdx
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|————Node:function_definition Text: state getNodeState(){return state_mode;}
+|—————Node:type_identifier Text: state
+|—————Node:function_declarator Text: getNodeState()
+|——————Node:identifier Text: getNodeState
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:compound_statement Text: {return state_mode;}
+|——————Node:{ Text: {
+|——————Node:return_statement Text: return state_mode;
+|———————Node:return Text: return
+|———————Node:identifier Text: state_mode
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: byte sendOnEvent(bool longEvent,unsigned int event);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: sendOnEvent(bool longEvent,unsigned int event)
+|——————Node:identifier Text: sendOnEvent
+|——————Node:parameter_list Text: (bool longEvent,unsigned int event)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: bool longEvent
+|————————Node:primitive_type Text: bool
+|————————Node:identifier Text: longEvent
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: unsigned int event
+|————————Node:sized_type_specifier Text: unsigned int
+|—————————Node:unsigned Text: unsigned
+|—————————Node:primitive_type Text: int
+|————————Node:identifier Text: event
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte sendOffEvent(bool longEvent,unsigned int event);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: sendOffEvent(bool longEvent,unsigned int event)
+|——————Node:identifier Text: sendOffEvent
+|——————Node:parameter_list Text: (bool longEvent,unsigned int event)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: bool longEvent
+|————————Node:primitive_type Text: bool
+|————————Node:identifier Text: longEvent
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: unsigned int event
+|————————Node:sized_type_specifier Text: unsigned int
+|—————————Node:unsigned Text: unsigned
+|—————————Node:primitive_type Text: int
+|————————Node:identifier Text: event
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte sendOnEvent1(bool longEvent,unsigned int event,byte var1);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: sendOnEvent1(bool longEvent,unsigned int event,byte var1)
+|——————Node:identifier Text: sendOnEvent1
+|——————Node:parameter_list Text: (bool longEvent,unsigned int event,byte var1)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: bool longEvent
+|————————Node:primitive_type Text: bool
+|————————Node:identifier Text: longEvent
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: unsigned int event
+|————————Node:sized_type_specifier Text: unsigned int
+|—————————Node:unsigned Text: unsigned
+|—————————Node:primitive_type Text: int
+|————————Node:identifier Text: event
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte var1
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: var1
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte sendOffEvent1(bool longEvent,unsigned int event,byte var1);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: sendOffEvent1(bool longEvent,unsigned int event,byte var1)
+|——————Node:identifier Text: sendOffEvent1
+|——————Node:parameter_list Text: (bool longEvent,unsigned int event,byte var1)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: bool longEvent
+|————————Node:primitive_type Text: bool
+|————————Node:identifier Text: longEvent
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: unsigned int event
+|————————Node:sized_type_specifier Text: unsigned int
+|—————————Node:unsigned Text: unsigned
+|—————————Node:primitive_type Text: int
+|————————Node:identifier Text: event
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte var1
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: var1
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte sendOnEvent2(bool longEvent,unsigned int event,byte var1,byte var2);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: sendOnEvent2(bool longEvent,unsigned int event,byte var1,byte var2)
+|——————Node:identifier Text: sendOnEvent2
+|——————Node:parameter_list Text: (bool longEvent,unsigned int event,byte var1,byte var2)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: bool longEvent
+|————————Node:primitive_type Text: bool
+|————————Node:identifier Text: longEvent
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: unsigned int event
+|————————Node:sized_type_specifier Text: unsigned int
+|—————————Node:unsigned Text: unsigned
+|—————————Node:primitive_type Text: int
+|————————Node:identifier Text: event
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte var1
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: var1
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte var2
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: var2
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte sendOffEvent2(bool longEvent,unsigned int event,byte var1,byte var2);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: sendOffEvent2(bool longEvent,unsigned int event,byte var1,byte var2)
+|——————Node:identifier Text: sendOffEvent2
+|——————Node:parameter_list Text: (bool longEvent,unsigned int event,byte var1,byte var2)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: bool longEvent
+|————————Node:primitive_type Text: bool
+|————————Node:identifier Text: longEvent
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: unsigned int event
+|————————Node:sized_type_specifier Text: unsigned int
+|—————————Node:unsigned Text: unsigned
+|—————————Node:primitive_type Text: int
+|————————Node:identifier Text: event
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte var1
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: var1
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte var2
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: var2
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte sendOnEvent3(bool longEvent,unsigned int event,byte var1,byte var2,byte var3);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: sendOnEvent3(bool longEvent,unsigned int event,byte var1,byte var2,byte var3)
+|——————Node:identifier Text: sendOnEvent3
+|——————Node:parameter_list Text: (bool longEvent,unsigned int event,byte var1,byte var2,byte var3)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: bool longEvent
+|————————Node:primitive_type Text: bool
+|————————Node:identifier Text: longEvent
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: unsigned int event
+|————————Node:sized_type_specifier Text: unsigned int
+|—————————Node:unsigned Text: unsigned
+|—————————Node:primitive_type Text: int
+|————————Node:identifier Text: event
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte var1
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: var1
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte var2
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: var2
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte var3
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: var3
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte sendOffEvent3(bool longEvent,unsigned int event,byte var1,byte var2,byte var3);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: sendOffEvent3(bool longEvent,unsigned int event,byte var1,byte var2,byte var3)
+|——————Node:identifier Text: sendOffEvent3
+|——————Node:parameter_list Text: (bool longEvent,unsigned int event,byte var1,byte var2,byte var3)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: bool longEvent
+|————————Node:primitive_type Text: bool
+|————————Node:identifier Text: longEvent
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: unsigned int event
+|————————Node:sized_type_specifier Text: unsigned int
+|—————————Node:unsigned Text: unsigned
+|—————————Node:primitive_type Text: int
+|————————Node:identifier Text: event
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte var1
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: var1
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte var2
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: var2
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte var3
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: var3
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: byte sendGetSession(uint16_t loco);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: sendGetSession(uint16_t loco)
+|——————Node:identifier Text: sendGetSession
+|——————Node:parameter_list Text: (uint16_t loco)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint16_t loco
+|————————Node:primitive_type Text: uint16_t
+|————————Node:identifier Text: loco
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte sendReleaseSession(uint8_t locsession);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: sendReleaseSession(uint8_t locsession)
+|——————Node:identifier Text: sendReleaseSession
+|——————Node:parameter_list Text: (uint8_t locsession)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint8_t locsession
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: locsession
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte sendShareSession(uint16_t loco);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: sendShareSession(uint16_t loco)
+|——————Node:identifier Text: sendShareSession
+|——————Node:parameter_list Text: (uint16_t loco)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint16_t loco
+|————————Node:primitive_type Text: uint16_t
+|————————Node:identifier Text: loco
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte sendStealSession(uint16_t loco);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: sendStealSession(uint16_t loco)
+|——————Node:identifier Text: sendStealSession
+|——————Node:parameter_list Text: (uint16_t loco)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint16_t loco
+|————————Node:primitive_type Text: uint16_t
+|————————Node:identifier Text: loco
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte sendKeepAliveSession(uint8_t locsession);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: sendKeepAliveSession(uint8_t locsession)
+|——————Node:identifier Text: sendKeepAliveSession
+|——————Node:parameter_list Text: (uint8_t locsession)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint8_t locsession
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: locsession
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte sendSpeedDir(uint8_t locsession,uint8_t speed,bool dforward);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: sendSpeedDir(uint8_t locsession,uint8_t speed,bool dforward)
+|——————Node:identifier Text: sendSpeedDir
+|——————Node:parameter_list Text: (uint8_t locsession,uint8_t speed,bool dforward)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint8_t locsession
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: locsession
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: uint8_t speed
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: speed
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: bool dforward
+|————————Node:primitive_type Text: bool
+|————————Node:identifier Text: dforward
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte sendSetFun(uint8_t locsession,uint8_t fn);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: sendSetFun(uint8_t locsession,uint8_t fn)
+|——————Node:identifier Text: sendSetFun
+|——————Node:parameter_list Text: (uint8_t locsession,uint8_t fn)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint8_t locsession
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: locsession
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: uint8_t fn
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: fn
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte sendUnsetFun(uint8_t locsession, uint8_t fn);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: sendUnsetFun(uint8_t locsession, uint8_t fn)
+|——————Node:identifier Text: sendUnsetFun
+|——————Node:parameter_list Text: (uint8_t locsession, uint8_t fn)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint8_t locsession
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: locsession
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: uint8_t fn
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: fn
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte sendSpeedMode(uint8_t locsession, uint8_t mode);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: sendSpeedMode(uint8_t locsession, uint8_t mode)
+|——————Node:identifier Text: sendSpeedMode
+|——————Node:parameter_list Text: (uint8_t locsession, uint8_t mode)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint8_t locsession
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: locsession
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: uint8_t mode
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: mode
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void doSelfEnnumeration(bool soft);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: doSelfEnnumeration(bool soft)
+|——————Node:identifier Text: doSelfEnnumeration
+|——————Node:parameter_list Text: (bool soft)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: bool soft
+|————————Node:primitive_type Text: bool
+|————————Node:identifier Text: soft
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: void doSetup();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: doSetup()
+|——————Node:identifier Text: doSetup
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: bool isSelfEnumMode();
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: isSelfEnumMode()
+|——————Node:identifier Text: isSelfEnumMode
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: uint16_t getPromNN();
+|—————Node:primitive_type Text: uint16_t
+|—————Node:function_declarator Text: getPromNN()
+|——————Node:identifier Text: getPromNN
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: uint16_t getNN();
+|—————Node:primitive_type Text: uint16_t
+|—————Node:function_declarator Text: getNN()
+|——————Node:identifier Text: getNN
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: MergMemoryManagement memory;
+|—————Node:type_identifier Text: MergMemoryManagement
+|—————Node:identifier Text: memory
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:labeled_statement Text: protected:
+    private:
+        //let the bus level lib private
+        MCP_CAN Can;
+|—————Node:statement_identifier Text: protected
+|—————Node:: Text: :
+|—————Node:labeled_statement Text: private:
+        //let the bus level lib private
+        MCP_CAN Can;
+|——————Node:statement_identifier Text: private
+|——————Node:: Text: :
+|——————Node:comment
+|——————Node:declaration Text: MCP_CAN Can;
+|———————Node:type_identifier Text: MCP_CAN
+|———————Node:identifier Text: Can
+|———————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: byte node_mode;
+|—————Node:type_identifier Text: byte
+|—————Node:identifier Text: node_mode
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: byte mergCanData[CANDATA_SIZE];
+|—————Node:type_identifier Text: byte
+|—————Node:array_declarator Text: mergCanData[CANDATA_SIZE]
+|——————Node:identifier Text: mergCanData
+|——————Node:[ Text: [
+|——————Node:identifier Text: CANDATA_SIZE
+|——————Node:] Text: ]
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: Message message;
+|—————Node:type_identifier Text: Message
+|—————Node:identifier Text: message
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: MergNodeIdentification nodeId;
+|—————Node:type_identifier Text: MergNodeIdentification
+|—————Node:identifier Text: nodeId
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: byte messageFilter;
+|—————Node:type_identifier Text: byte
+|—————Node:identifier Text: messageFilter
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: bool softwareEnum;
+|—————Node:primitive_type Text: bool
+|—————Node:identifier Text: softwareEnum
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: bool eventmatch;
+|—————Node:primitive_type Text: bool
+|—————Node:identifier Text: eventmatch
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: unsigned long std_nn;
+|—————Node:sized_type_specifier Text: unsigned long
+|——————Node:unsigned Text: unsigned
+|——————Node:long Text: long
+|—————Node:identifier Text: std_nn
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: bool typeEventMatch;
+|—————Node:primitive_type Text: bool
+|—————Node:identifier Text: typeEventMatch
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: byte deviceNumberIdx;
+|—————Node:type_identifier Text: byte
+|—————Node:identifier Text: deviceNumberIdx
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: CircularBuffer msgBuffer;
+|—————Node:type_identifier Text: CircularBuffer
+|—————Node:identifier Text: msgBuffer
+|—————Node:; Text: ;
+|————Node:declaration Text: state state_mode;
+|—————Node:type_identifier Text: state
+|—————Node:identifier Text: state_mode
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: unsigned long startTime;
+|—————Node:sized_type_specifier Text: unsigned long
+|——————Node:unsigned Text: unsigned
+|——————Node:long Text: long
+|—————Node:identifier Text: startTime
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: byte buffer[TEMP_BUFFER_SIZE];
+|—————Node:type_identifier Text: byte
+|—————Node:array_declarator Text: buffer[TEMP_BUFFER_SIZE]
+|——————Node:identifier Text: buffer
+|——————Node:[ Text: [
+|——————Node:identifier Text: TEMP_BUFFER_SIZE
+|——————Node:] Text: ]
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: byte bufferIndex;
+|—————Node:type_identifier Text: byte
+|—————Node:identifier Text: bufferIndex
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:comment
+|————Node:declaration Text: userHandlerType userHandler;
+|—————Node:type_identifier Text: userHandlerType
+|—————Node:identifier Text: userHandler
+|—————Node:; Text: ;
+|————Node:declaration Text: userHandlerType dccHandler;
+|—————Node:type_identifier Text: userHandlerType
+|—————Node:identifier Text: dccHandler
+|—————Node:; Text: ;
+|————Node:declaration Text: bool messageToHandle;
+|—————Node:primitive_type Text: bool
+|—————Node:identifier Text: messageToHandle
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: void setBitMessage(byte pos,bool val);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setBitMessage(byte pos,bool val)
+|——————Node:identifier Text: setBitMessage
+|——————Node:parameter_list Text: (byte pos,bool val)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: byte pos
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: pos
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: bool val
+|————————Node:primitive_type Text: bool
+|————————Node:identifier Text: val
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: void getStoredEvents();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: getStoredEvents()
+|——————Node:identifier Text: getStoredEvents
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: void getStoredIDs();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: getStoredIDs()
+|——————Node:identifier Text: getStoredIDs
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: bool matchEvent();
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: matchEvent()
+|——————Node:identifier Text: matchEvent
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: uint8_t runAutomatic();
+|—————Node:primitive_type Text: uint8_t
+|—————Node:function_declarator Text: runAutomatic()
+|——————Node:identifier Text: runAutomatic
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: bool setNodeVariableAuto(byte ind, byte val,bool autoErr);
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: setNodeVariableAuto(byte ind, byte val,bool autoErr)
+|——————Node:identifier Text: setNodeVariableAuto
+|——————Node:parameter_list Text: (byte ind, byte val,bool autoErr)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: byte ind
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: ind
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte val
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: val
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: bool autoErr
+|————————Node:primitive_type Text: bool
+|————————Node:identifier Text: autoErr
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: bool readCanBus();
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: readCanBus()
+|——————Node:identifier Text: readCanBus
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: bool readCanBus(byte buf_num);
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: readCanBus(byte buf_num)
+|——————Node:identifier Text: readCanBus
+|——————Node:parameter_list Text: (byte buf_num)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: byte buf_num
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: buf_num
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: bool readCanBus(byte *msg,byte *header,byte *length,byte buf_num);
+|—————Node:primitive_type Text: bool
+|—————Node:function_declarator Text: readCanBus(byte *msg,byte *header,byte *length,byte buf_num)
+|——————Node:identifier Text: readCanBus
+|——————Node:parameter_list Text: (byte *msg,byte *header,byte *length,byte buf_num)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: byte *msg
+|————————Node:type_identifier Text: byte
+|————————Node:pointer_declarator Text: *msg
+|—————————Node:* Text: *
+|—————————Node:identifier Text: msg
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte *header
+|————————Node:type_identifier Text: byte
+|————————Node:pointer_declarator Text: *header
+|—————————Node:* Text: *
+|—————————Node:identifier Text: header
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte *length
+|————————Node:type_identifier Text: byte
+|————————Node:pointer_declarator Text: *length
+|—————————Node:* Text: *
+|—————————Node:identifier Text: length
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte buf_num
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: buf_num
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte handleConfigMessages();
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: handleConfigMessages()
+|——————Node:identifier Text: handleConfigMessages
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: byte handleDCCMessages();
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: handleDCCMessages()
+|——————Node:identifier Text: handleDCCMessages
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: byte handleACCMessages();
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: handleACCMessages()
+|——————Node:identifier Text: handleACCMessages
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: byte handleGeneralMessages();
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: handleGeneralMessages()
+|——————Node:identifier Text: handleGeneralMessages
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: void finishSelfEnumeration();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: finishSelfEnumeration()
+|——————Node:identifier Text: finishSelfEnumeration
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: void clearMsgToSend();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: clearMsgToSend()
+|——————Node:identifier Text: clearMsgToSend
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: byte sendCanMessage();
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: sendCanMessage()
+|——————Node:identifier Text: sendCanMessage
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: void loadMemory();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: loadMemory()
+|——————Node:identifier Text: loadMemory
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: void sortArray(byte *a, byte n);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: sortArray(byte *a, byte n)
+|——————Node:identifier Text: sortArray
+|——————Node:parameter_list Text: (byte *a, byte n)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: byte *a
+|————————Node:type_identifier Text: byte
+|————————Node:pointer_declarator Text: *a
+|—————————Node:* Text: *
+|—————————Node:identifier Text: a
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: byte n
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: n
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: void prepareMessage(byte opc);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: prepareMessage(byte opc)
+|——————Node:identifier Text: prepareMessage
+|——————Node:parameter_list Text: (byte opc)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: byte opc
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: opc
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: void prepareMessageBuff(byte data0=0,byte data1=0,byte data2=0,byte data3=0,byte data4=0,byte data5=0,byte data6=0,byte data7=0);
+|—————Node:primitive_type Text: void
+|—————Node:init_declarator Text: prepareMessageBuff(byte data0=0
+|——————Node:function_declarator Text: prepareMessageBuff(byte data0
+|———————Node:identifier Text: prepareMessageBuff
+|———————Node:parameter_list Text: (byte data0
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: byte data0
+|—————————Node:type_identifier Text: byte
+|—————————Node:identifier Text: data0
+|————————Node:) Text: 
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:, Text: ,
+|—————Node:ERROR Text: byte
+|——————Node:identifier Text: byte
+|—————Node:init_declarator Text: data1=0
+|——————Node:identifier Text: data1
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:, Text: ,
+|—————Node:ERROR Text: byte
+|——————Node:identifier Text: byte
+|—————Node:init_declarator Text: data2=0
+|——————Node:identifier Text: data2
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:, Text: ,
+|—————Node:ERROR Text: byte
+|——————Node:identifier Text: byte
+|—————Node:init_declarator Text: data3=0
+|——————Node:identifier Text: data3
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:, Text: ,
+|—————Node:ERROR Text: byte
+|——————Node:identifier Text: byte
+|—————Node:init_declarator Text: data4=0
+|——————Node:identifier Text: data4
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:, Text: ,
+|—————Node:ERROR Text: byte
+|——————Node:identifier Text: byte
+|—————Node:init_declarator Text: data5=0
+|——————Node:identifier Text: data5
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:, Text: ,
+|—————Node:ERROR Text: byte
+|——————Node:identifier Text: byte
+|—————Node:init_declarator Text: data6=0
+|——————Node:identifier Text: data6
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:, Text: ,
+|—————Node:ERROR Text: byte
+|——————Node:identifier Text: byte
+|—————Node:init_declarator Text: data7=0
+|——————Node:identifier Text: data7
+|——————Node:= Text: =
+|——————Node:number_literal Text: 0
+|—————Node:ERROR Text: )
+|——————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: byte getMessageSize(byte opc);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: getMessageSize(byte opc)
+|——————Node:identifier Text: getMessageSize
+|——————Node:parameter_list Text: (byte opc)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: byte opc
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: opc
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:comment
+|————Node:declaration Text: void controlLeds();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: controlLeds()
+|——————Node:identifier Text: controlLeds
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte greenLed;
+|—————Node:type_identifier Text: byte
+|—————Node:identifier Text: greenLed
+|—————Node:; Text: ;
+|————Node:declaration Text: byte yellowLed;
+|—————Node:type_identifier Text: byte
+|—————Node:identifier Text: yellowLed
+|—————Node:; Text: ;
+|————Node:declaration Text: byte ledGreenState;
+|—————Node:type_identifier Text: byte
+|—————Node:identifier Text: ledGreenState
+|—————Node:; Text: ;
+|————Node:declaration Text: byte ledYellowState;
+|—————Node:type_identifier Text: byte
+|—————Node:identifier Text: ledYellowState
+|—————Node:; Text: ;
+|————Node:declaration Text: long ledtimer;
+|—————Node:sized_type_specifier Text: long
+|——————Node:long Text: long
+|—————Node:identifier Text: ledtimer
+|—————Node:; Text: ;
+|————Node:declaration Text: void controlPushButton();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: controlPushButton()
+|——————Node:identifier Text: controlPushButton
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte push_button;
+|—————Node:type_identifier Text: byte
+|—————Node:identifier Text: push_button
+|—————Node:; Text: ;
+|————Node:declaration Text: byte pb_state;
+|—————Node:type_identifier Text: byte
+|—————Node:identifier Text: pb_state
+|—————Node:; Text: ;
+|————Node:declaration Text: void(* resetFunc) (void);
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: (* resetFunc) (void)
+|——————Node:parenthesized_declarator Text: (* resetFunc)
+|———————Node:( Text: (
+|———————Node:pointer_declarator Text: * resetFunc
+|————————Node:* Text: *
+|————————Node:identifier Text: resetFunc
+|———————Node:) Text: )
+|——————Node:parameter_list Text: (void)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: void
+|————————Node:primitive_type Text: void
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: void learnEvent();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: learnEvent()
+|——————Node:identifier Text: learnEvent
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: uint8_t mainProcess();
+|—————Node:primitive_type Text: uint8_t
+|—————Node:function_declarator Text: mainProcess()
+|——————Node:identifier Text: mainProcess
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: void doOutOfService();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: doOutOfService()
+|——————Node:identifier Text: doOutOfService
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: void initMemory();
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: initMemory()
+|——————Node:identifier Text: initMemory
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:comment
+|————Node:function_definition Text: void setNodeState(state newstate){ state_mode=newstate;}
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: setNodeState(state newstate)
+|——————Node:identifier Text: setNodeState
+|——————Node:parameter_list Text: (state newstate)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: state newstate
+|————————Node:type_identifier Text: state
+|————————Node:identifier Text: newstate
+|———————Node:) Text: )
+|—————Node:compound_statement Text: { state_mode=newstate;}
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: state_mode=newstate;
+|———————Node:assignment_expression Text: state_mode=newstate
+|————————Node:identifier Text: state_mode
+|————————Node:= Text: =
+|————————Node:identifier Text: newstate
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|————Node:declaration Text: byte accExtraData();
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: accExtraData()
+|——————Node:identifier Text: accExtraData
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:declaration Text: byte getAccExtraData(byte idx);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: getAccExtraData(byte idx)
+|——————Node:identifier Text: getAccExtraData
+|——————Node:parameter_list Text: (byte idx)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: byte idx
+|————————Node:type_identifier Text: byte
+|————————Node:identifier Text: idx
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:comment
+|————Node:declaration Text: long timerInterval;
+|—————Node:sized_type_specifier Text: long
+|——————Node:long Text: long
+|—————Node:identifier Text: timerInterval
+|—————Node:; Text: ;
+|————Node:comment
+|————Node:declaration Text: byte sendShareStealSession(uint16_t loco,uint8_t mode);
+|—————Node:type_identifier Text: byte
+|—————Node:function_declarator Text: sendShareStealSession(uint16_t loco,uint8_t mode)
+|——————Node:identifier Text: sendShareStealSession
+|——————Node:parameter_list Text: (uint16_t loco,uint8_t mode)
+|———————Node:( Text: (
+|———————Node:parameter_declaration Text: uint16_t loco
+|————————Node:primitive_type Text: uint16_t
+|————————Node:identifier Text: loco
+|———————Node:, Text: ,
+|———————Node:parameter_declaration Text: uint8_t mode
+|————————Node:primitive_type Text: uint8_t
+|————————Node:identifier Text: mode
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:} Text: }
+|——Node:expression_statement Text: ;
+|———Node:; Text: ;
+|——Node:#endif Text: #endif
+|—Node:comment

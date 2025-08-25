@@ -1,0 +1,409 @@
+cansee-src\bluetoothhandler.cpp
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include "bluetoothhandler.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "bluetoothhandler.h"
+|———Node:" Text: "
+|———Node:string_content Text: bluetoothhandler.h
+|———Node:" Text: "
+|—Node:declaration Text: static CS_CONFIG_t *bluetooth_config;
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:type_identifier Text: CS_CONFIG_t
+|——Node:pointer_declarator Text: *bluetooth_config
+|———Node:* Text: *
+|———Node:identifier Text: bluetooth_config
+|——Node:; Text: ;
+|—Node:declaration Text: static BluetoothSerial SerialBT;
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:type_identifier Text: BluetoothSerial
+|——Node:identifier Text: SerialBT
+|——Node:; Text: ;
+|—Node:declaration Text: static void (*bluetooth_process)();
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: (*bluetooth_process)()
+|———Node:parenthesized_declarator Text: (*bluetooth_process)
+|————Node:( Text: (
+|————Node:pointer_declarator Text: *bluetooth_process
+|—————Node:* Text: *
+|—————Node:identifier Text: bluetooth_process
+|————Node:) Text: )
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:function_definition Text: void bluetooth_init (CS_CONFIG_t *config, void (*p)()) {
+  bluetooth_config = config;
+  bluetooth_process = p;
+  if (bluetooth_config->mode_bluetooth) {
+    if (bluetooth_config->mode_debug) Serial.println("Bluetooth '" + String (bluetooth_config->name_bluetooth) + "' started.");
+    SerialBT.begin(bluetooth_config->name_bluetooth); // init Bluetooth serial, no password in current framework
+  }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: bluetooth_init (CS_CONFIG_t *config, void (*p)())
+|———Node:identifier Text: bluetooth_init
+|———Node:parameter_list Text: (CS_CONFIG_t *config, void (*p)())
+|————Node:( Text: (
+|————Node:parameter_declaration Text: CS_CONFIG_t *config
+|—————Node:type_identifier Text: CS_CONFIG_t
+|—————Node:pointer_declarator Text: *config
+|——————Node:* Text: *
+|——————Node:identifier Text: config
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: void (*p)()
+|—————Node:primitive_type Text: void
+|—————Node:function_declarator Text: (*p)()
+|——————Node:parenthesized_declarator Text: (*p)
+|———————Node:( Text: (
+|———————Node:pointer_declarator Text: *p
+|————————Node:* Text: *
+|————————Node:identifier Text: p
+|———————Node:) Text: )
+|——————Node:parameter_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  bluetooth_config = config;
+  bluetooth_process = p;
+  if (bluetooth_config->mode_bluetooth) {
+    if (bluetooth_config->mode_debug) Serial.println("Bluetooth '" + String (bluetooth_config->name_bluetooth) + "' started.");
+    SerialBT.begin(bluetooth_config->name_bluetooth); // init Bluetooth serial, no password in current framework
+  }
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: bluetooth_config = config;
+|————Node:assignment_expression Text: bluetooth_config = config
+|—————Node:identifier Text: bluetooth_config
+|—————Node:= Text: =
+|—————Node:identifier Text: config
+|————Node:; Text: ;
+|———Node:expression_statement Text: bluetooth_process = p;
+|————Node:assignment_expression Text: bluetooth_process = p
+|—————Node:identifier Text: bluetooth_process
+|—————Node:= Text: =
+|—————Node:identifier Text: p
+|————Node:; Text: ;
+|———Node:if_statement Text: if (bluetooth_config->mode_bluetooth) {
+    if (bluetooth_config->mode_debug) Serial.println("Bluetooth '" + String (bluetooth_config->name_bluetooth) + "' started.");
+    SerialBT.begin(bluetooth_config->name_bluetooth); // init Bluetooth serial, no password in current framework
+  }
+|————Node:if Text: if
+|————Node:condition_clause Text: (bluetooth_config->mode_bluetooth)
+|—————Node:( Text: (
+|—————Node:field_expression Text: bluetooth_config->mode_bluetooth
+|——————Node:identifier Text: bluetooth_config
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: mode_bluetooth
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    if (bluetooth_config->mode_debug) Serial.println("Bluetooth '" + String (bluetooth_config->name_bluetooth) + "' started.");
+    SerialBT.begin(bluetooth_config->name_bluetooth); // init Bluetooth serial, no password in current framework
+  }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if (bluetooth_config->mode_debug) Serial.println("Bluetooth '" + String (bluetooth_config->name_bluetooth) + "' started.");
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (bluetooth_config->mode_debug)
+|———————Node:( Text: (
+|———————Node:field_expression Text: bluetooth_config->mode_debug
+|————————Node:identifier Text: bluetooth_config
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: mode_debug
+|———————Node:) Text: )
+|——————Node:expression_statement Text: Serial.println("Bluetooth '" + String (bluetooth_config->name_bluetooth) + "' started.");
+|———————Node:call_expression Text: Serial.println("Bluetooth '" + String (bluetooth_config->name_bluetooth) + "' started.")
+|————————Node:field_expression Text: Serial.println
+|—————————Node:identifier Text: Serial
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: println
+|————————Node:argument_list Text: ("Bluetooth '" + String (bluetooth_config->name_bluetooth) + "' started.")
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: "Bluetooth '" + String (bluetooth_config->name_bluetooth) + "' started."
+|——————————Node:binary_expression Text: "Bluetooth '" + String (bluetooth_config->name_bluetooth)
+|———————————Node:string_literal Text: "Bluetooth '"
+|————————————Node:" Text: "
+|————————————Node:string_content Text: Bluetooth '
+|————————————Node:" Text: "
+|———————————Node:+ Text: +
+|———————————Node:call_expression Text: String (bluetooth_config->name_bluetooth)
+|————————————Node:identifier Text: String
+|————————————Node:argument_list Text: (bluetooth_config->name_bluetooth)
+|—————————————Node:( Text: (
+|—————————————Node:field_expression Text: bluetooth_config->name_bluetooth
+|——————————————Node:identifier Text: bluetooth_config
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: name_bluetooth
+|—————————————Node:) Text: )
+|——————————Node:+ Text: +
+|——————————Node:string_literal Text: "' started."
+|———————————Node:" Text: "
+|———————————Node:string_content Text: ' started.
+|———————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|—————Node:expression_statement Text: SerialBT.begin(bluetooth_config->name_bluetooth);
+|——————Node:call_expression Text: SerialBT.begin(bluetooth_config->name_bluetooth)
+|———————Node:field_expression Text: SerialBT.begin
+|————————Node:identifier Text: SerialBT
+|————————Node:. Text: .
+|————————Node:field_identifier Text: begin
+|———————Node:argument_list Text: (bluetooth_config->name_bluetooth)
+|————————Node:( Text: (
+|————————Node:field_expression Text: bluetooth_config->name_bluetooth
+|—————————Node:identifier Text: bluetooth_config
+|—————————Node:-> Text: ->
+|—————————Node:field_identifier Text: name_bluetooth
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:comment Text: // init Bluetooth serial, no password in current framework
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:function_definition Text: void writeOutgoingBluetooth (String o) {
+  if (bluetooth_config->mode_bluetooth && SerialBT.hasClient()) SerialBT.print (o);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: writeOutgoingBluetooth (String o)
+|———Node:identifier Text: writeOutgoingBluetooth
+|———Node:parameter_list Text: (String o)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: String o
+|—————Node:type_identifier Text: String
+|—————Node:identifier Text: o
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  if (bluetooth_config->mode_bluetooth && SerialBT.hasClient()) SerialBT.print (o);
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (bluetooth_config->mode_bluetooth && SerialBT.hasClient()) SerialBT.print (o);
+|————Node:if Text: if
+|————Node:condition_clause Text: (bluetooth_config->mode_bluetooth && SerialBT.hasClient())
+|—————Node:( Text: (
+|—————Node:binary_expression Text: bluetooth_config->mode_bluetooth && SerialBT.hasClient()
+|——————Node:field_expression Text: bluetooth_config->mode_bluetooth
+|———————Node:identifier Text: bluetooth_config
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: mode_bluetooth
+|——————Node:&& Text: &&
+|——————Node:call_expression Text: SerialBT.hasClient()
+|———————Node:field_expression Text: SerialBT.hasClient
+|————————Node:identifier Text: SerialBT
+|————————Node:. Text: .
+|————————Node:field_identifier Text: hasClient
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:expression_statement Text: SerialBT.print (o);
+|—————Node:call_expression Text: SerialBT.print (o)
+|——————Node:field_expression Text: SerialBT.print
+|———————Node:identifier Text: SerialBT
+|———————Node:. Text: .
+|———————Node:field_identifier Text: print
+|——————Node:argument_list Text: (o)
+|———————Node:( Text: (
+|———————Node:identifier Text: o
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: void readIncomingBluetooth (String &readBuffer) {
+  if (!bluetooth_config->mode_bluetooth) return;
+  led_set (LED_BLUE, SerialBT.hasClient());
+  if (!SerialBT.available()) return;
+  char ch = SerialBT.read();
+  if (ch == '\n' || ch == '\r') {
+    if (readBuffer != "") {
+      if (bluetooth_process) bluetooth_process ();
+      readBuffer = "";
+    }
+  } else {
+    readBuffer += ch;
+  }
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: readIncomingBluetooth (String &readBuffer)
+|———Node:identifier Text: readIncomingBluetooth
+|———Node:parameter_list Text: (String &readBuffer)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: String &readBuffer
+|—————Node:type_identifier Text: String
+|—————Node:reference_declarator Text: &readBuffer
+|——————Node:& Text: &
+|——————Node:identifier Text: readBuffer
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  if (!bluetooth_config->mode_bluetooth) return;
+  led_set (LED_BLUE, SerialBT.hasClient());
+  if (!SerialBT.available()) return;
+  char ch = SerialBT.read();
+  if (ch == '\n' || ch == '\r') {
+    if (readBuffer != "") {
+      if (bluetooth_process) bluetooth_process ();
+      readBuffer = "";
+    }
+  } else {
+    readBuffer += ch;
+  }
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if (!bluetooth_config->mode_bluetooth) return;
+|————Node:if Text: if
+|————Node:condition_clause Text: (!bluetooth_config->mode_bluetooth)
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !bluetooth_config->mode_bluetooth
+|——————Node:! Text: !
+|——————Node:field_expression Text: bluetooth_config->mode_bluetooth
+|———————Node:identifier Text: bluetooth_config
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: mode_bluetooth
+|—————Node:) Text: )
+|————Node:return_statement Text: return;
+|—————Node:return Text: return
+|—————Node:; Text: ;
+|———Node:expression_statement Text: led_set (LED_BLUE, SerialBT.hasClient());
+|————Node:call_expression Text: led_set (LED_BLUE, SerialBT.hasClient())
+|—————Node:identifier Text: led_set
+|—————Node:argument_list Text: (LED_BLUE, SerialBT.hasClient())
+|——————Node:( Text: (
+|——————Node:identifier Text: LED_BLUE
+|——————Node:, Text: ,
+|——————Node:call_expression Text: SerialBT.hasClient()
+|———————Node:field_expression Text: SerialBT.hasClient
+|————————Node:identifier Text: SerialBT
+|————————Node:. Text: .
+|————————Node:field_identifier Text: hasClient
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (!SerialBT.available()) return;
+|————Node:if Text: if
+|————Node:condition_clause Text: (!SerialBT.available())
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !SerialBT.available()
+|——————Node:! Text: !
+|——————Node:call_expression Text: SerialBT.available()
+|———————Node:field_expression Text: SerialBT.available
+|————————Node:identifier Text: SerialBT
+|————————Node:. Text: .
+|————————Node:field_identifier Text: available
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:return_statement Text: return;
+|—————Node:return Text: return
+|—————Node:; Text: ;
+|———Node:declaration Text: char ch = SerialBT.read();
+|————Node:primitive_type Text: char
+|————Node:init_declarator Text: ch = SerialBT.read()
+|—————Node:identifier Text: ch
+|—————Node:= Text: =
+|—————Node:call_expression Text: SerialBT.read()
+|——————Node:field_expression Text: SerialBT.read
+|———————Node:identifier Text: SerialBT
+|———————Node:. Text: .
+|———————Node:field_identifier Text: read
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (ch == '\n' || ch == '\r') {
+    if (readBuffer != "") {
+      if (bluetooth_process) bluetooth_process ();
+      readBuffer = "";
+    }
+  } else {
+    readBuffer += ch;
+  }
+|————Node:if Text: if
+|————Node:condition_clause Text: (ch == '\n' || ch == '\r')
+|—————Node:( Text: (
+|—————Node:binary_expression Text: ch == '\n' || ch == '\r'
+|——————Node:binary_expression Text: ch == '\n'
+|———————Node:identifier Text: ch
+|———————Node:== Text: ==
+|———————Node:char_literal Text: '\n'
+|————————Node:' Text: '
+|————————Node:escape_sequence Text: \n
+|————————Node:' Text: '
+|——————Node:|| Text: ||
+|——————Node:binary_expression Text: ch == '\r'
+|———————Node:identifier Text: ch
+|———————Node:== Text: ==
+|———————Node:char_literal Text: '\r'
+|————————Node:' Text: '
+|————————Node:escape_sequence Text: \r
+|————————Node:' Text: '
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    if (readBuffer != "") {
+      if (bluetooth_process) bluetooth_process ();
+      readBuffer = "";
+    }
+  }
+|—————Node:{ Text: {
+|—————Node:if_statement Text: if (readBuffer != "") {
+      if (bluetooth_process) bluetooth_process ();
+      readBuffer = "";
+    }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (readBuffer != "")
+|———————Node:( Text: (
+|———————Node:binary_expression Text: readBuffer != ""
+|————————Node:identifier Text: readBuffer
+|————————Node:!= Text: !=
+|————————Node:string_literal Text: ""
+|—————————Node:" Text: "
+|—————————Node:" Text: "
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+      if (bluetooth_process) bluetooth_process ();
+      readBuffer = "";
+    }
+|———————Node:{ Text: {
+|———————Node:if_statement Text: if (bluetooth_process) bluetooth_process ();
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (bluetooth_process)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: bluetooth_process
+|—————————Node:) Text: )
+|————————Node:expression_statement Text: bluetooth_process ();
+|—————————Node:call_expression Text: bluetooth_process ()
+|——————————Node:identifier Text: bluetooth_process
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|———————Node:expression_statement Text: readBuffer = "";
+|————————Node:assignment_expression Text: readBuffer = ""
+|—————————Node:identifier Text: readBuffer
+|—————————Node:= Text: =
+|—————————Node:string_literal Text: ""
+|——————————Node:" Text: "
+|——————————Node:" Text: "
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|————Node:else_clause Text: else {
+    readBuffer += ch;
+  }
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+    readBuffer += ch;
+  }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: readBuffer += ch;
+|———————Node:assignment_expression Text: readBuffer += ch
+|————————Node:identifier Text: readBuffer
+|————————Node:+= Text: +=
+|————————Node:identifier Text: ch
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:} Text: }

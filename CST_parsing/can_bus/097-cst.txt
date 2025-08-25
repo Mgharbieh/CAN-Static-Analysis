@@ -1,0 +1,2451 @@
+can_bus-driver\ctu_can_fd_userspace.cpp
+
+|Node:translation_unit
+|—Node:linkage_specification Text: extern "C" {
+#include "ctu_can_fd_linux_defs.h"
+#include "ctu_can_fd_hw.h"
+}
+|——Node:extern Text: extern
+|——Node:string_literal Text: "C"
+|———Node:" Text: "
+|———Node:string_content Text: C
+|———Node:" Text: "
+|——Node:declaration_list Text: {
+#include "ctu_can_fd_linux_defs.h"
+#include "ctu_can_fd_hw.h"
+}
+|———Node:{ Text: {
+|———Node:preproc_include Text: #include "ctu_can_fd_linux_defs.h"
+
+|————Node:#include Text: #include
+|————Node:string_literal Text: "ctu_can_fd_linux_defs.h"
+|—————Node:" Text: "
+|—————Node:string_content Text: ctu_can_fd_linux_defs.h
+|—————Node:" Text: "
+|———Node:preproc_include Text: #include "ctu_can_fd_hw.h"
+
+|————Node:#include Text: #include
+|————Node:string_literal Text: "ctu_can_fd_hw.h"
+|—————Node:" Text: "
+|—————Node:string_content Text: ctu_can_fd_hw.h
+|—————Node:" Text: "
+|———Node:} Text: }
+|—Node:preproc_call Text: #undef abs
+
+|——Node:preproc_directive Text: #undef
+|——Node:preproc_arg Text: abs
+|—Node:preproc_include Text: #include <sys/mman.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <sys/mman.h>
+|—Node:preproc_include Text: #include <stdlib.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <stdlib.h>
+|—Node:preproc_include Text: #include <stdio.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <stdio.h>
+|—Node:preproc_include Text: #include <unistd.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <unistd.h>
+|—Node:preproc_include Text: #include <fcntl.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <fcntl.h>
+|—Node:preproc_include Text: #include <string.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <string.h>
+|—Node:preproc_include Text: #include <inttypes.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <inttypes.h>
+|—Node:preproc_include Text: #include <err.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <err.h>
+|—Node:comment
+|—Node:preproc_include Text: #include <iostream>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <iostream>
+|—Node:preproc_def Text: #define CANFD_ADDR_BASE    0x43C30000
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CANFD_ADDR_BASE
+|——Node:preproc_arg Text: 0x43C30000
+|—Node:preproc_def Text: #define CANFD_ADDR_RANGE   0x10000
+
+|——Node:#define Text: #define
+|——Node:identifier Text: CANFD_ADDR_RANGE
+|——Node:preproc_arg Text: 0x10000
+|—Node:declaration Text: static const char *memdev = "/dev/mem";
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:type_qualifier Text: const
+|———Node:const Text: const
+|——Node:primitive_type Text: char
+|——Node:init_declarator Text: *memdev = "/dev/mem"
+|———Node:pointer_declarator Text: *memdev
+|————Node:* Text: *
+|————Node:identifier Text: memdev
+|———Node:= Text: =
+|———Node:string_literal Text: "/dev/mem"
+|————Node:" Text: "
+|————Node:string_content Text: /dev/mem
+|————Node:" Text: "
+|——Node:; Text: ;
+|—Node:declaration Text: static int mem_fd = -1;
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: int
+|——Node:init_declarator Text: mem_fd = -1
+|———Node:identifier Text: mem_fd
+|———Node:= Text: =
+|———Node:number_literal Text: -1
+|——Node:; Text: ;
+|—Node:function_definition Text: static void mem_open()
+{
+    mem_fd = open(memdev, O_RDWR|O_SYNC);
+    if (mem_fd < 0) {
+        err(1, "open memory device");
+    }
+}
+|——Node:storage_class_specifier Text: static
+|———Node:static Text: static
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: mem_open()
+|———Node:identifier Text: mem_open
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    mem_fd = open(memdev, O_RDWR|O_SYNC);
+    if (mem_fd < 0) {
+        err(1, "open memory device");
+    }
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: mem_fd = open(memdev, O_RDWR|O_SYNC);
+|————Node:assignment_expression Text: mem_fd = open(memdev, O_RDWR|O_SYNC)
+|—————Node:identifier Text: mem_fd
+|—————Node:= Text: =
+|—————Node:call_expression Text: open(memdev, O_RDWR|O_SYNC)
+|——————Node:identifier Text: open
+|——————Node:argument_list Text: (memdev, O_RDWR|O_SYNC)
+|———————Node:( Text: (
+|———————Node:identifier Text: memdev
+|———————Node:, Text: ,
+|———————Node:binary_expression Text: O_RDWR|O_SYNC
+|————————Node:identifier Text: O_RDWR
+|————————Node:| Text: |
+|————————Node:identifier Text: O_SYNC
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (mem_fd < 0) {
+        err(1, "open memory device");
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (mem_fd < 0)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: mem_fd < 0
+|——————Node:identifier Text: mem_fd
+|——————Node:< Text: <
+|——————Node:number_literal Text: 0
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        err(1, "open memory device");
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: err(1, "open memory device");
+|——————Node:call_expression Text: err(1, "open memory device")
+|———————Node:identifier Text: err
+|———————Node:argument_list Text: (1, "open memory device")
+|————————Node:( Text: (
+|————————Node:number_literal Text: 1
+|————————Node:, Text: ,
+|————————Node:string_literal Text: "open memory device"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: open memory device
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:function_definition Text: void *mem_map(unsigned long mem_start, unsigned long mem_length)
+{
+    unsigned long pagesize, mem_window_size;
+    void *mm, *mem;
+
+    //pagesize = getpagesize();
+    pagesize = sysconf(_SC_PAGESIZE);
+
+    mem_window_size = ((mem_start & (pagesize-1)) + mem_length + pagesize-1) & ~(pagesize-1);
+
+    mm = mmap(NULL, mem_window_size, PROT_WRITE|PROT_READ,
+              MAP_SHARED, mem_fd, mem_start & ~(pagesize-1));
+    mem = (char*)mm + (mem_start & (pagesize-1));
+
+    if (mm == MAP_FAILED) {
+        err(1, "mmap");
+        return NULL;
+    }
+
+    fprintf(stderr, "mmap 0x%lx -> %p\n",mem_start,mem);
+    return mem;
+}
+|——Node:primitive_type Text: void
+|——Node:pointer_declarator Text: *mem_map(unsigned long mem_start, unsigned long mem_length)
+|———Node:* Text: *
+|———Node:function_declarator Text: mem_map(unsigned long mem_start, unsigned long mem_length)
+|————Node:identifier Text: mem_map
+|————Node:parameter_list Text: (unsigned long mem_start, unsigned long mem_length)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: unsigned long mem_start
+|——————Node:sized_type_specifier Text: unsigned long
+|———————Node:unsigned Text: unsigned
+|———————Node:long Text: long
+|——————Node:identifier Text: mem_start
+|—————Node:, Text: ,
+|—————Node:parameter_declaration Text: unsigned long mem_length
+|——————Node:sized_type_specifier Text: unsigned long
+|———————Node:unsigned Text: unsigned
+|———————Node:long Text: long
+|——————Node:identifier Text: mem_length
+|—————Node:) Text: )
+|——Node:compound_statement Text: {
+    unsigned long pagesize, mem_window_size;
+    void *mm, *mem;
+
+    //pagesize = getpagesize();
+    pagesize = sysconf(_SC_PAGESIZE);
+
+    mem_window_size = ((mem_start & (pagesize-1)) + mem_length + pagesize-1) & ~(pagesize-1);
+
+    mm = mmap(NULL, mem_window_size, PROT_WRITE|PROT_READ,
+              MAP_SHARED, mem_fd, mem_start & ~(pagesize-1));
+    mem = (char*)mm + (mem_start & (pagesize-1));
+
+    if (mm == MAP_FAILED) {
+        err(1, "mmap");
+        return NULL;
+    }
+
+    fprintf(stderr, "mmap 0x%lx -> %p\n",mem_start,mem);
+    return mem;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: unsigned long pagesize, mem_window_size;
+|————Node:sized_type_specifier Text: unsigned long
+|—————Node:unsigned Text: unsigned
+|—————Node:long Text: long
+|————Node:identifier Text: pagesize
+|————Node:, Text: ,
+|————Node:identifier Text: mem_window_size
+|————Node:; Text: ;
+|———Node:declaration Text: void *mm, *mem;
+|————Node:primitive_type Text: void
+|————Node:pointer_declarator Text: *mm
+|—————Node:* Text: *
+|—————Node:identifier Text: mm
+|————Node:, Text: ,
+|————Node:pointer_declarator Text: *mem
+|—————Node:* Text: *
+|—————Node:identifier Text: mem
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: pagesize = sysconf(_SC_PAGESIZE);
+|————Node:assignment_expression Text: pagesize = sysconf(_SC_PAGESIZE)
+|—————Node:identifier Text: pagesize
+|—————Node:= Text: =
+|—————Node:call_expression Text: sysconf(_SC_PAGESIZE)
+|——————Node:identifier Text: sysconf
+|——————Node:argument_list Text: (_SC_PAGESIZE)
+|———————Node:( Text: (
+|———————Node:identifier Text: _SC_PAGESIZE
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: mem_window_size = ((mem_start & (pagesize-1)) + mem_length + pagesize-1) & ~(pagesize-1);
+|————Node:assignment_expression Text: mem_window_size = ((mem_start & (pagesize-1)) + mem_length + pagesize-1) & ~(pagesize-1)
+|—————Node:identifier Text: mem_window_size
+|—————Node:= Text: =
+|—————Node:binary_expression Text: ((mem_start & (pagesize-1)) + mem_length + pagesize-1) & ~(pagesize-1)
+|——————Node:parenthesized_expression Text: ((mem_start & (pagesize-1)) + mem_length + pagesize-1)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: (mem_start & (pagesize-1)) + mem_length + pagesize-1
+|————————Node:binary_expression Text: (mem_start & (pagesize-1)) + mem_length + pagesize
+|—————————Node:binary_expression Text: (mem_start & (pagesize-1)) + mem_length
+|——————————Node:parenthesized_expression Text: (mem_start & (pagesize-1))
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: mem_start & (pagesize-1)
+|————————————Node:identifier Text: mem_start
+|————————————Node:& Text: &
+|————————————Node:parenthesized_expression Text: (pagesize-1)
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: pagesize-1
+|——————————————Node:identifier Text: pagesize
+|——————————————Node:- Text: -
+|——————————————Node:number_literal Text: 1
+|—————————————Node:) Text: )
+|———————————Node:) Text: )
+|——————————Node:+ Text: +
+|——————————Node:identifier Text: mem_length
+|—————————Node:+ Text: +
+|—————————Node:identifier Text: pagesize
+|————————Node:- Text: -
+|————————Node:number_literal Text: 1
+|———————Node:) Text: )
+|——————Node:& Text: &
+|——————Node:unary_expression Text: ~(pagesize-1)
+|———————Node:~ Text: ~
+|———————Node:parenthesized_expression Text: (pagesize-1)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: pagesize-1
+|—————————Node:identifier Text: pagesize
+|—————————Node:- Text: -
+|—————————Node:number_literal Text: 1
+|————————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: mm = mmap(NULL, mem_window_size, PROT_WRITE|PROT_READ,
+              MAP_SHARED, mem_fd, mem_start & ~(pagesize-1));
+|————Node:assignment_expression Text: mm = mmap(NULL, mem_window_size, PROT_WRITE|PROT_READ,
+              MAP_SHARED, mem_fd, mem_start & ~(pagesize-1))
+|—————Node:identifier Text: mm
+|—————Node:= Text: =
+|—————Node:call_expression Text: mmap(NULL, mem_window_size, PROT_WRITE|PROT_READ,
+              MAP_SHARED, mem_fd, mem_start & ~(pagesize-1))
+|——————Node:identifier Text: mmap
+|——————Node:argument_list Text: (NULL, mem_window_size, PROT_WRITE|PROT_READ,
+              MAP_SHARED, mem_fd, mem_start & ~(pagesize-1))
+|———————Node:( Text: (
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|———————Node:, Text: ,
+|———————Node:identifier Text: mem_window_size
+|———————Node:, Text: ,
+|———————Node:binary_expression Text: PROT_WRITE|PROT_READ
+|————————Node:identifier Text: PROT_WRITE
+|————————Node:| Text: |
+|————————Node:identifier Text: PROT_READ
+|———————Node:, Text: ,
+|———————Node:identifier Text: MAP_SHARED
+|———————Node:, Text: ,
+|———————Node:identifier Text: mem_fd
+|———————Node:, Text: ,
+|———————Node:binary_expression Text: mem_start & ~(pagesize-1)
+|————————Node:identifier Text: mem_start
+|————————Node:& Text: &
+|————————Node:unary_expression Text: ~(pagesize-1)
+|—————————Node:~ Text: ~
+|—————————Node:parenthesized_expression Text: (pagesize-1)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: pagesize-1
+|———————————Node:identifier Text: pagesize
+|———————————Node:- Text: -
+|———————————Node:number_literal Text: 1
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: mem = (char*)mm + (mem_start & (pagesize-1));
+|————Node:assignment_expression Text: mem = (char*)mm + (mem_start & (pagesize-1))
+|—————Node:identifier Text: mem
+|—————Node:= Text: =
+|—————Node:binary_expression Text: (char*)mm + (mem_start & (pagesize-1))
+|——————Node:cast_expression Text: (char*)mm
+|———————Node:( Text: (
+|———————Node:type_descriptor Text: char*
+|————————Node:primitive_type Text: char
+|————————Node:abstract_pointer_declarator Text: *
+|—————————Node:* Text: *
+|———————Node:) Text: )
+|———————Node:identifier Text: mm
+|——————Node:+ Text: +
+|——————Node:parenthesized_expression Text: (mem_start & (pagesize-1))
+|———————Node:( Text: (
+|———————Node:binary_expression Text: mem_start & (pagesize-1)
+|————————Node:identifier Text: mem_start
+|————————Node:& Text: &
+|————————Node:parenthesized_expression Text: (pagesize-1)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: pagesize-1
+|——————————Node:identifier Text: pagesize
+|——————————Node:- Text: -
+|——————————Node:number_literal Text: 1
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (mm == MAP_FAILED) {
+        err(1, "mmap");
+        return NULL;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (mm == MAP_FAILED)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: mm == MAP_FAILED
+|——————Node:identifier Text: mm
+|——————Node:== Text: ==
+|——————Node:identifier Text: MAP_FAILED
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        err(1, "mmap");
+        return NULL;
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: err(1, "mmap");
+|——————Node:call_expression Text: err(1, "mmap")
+|———————Node:identifier Text: err
+|———————Node:argument_list Text: (1, "mmap")
+|————————Node:( Text: (
+|————————Node:number_literal Text: 1
+|————————Node:, Text: ,
+|————————Node:string_literal Text: "mmap"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: mmap
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return NULL;
+|——————Node:return Text: return
+|——————Node:null Text: NULL
+|———————Node:NULL Text: NULL
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: fprintf(stderr, "mmap 0x%lx -> %p\n",mem_start,mem);
+|————Node:call_expression Text: fprintf(stderr, "mmap 0x%lx -> %p\n",mem_start,mem)
+|—————Node:identifier Text: fprintf
+|—————Node:argument_list Text: (stderr, "mmap 0x%lx -> %p\n",mem_start,mem)
+|——————Node:( Text: (
+|——————Node:identifier Text: stderr
+|——————Node:, Text: ,
+|——————Node:string_literal Text: "mmap 0x%lx -> %p\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: mmap 0x%lx -> %p
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:identifier Text: mem_start
+|——————Node:, Text: ,
+|——————Node:identifier Text: mem
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return mem;
+|————Node:return Text: return
+|————Node:identifier Text: mem
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: unsigned ctu_can_fd_read8(struct ctucanfd_priv *priv, enum ctu_can_fd_regs reg) {
+    return priv->read_reg(priv, (enum ctu_can_fd_regs)(reg & ~3)) >> (8 * (reg & 3));
+}
+|——Node:sized_type_specifier Text: unsigned
+|———Node:unsigned Text: unsigned
+|——Node:function_declarator Text: ctu_can_fd_read8(struct ctucanfd_priv *priv, enum ctu_can_fd_regs reg)
+|———Node:identifier Text: ctu_can_fd_read8
+|———Node:parameter_list Text: (struct ctucanfd_priv *priv, enum ctu_can_fd_regs reg)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct ctucanfd_priv *priv
+|—————Node:struct_specifier Text: struct ctucanfd_priv
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: ctucanfd_priv
+|—————Node:pointer_declarator Text: *priv
+|——————Node:* Text: *
+|——————Node:identifier Text: priv
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: enum ctu_can_fd_regs reg
+|—————Node:enum_specifier Text: enum ctu_can_fd_regs
+|——————Node:enum Text: enum
+|——————Node:type_identifier Text: ctu_can_fd_regs
+|—————Node:identifier Text: reg
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    return priv->read_reg(priv, (enum ctu_can_fd_regs)(reg & ~3)) >> (8 * (reg & 3));
+}
+|———Node:{ Text: {
+|———Node:return_statement Text: return priv->read_reg(priv, (enum ctu_can_fd_regs)(reg & ~3)) >> (8 * (reg & 3));
+|————Node:return Text: return
+|————Node:binary_expression Text: priv->read_reg(priv, (enum ctu_can_fd_regs)(reg & ~3)) >> (8 * (reg & 3))
+|—————Node:call_expression Text: priv->read_reg(priv, (enum ctu_can_fd_regs)(reg & ~3))
+|——————Node:field_expression Text: priv->read_reg
+|———————Node:identifier Text: priv
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: read_reg
+|——————Node:argument_list Text: (priv, (enum ctu_can_fd_regs)(reg & ~3))
+|———————Node:( Text: (
+|———————Node:identifier Text: priv
+|———————Node:, Text: ,
+|———————Node:cast_expression Text: (enum ctu_can_fd_regs)(reg & ~3)
+|————————Node:( Text: (
+|————————Node:type_descriptor Text: enum ctu_can_fd_regs
+|—————————Node:enum_specifier Text: enum ctu_can_fd_regs
+|——————————Node:enum Text: enum
+|——————————Node:type_identifier Text: ctu_can_fd_regs
+|————————Node:) Text: )
+|————————Node:parenthesized_expression Text: (reg & ~3)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: reg & ~3
+|——————————Node:identifier Text: reg
+|——————————Node:& Text: &
+|——————————Node:unary_expression Text: ~3
+|———————————Node:~ Text: ~
+|———————————Node:number_literal Text: 3
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|—————Node:>> Text: >>
+|—————Node:parenthesized_expression Text: (8 * (reg & 3))
+|——————Node:( Text: (
+|——————Node:binary_expression Text: 8 * (reg & 3)
+|———————Node:number_literal Text: 8
+|———————Node:* Text: *
+|———————Node:parenthesized_expression Text: (reg & 3)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: reg & 3
+|—————————Node:identifier Text: reg
+|—————————Node:& Text: &
+|—————————Node:number_literal Text: 3
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:function_definition Text: unsigned ctu_can_fd_read16(struct ctucanfd_priv *priv, enum ctu_can_fd_regs reg) {
+    return priv->read_reg(priv, (enum ctu_can_fd_regs)(reg & ~1)) >> (8 * (reg & 1));
+}
+|——Node:sized_type_specifier Text: unsigned
+|———Node:unsigned Text: unsigned
+|——Node:function_declarator Text: ctu_can_fd_read16(struct ctucanfd_priv *priv, enum ctu_can_fd_regs reg)
+|———Node:identifier Text: ctu_can_fd_read16
+|———Node:parameter_list Text: (struct ctucanfd_priv *priv, enum ctu_can_fd_regs reg)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: struct ctucanfd_priv *priv
+|—————Node:struct_specifier Text: struct ctucanfd_priv
+|——————Node:struct Text: struct
+|——————Node:type_identifier Text: ctucanfd_priv
+|—————Node:pointer_declarator Text: *priv
+|——————Node:* Text: *
+|——————Node:identifier Text: priv
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: enum ctu_can_fd_regs reg
+|—————Node:enum_specifier Text: enum ctu_can_fd_regs
+|——————Node:enum Text: enum
+|——————Node:type_identifier Text: ctu_can_fd_regs
+|—————Node:identifier Text: reg
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    return priv->read_reg(priv, (enum ctu_can_fd_regs)(reg & ~1)) >> (8 * (reg & 1));
+}
+|———Node:{ Text: {
+|———Node:return_statement Text: return priv->read_reg(priv, (enum ctu_can_fd_regs)(reg & ~1)) >> (8 * (reg & 1));
+|————Node:return Text: return
+|————Node:binary_expression Text: priv->read_reg(priv, (enum ctu_can_fd_regs)(reg & ~1)) >> (8 * (reg & 1))
+|—————Node:call_expression Text: priv->read_reg(priv, (enum ctu_can_fd_regs)(reg & ~1))
+|——————Node:field_expression Text: priv->read_reg
+|———————Node:identifier Text: priv
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: read_reg
+|——————Node:argument_list Text: (priv, (enum ctu_can_fd_regs)(reg & ~1))
+|———————Node:( Text: (
+|———————Node:identifier Text: priv
+|———————Node:, Text: ,
+|———————Node:cast_expression Text: (enum ctu_can_fd_regs)(reg & ~1)
+|————————Node:( Text: (
+|————————Node:type_descriptor Text: enum ctu_can_fd_regs
+|—————————Node:enum_specifier Text: enum ctu_can_fd_regs
+|——————————Node:enum Text: enum
+|——————————Node:type_identifier Text: ctu_can_fd_regs
+|————————Node:) Text: )
+|————————Node:parenthesized_expression Text: (reg & ~1)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: reg & ~1
+|——————————Node:identifier Text: reg
+|——————————Node:& Text: &
+|——————————Node:unary_expression Text: ~1
+|———————————Node:~ Text: ~
+|———————————Node:number_literal Text: 1
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|—————Node:>> Text: >>
+|—————Node:parenthesized_expression Text: (8 * (reg & 1))
+|——————Node:( Text: (
+|——————Node:binary_expression Text: 8 * (reg & 1)
+|———————Node:number_literal Text: 8
+|———————Node:* Text: *
+|———————Node:parenthesized_expression Text: (reg & 1)
+|————————Node:( Text: (
+|————————Node:binary_expression Text: reg & 1
+|—————————Node:identifier Text: reg
+|—————————Node:& Text: &
+|—————————Node:number_literal Text: 1
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int main(int argc, char *argv[])
+{
+    uint32_t addr_base;
+    unsigned ifc = 0;
+    bool do_transmit = false;
+    //bool do_showhelp = false;
+
+    int c;
+    char *e;
+    const char *progname = argv[0];
+    while ((c = getopt(argc, argv, "i:th")) != -1) {
+        switch (c) {
+            case 'i':
+                ifc = strtoul(optarg, &e, 0);
+                if (*e != '\0')
+                    err(1, "-i expects a number");
+            break;
+            case 't': do_transmit = true; break;
+            case 'h':
+                printf("Usage: %s [-i ifc] [-t]\n\n"
+                       "  -t: Transmit\n",
+                       progname
+                );
+                return 0;
+        }
+    }
+/*
+    using namespace clara;
+    auto cli = //Opt(addr_base, "addr_base")
+               //    ["-A"]["--addr_base"]("CAN FD registers base address")
+               Opt(ifc, "ifc") ["-i"]("CAN FD interface number")
+             | Opt(do_transmit)
+                   ["-t"]("Do transmit")
+             | Help(do_showhelp)
+             ;
+             std::cout << "IFC:" << ifc << std::endl;
+
+    auto result = cli.parse(Args(argc, argv));
+
+    if (!result) {
+        std::cerr << "Error in command line: " << result.errorMessage() << std::endl;
+        exit(1);
+    }
+    if (do_showhelp) {
+        std::cout << cli;
+        return 0;
+    }
+*/
+    static const uint32_t addrs[] = {0x43C30000, 0x43C70000};
+    if (ifc >= 2) {
+        std::cerr << "Err: ifc number must be 0 or 1.\n";
+        exit(1);
+    }
+    addr_base = addrs[ifc];
+
+    mem_open();
+
+
+
+    volatile void * const base = mem_map(addr_base, CANFD_ADDR_RANGE);
+    struct ctucanfd_priv _p, *priv = &_p;
+    int res;
+
+    priv->mem_base = base;
+    priv->read_reg = ctu_can_fd_read32;
+    priv->write_reg = ctu_can_fd_write32;
+
+    union ctu_can_fd_device_id_version reg;
+    reg.u32 = priv->read_reg(priv, CTU_CAN_FD_DEVICE_ID);
+
+    printf("DevID: 0x%08x, should be 0x%08x\n", reg.s.device_id, CTU_CAN_FD_ID);
+
+    if (!ctu_can_fd_check_access(priv))
+        errx(1, "error: ctu_can_fd_check_access");
+
+    u32 version = ctu_can_fd_get_version(priv);
+    printf("Core version: %u\n", version);
+
+    //struct can_ctrlmode ctrlmode = {CAN_CTRLMODE_FD, CAN_CTRLMODE_FD};
+    //ctu_can_fd_set_mode(priv, &ctrlmode);
+
+
+
+    //printf("NOT RESETTING!\n");
+    ctu_can_fd_reset(priv);
+
+    {
+        union ctu_can_fd_mode_command_status_settings mode;
+        mode.u32 = priv->read_reg(priv, CTU_CAN_FD_MODE);
+
+        if (mode.s.ena) {
+            printf("Core is enabled but should be disabled!\n");
+        }
+    }
+
+    struct net_device nd;
+    nd.can.clock.freq = 100000000;
+
+    struct can_bittiming nom_timing = {
+        .bitrate = 1000000,
+    };
+    res = can_get_bittiming(&nd, &nom_timing,
+                      &ctu_can_fd_bit_timing_max,
+                      NULL,
+                      0);
+    if (res)
+        err(res, "can_get_bittiming");
+    printf("sample_point .%03d, tq %d, prop %d, seg1 %d, seg2 %d, sjw %d, brp %d, bitrate %d\n",
+           nom_timing.sample_point,
+           nom_timing.tq,
+           nom_timing.prop_seg,
+           nom_timing.phase_seg1,
+           nom_timing.phase_seg2,
+           nom_timing.sjw,
+           nom_timing.brp,
+           nom_timing.bitrate
+    );
+
+    priv->write_reg(priv, CTU_CAN_FD_INT_MASK_CLR, 0xffff);
+    priv->write_reg(priv, CTU_CAN_FD_INT_ENA_SET, 0xffff);
+    ctu_can_fd_set_nom_bittiming(priv, &nom_timing);
+    ctu_can_fd_rel_rx_buf(priv);
+    //ctu_can_fd_set_ret_limit(priv, true, 1);
+    ctu_can_fd_set_ret_limit(priv, false, 0);
+    ctu_can_fd_abort_tx(priv);
+    ctu_can_fd_txt_set_abort(priv, CTU_CAN_FD_TXT_BUFFER_1);
+    ctu_can_fd_txt_set_empty(priv, CTU_CAN_FD_TXT_BUFFER_1);
+    ctu_can_fd_enable(priv, true);
+    usleep(10000);
+
+
+    if (do_transmit) {
+        struct canfd_frame txf;
+        txf.can_id = 0x1FF;
+        txf.flags = 0;
+        //u8 d[] = {0xde, 0xad, 0xbe, 0xef};
+        u8 d[] = {0xDE, 0xAD, 0xBE, 0xEF};
+        memcpy(txf.data, d, sizeof(d));
+        txf.len = sizeof(d);
+
+        res = ctu_can_fd_insert_frame(priv, &txf, 0, CTU_CAN_FD_TXT_BUFFER_1, false);
+        if (!res)
+            printf("TX failed\n");
+        ctu_can_fd_txt_set_rdy(priv, CTU_CAN_FD_TXT_BUFFER_1);
+        return 0;
+    }
+
+    while (1) {
+        u32 nrxf = ctu_can_fd_get_rx_frame_count(priv);//ctu_can_fd_get_rx_frame_ctr(priv);
+        union ctu_can_fd_rx_mem_info reg;
+        reg.u32 = ctu_can_fd_read32(priv, CTU_CAN_FD_RX_MEM_INFO);
+        u32 rxsz = reg.s.rx_buff_size - reg.s.rx_mem_free;
+
+        printf("%u RX frames, %u words", nrxf, rxsz);
+        printf(", status 0x%02hhx", ctu_can_fd_read8(priv, CTU_CAN_FD_STATUS));
+        printf(", settings 0x%02hhx", ctu_can_fd_read8(priv, CTU_CAN_FD_SETTINGS));
+        printf(", INT_STAT 0x%04hhx", ctu_can_fd_read16(priv, CTU_CAN_FD_INT_STAT));
+        printf(", CTU_CAN_FD_INT_ENA_SET 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_INT_ENA_SET));
+        printf(", CTU_CAN_FD_INT_MASK_SET 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_INT_MASK_SET));
+        printf(", CTU_CAN_FD_TX_STATUS 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_TX_STATUS));
+        //printf(", CTU_CAN_FD_ERR_CAPT 0x%02hhx", ctu_can_fd_read8(priv, CTU_CAN_FD_ERR_CAPT));
+
+
+        printf("\n");
+        /*
+        while (rxsz--) {
+            u32 data = priv->read_reg(priv, CTU_CAN_FD_RX_DATA);
+            printf("  0x%08x\n", data);
+        }
+        */
+        if (nrxf || rxsz) {
+            struct canfd_frame cf;
+            u64 ts;
+            ctu_can_fd_read_rx_frame(priv, &cf, &ts);
+            printf("%llu: #%x [%u]", ts, cf.can_id, cf.len);
+            for (int i=0; i<cf.len; ++i)
+                printf(" %02x", cf.data[i]);
+            printf("\n");
+        }
+
+        usleep(1000000);
+    }
+
+    return 0;
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: main(int argc, char *argv[])
+|———Node:identifier Text: main
+|———Node:parameter_list Text: (int argc, char *argv[])
+|————Node:( Text: (
+|————Node:parameter_declaration Text: int argc
+|—————Node:primitive_type Text: int
+|—————Node:identifier Text: argc
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: char *argv[]
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: *argv[]
+|——————Node:* Text: *
+|——————Node:array_declarator Text: argv[]
+|———————Node:identifier Text: argv
+|———————Node:[ Text: [
+|———————Node:] Text: ]
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    uint32_t addr_base;
+    unsigned ifc = 0;
+    bool do_transmit = false;
+    //bool do_showhelp = false;
+
+    int c;
+    char *e;
+    const char *progname = argv[0];
+    while ((c = getopt(argc, argv, "i:th")) != -1) {
+        switch (c) {
+            case 'i':
+                ifc = strtoul(optarg, &e, 0);
+                if (*e != '\0')
+                    err(1, "-i expects a number");
+            break;
+            case 't': do_transmit = true; break;
+            case 'h':
+                printf("Usage: %s [-i ifc] [-t]\n\n"
+                       "  -t: Transmit\n",
+                       progname
+                );
+                return 0;
+        }
+    }
+/*
+    using namespace clara;
+    auto cli = //Opt(addr_base, "addr_base")
+               //    ["-A"]["--addr_base"]("CAN FD registers base address")
+               Opt(ifc, "ifc") ["-i"]("CAN FD interface number")
+             | Opt(do_transmit)
+                   ["-t"]("Do transmit")
+             | Help(do_showhelp)
+             ;
+             std::cout << "IFC:" << ifc << std::endl;
+
+    auto result = cli.parse(Args(argc, argv));
+
+    if (!result) {
+        std::cerr << "Error in command line: " << result.errorMessage() << std::endl;
+        exit(1);
+    }
+    if (do_showhelp) {
+        std::cout << cli;
+        return 0;
+    }
+*/
+    static const uint32_t addrs[] = {0x43C30000, 0x43C70000};
+    if (ifc >= 2) {
+        std::cerr << "Err: ifc number must be 0 or 1.\n";
+        exit(1);
+    }
+    addr_base = addrs[ifc];
+
+    mem_open();
+
+
+
+    volatile void * const base = mem_map(addr_base, CANFD_ADDR_RANGE);
+    struct ctucanfd_priv _p, *priv = &_p;
+    int res;
+
+    priv->mem_base = base;
+    priv->read_reg = ctu_can_fd_read32;
+    priv->write_reg = ctu_can_fd_write32;
+
+    union ctu_can_fd_device_id_version reg;
+    reg.u32 = priv->read_reg(priv, CTU_CAN_FD_DEVICE_ID);
+
+    printf("DevID: 0x%08x, should be 0x%08x\n", reg.s.device_id, CTU_CAN_FD_ID);
+
+    if (!ctu_can_fd_check_access(priv))
+        errx(1, "error: ctu_can_fd_check_access");
+
+    u32 version = ctu_can_fd_get_version(priv);
+    printf("Core version: %u\n", version);
+
+    //struct can_ctrlmode ctrlmode = {CAN_CTRLMODE_FD, CAN_CTRLMODE_FD};
+    //ctu_can_fd_set_mode(priv, &ctrlmode);
+
+
+
+    //printf("NOT RESETTING!\n");
+    ctu_can_fd_reset(priv);
+
+    {
+        union ctu_can_fd_mode_command_status_settings mode;
+        mode.u32 = priv->read_reg(priv, CTU_CAN_FD_MODE);
+
+        if (mode.s.ena) {
+            printf("Core is enabled but should be disabled!\n");
+        }
+    }
+
+    struct net_device nd;
+    nd.can.clock.freq = 100000000;
+
+    struct can_bittiming nom_timing = {
+        .bitrate = 1000000,
+    };
+    res = can_get_bittiming(&nd, &nom_timing,
+                      &ctu_can_fd_bit_timing_max,
+                      NULL,
+                      0);
+    if (res)
+        err(res, "can_get_bittiming");
+    printf("sample_point .%03d, tq %d, prop %d, seg1 %d, seg2 %d, sjw %d, brp %d, bitrate %d\n",
+           nom_timing.sample_point,
+           nom_timing.tq,
+           nom_timing.prop_seg,
+           nom_timing.phase_seg1,
+           nom_timing.phase_seg2,
+           nom_timing.sjw,
+           nom_timing.brp,
+           nom_timing.bitrate
+    );
+
+    priv->write_reg(priv, CTU_CAN_FD_INT_MASK_CLR, 0xffff);
+    priv->write_reg(priv, CTU_CAN_FD_INT_ENA_SET, 0xffff);
+    ctu_can_fd_set_nom_bittiming(priv, &nom_timing);
+    ctu_can_fd_rel_rx_buf(priv);
+    //ctu_can_fd_set_ret_limit(priv, true, 1);
+    ctu_can_fd_set_ret_limit(priv, false, 0);
+    ctu_can_fd_abort_tx(priv);
+    ctu_can_fd_txt_set_abort(priv, CTU_CAN_FD_TXT_BUFFER_1);
+    ctu_can_fd_txt_set_empty(priv, CTU_CAN_FD_TXT_BUFFER_1);
+    ctu_can_fd_enable(priv, true);
+    usleep(10000);
+
+
+    if (do_transmit) {
+        struct canfd_frame txf;
+        txf.can_id = 0x1FF;
+        txf.flags = 0;
+        //u8 d[] = {0xde, 0xad, 0xbe, 0xef};
+        u8 d[] = {0xDE, 0xAD, 0xBE, 0xEF};
+        memcpy(txf.data, d, sizeof(d));
+        txf.len = sizeof(d);
+
+        res = ctu_can_fd_insert_frame(priv, &txf, 0, CTU_CAN_FD_TXT_BUFFER_1, false);
+        if (!res)
+            printf("TX failed\n");
+        ctu_can_fd_txt_set_rdy(priv, CTU_CAN_FD_TXT_BUFFER_1);
+        return 0;
+    }
+
+    while (1) {
+        u32 nrxf = ctu_can_fd_get_rx_frame_count(priv);//ctu_can_fd_get_rx_frame_ctr(priv);
+        union ctu_can_fd_rx_mem_info reg;
+        reg.u32 = ctu_can_fd_read32(priv, CTU_CAN_FD_RX_MEM_INFO);
+        u32 rxsz = reg.s.rx_buff_size - reg.s.rx_mem_free;
+
+        printf("%u RX frames, %u words", nrxf, rxsz);
+        printf(", status 0x%02hhx", ctu_can_fd_read8(priv, CTU_CAN_FD_STATUS));
+        printf(", settings 0x%02hhx", ctu_can_fd_read8(priv, CTU_CAN_FD_SETTINGS));
+        printf(", INT_STAT 0x%04hhx", ctu_can_fd_read16(priv, CTU_CAN_FD_INT_STAT));
+        printf(", CTU_CAN_FD_INT_ENA_SET 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_INT_ENA_SET));
+        printf(", CTU_CAN_FD_INT_MASK_SET 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_INT_MASK_SET));
+        printf(", CTU_CAN_FD_TX_STATUS 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_TX_STATUS));
+        //printf(", CTU_CAN_FD_ERR_CAPT 0x%02hhx", ctu_can_fd_read8(priv, CTU_CAN_FD_ERR_CAPT));
+
+
+        printf("\n");
+        /*
+        while (rxsz--) {
+            u32 data = priv->read_reg(priv, CTU_CAN_FD_RX_DATA);
+            printf("  0x%08x\n", data);
+        }
+        */
+        if (nrxf || rxsz) {
+            struct canfd_frame cf;
+            u64 ts;
+            ctu_can_fd_read_rx_frame(priv, &cf, &ts);
+            printf("%llu: #%x [%u]", ts, cf.can_id, cf.len);
+            for (int i=0; i<cf.len; ++i)
+                printf(" %02x", cf.data[i]);
+            printf("\n");
+        }
+
+        usleep(1000000);
+    }
+
+    return 0;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: uint32_t addr_base;
+|————Node:primitive_type Text: uint32_t
+|————Node:identifier Text: addr_base
+|————Node:; Text: ;
+|———Node:declaration Text: unsigned ifc = 0;
+|————Node:sized_type_specifier Text: unsigned
+|—————Node:unsigned Text: unsigned
+|————Node:init_declarator Text: ifc = 0
+|—————Node:identifier Text: ifc
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:declaration Text: bool do_transmit = false;
+|————Node:primitive_type Text: bool
+|————Node:init_declarator Text: do_transmit = false
+|—————Node:identifier Text: do_transmit
+|—————Node:= Text: =
+|—————Node:false Text: false
+|————Node:; Text: ;
+|———Node:comment
+|———Node:declaration Text: int c;
+|————Node:primitive_type Text: int
+|————Node:identifier Text: c
+|————Node:; Text: ;
+|———Node:declaration Text: char *e;
+|————Node:primitive_type Text: char
+|————Node:pointer_declarator Text: *e
+|—————Node:* Text: *
+|—————Node:identifier Text: e
+|————Node:; Text: ;
+|———Node:declaration Text: const char *progname = argv[0];
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:primitive_type Text: char
+|————Node:init_declarator Text: *progname = argv[0]
+|—————Node:pointer_declarator Text: *progname
+|——————Node:* Text: *
+|——————Node:identifier Text: progname
+|—————Node:= Text: =
+|—————Node:subscript_expression Text: argv[0]
+|——————Node:identifier Text: argv
+|——————Node:subscript_argument_list Text: [0]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 0
+|———————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:while_statement Text: while ((c = getopt(argc, argv, "i:th")) != -1) {
+        switch (c) {
+            case 'i':
+                ifc = strtoul(optarg, &e, 0);
+                if (*e != '\0')
+                    err(1, "-i expects a number");
+            break;
+            case 't': do_transmit = true; break;
+            case 'h':
+                printf("Usage: %s [-i ifc] [-t]\n\n"
+                       "  -t: Transmit\n",
+                       progname
+                );
+                return 0;
+        }
+    }
+|————Node:while Text: while
+|————Node:condition_clause Text: ((c = getopt(argc, argv, "i:th")) != -1)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: (c = getopt(argc, argv, "i:th")) != -1
+|——————Node:parenthesized_expression Text: (c = getopt(argc, argv, "i:th"))
+|———————Node:( Text: (
+|———————Node:assignment_expression Text: c = getopt(argc, argv, "i:th")
+|————————Node:identifier Text: c
+|————————Node:= Text: =
+|————————Node:call_expression Text: getopt(argc, argv, "i:th")
+|—————————Node:identifier Text: getopt
+|—————————Node:argument_list Text: (argc, argv, "i:th")
+|——————————Node:( Text: (
+|——————————Node:identifier Text: argc
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: argv
+|——————————Node:, Text: ,
+|——————————Node:string_literal Text: "i:th"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: i:th
+|———————————Node:" Text: "
+|——————————Node:) Text: )
+|———————Node:) Text: )
+|——————Node:!= Text: !=
+|——————Node:number_literal Text: -1
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        switch (c) {
+            case 'i':
+                ifc = strtoul(optarg, &e, 0);
+                if (*e != '\0')
+                    err(1, "-i expects a number");
+            break;
+            case 't': do_transmit = true; break;
+            case 'h':
+                printf("Usage: %s [-i ifc] [-t]\n\n"
+                       "  -t: Transmit\n",
+                       progname
+                );
+                return 0;
+        }
+    }
+|—————Node:{ Text: {
+|—————Node:switch_statement Text: switch (c) {
+            case 'i':
+                ifc = strtoul(optarg, &e, 0);
+                if (*e != '\0')
+                    err(1, "-i expects a number");
+            break;
+            case 't': do_transmit = true; break;
+            case 'h':
+                printf("Usage: %s [-i ifc] [-t]\n\n"
+                       "  -t: Transmit\n",
+                       progname
+                );
+                return 0;
+        }
+|——————Node:switch Text: switch
+|——————Node:condition_clause Text: (c)
+|———————Node:( Text: (
+|———————Node:identifier Text: c
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            case 'i':
+                ifc = strtoul(optarg, &e, 0);
+                if (*e != '\0')
+                    err(1, "-i expects a number");
+            break;
+            case 't': do_transmit = true; break;
+            case 'h':
+                printf("Usage: %s [-i ifc] [-t]\n\n"
+                       "  -t: Transmit\n",
+                       progname
+                );
+                return 0;
+        }
+|———————Node:{ Text: {
+|———————Node:case_statement Text: case 'i':
+                ifc = strtoul(optarg, &e, 0);
+                if (*e != '\0')
+                    err(1, "-i expects a number");
+            break;
+|————————Node:case Text: case
+|————————Node:char_literal Text: 'i'
+|—————————Node:' Text: '
+|—————————Node:character Text: i
+|—————————Node:' Text: '
+|————————Node:: Text: :
+|————————Node:expression_statement Text: ifc = strtoul(optarg, &e, 0);
+|—————————Node:assignment_expression Text: ifc = strtoul(optarg, &e, 0)
+|——————————Node:identifier Text: ifc
+|——————————Node:= Text: =
+|——————————Node:call_expression Text: strtoul(optarg, &e, 0)
+|———————————Node:identifier Text: strtoul
+|———————————Node:argument_list Text: (optarg, &e, 0)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: optarg
+|————————————Node:, Text: ,
+|————————————Node:pointer_expression Text: &e
+|—————————————Node:& Text: &
+|—————————————Node:identifier Text: e
+|————————————Node:, Text: ,
+|————————————Node:number_literal Text: 0
+|————————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:if_statement Text: if (*e != '\0')
+                    err(1, "-i expects a number");
+|—————————Node:if Text: if
+|—————————Node:condition_clause Text: (*e != '\0')
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: *e != '\0'
+|———————————Node:pointer_expression Text: *e
+|————————————Node:* Text: *
+|————————————Node:identifier Text: e
+|———————————Node:!= Text: !=
+|———————————Node:char_literal Text: '\0'
+|————————————Node:' Text: '
+|————————————Node:escape_sequence Text: \0
+|————————————Node:' Text: '
+|——————————Node:) Text: )
+|—————————Node:expression_statement Text: err(1, "-i expects a number");
+|——————————Node:call_expression Text: err(1, "-i expects a number")
+|———————————Node:identifier Text: err
+|———————————Node:argument_list Text: (1, "-i expects a number")
+|————————————Node:( Text: (
+|————————————Node:number_literal Text: 1
+|————————————Node:, Text: ,
+|————————————Node:string_literal Text: "-i expects a number"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: -i expects a number
+|—————————————Node:" Text: "
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|————————Node:break_statement Text: break;
+|—————————Node:break Text: break
+|—————————Node:; Text: ;
+|———————Node:case_statement Text: case 't': do_transmit = true; break;
+|————————Node:case Text: case
+|————————Node:char_literal Text: 't'
+|—————————Node:' Text: '
+|—————————Node:character Text: t
+|—————————Node:' Text: '
+|————————Node:: Text: :
+|————————Node:expression_statement Text: do_transmit = true;
+|—————————Node:assignment_expression Text: do_transmit = true
+|——————————Node:identifier Text: do_transmit
+|——————————Node:= Text: =
+|——————————Node:true Text: true
+|—————————Node:; Text: ;
+|————————Node:break_statement Text: break;
+|—————————Node:break Text: break
+|—————————Node:; Text: ;
+|———————Node:case_statement Text: case 'h':
+                printf("Usage: %s [-i ifc] [-t]\n\n"
+                       "  -t: Transmit\n",
+                       progname
+                );
+                return 0;
+|————————Node:case Text: case
+|————————Node:char_literal Text: 'h'
+|—————————Node:' Text: '
+|—————————Node:character Text: h
+|—————————Node:' Text: '
+|————————Node:: Text: :
+|————————Node:expression_statement Text: printf("Usage: %s [-i ifc] [-t]\n\n"
+                       "  -t: Transmit\n",
+                       progname
+                );
+|—————————Node:call_expression Text: printf("Usage: %s [-i ifc] [-t]\n\n"
+                       "  -t: Transmit\n",
+                       progname
+                )
+|——————————Node:identifier Text: printf
+|——————————Node:argument_list Text: ("Usage: %s [-i ifc] [-t]\n\n"
+                       "  -t: Transmit\n",
+                       progname
+                )
+|———————————Node:( Text: (
+|———————————Node:concatenated_string Text: "Usage: %s [-i ifc] [-t]\n\n"
+                       "  -t: Transmit\n"
+|————————————Node:string_literal Text: "Usage: %s [-i ifc] [-t]\n\n"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text: Usage: %s [-i ifc] [-t]
+|—————————————Node:escape_sequence Text: \n
+|—————————————Node:escape_sequence Text: \n
+|—————————————Node:" Text: "
+|————————————Node:string_literal Text: "  -t: Transmit\n"
+|—————————————Node:" Text: "
+|—————————————Node:string_content Text:   -t: Transmit
+|—————————————Node:escape_sequence Text: \n
+|—————————————Node:" Text: "
+|———————————Node:, Text: ,
+|———————————Node:identifier Text: progname
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:return_statement Text: return 0;
+|—————————Node:return Text: return
+|—————————Node:number_literal Text: 0
+|—————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:comment
+|———Node:declaration Text: static const uint32_t addrs[] = {0x43C30000, 0x43C70000};
+|————Node:storage_class_specifier Text: static
+|—————Node:static Text: static
+|————Node:type_qualifier Text: const
+|—————Node:const Text: const
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: addrs[] = {0x43C30000, 0x43C70000}
+|—————Node:array_declarator Text: addrs[]
+|——————Node:identifier Text: addrs
+|——————Node:[ Text: [
+|——————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:initializer_list Text: {0x43C30000, 0x43C70000}
+|——————Node:{ Text: {
+|——————Node:number_literal Text: 0x43C30000
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0x43C70000
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:if_statement Text: if (ifc >= 2) {
+        std::cerr << "Err: ifc number must be 0 or 1.\n";
+        exit(1);
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (ifc >= 2)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: ifc >= 2
+|——————Node:identifier Text: ifc
+|——————Node:>= Text: >=
+|——————Node:number_literal Text: 2
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        std::cerr << "Err: ifc number must be 0 or 1.\n";
+        exit(1);
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: std::cerr << "Err: ifc number must be 0 or 1.\n";
+|——————Node:binary_expression Text: std::cerr << "Err: ifc number must be 0 or 1.\n"
+|———————Node:qualified_identifier Text: std::cerr
+|————————Node:namespace_identifier Text: std
+|————————Node::: Text: ::
+|————————Node:identifier Text: cerr
+|———————Node:<< Text: <<
+|———————Node:string_literal Text: "Err: ifc number must be 0 or 1.\n"
+|————————Node:" Text: "
+|————————Node:string_content Text: Err: ifc number must be 0 or 1.
+|————————Node:escape_sequence Text: \n
+|————————Node:" Text: "
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: exit(1);
+|——————Node:call_expression Text: exit(1)
+|———————Node:identifier Text: exit
+|———————Node:argument_list Text: (1)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 1
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: addr_base = addrs[ifc];
+|————Node:assignment_expression Text: addr_base = addrs[ifc]
+|—————Node:identifier Text: addr_base
+|—————Node:= Text: =
+|—————Node:subscript_expression Text: addrs[ifc]
+|——————Node:identifier Text: addrs
+|——————Node:subscript_argument_list Text: [ifc]
+|———————Node:[ Text: [
+|———————Node:identifier Text: ifc
+|———————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:expression_statement Text: mem_open();
+|————Node:call_expression Text: mem_open()
+|—————Node:identifier Text: mem_open
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: volatile void * const base = mem_map(addr_base, CANFD_ADDR_RANGE);
+|————Node:type_qualifier Text: volatile
+|—————Node:volatile Text: volatile
+|————Node:primitive_type Text: void
+|————Node:init_declarator Text: * const base = mem_map(addr_base, CANFD_ADDR_RANGE)
+|—————Node:pointer_declarator Text: * const base
+|——————Node:* Text: *
+|——————Node:type_qualifier Text: const
+|———————Node:const Text: const
+|——————Node:identifier Text: base
+|—————Node:= Text: =
+|—————Node:call_expression Text: mem_map(addr_base, CANFD_ADDR_RANGE)
+|——————Node:identifier Text: mem_map
+|——————Node:argument_list Text: (addr_base, CANFD_ADDR_RANGE)
+|———————Node:( Text: (
+|———————Node:identifier Text: addr_base
+|———————Node:, Text: ,
+|———————Node:identifier Text: CANFD_ADDR_RANGE
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:declaration Text: struct ctucanfd_priv _p, *priv = &_p;
+|————Node:struct_specifier Text: struct ctucanfd_priv
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: ctucanfd_priv
+|————Node:identifier Text: _p
+|————Node:, Text: ,
+|————Node:init_declarator Text: *priv = &_p
+|—————Node:pointer_declarator Text: *priv
+|——————Node:* Text: *
+|——————Node:identifier Text: priv
+|—————Node:= Text: =
+|—————Node:pointer_expression Text: &_p
+|——————Node:& Text: &
+|——————Node:identifier Text: _p
+|————Node:; Text: ;
+|———Node:declaration Text: int res;
+|————Node:primitive_type Text: int
+|————Node:identifier Text: res
+|————Node:; Text: ;
+|———Node:expression_statement Text: priv->mem_base = base;
+|————Node:assignment_expression Text: priv->mem_base = base
+|—————Node:field_expression Text: priv->mem_base
+|——————Node:identifier Text: priv
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: mem_base
+|—————Node:= Text: =
+|—————Node:identifier Text: base
+|————Node:; Text: ;
+|———Node:expression_statement Text: priv->read_reg = ctu_can_fd_read32;
+|————Node:assignment_expression Text: priv->read_reg = ctu_can_fd_read32
+|—————Node:field_expression Text: priv->read_reg
+|——————Node:identifier Text: priv
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: read_reg
+|—————Node:= Text: =
+|—————Node:identifier Text: ctu_can_fd_read32
+|————Node:; Text: ;
+|———Node:expression_statement Text: priv->write_reg = ctu_can_fd_write32;
+|————Node:assignment_expression Text: priv->write_reg = ctu_can_fd_write32
+|—————Node:field_expression Text: priv->write_reg
+|——————Node:identifier Text: priv
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: write_reg
+|—————Node:= Text: =
+|—————Node:identifier Text: ctu_can_fd_write32
+|————Node:; Text: ;
+|———Node:declaration Text: union ctu_can_fd_device_id_version reg;
+|————Node:union_specifier Text: union ctu_can_fd_device_id_version
+|—————Node:union Text: union
+|—————Node:type_identifier Text: ctu_can_fd_device_id_version
+|————Node:identifier Text: reg
+|————Node:; Text: ;
+|———Node:expression_statement Text: reg.u32 = priv->read_reg(priv, CTU_CAN_FD_DEVICE_ID);
+|————Node:assignment_expression Text: reg.u32 = priv->read_reg(priv, CTU_CAN_FD_DEVICE_ID)
+|—————Node:field_expression Text: reg.u32
+|——————Node:identifier Text: reg
+|——————Node:. Text: .
+|——————Node:field_identifier Text: u32
+|—————Node:= Text: =
+|—————Node:call_expression Text: priv->read_reg(priv, CTU_CAN_FD_DEVICE_ID)
+|——————Node:field_expression Text: priv->read_reg
+|———————Node:identifier Text: priv
+|———————Node:-> Text: ->
+|———————Node:field_identifier Text: read_reg
+|——————Node:argument_list Text: (priv, CTU_CAN_FD_DEVICE_ID)
+|———————Node:( Text: (
+|———————Node:identifier Text: priv
+|———————Node:, Text: ,
+|———————Node:identifier Text: CTU_CAN_FD_DEVICE_ID
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: printf("DevID: 0x%08x, should be 0x%08x\n", reg.s.device_id, CTU_CAN_FD_ID);
+|————Node:call_expression Text: printf("DevID: 0x%08x, should be 0x%08x\n", reg.s.device_id, CTU_CAN_FD_ID)
+|—————Node:identifier Text: printf
+|—————Node:argument_list Text: ("DevID: 0x%08x, should be 0x%08x\n", reg.s.device_id, CTU_CAN_FD_ID)
+|——————Node:( Text: (
+|——————Node:string_literal Text: "DevID: 0x%08x, should be 0x%08x\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: DevID: 0x%08x, should be 0x%08x
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:field_expression Text: reg.s.device_id
+|———————Node:field_expression Text: reg.s
+|————————Node:identifier Text: reg
+|————————Node:. Text: .
+|————————Node:field_identifier Text: s
+|———————Node:. Text: .
+|———————Node:field_identifier Text: device_id
+|——————Node:, Text: ,
+|——————Node:identifier Text: CTU_CAN_FD_ID
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (!ctu_can_fd_check_access(priv))
+        errx(1, "error: ctu_can_fd_check_access");
+|————Node:if Text: if
+|————Node:condition_clause Text: (!ctu_can_fd_check_access(priv))
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !ctu_can_fd_check_access(priv)
+|——————Node:! Text: !
+|——————Node:call_expression Text: ctu_can_fd_check_access(priv)
+|———————Node:identifier Text: ctu_can_fd_check_access
+|———————Node:argument_list Text: (priv)
+|————————Node:( Text: (
+|————————Node:identifier Text: priv
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:expression_statement Text: errx(1, "error: ctu_can_fd_check_access");
+|—————Node:call_expression Text: errx(1, "error: ctu_can_fd_check_access")
+|——————Node:identifier Text: errx
+|——————Node:argument_list Text: (1, "error: ctu_can_fd_check_access")
+|———————Node:( Text: (
+|———————Node:number_literal Text: 1
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "error: ctu_can_fd_check_access"
+|————————Node:" Text: "
+|————————Node:string_content Text: error: ctu_can_fd_check_access
+|————————Node:" Text: "
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:declaration Text: u32 version = ctu_can_fd_get_version(priv);
+|————Node:type_identifier Text: u32
+|————Node:init_declarator Text: version = ctu_can_fd_get_version(priv)
+|—————Node:identifier Text: version
+|—————Node:= Text: =
+|—————Node:call_expression Text: ctu_can_fd_get_version(priv)
+|——————Node:identifier Text: ctu_can_fd_get_version
+|——————Node:argument_list Text: (priv)
+|———————Node:( Text: (
+|———————Node:identifier Text: priv
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: printf("Core version: %u\n", version);
+|————Node:call_expression Text: printf("Core version: %u\n", version)
+|—————Node:identifier Text: printf
+|—————Node:argument_list Text: ("Core version: %u\n", version)
+|——————Node:( Text: (
+|——————Node:string_literal Text: "Core version: %u\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: Core version: %u
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:identifier Text: version
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: ctu_can_fd_reset(priv);
+|————Node:call_expression Text: ctu_can_fd_reset(priv)
+|—————Node:identifier Text: ctu_can_fd_reset
+|—————Node:argument_list Text: (priv)
+|——————Node:( Text: (
+|——————Node:identifier Text: priv
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:compound_statement Text: {
+        union ctu_can_fd_mode_command_status_settings mode;
+        mode.u32 = priv->read_reg(priv, CTU_CAN_FD_MODE);
+
+        if (mode.s.ena) {
+            printf("Core is enabled but should be disabled!\n");
+        }
+    }
+|————Node:{ Text: {
+|————Node:declaration Text: union ctu_can_fd_mode_command_status_settings mode;
+|—————Node:union_specifier Text: union ctu_can_fd_mode_command_status_settings
+|——————Node:union Text: union
+|——————Node:type_identifier Text: ctu_can_fd_mode_command_status_settings
+|—————Node:identifier Text: mode
+|—————Node:; Text: ;
+|————Node:expression_statement Text: mode.u32 = priv->read_reg(priv, CTU_CAN_FD_MODE);
+|—————Node:assignment_expression Text: mode.u32 = priv->read_reg(priv, CTU_CAN_FD_MODE)
+|——————Node:field_expression Text: mode.u32
+|———————Node:identifier Text: mode
+|———————Node:. Text: .
+|———————Node:field_identifier Text: u32
+|——————Node:= Text: =
+|——————Node:call_expression Text: priv->read_reg(priv, CTU_CAN_FD_MODE)
+|———————Node:field_expression Text: priv->read_reg
+|————————Node:identifier Text: priv
+|————————Node:-> Text: ->
+|————————Node:field_identifier Text: read_reg
+|———————Node:argument_list Text: (priv, CTU_CAN_FD_MODE)
+|————————Node:( Text: (
+|————————Node:identifier Text: priv
+|————————Node:, Text: ,
+|————————Node:identifier Text: CTU_CAN_FD_MODE
+|————————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:if_statement Text: if (mode.s.ena) {
+            printf("Core is enabled but should be disabled!\n");
+        }
+|—————Node:if Text: if
+|—————Node:condition_clause Text: (mode.s.ena)
+|——————Node:( Text: (
+|——————Node:field_expression Text: mode.s.ena
+|———————Node:field_expression Text: mode.s
+|————————Node:identifier Text: mode
+|————————Node:. Text: .
+|————————Node:field_identifier Text: s
+|———————Node:. Text: .
+|———————Node:field_identifier Text: ena
+|——————Node:) Text: )
+|—————Node:compound_statement Text: {
+            printf("Core is enabled but should be disabled!\n");
+        }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: printf("Core is enabled but should be disabled!\n");
+|———————Node:call_expression Text: printf("Core is enabled but should be disabled!\n")
+|————————Node:identifier Text: printf
+|————————Node:argument_list Text: ("Core is enabled but should be disabled!\n")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Core is enabled but should be disabled!\n"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Core is enabled but should be disabled!
+|——————————Node:escape_sequence Text: \n
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|————Node:} Text: }
+|———Node:declaration Text: struct net_device nd;
+|————Node:struct_specifier Text: struct net_device
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: net_device
+|————Node:identifier Text: nd
+|————Node:; Text: ;
+|———Node:expression_statement Text: nd.can.clock.freq = 100000000;
+|————Node:assignment_expression Text: nd.can.clock.freq = 100000000
+|—————Node:field_expression Text: nd.can.clock.freq
+|——————Node:field_expression Text: nd.can.clock
+|———————Node:field_expression Text: nd.can
+|————————Node:identifier Text: nd
+|————————Node:. Text: .
+|————————Node:field_identifier Text: can
+|———————Node:. Text: .
+|———————Node:field_identifier Text: clock
+|——————Node:. Text: .
+|——————Node:field_identifier Text: freq
+|—————Node:= Text: =
+|—————Node:number_literal Text: 100000000
+|————Node:; Text: ;
+|———Node:declaration Text: struct can_bittiming nom_timing = {
+        .bitrate = 1000000,
+    };
+|————Node:struct_specifier Text: struct can_bittiming
+|—————Node:struct Text: struct
+|—————Node:type_identifier Text: can_bittiming
+|————Node:init_declarator Text: nom_timing = {
+        .bitrate = 1000000,
+    }
+|—————Node:identifier Text: nom_timing
+|—————Node:= Text: =
+|—————Node:initializer_list Text: {
+        .bitrate = 1000000,
+    }
+|——————Node:{ Text: {
+|——————Node:initializer_pair Text: .bitrate = 1000000
+|———————Node:field_designator Text: .bitrate
+|————————Node:. Text: .
+|————————Node:field_identifier Text: bitrate
+|———————Node:= Text: =
+|———————Node:number_literal Text: 1000000
+|——————Node:, Text: ,
+|——————Node:} Text: }
+|————Node:; Text: ;
+|———Node:expression_statement Text: res = can_get_bittiming(&nd, &nom_timing,
+                      &ctu_can_fd_bit_timing_max,
+                      NULL,
+                      0);
+|————Node:assignment_expression Text: res = can_get_bittiming(&nd, &nom_timing,
+                      &ctu_can_fd_bit_timing_max,
+                      NULL,
+                      0)
+|—————Node:identifier Text: res
+|—————Node:= Text: =
+|—————Node:call_expression Text: can_get_bittiming(&nd, &nom_timing,
+                      &ctu_can_fd_bit_timing_max,
+                      NULL,
+                      0)
+|——————Node:identifier Text: can_get_bittiming
+|——————Node:argument_list Text: (&nd, &nom_timing,
+                      &ctu_can_fd_bit_timing_max,
+                      NULL,
+                      0)
+|———————Node:( Text: (
+|———————Node:pointer_expression Text: &nd
+|————————Node:& Text: &
+|————————Node:identifier Text: nd
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &nom_timing
+|————————Node:& Text: &
+|————————Node:identifier Text: nom_timing
+|———————Node:, Text: ,
+|———————Node:pointer_expression Text: &ctu_can_fd_bit_timing_max
+|————————Node:& Text: &
+|————————Node:identifier Text: ctu_can_fd_bit_timing_max
+|———————Node:, Text: ,
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (res)
+        err(res, "can_get_bittiming");
+|————Node:if Text: if
+|————Node:condition_clause Text: (res)
+|—————Node:( Text: (
+|—————Node:identifier Text: res
+|—————Node:) Text: )
+|————Node:expression_statement Text: err(res, "can_get_bittiming");
+|—————Node:call_expression Text: err(res, "can_get_bittiming")
+|——————Node:identifier Text: err
+|——————Node:argument_list Text: (res, "can_get_bittiming")
+|———————Node:( Text: (
+|———————Node:identifier Text: res
+|———————Node:, Text: ,
+|———————Node:string_literal Text: "can_get_bittiming"
+|————————Node:" Text: "
+|————————Node:string_content Text: can_get_bittiming
+|————————Node:" Text: "
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|———Node:expression_statement Text: printf("sample_point .%03d, tq %d, prop %d, seg1 %d, seg2 %d, sjw %d, brp %d, bitrate %d\n",
+           nom_timing.sample_point,
+           nom_timing.tq,
+           nom_timing.prop_seg,
+           nom_timing.phase_seg1,
+           nom_timing.phase_seg2,
+           nom_timing.sjw,
+           nom_timing.brp,
+           nom_timing.bitrate
+    );
+|————Node:call_expression Text: printf("sample_point .%03d, tq %d, prop %d, seg1 %d, seg2 %d, sjw %d, brp %d, bitrate %d\n",
+           nom_timing.sample_point,
+           nom_timing.tq,
+           nom_timing.prop_seg,
+           nom_timing.phase_seg1,
+           nom_timing.phase_seg2,
+           nom_timing.sjw,
+           nom_timing.brp,
+           nom_timing.bitrate
+    )
+|—————Node:identifier Text: printf
+|—————Node:argument_list Text: ("sample_point .%03d, tq %d, prop %d, seg1 %d, seg2 %d, sjw %d, brp %d, bitrate %d\n",
+           nom_timing.sample_point,
+           nom_timing.tq,
+           nom_timing.prop_seg,
+           nom_timing.phase_seg1,
+           nom_timing.phase_seg2,
+           nom_timing.sjw,
+           nom_timing.brp,
+           nom_timing.bitrate
+    )
+|——————Node:( Text: (
+|——————Node:string_literal Text: "sample_point .%03d, tq %d, prop %d, seg1 %d, seg2 %d, sjw %d, brp %d, bitrate %d\n"
+|———————Node:" Text: "
+|———————Node:string_content Text: sample_point .%03d, tq %d, prop %d, seg1 %d, seg2 %d, sjw %d, brp %d, bitrate %d
+|———————Node:escape_sequence Text: \n
+|———————Node:" Text: "
+|——————Node:, Text: ,
+|——————Node:field_expression Text: nom_timing.sample_point
+|———————Node:identifier Text: nom_timing
+|———————Node:. Text: .
+|———————Node:field_identifier Text: sample_point
+|——————Node:, Text: ,
+|——————Node:field_expression Text: nom_timing.tq
+|———————Node:identifier Text: nom_timing
+|———————Node:. Text: .
+|———————Node:field_identifier Text: tq
+|——————Node:, Text: ,
+|——————Node:field_expression Text: nom_timing.prop_seg
+|———————Node:identifier Text: nom_timing
+|———————Node:. Text: .
+|———————Node:field_identifier Text: prop_seg
+|——————Node:, Text: ,
+|——————Node:field_expression Text: nom_timing.phase_seg1
+|———————Node:identifier Text: nom_timing
+|———————Node:. Text: .
+|———————Node:field_identifier Text: phase_seg1
+|——————Node:, Text: ,
+|——————Node:field_expression Text: nom_timing.phase_seg2
+|———————Node:identifier Text: nom_timing
+|———————Node:. Text: .
+|———————Node:field_identifier Text: phase_seg2
+|——————Node:, Text: ,
+|——————Node:field_expression Text: nom_timing.sjw
+|———————Node:identifier Text: nom_timing
+|———————Node:. Text: .
+|———————Node:field_identifier Text: sjw
+|——————Node:, Text: ,
+|——————Node:field_expression Text: nom_timing.brp
+|———————Node:identifier Text: nom_timing
+|———————Node:. Text: .
+|———————Node:field_identifier Text: brp
+|——————Node:, Text: ,
+|——————Node:field_expression Text: nom_timing.bitrate
+|———————Node:identifier Text: nom_timing
+|———————Node:. Text: .
+|———————Node:field_identifier Text: bitrate
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: priv->write_reg(priv, CTU_CAN_FD_INT_MASK_CLR, 0xffff);
+|————Node:call_expression Text: priv->write_reg(priv, CTU_CAN_FD_INT_MASK_CLR, 0xffff)
+|—————Node:field_expression Text: priv->write_reg
+|——————Node:identifier Text: priv
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: write_reg
+|—————Node:argument_list Text: (priv, CTU_CAN_FD_INT_MASK_CLR, 0xffff)
+|——————Node:( Text: (
+|——————Node:identifier Text: priv
+|——————Node:, Text: ,
+|——————Node:identifier Text: CTU_CAN_FD_INT_MASK_CLR
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0xffff
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: priv->write_reg(priv, CTU_CAN_FD_INT_ENA_SET, 0xffff);
+|————Node:call_expression Text: priv->write_reg(priv, CTU_CAN_FD_INT_ENA_SET, 0xffff)
+|—————Node:field_expression Text: priv->write_reg
+|——————Node:identifier Text: priv
+|——————Node:-> Text: ->
+|——————Node:field_identifier Text: write_reg
+|—————Node:argument_list Text: (priv, CTU_CAN_FD_INT_ENA_SET, 0xffff)
+|——————Node:( Text: (
+|——————Node:identifier Text: priv
+|——————Node:, Text: ,
+|——————Node:identifier Text: CTU_CAN_FD_INT_ENA_SET
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0xffff
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ctu_can_fd_set_nom_bittiming(priv, &nom_timing);
+|————Node:call_expression Text: ctu_can_fd_set_nom_bittiming(priv, &nom_timing)
+|—————Node:identifier Text: ctu_can_fd_set_nom_bittiming
+|—————Node:argument_list Text: (priv, &nom_timing)
+|——————Node:( Text: (
+|——————Node:identifier Text: priv
+|——————Node:, Text: ,
+|——————Node:pointer_expression Text: &nom_timing
+|———————Node:& Text: &
+|———————Node:identifier Text: nom_timing
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ctu_can_fd_rel_rx_buf(priv);
+|————Node:call_expression Text: ctu_can_fd_rel_rx_buf(priv)
+|—————Node:identifier Text: ctu_can_fd_rel_rx_buf
+|—————Node:argument_list Text: (priv)
+|——————Node:( Text: (
+|——————Node:identifier Text: priv
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: ctu_can_fd_set_ret_limit(priv, false, 0);
+|————Node:call_expression Text: ctu_can_fd_set_ret_limit(priv, false, 0)
+|—————Node:identifier Text: ctu_can_fd_set_ret_limit
+|—————Node:argument_list Text: (priv, false, 0)
+|——————Node:( Text: (
+|——————Node:identifier Text: priv
+|——————Node:, Text: ,
+|——————Node:false Text: false
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ctu_can_fd_abort_tx(priv);
+|————Node:call_expression Text: ctu_can_fd_abort_tx(priv)
+|—————Node:identifier Text: ctu_can_fd_abort_tx
+|—————Node:argument_list Text: (priv)
+|——————Node:( Text: (
+|——————Node:identifier Text: priv
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ctu_can_fd_txt_set_abort(priv, CTU_CAN_FD_TXT_BUFFER_1);
+|————Node:call_expression Text: ctu_can_fd_txt_set_abort(priv, CTU_CAN_FD_TXT_BUFFER_1)
+|—————Node:identifier Text: ctu_can_fd_txt_set_abort
+|—————Node:argument_list Text: (priv, CTU_CAN_FD_TXT_BUFFER_1)
+|——————Node:( Text: (
+|——————Node:identifier Text: priv
+|——————Node:, Text: ,
+|——————Node:identifier Text: CTU_CAN_FD_TXT_BUFFER_1
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ctu_can_fd_txt_set_empty(priv, CTU_CAN_FD_TXT_BUFFER_1);
+|————Node:call_expression Text: ctu_can_fd_txt_set_empty(priv, CTU_CAN_FD_TXT_BUFFER_1)
+|—————Node:identifier Text: ctu_can_fd_txt_set_empty
+|—————Node:argument_list Text: (priv, CTU_CAN_FD_TXT_BUFFER_1)
+|——————Node:( Text: (
+|——————Node:identifier Text: priv
+|——————Node:, Text: ,
+|——————Node:identifier Text: CTU_CAN_FD_TXT_BUFFER_1
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: ctu_can_fd_enable(priv, true);
+|————Node:call_expression Text: ctu_can_fd_enable(priv, true)
+|—————Node:identifier Text: ctu_can_fd_enable
+|—————Node:argument_list Text: (priv, true)
+|——————Node:( Text: (
+|——————Node:identifier Text: priv
+|——————Node:, Text: ,
+|——————Node:true Text: true
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: usleep(10000);
+|————Node:call_expression Text: usleep(10000)
+|—————Node:identifier Text: usleep
+|—————Node:argument_list Text: (10000)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 10000
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if (do_transmit) {
+        struct canfd_frame txf;
+        txf.can_id = 0x1FF;
+        txf.flags = 0;
+        //u8 d[] = {0xde, 0xad, 0xbe, 0xef};
+        u8 d[] = {0xDE, 0xAD, 0xBE, 0xEF};
+        memcpy(txf.data, d, sizeof(d));
+        txf.len = sizeof(d);
+
+        res = ctu_can_fd_insert_frame(priv, &txf, 0, CTU_CAN_FD_TXT_BUFFER_1, false);
+        if (!res)
+            printf("TX failed\n");
+        ctu_can_fd_txt_set_rdy(priv, CTU_CAN_FD_TXT_BUFFER_1);
+        return 0;
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (do_transmit)
+|—————Node:( Text: (
+|—————Node:identifier Text: do_transmit
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        struct canfd_frame txf;
+        txf.can_id = 0x1FF;
+        txf.flags = 0;
+        //u8 d[] = {0xde, 0xad, 0xbe, 0xef};
+        u8 d[] = {0xDE, 0xAD, 0xBE, 0xEF};
+        memcpy(txf.data, d, sizeof(d));
+        txf.len = sizeof(d);
+
+        res = ctu_can_fd_insert_frame(priv, &txf, 0, CTU_CAN_FD_TXT_BUFFER_1, false);
+        if (!res)
+            printf("TX failed\n");
+        ctu_can_fd_txt_set_rdy(priv, CTU_CAN_FD_TXT_BUFFER_1);
+        return 0;
+    }
+|—————Node:{ Text: {
+|—————Node:declaration Text: struct canfd_frame txf;
+|——————Node:struct_specifier Text: struct canfd_frame
+|———————Node:struct Text: struct
+|———————Node:type_identifier Text: canfd_frame
+|——————Node:identifier Text: txf
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: txf.can_id = 0x1FF;
+|——————Node:assignment_expression Text: txf.can_id = 0x1FF
+|———————Node:field_expression Text: txf.can_id
+|————————Node:identifier Text: txf
+|————————Node:. Text: .
+|————————Node:field_identifier Text: can_id
+|———————Node:= Text: =
+|———————Node:number_literal Text: 0x1FF
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: txf.flags = 0;
+|——————Node:assignment_expression Text: txf.flags = 0
+|———————Node:field_expression Text: txf.flags
+|————————Node:identifier Text: txf
+|————————Node:. Text: .
+|————————Node:field_identifier Text: flags
+|———————Node:= Text: =
+|———————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:declaration Text: u8 d[] = {0xDE, 0xAD, 0xBE, 0xEF};
+|——————Node:type_identifier Text: u8
+|——————Node:init_declarator Text: d[] = {0xDE, 0xAD, 0xBE, 0xEF}
+|———————Node:array_declarator Text: d[]
+|————————Node:identifier Text: d
+|————————Node:[ Text: [
+|————————Node:] Text: ]
+|———————Node:= Text: =
+|———————Node:initializer_list Text: {0xDE, 0xAD, 0xBE, 0xEF}
+|————————Node:{ Text: {
+|————————Node:number_literal Text: 0xDE
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 0xAD
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 0xBE
+|————————Node:, Text: ,
+|————————Node:number_literal Text: 0xEF
+|————————Node:} Text: }
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: memcpy(txf.data, d, sizeof(d));
+|——————Node:call_expression Text: memcpy(txf.data, d, sizeof(d))
+|———————Node:identifier Text: memcpy
+|———————Node:argument_list Text: (txf.data, d, sizeof(d))
+|————————Node:( Text: (
+|————————Node:field_expression Text: txf.data
+|—————————Node:identifier Text: txf
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: data
+|————————Node:, Text: ,
+|————————Node:identifier Text: d
+|————————Node:, Text: ,
+|————————Node:sizeof_expression Text: sizeof(d)
+|—————————Node:sizeof Text: sizeof
+|—————————Node:parenthesized_expression Text: (d)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: d
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: txf.len = sizeof(d);
+|——————Node:assignment_expression Text: txf.len = sizeof(d)
+|———————Node:field_expression Text: txf.len
+|————————Node:identifier Text: txf
+|————————Node:. Text: .
+|————————Node:field_identifier Text: len
+|———————Node:= Text: =
+|———————Node:sizeof_expression Text: sizeof(d)
+|————————Node:sizeof Text: sizeof
+|————————Node:parenthesized_expression Text: (d)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: d
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: res = ctu_can_fd_insert_frame(priv, &txf, 0, CTU_CAN_FD_TXT_BUFFER_1, false);
+|——————Node:assignment_expression Text: res = ctu_can_fd_insert_frame(priv, &txf, 0, CTU_CAN_FD_TXT_BUFFER_1, false)
+|———————Node:identifier Text: res
+|———————Node:= Text: =
+|———————Node:call_expression Text: ctu_can_fd_insert_frame(priv, &txf, 0, CTU_CAN_FD_TXT_BUFFER_1, false)
+|————————Node:identifier Text: ctu_can_fd_insert_frame
+|————————Node:argument_list Text: (priv, &txf, 0, CTU_CAN_FD_TXT_BUFFER_1, false)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: priv
+|—————————Node:, Text: ,
+|—————————Node:pointer_expression Text: &txf
+|——————————Node:& Text: &
+|——————————Node:identifier Text: txf
+|—————————Node:, Text: ,
+|—————————Node:number_literal Text: 0
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: CTU_CAN_FD_TXT_BUFFER_1
+|—————————Node:, Text: ,
+|—————————Node:false Text: false
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:if_statement Text: if (!res)
+            printf("TX failed\n");
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (!res)
+|———————Node:( Text: (
+|———————Node:unary_expression Text: !res
+|————————Node:! Text: !
+|————————Node:identifier Text: res
+|———————Node:) Text: )
+|——————Node:expression_statement Text: printf("TX failed\n");
+|———————Node:call_expression Text: printf("TX failed\n")
+|————————Node:identifier Text: printf
+|————————Node:argument_list Text: ("TX failed\n")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "TX failed\n"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: TX failed
+|——————————Node:escape_sequence Text: \n
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|—————Node:expression_statement Text: ctu_can_fd_txt_set_rdy(priv, CTU_CAN_FD_TXT_BUFFER_1);
+|——————Node:call_expression Text: ctu_can_fd_txt_set_rdy(priv, CTU_CAN_FD_TXT_BUFFER_1)
+|———————Node:identifier Text: ctu_can_fd_txt_set_rdy
+|———————Node:argument_list Text: (priv, CTU_CAN_FD_TXT_BUFFER_1)
+|————————Node:( Text: (
+|————————Node:identifier Text: priv
+|————————Node:, Text: ,
+|————————Node:identifier Text: CTU_CAN_FD_TXT_BUFFER_1
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:return_statement Text: return 0;
+|——————Node:return Text: return
+|——————Node:number_literal Text: 0
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:while_statement Text: while (1) {
+        u32 nrxf = ctu_can_fd_get_rx_frame_count(priv);//ctu_can_fd_get_rx_frame_ctr(priv);
+        union ctu_can_fd_rx_mem_info reg;
+        reg.u32 = ctu_can_fd_read32(priv, CTU_CAN_FD_RX_MEM_INFO);
+        u32 rxsz = reg.s.rx_buff_size - reg.s.rx_mem_free;
+
+        printf("%u RX frames, %u words", nrxf, rxsz);
+        printf(", status 0x%02hhx", ctu_can_fd_read8(priv, CTU_CAN_FD_STATUS));
+        printf(", settings 0x%02hhx", ctu_can_fd_read8(priv, CTU_CAN_FD_SETTINGS));
+        printf(", INT_STAT 0x%04hhx", ctu_can_fd_read16(priv, CTU_CAN_FD_INT_STAT));
+        printf(", CTU_CAN_FD_INT_ENA_SET 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_INT_ENA_SET));
+        printf(", CTU_CAN_FD_INT_MASK_SET 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_INT_MASK_SET));
+        printf(", CTU_CAN_FD_TX_STATUS 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_TX_STATUS));
+        //printf(", CTU_CAN_FD_ERR_CAPT 0x%02hhx", ctu_can_fd_read8(priv, CTU_CAN_FD_ERR_CAPT));
+
+
+        printf("\n");
+        /*
+        while (rxsz--) {
+            u32 data = priv->read_reg(priv, CTU_CAN_FD_RX_DATA);
+            printf("  0x%08x\n", data);
+        }
+        */
+        if (nrxf || rxsz) {
+            struct canfd_frame cf;
+            u64 ts;
+            ctu_can_fd_read_rx_frame(priv, &cf, &ts);
+            printf("%llu: #%x [%u]", ts, cf.can_id, cf.len);
+            for (int i=0; i<cf.len; ++i)
+                printf(" %02x", cf.data[i]);
+            printf("\n");
+        }
+
+        usleep(1000000);
+    }
+|————Node:while Text: while
+|————Node:condition_clause Text: (1)
+|—————Node:( Text: (
+|—————Node:number_literal Text: 1
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        u32 nrxf = ctu_can_fd_get_rx_frame_count(priv);//ctu_can_fd_get_rx_frame_ctr(priv);
+        union ctu_can_fd_rx_mem_info reg;
+        reg.u32 = ctu_can_fd_read32(priv, CTU_CAN_FD_RX_MEM_INFO);
+        u32 rxsz = reg.s.rx_buff_size - reg.s.rx_mem_free;
+
+        printf("%u RX frames, %u words", nrxf, rxsz);
+        printf(", status 0x%02hhx", ctu_can_fd_read8(priv, CTU_CAN_FD_STATUS));
+        printf(", settings 0x%02hhx", ctu_can_fd_read8(priv, CTU_CAN_FD_SETTINGS));
+        printf(", INT_STAT 0x%04hhx", ctu_can_fd_read16(priv, CTU_CAN_FD_INT_STAT));
+        printf(", CTU_CAN_FD_INT_ENA_SET 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_INT_ENA_SET));
+        printf(", CTU_CAN_FD_INT_MASK_SET 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_INT_MASK_SET));
+        printf(", CTU_CAN_FD_TX_STATUS 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_TX_STATUS));
+        //printf(", CTU_CAN_FD_ERR_CAPT 0x%02hhx", ctu_can_fd_read8(priv, CTU_CAN_FD_ERR_CAPT));
+
+
+        printf("\n");
+        /*
+        while (rxsz--) {
+            u32 data = priv->read_reg(priv, CTU_CAN_FD_RX_DATA);
+            printf("  0x%08x\n", data);
+        }
+        */
+        if (nrxf || rxsz) {
+            struct canfd_frame cf;
+            u64 ts;
+            ctu_can_fd_read_rx_frame(priv, &cf, &ts);
+            printf("%llu: #%x [%u]", ts, cf.can_id, cf.len);
+            for (int i=0; i<cf.len; ++i)
+                printf(" %02x", cf.data[i]);
+            printf("\n");
+        }
+
+        usleep(1000000);
+    }
+|—————Node:{ Text: {
+|—————Node:declaration Text: u32 nrxf = ctu_can_fd_get_rx_frame_count(priv);
+|——————Node:type_identifier Text: u32
+|——————Node:init_declarator Text: nrxf = ctu_can_fd_get_rx_frame_count(priv)
+|———————Node:identifier Text: nrxf
+|———————Node:= Text: =
+|———————Node:call_expression Text: ctu_can_fd_get_rx_frame_count(priv)
+|————————Node:identifier Text: ctu_can_fd_get_rx_frame_count
+|————————Node:argument_list Text: (priv)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: priv
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:declaration Text: union ctu_can_fd_rx_mem_info reg;
+|——————Node:union_specifier Text: union ctu_can_fd_rx_mem_info
+|———————Node:union Text: union
+|———————Node:type_identifier Text: ctu_can_fd_rx_mem_info
+|——————Node:identifier Text: reg
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: reg.u32 = ctu_can_fd_read32(priv, CTU_CAN_FD_RX_MEM_INFO);
+|——————Node:assignment_expression Text: reg.u32 = ctu_can_fd_read32(priv, CTU_CAN_FD_RX_MEM_INFO)
+|———————Node:field_expression Text: reg.u32
+|————————Node:identifier Text: reg
+|————————Node:. Text: .
+|————————Node:field_identifier Text: u32
+|———————Node:= Text: =
+|———————Node:call_expression Text: ctu_can_fd_read32(priv, CTU_CAN_FD_RX_MEM_INFO)
+|————————Node:identifier Text: ctu_can_fd_read32
+|————————Node:argument_list Text: (priv, CTU_CAN_FD_RX_MEM_INFO)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: priv
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: CTU_CAN_FD_RX_MEM_INFO
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: u32 rxsz = reg.s.rx_buff_size - reg.s.rx_mem_free;
+|——————Node:type_identifier Text: u32
+|——————Node:init_declarator Text: rxsz = reg.s.rx_buff_size - reg.s.rx_mem_free
+|———————Node:identifier Text: rxsz
+|———————Node:= Text: =
+|———————Node:binary_expression Text: reg.s.rx_buff_size - reg.s.rx_mem_free
+|————————Node:field_expression Text: reg.s.rx_buff_size
+|—————————Node:field_expression Text: reg.s
+|——————————Node:identifier Text: reg
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: s
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: rx_buff_size
+|————————Node:- Text: -
+|————————Node:field_expression Text: reg.s.rx_mem_free
+|—————————Node:field_expression Text: reg.s
+|——————————Node:identifier Text: reg
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: s
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: rx_mem_free
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: printf("%u RX frames, %u words", nrxf, rxsz);
+|——————Node:call_expression Text: printf("%u RX frames, %u words", nrxf, rxsz)
+|———————Node:identifier Text: printf
+|———————Node:argument_list Text: ("%u RX frames, %u words", nrxf, rxsz)
+|————————Node:( Text: (
+|————————Node:string_literal Text: "%u RX frames, %u words"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: %u RX frames, %u words
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:identifier Text: nrxf
+|————————Node:, Text: ,
+|————————Node:identifier Text: rxsz
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: printf(", status 0x%02hhx", ctu_can_fd_read8(priv, CTU_CAN_FD_STATUS));
+|——————Node:call_expression Text: printf(", status 0x%02hhx", ctu_can_fd_read8(priv, CTU_CAN_FD_STATUS))
+|———————Node:identifier Text: printf
+|———————Node:argument_list Text: (", status 0x%02hhx", ctu_can_fd_read8(priv, CTU_CAN_FD_STATUS))
+|————————Node:( Text: (
+|————————Node:string_literal Text: ", status 0x%02hhx"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: , status 0x%02hhx
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:call_expression Text: ctu_can_fd_read8(priv, CTU_CAN_FD_STATUS)
+|—————————Node:identifier Text: ctu_can_fd_read8
+|—————————Node:argument_list Text: (priv, CTU_CAN_FD_STATUS)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: priv
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: CTU_CAN_FD_STATUS
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: printf(", settings 0x%02hhx", ctu_can_fd_read8(priv, CTU_CAN_FD_SETTINGS));
+|——————Node:call_expression Text: printf(", settings 0x%02hhx", ctu_can_fd_read8(priv, CTU_CAN_FD_SETTINGS))
+|———————Node:identifier Text: printf
+|———————Node:argument_list Text: (", settings 0x%02hhx", ctu_can_fd_read8(priv, CTU_CAN_FD_SETTINGS))
+|————————Node:( Text: (
+|————————Node:string_literal Text: ", settings 0x%02hhx"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: , settings 0x%02hhx
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:call_expression Text: ctu_can_fd_read8(priv, CTU_CAN_FD_SETTINGS)
+|—————————Node:identifier Text: ctu_can_fd_read8
+|—————————Node:argument_list Text: (priv, CTU_CAN_FD_SETTINGS)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: priv
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: CTU_CAN_FD_SETTINGS
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: printf(", INT_STAT 0x%04hhx", ctu_can_fd_read16(priv, CTU_CAN_FD_INT_STAT));
+|——————Node:call_expression Text: printf(", INT_STAT 0x%04hhx", ctu_can_fd_read16(priv, CTU_CAN_FD_INT_STAT))
+|———————Node:identifier Text: printf
+|———————Node:argument_list Text: (", INT_STAT 0x%04hhx", ctu_can_fd_read16(priv, CTU_CAN_FD_INT_STAT))
+|————————Node:( Text: (
+|————————Node:string_literal Text: ", INT_STAT 0x%04hhx"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: , INT_STAT 0x%04hhx
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:call_expression Text: ctu_can_fd_read16(priv, CTU_CAN_FD_INT_STAT)
+|—————————Node:identifier Text: ctu_can_fd_read16
+|—————————Node:argument_list Text: (priv, CTU_CAN_FD_INT_STAT)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: priv
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: CTU_CAN_FD_INT_STAT
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: printf(", CTU_CAN_FD_INT_ENA_SET 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_INT_ENA_SET));
+|——————Node:call_expression Text: printf(", CTU_CAN_FD_INT_ENA_SET 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_INT_ENA_SET))
+|———————Node:identifier Text: printf
+|———————Node:argument_list Text: (", CTU_CAN_FD_INT_ENA_SET 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_INT_ENA_SET))
+|————————Node:( Text: (
+|————————Node:string_literal Text: ", CTU_CAN_FD_INT_ENA_SET 0x%04hx"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: , CTU_CAN_FD_INT_ENA_SET 0x%04hx
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:call_expression Text: priv->read_reg(priv, CTU_CAN_FD_INT_ENA_SET)
+|—————————Node:field_expression Text: priv->read_reg
+|——————————Node:identifier Text: priv
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: read_reg
+|—————————Node:argument_list Text: (priv, CTU_CAN_FD_INT_ENA_SET)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: priv
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: CTU_CAN_FD_INT_ENA_SET
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: printf(", CTU_CAN_FD_INT_MASK_SET 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_INT_MASK_SET));
+|——————Node:call_expression Text: printf(", CTU_CAN_FD_INT_MASK_SET 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_INT_MASK_SET))
+|———————Node:identifier Text: printf
+|———————Node:argument_list Text: (", CTU_CAN_FD_INT_MASK_SET 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_INT_MASK_SET))
+|————————Node:( Text: (
+|————————Node:string_literal Text: ", CTU_CAN_FD_INT_MASK_SET 0x%04hx"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: , CTU_CAN_FD_INT_MASK_SET 0x%04hx
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:call_expression Text: priv->read_reg(priv, CTU_CAN_FD_INT_MASK_SET)
+|—————————Node:field_expression Text: priv->read_reg
+|——————————Node:identifier Text: priv
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: read_reg
+|—————————Node:argument_list Text: (priv, CTU_CAN_FD_INT_MASK_SET)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: priv
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: CTU_CAN_FD_INT_MASK_SET
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: printf(", CTU_CAN_FD_TX_STATUS 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_TX_STATUS));
+|——————Node:call_expression Text: printf(", CTU_CAN_FD_TX_STATUS 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_TX_STATUS))
+|———————Node:identifier Text: printf
+|———————Node:argument_list Text: (", CTU_CAN_FD_TX_STATUS 0x%04hx", priv->read_reg(priv, CTU_CAN_FD_TX_STATUS))
+|————————Node:( Text: (
+|————————Node:string_literal Text: ", CTU_CAN_FD_TX_STATUS 0x%04hx"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: , CTU_CAN_FD_TX_STATUS 0x%04hx
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:call_expression Text: priv->read_reg(priv, CTU_CAN_FD_TX_STATUS)
+|—————————Node:field_expression Text: priv->read_reg
+|——————————Node:identifier Text: priv
+|——————————Node:-> Text: ->
+|——————————Node:field_identifier Text: read_reg
+|—————————Node:argument_list Text: (priv, CTU_CAN_FD_TX_STATUS)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: priv
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: CTU_CAN_FD_TX_STATUS
+|——————————Node:) Text: )
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:expression_statement Text: printf("\n");
+|——————Node:call_expression Text: printf("\n")
+|———————Node:identifier Text: printf
+|———————Node:argument_list Text: ("\n")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "\n"
+|—————————Node:" Text: "
+|—————————Node:escape_sequence Text: \n
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:if_statement Text: if (nrxf || rxsz) {
+            struct canfd_frame cf;
+            u64 ts;
+            ctu_can_fd_read_rx_frame(priv, &cf, &ts);
+            printf("%llu: #%x [%u]", ts, cf.can_id, cf.len);
+            for (int i=0; i<cf.len; ++i)
+                printf(" %02x", cf.data[i]);
+            printf("\n");
+        }
+|——————Node:if Text: if
+|——————Node:condition_clause Text: (nrxf || rxsz)
+|———————Node:( Text: (
+|———————Node:binary_expression Text: nrxf || rxsz
+|————————Node:identifier Text: nrxf
+|————————Node:|| Text: ||
+|————————Node:identifier Text: rxsz
+|———————Node:) Text: )
+|——————Node:compound_statement Text: {
+            struct canfd_frame cf;
+            u64 ts;
+            ctu_can_fd_read_rx_frame(priv, &cf, &ts);
+            printf("%llu: #%x [%u]", ts, cf.can_id, cf.len);
+            for (int i=0; i<cf.len; ++i)
+                printf(" %02x", cf.data[i]);
+            printf("\n");
+        }
+|———————Node:{ Text: {
+|———————Node:declaration Text: struct canfd_frame cf;
+|————————Node:struct_specifier Text: struct canfd_frame
+|—————————Node:struct Text: struct
+|—————————Node:type_identifier Text: canfd_frame
+|————————Node:identifier Text: cf
+|————————Node:; Text: ;
+|———————Node:declaration Text: u64 ts;
+|————————Node:type_identifier Text: u64
+|————————Node:identifier Text: ts
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: ctu_can_fd_read_rx_frame(priv, &cf, &ts);
+|————————Node:call_expression Text: ctu_can_fd_read_rx_frame(priv, &cf, &ts)
+|—————————Node:identifier Text: ctu_can_fd_read_rx_frame
+|—————————Node:argument_list Text: (priv, &cf, &ts)
+|——————————Node:( Text: (
+|——————————Node:identifier Text: priv
+|——————————Node:, Text: ,
+|——————————Node:pointer_expression Text: &cf
+|———————————Node:& Text: &
+|———————————Node:identifier Text: cf
+|——————————Node:, Text: ,
+|——————————Node:pointer_expression Text: &ts
+|———————————Node:& Text: &
+|———————————Node:identifier Text: ts
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: printf("%llu: #%x [%u]", ts, cf.can_id, cf.len);
+|————————Node:call_expression Text: printf("%llu: #%x [%u]", ts, cf.can_id, cf.len)
+|—————————Node:identifier Text: printf
+|—————————Node:argument_list Text: ("%llu: #%x [%u]", ts, cf.can_id, cf.len)
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "%llu: #%x [%u]"
+|———————————Node:" Text: "
+|———————————Node:string_content Text: %llu: #%x [%u]
+|———————————Node:" Text: "
+|——————————Node:, Text: ,
+|——————————Node:identifier Text: ts
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: cf.can_id
+|———————————Node:identifier Text: cf
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: can_id
+|——————————Node:, Text: ,
+|——————————Node:field_expression Text: cf.len
+|———————————Node:identifier Text: cf
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: len
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:for_statement Text: for (int i=0; i<cf.len; ++i)
+                printf(" %02x", cf.data[i]);
+|————————Node:for Text: for
+|————————Node:( Text: (
+|————————Node:declaration Text: int i=0;
+|—————————Node:primitive_type Text: int
+|—————————Node:init_declarator Text: i=0
+|——————————Node:identifier Text: i
+|——————————Node:= Text: =
+|——————————Node:number_literal Text: 0
+|—————————Node:; Text: ;
+|————————Node:binary_expression Text: i<cf.len
+|—————————Node:identifier Text: i
+|—————————Node:< Text: <
+|—————————Node:field_expression Text: cf.len
+|——————————Node:identifier Text: cf
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: len
+|————————Node:; Text: ;
+|————————Node:update_expression Text: ++i
+|—————————Node:++ Text: ++
+|—————————Node:identifier Text: i
+|————————Node:) Text: )
+|————————Node:expression_statement Text: printf(" %02x", cf.data[i]);
+|—————————Node:call_expression Text: printf(" %02x", cf.data[i])
+|——————————Node:identifier Text: printf
+|——————————Node:argument_list Text: (" %02x", cf.data[i])
+|———————————Node:( Text: (
+|———————————Node:string_literal Text: " %02x"
+|————————————Node:" Text: "
+|————————————Node:string_content Text:  %02x
+|————————————Node:" Text: "
+|———————————Node:, Text: ,
+|———————————Node:subscript_expression Text: cf.data[i]
+|————————————Node:field_expression Text: cf.data
+|—————————————Node:identifier Text: cf
+|—————————————Node:. Text: .
+|—————————————Node:field_identifier Text: data
+|————————————Node:subscript_argument_list Text: [i]
+|—————————————Node:[ Text: [
+|—————————————Node:identifier Text: i
+|—————————————Node:] Text: ]
+|———————————Node:) Text: )
+|—————————Node:; Text: ;
+|———————Node:expression_statement Text: printf("\n");
+|————————Node:call_expression Text: printf("\n")
+|—————————Node:identifier Text: printf
+|—————————Node:argument_list Text: ("\n")
+|——————————Node:( Text: (
+|——————————Node:string_literal Text: "\n"
+|———————————Node:" Text: "
+|———————————Node:escape_sequence Text: \n
+|———————————Node:" Text: "
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:expression_statement Text: usleep(1000000);
+|——————Node:call_expression Text: usleep(1000000)
+|———————Node:identifier Text: usleep
+|———————Node:argument_list Text: (1000000)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 1000000
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return 0;
+|————Node:return Text: return
+|————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:} Text: }

@@ -1,0 +1,3863 @@
+J1939-Framework-CAN\Backends\Sockets\SocketCanReceiver.cpp
+
+|Node:translation_unit
+|—Node:comment Text: /*
+ * SocketCanReceiver.cpp
+ *
+ *  Created on: May 10, 2018
+ *      Author: fernado
+ */
+|—Node:preproc_include Text: #include <stdio.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <stdio.h>
+|—Node:preproc_include Text: #include <string.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <string.h>
+|—Node:preproc_include Text: #include <fcntl.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <fcntl.h>
+|—Node:preproc_include Text: #include <unistd.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <unistd.h>
+|—Node:preproc_include Text: #include <sys/ioctl.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <sys/ioctl.h>
+|—Node:preproc_include Text: #include <net/if.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <net/if.h>
+|—Node:preproc_include Text: #include <linux/can.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <linux/can.h>
+|—Node:preproc_include Text: #include <linux/can/raw.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <linux/can/raw.h>
+|—Node:preproc_include Text: #include <linux/net_tstamp.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <linux/net_tstamp.h>
+|—Node:preproc_include Text: #include "SocketCanReceiver.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "SocketCanReceiver.h"
+|———Node:" Text: "
+|———Node:string_content Text: SocketCanReceiver.h
+|———Node:" Text: "
+|—Node:using_declaration Text: using namespace Utils;
+|——Node:using Text: using
+|——Node:namespace Text: namespace
+|——Node:identifier Text: Utils
+|——Node:; Text: ;
+|—Node:namespace_definition Text: namespace Can {
+namespace Sockets {
+
+SocketCanReceiver::SocketCanReceiver() : mSock(-1), mTimeStamp(true) {
+
+}
+
+SocketCanReceiver::~SocketCanReceiver() {
+}
+
+bool SocketCanReceiver::_initialize(const std::string& interface) {
+
+	ifreq ifr;
+	sockaddr_can addr;
+
+	memset(&ifr, 0, sizeof(ifreq));
+	memset(&addr, 0, sizeof(sockaddr_can));
+
+	/* open socket */
+	mSock = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+
+	if(mSock < 0)
+	{
+		return false;
+	}
+
+
+	const int timestamp_flags = (SOF_TIMESTAMPING_SOFTWARE | \
+									SOF_TIMESTAMPING_RX_SOFTWARE | \
+									SOF_TIMESTAMPING_RAW_HARDWARE);
+
+	//Activate timestamp
+	if (setsockopt(mSock, SOL_SOCKET, SO_TIMESTAMPING,
+			&timestamp_flags, sizeof(timestamp_flags)) < 0) {
+		mTimeStamp = false;			//Option not supported by kernel. Timestamp cannot be obtained.
+	}
+
+
+	//Bind to socket to start receiving frames from the specified interface
+	strncpy(ifr.ifr_name, interface.c_str(), IFNAMSIZ - 1);
+
+	if (ioctl(mSock, SIOCGIFINDEX, &ifr) < 0)
+	{
+		close(mSock);
+		mSock = -1;
+		return false;
+	}
+
+	addr.can_family = AF_CAN;
+	addr.can_ifindex = ifr.ifr_ifindex;
+
+	if (bind(mSock, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+	{
+		close(mSock);
+		mSock = -1;
+		return false;
+	}
+
+	//Succeeded to open and bind the socket on this interface
+	return true;
+
+}
+
+
+bool SocketCanReceiver::finalize(const std::string& interface) {
+
+	int retVal = 0;
+
+	if(mSock != -1) {
+		retVal = close(mSock);
+		mSock = -1;
+	}
+
+	return (retVal == 0);
+
+}
+
+
+bool SocketCanReceiver::setFilters(std::set<CanFilter> filters) {
+
+	bool retVal;
+
+	can_filter *rfilters, *filterPtr;
+
+	if(mSock == -1)			return false;								//Socket is not open... nothing todo
+
+	if(filters.empty())		return false;								//No filters specified
+
+	filterPtr = rfilters = new can_filter[filters.size()]; 				//Allocate filters according to the number of them
+
+	for(auto iter = filters.begin(); iter != filters.end(); ++iter) {
+
+		filterPtr->can_id = iter->getId() & CAN_EFF_MASK;
+		filterPtr->can_mask = iter->getMask() & CAN_EFF_MASK;
+
+		if(iter->filterStdFrame() == iter->filterExtFrame()) {			//If none of them are filtered or both are filtered, remove the extended frame flag from the mask
+
+			filterPtr->can_mask &= ~CAN_EFF_FLAG;
+
+		} else {
+
+			filterPtr->can_mask |= CAN_EFF_FLAG;						//Set the flag in the mask to check if it is a standard frame or extended frame
+
+			if(iter->filterExtFrame()) {
+
+				filterPtr->can_id |= CAN_EFF_FLAG;						//If it is extended, we set the EFF flag
+			} else {
+				filterPtr->can_mask &= CAN_SFF_MASK;					//If it is standard, we set to 0 the unnecessary bits from the id (only 11 bits)
+			}
+
+		}
+
+		++filterPtr;
+
+	}
+
+	retVal = (setsockopt(mSock, SOL_CAN_RAW, CAN_RAW_FILTER,
+			rfilters, filters.size() * sizeof(can_filter)) == 0);
+
+	delete[] rfilters;		//Deallocate filters
+
+	return retVal;
+
+}
+
+
+
+void SocketCanReceiver::sniff(u32 timeout) {
+
+	bool running = true;
+	int nbytes;
+	int result;
+	fd_set rdfs;
+	iovec iov;
+	msghdr msg;
+	canfd_frame frame;
+	sockaddr_can addr;
+	cmsghdr *cmsg;
+	char ctrlmsg[CMSG_SPACE(sizeof(timeval) + 3*sizeof(timespec) + sizeof(u32))];
+	CanFrame canFrame;
+	TimeStamp timestamp;
+
+	iov.iov_base = &frame;
+	msg.msg_name = &addr;
+	msg.msg_iov = &iov;
+	msg.msg_iovlen = 1;
+	msg.msg_control = &ctrlmsg;
+
+	timeval tv;
+
+
+	if(mSock == -1) return;			//Receiver not initialized
+
+	do {
+
+		tv.tv_sec = timeout / 1000;
+		tv.tv_usec = (timeout % 1000) / 1000000;
+
+		do {
+
+			FD_ZERO(&rdfs);
+			FD_SET(mSock, &rdfs);
+			result = select(mSock + 1, &rdfs, NULL, NULL, &tv);
+
+		} while (result == -1 && errno == EINTR);
+
+		if (result > 0) {
+
+			if (FD_ISSET(mSock, &rdfs)) {		//Frame available from interface
+
+				iov.iov_len = sizeof(frame);
+				msg.msg_namelen = sizeof(addr);
+				msg.msg_controllen = sizeof(ctrlmsg);
+				msg.msg_flags = 0;
+
+				nbytes = recvmsg(mSock, &msg, 0);
+
+				if(nbytes < 0) {
+					running = false;
+				} else {
+
+					if(mTimeStamp) {			//Timestamp option is enabled
+
+						//Extract timestamp
+						for (cmsg = CMSG_FIRSTHDR(&msg);
+							 cmsg && (cmsg->cmsg_level == SOL_SOCKET);
+							 cmsg = CMSG_NXTHDR(&msg,cmsg)) {
+							if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+						}
+
+					}
+
+
+					//Copy Frame
+					canFrame.setId(frame.can_id);
+
+					std::string data;
+					data.append((char*)(frame.data), frame.len);
+
+
+					canFrame.setData(data);
+
+
+					//Work is delegated to callback.
+					(mRcvCB)(canFrame, timestamp, mData);
+
+				}
+
+			}
+
+		} else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+
+	} while (running);
+
+
+}
+
+} /* namespace Sockets */
+}
+|——Node:namespace Text: namespace
+|——Node:namespace_identifier Text: Can
+|——Node:declaration_list Text: {
+namespace Sockets {
+
+SocketCanReceiver::SocketCanReceiver() : mSock(-1), mTimeStamp(true) {
+
+}
+
+SocketCanReceiver::~SocketCanReceiver() {
+}
+
+bool SocketCanReceiver::_initialize(const std::string& interface) {
+
+	ifreq ifr;
+	sockaddr_can addr;
+
+	memset(&ifr, 0, sizeof(ifreq));
+	memset(&addr, 0, sizeof(sockaddr_can));
+
+	/* open socket */
+	mSock = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+
+	if(mSock < 0)
+	{
+		return false;
+	}
+
+
+	const int timestamp_flags = (SOF_TIMESTAMPING_SOFTWARE | \
+									SOF_TIMESTAMPING_RX_SOFTWARE | \
+									SOF_TIMESTAMPING_RAW_HARDWARE);
+
+	//Activate timestamp
+	if (setsockopt(mSock, SOL_SOCKET, SO_TIMESTAMPING,
+			&timestamp_flags, sizeof(timestamp_flags)) < 0) {
+		mTimeStamp = false;			//Option not supported by kernel. Timestamp cannot be obtained.
+	}
+
+
+	//Bind to socket to start receiving frames from the specified interface
+	strncpy(ifr.ifr_name, interface.c_str(), IFNAMSIZ - 1);
+
+	if (ioctl(mSock, SIOCGIFINDEX, &ifr) < 0)
+	{
+		close(mSock);
+		mSock = -1;
+		return false;
+	}
+
+	addr.can_family = AF_CAN;
+	addr.can_ifindex = ifr.ifr_ifindex;
+
+	if (bind(mSock, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+	{
+		close(mSock);
+		mSock = -1;
+		return false;
+	}
+
+	//Succeeded to open and bind the socket on this interface
+	return true;
+
+}
+
+
+bool SocketCanReceiver::finalize(const std::string& interface) {
+
+	int retVal = 0;
+
+	if(mSock != -1) {
+		retVal = close(mSock);
+		mSock = -1;
+	}
+
+	return (retVal == 0);
+
+}
+
+
+bool SocketCanReceiver::setFilters(std::set<CanFilter> filters) {
+
+	bool retVal;
+
+	can_filter *rfilters, *filterPtr;
+
+	if(mSock == -1)			return false;								//Socket is not open... nothing todo
+
+	if(filters.empty())		return false;								//No filters specified
+
+	filterPtr = rfilters = new can_filter[filters.size()]; 				//Allocate filters according to the number of them
+
+	for(auto iter = filters.begin(); iter != filters.end(); ++iter) {
+
+		filterPtr->can_id = iter->getId() & CAN_EFF_MASK;
+		filterPtr->can_mask = iter->getMask() & CAN_EFF_MASK;
+
+		if(iter->filterStdFrame() == iter->filterExtFrame()) {			//If none of them are filtered or both are filtered, remove the extended frame flag from the mask
+
+			filterPtr->can_mask &= ~CAN_EFF_FLAG;
+
+		} else {
+
+			filterPtr->can_mask |= CAN_EFF_FLAG;						//Set the flag in the mask to check if it is a standard frame or extended frame
+
+			if(iter->filterExtFrame()) {
+
+				filterPtr->can_id |= CAN_EFF_FLAG;						//If it is extended, we set the EFF flag
+			} else {
+				filterPtr->can_mask &= CAN_SFF_MASK;					//If it is standard, we set to 0 the unnecessary bits from the id (only 11 bits)
+			}
+
+		}
+
+		++filterPtr;
+
+	}
+
+	retVal = (setsockopt(mSock, SOL_CAN_RAW, CAN_RAW_FILTER,
+			rfilters, filters.size() * sizeof(can_filter)) == 0);
+
+	delete[] rfilters;		//Deallocate filters
+
+	return retVal;
+
+}
+
+
+
+void SocketCanReceiver::sniff(u32 timeout) {
+
+	bool running = true;
+	int nbytes;
+	int result;
+	fd_set rdfs;
+	iovec iov;
+	msghdr msg;
+	canfd_frame frame;
+	sockaddr_can addr;
+	cmsghdr *cmsg;
+	char ctrlmsg[CMSG_SPACE(sizeof(timeval) + 3*sizeof(timespec) + sizeof(u32))];
+	CanFrame canFrame;
+	TimeStamp timestamp;
+
+	iov.iov_base = &frame;
+	msg.msg_name = &addr;
+	msg.msg_iov = &iov;
+	msg.msg_iovlen = 1;
+	msg.msg_control = &ctrlmsg;
+
+	timeval tv;
+
+
+	if(mSock == -1) return;			//Receiver not initialized
+
+	do {
+
+		tv.tv_sec = timeout / 1000;
+		tv.tv_usec = (timeout % 1000) / 1000000;
+
+		do {
+
+			FD_ZERO(&rdfs);
+			FD_SET(mSock, &rdfs);
+			result = select(mSock + 1, &rdfs, NULL, NULL, &tv);
+
+		} while (result == -1 && errno == EINTR);
+
+		if (result > 0) {
+
+			if (FD_ISSET(mSock, &rdfs)) {		//Frame available from interface
+
+				iov.iov_len = sizeof(frame);
+				msg.msg_namelen = sizeof(addr);
+				msg.msg_controllen = sizeof(ctrlmsg);
+				msg.msg_flags = 0;
+
+				nbytes = recvmsg(mSock, &msg, 0);
+
+				if(nbytes < 0) {
+					running = false;
+				} else {
+
+					if(mTimeStamp) {			//Timestamp option is enabled
+
+						//Extract timestamp
+						for (cmsg = CMSG_FIRSTHDR(&msg);
+							 cmsg && (cmsg->cmsg_level == SOL_SOCKET);
+							 cmsg = CMSG_NXTHDR(&msg,cmsg)) {
+							if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+						}
+
+					}
+
+
+					//Copy Frame
+					canFrame.setId(frame.can_id);
+
+					std::string data;
+					data.append((char*)(frame.data), frame.len);
+
+
+					canFrame.setData(data);
+
+
+					//Work is delegated to callback.
+					(mRcvCB)(canFrame, timestamp, mData);
+
+				}
+
+			}
+
+		} else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+
+	} while (running);
+
+
+}
+
+} /* namespace Sockets */
+}
+|———Node:{ Text: {
+|———Node:namespace_definition Text: namespace Sockets {
+
+SocketCanReceiver::SocketCanReceiver() : mSock(-1), mTimeStamp(true) {
+
+}
+
+SocketCanReceiver::~SocketCanReceiver() {
+}
+
+bool SocketCanReceiver::_initialize(const std::string& interface) {
+
+	ifreq ifr;
+	sockaddr_can addr;
+
+	memset(&ifr, 0, sizeof(ifreq));
+	memset(&addr, 0, sizeof(sockaddr_can));
+
+	/* open socket */
+	mSock = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+
+	if(mSock < 0)
+	{
+		return false;
+	}
+
+
+	const int timestamp_flags = (SOF_TIMESTAMPING_SOFTWARE | \
+									SOF_TIMESTAMPING_RX_SOFTWARE | \
+									SOF_TIMESTAMPING_RAW_HARDWARE);
+
+	//Activate timestamp
+	if (setsockopt(mSock, SOL_SOCKET, SO_TIMESTAMPING,
+			&timestamp_flags, sizeof(timestamp_flags)) < 0) {
+		mTimeStamp = false;			//Option not supported by kernel. Timestamp cannot be obtained.
+	}
+
+
+	//Bind to socket to start receiving frames from the specified interface
+	strncpy(ifr.ifr_name, interface.c_str(), IFNAMSIZ - 1);
+
+	if (ioctl(mSock, SIOCGIFINDEX, &ifr) < 0)
+	{
+		close(mSock);
+		mSock = -1;
+		return false;
+	}
+
+	addr.can_family = AF_CAN;
+	addr.can_ifindex = ifr.ifr_ifindex;
+
+	if (bind(mSock, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+	{
+		close(mSock);
+		mSock = -1;
+		return false;
+	}
+
+	//Succeeded to open and bind the socket on this interface
+	return true;
+
+}
+
+
+bool SocketCanReceiver::finalize(const std::string& interface) {
+
+	int retVal = 0;
+
+	if(mSock != -1) {
+		retVal = close(mSock);
+		mSock = -1;
+	}
+
+	return (retVal == 0);
+
+}
+
+
+bool SocketCanReceiver::setFilters(std::set<CanFilter> filters) {
+
+	bool retVal;
+
+	can_filter *rfilters, *filterPtr;
+
+	if(mSock == -1)			return false;								//Socket is not open... nothing todo
+
+	if(filters.empty())		return false;								//No filters specified
+
+	filterPtr = rfilters = new can_filter[filters.size()]; 				//Allocate filters according to the number of them
+
+	for(auto iter = filters.begin(); iter != filters.end(); ++iter) {
+
+		filterPtr->can_id = iter->getId() & CAN_EFF_MASK;
+		filterPtr->can_mask = iter->getMask() & CAN_EFF_MASK;
+
+		if(iter->filterStdFrame() == iter->filterExtFrame()) {			//If none of them are filtered or both are filtered, remove the extended frame flag from the mask
+
+			filterPtr->can_mask &= ~CAN_EFF_FLAG;
+
+		} else {
+
+			filterPtr->can_mask |= CAN_EFF_FLAG;						//Set the flag in the mask to check if it is a standard frame or extended frame
+
+			if(iter->filterExtFrame()) {
+
+				filterPtr->can_id |= CAN_EFF_FLAG;						//If it is extended, we set the EFF flag
+			} else {
+				filterPtr->can_mask &= CAN_SFF_MASK;					//If it is standard, we set to 0 the unnecessary bits from the id (only 11 bits)
+			}
+
+		}
+
+		++filterPtr;
+
+	}
+
+	retVal = (setsockopt(mSock, SOL_CAN_RAW, CAN_RAW_FILTER,
+			rfilters, filters.size() * sizeof(can_filter)) == 0);
+
+	delete[] rfilters;		//Deallocate filters
+
+	return retVal;
+
+}
+
+
+
+void SocketCanReceiver::sniff(u32 timeout) {
+
+	bool running = true;
+	int nbytes;
+	int result;
+	fd_set rdfs;
+	iovec iov;
+	msghdr msg;
+	canfd_frame frame;
+	sockaddr_can addr;
+	cmsghdr *cmsg;
+	char ctrlmsg[CMSG_SPACE(sizeof(timeval) + 3*sizeof(timespec) + sizeof(u32))];
+	CanFrame canFrame;
+	TimeStamp timestamp;
+
+	iov.iov_base = &frame;
+	msg.msg_name = &addr;
+	msg.msg_iov = &iov;
+	msg.msg_iovlen = 1;
+	msg.msg_control = &ctrlmsg;
+
+	timeval tv;
+
+
+	if(mSock == -1) return;			//Receiver not initialized
+
+	do {
+
+		tv.tv_sec = timeout / 1000;
+		tv.tv_usec = (timeout % 1000) / 1000000;
+
+		do {
+
+			FD_ZERO(&rdfs);
+			FD_SET(mSock, &rdfs);
+			result = select(mSock + 1, &rdfs, NULL, NULL, &tv);
+
+		} while (result == -1 && errno == EINTR);
+
+		if (result > 0) {
+
+			if (FD_ISSET(mSock, &rdfs)) {		//Frame available from interface
+
+				iov.iov_len = sizeof(frame);
+				msg.msg_namelen = sizeof(addr);
+				msg.msg_controllen = sizeof(ctrlmsg);
+				msg.msg_flags = 0;
+
+				nbytes = recvmsg(mSock, &msg, 0);
+
+				if(nbytes < 0) {
+					running = false;
+				} else {
+
+					if(mTimeStamp) {			//Timestamp option is enabled
+
+						//Extract timestamp
+						for (cmsg = CMSG_FIRSTHDR(&msg);
+							 cmsg && (cmsg->cmsg_level == SOL_SOCKET);
+							 cmsg = CMSG_NXTHDR(&msg,cmsg)) {
+							if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+						}
+
+					}
+
+
+					//Copy Frame
+					canFrame.setId(frame.can_id);
+
+					std::string data;
+					data.append((char*)(frame.data), frame.len);
+
+
+					canFrame.setData(data);
+
+
+					//Work is delegated to callback.
+					(mRcvCB)(canFrame, timestamp, mData);
+
+				}
+
+			}
+
+		} else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+
+	} while (running);
+
+
+}
+
+}
+|————Node:namespace Text: namespace
+|————Node:namespace_identifier Text: Sockets
+|————Node:declaration_list Text: {
+
+SocketCanReceiver::SocketCanReceiver() : mSock(-1), mTimeStamp(true) {
+
+}
+
+SocketCanReceiver::~SocketCanReceiver() {
+}
+
+bool SocketCanReceiver::_initialize(const std::string& interface) {
+
+	ifreq ifr;
+	sockaddr_can addr;
+
+	memset(&ifr, 0, sizeof(ifreq));
+	memset(&addr, 0, sizeof(sockaddr_can));
+
+	/* open socket */
+	mSock = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+
+	if(mSock < 0)
+	{
+		return false;
+	}
+
+
+	const int timestamp_flags = (SOF_TIMESTAMPING_SOFTWARE | \
+									SOF_TIMESTAMPING_RX_SOFTWARE | \
+									SOF_TIMESTAMPING_RAW_HARDWARE);
+
+	//Activate timestamp
+	if (setsockopt(mSock, SOL_SOCKET, SO_TIMESTAMPING,
+			&timestamp_flags, sizeof(timestamp_flags)) < 0) {
+		mTimeStamp = false;			//Option not supported by kernel. Timestamp cannot be obtained.
+	}
+
+
+	//Bind to socket to start receiving frames from the specified interface
+	strncpy(ifr.ifr_name, interface.c_str(), IFNAMSIZ - 1);
+
+	if (ioctl(mSock, SIOCGIFINDEX, &ifr) < 0)
+	{
+		close(mSock);
+		mSock = -1;
+		return false;
+	}
+
+	addr.can_family = AF_CAN;
+	addr.can_ifindex = ifr.ifr_ifindex;
+
+	if (bind(mSock, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+	{
+		close(mSock);
+		mSock = -1;
+		return false;
+	}
+
+	//Succeeded to open and bind the socket on this interface
+	return true;
+
+}
+
+
+bool SocketCanReceiver::finalize(const std::string& interface) {
+
+	int retVal = 0;
+
+	if(mSock != -1) {
+		retVal = close(mSock);
+		mSock = -1;
+	}
+
+	return (retVal == 0);
+
+}
+
+
+bool SocketCanReceiver::setFilters(std::set<CanFilter> filters) {
+
+	bool retVal;
+
+	can_filter *rfilters, *filterPtr;
+
+	if(mSock == -1)			return false;								//Socket is not open... nothing todo
+
+	if(filters.empty())		return false;								//No filters specified
+
+	filterPtr = rfilters = new can_filter[filters.size()]; 				//Allocate filters according to the number of them
+
+	for(auto iter = filters.begin(); iter != filters.end(); ++iter) {
+
+		filterPtr->can_id = iter->getId() & CAN_EFF_MASK;
+		filterPtr->can_mask = iter->getMask() & CAN_EFF_MASK;
+
+		if(iter->filterStdFrame() == iter->filterExtFrame()) {			//If none of them are filtered or both are filtered, remove the extended frame flag from the mask
+
+			filterPtr->can_mask &= ~CAN_EFF_FLAG;
+
+		} else {
+
+			filterPtr->can_mask |= CAN_EFF_FLAG;						//Set the flag in the mask to check if it is a standard frame or extended frame
+
+			if(iter->filterExtFrame()) {
+
+				filterPtr->can_id |= CAN_EFF_FLAG;						//If it is extended, we set the EFF flag
+			} else {
+				filterPtr->can_mask &= CAN_SFF_MASK;					//If it is standard, we set to 0 the unnecessary bits from the id (only 11 bits)
+			}
+
+		}
+
+		++filterPtr;
+
+	}
+
+	retVal = (setsockopt(mSock, SOL_CAN_RAW, CAN_RAW_FILTER,
+			rfilters, filters.size() * sizeof(can_filter)) == 0);
+
+	delete[] rfilters;		//Deallocate filters
+
+	return retVal;
+
+}
+
+
+
+void SocketCanReceiver::sniff(u32 timeout) {
+
+	bool running = true;
+	int nbytes;
+	int result;
+	fd_set rdfs;
+	iovec iov;
+	msghdr msg;
+	canfd_frame frame;
+	sockaddr_can addr;
+	cmsghdr *cmsg;
+	char ctrlmsg[CMSG_SPACE(sizeof(timeval) + 3*sizeof(timespec) + sizeof(u32))];
+	CanFrame canFrame;
+	TimeStamp timestamp;
+
+	iov.iov_base = &frame;
+	msg.msg_name = &addr;
+	msg.msg_iov = &iov;
+	msg.msg_iovlen = 1;
+	msg.msg_control = &ctrlmsg;
+
+	timeval tv;
+
+
+	if(mSock == -1) return;			//Receiver not initialized
+
+	do {
+
+		tv.tv_sec = timeout / 1000;
+		tv.tv_usec = (timeout % 1000) / 1000000;
+
+		do {
+
+			FD_ZERO(&rdfs);
+			FD_SET(mSock, &rdfs);
+			result = select(mSock + 1, &rdfs, NULL, NULL, &tv);
+
+		} while (result == -1 && errno == EINTR);
+
+		if (result > 0) {
+
+			if (FD_ISSET(mSock, &rdfs)) {		//Frame available from interface
+
+				iov.iov_len = sizeof(frame);
+				msg.msg_namelen = sizeof(addr);
+				msg.msg_controllen = sizeof(ctrlmsg);
+				msg.msg_flags = 0;
+
+				nbytes = recvmsg(mSock, &msg, 0);
+
+				if(nbytes < 0) {
+					running = false;
+				} else {
+
+					if(mTimeStamp) {			//Timestamp option is enabled
+
+						//Extract timestamp
+						for (cmsg = CMSG_FIRSTHDR(&msg);
+							 cmsg && (cmsg->cmsg_level == SOL_SOCKET);
+							 cmsg = CMSG_NXTHDR(&msg,cmsg)) {
+							if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+						}
+
+					}
+
+
+					//Copy Frame
+					canFrame.setId(frame.can_id);
+
+					std::string data;
+					data.append((char*)(frame.data), frame.len);
+
+
+					canFrame.setData(data);
+
+
+					//Work is delegated to callback.
+					(mRcvCB)(canFrame, timestamp, mData);
+
+				}
+
+			}
+
+		} else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+
+	} while (running);
+
+
+}
+
+}
+|—————Node:{ Text: {
+|—————Node:function_definition Text: SocketCanReceiver::SocketCanReceiver() : mSock(-1), mTimeStamp(true) {
+
+}
+|——————Node:function_declarator Text: SocketCanReceiver::SocketCanReceiver()
+|———————Node:qualified_identifier Text: SocketCanReceiver::SocketCanReceiver
+|————————Node:namespace_identifier Text: SocketCanReceiver
+|————————Node::: Text: ::
+|————————Node:identifier Text: SocketCanReceiver
+|———————Node:parameter_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:field_initializer_list Text: : mSock(-1), mTimeStamp(true)
+|———————Node:: Text: :
+|———————Node:field_initializer Text: mSock(-1)
+|————————Node:field_identifier Text: mSock
+|————————Node:argument_list Text: (-1)
+|—————————Node:( Text: (
+|—————————Node:number_literal Text: -1
+|—————————Node:) Text: )
+|———————Node:, Text: ,
+|———————Node:field_initializer Text: mTimeStamp(true)
+|————————Node:field_identifier Text: mTimeStamp
+|————————Node:argument_list Text: (true)
+|—————————Node:( Text: (
+|—————————Node:true Text: true
+|—————————Node:) Text: )
+|——————Node:compound_statement Text: {
+
+}
+|———————Node:{ Text: {
+|———————Node:} Text: }
+|—————Node:function_definition Text: SocketCanReceiver::~SocketCanReceiver() {
+}
+|——————Node:function_declarator Text: SocketCanReceiver::~SocketCanReceiver()
+|———————Node:qualified_identifier Text: SocketCanReceiver::~SocketCanReceiver
+|————————Node:namespace_identifier Text: SocketCanReceiver
+|————————Node::: Text: ::
+|————————Node:destructor_name Text: ~SocketCanReceiver
+|—————————Node:~ Text: ~
+|—————————Node:identifier Text: SocketCanReceiver
+|———————Node:parameter_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:compound_statement Text: {
+}
+|———————Node:{ Text: {
+|———————Node:} Text: }
+|—————Node:function_definition Text: bool SocketCanReceiver::_initialize(const std::string& interface) {
+
+	ifreq ifr;
+	sockaddr_can addr;
+
+	memset(&ifr, 0, sizeof(ifreq));
+	memset(&addr, 0, sizeof(sockaddr_can));
+
+	/* open socket */
+	mSock = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+
+	if(mSock < 0)
+	{
+		return false;
+	}
+
+
+	const int timestamp_flags = (SOF_TIMESTAMPING_SOFTWARE | \
+									SOF_TIMESTAMPING_RX_SOFTWARE | \
+									SOF_TIMESTAMPING_RAW_HARDWARE);
+
+	//Activate timestamp
+	if (setsockopt(mSock, SOL_SOCKET, SO_TIMESTAMPING,
+			&timestamp_flags, sizeof(timestamp_flags)) < 0) {
+		mTimeStamp = false;			//Option not supported by kernel. Timestamp cannot be obtained.
+	}
+
+
+	//Bind to socket to start receiving frames from the specified interface
+	strncpy(ifr.ifr_name, interface.c_str(), IFNAMSIZ - 1);
+
+	if (ioctl(mSock, SIOCGIFINDEX, &ifr) < 0)
+	{
+		close(mSock);
+		mSock = -1;
+		return false;
+	}
+
+	addr.can_family = AF_CAN;
+	addr.can_ifindex = ifr.ifr_ifindex;
+
+	if (bind(mSock, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+	{
+		close(mSock);
+		mSock = -1;
+		return false;
+	}
+
+	//Succeeded to open and bind the socket on this interface
+	return true;
+
+}
+|——————Node:primitive_type Text: bool
+|——————Node:function_declarator Text: SocketCanReceiver::_initialize(const std::string& interface)
+|———————Node:qualified_identifier Text: SocketCanReceiver::_initialize
+|————————Node:namespace_identifier Text: SocketCanReceiver
+|————————Node::: Text: ::
+|————————Node:identifier Text: _initialize
+|———————Node:parameter_list Text: (const std::string& interface)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const std::string& interface
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:qualified_identifier Text: std::string
+|——————————Node:namespace_identifier Text: std
+|——————————Node::: Text: ::
+|——————————Node:type_identifier Text: string
+|—————————Node:reference_declarator Text: & interface
+|——————————Node:& Text: &
+|——————————Node:identifier Text: interface
+|————————Node:) Text: )
+|——————Node:compound_statement Text: {
+
+	ifreq ifr;
+	sockaddr_can addr;
+
+	memset(&ifr, 0, sizeof(ifreq));
+	memset(&addr, 0, sizeof(sockaddr_can));
+
+	/* open socket */
+	mSock = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+
+	if(mSock < 0)
+	{
+		return false;
+	}
+
+
+	const int timestamp_flags = (SOF_TIMESTAMPING_SOFTWARE | \
+									SOF_TIMESTAMPING_RX_SOFTWARE | \
+									SOF_TIMESTAMPING_RAW_HARDWARE);
+
+	//Activate timestamp
+	if (setsockopt(mSock, SOL_SOCKET, SO_TIMESTAMPING,
+			&timestamp_flags, sizeof(timestamp_flags)) < 0) {
+		mTimeStamp = false;			//Option not supported by kernel. Timestamp cannot be obtained.
+	}
+
+
+	//Bind to socket to start receiving frames from the specified interface
+	strncpy(ifr.ifr_name, interface.c_str(), IFNAMSIZ - 1);
+
+	if (ioctl(mSock, SIOCGIFINDEX, &ifr) < 0)
+	{
+		close(mSock);
+		mSock = -1;
+		return false;
+	}
+
+	addr.can_family = AF_CAN;
+	addr.can_ifindex = ifr.ifr_ifindex;
+
+	if (bind(mSock, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+	{
+		close(mSock);
+		mSock = -1;
+		return false;
+	}
+
+	//Succeeded to open and bind the socket on this interface
+	return true;
+
+}
+|———————Node:{ Text: {
+|———————Node:declaration Text: ifreq ifr;
+|————————Node:type_identifier Text: ifreq
+|————————Node:identifier Text: ifr
+|————————Node:; Text: ;
+|———————Node:declaration Text: sockaddr_can addr;
+|————————Node:type_identifier Text: sockaddr_can
+|————————Node:identifier Text: addr
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: memset(&ifr, 0, sizeof(ifreq));
+|————————Node:call_expression Text: memset(&ifr, 0, sizeof(ifreq))
+|—————————Node:identifier Text: memset
+|—————————Node:argument_list Text: (&ifr, 0, sizeof(ifreq))
+|——————————Node:( Text: (
+|——————————Node:pointer_expression Text: &ifr
+|———————————Node:& Text: &
+|———————————Node:identifier Text: ifr
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0
+|——————————Node:, Text: ,
+|——————————Node:sizeof_expression Text: sizeof(ifreq)
+|———————————Node:sizeof Text: sizeof
+|———————————Node:parenthesized_expression Text: (ifreq)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: ifreq
+|————————————Node:) Text: )
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: memset(&addr, 0, sizeof(sockaddr_can));
+|————————Node:call_expression Text: memset(&addr, 0, sizeof(sockaddr_can))
+|—————————Node:identifier Text: memset
+|—————————Node:argument_list Text: (&addr, 0, sizeof(sockaddr_can))
+|——————————Node:( Text: (
+|——————————Node:pointer_expression Text: &addr
+|———————————Node:& Text: &
+|———————————Node:identifier Text: addr
+|——————————Node:, Text: ,
+|——————————Node:number_literal Text: 0
+|——————————Node:, Text: ,
+|——————————Node:sizeof_expression Text: sizeof(sockaddr_can)
+|———————————Node:sizeof Text: sizeof
+|———————————Node:parenthesized_expression Text: (sockaddr_can)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: sockaddr_can
+|————————————Node:) Text: )
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:comment Text: /* open socket */
+|———————Node:expression_statement Text: mSock = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+|————————Node:assignment_expression Text: mSock = socket(PF_CAN, SOCK_RAW, CAN_RAW)
+|—————————Node:identifier Text: mSock
+|—————————Node:= Text: =
+|—————————Node:call_expression Text: socket(PF_CAN, SOCK_RAW, CAN_RAW)
+|——————————Node:identifier Text: socket
+|——————————Node:argument_list Text: (PF_CAN, SOCK_RAW, CAN_RAW)
+|———————————Node:( Text: (
+|———————————Node:identifier Text: PF_CAN
+|———————————Node:, Text: ,
+|———————————Node:identifier Text: SOCK_RAW
+|———————————Node:, Text: ,
+|———————————Node:identifier Text: CAN_RAW
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if(mSock < 0)
+	{
+		return false;
+	}
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (mSock < 0)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: mSock < 0
+|——————————Node:identifier Text: mSock
+|——————————Node:< Text: <
+|——————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+		return false;
+	}
+|—————————Node:{ Text: {
+|—————————Node:return_statement Text: return false;
+|——————————Node:return Text: return
+|——————————Node:false Text: false
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:declaration Text: const int timestamp_flags = (SOF_TIMESTAMPING_SOFTWARE | \
+									SOF_TIMESTAMPING_RX_SOFTWARE | \
+									SOF_TIMESTAMPING_RAW_HARDWARE);
+|————————Node:type_qualifier Text: const
+|—————————Node:const Text: const
+|————————Node:primitive_type Text: int
+|————————Node:init_declarator Text: timestamp_flags = (SOF_TIMESTAMPING_SOFTWARE | \
+									SOF_TIMESTAMPING_RX_SOFTWARE | \
+									SOF_TIMESTAMPING_RAW_HARDWARE)
+|—————————Node:identifier Text: timestamp_flags
+|—————————Node:= Text: =
+|—————————Node:parenthesized_expression Text: (SOF_TIMESTAMPING_SOFTWARE | \
+									SOF_TIMESTAMPING_RX_SOFTWARE | \
+									SOF_TIMESTAMPING_RAW_HARDWARE)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: SOF_TIMESTAMPING_SOFTWARE | \
+									SOF_TIMESTAMPING_RX_SOFTWARE | \
+									SOF_TIMESTAMPING_RAW_HARDWARE
+|———————————Node:binary_expression Text: SOF_TIMESTAMPING_SOFTWARE | \
+									SOF_TIMESTAMPING_RX_SOFTWARE
+|————————————Node:identifier Text: SOF_TIMESTAMPING_SOFTWARE
+|————————————Node:| Text: |
+|————————————Node:identifier Text: SOF_TIMESTAMPING_RX_SOFTWARE
+|———————————Node:| Text: |
+|———————————Node:identifier Text: SOF_TIMESTAMPING_RAW_HARDWARE
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:comment Text: //Activate timestamp
+|———————Node:if_statement Text: if (setsockopt(mSock, SOL_SOCKET, SO_TIMESTAMPING,
+			&timestamp_flags, sizeof(timestamp_flags)) < 0) {
+		mTimeStamp = false;			//Option not supported by kernel. Timestamp cannot be obtained.
+	}
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (setsockopt(mSock, SOL_SOCKET, SO_TIMESTAMPING,
+			&timestamp_flags, sizeof(timestamp_flags)) < 0)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: setsockopt(mSock, SOL_SOCKET, SO_TIMESTAMPING,
+			&timestamp_flags, sizeof(timestamp_flags)) < 0
+|——————————Node:call_expression Text: setsockopt(mSock, SOL_SOCKET, SO_TIMESTAMPING,
+			&timestamp_flags, sizeof(timestamp_flags))
+|———————————Node:identifier Text: setsockopt
+|———————————Node:argument_list Text: (mSock, SOL_SOCKET, SO_TIMESTAMPING,
+			&timestamp_flags, sizeof(timestamp_flags))
+|————————————Node:( Text: (
+|————————————Node:identifier Text: mSock
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: SOL_SOCKET
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: SO_TIMESTAMPING
+|————————————Node:, Text: ,
+|————————————Node:pointer_expression Text: &timestamp_flags
+|—————————————Node:& Text: &
+|—————————————Node:identifier Text: timestamp_flags
+|————————————Node:, Text: ,
+|————————————Node:sizeof_expression Text: sizeof(timestamp_flags)
+|—————————————Node:sizeof Text: sizeof
+|—————————————Node:parenthesized_expression Text: (timestamp_flags)
+|——————————————Node:( Text: (
+|——————————————Node:identifier Text: timestamp_flags
+|——————————————Node:) Text: )
+|————————————Node:) Text: )
+|——————————Node:< Text: <
+|——————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+		mTimeStamp = false;			//Option not supported by kernel. Timestamp cannot be obtained.
+	}
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: mTimeStamp = false;
+|——————————Node:assignment_expression Text: mTimeStamp = false
+|———————————Node:identifier Text: mTimeStamp
+|———————————Node:= Text: =
+|———————————Node:false Text: false
+|——————————Node:; Text: ;
+|—————————Node:comment Text: //Option not supported by kernel. Timestamp cannot be obtained.
+|—————————Node:} Text: }
+|———————Node:comment Text: //Bind to socket to start receiving frames from the specified interface
+|———————Node:expression_statement Text: strncpy(ifr.ifr_name, interface.c_str(), IFNAMSIZ - 1);
+|————————Node:call_expression Text: strncpy(ifr.ifr_name, interface.c_str(), IFNAMSIZ - 1)
+|—————————Node:identifier Text: strncpy
+|—————————Node:argument_list Text: (ifr.ifr_name, interface.c_str(), IFNAMSIZ - 1)
+|——————————Node:( Text: (
+|——————————Node:field_expression Text: ifr.ifr_name
+|———————————Node:identifier Text: ifr
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: ifr_name
+|——————————Node:, Text: ,
+|——————————Node:call_expression Text: interface.c_str()
+|———————————Node:field_expression Text: interface.c_str
+|————————————Node:identifier Text: interface
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: c_str
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|——————————Node:, Text: ,
+|——————————Node:binary_expression Text: IFNAMSIZ - 1
+|———————————Node:identifier Text: IFNAMSIZ
+|———————————Node:- Text: -
+|———————————Node:number_literal Text: 1
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if (ioctl(mSock, SIOCGIFINDEX, &ifr) < 0)
+	{
+		close(mSock);
+		mSock = -1;
+		return false;
+	}
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (ioctl(mSock, SIOCGIFINDEX, &ifr) < 0)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: ioctl(mSock, SIOCGIFINDEX, &ifr) < 0
+|——————————Node:call_expression Text: ioctl(mSock, SIOCGIFINDEX, &ifr)
+|———————————Node:identifier Text: ioctl
+|———————————Node:argument_list Text: (mSock, SIOCGIFINDEX, &ifr)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: mSock
+|————————————Node:, Text: ,
+|————————————Node:identifier Text: SIOCGIFINDEX
+|————————————Node:, Text: ,
+|————————————Node:pointer_expression Text: &ifr
+|—————————————Node:& Text: &
+|—————————————Node:identifier Text: ifr
+|————————————Node:) Text: )
+|——————————Node:< Text: <
+|——————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+		close(mSock);
+		mSock = -1;
+		return false;
+	}
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: close(mSock);
+|——————————Node:call_expression Text: close(mSock)
+|———————————Node:identifier Text: close
+|———————————Node:argument_list Text: (mSock)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: mSock
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: mSock = -1;
+|——————————Node:assignment_expression Text: mSock = -1
+|———————————Node:identifier Text: mSock
+|———————————Node:= Text: =
+|———————————Node:number_literal Text: -1
+|——————————Node:; Text: ;
+|—————————Node:return_statement Text: return false;
+|——————————Node:return Text: return
+|——————————Node:false Text: false
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:expression_statement Text: addr.can_family = AF_CAN;
+|————————Node:assignment_expression Text: addr.can_family = AF_CAN
+|—————————Node:field_expression Text: addr.can_family
+|——————————Node:identifier Text: addr
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: can_family
+|—————————Node:= Text: =
+|—————————Node:identifier Text: AF_CAN
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: addr.can_ifindex = ifr.ifr_ifindex;
+|————————Node:assignment_expression Text: addr.can_ifindex = ifr.ifr_ifindex
+|—————————Node:field_expression Text: addr.can_ifindex
+|——————————Node:identifier Text: addr
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: can_ifindex
+|—————————Node:= Text: =
+|—————————Node:field_expression Text: ifr.ifr_ifindex
+|——————————Node:identifier Text: ifr
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: ifr_ifindex
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if (bind(mSock, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+	{
+		close(mSock);
+		mSock = -1;
+		return false;
+	}
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (bind(mSock, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: bind(mSock, (struct sockaddr *)&addr, sizeof(addr)) < 0
+|——————————Node:call_expression Text: bind(mSock, (struct sockaddr *)&addr, sizeof(addr))
+|———————————Node:identifier Text: bind
+|———————————Node:argument_list Text: (mSock, (struct sockaddr *)&addr, sizeof(addr))
+|————————————Node:( Text: (
+|————————————Node:identifier Text: mSock
+|————————————Node:, Text: ,
+|————————————Node:cast_expression Text: (struct sockaddr *)&addr
+|—————————————Node:( Text: (
+|—————————————Node:type_descriptor Text: struct sockaddr *
+|——————————————Node:struct_specifier Text: struct sockaddr
+|———————————————Node:struct Text: struct
+|———————————————Node:type_identifier Text: sockaddr
+|——————————————Node:abstract_pointer_declarator Text: *
+|———————————————Node:* Text: *
+|—————————————Node:) Text: )
+|—————————————Node:pointer_expression Text: &addr
+|——————————————Node:& Text: &
+|——————————————Node:identifier Text: addr
+|————————————Node:, Text: ,
+|————————————Node:sizeof_expression Text: sizeof(addr)
+|—————————————Node:sizeof Text: sizeof
+|—————————————Node:parenthesized_expression Text: (addr)
+|——————————————Node:( Text: (
+|——————————————Node:identifier Text: addr
+|——————————————Node:) Text: )
+|————————————Node:) Text: )
+|——————————Node:< Text: <
+|——————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+		close(mSock);
+		mSock = -1;
+		return false;
+	}
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: close(mSock);
+|——————————Node:call_expression Text: close(mSock)
+|———————————Node:identifier Text: close
+|———————————Node:argument_list Text: (mSock)
+|————————————Node:( Text: (
+|————————————Node:identifier Text: mSock
+|————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: mSock = -1;
+|——————————Node:assignment_expression Text: mSock = -1
+|———————————Node:identifier Text: mSock
+|———————————Node:= Text: =
+|———————————Node:number_literal Text: -1
+|——————————Node:; Text: ;
+|—————————Node:return_statement Text: return false;
+|——————————Node:return Text: return
+|——————————Node:false Text: false
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:comment Text: //Succeeded to open and bind the socket on this interface
+|———————Node:return_statement Text: return true;
+|————————Node:return Text: return
+|————————Node:true Text: true
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:function_definition Text: bool SocketCanReceiver::finalize(const std::string& interface) {
+
+	int retVal = 0;
+
+	if(mSock != -1) {
+		retVal = close(mSock);
+		mSock = -1;
+	}
+
+	return (retVal == 0);
+
+}
+|——————Node:primitive_type Text: bool
+|——————Node:function_declarator Text: SocketCanReceiver::finalize(const std::string& interface)
+|———————Node:qualified_identifier Text: SocketCanReceiver::finalize
+|————————Node:namespace_identifier Text: SocketCanReceiver
+|————————Node::: Text: ::
+|————————Node:identifier Text: finalize
+|———————Node:parameter_list Text: (const std::string& interface)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: const std::string& interface
+|—————————Node:type_qualifier Text: const
+|——————————Node:const Text: const
+|—————————Node:qualified_identifier Text: std::string
+|——————————Node:namespace_identifier Text: std
+|——————————Node::: Text: ::
+|——————————Node:type_identifier Text: string
+|—————————Node:reference_declarator Text: & interface
+|——————————Node:& Text: &
+|——————————Node:identifier Text: interface
+|————————Node:) Text: )
+|——————Node:compound_statement Text: {
+
+	int retVal = 0;
+
+	if(mSock != -1) {
+		retVal = close(mSock);
+		mSock = -1;
+	}
+
+	return (retVal == 0);
+
+}
+|———————Node:{ Text: {
+|———————Node:declaration Text: int retVal = 0;
+|————————Node:primitive_type Text: int
+|————————Node:init_declarator Text: retVal = 0
+|—————————Node:identifier Text: retVal
+|—————————Node:= Text: =
+|—————————Node:number_literal Text: 0
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if(mSock != -1) {
+		retVal = close(mSock);
+		mSock = -1;
+	}
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (mSock != -1)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: mSock != -1
+|——————————Node:identifier Text: mSock
+|——————————Node:!= Text: !=
+|——————————Node:number_literal Text: -1
+|—————————Node:) Text: )
+|————————Node:compound_statement Text: {
+		retVal = close(mSock);
+		mSock = -1;
+	}
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: retVal = close(mSock);
+|——————————Node:assignment_expression Text: retVal = close(mSock)
+|———————————Node:identifier Text: retVal
+|———————————Node:= Text: =
+|———————————Node:call_expression Text: close(mSock)
+|————————————Node:identifier Text: close
+|————————————Node:argument_list Text: (mSock)
+|—————————————Node:( Text: (
+|—————————————Node:identifier Text: mSock
+|—————————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: mSock = -1;
+|——————————Node:assignment_expression Text: mSock = -1
+|———————————Node:identifier Text: mSock
+|———————————Node:= Text: =
+|———————————Node:number_literal Text: -1
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:return_statement Text: return (retVal == 0);
+|————————Node:return Text: return
+|————————Node:parenthesized_expression Text: (retVal == 0)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: retVal == 0
+|——————————Node:identifier Text: retVal
+|——————————Node:== Text: ==
+|——————————Node:number_literal Text: 0
+|—————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:function_definition Text: bool SocketCanReceiver::setFilters(std::set<CanFilter> filters) {
+
+	bool retVal;
+
+	can_filter *rfilters, *filterPtr;
+
+	if(mSock == -1)			return false;								//Socket is not open... nothing todo
+
+	if(filters.empty())		return false;								//No filters specified
+
+	filterPtr = rfilters = new can_filter[filters.size()]; 				//Allocate filters according to the number of them
+
+	for(auto iter = filters.begin(); iter != filters.end(); ++iter) {
+
+		filterPtr->can_id = iter->getId() & CAN_EFF_MASK;
+		filterPtr->can_mask = iter->getMask() & CAN_EFF_MASK;
+
+		if(iter->filterStdFrame() == iter->filterExtFrame()) {			//If none of them are filtered or both are filtered, remove the extended frame flag from the mask
+
+			filterPtr->can_mask &= ~CAN_EFF_FLAG;
+
+		} else {
+
+			filterPtr->can_mask |= CAN_EFF_FLAG;						//Set the flag in the mask to check if it is a standard frame or extended frame
+
+			if(iter->filterExtFrame()) {
+
+				filterPtr->can_id |= CAN_EFF_FLAG;						//If it is extended, we set the EFF flag
+			} else {
+				filterPtr->can_mask &= CAN_SFF_MASK;					//If it is standard, we set to 0 the unnecessary bits from the id (only 11 bits)
+			}
+
+		}
+
+		++filterPtr;
+
+	}
+
+	retVal = (setsockopt(mSock, SOL_CAN_RAW, CAN_RAW_FILTER,
+			rfilters, filters.size() * sizeof(can_filter)) == 0);
+
+	delete[] rfilters;		//Deallocate filters
+
+	return retVal;
+
+}
+|——————Node:primitive_type Text: bool
+|——————Node:function_declarator Text: SocketCanReceiver::setFilters(std::set<CanFilter> filters)
+|———————Node:qualified_identifier Text: SocketCanReceiver::setFilters
+|————————Node:namespace_identifier Text: SocketCanReceiver
+|————————Node::: Text: ::
+|————————Node:identifier Text: setFilters
+|———————Node:parameter_list Text: (std::set<CanFilter> filters)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: std::set<CanFilter> filters
+|—————————Node:qualified_identifier Text: std::set<CanFilter>
+|——————————Node:namespace_identifier Text: std
+|——————————Node::: Text: ::
+|——————————Node:template_type Text: set<CanFilter>
+|———————————Node:type_identifier Text: set
+|———————————Node:template_argument_list Text: <CanFilter>
+|————————————Node:< Text: <
+|————————————Node:type_descriptor Text: CanFilter
+|—————————————Node:type_identifier Text: CanFilter
+|————————————Node:> Text: >
+|—————————Node:identifier Text: filters
+|————————Node:) Text: )
+|——————Node:compound_statement Text: {
+
+	bool retVal;
+
+	can_filter *rfilters, *filterPtr;
+
+	if(mSock == -1)			return false;								//Socket is not open... nothing todo
+
+	if(filters.empty())		return false;								//No filters specified
+
+	filterPtr = rfilters = new can_filter[filters.size()]; 				//Allocate filters according to the number of them
+
+	for(auto iter = filters.begin(); iter != filters.end(); ++iter) {
+
+		filterPtr->can_id = iter->getId() & CAN_EFF_MASK;
+		filterPtr->can_mask = iter->getMask() & CAN_EFF_MASK;
+
+		if(iter->filterStdFrame() == iter->filterExtFrame()) {			//If none of them are filtered or both are filtered, remove the extended frame flag from the mask
+
+			filterPtr->can_mask &= ~CAN_EFF_FLAG;
+
+		} else {
+
+			filterPtr->can_mask |= CAN_EFF_FLAG;						//Set the flag in the mask to check if it is a standard frame or extended frame
+
+			if(iter->filterExtFrame()) {
+
+				filterPtr->can_id |= CAN_EFF_FLAG;						//If it is extended, we set the EFF flag
+			} else {
+				filterPtr->can_mask &= CAN_SFF_MASK;					//If it is standard, we set to 0 the unnecessary bits from the id (only 11 bits)
+			}
+
+		}
+
+		++filterPtr;
+
+	}
+
+	retVal = (setsockopt(mSock, SOL_CAN_RAW, CAN_RAW_FILTER,
+			rfilters, filters.size() * sizeof(can_filter)) == 0);
+
+	delete[] rfilters;		//Deallocate filters
+
+	return retVal;
+
+}
+|———————Node:{ Text: {
+|———————Node:declaration Text: bool retVal;
+|————————Node:primitive_type Text: bool
+|————————Node:identifier Text: retVal
+|————————Node:; Text: ;
+|———————Node:declaration Text: can_filter *rfilters, *filterPtr;
+|————————Node:type_identifier Text: can_filter
+|————————Node:pointer_declarator Text: *rfilters
+|—————————Node:* Text: *
+|—————————Node:identifier Text: rfilters
+|————————Node:, Text: ,
+|————————Node:pointer_declarator Text: *filterPtr
+|—————————Node:* Text: *
+|—————————Node:identifier Text: filterPtr
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if(mSock == -1)			return false;
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (mSock == -1)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: mSock == -1
+|——————————Node:identifier Text: mSock
+|——————————Node:== Text: ==
+|——————————Node:number_literal Text: -1
+|—————————Node:) Text: )
+|————————Node:return_statement Text: return false;
+|—————————Node:return Text: return
+|—————————Node:false Text: false
+|—————————Node:; Text: ;
+|———————Node:comment Text: //Socket is not open... nothing todo
+|———————Node:if_statement Text: if(filters.empty())		return false;
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (filters.empty())
+|—————————Node:( Text: (
+|—————————Node:call_expression Text: filters.empty()
+|——————————Node:field_expression Text: filters.empty
+|———————————Node:identifier Text: filters
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: empty
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|—————————Node:) Text: )
+|————————Node:return_statement Text: return false;
+|—————————Node:return Text: return
+|—————————Node:false Text: false
+|—————————Node:; Text: ;
+|———————Node:comment Text: //No filters specified
+|———————Node:expression_statement Text: filterPtr = rfilters = new can_filter[filters.size()];
+|————————Node:assignment_expression Text: filterPtr = rfilters = new can_filter[filters.size()]
+|—————————Node:identifier Text: filterPtr
+|—————————Node:= Text: =
+|—————————Node:assignment_expression Text: rfilters = new can_filter[filters.size()]
+|——————————Node:identifier Text: rfilters
+|——————————Node:= Text: =
+|——————————Node:new_expression Text: new can_filter[filters.size()]
+|———————————Node:new Text: new
+|———————————Node:type_identifier Text: can_filter
+|———————————Node:new_declarator Text: [filters.size()]
+|————————————Node:[ Text: [
+|————————————Node:call_expression Text: filters.size()
+|—————————————Node:field_expression Text: filters.size
+|——————————————Node:identifier Text: filters
+|——————————————Node:. Text: .
+|——————————————Node:field_identifier Text: size
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:] Text: ]
+|————————Node:; Text: ;
+|———————Node:comment Text: //Allocate filters according to the number of them
+|———————Node:for_statement Text: for(auto iter = filters.begin(); iter != filters.end(); ++iter) {
+
+		filterPtr->can_id = iter->getId() & CAN_EFF_MASK;
+		filterPtr->can_mask = iter->getMask() & CAN_EFF_MASK;
+
+		if(iter->filterStdFrame() == iter->filterExtFrame()) {			//If none of them are filtered or both are filtered, remove the extended frame flag from the mask
+
+			filterPtr->can_mask &= ~CAN_EFF_FLAG;
+
+		} else {
+
+			filterPtr->can_mask |= CAN_EFF_FLAG;						//Set the flag in the mask to check if it is a standard frame or extended frame
+
+			if(iter->filterExtFrame()) {
+
+				filterPtr->can_id |= CAN_EFF_FLAG;						//If it is extended, we set the EFF flag
+			} else {
+				filterPtr->can_mask &= CAN_SFF_MASK;					//If it is standard, we set to 0 the unnecessary bits from the id (only 11 bits)
+			}
+
+		}
+
+		++filterPtr;
+
+	}
+|————————Node:for Text: for
+|————————Node:( Text: (
+|————————Node:declaration Text: auto iter = filters.begin();
+|—————————Node:placeholder_type_specifier Text: auto
+|——————————Node:auto Text: auto
+|—————————Node:init_declarator Text: iter = filters.begin()
+|——————————Node:identifier Text: iter
+|——————————Node:= Text: =
+|——————————Node:call_expression Text: filters.begin()
+|———————————Node:field_expression Text: filters.begin
+|————————————Node:identifier Text: filters
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: begin
+|———————————Node:argument_list Text: ()
+|————————————Node:( Text: (
+|————————————Node:) Text: )
+|—————————Node:; Text: ;
+|————————Node:binary_expression Text: iter != filters.end()
+|—————————Node:identifier Text: iter
+|—————————Node:!= Text: !=
+|—————————Node:call_expression Text: filters.end()
+|——————————Node:field_expression Text: filters.end
+|———————————Node:identifier Text: filters
+|———————————Node:. Text: .
+|———————————Node:field_identifier Text: end
+|——————————Node:argument_list Text: ()
+|———————————Node:( Text: (
+|———————————Node:) Text: )
+|————————Node:; Text: ;
+|————————Node:update_expression Text: ++iter
+|—————————Node:++ Text: ++
+|—————————Node:identifier Text: iter
+|————————Node:) Text: )
+|————————Node:compound_statement Text: {
+
+		filterPtr->can_id = iter->getId() & CAN_EFF_MASK;
+		filterPtr->can_mask = iter->getMask() & CAN_EFF_MASK;
+
+		if(iter->filterStdFrame() == iter->filterExtFrame()) {			//If none of them are filtered or both are filtered, remove the extended frame flag from the mask
+
+			filterPtr->can_mask &= ~CAN_EFF_FLAG;
+
+		} else {
+
+			filterPtr->can_mask |= CAN_EFF_FLAG;						//Set the flag in the mask to check if it is a standard frame or extended frame
+
+			if(iter->filterExtFrame()) {
+
+				filterPtr->can_id |= CAN_EFF_FLAG;						//If it is extended, we set the EFF flag
+			} else {
+				filterPtr->can_mask &= CAN_SFF_MASK;					//If it is standard, we set to 0 the unnecessary bits from the id (only 11 bits)
+			}
+
+		}
+
+		++filterPtr;
+
+	}
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: filterPtr->can_id = iter->getId() & CAN_EFF_MASK;
+|——————————Node:assignment_expression Text: filterPtr->can_id = iter->getId() & CAN_EFF_MASK
+|———————————Node:field_expression Text: filterPtr->can_id
+|————————————Node:identifier Text: filterPtr
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: can_id
+|———————————Node:= Text: =
+|———————————Node:binary_expression Text: iter->getId() & CAN_EFF_MASK
+|————————————Node:call_expression Text: iter->getId()
+|—————————————Node:field_expression Text: iter->getId
+|——————————————Node:identifier Text: iter
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: getId
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:& Text: &
+|————————————Node:identifier Text: CAN_EFF_MASK
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: filterPtr->can_mask = iter->getMask() & CAN_EFF_MASK;
+|——————————Node:assignment_expression Text: filterPtr->can_mask = iter->getMask() & CAN_EFF_MASK
+|———————————Node:field_expression Text: filterPtr->can_mask
+|————————————Node:identifier Text: filterPtr
+|————————————Node:-> Text: ->
+|————————————Node:field_identifier Text: can_mask
+|———————————Node:= Text: =
+|———————————Node:binary_expression Text: iter->getMask() & CAN_EFF_MASK
+|————————————Node:call_expression Text: iter->getMask()
+|—————————————Node:field_expression Text: iter->getMask
+|——————————————Node:identifier Text: iter
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: getMask
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:& Text: &
+|————————————Node:identifier Text: CAN_EFF_MASK
+|——————————Node:; Text: ;
+|—————————Node:if_statement Text: if(iter->filterStdFrame() == iter->filterExtFrame()) {			//If none of them are filtered or both are filtered, remove the extended frame flag from the mask
+
+			filterPtr->can_mask &= ~CAN_EFF_FLAG;
+
+		} else {
+
+			filterPtr->can_mask |= CAN_EFF_FLAG;						//Set the flag in the mask to check if it is a standard frame or extended frame
+
+			if(iter->filterExtFrame()) {
+
+				filterPtr->can_id |= CAN_EFF_FLAG;						//If it is extended, we set the EFF flag
+			} else {
+				filterPtr->can_mask &= CAN_SFF_MASK;					//If it is standard, we set to 0 the unnecessary bits from the id (only 11 bits)
+			}
+
+		}
+|——————————Node:if Text: if
+|——————————Node:condition_clause Text: (iter->filterStdFrame() == iter->filterExtFrame())
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: iter->filterStdFrame() == iter->filterExtFrame()
+|————————————Node:call_expression Text: iter->filterStdFrame()
+|—————————————Node:field_expression Text: iter->filterStdFrame
+|——————————————Node:identifier Text: iter
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: filterStdFrame
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|————————————Node:== Text: ==
+|————————————Node:call_expression Text: iter->filterExtFrame()
+|—————————————Node:field_expression Text: iter->filterExtFrame
+|——————————————Node:identifier Text: iter
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: filterExtFrame
+|—————————————Node:argument_list Text: ()
+|——————————————Node:( Text: (
+|——————————————Node:) Text: )
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {			//If none of them are filtered or both are filtered, remove the extended frame flag from the mask
+
+			filterPtr->can_mask &= ~CAN_EFF_FLAG;
+
+		}
+|———————————Node:{ Text: {
+|———————————Node:comment Text: //If none of them are filtered or both are filtered, remove the extended frame flag from the mask
+|———————————Node:expression_statement Text: filterPtr->can_mask &= ~CAN_EFF_FLAG;
+|————————————Node:assignment_expression Text: filterPtr->can_mask &= ~CAN_EFF_FLAG
+|—————————————Node:field_expression Text: filterPtr->can_mask
+|——————————————Node:identifier Text: filterPtr
+|——————————————Node:-> Text: ->
+|——————————————Node:field_identifier Text: can_mask
+|—————————————Node:&= Text: &=
+|—————————————Node:unary_expression Text: ~CAN_EFF_FLAG
+|——————————————Node:~ Text: ~
+|——————————————Node:identifier Text: CAN_EFF_FLAG
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|——————————Node:else_clause Text: else {
+
+			filterPtr->can_mask |= CAN_EFF_FLAG;						//Set the flag in the mask to check if it is a standard frame or extended frame
+
+			if(iter->filterExtFrame()) {
+
+				filterPtr->can_id |= CAN_EFF_FLAG;						//If it is extended, we set the EFF flag
+			} else {
+				filterPtr->can_mask &= CAN_SFF_MASK;					//If it is standard, we set to 0 the unnecessary bits from the id (only 11 bits)
+			}
+
+		}
+|———————————Node:else Text: else
+|———————————Node:compound_statement Text: {
+
+			filterPtr->can_mask |= CAN_EFF_FLAG;						//Set the flag in the mask to check if it is a standard frame or extended frame
+
+			if(iter->filterExtFrame()) {
+
+				filterPtr->can_id |= CAN_EFF_FLAG;						//If it is extended, we set the EFF flag
+			} else {
+				filterPtr->can_mask &= CAN_SFF_MASK;					//If it is standard, we set to 0 the unnecessary bits from the id (only 11 bits)
+			}
+
+		}
+|————————————Node:{ Text: {
+|————————————Node:expression_statement Text: filterPtr->can_mask |= CAN_EFF_FLAG;
+|—————————————Node:assignment_expression Text: filterPtr->can_mask |= CAN_EFF_FLAG
+|——————————————Node:field_expression Text: filterPtr->can_mask
+|———————————————Node:identifier Text: filterPtr
+|———————————————Node:-> Text: ->
+|———————————————Node:field_identifier Text: can_mask
+|——————————————Node:|= Text: |=
+|——————————————Node:identifier Text: CAN_EFF_FLAG
+|—————————————Node:; Text: ;
+|————————————Node:comment Text: //Set the flag in the mask to check if it is a standard frame or extended frame
+|————————————Node:if_statement Text: if(iter->filterExtFrame()) {
+
+				filterPtr->can_id |= CAN_EFF_FLAG;						//If it is extended, we set the EFF flag
+			} else {
+				filterPtr->can_mask &= CAN_SFF_MASK;					//If it is standard, we set to 0 the unnecessary bits from the id (only 11 bits)
+			}
+|—————————————Node:if Text: if
+|—————————————Node:condition_clause Text: (iter->filterExtFrame())
+|——————————————Node:( Text: (
+|——————————————Node:call_expression Text: iter->filterExtFrame()
+|———————————————Node:field_expression Text: iter->filterExtFrame
+|————————————————Node:identifier Text: iter
+|————————————————Node:-> Text: ->
+|————————————————Node:field_identifier Text: filterExtFrame
+|———————————————Node:argument_list Text: ()
+|————————————————Node:( Text: (
+|————————————————Node:) Text: )
+|——————————————Node:) Text: )
+|—————————————Node:compound_statement Text: {
+
+				filterPtr->can_id |= CAN_EFF_FLAG;						//If it is extended, we set the EFF flag
+			}
+|——————————————Node:{ Text: {
+|——————————————Node:expression_statement Text: filterPtr->can_id |= CAN_EFF_FLAG;
+|———————————————Node:assignment_expression Text: filterPtr->can_id |= CAN_EFF_FLAG
+|————————————————Node:field_expression Text: filterPtr->can_id
+|—————————————————Node:identifier Text: filterPtr
+|—————————————————Node:-> Text: ->
+|—————————————————Node:field_identifier Text: can_id
+|————————————————Node:|= Text: |=
+|————————————————Node:identifier Text: CAN_EFF_FLAG
+|———————————————Node:; Text: ;
+|——————————————Node:comment Text: //If it is extended, we set the EFF flag
+|——————————————Node:} Text: }
+|—————————————Node:else_clause Text: else {
+				filterPtr->can_mask &= CAN_SFF_MASK;					//If it is standard, we set to 0 the unnecessary bits from the id (only 11 bits)
+			}
+|——————————————Node:else Text: else
+|——————————————Node:compound_statement Text: {
+				filterPtr->can_mask &= CAN_SFF_MASK;					//If it is standard, we set to 0 the unnecessary bits from the id (only 11 bits)
+			}
+|———————————————Node:{ Text: {
+|———————————————Node:expression_statement Text: filterPtr->can_mask &= CAN_SFF_MASK;
+|————————————————Node:assignment_expression Text: filterPtr->can_mask &= CAN_SFF_MASK
+|—————————————————Node:field_expression Text: filterPtr->can_mask
+|——————————————————Node:identifier Text: filterPtr
+|——————————————————Node:-> Text: ->
+|——————————————————Node:field_identifier Text: can_mask
+|—————————————————Node:&= Text: &=
+|—————————————————Node:identifier Text: CAN_SFF_MASK
+|————————————————Node:; Text: ;
+|———————————————Node:comment Text: //If it is standard, we set to 0 the unnecessary bits from the id (only 11 bits)
+|———————————————Node:} Text: }
+|————————————Node:} Text: }
+|—————————Node:expression_statement Text: ++filterPtr;
+|——————————Node:update_expression Text: ++filterPtr
+|———————————Node:++ Text: ++
+|———————————Node:identifier Text: filterPtr
+|——————————Node:; Text: ;
+|—————————Node:} Text: }
+|———————Node:expression_statement Text: retVal = (setsockopt(mSock, SOL_CAN_RAW, CAN_RAW_FILTER,
+			rfilters, filters.size() * sizeof(can_filter)) == 0);
+|————————Node:assignment_expression Text: retVal = (setsockopt(mSock, SOL_CAN_RAW, CAN_RAW_FILTER,
+			rfilters, filters.size() * sizeof(can_filter)) == 0)
+|—————————Node:identifier Text: retVal
+|—————————Node:= Text: =
+|—————————Node:parenthesized_expression Text: (setsockopt(mSock, SOL_CAN_RAW, CAN_RAW_FILTER,
+			rfilters, filters.size() * sizeof(can_filter)) == 0)
+|——————————Node:( Text: (
+|——————————Node:binary_expression Text: setsockopt(mSock, SOL_CAN_RAW, CAN_RAW_FILTER,
+			rfilters, filters.size() * sizeof(can_filter)) == 0
+|———————————Node:call_expression Text: setsockopt(mSock, SOL_CAN_RAW, CAN_RAW_FILTER,
+			rfilters, filters.size() * sizeof(can_filter))
+|————————————Node:identifier Text: setsockopt
+|————————————Node:argument_list Text: (mSock, SOL_CAN_RAW, CAN_RAW_FILTER,
+			rfilters, filters.size() * sizeof(can_filter))
+|—————————————Node:( Text: (
+|—————————————Node:identifier Text: mSock
+|—————————————Node:, Text: ,
+|—————————————Node:identifier Text: SOL_CAN_RAW
+|—————————————Node:, Text: ,
+|—————————————Node:identifier Text: CAN_RAW_FILTER
+|—————————————Node:, Text: ,
+|—————————————Node:identifier Text: rfilters
+|—————————————Node:, Text: ,
+|—————————————Node:binary_expression Text: filters.size() * sizeof(can_filter)
+|——————————————Node:call_expression Text: filters.size()
+|———————————————Node:field_expression Text: filters.size
+|————————————————Node:identifier Text: filters
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: size
+|———————————————Node:argument_list Text: ()
+|————————————————Node:( Text: (
+|————————————————Node:) Text: )
+|——————————————Node:* Text: *
+|——————————————Node:sizeof_expression Text: sizeof(can_filter)
+|———————————————Node:sizeof Text: sizeof
+|———————————————Node:parenthesized_expression Text: (can_filter)
+|————————————————Node:( Text: (
+|————————————————Node:identifier Text: can_filter
+|————————————————Node:) Text: )
+|—————————————Node:) Text: )
+|———————————Node:== Text: ==
+|———————————Node:number_literal Text: 0
+|——————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: delete[] rfilters;
+|————————Node:delete_expression Text: delete[] rfilters
+|—————————Node:delete Text: delete
+|—————————Node:[ Text: [
+|—————————Node:] Text: ]
+|—————————Node:identifier Text: rfilters
+|————————Node:; Text: ;
+|———————Node:comment Text: //Deallocate filters
+|———————Node:return_statement Text: return retVal;
+|————————Node:return Text: return
+|————————Node:identifier Text: retVal
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:function_definition Text: void SocketCanReceiver::sniff(u32 timeout) {
+
+	bool running = true;
+	int nbytes;
+	int result;
+	fd_set rdfs;
+	iovec iov;
+	msghdr msg;
+	canfd_frame frame;
+	sockaddr_can addr;
+	cmsghdr *cmsg;
+	char ctrlmsg[CMSG_SPACE(sizeof(timeval) + 3*sizeof(timespec) + sizeof(u32))];
+	CanFrame canFrame;
+	TimeStamp timestamp;
+
+	iov.iov_base = &frame;
+	msg.msg_name = &addr;
+	msg.msg_iov = &iov;
+	msg.msg_iovlen = 1;
+	msg.msg_control = &ctrlmsg;
+
+	timeval tv;
+
+
+	if(mSock == -1) return;			//Receiver not initialized
+
+	do {
+
+		tv.tv_sec = timeout / 1000;
+		tv.tv_usec = (timeout % 1000) / 1000000;
+
+		do {
+
+			FD_ZERO(&rdfs);
+			FD_SET(mSock, &rdfs);
+			result = select(mSock + 1, &rdfs, NULL, NULL, &tv);
+
+		} while (result == -1 && errno == EINTR);
+
+		if (result > 0) {
+
+			if (FD_ISSET(mSock, &rdfs)) {		//Frame available from interface
+
+				iov.iov_len = sizeof(frame);
+				msg.msg_namelen = sizeof(addr);
+				msg.msg_controllen = sizeof(ctrlmsg);
+				msg.msg_flags = 0;
+
+				nbytes = recvmsg(mSock, &msg, 0);
+
+				if(nbytes < 0) {
+					running = false;
+				} else {
+
+					if(mTimeStamp) {			//Timestamp option is enabled
+
+						//Extract timestamp
+						for (cmsg = CMSG_FIRSTHDR(&msg);
+							 cmsg && (cmsg->cmsg_level == SOL_SOCKET);
+							 cmsg = CMSG_NXTHDR(&msg,cmsg)) {
+							if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+						}
+
+					}
+
+
+					//Copy Frame
+					canFrame.setId(frame.can_id);
+
+					std::string data;
+					data.append((char*)(frame.data), frame.len);
+
+
+					canFrame.setData(data);
+
+
+					//Work is delegated to callback.
+					(mRcvCB)(canFrame, timestamp, mData);
+
+				}
+
+			}
+
+		} else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+
+	} while (running);
+
+
+}
+|——————Node:primitive_type Text: void
+|——————Node:function_declarator Text: SocketCanReceiver::sniff(u32 timeout)
+|———————Node:qualified_identifier Text: SocketCanReceiver::sniff
+|————————Node:namespace_identifier Text: SocketCanReceiver
+|————————Node::: Text: ::
+|————————Node:identifier Text: sniff
+|———————Node:parameter_list Text: (u32 timeout)
+|————————Node:( Text: (
+|————————Node:parameter_declaration Text: u32 timeout
+|—————————Node:type_identifier Text: u32
+|—————————Node:identifier Text: timeout
+|————————Node:) Text: )
+|——————Node:compound_statement Text: {
+
+	bool running = true;
+	int nbytes;
+	int result;
+	fd_set rdfs;
+	iovec iov;
+	msghdr msg;
+	canfd_frame frame;
+	sockaddr_can addr;
+	cmsghdr *cmsg;
+	char ctrlmsg[CMSG_SPACE(sizeof(timeval) + 3*sizeof(timespec) + sizeof(u32))];
+	CanFrame canFrame;
+	TimeStamp timestamp;
+
+	iov.iov_base = &frame;
+	msg.msg_name = &addr;
+	msg.msg_iov = &iov;
+	msg.msg_iovlen = 1;
+	msg.msg_control = &ctrlmsg;
+
+	timeval tv;
+
+
+	if(mSock == -1) return;			//Receiver not initialized
+
+	do {
+
+		tv.tv_sec = timeout / 1000;
+		tv.tv_usec = (timeout % 1000) / 1000000;
+
+		do {
+
+			FD_ZERO(&rdfs);
+			FD_SET(mSock, &rdfs);
+			result = select(mSock + 1, &rdfs, NULL, NULL, &tv);
+
+		} while (result == -1 && errno == EINTR);
+
+		if (result > 0) {
+
+			if (FD_ISSET(mSock, &rdfs)) {		//Frame available from interface
+
+				iov.iov_len = sizeof(frame);
+				msg.msg_namelen = sizeof(addr);
+				msg.msg_controllen = sizeof(ctrlmsg);
+				msg.msg_flags = 0;
+
+				nbytes = recvmsg(mSock, &msg, 0);
+
+				if(nbytes < 0) {
+					running = false;
+				} else {
+
+					if(mTimeStamp) {			//Timestamp option is enabled
+
+						//Extract timestamp
+						for (cmsg = CMSG_FIRSTHDR(&msg);
+							 cmsg && (cmsg->cmsg_level == SOL_SOCKET);
+							 cmsg = CMSG_NXTHDR(&msg,cmsg)) {
+							if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+						}
+
+					}
+
+
+					//Copy Frame
+					canFrame.setId(frame.can_id);
+
+					std::string data;
+					data.append((char*)(frame.data), frame.len);
+
+
+					canFrame.setData(data);
+
+
+					//Work is delegated to callback.
+					(mRcvCB)(canFrame, timestamp, mData);
+
+				}
+
+			}
+
+		} else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+
+	} while (running);
+
+
+}
+|———————Node:{ Text: {
+|———————Node:declaration Text: bool running = true;
+|————————Node:primitive_type Text: bool
+|————————Node:init_declarator Text: running = true
+|—————————Node:identifier Text: running
+|—————————Node:= Text: =
+|—————————Node:true Text: true
+|————————Node:; Text: ;
+|———————Node:declaration Text: int nbytes;
+|————————Node:primitive_type Text: int
+|————————Node:identifier Text: nbytes
+|————————Node:; Text: ;
+|———————Node:declaration Text: int result;
+|————————Node:primitive_type Text: int
+|————————Node:identifier Text: result
+|————————Node:; Text: ;
+|———————Node:declaration Text: fd_set rdfs;
+|————————Node:type_identifier Text: fd_set
+|————————Node:identifier Text: rdfs
+|————————Node:; Text: ;
+|———————Node:declaration Text: iovec iov;
+|————————Node:type_identifier Text: iovec
+|————————Node:identifier Text: iov
+|————————Node:; Text: ;
+|———————Node:declaration Text: msghdr msg;
+|————————Node:type_identifier Text: msghdr
+|————————Node:identifier Text: msg
+|————————Node:; Text: ;
+|———————Node:declaration Text: canfd_frame frame;
+|————————Node:type_identifier Text: canfd_frame
+|————————Node:identifier Text: frame
+|————————Node:; Text: ;
+|———————Node:declaration Text: sockaddr_can addr;
+|————————Node:type_identifier Text: sockaddr_can
+|————————Node:identifier Text: addr
+|————————Node:; Text: ;
+|———————Node:declaration Text: cmsghdr *cmsg;
+|————————Node:type_identifier Text: cmsghdr
+|————————Node:pointer_declarator Text: *cmsg
+|—————————Node:* Text: *
+|—————————Node:identifier Text: cmsg
+|————————Node:; Text: ;
+|———————Node:declaration Text: char ctrlmsg[CMSG_SPACE(sizeof(timeval) + 3*sizeof(timespec) + sizeof(u32))];
+|————————Node:primitive_type Text: char
+|————————Node:array_declarator Text: ctrlmsg[CMSG_SPACE(sizeof(timeval) + 3*sizeof(timespec) + sizeof(u32))]
+|—————————Node:identifier Text: ctrlmsg
+|—————————Node:[ Text: [
+|—————————Node:call_expression Text: CMSG_SPACE(sizeof(timeval) + 3*sizeof(timespec) + sizeof(u32))
+|——————————Node:identifier Text: CMSG_SPACE
+|——————————Node:argument_list Text: (sizeof(timeval) + 3*sizeof(timespec) + sizeof(u32))
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: sizeof(timeval) + 3*sizeof(timespec) + sizeof(u32)
+|————————————Node:binary_expression Text: sizeof(timeval) + 3*sizeof(timespec)
+|—————————————Node:sizeof_expression Text: sizeof(timeval)
+|——————————————Node:sizeof Text: sizeof
+|——————————————Node:parenthesized_expression Text: (timeval)
+|———————————————Node:( Text: (
+|———————————————Node:identifier Text: timeval
+|———————————————Node:) Text: )
+|—————————————Node:+ Text: +
+|—————————————Node:binary_expression Text: 3*sizeof(timespec)
+|——————————————Node:number_literal Text: 3
+|——————————————Node:* Text: *
+|——————————————Node:sizeof_expression Text: sizeof(timespec)
+|———————————————Node:sizeof Text: sizeof
+|———————————————Node:parenthesized_expression Text: (timespec)
+|————————————————Node:( Text: (
+|————————————————Node:identifier Text: timespec
+|————————————————Node:) Text: )
+|————————————Node:+ Text: +
+|————————————Node:sizeof_expression Text: sizeof(u32)
+|—————————————Node:sizeof Text: sizeof
+|—————————————Node:parenthesized_expression Text: (u32)
+|——————————————Node:( Text: (
+|——————————————Node:identifier Text: u32
+|——————————————Node:) Text: )
+|———————————Node:) Text: )
+|—————————Node:] Text: ]
+|————————Node:; Text: ;
+|———————Node:declaration Text: CanFrame canFrame;
+|————————Node:type_identifier Text: CanFrame
+|————————Node:identifier Text: canFrame
+|————————Node:; Text: ;
+|———————Node:declaration Text: TimeStamp timestamp;
+|————————Node:type_identifier Text: TimeStamp
+|————————Node:identifier Text: timestamp
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: iov.iov_base = &frame;
+|————————Node:assignment_expression Text: iov.iov_base = &frame
+|—————————Node:field_expression Text: iov.iov_base
+|——————————Node:identifier Text: iov
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: iov_base
+|—————————Node:= Text: =
+|—————————Node:pointer_expression Text: &frame
+|——————————Node:& Text: &
+|——————————Node:identifier Text: frame
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: msg.msg_name = &addr;
+|————————Node:assignment_expression Text: msg.msg_name = &addr
+|—————————Node:field_expression Text: msg.msg_name
+|——————————Node:identifier Text: msg
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: msg_name
+|—————————Node:= Text: =
+|—————————Node:pointer_expression Text: &addr
+|——————————Node:& Text: &
+|——————————Node:identifier Text: addr
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: msg.msg_iov = &iov;
+|————————Node:assignment_expression Text: msg.msg_iov = &iov
+|—————————Node:field_expression Text: msg.msg_iov
+|——————————Node:identifier Text: msg
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: msg_iov
+|—————————Node:= Text: =
+|—————————Node:pointer_expression Text: &iov
+|——————————Node:& Text: &
+|——————————Node:identifier Text: iov
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: msg.msg_iovlen = 1;
+|————————Node:assignment_expression Text: msg.msg_iovlen = 1
+|—————————Node:field_expression Text: msg.msg_iovlen
+|——————————Node:identifier Text: msg
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: msg_iovlen
+|—————————Node:= Text: =
+|—————————Node:number_literal Text: 1
+|————————Node:; Text: ;
+|———————Node:expression_statement Text: msg.msg_control = &ctrlmsg;
+|————————Node:assignment_expression Text: msg.msg_control = &ctrlmsg
+|—————————Node:field_expression Text: msg.msg_control
+|——————————Node:identifier Text: msg
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: msg_control
+|—————————Node:= Text: =
+|—————————Node:pointer_expression Text: &ctrlmsg
+|——————————Node:& Text: &
+|——————————Node:identifier Text: ctrlmsg
+|————————Node:; Text: ;
+|———————Node:declaration Text: timeval tv;
+|————————Node:type_identifier Text: timeval
+|————————Node:identifier Text: tv
+|————————Node:; Text: ;
+|———————Node:if_statement Text: if(mSock == -1) return;
+|————————Node:if Text: if
+|————————Node:condition_clause Text: (mSock == -1)
+|—————————Node:( Text: (
+|—————————Node:binary_expression Text: mSock == -1
+|——————————Node:identifier Text: mSock
+|——————————Node:== Text: ==
+|——————————Node:number_literal Text: -1
+|—————————Node:) Text: )
+|————————Node:return_statement Text: return;
+|—————————Node:return Text: return
+|—————————Node:; Text: ;
+|———————Node:comment Text: //Receiver not initialized
+|———————Node:do_statement Text: do {
+
+		tv.tv_sec = timeout / 1000;
+		tv.tv_usec = (timeout % 1000) / 1000000;
+
+		do {
+
+			FD_ZERO(&rdfs);
+			FD_SET(mSock, &rdfs);
+			result = select(mSock + 1, &rdfs, NULL, NULL, &tv);
+
+		} while (result == -1 && errno == EINTR);
+
+		if (result > 0) {
+
+			if (FD_ISSET(mSock, &rdfs)) {		//Frame available from interface
+
+				iov.iov_len = sizeof(frame);
+				msg.msg_namelen = sizeof(addr);
+				msg.msg_controllen = sizeof(ctrlmsg);
+				msg.msg_flags = 0;
+
+				nbytes = recvmsg(mSock, &msg, 0);
+
+				if(nbytes < 0) {
+					running = false;
+				} else {
+
+					if(mTimeStamp) {			//Timestamp option is enabled
+
+						//Extract timestamp
+						for (cmsg = CMSG_FIRSTHDR(&msg);
+							 cmsg && (cmsg->cmsg_level == SOL_SOCKET);
+							 cmsg = CMSG_NXTHDR(&msg,cmsg)) {
+							if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+						}
+
+					}
+
+
+					//Copy Frame
+					canFrame.setId(frame.can_id);
+
+					std::string data;
+					data.append((char*)(frame.data), frame.len);
+
+
+					canFrame.setData(data);
+
+
+					//Work is delegated to callback.
+					(mRcvCB)(canFrame, timestamp, mData);
+
+				}
+
+			}
+
+		} else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+
+	} while (running);
+|————————Node:do Text: do
+|————————Node:compound_statement Text: {
+
+		tv.tv_sec = timeout / 1000;
+		tv.tv_usec = (timeout % 1000) / 1000000;
+
+		do {
+
+			FD_ZERO(&rdfs);
+			FD_SET(mSock, &rdfs);
+			result = select(mSock + 1, &rdfs, NULL, NULL, &tv);
+
+		} while (result == -1 && errno == EINTR);
+
+		if (result > 0) {
+
+			if (FD_ISSET(mSock, &rdfs)) {		//Frame available from interface
+
+				iov.iov_len = sizeof(frame);
+				msg.msg_namelen = sizeof(addr);
+				msg.msg_controllen = sizeof(ctrlmsg);
+				msg.msg_flags = 0;
+
+				nbytes = recvmsg(mSock, &msg, 0);
+
+				if(nbytes < 0) {
+					running = false;
+				} else {
+
+					if(mTimeStamp) {			//Timestamp option is enabled
+
+						//Extract timestamp
+						for (cmsg = CMSG_FIRSTHDR(&msg);
+							 cmsg && (cmsg->cmsg_level == SOL_SOCKET);
+							 cmsg = CMSG_NXTHDR(&msg,cmsg)) {
+							if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+						}
+
+					}
+
+
+					//Copy Frame
+					canFrame.setId(frame.can_id);
+
+					std::string data;
+					data.append((char*)(frame.data), frame.len);
+
+
+					canFrame.setData(data);
+
+
+					//Work is delegated to callback.
+					(mRcvCB)(canFrame, timestamp, mData);
+
+				}
+
+			}
+
+		} else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+
+	}
+|—————————Node:{ Text: {
+|—————————Node:expression_statement Text: tv.tv_sec = timeout / 1000;
+|——————————Node:assignment_expression Text: tv.tv_sec = timeout / 1000
+|———————————Node:field_expression Text: tv.tv_sec
+|————————————Node:identifier Text: tv
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: tv_sec
+|———————————Node:= Text: =
+|———————————Node:binary_expression Text: timeout / 1000
+|————————————Node:identifier Text: timeout
+|————————————Node:/ Text: /
+|————————————Node:number_literal Text: 1000
+|——————————Node:; Text: ;
+|—————————Node:expression_statement Text: tv.tv_usec = (timeout % 1000) / 1000000;
+|——————————Node:assignment_expression Text: tv.tv_usec = (timeout % 1000) / 1000000
+|———————————Node:field_expression Text: tv.tv_usec
+|————————————Node:identifier Text: tv
+|————————————Node:. Text: .
+|————————————Node:field_identifier Text: tv_usec
+|———————————Node:= Text: =
+|———————————Node:binary_expression Text: (timeout % 1000) / 1000000
+|————————————Node:parenthesized_expression Text: (timeout % 1000)
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: timeout % 1000
+|——————————————Node:identifier Text: timeout
+|——————————————Node:% Text: %
+|——————————————Node:number_literal Text: 1000
+|—————————————Node:) Text: )
+|————————————Node:/ Text: /
+|————————————Node:number_literal Text: 1000000
+|——————————Node:; Text: ;
+|—————————Node:do_statement Text: do {
+
+			FD_ZERO(&rdfs);
+			FD_SET(mSock, &rdfs);
+			result = select(mSock + 1, &rdfs, NULL, NULL, &tv);
+
+		} while (result == -1 && errno == EINTR);
+|——————————Node:do Text: do
+|——————————Node:compound_statement Text: {
+
+			FD_ZERO(&rdfs);
+			FD_SET(mSock, &rdfs);
+			result = select(mSock + 1, &rdfs, NULL, NULL, &tv);
+
+		}
+|———————————Node:{ Text: {
+|———————————Node:expression_statement Text: FD_ZERO(&rdfs);
+|————————————Node:call_expression Text: FD_ZERO(&rdfs)
+|—————————————Node:identifier Text: FD_ZERO
+|—————————————Node:argument_list Text: (&rdfs)
+|——————————————Node:( Text: (
+|——————————————Node:pointer_expression Text: &rdfs
+|———————————————Node:& Text: &
+|———————————————Node:identifier Text: rdfs
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:expression_statement Text: FD_SET(mSock, &rdfs);
+|————————————Node:call_expression Text: FD_SET(mSock, &rdfs)
+|—————————————Node:identifier Text: FD_SET
+|—————————————Node:argument_list Text: (mSock, &rdfs)
+|——————————————Node:( Text: (
+|——————————————Node:identifier Text: mSock
+|——————————————Node:, Text: ,
+|——————————————Node:pointer_expression Text: &rdfs
+|———————————————Node:& Text: &
+|———————————————Node:identifier Text: rdfs
+|——————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:expression_statement Text: result = select(mSock + 1, &rdfs, NULL, NULL, &tv);
+|————————————Node:assignment_expression Text: result = select(mSock + 1, &rdfs, NULL, NULL, &tv)
+|—————————————Node:identifier Text: result
+|—————————————Node:= Text: =
+|—————————————Node:call_expression Text: select(mSock + 1, &rdfs, NULL, NULL, &tv)
+|——————————————Node:identifier Text: select
+|——————————————Node:argument_list Text: (mSock + 1, &rdfs, NULL, NULL, &tv)
+|———————————————Node:( Text: (
+|———————————————Node:binary_expression Text: mSock + 1
+|————————————————Node:identifier Text: mSock
+|————————————————Node:+ Text: +
+|————————————————Node:number_literal Text: 1
+|———————————————Node:, Text: ,
+|———————————————Node:pointer_expression Text: &rdfs
+|————————————————Node:& Text: &
+|————————————————Node:identifier Text: rdfs
+|———————————————Node:, Text: ,
+|———————————————Node:null Text: NULL
+|————————————————Node:NULL Text: NULL
+|———————————————Node:, Text: ,
+|———————————————Node:null Text: NULL
+|————————————————Node:NULL Text: NULL
+|———————————————Node:, Text: ,
+|———————————————Node:pointer_expression Text: &tv
+|————————————————Node:& Text: &
+|————————————————Node:identifier Text: tv
+|———————————————Node:) Text: )
+|————————————Node:; Text: ;
+|———————————Node:} Text: }
+|——————————Node:while Text: while
+|——————————Node:parenthesized_expression Text: (result == -1 && errno == EINTR)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: result == -1 && errno == EINTR
+|————————————Node:binary_expression Text: result == -1
+|—————————————Node:identifier Text: result
+|—————————————Node:== Text: ==
+|—————————————Node:number_literal Text: -1
+|————————————Node:&& Text: &&
+|————————————Node:binary_expression Text: errno == EINTR
+|—————————————Node:identifier Text: errno
+|—————————————Node:== Text: ==
+|—————————————Node:identifier Text: EINTR
+|———————————Node:) Text: )
+|——————————Node:; Text: ;
+|—————————Node:if_statement Text: if (result > 0) {
+
+			if (FD_ISSET(mSock, &rdfs)) {		//Frame available from interface
+
+				iov.iov_len = sizeof(frame);
+				msg.msg_namelen = sizeof(addr);
+				msg.msg_controllen = sizeof(ctrlmsg);
+				msg.msg_flags = 0;
+
+				nbytes = recvmsg(mSock, &msg, 0);
+
+				if(nbytes < 0) {
+					running = false;
+				} else {
+
+					if(mTimeStamp) {			//Timestamp option is enabled
+
+						//Extract timestamp
+						for (cmsg = CMSG_FIRSTHDR(&msg);
+							 cmsg && (cmsg->cmsg_level == SOL_SOCKET);
+							 cmsg = CMSG_NXTHDR(&msg,cmsg)) {
+							if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+						}
+
+					}
+
+
+					//Copy Frame
+					canFrame.setId(frame.can_id);
+
+					std::string data;
+					data.append((char*)(frame.data), frame.len);
+
+
+					canFrame.setData(data);
+
+
+					//Work is delegated to callback.
+					(mRcvCB)(canFrame, timestamp, mData);
+
+				}
+
+			}
+
+		} else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+|——————————Node:if Text: if
+|——————————Node:condition_clause Text: (result > 0)
+|———————————Node:( Text: (
+|———————————Node:binary_expression Text: result > 0
+|————————————Node:identifier Text: result
+|————————————Node:> Text: >
+|————————————Node:number_literal Text: 0
+|———————————Node:) Text: )
+|——————————Node:compound_statement Text: {
+
+			if (FD_ISSET(mSock, &rdfs)) {		//Frame available from interface
+
+				iov.iov_len = sizeof(frame);
+				msg.msg_namelen = sizeof(addr);
+				msg.msg_controllen = sizeof(ctrlmsg);
+				msg.msg_flags = 0;
+
+				nbytes = recvmsg(mSock, &msg, 0);
+
+				if(nbytes < 0) {
+					running = false;
+				} else {
+
+					if(mTimeStamp) {			//Timestamp option is enabled
+
+						//Extract timestamp
+						for (cmsg = CMSG_FIRSTHDR(&msg);
+							 cmsg && (cmsg->cmsg_level == SOL_SOCKET);
+							 cmsg = CMSG_NXTHDR(&msg,cmsg)) {
+							if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+						}
+
+					}
+
+
+					//Copy Frame
+					canFrame.setId(frame.can_id);
+
+					std::string data;
+					data.append((char*)(frame.data), frame.len);
+
+
+					canFrame.setData(data);
+
+
+					//Work is delegated to callback.
+					(mRcvCB)(canFrame, timestamp, mData);
+
+				}
+
+			}
+
+		}
+|———————————Node:{ Text: {
+|———————————Node:if_statement Text: if (FD_ISSET(mSock, &rdfs)) {		//Frame available from interface
+
+				iov.iov_len = sizeof(frame);
+				msg.msg_namelen = sizeof(addr);
+				msg.msg_controllen = sizeof(ctrlmsg);
+				msg.msg_flags = 0;
+
+				nbytes = recvmsg(mSock, &msg, 0);
+
+				if(nbytes < 0) {
+					running = false;
+				} else {
+
+					if(mTimeStamp) {			//Timestamp option is enabled
+
+						//Extract timestamp
+						for (cmsg = CMSG_FIRSTHDR(&msg);
+							 cmsg && (cmsg->cmsg_level == SOL_SOCKET);
+							 cmsg = CMSG_NXTHDR(&msg,cmsg)) {
+							if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+						}
+
+					}
+
+
+					//Copy Frame
+					canFrame.setId(frame.can_id);
+
+					std::string data;
+					data.append((char*)(frame.data), frame.len);
+
+
+					canFrame.setData(data);
+
+
+					//Work is delegated to callback.
+					(mRcvCB)(canFrame, timestamp, mData);
+
+				}
+
+			}
+|————————————Node:if Text: if
+|————————————Node:condition_clause Text: (FD_ISSET(mSock, &rdfs))
+|—————————————Node:( Text: (
+|—————————————Node:call_expression Text: FD_ISSET(mSock, &rdfs)
+|——————————————Node:identifier Text: FD_ISSET
+|——————————————Node:argument_list Text: (mSock, &rdfs)
+|———————————————Node:( Text: (
+|———————————————Node:identifier Text: mSock
+|———————————————Node:, Text: ,
+|———————————————Node:pointer_expression Text: &rdfs
+|————————————————Node:& Text: &
+|————————————————Node:identifier Text: rdfs
+|———————————————Node:) Text: )
+|—————————————Node:) Text: )
+|————————————Node:compound_statement Text: {		//Frame available from interface
+
+				iov.iov_len = sizeof(frame);
+				msg.msg_namelen = sizeof(addr);
+				msg.msg_controllen = sizeof(ctrlmsg);
+				msg.msg_flags = 0;
+
+				nbytes = recvmsg(mSock, &msg, 0);
+
+				if(nbytes < 0) {
+					running = false;
+				} else {
+
+					if(mTimeStamp) {			//Timestamp option is enabled
+
+						//Extract timestamp
+						for (cmsg = CMSG_FIRSTHDR(&msg);
+							 cmsg && (cmsg->cmsg_level == SOL_SOCKET);
+							 cmsg = CMSG_NXTHDR(&msg,cmsg)) {
+							if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+						}
+
+					}
+
+
+					//Copy Frame
+					canFrame.setId(frame.can_id);
+
+					std::string data;
+					data.append((char*)(frame.data), frame.len);
+
+
+					canFrame.setData(data);
+
+
+					//Work is delegated to callback.
+					(mRcvCB)(canFrame, timestamp, mData);
+
+				}
+
+			}
+|—————————————Node:{ Text: {
+|—————————————Node:comment Text: //Frame available from interface
+|—————————————Node:expression_statement Text: iov.iov_len = sizeof(frame);
+|——————————————Node:assignment_expression Text: iov.iov_len = sizeof(frame)
+|———————————————Node:field_expression Text: iov.iov_len
+|————————————————Node:identifier Text: iov
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: iov_len
+|———————————————Node:= Text: =
+|———————————————Node:sizeof_expression Text: sizeof(frame)
+|————————————————Node:sizeof Text: sizeof
+|————————————————Node:parenthesized_expression Text: (frame)
+|—————————————————Node:( Text: (
+|—————————————————Node:identifier Text: frame
+|—————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:expression_statement Text: msg.msg_namelen = sizeof(addr);
+|——————————————Node:assignment_expression Text: msg.msg_namelen = sizeof(addr)
+|———————————————Node:field_expression Text: msg.msg_namelen
+|————————————————Node:identifier Text: msg
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: msg_namelen
+|———————————————Node:= Text: =
+|———————————————Node:sizeof_expression Text: sizeof(addr)
+|————————————————Node:sizeof Text: sizeof
+|————————————————Node:parenthesized_expression Text: (addr)
+|—————————————————Node:( Text: (
+|—————————————————Node:identifier Text: addr
+|—————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:expression_statement Text: msg.msg_controllen = sizeof(ctrlmsg);
+|——————————————Node:assignment_expression Text: msg.msg_controllen = sizeof(ctrlmsg)
+|———————————————Node:field_expression Text: msg.msg_controllen
+|————————————————Node:identifier Text: msg
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: msg_controllen
+|———————————————Node:= Text: =
+|———————————————Node:sizeof_expression Text: sizeof(ctrlmsg)
+|————————————————Node:sizeof Text: sizeof
+|————————————————Node:parenthesized_expression Text: (ctrlmsg)
+|—————————————————Node:( Text: (
+|—————————————————Node:identifier Text: ctrlmsg
+|—————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:expression_statement Text: msg.msg_flags = 0;
+|——————————————Node:assignment_expression Text: msg.msg_flags = 0
+|———————————————Node:field_expression Text: msg.msg_flags
+|————————————————Node:identifier Text: msg
+|————————————————Node:. Text: .
+|————————————————Node:field_identifier Text: msg_flags
+|———————————————Node:= Text: =
+|———————————————Node:number_literal Text: 0
+|——————————————Node:; Text: ;
+|—————————————Node:expression_statement Text: nbytes = recvmsg(mSock, &msg, 0);
+|——————————————Node:assignment_expression Text: nbytes = recvmsg(mSock, &msg, 0)
+|———————————————Node:identifier Text: nbytes
+|———————————————Node:= Text: =
+|———————————————Node:call_expression Text: recvmsg(mSock, &msg, 0)
+|————————————————Node:identifier Text: recvmsg
+|————————————————Node:argument_list Text: (mSock, &msg, 0)
+|—————————————————Node:( Text: (
+|—————————————————Node:identifier Text: mSock
+|—————————————————Node:, Text: ,
+|—————————————————Node:pointer_expression Text: &msg
+|——————————————————Node:& Text: &
+|——————————————————Node:identifier Text: msg
+|—————————————————Node:, Text: ,
+|—————————————————Node:number_literal Text: 0
+|—————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:if_statement Text: if(nbytes < 0) {
+					running = false;
+				} else {
+
+					if(mTimeStamp) {			//Timestamp option is enabled
+
+						//Extract timestamp
+						for (cmsg = CMSG_FIRSTHDR(&msg);
+							 cmsg && (cmsg->cmsg_level == SOL_SOCKET);
+							 cmsg = CMSG_NXTHDR(&msg,cmsg)) {
+							if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+						}
+
+					}
+
+
+					//Copy Frame
+					canFrame.setId(frame.can_id);
+
+					std::string data;
+					data.append((char*)(frame.data), frame.len);
+
+
+					canFrame.setData(data);
+
+
+					//Work is delegated to callback.
+					(mRcvCB)(canFrame, timestamp, mData);
+
+				}
+|——————————————Node:if Text: if
+|——————————————Node:condition_clause Text: (nbytes < 0)
+|———————————————Node:( Text: (
+|———————————————Node:binary_expression Text: nbytes < 0
+|————————————————Node:identifier Text: nbytes
+|————————————————Node:< Text: <
+|————————————————Node:number_literal Text: 0
+|———————————————Node:) Text: )
+|——————————————Node:compound_statement Text: {
+					running = false;
+				}
+|———————————————Node:{ Text: {
+|———————————————Node:expression_statement Text: running = false;
+|————————————————Node:assignment_expression Text: running = false
+|—————————————————Node:identifier Text: running
+|—————————————————Node:= Text: =
+|—————————————————Node:false Text: false
+|————————————————Node:; Text: ;
+|———————————————Node:} Text: }
+|——————————————Node:else_clause Text: else {
+
+					if(mTimeStamp) {			//Timestamp option is enabled
+
+						//Extract timestamp
+						for (cmsg = CMSG_FIRSTHDR(&msg);
+							 cmsg && (cmsg->cmsg_level == SOL_SOCKET);
+							 cmsg = CMSG_NXTHDR(&msg,cmsg)) {
+							if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+						}
+
+					}
+
+
+					//Copy Frame
+					canFrame.setId(frame.can_id);
+
+					std::string data;
+					data.append((char*)(frame.data), frame.len);
+
+
+					canFrame.setData(data);
+
+
+					//Work is delegated to callback.
+					(mRcvCB)(canFrame, timestamp, mData);
+
+				}
+|———————————————Node:else Text: else
+|———————————————Node:compound_statement Text: {
+
+					if(mTimeStamp) {			//Timestamp option is enabled
+
+						//Extract timestamp
+						for (cmsg = CMSG_FIRSTHDR(&msg);
+							 cmsg && (cmsg->cmsg_level == SOL_SOCKET);
+							 cmsg = CMSG_NXTHDR(&msg,cmsg)) {
+							if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+						}
+
+					}
+
+
+					//Copy Frame
+					canFrame.setId(frame.can_id);
+
+					std::string data;
+					data.append((char*)(frame.data), frame.len);
+
+
+					canFrame.setData(data);
+
+
+					//Work is delegated to callback.
+					(mRcvCB)(canFrame, timestamp, mData);
+
+				}
+|————————————————Node:{ Text: {
+|————————————————Node:if_statement Text: if(mTimeStamp) {			//Timestamp option is enabled
+
+						//Extract timestamp
+						for (cmsg = CMSG_FIRSTHDR(&msg);
+							 cmsg && (cmsg->cmsg_level == SOL_SOCKET);
+							 cmsg = CMSG_NXTHDR(&msg,cmsg)) {
+							if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+						}
+
+					}
+|—————————————————Node:if Text: if
+|—————————————————Node:condition_clause Text: (mTimeStamp)
+|——————————————————Node:( Text: (
+|——————————————————Node:identifier Text: mTimeStamp
+|——————————————————Node:) Text: )
+|—————————————————Node:compound_statement Text: {			//Timestamp option is enabled
+
+						//Extract timestamp
+						for (cmsg = CMSG_FIRSTHDR(&msg);
+							 cmsg && (cmsg->cmsg_level == SOL_SOCKET);
+							 cmsg = CMSG_NXTHDR(&msg,cmsg)) {
+							if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+						}
+
+					}
+|——————————————————Node:{ Text: {
+|——————————————————Node:comment Text: //Timestamp option is enabled
+|——————————————————Node:comment Text: //Extract timestamp
+|——————————————————Node:for_statement Text: for (cmsg = CMSG_FIRSTHDR(&msg);
+							 cmsg && (cmsg->cmsg_level == SOL_SOCKET);
+							 cmsg = CMSG_NXTHDR(&msg,cmsg)) {
+							if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+						}
+|———————————————————Node:for Text: for
+|———————————————————Node:( Text: (
+|———————————————————Node:assignment_expression Text: cmsg = CMSG_FIRSTHDR(&msg)
+|————————————————————Node:identifier Text: cmsg
+|————————————————————Node:= Text: =
+|————————————————————Node:call_expression Text: CMSG_FIRSTHDR(&msg)
+|—————————————————————Node:identifier Text: CMSG_FIRSTHDR
+|—————————————————————Node:argument_list Text: (&msg)
+|——————————————————————Node:( Text: (
+|——————————————————————Node:pointer_expression Text: &msg
+|———————————————————————Node:& Text: &
+|———————————————————————Node:identifier Text: msg
+|——————————————————————Node:) Text: )
+|———————————————————Node:; Text: ;
+|———————————————————Node:binary_expression Text: cmsg && (cmsg->cmsg_level == SOL_SOCKET)
+|————————————————————Node:identifier Text: cmsg
+|————————————————————Node:&& Text: &&
+|————————————————————Node:parenthesized_expression Text: (cmsg->cmsg_level == SOL_SOCKET)
+|—————————————————————Node:( Text: (
+|—————————————————————Node:binary_expression Text: cmsg->cmsg_level == SOL_SOCKET
+|——————————————————————Node:field_expression Text: cmsg->cmsg_level
+|———————————————————————Node:identifier Text: cmsg
+|———————————————————————Node:-> Text: ->
+|———————————————————————Node:field_identifier Text: cmsg_level
+|——————————————————————Node:== Text: ==
+|——————————————————————Node:identifier Text: SOL_SOCKET
+|—————————————————————Node:) Text: )
+|———————————————————Node:; Text: ;
+|———————————————————Node:assignment_expression Text: cmsg = CMSG_NXTHDR(&msg,cmsg)
+|————————————————————Node:identifier Text: cmsg
+|————————————————————Node:= Text: =
+|————————————————————Node:call_expression Text: CMSG_NXTHDR(&msg,cmsg)
+|—————————————————————Node:identifier Text: CMSG_NXTHDR
+|—————————————————————Node:argument_list Text: (&msg,cmsg)
+|——————————————————————Node:( Text: (
+|——————————————————————Node:pointer_expression Text: &msg
+|———————————————————————Node:& Text: &
+|———————————————————————Node:identifier Text: msg
+|——————————————————————Node:, Text: ,
+|——————————————————————Node:identifier Text: cmsg
+|——————————————————————Node:) Text: )
+|———————————————————Node:) Text: )
+|———————————————————Node:compound_statement Text: {
+							if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+						}
+|————————————————————Node:{ Text: {
+|————————————————————Node:if_statement Text: if (cmsg->cmsg_type == SO_TIMESTAMP) {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							} else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+|—————————————————————Node:if Text: if
+|—————————————————————Node:condition_clause Text: (cmsg->cmsg_type == SO_TIMESTAMP)
+|——————————————————————Node:( Text: (
+|——————————————————————Node:binary_expression Text: cmsg->cmsg_type == SO_TIMESTAMP
+|———————————————————————Node:field_expression Text: cmsg->cmsg_type
+|————————————————————————Node:identifier Text: cmsg
+|————————————————————————Node:-> Text: ->
+|————————————————————————Node:field_identifier Text: cmsg_type
+|———————————————————————Node:== Text: ==
+|———————————————————————Node:identifier Text: SO_TIMESTAMP
+|——————————————————————Node:) Text: )
+|—————————————————————Node:compound_statement Text: {
+
+								timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+
+								timestamp.setMicroSec(stamp->tv_usec);
+								timestamp.setSeconds(stamp->tv_sec);
+
+							}
+|——————————————————————Node:{ Text: {
+|——————————————————————Node:declaration Text: timeval *stamp = (timeval*)(CMSG_DATA(cmsg));
+|———————————————————————Node:type_identifier Text: timeval
+|———————————————————————Node:init_declarator Text: *stamp = (timeval*)(CMSG_DATA(cmsg))
+|————————————————————————Node:pointer_declarator Text: *stamp
+|—————————————————————————Node:* Text: *
+|—————————————————————————Node:identifier Text: stamp
+|————————————————————————Node:= Text: =
+|————————————————————————Node:cast_expression Text: (timeval*)(CMSG_DATA(cmsg))
+|—————————————————————————Node:( Text: (
+|—————————————————————————Node:type_descriptor Text: timeval*
+|——————————————————————————Node:type_identifier Text: timeval
+|——————————————————————————Node:abstract_pointer_declarator Text: *
+|———————————————————————————Node:* Text: *
+|—————————————————————————Node:) Text: )
+|—————————————————————————Node:parenthesized_expression Text: (CMSG_DATA(cmsg))
+|——————————————————————————Node:( Text: (
+|——————————————————————————Node:call_expression Text: CMSG_DATA(cmsg)
+|———————————————————————————Node:identifier Text: CMSG_DATA
+|———————————————————————————Node:argument_list Text: (cmsg)
+|————————————————————————————Node:( Text: (
+|————————————————————————————Node:identifier Text: cmsg
+|————————————————————————————Node:) Text: )
+|——————————————————————————Node:) Text: )
+|———————————————————————Node:; Text: ;
+|——————————————————————Node:expression_statement Text: timestamp.setMicroSec(stamp->tv_usec);
+|———————————————————————Node:call_expression Text: timestamp.setMicroSec(stamp->tv_usec)
+|————————————————————————Node:field_expression Text: timestamp.setMicroSec
+|—————————————————————————Node:identifier Text: timestamp
+|—————————————————————————Node:. Text: .
+|—————————————————————————Node:field_identifier Text: setMicroSec
+|————————————————————————Node:argument_list Text: (stamp->tv_usec)
+|—————————————————————————Node:( Text: (
+|—————————————————————————Node:field_expression Text: stamp->tv_usec
+|——————————————————————————Node:identifier Text: stamp
+|——————————————————————————Node:-> Text: ->
+|——————————————————————————Node:field_identifier Text: tv_usec
+|—————————————————————————Node:) Text: )
+|———————————————————————Node:; Text: ;
+|——————————————————————Node:expression_statement Text: timestamp.setSeconds(stamp->tv_sec);
+|———————————————————————Node:call_expression Text: timestamp.setSeconds(stamp->tv_sec)
+|————————————————————————Node:field_expression Text: timestamp.setSeconds
+|—————————————————————————Node:identifier Text: timestamp
+|—————————————————————————Node:. Text: .
+|—————————————————————————Node:field_identifier Text: setSeconds
+|————————————————————————Node:argument_list Text: (stamp->tv_sec)
+|—————————————————————————Node:( Text: (
+|—————————————————————————Node:field_expression Text: stamp->tv_sec
+|——————————————————————————Node:identifier Text: stamp
+|——————————————————————————Node:-> Text: ->
+|——————————————————————————Node:field_identifier Text: tv_sec
+|—————————————————————————Node:) Text: )
+|———————————————————————Node:; Text: ;
+|——————————————————————Node:} Text: }
+|—————————————————————Node:else_clause Text: else if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+|——————————————————————Node:else Text: else
+|——————————————————————Node:if_statement Text: if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+|———————————————————————Node:if Text: if
+|———————————————————————Node:condition_clause Text: (cmsg->cmsg_type == SO_TIMESTAMPING)
+|————————————————————————Node:( Text: (
+|————————————————————————Node:binary_expression Text: cmsg->cmsg_type == SO_TIMESTAMPING
+|—————————————————————————Node:field_expression Text: cmsg->cmsg_type
+|——————————————————————————Node:identifier Text: cmsg
+|——————————————————————————Node:-> Text: ->
+|——————————————————————————Node:field_identifier Text: cmsg_type
+|—————————————————————————Node:== Text: ==
+|—————————————————————————Node:identifier Text: SO_TIMESTAMPING
+|————————————————————————Node:) Text: )
+|———————————————————————Node:compound_statement Text: {
+
+								timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+
+								/*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+								timestamp.setSeconds(stamp[2].tv_sec);
+								timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+							}
+|————————————————————————Node:{ Text: {
+|————————————————————————Node:declaration Text: timespec *stamp = (struct timespec *)CMSG_DATA(cmsg);
+|—————————————————————————Node:type_identifier Text: timespec
+|—————————————————————————Node:init_declarator Text: *stamp = (struct timespec *)CMSG_DATA(cmsg)
+|——————————————————————————Node:pointer_declarator Text: *stamp
+|———————————————————————————Node:* Text: *
+|———————————————————————————Node:identifier Text: stamp
+|——————————————————————————Node:= Text: =
+|——————————————————————————Node:cast_expression Text: (struct timespec *)CMSG_DATA(cmsg)
+|———————————————————————————Node:( Text: (
+|———————————————————————————Node:type_descriptor Text: struct timespec *
+|————————————————————————————Node:struct_specifier Text: struct timespec
+|—————————————————————————————Node:struct Text: struct
+|—————————————————————————————Node:type_identifier Text: timespec
+|————————————————————————————Node:abstract_pointer_declarator Text: *
+|—————————————————————————————Node:* Text: *
+|———————————————————————————Node:) Text: )
+|———————————————————————————Node:call_expression Text: CMSG_DATA(cmsg)
+|————————————————————————————Node:identifier Text: CMSG_DATA
+|————————————————————————————Node:argument_list Text: (cmsg)
+|—————————————————————————————Node:( Text: (
+|—————————————————————————————Node:identifier Text: cmsg
+|—————————————————————————————Node:) Text: )
+|—————————————————————————Node:; Text: ;
+|————————————————————————Node:comment Text: /*
+								 * stamp[0] is the software timestamp
+								 * stamp[1] is deprecated
+								 * stamp[2] is the raw hardware timestamp
+								 * See chapter 2.1.2 Receive timestamps in
+								 * linux/Documentation/networking/timestamping.txt
+								 */
+|————————————————————————Node:expression_statement Text: timestamp.setSeconds(stamp[2].tv_sec);
+|—————————————————————————Node:call_expression Text: timestamp.setSeconds(stamp[2].tv_sec)
+|——————————————————————————Node:field_expression Text: timestamp.setSeconds
+|———————————————————————————Node:identifier Text: timestamp
+|———————————————————————————Node:. Text: .
+|———————————————————————————Node:field_identifier Text: setSeconds
+|——————————————————————————Node:argument_list Text: (stamp[2].tv_sec)
+|———————————————————————————Node:( Text: (
+|———————————————————————————Node:field_expression Text: stamp[2].tv_sec
+|————————————————————————————Node:subscript_expression Text: stamp[2]
+|—————————————————————————————Node:identifier Text: stamp
+|—————————————————————————————Node:subscript_argument_list Text: [2]
+|——————————————————————————————Node:[ Text: [
+|——————————————————————————————Node:number_literal Text: 2
+|——————————————————————————————Node:] Text: ]
+|————————————————————————————Node:. Text: .
+|————————————————————————————Node:field_identifier Text: tv_sec
+|———————————————————————————Node:) Text: )
+|—————————————————————————Node:; Text: ;
+|————————————————————————Node:expression_statement Text: timestamp.setMicroSec(stamp[2].tv_nsec/1000);
+|—————————————————————————Node:call_expression Text: timestamp.setMicroSec(stamp[2].tv_nsec/1000)
+|——————————————————————————Node:field_expression Text: timestamp.setMicroSec
+|———————————————————————————Node:identifier Text: timestamp
+|———————————————————————————Node:. Text: .
+|———————————————————————————Node:field_identifier Text: setMicroSec
+|——————————————————————————Node:argument_list Text: (stamp[2].tv_nsec/1000)
+|———————————————————————————Node:( Text: (
+|———————————————————————————Node:binary_expression Text: stamp[2].tv_nsec/1000
+|————————————————————————————Node:field_expression Text: stamp[2].tv_nsec
+|—————————————————————————————Node:subscript_expression Text: stamp[2]
+|——————————————————————————————Node:identifier Text: stamp
+|——————————————————————————————Node:subscript_argument_list Text: [2]
+|———————————————————————————————Node:[ Text: [
+|———————————————————————————————Node:number_literal Text: 2
+|———————————————————————————————Node:] Text: ]
+|—————————————————————————————Node:. Text: .
+|—————————————————————————————Node:field_identifier Text: tv_nsec
+|————————————————————————————Node:/ Text: /
+|————————————————————————————Node:number_literal Text: 1000
+|———————————————————————————Node:) Text: )
+|—————————————————————————Node:; Text: ;
+|————————————————————————Node:} Text: }
+|————————————————————Node:} Text: }
+|——————————————————Node:} Text: }
+|————————————————Node:comment Text: //Copy Frame
+|————————————————Node:expression_statement Text: canFrame.setId(frame.can_id);
+|—————————————————Node:call_expression Text: canFrame.setId(frame.can_id)
+|——————————————————Node:field_expression Text: canFrame.setId
+|———————————————————Node:identifier Text: canFrame
+|———————————————————Node:. Text: .
+|———————————————————Node:field_identifier Text: setId
+|——————————————————Node:argument_list Text: (frame.can_id)
+|———————————————————Node:( Text: (
+|———————————————————Node:field_expression Text: frame.can_id
+|————————————————————Node:identifier Text: frame
+|————————————————————Node:. Text: .
+|————————————————————Node:field_identifier Text: can_id
+|———————————————————Node:) Text: )
+|—————————————————Node:; Text: ;
+|————————————————Node:declaration Text: std::string data;
+|—————————————————Node:qualified_identifier Text: std::string
+|——————————————————Node:namespace_identifier Text: std
+|——————————————————Node::: Text: ::
+|——————————————————Node:type_identifier Text: string
+|—————————————————Node:identifier Text: data
+|—————————————————Node:; Text: ;
+|————————————————Node:expression_statement Text: data.append((char*)(frame.data), frame.len);
+|—————————————————Node:call_expression Text: data.append((char*)(frame.data), frame.len)
+|——————————————————Node:field_expression Text: data.append
+|———————————————————Node:identifier Text: data
+|———————————————————Node:. Text: .
+|———————————————————Node:field_identifier Text: append
+|——————————————————Node:argument_list Text: ((char*)(frame.data), frame.len)
+|———————————————————Node:( Text: (
+|———————————————————Node:cast_expression Text: (char*)(frame.data)
+|————————————————————Node:( Text: (
+|————————————————————Node:type_descriptor Text: char*
+|—————————————————————Node:primitive_type Text: char
+|—————————————————————Node:abstract_pointer_declarator Text: *
+|——————————————————————Node:* Text: *
+|————————————————————Node:) Text: )
+|————————————————————Node:parenthesized_expression Text: (frame.data)
+|—————————————————————Node:( Text: (
+|—————————————————————Node:field_expression Text: frame.data
+|——————————————————————Node:identifier Text: frame
+|——————————————————————Node:. Text: .
+|——————————————————————Node:field_identifier Text: data
+|—————————————————————Node:) Text: )
+|———————————————————Node:, Text: ,
+|———————————————————Node:field_expression Text: frame.len
+|————————————————————Node:identifier Text: frame
+|————————————————————Node:. Text: .
+|————————————————————Node:field_identifier Text: len
+|———————————————————Node:) Text: )
+|—————————————————Node:; Text: ;
+|————————————————Node:expression_statement Text: canFrame.setData(data);
+|—————————————————Node:call_expression Text: canFrame.setData(data)
+|——————————————————Node:field_expression Text: canFrame.setData
+|———————————————————Node:identifier Text: canFrame
+|———————————————————Node:. Text: .
+|———————————————————Node:field_identifier Text: setData
+|——————————————————Node:argument_list Text: (data)
+|———————————————————Node:( Text: (
+|———————————————————Node:identifier Text: data
+|———————————————————Node:) Text: )
+|—————————————————Node:; Text: ;
+|————————————————Node:comment Text: //Work is delegated to callback.
+|————————————————Node:expression_statement Text: (mRcvCB)(canFrame, timestamp, mData);
+|—————————————————Node:call_expression Text: (mRcvCB)(canFrame, timestamp, mData)
+|——————————————————Node:parenthesized_expression Text: (mRcvCB)
+|———————————————————Node:( Text: (
+|———————————————————Node:identifier Text: mRcvCB
+|———————————————————Node:) Text: )
+|——————————————————Node:argument_list Text: (canFrame, timestamp, mData)
+|———————————————————Node:( Text: (
+|———————————————————Node:identifier Text: canFrame
+|———————————————————Node:, Text: ,
+|———————————————————Node:identifier Text: timestamp
+|———————————————————Node:, Text: ,
+|———————————————————Node:identifier Text: mData
+|———————————————————Node:) Text: )
+|—————————————————Node:; Text: ;
+|————————————————Node:} Text: }
+|—————————————Node:} Text: }
+|———————————Node:} Text: }
+|——————————Node:else_clause Text: else if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+|———————————Node:else Text: else
+|———————————Node:if_statement Text: if (result == 0) {		//Timeout expired
+			running = (mTimeoutCB)();
+		} else {
+			running = false;
+		}
+|————————————Node:if Text: if
+|————————————Node:condition_clause Text: (result == 0)
+|—————————————Node:( Text: (
+|—————————————Node:binary_expression Text: result == 0
+|——————————————Node:identifier Text: result
+|——————————————Node:== Text: ==
+|——————————————Node:number_literal Text: 0
+|—————————————Node:) Text: )
+|————————————Node:compound_statement Text: {		//Timeout expired
+			running = (mTimeoutCB)();
+		}
+|—————————————Node:{ Text: {
+|—————————————Node:comment Text: //Timeout expired
+|—————————————Node:expression_statement Text: running = (mTimeoutCB)();
+|——————————————Node:assignment_expression Text: running = (mTimeoutCB)()
+|———————————————Node:identifier Text: running
+|———————————————Node:= Text: =
+|———————————————Node:call_expression Text: (mTimeoutCB)()
+|————————————————Node:parenthesized_expression Text: (mTimeoutCB)
+|—————————————————Node:( Text: (
+|—————————————————Node:identifier Text: mTimeoutCB
+|—————————————————Node:) Text: )
+|————————————————Node:argument_list Text: ()
+|—————————————————Node:( Text: (
+|—————————————————Node:) Text: )
+|——————————————Node:; Text: ;
+|—————————————Node:} Text: }
+|————————————Node:else_clause Text: else {
+			running = false;
+		}
+|—————————————Node:else Text: else
+|—————————————Node:compound_statement Text: {
+			running = false;
+		}
+|——————————————Node:{ Text: {
+|——————————————Node:expression_statement Text: running = false;
+|———————————————Node:assignment_expression Text: running = false
+|————————————————Node:identifier Text: running
+|————————————————Node:= Text: =
+|————————————————Node:false Text: false
+|———————————————Node:; Text: ;
+|——————————————Node:} Text: }
+|—————————Node:} Text: }
+|————————Node:while Text: while
+|————————Node:parenthesized_expression Text: (running)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: running
+|—————————Node:) Text: )
+|————————Node:; Text: ;
+|———————Node:} Text: }
+|—————Node:} Text: }
+|———Node:comment Text: /* namespace Sockets */
+|———Node:} Text: }
+|—Node:comment Text: /* namespace Can */

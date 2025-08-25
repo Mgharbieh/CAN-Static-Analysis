@@ -1,0 +1,958 @@
+busmaster-Sources\TOOLS_EXTERNAL\EXT_DBC_2_DBF\Message.cpp
+
+|Node:translation_unit
+|—Node:comment
+|—Node:comment
+|—Node:preproc_include Text: #include "stdafx.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "stdafx.h"
+|———Node:" Text: "
+|———Node:string_content Text: stdafx.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "CANDBConverter.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "CANDBConverter.h"
+|———Node:" Text: "
+|———Node:string_content Text: CANDBConverter.h
+|———Node:" Text: "
+|—Node:preproc_include Text: #include "Message.h"
+
+|——Node:#include Text: #include
+|——Node:string_literal Text: "Message.h"
+|———Node:" Text: "
+|———Node:string_content Text: Message.h
+|———Node:" Text: "
+|—Node:preproc_ifdef Text: #ifdef _DEBUG
+#undef THIS_FILE
+static char THIS_FILE[]=__FILE__;
+#define new DEBUG_NEW
+#endif
+|——Node:#ifdef Text: #ifdef
+|——Node:identifier Text: _DEBUG
+|——Node:preproc_call Text: #undef THIS_FILE
+
+|———Node:preproc_directive Text: #undef
+|———Node:preproc_arg Text: THIS_FILE
+|——Node:declaration Text: static char THIS_FILE[]=__FILE__;
+|———Node:storage_class_specifier Text: static
+|————Node:static Text: static
+|———Node:primitive_type Text: char
+|———Node:init_declarator Text: THIS_FILE[]=__FILE__
+|————Node:array_declarator Text: THIS_FILE[]
+|—————Node:identifier Text: THIS_FILE
+|—————Node:[ Text: [
+|—————Node:] Text: ]
+|————Node:= Text: =
+|————Node:identifier Text: __FILE__
+|———Node:; Text: ;
+|——Node:preproc_def Text: #define new DEBUG_NEW
+
+|———Node:#define Text: #define
+|———Node:identifier Text: new
+|———Node:preproc_arg Text: DEBUG_NEW
+|——Node:#endif Text: #endif
+|—Node:comment
+|—Node:function_definition Text: CMessage::CMessage()
+{
+    m_acName[0] = '\0';
+    m_txNode = "\0";
+    m_cDataFormat = CSignal::SIG_DF_INTEL;
+    m_cFrameFormat = MSG_FF_STANDARD;
+    m_ucLength = 8;
+    m_ucNumOfSignals = 1;
+    m_uiMsgID = 0;
+    m_listSignals.RemoveAll();
+}
+|——Node:function_declarator Text: CMessage::CMessage()
+|———Node:qualified_identifier Text: CMessage::CMessage
+|————Node:namespace_identifier Text: CMessage
+|————Node::: Text: ::
+|————Node:identifier Text: CMessage
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    m_acName[0] = '\0';
+    m_txNode = "\0";
+    m_cDataFormat = CSignal::SIG_DF_INTEL;
+    m_cFrameFormat = MSG_FF_STANDARD;
+    m_ucLength = 8;
+    m_ucNumOfSignals = 1;
+    m_uiMsgID = 0;
+    m_listSignals.RemoveAll();
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: m_acName[0] = '\0';
+|————Node:assignment_expression Text: m_acName[0] = '\0'
+|—————Node:subscript_expression Text: m_acName[0]
+|——————Node:identifier Text: m_acName
+|——————Node:subscript_argument_list Text: [0]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 0
+|———————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:char_literal Text: '\0'
+|——————Node:' Text: '
+|——————Node:escape_sequence Text: \0
+|——————Node:' Text: '
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_txNode = "\0";
+|————Node:assignment_expression Text: m_txNode = "\0"
+|—————Node:identifier Text: m_txNode
+|—————Node:= Text: =
+|—————Node:string_literal Text: "\0"
+|——————Node:" Text: "
+|——————Node:escape_sequence Text: \0
+|——————Node:" Text: "
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_cDataFormat = CSignal::SIG_DF_INTEL;
+|————Node:assignment_expression Text: m_cDataFormat = CSignal::SIG_DF_INTEL
+|—————Node:identifier Text: m_cDataFormat
+|—————Node:= Text: =
+|—————Node:qualified_identifier Text: CSignal::SIG_DF_INTEL
+|——————Node:namespace_identifier Text: CSignal
+|——————Node::: Text: ::
+|——————Node:identifier Text: SIG_DF_INTEL
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_cFrameFormat = MSG_FF_STANDARD;
+|————Node:assignment_expression Text: m_cFrameFormat = MSG_FF_STANDARD
+|—————Node:identifier Text: m_cFrameFormat
+|—————Node:= Text: =
+|—————Node:identifier Text: MSG_FF_STANDARD
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_ucLength = 8;
+|————Node:assignment_expression Text: m_ucLength = 8
+|—————Node:identifier Text: m_ucLength
+|—————Node:= Text: =
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_ucNumOfSignals = 1;
+|————Node:assignment_expression Text: m_ucNumOfSignals = 1
+|—————Node:identifier Text: m_ucNumOfSignals
+|—————Node:= Text: =
+|—————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_uiMsgID = 0;
+|————Node:assignment_expression Text: m_uiMsgID = 0
+|—————Node:identifier Text: m_uiMsgID
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_listSignals.RemoveAll();
+|————Node:call_expression Text: m_listSignals.RemoveAll()
+|—————Node:field_expression Text: m_listSignals.RemoveAll
+|——————Node:identifier Text: m_listSignals
+|——————Node:. Text: .
+|——————Node:field_identifier Text: RemoveAll
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: CMessage::~CMessage()
+{
+    if(!m_listSignals.IsEmpty())
+    {
+        m_listSignals.RemoveAll();
+    }
+}
+|——Node:function_declarator Text: CMessage::~CMessage()
+|———Node:qualified_identifier Text: CMessage::~CMessage
+|————Node:namespace_identifier Text: CMessage
+|————Node::: Text: ::
+|————Node:destructor_name Text: ~CMessage
+|—————Node:~ Text: ~
+|—————Node:identifier Text: CMessage
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    if(!m_listSignals.IsEmpty())
+    {
+        m_listSignals.RemoveAll();
+    }
+}
+|———Node:{ Text: {
+|———Node:if_statement Text: if(!m_listSignals.IsEmpty())
+    {
+        m_listSignals.RemoveAll();
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (!m_listSignals.IsEmpty())
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !m_listSignals.IsEmpty()
+|——————Node:! Text: !
+|——————Node:call_expression Text: m_listSignals.IsEmpty()
+|———————Node:field_expression Text: m_listSignals.IsEmpty
+|————————Node:identifier Text: m_listSignals
+|————————Node:. Text: .
+|————————Node:field_identifier Text: IsEmpty
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        m_listSignals.RemoveAll();
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: m_listSignals.RemoveAll();
+|——————Node:call_expression Text: m_listSignals.RemoveAll()
+|———————Node:field_expression Text: m_listSignals.RemoveAll
+|————————Node:identifier Text: m_listSignals
+|————————Node:. Text: .
+|————————Node:field_identifier Text: RemoveAll
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: CMessage& CMessage::operator=(CMessage& message)
+{
+    // if there are some elements in the signal list clear them first
+    if(!m_listSignals.IsEmpty())
+    {
+        m_listSignals.RemoveAll();
+    }
+
+    // now copy the other elements of the new message to this
+    strcpy(m_acName,message.m_acName);
+    m_txNode = message.m_txNode;
+    m_cDataFormat = message.m_cDataFormat;
+    m_cFrameFormat = message.m_cFrameFormat;
+    m_ucLength = message.m_ucLength;
+    m_ucNumOfSignals = message.m_ucNumOfSignals;
+    m_uiMsgID = message.m_uiMsgID;
+    m_listSignals.AddTail(&message.m_listSignals);
+    return (*this);
+}
+|——Node:type_identifier Text: CMessage
+|——Node:reference_declarator Text: & CMessage::operator=(CMessage& message)
+|———Node:& Text: &
+|———Node:function_declarator Text: CMessage::operator=(CMessage& message)
+|————Node:qualified_identifier Text: CMessage::operator=
+|—————Node:namespace_identifier Text: CMessage
+|—————Node::: Text: ::
+|—————Node:operator_name Text: operator=
+|——————Node:operator Text: operator
+|——————Node:= Text: =
+|————Node:parameter_list Text: (CMessage& message)
+|—————Node:( Text: (
+|—————Node:parameter_declaration Text: CMessage& message
+|——————Node:type_identifier Text: CMessage
+|——————Node:reference_declarator Text: & message
+|———————Node:& Text: &
+|———————Node:identifier Text: message
+|—————Node:) Text: )
+|——Node:compound_statement Text: {
+    // if there are some elements in the signal list clear them first
+    if(!m_listSignals.IsEmpty())
+    {
+        m_listSignals.RemoveAll();
+    }
+
+    // now copy the other elements of the new message to this
+    strcpy(m_acName,message.m_acName);
+    m_txNode = message.m_txNode;
+    m_cDataFormat = message.m_cDataFormat;
+    m_cFrameFormat = message.m_cFrameFormat;
+    m_ucLength = message.m_ucLength;
+    m_ucNumOfSignals = message.m_ucNumOfSignals;
+    m_uiMsgID = message.m_uiMsgID;
+    m_listSignals.AddTail(&message.m_listSignals);
+    return (*this);
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:if_statement Text: if(!m_listSignals.IsEmpty())
+    {
+        m_listSignals.RemoveAll();
+    }
+|————Node:if Text: if
+|————Node:condition_clause Text: (!m_listSignals.IsEmpty())
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !m_listSignals.IsEmpty()
+|——————Node:! Text: !
+|——————Node:call_expression Text: m_listSignals.IsEmpty()
+|———————Node:field_expression Text: m_listSignals.IsEmpty
+|————————Node:identifier Text: m_listSignals
+|————————Node:. Text: .
+|————————Node:field_identifier Text: IsEmpty
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        m_listSignals.RemoveAll();
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: m_listSignals.RemoveAll();
+|——————Node:call_expression Text: m_listSignals.RemoveAll()
+|———————Node:field_expression Text: m_listSignals.RemoveAll
+|————————Node:identifier Text: m_listSignals
+|————————Node:. Text: .
+|————————Node:field_identifier Text: RemoveAll
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:comment
+|———Node:expression_statement Text: strcpy(m_acName,message.m_acName);
+|————Node:call_expression Text: strcpy(m_acName,message.m_acName)
+|—————Node:identifier Text: strcpy
+|—————Node:argument_list Text: (m_acName,message.m_acName)
+|——————Node:( Text: (
+|——————Node:identifier Text: m_acName
+|——————Node:, Text: ,
+|——————Node:field_expression Text: message.m_acName
+|———————Node:identifier Text: message
+|———————Node:. Text: .
+|———————Node:field_identifier Text: m_acName
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_txNode = message.m_txNode;
+|————Node:assignment_expression Text: m_txNode = message.m_txNode
+|—————Node:identifier Text: m_txNode
+|—————Node:= Text: =
+|—————Node:field_expression Text: message.m_txNode
+|——————Node:identifier Text: message
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_txNode
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_cDataFormat = message.m_cDataFormat;
+|————Node:assignment_expression Text: m_cDataFormat = message.m_cDataFormat
+|—————Node:identifier Text: m_cDataFormat
+|—————Node:= Text: =
+|—————Node:field_expression Text: message.m_cDataFormat
+|——————Node:identifier Text: message
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_cDataFormat
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_cFrameFormat = message.m_cFrameFormat;
+|————Node:assignment_expression Text: m_cFrameFormat = message.m_cFrameFormat
+|—————Node:identifier Text: m_cFrameFormat
+|—————Node:= Text: =
+|—————Node:field_expression Text: message.m_cFrameFormat
+|——————Node:identifier Text: message
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_cFrameFormat
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_ucLength = message.m_ucLength;
+|————Node:assignment_expression Text: m_ucLength = message.m_ucLength
+|—————Node:identifier Text: m_ucLength
+|—————Node:= Text: =
+|—————Node:field_expression Text: message.m_ucLength
+|——————Node:identifier Text: message
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_ucLength
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_ucNumOfSignals = message.m_ucNumOfSignals;
+|————Node:assignment_expression Text: m_ucNumOfSignals = message.m_ucNumOfSignals
+|—————Node:identifier Text: m_ucNumOfSignals
+|—————Node:= Text: =
+|—————Node:field_expression Text: message.m_ucNumOfSignals
+|——————Node:identifier Text: message
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_ucNumOfSignals
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_uiMsgID = message.m_uiMsgID;
+|————Node:assignment_expression Text: m_uiMsgID = message.m_uiMsgID
+|—————Node:identifier Text: m_uiMsgID
+|—————Node:= Text: =
+|—————Node:field_expression Text: message.m_uiMsgID
+|——————Node:identifier Text: message
+|——————Node:. Text: .
+|——————Node:field_identifier Text: m_uiMsgID
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_listSignals.AddTail(&message.m_listSignals);
+|————Node:call_expression Text: m_listSignals.AddTail(&message.m_listSignals)
+|—————Node:field_expression Text: m_listSignals.AddTail
+|——————Node:identifier Text: m_listSignals
+|——————Node:. Text: .
+|——————Node:field_identifier Text: AddTail
+|—————Node:argument_list Text: (&message.m_listSignals)
+|——————Node:( Text: (
+|——————Node:pointer_expression Text: &message.m_listSignals
+|———————Node:& Text: &
+|———————Node:field_expression Text: message.m_listSignals
+|————————Node:identifier Text: message
+|————————Node:. Text: .
+|————————Node:field_identifier Text: m_listSignals
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:return_statement Text: return (*this);
+|————Node:return Text: return
+|————Node:parenthesized_expression Text: (*this)
+|—————Node:( Text: (
+|—————Node:pointer_expression Text: *this
+|——————Node:* Text: *
+|——————Node:this Text: this
+|—————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: int CMessage::Format(char *pcLine)
+{
+    char* pcToken;
+    // get the MSG ID
+    pcToken = strtok(pcLine," :");
+    m_uiMsgID = strtoul(pcToken, NULL, 0);
+
+    // get the message name
+    pcToken = strtok(NULL," :");
+    strcpy(m_acName,pcToken);
+
+    // set the message length
+    pcToken = strtok(NULL,_T(" :"));
+    m_ucLength = (unsigned char)atoi(pcToken);
+    CConverter::ucMsg_DLC = m_ucLength; 
+
+    //get the Tx'ing Node Name
+    pcToken = strtok(NULL,_T(" :\n"));
+    if(strcmp(pcToken,_T("Vector__XXX")))
+        m_txNode = pcToken;
+    else
+        m_txNode = _T("");
+
+    // set the Data format
+    m_cDataFormat = CSignal::SIG_DF_INTEL;
+
+    // set the number of signals 
+    m_ucNumOfSignals = 0;	
+
+    return 1;
+}
+|——Node:primitive_type Text: int
+|——Node:function_declarator Text: CMessage::Format(char *pcLine)
+|———Node:qualified_identifier Text: CMessage::Format
+|————Node:namespace_identifier Text: CMessage
+|————Node::: Text: ::
+|————Node:identifier Text: Format
+|———Node:parameter_list Text: (char *pcLine)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: char *pcLine
+|—————Node:primitive_type Text: char
+|—————Node:pointer_declarator Text: *pcLine
+|——————Node:* Text: *
+|——————Node:identifier Text: pcLine
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    char* pcToken;
+    // get the MSG ID
+    pcToken = strtok(pcLine," :");
+    m_uiMsgID = strtoul(pcToken, NULL, 0);
+
+    // get the message name
+    pcToken = strtok(NULL," :");
+    strcpy(m_acName,pcToken);
+
+    // set the message length
+    pcToken = strtok(NULL,_T(" :"));
+    m_ucLength = (unsigned char)atoi(pcToken);
+    CConverter::ucMsg_DLC = m_ucLength; 
+
+    //get the Tx'ing Node Name
+    pcToken = strtok(NULL,_T(" :\n"));
+    if(strcmp(pcToken,_T("Vector__XXX")))
+        m_txNode = pcToken;
+    else
+        m_txNode = _T("");
+
+    // set the Data format
+    m_cDataFormat = CSignal::SIG_DF_INTEL;
+
+    // set the number of signals 
+    m_ucNumOfSignals = 0;	
+
+    return 1;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: char* pcToken;
+|————Node:primitive_type Text: char
+|————Node:pointer_declarator Text: * pcToken
+|—————Node:* Text: *
+|—————Node:identifier Text: pcToken
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: pcToken = strtok(pcLine," :");
+|————Node:assignment_expression Text: pcToken = strtok(pcLine," :")
+|—————Node:identifier Text: pcToken
+|—————Node:= Text: =
+|—————Node:call_expression Text: strtok(pcLine," :")
+|——————Node:identifier Text: strtok
+|——————Node:argument_list Text: (pcLine," :")
+|———————Node:( Text: (
+|———————Node:identifier Text: pcLine
+|———————Node:, Text: ,
+|———————Node:string_literal Text: " :"
+|————————Node:" Text: "
+|————————Node:string_content Text:  :
+|————————Node:" Text: "
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_uiMsgID = strtoul(pcToken, NULL, 0);
+|————Node:assignment_expression Text: m_uiMsgID = strtoul(pcToken, NULL, 0)
+|—————Node:identifier Text: m_uiMsgID
+|—————Node:= Text: =
+|—————Node:call_expression Text: strtoul(pcToken, NULL, 0)
+|——————Node:identifier Text: strtoul
+|——————Node:argument_list Text: (pcToken, NULL, 0)
+|———————Node:( Text: (
+|———————Node:identifier Text: pcToken
+|———————Node:, Text: ,
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|———————Node:, Text: ,
+|———————Node:number_literal Text: 0
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: pcToken = strtok(NULL," :");
+|————Node:assignment_expression Text: pcToken = strtok(NULL," :")
+|—————Node:identifier Text: pcToken
+|—————Node:= Text: =
+|—————Node:call_expression Text: strtok(NULL," :")
+|——————Node:identifier Text: strtok
+|——————Node:argument_list Text: (NULL," :")
+|———————Node:( Text: (
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|———————Node:, Text: ,
+|———————Node:string_literal Text: " :"
+|————————Node:" Text: "
+|————————Node:string_content Text:  :
+|————————Node:" Text: "
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: strcpy(m_acName,pcToken);
+|————Node:call_expression Text: strcpy(m_acName,pcToken)
+|—————Node:identifier Text: strcpy
+|—————Node:argument_list Text: (m_acName,pcToken)
+|——————Node:( Text: (
+|——————Node:identifier Text: m_acName
+|——————Node:, Text: ,
+|——————Node:identifier Text: pcToken
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: pcToken = strtok(NULL,_T(" :"));
+|————Node:assignment_expression Text: pcToken = strtok(NULL,_T(" :"))
+|—————Node:identifier Text: pcToken
+|—————Node:= Text: =
+|—————Node:call_expression Text: strtok(NULL,_T(" :"))
+|——————Node:identifier Text: strtok
+|——————Node:argument_list Text: (NULL,_T(" :"))
+|———————Node:( Text: (
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|———————Node:, Text: ,
+|———————Node:call_expression Text: _T(" :")
+|————————Node:identifier Text: _T
+|————————Node:argument_list Text: (" :")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: " :"
+|——————————Node:" Text: "
+|——————————Node:string_content Text:  :
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: m_ucLength = (unsigned char)atoi(pcToken);
+|————Node:assignment_expression Text: m_ucLength = (unsigned char)atoi(pcToken)
+|—————Node:identifier Text: m_ucLength
+|—————Node:= Text: =
+|—————Node:cast_expression Text: (unsigned char)atoi(pcToken)
+|——————Node:( Text: (
+|——————Node:type_descriptor Text: unsigned char
+|———————Node:sized_type_specifier Text: unsigned char
+|————————Node:unsigned Text: unsigned
+|————————Node:primitive_type Text: char
+|——————Node:) Text: )
+|——————Node:call_expression Text: atoi(pcToken)
+|———————Node:identifier Text: atoi
+|———————Node:argument_list Text: (pcToken)
+|————————Node:( Text: (
+|————————Node:identifier Text: pcToken
+|————————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: CConverter::ucMsg_DLC = m_ucLength;
+|————Node:assignment_expression Text: CConverter::ucMsg_DLC = m_ucLength
+|—————Node:qualified_identifier Text: CConverter::ucMsg_DLC
+|——————Node:namespace_identifier Text: CConverter
+|——————Node::: Text: ::
+|——————Node:identifier Text: ucMsg_DLC
+|—————Node:= Text: =
+|—————Node:identifier Text: m_ucLength
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: pcToken = strtok(NULL,_T(" :\n"));
+|————Node:assignment_expression Text: pcToken = strtok(NULL,_T(" :\n"))
+|—————Node:identifier Text: pcToken
+|—————Node:= Text: =
+|—————Node:call_expression Text: strtok(NULL,_T(" :\n"))
+|——————Node:identifier Text: strtok
+|——————Node:argument_list Text: (NULL,_T(" :\n"))
+|———————Node:( Text: (
+|———————Node:null Text: NULL
+|————————Node:NULL Text: NULL
+|———————Node:, Text: ,
+|———————Node:call_expression Text: _T(" :\n")
+|————————Node:identifier Text: _T
+|————————Node:argument_list Text: (" :\n")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: " :\n"
+|——————————Node:" Text: "
+|——————————Node:string_content Text:  :
+|——————————Node:escape_sequence Text: \n
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if(strcmp(pcToken,_T("Vector__XXX")))
+        m_txNode = pcToken;
+    else
+        m_txNode = _T("");
+|————Node:if Text: if
+|————Node:condition_clause Text: (strcmp(pcToken,_T("Vector__XXX")))
+|—————Node:( Text: (
+|—————Node:call_expression Text: strcmp(pcToken,_T("Vector__XXX"))
+|——————Node:identifier Text: strcmp
+|——————Node:argument_list Text: (pcToken,_T("Vector__XXX"))
+|———————Node:( Text: (
+|———————Node:identifier Text: pcToken
+|———————Node:, Text: ,
+|———————Node:call_expression Text: _T("Vector__XXX")
+|————————Node:identifier Text: _T
+|————————Node:argument_list Text: ("Vector__XXX")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Vector__XXX"
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Vector__XXX
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:) Text: )
+|—————Node:) Text: )
+|————Node:expression_statement Text: m_txNode = pcToken;
+|—————Node:assignment_expression Text: m_txNode = pcToken
+|——————Node:identifier Text: m_txNode
+|——————Node:= Text: =
+|——————Node:identifier Text: pcToken
+|—————Node:; Text: ;
+|————Node:else_clause Text: else
+        m_txNode = _T("");
+|—————Node:else Text: else
+|—————Node:expression_statement Text: m_txNode = _T("");
+|——————Node:assignment_expression Text: m_txNode = _T("")
+|———————Node:identifier Text: m_txNode
+|———————Node:= Text: =
+|———————Node:call_expression Text: _T("")
+|————————Node:identifier Text: _T
+|————————Node:argument_list Text: ("")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: ""
+|——————————Node:" Text: "
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: m_cDataFormat = CSignal::SIG_DF_INTEL;
+|————Node:assignment_expression Text: m_cDataFormat = CSignal::SIG_DF_INTEL
+|—————Node:identifier Text: m_cDataFormat
+|—————Node:= Text: =
+|—————Node:qualified_identifier Text: CSignal::SIG_DF_INTEL
+|——————Node:namespace_identifier Text: CSignal
+|——————Node::: Text: ::
+|——————Node:identifier Text: SIG_DF_INTEL
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: m_ucNumOfSignals = 0;
+|————Node:assignment_expression Text: m_ucNumOfSignals = 0
+|—————Node:identifier Text: m_ucNumOfSignals
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:return_statement Text: return 1;
+|————Node:return Text: return
+|————Node:number_literal Text: 1
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: bool CMessage::writeMessageToFile( CStdioFile &fileOutput,CList<CMessage,CMessage&> &m_listMessages,bool writeErr)
+{
+    bool bResult = true;
+    char acLine[defCON_MAX_LINE_LEN];
+    POSITION pos = m_listMessages.GetHeadPosition();
+
+    //Write all the message
+    while(pos != NULL)
+    {
+        CMessage& msg = m_listMessages.GetNext(pos);
+        sprintf(acLine,"%s %s,%u,%u,%u,%c,%c,%s\n",T_START_MSG,msg.m_acName,msg.m_uiMsgID,msg.m_ucLength,msg.m_ucNumOfSignals,msg.m_cDataFormat,msg.m_cFrameFormat,msg.m_txNode);
+        fileOutput.WriteString(acLine);
+
+        CSignal sig; 
+        //write all related signals to the messages
+        bResult &= sig.WriteSignaltofile (fileOutput,msg.m_listSignals,msg.m_ucLength,msg.m_cDataFormat,writeErr);
+        fileOutput.WriteString(T_END_MSG"\n\n");
+    }
+    return bResult;
+}
+|——Node:primitive_type Text: bool
+|——Node:function_declarator Text: CMessage::writeMessageToFile( CStdioFile &fileOutput,CList<CMessage,CMessage&> &m_listMessages,bool writeErr)
+|———Node:qualified_identifier Text: CMessage::writeMessageToFile
+|————Node:namespace_identifier Text: CMessage
+|————Node::: Text: ::
+|————Node:identifier Text: writeMessageToFile
+|———Node:parameter_list Text: ( CStdioFile &fileOutput,CList<CMessage,CMessage&> &m_listMessages,bool writeErr)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: CStdioFile &fileOutput
+|—————Node:type_identifier Text: CStdioFile
+|—————Node:reference_declarator Text: &fileOutput
+|——————Node:& Text: &
+|——————Node:identifier Text: fileOutput
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: CList<CMessage,CMessage&> &m_listMessages
+|—————Node:template_type Text: CList<CMessage,CMessage&>
+|——————Node:type_identifier Text: CList
+|——————Node:template_argument_list Text: <CMessage,CMessage&>
+|———————Node:< Text: <
+|———————Node:type_descriptor Text: CMessage
+|————————Node:type_identifier Text: CMessage
+|———————Node:, Text: ,
+|———————Node:type_descriptor Text: CMessage&
+|————————Node:type_identifier Text: CMessage
+|————————Node:abstract_reference_declarator Text: &
+|—————————Node:& Text: &
+|———————Node:> Text: >
+|—————Node:reference_declarator Text: &m_listMessages
+|——————Node:& Text: &
+|——————Node:identifier Text: m_listMessages
+|————Node:, Text: ,
+|————Node:parameter_declaration Text: bool writeErr
+|—————Node:primitive_type Text: bool
+|—————Node:identifier Text: writeErr
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    bool bResult = true;
+    char acLine[defCON_MAX_LINE_LEN];
+    POSITION pos = m_listMessages.GetHeadPosition();
+
+    //Write all the message
+    while(pos != NULL)
+    {
+        CMessage& msg = m_listMessages.GetNext(pos);
+        sprintf(acLine,"%s %s,%u,%u,%u,%c,%c,%s\n",T_START_MSG,msg.m_acName,msg.m_uiMsgID,msg.m_ucLength,msg.m_ucNumOfSignals,msg.m_cDataFormat,msg.m_cFrameFormat,msg.m_txNode);
+        fileOutput.WriteString(acLine);
+
+        CSignal sig; 
+        //write all related signals to the messages
+        bResult &= sig.WriteSignaltofile (fileOutput,msg.m_listSignals,msg.m_ucLength,msg.m_cDataFormat,writeErr);
+        fileOutput.WriteString(T_END_MSG"\n\n");
+    }
+    return bResult;
+}
+|———Node:{ Text: {
+|———Node:declaration Text: bool bResult = true;
+|————Node:primitive_type Text: bool
+|————Node:init_declarator Text: bResult = true
+|—————Node:identifier Text: bResult
+|—————Node:= Text: =
+|—————Node:true Text: true
+|————Node:; Text: ;
+|———Node:declaration Text: char acLine[defCON_MAX_LINE_LEN];
+|————Node:primitive_type Text: char
+|————Node:array_declarator Text: acLine[defCON_MAX_LINE_LEN]
+|—————Node:identifier Text: acLine
+|—————Node:[ Text: [
+|—————Node:identifier Text: defCON_MAX_LINE_LEN
+|—————Node:] Text: ]
+|————Node:; Text: ;
+|———Node:declaration Text: POSITION pos = m_listMessages.GetHeadPosition();
+|————Node:type_identifier Text: POSITION
+|————Node:init_declarator Text: pos = m_listMessages.GetHeadPosition()
+|—————Node:identifier Text: pos
+|—————Node:= Text: =
+|—————Node:call_expression Text: m_listMessages.GetHeadPosition()
+|——————Node:field_expression Text: m_listMessages.GetHeadPosition
+|———————Node:identifier Text: m_listMessages
+|———————Node:. Text: .
+|———————Node:field_identifier Text: GetHeadPosition
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:while_statement Text: while(pos != NULL)
+    {
+        CMessage& msg = m_listMessages.GetNext(pos);
+        sprintf(acLine,"%s %s,%u,%u,%u,%c,%c,%s\n",T_START_MSG,msg.m_acName,msg.m_uiMsgID,msg.m_ucLength,msg.m_ucNumOfSignals,msg.m_cDataFormat,msg.m_cFrameFormat,msg.m_txNode);
+        fileOutput.WriteString(acLine);
+
+        CSignal sig; 
+        //write all related signals to the messages
+        bResult &= sig.WriteSignaltofile (fileOutput,msg.m_listSignals,msg.m_ucLength,msg.m_cDataFormat,writeErr);
+        fileOutput.WriteString(T_END_MSG"\n\n");
+    }
+|————Node:while Text: while
+|————Node:condition_clause Text: (pos != NULL)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: pos != NULL
+|——————Node:identifier Text: pos
+|——————Node:!= Text: !=
+|——————Node:null Text: NULL
+|———————Node:NULL Text: NULL
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+        CMessage& msg = m_listMessages.GetNext(pos);
+        sprintf(acLine,"%s %s,%u,%u,%u,%c,%c,%s\n",T_START_MSG,msg.m_acName,msg.m_uiMsgID,msg.m_ucLength,msg.m_ucNumOfSignals,msg.m_cDataFormat,msg.m_cFrameFormat,msg.m_txNode);
+        fileOutput.WriteString(acLine);
+
+        CSignal sig; 
+        //write all related signals to the messages
+        bResult &= sig.WriteSignaltofile (fileOutput,msg.m_listSignals,msg.m_ucLength,msg.m_cDataFormat,writeErr);
+        fileOutput.WriteString(T_END_MSG"\n\n");
+    }
+|—————Node:{ Text: {
+|—————Node:declaration Text: CMessage& msg = m_listMessages.GetNext(pos);
+|——————Node:type_identifier Text: CMessage
+|——————Node:init_declarator Text: & msg = m_listMessages.GetNext(pos)
+|———————Node:reference_declarator Text: & msg
+|————————Node:& Text: &
+|————————Node:identifier Text: msg
+|———————Node:= Text: =
+|———————Node:call_expression Text: m_listMessages.GetNext(pos)
+|————————Node:field_expression Text: m_listMessages.GetNext
+|—————————Node:identifier Text: m_listMessages
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: GetNext
+|————————Node:argument_list Text: (pos)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: pos
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: sprintf(acLine,"%s %s,%u,%u,%u,%c,%c,%s\n",T_START_MSG,msg.m_acName,msg.m_uiMsgID,msg.m_ucLength,msg.m_ucNumOfSignals,msg.m_cDataFormat,msg.m_cFrameFormat,msg.m_txNode);
+|——————Node:call_expression Text: sprintf(acLine,"%s %s,%u,%u,%u,%c,%c,%s\n",T_START_MSG,msg.m_acName,msg.m_uiMsgID,msg.m_ucLength,msg.m_ucNumOfSignals,msg.m_cDataFormat,msg.m_cFrameFormat,msg.m_txNode)
+|———————Node:identifier Text: sprintf
+|———————Node:argument_list Text: (acLine,"%s %s,%u,%u,%u,%c,%c,%s\n",T_START_MSG,msg.m_acName,msg.m_uiMsgID,msg.m_ucLength,msg.m_ucNumOfSignals,msg.m_cDataFormat,msg.m_cFrameFormat,msg.m_txNode)
+|————————Node:( Text: (
+|————————Node:identifier Text: acLine
+|————————Node:, Text: ,
+|————————Node:string_literal Text: "%s %s,%u,%u,%u,%c,%c,%s\n"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: %s %s,%u,%u,%u,%c,%c,%s
+|—————————Node:escape_sequence Text: \n
+|—————————Node:" Text: "
+|————————Node:, Text: ,
+|————————Node:identifier Text: T_START_MSG
+|————————Node:, Text: ,
+|————————Node:field_expression Text: msg.m_acName
+|—————————Node:identifier Text: msg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: m_acName
+|————————Node:, Text: ,
+|————————Node:field_expression Text: msg.m_uiMsgID
+|—————————Node:identifier Text: msg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: m_uiMsgID
+|————————Node:, Text: ,
+|————————Node:field_expression Text: msg.m_ucLength
+|—————————Node:identifier Text: msg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: m_ucLength
+|————————Node:, Text: ,
+|————————Node:field_expression Text: msg.m_ucNumOfSignals
+|—————————Node:identifier Text: msg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: m_ucNumOfSignals
+|————————Node:, Text: ,
+|————————Node:field_expression Text: msg.m_cDataFormat
+|—————————Node:identifier Text: msg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: m_cDataFormat
+|————————Node:, Text: ,
+|————————Node:field_expression Text: msg.m_cFrameFormat
+|—————————Node:identifier Text: msg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: m_cFrameFormat
+|————————Node:, Text: ,
+|————————Node:field_expression Text: msg.m_txNode
+|—————————Node:identifier Text: msg
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: m_txNode
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: fileOutput.WriteString(acLine);
+|——————Node:call_expression Text: fileOutput.WriteString(acLine)
+|———————Node:field_expression Text: fileOutput.WriteString
+|————————Node:identifier Text: fileOutput
+|————————Node:. Text: .
+|————————Node:field_identifier Text: WriteString
+|———————Node:argument_list Text: (acLine)
+|————————Node:( Text: (
+|————————Node:identifier Text: acLine
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:declaration Text: CSignal sig;
+|——————Node:type_identifier Text: CSignal
+|——————Node:identifier Text: sig
+|——————Node:; Text: ;
+|—————Node:comment
+|—————Node:expression_statement Text: bResult &= sig.WriteSignaltofile (fileOutput,msg.m_listSignals,msg.m_ucLength,msg.m_cDataFormat,writeErr);
+|——————Node:assignment_expression Text: bResult &= sig.WriteSignaltofile (fileOutput,msg.m_listSignals,msg.m_ucLength,msg.m_cDataFormat,writeErr)
+|———————Node:identifier Text: bResult
+|———————Node:&= Text: &=
+|———————Node:call_expression Text: sig.WriteSignaltofile (fileOutput,msg.m_listSignals,msg.m_ucLength,msg.m_cDataFormat,writeErr)
+|————————Node:field_expression Text: sig.WriteSignaltofile
+|—————————Node:identifier Text: sig
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: WriteSignaltofile
+|————————Node:argument_list Text: (fileOutput,msg.m_listSignals,msg.m_ucLength,msg.m_cDataFormat,writeErr)
+|—————————Node:( Text: (
+|—————————Node:identifier Text: fileOutput
+|—————————Node:, Text: ,
+|—————————Node:field_expression Text: msg.m_listSignals
+|——————————Node:identifier Text: msg
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: m_listSignals
+|—————————Node:, Text: ,
+|—————————Node:field_expression Text: msg.m_ucLength
+|——————————Node:identifier Text: msg
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: m_ucLength
+|—————————Node:, Text: ,
+|—————————Node:field_expression Text: msg.m_cDataFormat
+|——————————Node:identifier Text: msg
+|——————————Node:. Text: .
+|——————————Node:field_identifier Text: m_cDataFormat
+|—————————Node:, Text: ,
+|—————————Node:identifier Text: writeErr
+|—————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: fileOutput.WriteString(T_END_MSG"\n\n");
+|——————Node:call_expression Text: fileOutput.WriteString(T_END_MSG"\n\n")
+|———————Node:field_expression Text: fileOutput.WriteString
+|————————Node:identifier Text: fileOutput
+|————————Node:. Text: .
+|————————Node:field_identifier Text: WriteString
+|———————Node:argument_list Text: (T_END_MSG"\n\n")
+|————————Node:( Text: (
+|————————Node:concatenated_string Text: T_END_MSG"\n\n"
+|—————————Node:identifier Text: T_END_MSG
+|—————————Node:string_literal Text: "\n\n"
+|——————————Node:" Text: "
+|——————————Node:escape_sequence Text: \n
+|——————————Node:escape_sequence Text: \n
+|——————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:return_statement Text: return bResult;
+|————Node:return Text: return
+|————Node:identifier Text: bResult
+|————Node:; Text: ;
+|———Node:} Text: }
