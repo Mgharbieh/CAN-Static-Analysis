@@ -1,11 +1,11 @@
 import os
+from sys import argv
 import MaskFilterAnalyzer 
 
 ### FILE PATH TO THE GITHUB FOLDER TITLED 'MaskFilter'                        ###
 ### Should be something along the line of:                                    ###
 ### {SAVE_LOCATION}/CAN-Static-AnalysisSrc/AnalysisSrc/MaskFilter/Test_Cases/ ###
-FOLDER = "//100.83.44.15/shared/Michael/UMich/Research/Static_Analysis_Research/Src/Modules/MaskFilter/Test_Cases/"
-
+FOLDER = argv[1]
 analyzer = MaskFilterAnalyzer.MaskAndFilter()
 
 for item in os.listdir(FOLDER):
