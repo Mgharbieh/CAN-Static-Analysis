@@ -188,7 +188,7 @@ class MaskAndFilter():
         if(maskWarn):   
             print("Mask(s) set aren't applied across the full filter value. Is that intentional?")
         if(usageWarn and (len(self.setupFilterList) > 1)):
-            print(unusedList, "were setup in the filter but never explicitly used.")
+            print(unusedList, "were setup in the filter but never explicitly used.") if len(unusedList) > 1 else print(unusedList, "was setup in the filter but never explicitly used.")
         else:
             usageWarn = False 
         if(excludedWarn):
