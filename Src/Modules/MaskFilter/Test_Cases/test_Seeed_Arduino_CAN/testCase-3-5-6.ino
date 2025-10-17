@@ -47,9 +47,6 @@ void setup() {
     }
     SERIAL_PORT_MONITOR.println("CAN init ok!");
 
-    /*
-        set mask, set both the mask to 0x3ff
-    */
     CAN.init_Mask(0, 0, 0x0FF);                         // there are 2 mask in mcp2515, you need to set both of them
     CAN.init_Mask(1, 0, 0x0FF);
 
