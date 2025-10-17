@@ -99,6 +99,7 @@ class MaskAndFilter():
                         (binary_expression
                             (call_expression
                                 function: (field_expression) @target_func
+                                    (#not-match? @target_func "check[rR]eceive")
                             )
                         )
                     )
@@ -114,7 +115,15 @@ class MaskAndFilter():
                 )
                 (expression_statement
                     (call_expression 
-                        function: (field_expression) @target_func)
+                        function: (field_expression) @target_func
+                    )
+                )
+                (declaration
+                    (init_declarator
+                        (call_expression 
+                            function: (field_expression) @target_func
+                        )
+                    )
                 )]
             ) @function.body
         )
