@@ -91,6 +91,7 @@ class MaskAndFilter():
         (function_definition
             (function_declarator 
                 (identifier) @func_Decl
+                    (#not-eq? @func_Decl "setup")
             )
             body: (compound_statement 
                 [(if_statement
@@ -110,11 +111,14 @@ class MaskAndFilter():
                             )
                         )
                     )
+                )
+                (expression_statement
+                    (call_expression 
+                        function: (field_expression) @target_func)
                 )]
             ) @function.body
         )
 
-        (#not-eq? @func_Decl "setup")
         (#match? @target_func "^[cC][aA][nN](\d*)\.$")
         '''
 
@@ -154,6 +158,7 @@ class MaskAndFilter():
         self._filterSetupSearch(root)
         self._loopFilterSearch(root)
     
+        maskSetupWarn = False
         maskWarn = False
         usageWarn = False
         unusedList = []
@@ -167,7 +172,8 @@ class MaskAndFilter():
             print("#"*100,'\n')
             return
         elif(len(self.maskList) == 0 and len(self.setupFilterList) > 0):
-            print(f'{self.setupFilterList} was set up during initialization but no masks were set!')
+            maskSetupWarn = True
+            
     
 
         for filter in self.setupFilterList:
@@ -185,6 +191,8 @@ class MaskAndFilter():
                 excludeList.append(filt)
 
         print("#"*100,'\n')
+        if(maskSetupWarn):
+            print(f'Filters {self.setupFilterList} were set up during initialization but no masks were set!') if len(self.setupFilterList) > 1 else print(f'Filter {self.setupFilterList} was set up during initialization but no masks were set!')
         if(maskWarn):   
             print("Mask(s) set aren't applied across the full filter value. Is that intentional?")
         if(usageWarn and (len(self.setupFilterList) > 1)):
@@ -194,7 +202,7 @@ class MaskAndFilter():
         if(excludedWarn):
             print(excludeList, "were being checked but are excluded from the filter.") if len(excludeList) > 1 else print(excludeList, "was being checked but is excluded from the filter.")
 
-        if((not maskWarn) and (not usageWarn) and (not excludedWarn)):
+        if((not maskSetupWarn) and (not maskWarn) and (not usageWarn) and (not excludedWarn)):
             print("No Mask/Filter issues detected!")
         print()
         print("#"*100)
