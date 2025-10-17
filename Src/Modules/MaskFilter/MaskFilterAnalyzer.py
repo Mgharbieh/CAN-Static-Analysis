@@ -86,14 +86,36 @@ class MaskAndFilter():
     def _loopFilterSearch(self, root):
 
         HEX_CHARS = ['x', 'A', 'B', 'C', 'D', 'E', 'F']
+
         loopFilterQuery = '''
         (function_definition
             (function_declarator 
                 (identifier) @func_Decl
-                    (#eq? @func_Decl "loop")
             )
-            body: (compound_statement) @function.body
+            body: (compound_statement 
+                [(if_statement
+                    (condition_clause
+                        (binary_expression
+                            (call_expression
+                                function: (field_expression) @target_func
+                            )
+                        )
+                    )
+                )
+                (if_statement
+                    (compound_statement
+                        (expression_statement
+                            (call_expression
+                                function: (field_expression) @target_func
+                            )
+                        )
+                    )
+                )]
+            ) @function.body
         )
+
+        (#not-eq? @func_Decl "setup")
+        (#match? @target_func "^[cC][aA][nN](\d*)\.$")
         '''
 
         query = TreeSitter.Query(CPP_LANGUAGE, loopFilterQuery)
