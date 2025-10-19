@@ -182,9 +182,12 @@ class MaskAndFilter():
             return
         elif(len(self.maskList) == 0 and len(self.setupFilterList) > 0):
             maskSetupWarn = True
+        elif(len(self.maskList) == 0 and len(self.setupFilterList) == 0 and len(self.loopFilterList) > 0):
+            print("#"*100,'\n')
+            print("No filters were set during initialization, but address checking is being done.  Consider adding filters during initialization to optimize this code.\n")
+            print("#"*100,'\n')
+            return
             
-    
-
         for filter in self.setupFilterList:
             for mask in self.maskList:
                 if((int(mask, 16) & int(filter, 16)) != int(filter, 16)):
