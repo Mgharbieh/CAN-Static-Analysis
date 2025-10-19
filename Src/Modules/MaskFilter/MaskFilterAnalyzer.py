@@ -142,7 +142,7 @@ class MaskAndFilter():
         loopText = loopText.splitlines()
         for line in loopText:
             if(('if' in line) or ('case' in line)):
-                if('0x' in line):
+                if(('0x' in line) and ('==' in line)):
                     chars = list(line)
                     hexVal = ''
                     idx = 0
