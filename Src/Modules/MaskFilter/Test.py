@@ -1,22 +1,39 @@
 import os
+from sys import argv
 import MaskFilterAnalyzer 
 
 import tree_sitter as TreeSitter
 import tree_sitter_cpp as _CPP
 CPP_LANGUAGE = TreeSitter.Language(_CPP.language())
 
+### USAGE #######################################################################
+
+# Run in terminal.  
+#   argument 1 (argv[1]) is mode, use one of the following
+#   - testAll: Runs through all test cases in the Test_Cases folder
+#   - testFolder: Tests the test case files in the specified child folder of Test_Cases
+#   - testOne: Tests the specified file for the test case.
+#
+#   argument 2 (argv[2]) is path
+#   - Should be path to parent folder or specific file, depending on mode
+#
+#################################################################################
+
 ### FILE PATH TO THE GITHUB FOLDER TITLED 'MaskFilter'                        ###
 ### Should be something along the line of:                                    ###
 ### {SAVE_LOCATION}/CAN-Static-AnalysisSrc/AnalysisSrc/MaskFilter/Test_Cases/ ###
-FOLDER = "//100.83.44.15/shared/Michael/UMich/Research/Static_Analysis_Research/Src/Modules/MaskFilter/Test_Cases/"
-FOLDER2 = "//100.83.44.15/shared/Michael/UMich/Research/Static_Analysis_Research/Src/Modules/MaskFilter/Test_Cases/test_arduino-mcp2515/"
+
+#################################################################################
+
+MODE = argv[1]
+PATH = argv[2]
 
 analyzer = MaskFilterAnalyzer.MaskAndFilter()
 
 def testAll():
-    for item in os.listdir(FOLDER):
+    for item in os.listdir(PATH):
         if(item[:5] == "test_"):
-            path1 = FOLDER + item
+            path1 = PATH + item
             print('_'*100)
             print(f'Testing {item[5:]}\n')
             for file in os.listdir(path1):
@@ -58,6 +75,15 @@ def testOne(filepath):
 
 ###########################################################################################################################################################
 
-testAll()
-#testFolder(FOLDER2)
-#testOne("//100.83.44.15/shared/Michael/UMich/Research/Static_Analysis_Research/Src/Modules/MaskFilter/Test_Cases/test_MCP_CAN_lib/testCase-7-8.ino")
+if not (os.path.exists(PATH)):
+    print("Please enter a valid file path.")
+    exit(0)
+
+if(MODE.lower() == "testall"):
+    testAll()
+elif(MODE.lower() == "testfolder"):
+    testFolder(PATH)
+elif(MODE.lower() == "testOne"):
+    testOne(PATH)
+else:
+    print("Please enter a valid mode.")
