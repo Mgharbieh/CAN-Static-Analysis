@@ -1,6 +1,6 @@
 import os
 from sys import argv
-import MaskFilterAnalyzer 
+import RTRBit
 
 import tree_sitter as TreeSitter
 import tree_sitter_cpp as _CPP
@@ -25,10 +25,14 @@ CPP_LANGUAGE = TreeSitter.Language(_CPP.language())
 
 #################################################################################
 
-MODE = argv[1]
-PATH = argv[2]
+#MODE = argv[1]
+#PATH = argv[2]
 
-analyzer = MaskFilterAnalyzer.MaskAndFilter()
+MODE = "testfolder"
+PATH = "//100.83.44.15/shared/shared/Michael/UMich/Research/StatiCAN/CAN_bus_research/Src/Modules/RTRBit/Test_Cases/test_Seeed_Arduino_CAN/"
+#PATH = "//100.83.44.15/shared/shared/Michael/UMich/Research/StatiCAN/CAN_bus_research/Src/Modules/RTRBit/Test_Cases/test_arduino-mcp2515/testCase-2.ino"
+#PATH = "//100.83.44.15/shared/shared/Michael/UMich/Research/StatiCAN/CAN_bus_research/Src/Modules/RTRBit/Test_Cases/test_arduino-mcp2515/testCase-3.ino"
+analyzer = RTRBit.RTRBitChecker()
 
 def testAll():
     for item in os.listdir(PATH):
@@ -48,7 +52,7 @@ def testAll():
                     tree = parser.parse(bytes(sourceCode, "utf8"))
                     root = tree.root_node
                     
-                    analyzer.checkMaskFilter(root)
+                    analyzer.checkRTRmode(root)
                     print()
 
 def testFolder(folderPath):
@@ -66,11 +70,19 @@ def testFolder(folderPath):
             tree = parser.parse(bytes(sourceCode, "utf8"))
             root = tree.root_node
             
-            analyzer.checkMaskFilter(root)
+            analyzer.checkRTRmode(root)
             print()
 
 def testOne(filepath):
-    analyzer.checkMaskFilter(filepath)
+
+    with(open(filepath, 'r', encoding='utf-8') as inFile):
+        sourceCode = inFile.read()
+
+    parser = TreeSitter.Parser(CPP_LANGUAGE)
+    tree = parser.parse(bytes(sourceCode, "utf8"))
+    root = tree.root_node
+
+    analyzer.checkRTRmode(root)
     print()    
 
 ###########################################################################################################################################################
@@ -83,7 +95,7 @@ if(MODE.lower() == "testall"):
     testAll()
 elif(MODE.lower() == "testfolder"):
     testFolder(PATH)
-elif(MODE.lower() == "testOne"):
+elif(MODE.lower() == "testone"):
     testOne(PATH)
 else:
     print("Please enter a valid mode.")

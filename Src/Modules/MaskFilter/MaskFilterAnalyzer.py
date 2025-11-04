@@ -128,7 +128,8 @@ class MaskAndFilter():
             ) @function.body
         )
 
-        (#match? @target_func "^[cC][aA][nN](\d*)\.$")
+        (#match? @target_func "^[cC][aA][nN](\d*)\.$") 
+        (#match? @target_func "^[mM][cC][pP]2515$")
         '''
 
         query = TreeSitter.Query(CPP_LANGUAGE, loopFilterQuery)
@@ -142,7 +143,7 @@ class MaskAndFilter():
         loopText = loopText.splitlines()
         for line in loopText:
             if(('if' in line) or ('case' in line)):
-                if(('0x' in line) and ('==' in line)):
+                if(('0x' in line) or ('if' in line and '==' in line)):
                     chars = list(line)
                     hexVal = ''
                     idx = 0
@@ -219,15 +220,9 @@ class MaskAndFilter():
         print()
         print("#"*100)
     #############################################################################
-    def checkMaskFilter(self, file_input):
+    def checkMaskFilter(self, root):
 
-        with(open(file_input, 'r', encoding='utf-8') as inFile):
-            sourceCode = inFile.read()
-
-        parser = TreeSitter.Parser(CPP_LANGUAGE)
-        tree = parser.parse(bytes(sourceCode, "utf8"))
-        RootCursor = tree.root_node
-        self._maskFilterCheck(RootCursor)
+        self._maskFilterCheck(root)
         self._reset()
 
 
