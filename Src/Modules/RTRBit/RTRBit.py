@@ -17,9 +17,7 @@ class RTRBitChecker:
         rtrQuery0 = '''
         (function_definition
             body: (compound_statement
-                [(_) @sendBuf         
-                    (#match? @sendBuf "[cC][aA][nN](\d*)\.[Ss]endMsgBuf") 
-                (expression_statement
+                [(expression_statement
                     (assignment_expression
                         (field_expression
                             (identifier) @fd_id
@@ -46,54 +44,7 @@ class RTRBitChecker:
         (#match? @fd_id "^[cC][aA][nN](\d*)\.$")
         '''
 
-        rtrQuery = '''
-        (function_definition
-            body: (compound_statement
-                (expression_statement
-                    (assignment_expression
-                        (field_expression
-                            (identifier) @fd_id
-                            (field_identifier) @func_name
-                        ) @fd_ex
-                        (binary_expression 
-                            (number_literal) @ids
-                            (identifier) @flag
-                        ) @b_ex
-                    ) @a_ex
-                )
-            ) @func_body 
-            (#match? @fd_id "^[cC][aA][nN](\d*)\.$")
-        )
-
-        (function_definition
-            body: (compound_statement
-                (expression_statement
-                    (assignment_expression
-                        (field_expression
-                            (identifier) @fd_id
-                            (field_identifier) @func_name
-                        ) @fd_ex
-                        (number_literal) @ids
-                    ) @a_ex
-                )
-            ) @func_body 
-            (#match? @fd_id "^[cC][aA][nN](\d*)\.$")
-        )
-
-        (function_definition
-            body: (compound_statement
-                (declaration
-                    (init_declarator
-                        (identifier) @fd_id_2
-                        (binary_expression 
-                            (number_literal) @ids_2
-                            (identifier) @flag_2
-                        ) @b_ex_2
-                    )
-                )
-            ) @func_body 
-        )
-
+        rtrQuery1 = '''
         (function_definition
             body: (compound_statement
                 (declaration
@@ -107,36 +58,36 @@ class RTRBitChecker:
                 )
             ) @func_body 
         )
+        '''
 
+        rtrQuery2 = '''
         (function_definition
             body: (compound_statement
                 (_) @sendBuf         
             ) @func_body 
             (#match? @sendBuf "[cC][aA][nN](\d*)\.[Ss]endMsgBuf") 
         )
-
-        (function_definition
-            body: (compound_statement
-                (_) @setMsg          
-            ) @func_body 
-            (#match? @setMsg "[cC][aA][nN](\d*)\.[Ss]etMsg")
-        )
         '''
 
-        query = TreeSitter.Query(CPP_LANGUAGE, rtrQuery)
-        queryCursor = TreeSitter.QueryCursor(query)
-        captures = queryCursor.captures(root)
+        QUERY_LIST = [rtrQuery0, rtrQuery1, rtrQuery2]
+
+        for rtrQuery in QUERY_LIST:
+            query = TreeSitter.Query(CPP_LANGUAGE, rtrQuery)
+            queryCursor = TreeSitter.QueryCursor(query)
+            captures = queryCursor.captures(root)
+            if(len(captures) != 0):
+                break
         
         functionText = None
         for cap in captures:
-            #get the frame name, id, and count the bits (7ff vs 1fffffff)
             if(cap == 'func_body'):
+                startingLineNum = captures[cap][0].start_point.row + 1
                 functionText = captures[cap][0].text.decode()
                 functionText = functionText.splitlines()
             if cap == 'a_ex':
-                pair = []
                 idList = captures[cap]
                 for id in idList:
+                    pair = []
                     lineString = id.text.decode()
                     for node in id.children:
                         if(node.type == "binary_expression"):
@@ -145,12 +96,13 @@ class RTRBitChecker:
                                     pair.append(field.text.decode()) #idList
                                 if(field.type == "identifier"):
                                     if((field.text.decode() == "CAN_RTR_FLAG") or (field.text.decode() == "0x40000000")):
-                                        pair.append(True) #frameIDList
+                                        pair.append(True) 
                                         lineString = lineString.split('.')
                                         pair.append(lineString[0])
-                                        self.msgList.append(pair)
+                                        self.msgList.append(pair.copy())
                                     else:
-                                        pair.append( False)
+                                        pair.append(False)
+                                        self.msgList.append(pair.copy())
                 
                 for msg in self.msgList:
                     can_obj = msg[2]
@@ -163,9 +115,10 @@ class RTRBitChecker:
                             self.resultList.append(issueStr)
 
             if cap == 'sendBuf':
-                pair = []
                 sendList = captures[cap]
                 for sendFunc in sendList:
+                    pair = []
+                    lineNum = sendFunc.start_point.row + 1
                     lineString = sendFunc.text.decode().strip()
                     lineString = lineString[0:(len(lineString)-2)]
                     lineString = lineString.split('(')[1]
@@ -174,37 +127,67 @@ class RTRBitChecker:
                     if(len(args) < 5):
                         continue
 
-                    if(args[2].lower().strip() == 'rtr'):
-                        for textLine in functionText:
-                            textLine = textLine.lower()
-                            if(('rtr' in textLine) and ('=' in textLine)):
+                    try:
+                        args[2] = int(args[2].strip())
+                    except:
+                        rangeStart = lineNum - startingLineNum
+                        for lineIDX in range(rangeStart, 0, -1):
+                            textLine = functionText[lineIDX].lower()
+                            if((args[2].strip() in textLine) and ('=' in textLine)):
+                                rtrBitLineNum = functionText.index(textLine) + startingLineNum
                                 rtrBit = textLine.split('=')[1][:-1].strip() 
                                 args[2] = int(rtrBit)
-                            if(('dlc' in textLine) and ('=' in textLine)):
+                                break
+
+                        '''
+                        for textLine in functionText:
+                            textLine = textLine.lower()
+                            if((args[2].strip() in textLine) and ('=' in textLine)):
+                                rtrBitLineNum = functionText.index(textLine) + startingLineNum
+                                rtrBit = textLine.split('=')[1][:-1].strip() 
+
+                                if()
+                                if(rtrBitLineNum < lineNum):
+                                    variablePairs.append((rtrBitLineNum, lineNum)) # rtr variable line, send line
+
+                                args[2] = int(rtrBit)
+                                break
+                        '''
+                        
+
+                    try:
+                        args[3] = int(args[3].strip())
+                    except:
+                        rangeStart = lineNum - startingLineNum
+                        for lineIDX in range(rangeStart, 0, -1):
+                            textLine = functionText[lineIDX].lower()
+                            if((args[3].strip() in textLine) and ('=' in textLine)):
                                 dlcSize = textLine.split('=')[1].strip().strip(';')
                                 args[3] = int(dlcSize)
+                                break
 
-                    if(int(args[2]) == 1):
+                    if(args[2] == 1):
                         pair.append(args[0])
                         pair.append(True)
-                        self.msgList.append(pair)
+                        self.msgList.append(pair.copy())
 
-                        if(int(args[3]) != 0 or (args[4].strip() != 'NULL' and args[4].strip() != 'nullptr')):
+                        if(args[3] != 0 or (args[4].strip() != 'NULL' and args[4].strip() != 'nullptr')):
                             if((sendFunc.text.decode() + " set the RTR bit to high but it has a data length associated with it.") in self.resultList):
                                 continue
                             else:
                                 issueStr = sendFunc.text.decode() + " set the RTR bit to high but it has a data length associated with it."
                                 self.resultList.append(issueStr)
-                    elif(int(args[2]) == 0):
+                    elif(args[2] == 0):
                         pair.append(args[0])
                         pair.append(False)
-                        self.msgList.append(pair)
+                        self.msgList.append(pair.copy())
 
             if(cap == "b_ex_2"):
-                pair = []
                 functionText = captures['func_body'][0].text.decode()
                 functionText = functionText.splitlines()
                 for idx in range(0, len(captures[cap])):
+                    pair = []
+                    
                     can_id_name = captures['fd_id_2'][idx].text.decode()
                     id_attributes = captures[cap][idx].text.decode()
                     id_attributes = id_attributes.split('|')
@@ -233,7 +216,16 @@ class RTRBitChecker:
                             sender = sender.split('(')[1]
                             args = sender.split(',')
 
-                            if(int(args[2]) != 0 or (args[3].strip() != 'NULL' and args[3].strip() != 'nullptr')):
+                            try:
+                                args[2] = int(args[2].strip())
+                            except:
+                                for textline in functionText:
+                                    if((args[2].strip() in textline) and ('=' in textline)):
+                                        dlcSize = textline.split('=')[1].strip().strip(';')
+                                        args[2] = int(dlcSize)
+                                        break #add tuple with line # to make sure if it is reused we can check again, aslo check to make sure line # is above calling func
+
+                            if(args[2] != 0 or (args[3].strip() != 'NULL' and args[3].strip() != 'nullptr')):
                                 if(("message ID '" + id_name + '\' (' + canIDFlags[3] + ") set the RTR bit to high but it has a data length associated with it in " + senderLine) in self.resultList):
                                     continue
                                 else:
