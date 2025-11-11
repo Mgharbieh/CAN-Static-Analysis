@@ -47,7 +47,7 @@ class RTRBitChecker:
         rtrQuery1 = '''
         (function_definition
             body: (compound_statement
-                (declaration
+                [(declaration
                     (init_declarator
                         (identifier) @fd_id_2
                         (binary_expression 
@@ -56,8 +56,17 @@ class RTRBitChecker:
                         ) @b_ex_2
                     )
                 )
+                (expression_statement
+                    (call_expression
+                        (field_expression) @fd_expr
+                        (argument_list) @arg_list
+                    ) @call_expr
+                    (#match? @call_expr "0x40000000") 
+                )]
             ) @func_body 
         )
+
+        (#match? @fd_expr "^[cC][aA][nN](\d*)\.[Ss]endMsgBuf&")
         '''
 
         rtrQuery2 = '''
@@ -92,7 +101,7 @@ class RTRBitChecker:
                     for node in id.children:
                         if(node.type == "binary_expression"):
                             for field in node.children:
-                                if(field.type == "number_literal" and ('0x' in node.text.decode())):
+                                if(field.type == "number_literal" and ('0x' in node.text.decode()) and (node.text.decode() != "0x40000000")):
                                     pair.append(field.text.decode()) #idList
                                 if(field.type == "identifier"):
                                     if((field.text.decode() == "CAN_RTR_FLAG") or (field.text.decode() == "0x40000000")):
@@ -111,8 +120,9 @@ class RTRBitChecker:
                         if((can_obj + '(' + can_addr + ") set the RTR bit to high but it has a data length associated with it.") in self.resultList):
                             continue
                         elif((can_obj in line) and (('dlc' in line.lower()) or ('data' in line.lower()))):
-                            issueStr = can_obj + '(' + can_addr + ") set the RTR bit to high but it has a data length associated with it."
-                            self.resultList.append(issueStr)
+                            if(('dlc = 0' not in line) and ('dlc= 0' not in line) and ('dlc =0' not in line) and ('dlc=0' not in line)):
+                                issueStr = can_obj + '(' + can_addr + ") set the RTR bit to high but it has a data length associated with it."
+                                self.resultList.append(issueStr)
 
             if cap == 'sendBuf':
                 sendList = captures[cap]
@@ -123,7 +133,6 @@ class RTRBitChecker:
                     lineString = lineString[0:(len(lineString)-2)]
                     lineString = lineString.split('(')[1]
                     args = lineString.split(',')
-                    
                     if(len(args) < 5):
                         continue
 
@@ -134,26 +143,9 @@ class RTRBitChecker:
                         for lineIDX in range(rangeStart, 0, -1):
                             textLine = functionText[lineIDX].lower()
                             if((args[2].strip() in textLine) and ('=' in textLine)):
-                                rtrBitLineNum = functionText.index(textLine) + startingLineNum
                                 rtrBit = textLine.split('=')[1][:-1].strip() 
                                 args[2] = int(rtrBit)
                                 break
-
-                        '''
-                        for textLine in functionText:
-                            textLine = textLine.lower()
-                            if((args[2].strip() in textLine) and ('=' in textLine)):
-                                rtrBitLineNum = functionText.index(textLine) + startingLineNum
-                                rtrBit = textLine.split('=')[1][:-1].strip() 
-
-                                if()
-                                if(rtrBitLineNum < lineNum):
-                                    variablePairs.append((rtrBitLineNum, lineNum)) # rtr variable line, send line
-
-                                args[2] = int(rtrBit)
-                                break
-                        '''
-                        
 
                     try:
                         args[3] = int(args[3].strip())
@@ -187,10 +179,13 @@ class RTRBitChecker:
                 functionText = functionText.splitlines()
                 for idx in range(0, len(captures[cap])):
                     pair = []
-                    
-                    can_id_name = captures['fd_id_2'][idx].text.decode()
+                    lineNum = captures[cap][idx].start_point.row + 1
+
+                    can_id_name = captures['ids_2'][idx].text.decode()
                     id_attributes = captures[cap][idx].text.decode()
                     id_attributes = id_attributes.split('|')
+                    if(len(id_attributes) > 3):
+                        continue
 
                     isRtr = False
                     for attr in id_attributes:
@@ -205,7 +200,7 @@ class RTRBitChecker:
                     pair.append(isRtr)
                     pair.append(can_id_name)
                     pair.append(captures[cap][idx].text.decode())
-                    self.msgList.append(pair)
+                    self.msgList.append(pair.copy())
   
                 for canIDFlags in self.msgList:
                     id_name = canIDFlags[2]
@@ -215,22 +210,79 @@ class RTRBitChecker:
                             sender = senderLine[0:(len(senderLine)-2)]
                             sender = sender.split('(')[1]
                             args = sender.split(',')
+                            if(len(args) != 3):
+                                continue
 
                             try:
-                                args[2] = int(args[2].strip())
+                                args[1] = int(args[1].strip())
                             except:
-                                for textline in functionText:
-                                    if((args[2].strip() in textline) and ('=' in textline)):
-                                        dlcSize = textline.split('=')[1].strip().strip(';')
-                                        args[2] = int(dlcSize)
-                                        break #add tuple with line # to make sure if it is reused we can check again, aslo check to make sure line # is above calling func
+                                rangeStart = lineNum - startingLineNum
+                                for lineIDX in range(rangeStart, 0, -1):
+                                    textLine = functionText[lineIDX].lower()
+                                    if((args[1].strip() in textLine) and ('=' in textLine)):
+                                        dlcSize = textLine.split('=')[1].strip().strip(';')
+                                        args[1] = int(dlcSize)
+                                        break
 
-                            if(args[2] != 0 or (args[3].strip() != 'NULL' and args[3].strip() != 'nullptr')):
+                            if(args[1] != 0 or (args[2].strip() != 'NULL' and args[2].strip() != 'nullptr')):
                                 if(("message ID '" + id_name + '\' (' + canIDFlags[3] + ") set the RTR bit to high but it has a data length associated with it in " + senderLine) in self.resultList):
                                     continue
                                 else:
                                     issueStr = "message ID '" + id_name + '\' (' + canIDFlags[3] + ") set the RTR bit to high but it has a data length associated with it in " + senderLine
                                     self.resultList.append(issueStr)
+
+            if(cap == "call_expr"):
+                functionText = captures['func_body'][0].text.decode()
+                functionText = functionText.splitlines()
+                for idx in range(0, len(captures[cap])):
+                    pair = []
+                    lineNum = captures[cap][idx].start_point.row + 1
+                    args = captures['arg_list'][idx].text.decode()[1:-1].split(',')
+
+                    if(len(args) != 3):
+                        continue
+
+                    if(('0x40000000' in args[0]) and ('|' in args[0])): 
+                        pair.append(args[0].split('|')[0].strip())
+                        pair.append(True)
+
+                        try:
+                            args[1] = int(args[1].strip())
+                        except:
+                            rangeStart = lineNum - startingLineNum
+                            for lineIDX in range(rangeStart, 0, -1):
+                                textLine = functionText[lineIDX].lower()
+                                if((args[1].strip() in textLine) and ('=' in textLine)):
+                                    dlcSize = textLine.split('=')[1].strip().strip(';')
+                                    args[1] = int(dlcSize)
+                                    break
+                        
+                        pair.append(args[1])
+                        pair.append(args[2].strip())
+                        pair.append(captures['call_expr'][idx].text.decode())
+                        self.msgList.append(pair.copy())
+                    elif('|' in args[0]):
+                        pair.append(args[0].split('|')[0].strip())
+                        pair.append(False)
+                        pair.append(None)
+                        pair.append(args[2].strip())
+                        pair.append(captures['call_expr'][idx].text.decode())
+                        self.msgList.append(pair.copy())
+                    else:
+                        pair.append(args[0].strip())
+                        pair.append(False) 
+                        pair.append(None)   
+                        pair.append(args[2].strip())
+                        pair.append(captures['call_expr'][idx].text.decode())  
+                        self.msgList.append(pair.copy())
+
+                for msg in self.msgList:
+                    if((msg[1] == True) and ((msg[2] != 0) or (msg[3] != 'NULL' and msg[3] != 'nullptr'))):
+                        if((msg[4] + " set the RTR bit to high but it has a data length associated with it.") in self.resultList):
+                            continue
+                        else:
+                            issueStr = msg[4] + " set the RTR bit to high but it has a data length associated with it."
+                            self.resultList.append(issueStr)              
 
         if(len(self.msgList) == 0):
             print("No remote transmission requests found.")
