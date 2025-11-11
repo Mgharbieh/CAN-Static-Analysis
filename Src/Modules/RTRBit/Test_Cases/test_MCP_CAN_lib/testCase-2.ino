@@ -21,11 +21,9 @@ byte data[8] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
 
 void loop()
 {
-  unsigned long id = 0x100 | 0x40000000;
-
   //byte sndStat = CAN0.sendMsgBuf(id, 0, 0, NULL);
-  CAN0.sendMsgBuf(id, 0, 0, NULL);
-  
+  CAN0.sendMsgBuf(0x100 | 0x40000000, 0, NULL);
+   
   if(sndStat == CAN_OK){
     Serial.println("Message Sent Successfully!");
   } else {

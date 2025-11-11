@@ -1,0 +1,267 @@
+
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include <mcp_can.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <mcp_can.h>
+|—Node:preproc_include Text: #include <SPI.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <SPI.h>
+|—Node:declaration Text: MCP_CAN CAN0(10);
+|——Node:type_identifier Text: MCP_CAN
+|——Node:init_declarator Text: CAN0(10)
+|———Node:identifier Text: CAN0
+|———Node:argument_list Text: (10)
+|————Node:( Text: (
+|————Node:number_literal Text: 10
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:comment
+|—Node:function_definition Text: void setup()
+{
+  Serial.begin(115200);
+
+  // Initialize MCP2515 running at 16MHz with a baudrate of 500kb/s and the masks and filters disabled.
+  if(CAN0.begin(MCP_ANY, CAN_500KBPS, MCP_16MHZ) == CAN_OK) Serial.println("MCP2515 Initialized Successfully!");
+  else Serial.println("Error Initializing MCP2515...");
+
+  CAN0.setMode(MCP_NORMAL);   // Change to normal mode to allow messages to be transmitted
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: setup()
+|———Node:identifier Text: setup
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  Serial.begin(115200);
+
+  // Initialize MCP2515 running at 16MHz with a baudrate of 500kb/s and the masks and filters disabled.
+  if(CAN0.begin(MCP_ANY, CAN_500KBPS, MCP_16MHZ) == CAN_OK) Serial.println("MCP2515 Initialized Successfully!");
+  else Serial.println("Error Initializing MCP2515...");
+
+  CAN0.setMode(MCP_NORMAL);   // Change to normal mode to allow messages to be transmitted
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: Serial.begin(115200);
+|————Node:call_expression Text: Serial.begin(115200)
+|—————Node:field_expression Text: Serial.begin
+|——————Node:identifier Text: Serial
+|——————Node:. Text: .
+|——————Node:field_identifier Text: begin
+|—————Node:argument_list Text: (115200)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 115200
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:if_statement Text: if(CAN0.begin(MCP_ANY, CAN_500KBPS, MCP_16MHZ) == CAN_OK) Serial.println("MCP2515 Initialized Successfully!");
+  else Serial.println("Error Initializing MCP2515...");
+|————Node:if Text: if
+|————Node:condition_clause Text: (CAN0.begin(MCP_ANY, CAN_500KBPS, MCP_16MHZ) == CAN_OK)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: CAN0.begin(MCP_ANY, CAN_500KBPS, MCP_16MHZ) == CAN_OK
+|——————Node:call_expression Text: CAN0.begin(MCP_ANY, CAN_500KBPS, MCP_16MHZ)
+|———————Node:field_expression Text: CAN0.begin
+|————————Node:identifier Text: CAN0
+|————————Node:. Text: .
+|————————Node:field_identifier Text: begin
+|———————Node:argument_list Text: (MCP_ANY, CAN_500KBPS, MCP_16MHZ)
+|————————Node:( Text: (
+|————————Node:identifier Text: MCP_ANY
+|————————Node:, Text: ,
+|————————Node:identifier Text: CAN_500KBPS
+|————————Node:, Text: ,
+|————————Node:identifier Text: MCP_16MHZ
+|————————Node:) Text: )
+|——————Node:== Text: ==
+|——————Node:identifier Text: CAN_OK
+|—————Node:) Text: )
+|————Node:expression_statement Text: Serial.println("MCP2515 Initialized Successfully!");
+|—————Node:call_expression Text: Serial.println("MCP2515 Initialized Successfully!")
+|——————Node:field_expression Text: Serial.println
+|———————Node:identifier Text: Serial
+|———————Node:. Text: .
+|———————Node:field_identifier Text: println
+|——————Node:argument_list Text: ("MCP2515 Initialized Successfully!")
+|———————Node:( Text: (
+|———————Node:string_literal Text: "MCP2515 Initialized Successfully!"
+|————————Node:" Text: "
+|————————Node:string_content Text: MCP2515 Initialized Successfully!
+|————————Node:" Text: "
+|———————Node:) Text: )
+|—————Node:; Text: ;
+|————Node:else_clause Text: else Serial.println("Error Initializing MCP2515...");
+|—————Node:else Text: else
+|—————Node:expression_statement Text: Serial.println("Error Initializing MCP2515...");
+|——————Node:call_expression Text: Serial.println("Error Initializing MCP2515...")
+|———————Node:field_expression Text: Serial.println
+|————————Node:identifier Text: Serial
+|————————Node:. Text: .
+|————————Node:field_identifier Text: println
+|———————Node:argument_list Text: ("Error Initializing MCP2515...")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "Error Initializing MCP2515..."
+|—————————Node:" Text: "
+|—————————Node:string_content Text: Error Initializing MCP2515...
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|———Node:expression_statement Text: CAN0.setMode(MCP_NORMAL);
+|————Node:call_expression Text: CAN0.setMode(MCP_NORMAL)
+|—————Node:field_expression Text: CAN0.setMode
+|——————Node:identifier Text: CAN0
+|——————Node:. Text: .
+|——————Node:field_identifier Text: setMode
+|—————Node:argument_list Text: (MCP_NORMAL)
+|——————Node:( Text: (
+|——————Node:identifier Text: MCP_NORMAL
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:} Text: }
+|—Node:declaration Text: byte data[8] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
+|——Node:type_identifier Text: byte
+|——Node:init_declarator Text: data[8] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07}
+|———Node:array_declarator Text: data[8]
+|————Node:identifier Text: data
+|————Node:[ Text: [
+|————Node:number_literal Text: 8
+|————Node:] Text: ]
+|———Node:= Text: =
+|———Node:initializer_list Text: {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07}
+|————Node:{ Text: {
+|————Node:number_literal Text: 0x00
+|————Node:, Text: ,
+|————Node:number_literal Text: 0x01
+|————Node:, Text: ,
+|————Node:number_literal Text: 0x02
+|————Node:, Text: ,
+|————Node:number_literal Text: 0x03
+|————Node:, Text: ,
+|————Node:number_literal Text: 0x04
+|————Node:, Text: ,
+|————Node:number_literal Text: 0x05
+|————Node:, Text: ,
+|————Node:number_literal Text: 0x06
+|————Node:, Text: ,
+|————Node:number_literal Text: 0x07
+|————Node:} Text: }
+|——Node:; Text: ;
+|—Node:function_definition Text: void loop()
+{
+  //byte sndStat = CAN0.sendMsgBuf(id, 0, 0, NULL);
+  CAN0.sendMsgBuf(0x100 | 0x40000000, 0, NULL);
+  
+  if(sndStat == CAN_OK){
+    Serial.println("Message Sent Successfully!");
+  } else {
+    Serial.println("Error Sending Message...");
+  }
+  delay(100);   // send data per 100ms
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: loop()
+|———Node:identifier Text: loop
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  //byte sndStat = CAN0.sendMsgBuf(id, 0, 0, NULL);
+  CAN0.sendMsgBuf(0x100 | 0x40000000, 0, NULL);
+  
+  if(sndStat == CAN_OK){
+    Serial.println("Message Sent Successfully!");
+  } else {
+    Serial.println("Error Sending Message...");
+  }
+  delay(100);   // send data per 100ms
+}
+|———Node:{ Text: {
+|———Node:comment
+|———Node:expression_statement Text: CAN0.sendMsgBuf(0x100 | 0x40000000, 0, NULL);
+|————Node:call_expression Text: CAN0.sendMsgBuf(0x100 | 0x40000000, 0, NULL)
+|—————Node:field_expression Text: CAN0.sendMsgBuf
+|——————Node:identifier Text: CAN0
+|——————Node:. Text: .
+|——————Node:field_identifier Text: sendMsgBuf
+|—————Node:argument_list Text: (0x100 | 0x40000000, 0, NULL)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: 0x100 | 0x40000000
+|———————Node:number_literal Text: 0x100
+|———————Node:| Text: |
+|———————Node:number_literal Text: 0x40000000
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:null Text: NULL
+|———————Node:NULL Text: NULL
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:if_statement Text: if(sndStat == CAN_OK){
+    Serial.println("Message Sent Successfully!");
+  } else {
+    Serial.println("Error Sending Message...");
+  }
+|————Node:if Text: if
+|————Node:condition_clause Text: (sndStat == CAN_OK)
+|—————Node:( Text: (
+|—————Node:binary_expression Text: sndStat == CAN_OK
+|——————Node:identifier Text: sndStat
+|——————Node:== Text: ==
+|——————Node:identifier Text: CAN_OK
+|—————Node:) Text: )
+|————Node:compound_statement Text: {
+    Serial.println("Message Sent Successfully!");
+  }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: Serial.println("Message Sent Successfully!");
+|——————Node:call_expression Text: Serial.println("Message Sent Successfully!")
+|———————Node:field_expression Text: Serial.println
+|————————Node:identifier Text: Serial
+|————————Node:. Text: .
+|————————Node:field_identifier Text: println
+|———————Node:argument_list Text: ("Message Sent Successfully!")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "Message Sent Successfully!"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: Message Sent Successfully!
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|————Node:else_clause Text: else {
+    Serial.println("Error Sending Message...");
+  }
+|—————Node:else Text: else
+|—————Node:compound_statement Text: {
+    Serial.println("Error Sending Message...");
+  }
+|——————Node:{ Text: {
+|——————Node:expression_statement Text: Serial.println("Error Sending Message...");
+|———————Node:call_expression Text: Serial.println("Error Sending Message...")
+|————————Node:field_expression Text: Serial.println
+|—————————Node:identifier Text: Serial
+|—————————Node:. Text: .
+|—————————Node:field_identifier Text: println
+|————————Node:argument_list Text: ("Error Sending Message...")
+|—————————Node:( Text: (
+|—————————Node:string_literal Text: "Error Sending Message..."
+|——————————Node:" Text: "
+|——————————Node:string_content Text: Error Sending Message...
+|——————————Node:" Text: "
+|—————————Node:) Text: )
+|———————Node:; Text: ;
+|——————Node:} Text: }
+|———Node:expression_statement Text: delay(100);
+|————Node:call_expression Text: delay(100)
+|—————Node:identifier Text: delay
+|—————Node:argument_list Text: (100)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 100
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:} Text: }
