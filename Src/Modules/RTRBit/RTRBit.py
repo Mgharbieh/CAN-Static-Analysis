@@ -107,19 +107,6 @@ class RTRBitChecker:
         (#match? @fd_expr "^[cC][aA][nN](\d*)\.[Ss]endMsgBuf$")
         '''
 
-        '''
-        (declaration
-                    (init_declarator
-                        (identifier) @fd_id_2
-                        (binary_expression 
-                            (number_literal) @ids_2
-                            (number_literal) @flag_2
-                        ) @b_ex_2
-                    )
-                )
-        '''
-
-
         rtrQuery2 = '''
         (function_definition
             body: (compound_statement
@@ -129,7 +116,54 @@ class RTRBitChecker:
         )
         '''
 
-        QUERY_LIST = [rtrQuery0, rtrQuery1, rtrQuery2]
+        rtrQuery3 = '''
+        (function_definition
+            body: (compound_statement
+                [(expression_statement
+                    (assignment_expression
+                        (field_expression
+                            (identifier) @id_3
+                            (field_identifier) @fd_id_3 
+                                (#match? @fd_id_3 "rtr")
+                        ) @rtr_fd_3
+                        (number_literal) @rtr_mode_3
+                    )
+                ) @rtr_expr_3
+                (expression_statement
+                    (assignment_expression
+                        (field_expression
+                            (identifier) @id_3
+                            (field_identifier) @fd_id_3 
+                                (#match? @fd_id_3 "rtr")
+                        ) @rtr_fd_3
+                        (true) @rtr_mode_3
+                    )
+                ) @rtr_expr_3
+                (expression_statement
+                    (assignment_expression
+                        (field_expression
+                            (identifier) @id_3
+                            (field_identifier) @fd_id_3 
+                                (#match? @fd_id_3 "rtr")
+                        ) @rtr_fd_3
+                        (false) @rtr_mode_3
+                    )
+                ) @rtr_expr_3]
+                (expression_statement
+                    (assignment_expression
+                        (field_expression
+                            (identifier) 
+                            (field_identifier) @dlc_id_3 
+                                (#match? @dlc_id_3 "length")
+                        ) @dlc_fd_3
+                        (number_literal) @dlc_3
+                    ) 
+                ) @dlc_expr_3
+            ) @func_body
+        )
+        '''
+
+        QUERY_LIST = [rtrQuery3, rtrQuery0, rtrQuery1, rtrQuery2]
 
         for rtrQuery in QUERY_LIST:
             query = TreeSitter.Query(CPP_LANGUAGE, rtrQuery)
@@ -186,16 +220,6 @@ class RTRBitChecker:
                     elif(msg[3] != 0):
                         issueStr = can_obj + '(' + can_addr + ") set the RTR bit to high but it has a data length associated with it."
                         self.resultList.append(issueStr)
-
-                    '''
-                    for line in functionText:
-                        if((can_obj + '(' + can_addr + ") set the RTR bit to high but it has a data length associated with it.") in self.resultList):
-                            continue
-                        elif((can_obj in line) and (('dlc' in line.lower()) or ('data' in line.lower()))):
-                            if(('dlc = 0' not in line) and ('dlc= 0' not in line) and ('dlc =0' not in line) and ('dlc=0' not in line)):
-                                issueStr = can_obj + '(' + can_addr + ") set the RTR bit to high but it has a data length associated with it."
-                                self.resultList.append(issueStr)
-                    '''
 
             if cap == 'sendBuf':
                 sendList = captures[cap]
@@ -401,6 +425,32 @@ class RTRBitChecker:
                         else:
                             issueStr = msg[4] + " set the RTR bit to high but it has a data length associated with it."
                             self.resultList.append(issueStr)              
+
+            if(cap == "rtr_expr_3"):
+                for idx in range(0, len(captures[cap])):
+                    pair = []
+                    message_name = captures["id_3"][idx].text.decode()
+                    try:
+                        rtr_val = int(captures["rtr_mode_3"][idx].text.decode())
+                    except:
+                        rtr_val = bool(captures["rtr_mode_3"][idx].text.decode())
+                        rtr_val = int(rtr_val)
+                    dlc = int(captures["dlc_3"][idx].text.decode())
+
+                    if(rtr_val == 1):
+                        pair.append(message_name)
+                        pair.append(rtr_val)
+                        pair.append(dlc)
+                        self.msgList.append(pair)
+
+                for msg in self.msgList:
+                    if(msg[1] == 1 and (msg[2] != 0 and msg[2] != None)):
+                        if((msg[0] + " set the RTR bit to high but it has a data length associated with it.") in self.resultList):
+                            continue
+                        else:
+                            issueStr = msg[0] + " set the RTR bit to high but it has a data length associated with it."
+                            self.resultList.append(issueStr)              
+
 
         if(len(self.msgList) == 0):
             print("No remote transmission requests found.")
