@@ -47,25 +47,14 @@ void setup() {
     SERIAL_PORT_MONITOR.println("CAN init ok!");
 }
 
-unsigned char stmp[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+
 void loop() {
     
-    stmp[7] = stmp[7] + 1;
-    if (stmp[7] == 100) {
-        stmp[7] = 0;
-        stmp[6] = stmp[6] + 1;
+    CAN.sendMsgBuf(0x00, 0, 1, 0, NULL);
+    delay(100);                       // send data per 100ms
+    SERIAL_PORT_MONITOR.println("CAN BUS sendMsgBuf ok!");
 
-        if (stmp[6] == 100) {
-            stmp[6] = 0;
-            stmp[5] = stmp[5] + 1;
-        }
-    }
-
-    byte ext = 0;
-    byte rtr = 1;
-    byte dlc = 8;    
-
-    CAN.sendMsgBuf(0x00, ext, rtr, dlc, stmp);
+    CAN.sendMsgBuf(0x01, 0, 1, 0, NULL);
     delay(100);                       // send data per 100ms
     SERIAL_PORT_MONITOR.println("CAN BUS sendMsgBuf ok!");
 }

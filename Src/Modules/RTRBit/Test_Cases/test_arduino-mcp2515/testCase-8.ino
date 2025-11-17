@@ -19,7 +19,15 @@ void setup() {
   canMsg1.data[7] = 0x86;
 
   canMsg2.can_id  = 0x036 | CAN_RTR_FLAG;
-  canMsg2.can_dlc = 0;
+  canMsg2.can_dlc = 8;
+  canMsg2.data[0] = 0x0E;
+  canMsg2.data[1] = 0x00;
+  canMsg2.data[2] = 0x00;
+  canMsg2.data[3] = 0x08;
+  canMsg2.data[4] = 0x01;
+  canMsg2.data[5] = 0x00;
+  canMsg2.data[6] = 0x00;
+  canMsg2.data[7] = 0xA0;
   
   while (!Serial);
   Serial.begin(115200);
