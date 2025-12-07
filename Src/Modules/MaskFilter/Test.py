@@ -25,11 +25,8 @@ CPP_LANGUAGE = TreeSitter.Language(_CPP.language())
 
 #################################################################################
 
-#MODE = argv[1]
-#PATH = argv[2]
-
-MODE = 'testOne'
-PATH = 'z:/Michael/UMich/Research/StatiCAN/CAN_bus_research/Src/Modules/MaskFilter/Test_Cases/test_MCP_CAN_lib/testCase-2-4.ino'
+MODE = argv[1]
+PATH = argv[2]
 
 analyzer = MaskFilterAnalyzer.MaskAndFilter()
 
