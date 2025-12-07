@@ -25,8 +25,11 @@ CPP_LANGUAGE = TreeSitter.Language(_CPP.language())
 
 #################################################################################
 
-MODE = argv[1]
-PATH = argv[2]
+#MODE = argv[1]
+#PATH = argv[2]
+
+MODE = 'testOne'
+PATH = 'z:/Michael/UMich/Research/StatiCAN/CAN_bus_research/Src/Modules/MaskFilter/Test_Cases/test_MCP_CAN_lib/testCase-2-4.ino'
 
 analyzer = MaskFilterAnalyzer.MaskAndFilter()
 
@@ -70,20 +73,27 @@ def testFolder(folderPath):
             print()
 
 def testOne(filepath):
-    analyzer.checkMaskFilter(filepath)
-    print()    
+    with(open(filepath, 'r', encoding='utf-8') as inFile):
+        sourceCode = inFile.read()
+    
+    parser = TreeSitter.Parser(CPP_LANGUAGE)
+    tree = parser.parse(bytes(sourceCode, "utf8"))
+    root = tree.root_node
+    
+    analyzer.checkMaskFilter(root)
+    print()
 
 ###########################################################################################################################################################
 
 if not (os.path.exists(PATH)):
     print("Please enter a valid file path.")
-    exit(0)
+    #exit(0)
 
 if(MODE.lower() == "testall"):
     testAll()
 elif(MODE.lower() == "testfolder"):
     testFolder(PATH)
-elif(MODE.lower() == "testOne"):
+elif(MODE.lower() == "testone"):
     testOne(PATH)
 else:
     print("Please enter a valid mode.")
