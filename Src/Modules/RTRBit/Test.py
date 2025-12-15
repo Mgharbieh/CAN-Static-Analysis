@@ -29,7 +29,7 @@ CPP_LANGUAGE = TreeSitter.Language(_CPP.language())
 #PATH = argv[2]
 
 MODE = "testfolder"
-PATH = "//100.83.44.15/shared/shared/Michael/UMich/Research/StatiCAN/CAN_bus_research/Src/Modules/RTRBit/Test_Cases/test_Seeed_Arduino_CAN/"
+PATH = "//100.83.44.15/shared/shared/Michael/UMich/Research/StatiCAN/CAN_bus_research/Src/Modules/RTRBit/Test_Cases/test_CAN_Library/"
 #PATH = "//100.83.44.15/shared/shared/Michael/UMich/Research/StatiCAN/CAN_bus_research/Src/Modules/RTRBit/Test_Cases/test_arduino-mcp2515/testCase-2.ino"
 #PATH = "//100.83.44.15/shared/shared/Michael/UMich/Research/StatiCAN/CAN_bus_research/Src/Modules/RTRBit/Test_Cases/test_arduino-mcp2515/testCase-3.ino"
 analyzer = RTRBit.RTRBitChecker()

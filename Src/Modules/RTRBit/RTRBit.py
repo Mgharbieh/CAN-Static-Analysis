@@ -451,22 +451,23 @@ class RTRBitChecker:
                             issueStr = msg[0] + " set the RTR bit to high but it has a data length associated with it."
                             self.resultList.append(issueStr)              
 
-
+        print('#'*100)
+        print()
         if(len(self.msgList) == 0):
             print("No remote transmission requests found.")
             print()
-            print('_'*100)
+            print('#'*100)
             return
         if(len(self.resultList) == 0):
             print("No issues detected!")
             print()
-            print('_'*100)
+            print('#'*100)
             return
         else:
             for issue in self.resultList:
                 print(issue)
             print()
-            print('_'*100)
+            print('#'*100)
             return
 
 

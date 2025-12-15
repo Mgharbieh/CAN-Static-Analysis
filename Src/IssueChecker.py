@@ -5,17 +5,22 @@ import tree_sitter_cpp as _CPP
 CPP_LANGUAGE = TreeSitter.Language(_CPP.language())
 
 import Modules.MaskFilter.MaskFilterAnalyzer as mask_filt
+import Modules.RTRBit.RTRBit as RTR_Check
 
 mask_filt_analyzer = mask_filt.MaskAndFilter()
+rtr_check_analyzer = RTR_Check.RTRBitChecker()
 INPUT_FILE = argv[1]
 
 ### READ FILE AND BUILD TREE #####################################################################
 ##################################################################################################
 
 with(open(INPUT_FILE, 'r', encoding='utf-8') as inFile):
-    print("Reading file: ", INPUT_FILE, "\n")
+    print("-"*100)
+    print()
+    print("Reading file: '", INPUT_FILE, "'\n", flush=True)
     sourceCode = inFile.read()
 
+print("Analyzing file...\n", flush=True)
 parser = TreeSitter.Parser(CPP_LANGUAGE)
 tree = parser.parse(bytes(sourceCode, "utf8"))
 RootCursor = tree.root_node
@@ -24,6 +29,12 @@ RootCursor = tree.root_node
 
 ### ADD CHECKS HERE ##############################################################################
 
+print("-"*100)
+print("\nMASK AND FILTER CHECK: \n")
 mask_filt_analyzer.checkMaskFilter(RootCursor)
+print("-"*100)
+print("\nRTR BIT CHECK: \n")
+rtr_check_analyzer.checkRTRmode(RootCursor)
+print("-"*100)
 
 ##################################################################################################
