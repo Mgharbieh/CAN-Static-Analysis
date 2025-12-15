@@ -1,5 +1,4 @@
 import tree_sitter as TreeSitter
-from sys import argv
 
 import tree_sitter_cpp as _CPP
 CPP_LANGUAGE = TreeSitter.Language(_CPP.language())
