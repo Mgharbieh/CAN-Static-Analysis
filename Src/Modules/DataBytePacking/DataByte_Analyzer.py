@@ -11,32 +11,6 @@ class DataBytePackingAnalyzer:
         self._parser.set_language(CPP)
         self._src = b""
 
-<<<<<<< HEAD
-=======
-
-    def _txt(self, node) -> str:
-        return self._src[node.start_byte:node.end_byte].decode("utf-8")
-
-    def _to_int_text(self, s: str):
-        try:
-            return int(s.strip(), 0)
-        except Exception:
-            return None
-
-    def _to_int_node(self, node):
-        if node is None:
-            return None
-        return self._to_int_text(self._txt(node))
-
-    def _run_query(self, root, src: str):
-        q = CPP.query(src)
-        caps = q.captures(root)
-        out = {}
-        for n, name in caps:
-            out.setdefault(name, []).append(n)
-        return out
-
->>>>>>> 63b73f8da31c17684dea2efc4c6e17f29617bef0
     #Queries
     #extracts buffer name with array declaration and its size ex. data [8]
     BUF_DECL = r"""
@@ -377,15 +351,10 @@ class DataBytePackingAnalyzer:
             return ("OVERFLOW", f"{call_txt}  DLC={dlc} < BYTES={bytes_sent}. (Overflow)" + (" (Assumed DLC=8)" if assumed else ""))
         return ("UNDERFLOW", f"{call_txt}  DLC={dlc} > BYTES={bytes_sent}. (Underflow)" + (" (Assumed DLC=8)" if assumed else ""))
     #public method to check DLC issues in a given source file
-<<<<<<< HEAD
     def checkDataPack(self, file_input: str):
         with open(file_input, "rb") as f:
             self._src = f.read()
         root = self._parser.parse(self._src).root_node
-=======
-    def checkDataPack(self, root):
-       #root = self._parse_file(file_input)
->>>>>>> 63b73f8da31c17684dea2efc4c6e17f29617bef0
 
         buf_sizes = self._collect_buf_sizes(root)
         dlc_values = self._collect_dlc_values(root)

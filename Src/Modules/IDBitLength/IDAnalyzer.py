@@ -422,6 +422,8 @@ class IDBitLength():
 
         #setup to look in loop also and separate the output messages
 
+        print("#"*100,'\n')
+
         if(self.frameIDList == []):
             print("No ID Bit Length usage found")
         for frame in self.frameIDList:
@@ -430,7 +432,8 @@ class IDBitLength():
             elif(frame[1]!=frame[2]):
                 print("A(n) " + frame[1] + " ID Bit Length is set during frame initialization for " + frame[0] + " but uses a(n) " + frame[2] + " flag when sending message.")
 
-        
+        print()
+        print("#"*100)
 
         # if(len(self.maskList) == 0 and len(self.setupFilterList) == 0 and len(self.loopFilterList) == 0):
         #     print("#"*100,'\n')
