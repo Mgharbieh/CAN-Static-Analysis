@@ -11,11 +11,6 @@ class DataBytePackingAnalyzer:
         self._parser.set_language(CPP)
         self._src = b""
 
-    def _parse(self, path: str):
-        with open(path, "rb") as f:
-            self._src = f.read()
-        tree = self._parser.parse(self._src)
-        return tree.root_node
 
     def _txt(self, node) -> str:
         return self._src[node.start_byte:node.end_byte].decode("utf-8")
@@ -317,8 +312,8 @@ class DataBytePackingAnalyzer:
         return ("UNDERFLOW",f"{call_txt}  DLC={dlc} > BYTES={bytes_sent}. (Underflow)"+ (" (Assumed DLC=8)" if assumed else ""))
 
     #public method to check DLC issues in a given source file
-    def checkDataPack(self, file_input: str):
-        root = self._parse(file_input)
+    def checkDataPack(self, root):
+       #root = self._parse_file(file_input)
 
         buf_sizes = self._collect_buf_sizes(root)
         dlc_values = self._collect_dlc_values(root)
