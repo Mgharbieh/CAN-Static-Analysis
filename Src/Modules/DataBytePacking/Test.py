@@ -1,5 +1,5 @@
 import os
-import DataByte_Analyzer as DataByteAnalyzer
+import databyte_analyzer as DataByteAnalyzer
 
 TEST_PATH = r"C:\Users\seren\OneDrive\Desktop\CAN_bus_research\Src\Modules\DataBytePacking\Test_Cases"
 analyzer = DataByteAnalyzer.DataBytePackingAnalyzer()
