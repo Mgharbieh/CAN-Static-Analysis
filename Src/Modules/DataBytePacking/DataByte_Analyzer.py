@@ -1,14 +1,13 @@
 import os
-from tree_sitter import Parser
-from tree_sitter_languages import get_language
+import tree_sitter as TreeSitter
+import tree_sitter_cpp as _CPP
+#from tree_sitter_languages import get_language
 
-CPP = get_language("cpp")
-
-
+CPP = TreeSitter.Language(_CPP.language())
 class DataBytePackingAnalyzer:
     def __init__(self):
-        self._parser = Parser()
-        self._parser.set_language(CPP)
+        #self.TreeSitter = TreeSitter()
+        #self.TreeSitter.set_language(CPP)
         self._src = b""
 
     #Queries
@@ -98,8 +97,10 @@ class DataBytePackingAnalyzer:
     """
  #collects the declared sizes of buffers in the source file and stores them in a dict (maps each buffer name to its declared length for later DLC comparison)
     def _collect_buf_sizes(self, root):
-        q = CPP.query(self.BUF_DECL)
-        caps_raw = q.captures(root)
+        #q = CPP.query(self.BUF_DECL)
+        q = TreeSitter.Query(CPP, self.BUF_DECL)
+        qCursor = TreeSitter.QueryCursor(q)
+        caps_raw = qCursor.captures(root)
 
         if isinstance(caps_raw, dict):
             caps = caps_raw
@@ -124,8 +125,10 @@ class DataBytePackingAnalyzer:
         return sizes
 #grabs DLC values assigned in the source file and stores them in a dict (maps each DLC variable/field name to a list of (name, value)
     def _collect_dlc_values(self, root):
-        q = CPP.query(self.DLC_ASSIGN)
-        caps_raw = q.captures(root)
+        # q = CPP.query(self.DLC_ASSIGN)
+        q = TreeSitter.Query(CPP, self.DLC_ASSIGN)
+        qCursor = TreeSitter.QueryCursor(q)
+        caps_raw = qCursor.captures(root)
 
         if isinstance(caps_raw, dict):
             caps = caps_raw
@@ -197,8 +200,10 @@ class DataBytePackingAnalyzer:
         frame_bytes = {}
     
         #direct assignments to frame.data[i]
-        q1 = CPP.query(self.FRAME_DATA_WRITE)
-        caps_raw = q1.captures(root)
+        #q1 = CPP.query(self.FRAME_DATA_WRITE)
+        q1 = TreeSitter.Query(CPP, self.FRAME_DATA_WRITE)
+        q1Cursor = TreeSitter.QueryCursor(q1)
+        caps_raw = q1Cursor.captures(root)
         if isinstance(caps_raw, dict):
             caps = caps_raw
         else:
@@ -219,8 +224,10 @@ class DataBytePackingAnalyzer:
             if frame and i is not None:
                 frame_bytes[frame] = max(frame_bytes.get(frame, 0), i + 1)
         #memcpy calls to frame.data
-        q2 = CPP.query(self.MEMCPY_TO_FRAME_DATA)
-        caps2_raw = q2.captures(root)
+        #q2 = CPP.query(self.MEMCPY_TO_FRAME_DATA)
+        q2 = TreeSitter.Query(CPP, self.MEMCPY_TO_FRAME_DATA)
+        q2Cursor = TreeSitter.QueryCursor(q2)
+        caps2_raw = q2Cursor.captures(root)
         if isinstance(caps2_raw, dict):
             caps2 = caps2_raw
         else:
@@ -351,17 +358,19 @@ class DataBytePackingAnalyzer:
             return ("OVERFLOW", f"{call_txt}  DLC={dlc} < BYTES={bytes_sent}. (Overflow)" + (" (Assumed DLC=8)" if assumed else ""))
         return ("UNDERFLOW", f"{call_txt}  DLC={dlc} > BYTES={bytes_sent}. (Underflow)" + (" (Assumed DLC=8)" if assumed else ""))
     #public method to check DLC issues in a given source file
-    def checkDataPack(self, file_input: str):
-        with open(file_input, "rb") as f:
-            self._src = f.read()
-        root = self._parser.parse(self._src).root_node
+    def checkDataPack(self, root):
+        # with open(file_input, "rb") as f:
+        #     self._src = f.read()
+        # root = self.TreeSitter.parse(self._src).root_node
 
         buf_sizes = self._collect_buf_sizes(root)
         dlc_values = self._collect_dlc_values(root)
         frame_bytes = self._collect_frame_bytes_sent(root, buf_sizes)
 
-        q = CPP.query(self.CAN_CALLS)
-        caps_raw = q.captures(root)
+        #q = CPP.query(self.CAN_CALLS)
+        q = TreeSitter.Query(CPP, self.CAN_CALLS)
+        qCursor = TreeSitter.QueryCursor(q)
+        caps_raw = qCursor.captures(root)
 
         if isinstance(caps_raw, dict):
             caps = caps_raw
