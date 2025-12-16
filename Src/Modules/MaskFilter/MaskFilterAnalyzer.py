@@ -1,5 +1,4 @@
 import tree_sitter as TreeSitter
-from sys import argv
 
 import tree_sitter_cpp as _CPP
 CPP_LANGUAGE = TreeSitter.Language(_CPP.language())
@@ -148,16 +147,22 @@ class MaskAndFilter():
                     hexVal = ''
                     idx = 0
                     while(idx < len(chars)):
+                        currentChar = chars[idx]
                         if((chars[idx] == '0') and (chars[idx+1] == 'x')):
+
                             hexVal += chars[idx]
                             hexVal += chars[idx+1]
                             idx += 2
                             continue
-                        elif((len(hexVal) >= 2) and ((chars[idx].isdigit()) or (chars[idx] in HEX_CHARS))):
+                        elif((len(hexVal) >= 2) and ((chars[idx].isdigit()) or (chars[idx].upper() in HEX_CHARS))):
                             hexVal += chars[idx]
                         else:
-                            if('0x' in hexVal[:2] and (len(hexVal) > 2 and len(hexVal) < 6)): #Only works for standard IDs now, will figure out extended later
-                                if(hexVal not in self.loopFilterList):
+                            #if('0x' in hexVal[:2] and (len(hexVal) > 2 and len(hexVal) < 6)): #Only works for standard IDs now, will figure out extended later
+                            if('0x' in hexVal[:2] ):
+                                if((hexVal != '0x40000000') or (hexVal != '0x80000000')):
+                                    hexVal = ''
+                                    continue
+                                elif(hexVal not in self.loopFilterList):
                                     self.loopFilterList.append(hexVal)
                                     hexVal = ''
                         idx += 1
