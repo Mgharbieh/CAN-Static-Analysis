@@ -476,13 +476,13 @@ class IDBitLength():
         # print()
         # print("#"*100)
     #############################################################################
-    def checkIDBitLength(self, file_input):
+    def checkIDBitLength(self, root):
 
-        with(open(file_input, 'r', encoding='utf-8') as inFile):
-            sourceCode = inFile.read()
+        # with(open(file_input, 'r', encoding='utf-8') as inFile):
+        #     sourceCode = inFile.read()
 
-        parser = TreeSitter.Parser(CPP_LANGUAGE)
-        tree = parser.parse(bytes(sourceCode, "utf8"))
-        RootCursor = tree.root_node
-        self._idBitLengthCheck(RootCursor)
+        # parser = TreeSitter.Parser(CPP_LANGUAGE)
+        # tree = parser.parse(bytes(sourceCode, "utf8"))
+        # RootCursor = tree.root_node
+        self._idBitLengthCheck(root)
         self._reset()
