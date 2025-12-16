@@ -1,0 +1,241 @@
+
+
+|Node:translation_unit
+|—Node:comment
+|—Node:preproc_include Text: #include <mcp_canbus.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <mcp_canbus.h>
+|—Node:preproc_include Text: #include <SPI.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <SPI.h>
+|—Node:comment
+|—Node:preproc_def Text: #define SPI_CS_PIN  9 
+
+|——Node:#define Text: #define
+|——Node:identifier Text: SPI_CS_PIN
+|——Node:preproc_arg Text: 9 
+|—Node:declaration Text: MCP_CAN CAN(SPI_CS_PIN);
+|——Node:type_identifier Text: MCP_CAN
+|——Node:function_declarator Text: CAN(SPI_CS_PIN)
+|———Node:identifier Text: CAN
+|———Node:parameter_list Text: (SPI_CS_PIN)
+|————Node:( Text: (
+|————Node:parameter_declaration Text: SPI_CS_PIN
+|—————Node:type_identifier Text: SPI_CS_PIN
+|————Node:) Text: )
+|——Node:; Text: ;
+|—Node:comment
+|—Node:function_definition Text: void setup()
+{
+    Serial.begin(115200);
+    while(!Serial);
+    
+    // below code need for OBD-II GPS Dev Kit Atemga32U4 version
+    // pinMode(A3, OUTPUT);
+    // digitalWrite(A3, HIGH);
+    
+    // below code need for OBD-II GPS Dev Kit RP2040 version
+    // pinMode(12, OUTPUT);
+    // digitalWrite(12, HIGH);
+    
+    while (CAN_OK != CAN.begin(CAN_500KBPS))    // init can bus : baudrate = 500k
+    {
+        Serial.println("CAN BUS FAIL!");
+        delay(100);
+    }
+    Serial.println("CAN BUS OK!");
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: setup()
+|———Node:identifier Text: setup
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    Serial.begin(115200);
+    while(!Serial);
+    
+    // below code need for OBD-II GPS Dev Kit Atemga32U4 version
+    // pinMode(A3, OUTPUT);
+    // digitalWrite(A3, HIGH);
+    
+    // below code need for OBD-II GPS Dev Kit RP2040 version
+    // pinMode(12, OUTPUT);
+    // digitalWrite(12, HIGH);
+    
+    while (CAN_OK != CAN.begin(CAN_500KBPS))    // init can bus : baudrate = 500k
+    {
+        Serial.println("CAN BUS FAIL!");
+        delay(100);
+    }
+    Serial.println("CAN BUS OK!");
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: Serial.begin(115200);
+|————Node:call_expression Text: Serial.begin(115200)
+|—————Node:field_expression Text: Serial.begin
+|——————Node:identifier Text: Serial
+|——————Node:. Text: .
+|——————Node:field_identifier Text: begin
+|—————Node:argument_list Text: (115200)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 115200
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:while_statement Text: while(!Serial);
+|————Node:while Text: while
+|————Node:condition_clause Text: (!Serial)
+|—————Node:( Text: (
+|—————Node:unary_expression Text: !Serial
+|——————Node:! Text: !
+|——————Node:identifier Text: Serial
+|—————Node:) Text: )
+|————Node:expression_statement Text: ;
+|—————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:comment
+|———Node:while_statement Text: while (CAN_OK != CAN.begin(CAN_500KBPS))    // init can bus : baudrate = 500k
+    {
+        Serial.println("CAN BUS FAIL!");
+        delay(100);
+    }
+|————Node:while Text: while
+|————Node:condition_clause Text: (CAN_OK != CAN.begin(CAN_500KBPS))
+|—————Node:( Text: (
+|—————Node:binary_expression Text: CAN_OK != CAN.begin(CAN_500KBPS)
+|——————Node:identifier Text: CAN_OK
+|——————Node:!= Text: !=
+|——————Node:call_expression Text: CAN.begin(CAN_500KBPS)
+|———————Node:field_expression Text: CAN.begin
+|————————Node:identifier Text: CAN
+|————————Node:. Text: .
+|————————Node:field_identifier Text: begin
+|———————Node:argument_list Text: (CAN_500KBPS)
+|————————Node:( Text: (
+|————————Node:identifier Text: CAN_500KBPS
+|————————Node:) Text: )
+|—————Node:) Text: )
+|————Node:comment
+|————Node:compound_statement Text: {
+        Serial.println("CAN BUS FAIL!");
+        delay(100);
+    }
+|—————Node:{ Text: {
+|—————Node:expression_statement Text: Serial.println("CAN BUS FAIL!");
+|——————Node:call_expression Text: Serial.println("CAN BUS FAIL!")
+|———————Node:field_expression Text: Serial.println
+|————————Node:identifier Text: Serial
+|————————Node:. Text: .
+|————————Node:field_identifier Text: println
+|———————Node:argument_list Text: ("CAN BUS FAIL!")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "CAN BUS FAIL!"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: CAN BUS FAIL!
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:expression_statement Text: delay(100);
+|——————Node:call_expression Text: delay(100)
+|———————Node:identifier Text: delay
+|———————Node:argument_list Text: (100)
+|————————Node:( Text: (
+|————————Node:number_literal Text: 100
+|————————Node:) Text: )
+|——————Node:; Text: ;
+|—————Node:} Text: }
+|———Node:expression_statement Text: Serial.println("CAN BUS OK!");
+|————Node:call_expression Text: Serial.println("CAN BUS OK!")
+|—————Node:field_expression Text: Serial.println
+|——————Node:identifier Text: Serial
+|——————Node:. Text: .
+|——————Node:field_identifier Text: println
+|—————Node:argument_list Text: ("CAN BUS OK!")
+|——————Node:( Text: (
+|——————Node:string_literal Text: "CAN BUS OK!"
+|———————Node:" Text: "
+|———————Node:string_content Text: CAN BUS OK!
+|———————Node:" Text: "
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:declaration Text: unsigned char stmp[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+|——Node:sized_type_specifier Text: unsigned char
+|———Node:unsigned Text: unsigned
+|———Node:primitive_type Text: char
+|——Node:init_declarator Text: stmp[8] = {0, 1, 2, 3, 4, 5, 6, 7}
+|———Node:array_declarator Text: stmp[8]
+|————Node:identifier Text: stmp
+|————Node:[ Text: [
+|————Node:number_literal Text: 8
+|————Node:] Text: ]
+|———Node:= Text: =
+|———Node:initializer_list Text: {0, 1, 2, 3, 4, 5, 6, 7}
+|————Node:{ Text: {
+|————Node:number_literal Text: 0
+|————Node:, Text: ,
+|————Node:number_literal Text: 1
+|————Node:, Text: ,
+|————Node:number_literal Text: 2
+|————Node:, Text: ,
+|————Node:number_literal Text: 3
+|————Node:, Text: ,
+|————Node:number_literal Text: 4
+|————Node:, Text: ,
+|————Node:number_literal Text: 5
+|————Node:, Text: ,
+|————Node:number_literal Text: 6
+|————Node:, Text: ,
+|————Node:number_literal Text: 7
+|————Node:} Text: }
+|——Node:; Text: ;
+|—Node:function_definition Text: void loop()
+{
+    CAN.sendMsgBuf(0x100, 0, 8, stmp);
+    delay(100);                       // send data per 100ms
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: loop()
+|———Node:identifier Text: loop
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+    CAN.sendMsgBuf(0x100, 0, 8, stmp);
+    delay(100);                       // send data per 100ms
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: CAN.sendMsgBuf(0x100, 0, 8, stmp);
+|————Node:call_expression Text: CAN.sendMsgBuf(0x100, 0, 8, stmp)
+|—————Node:field_expression Text: CAN.sendMsgBuf
+|——————Node:identifier Text: CAN
+|——————Node:. Text: .
+|——————Node:field_identifier Text: sendMsgBuf
+|—————Node:argument_list Text: (0x100, 0, 8, stmp)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 0x100
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 0
+|——————Node:, Text: ,
+|——————Node:number_literal Text: 8
+|——————Node:, Text: ,
+|——————Node:identifier Text: stmp
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: delay(100);
+|————Node:call_expression Text: delay(100)
+|—————Node:identifier Text: delay
+|—————Node:argument_list Text: (100)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 100
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:} Text: }
+|—Node:comment

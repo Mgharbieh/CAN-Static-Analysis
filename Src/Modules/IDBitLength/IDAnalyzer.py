@@ -1,6 +1,6 @@
 import tree_sitter as TreeSitter
 from sys import argv
-
+ 
 import tree_sitter_cpp as _CPP
 CPP_LANGUAGE = TreeSitter.Language(_CPP.language())
 
@@ -18,10 +18,6 @@ class IDBitLength():
 
         setupQuery = '''
             (function_definition
-                (function_declarator 
-                    (identifier) @func_Decl
-                        (#eq? @func_Decl "setup")
-                )
                 body: (compound_statement
                         [(expression_statement
                             (assignment_expression
@@ -41,7 +37,7 @@ class IDBitLength():
                                     (identifier) @fd_id
                                     (field_identifier) @func_name
                                 ) @fd_ex
-                                (number_literal) @ids
+                                (number_literal)@ids
                             ) @a_ex
                         )
                         (if_statement
@@ -115,12 +111,236 @@ class IDBitLength():
                                 pair.append("standard")
                                 pair.append("standard")
                             self.frameIDList.append(pair)
+                            print(self.frameIDList)
                             pair = []
 
         #Create Booleans for std and ext and set true when it sees them
 
 
     #############################################################################
+
+    def _modeSearch2(self, root):  
+
+        setupQuery = '''
+            (function_definition
+                body: (compound_statement
+                        [(expression_statement
+                            (assignment_expression
+                                (field_expression
+                                    (identifier) @fd_id2
+                                    (field_identifier) @func_name2
+                                ) @fd_ex2
+                                (number_literal)@ids2
+                            ) @a_ex2 
+                        )
+                        (expression_statement
+                            (assignment_expression
+                                (field_expression
+                                    (identifier) @fd_id2
+                                    (field_identifier) @func_name2
+                                ) @fd_ex2
+                                (identifier) @modes2
+                            ) @a_ex2
+                        )]
+                    ) @func_body2 (#match? @func_name2 "^(id|extended)$")
+            )
+        '''
+
+        query = TreeSitter.Query(CPP_LANGUAGE, setupQuery)
+        queryCursor = TreeSitter.QueryCursor(query)
+        captures = queryCursor.captures(root)
+
+        for cap in captures:
+            #get the frame name, id, and count the bits (7ff vs 1fffffff)
+            if cap == 'a_ex2':
+                pair = []
+                sorted_caps = sorted(captures['a_ex2'], key=lambda n: n.start_byte)
+                assignmentList = sorted_caps
+                for assignment in assignmentList:
+                    for node in assignment.children:
+                        if(node.type == "number_literal"):
+                            pair.append(node.text.decode())
+                            if(int(node.text.decode(),16) > 0x7FF):
+                                self.mode = "extended"
+                                pair.append("extended")
+                            elif(int(node.text.decode(),16) <= 0x7FF):
+                                self.mode = "standard"
+                                pair.append("standard")
+                        elif(node.type == "identifier"):
+                            if(node.text.decode() == "CAN_STANDARD_FRAME"):
+                                pair.append("standard")
+                            elif(node.text.decode() == "CAN_EXTENDED_FRAME"):
+                                pair.append("extended")
+                            self.frameIDList.append(pair)
+                            print(self.frameIDList)
+                            pair = []
+                            
+                                
+                            
+                        
+
+                        
+
+
+                        # if(node.type == "binary_expression"):
+                        #     for field in node.children:
+                        #         if(field.type == "number_literal" and ('0x' in node.text.decode())):
+                        #             pair.append(field.text.decode()) #idList
+                        #             if(int(field.text.decode(),16) > 0x7FF):
+                        #                 self.mode = "extended"
+                        #                 pair.append("extended")
+                        #             elif(int(field.text.decode(),16) <= 0x7FF):
+                        #                 self.mode = "standard"
+                        #                 pair.append("standard")
+                        #         if(field.type == "identifier"):
+                        #             if(field.text.decode() == "CAN_EFF_FLAG"):
+                        #                 pair.append("extended") #frameIDList
+                        #             else:
+                        #                 pair.append("standard")
+                        #     self.frameIDList.append(pair)
+                        #     pair = []
+                        # elif(node.type == "number_literal"):
+                        #     pair.append(node.text.decode())
+                        #     if(int(node.text.decode(),16) > 0x7FF):
+                        #         self.mode = "extended"
+                        #         pair.append("extended")
+                        #         pair.append("standard")
+                        #     elif(int(node.text.decode(),16) <= 0x7FF): 
+                        #         self.mode = "standard"
+                        #         pair.append("standard")
+                        #         pair.append("standard")
+                        #     self.frameIDList.append(pair)
+                        #     pair = []
+
+        #Create Booleans for std and ext and set true when it sees them
+
+
+    #############################################################################
+
+    def _modeSearch3(self, root):  
+
+        setupQuery = '''
+            (function_definition
+                body: (compound_statement
+                        [(expression_statement
+                            (call_expression
+                                (field_expression
+                                    (identifier) @fd_id3
+                                    (field_identifier) @func_name3
+                                ) @fd_ex3
+                                (argument_list
+                                    (number_literal) @fd_id3
+                                    (number_literal) @fd_flag3
+                                    (number_literal) @fd_dlc3
+                                    (identifier) @fd_data3
+                                ) @arg_list3
+                            ) @c_ex3
+                        )
+                        
+                        (declaration
+                            (init_declarator
+                                (call_expression
+                                    (field_expression
+                                        (identifier) @fd_id3
+                                        (field_identifier) @func_name3
+                                    ) @fd_ex3
+                                    (argument_list
+                                        (number_literal) @fd_id3
+                                        (number_literal) @fd_flag3
+                                        (number_literal) @fd_dlc3
+                                        (identifier) @fd_data3
+                                    ) @arg_list3
+                                ) @c_ex3
+                            )
+                        )
+                        (if_statement
+                            (condition_clause
+                                (binary_expression
+                                    (call_expression
+                                        (field_expression
+                                            (identifier) @fd_id3
+                                            (field_identifier) @func_name3
+                                        ) @fd_ex3
+                                        (argument_list
+                                            (number_literal) @fd_id3
+                                            (number_literal) @fd_flag3
+                                            (number_literal) @fd_dlc3
+                                            (identifier) @fd_data3
+                                        ) @arg_list3
+                                    ) @c_ex3
+                                )
+                            )
+                        )]
+                    ) @func_body3   (#match? @func_name3 "sendMsgBuf")
+            )
+        '''
+
+        query = TreeSitter.Query(CPP_LANGUAGE, setupQuery)
+        queryCursor = TreeSitter.QueryCursor(query)
+        captures = queryCursor.captures(root)
+        
+        for cap in captures:
+            #get the frame name, id, and count the bits (7ff vs 1fffffff)
+            if cap == 'c_ex3':
+                pair = []
+                sendList = captures[cap]
+                for send in sendList:
+                    for node in send.children:
+                        if(node.type == "field_expression"):
+                            for field in node.children:
+                                if(field.type =="identifier"):
+                                    #pair.append(field.text.decode())
+                                    continue
+                        if(node.type == "argument_list"):
+                            pair.append(node.children[1].text.decode())
+                            if(int(node.children[1].text.decode(),16) <= 0x7FF):
+                                pair.append("standard")
+                            elif(int(node.children[1].text.decode(),16) > 0x7FF):
+                                pair.append("extended")
+                            
+                            if(node.children[3].text.decode() == "0"):
+                                pair.append("standard")
+                            elif(node.children[3].text.decode() == "1"):
+                                pair.append("extended")
+
+                            self.frameIDList.append(pair)
+                            print(self.frameIDList)
+                            pair = []
+
+
+                        #         if(field.type == "number_literal" and ('0x' in node.text.decode())):
+                        #             pair.append(field.text.decode()) #idList
+                        #             if(int(field.text.decode(),16) > 0x7FF):
+                        #                 self.mode = "extended"
+                        #                 pair.append("extended")
+                        #             elif(int(field.text.decode(),16) <= 0x7FF):
+                        #                 self.mode = "standard"
+                        #                 pair.append("standard")
+                        #         if(field.type == "identifier"):
+                        #             if(field.text.decode() == "CAN_EFF_FLAG"):
+                        #                 pair.append("extended") #frameIDList
+                        #             else:
+                        #                 pair.append("standard")
+                        #     self.frameIDList.append(pair)
+                        #     pair = []
+                        # elif(node.type == "number_literal"):
+                        #     pair.append(node.text.decode())
+                        #     if(int(node.text.decode(),16) > 0x7FF):
+                        #         self.mode = "extended"
+                        #         pair.append("extended")
+                        #         pair.append("standard")
+                        #     elif(int(node.text.decode(),16) <= 0x7FF): 
+                        #         self.mode = "standard"
+                        #         pair.append("standard")
+                        #         pair.append("standard")
+                        #     self.frameIDList.append(pair)
+                        #     pair = []
+
+        #Create Booleans for std and ext and set true when it sees them
+
+
+    #############################################################################
+
 
     def _sendSearch(self, root):  
 
@@ -188,7 +408,9 @@ class IDBitLength():
     def _idBitLengthCheck(self, root):
 
         self._modeSearch(root)
-        self._sendSearch(root)
+        self._modeSearch2(root)
+        self._modeSearch3(root)
+        #self._sendSearch(root)
     
         # maskSetupWarn = False
         # maskWarn = False
@@ -198,11 +420,15 @@ class IDBitLength():
         # excludedWarn = False
         # excludeList = []
 
+        #setup to look in loop also and separate the output messages
+
+        if(self.frameIDList == []):
+            print("No ID Bit Length usage found")
         for frame in self.frameIDList:
             if(frame[1]==frame[2]):
                 print(frame[0] + " has no errors, " + frame[2] + " ID bit length is properly set and sent")
             elif(frame[1]!=frame[2]):
-                print("A(n) " + frame[1] + " ID Bit Length is set during frame initialization but uses a(n) " + frame[2] + " flag when sending message.")
+                print("A(n) " + frame[1] + " ID Bit Length is set during frame initialization for " + frame[0] + " but uses a(n) " + frame[2] + " flag when sending message.")
 
         
 

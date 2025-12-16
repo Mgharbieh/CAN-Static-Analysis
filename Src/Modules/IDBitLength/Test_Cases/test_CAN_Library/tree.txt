@@ -1,0 +1,494 @@
+
+
+|Node:translation_unit
+|—Node:preproc_include Text: #include <CAN.h>
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <CAN.h>
+|—Node:preproc_include Text: #include <SPI.h> // required to resolve #define conflicts
+
+|——Node:#include Text: #include
+|——Node:system_lib_string Text: <SPI.h>
+|——Node:comment
+|—Node:comment
+|—Node:preproc_def Text: #define bitrate CAN_BPS_500K
+
+|——Node:#define Text: #define
+|——Node:identifier Text: bitrate
+|——Node:preproc_arg Text: CAN_BPS_500K
+|—Node:comment
+|—Node:declaration Text: uint32_t standard_counter = 0;
+|——Node:primitive_type Text: uint32_t
+|——Node:init_declarator Text: standard_counter = 0
+|———Node:identifier Text: standard_counter
+|———Node:= Text: =
+|———Node:number_literal Text: 0
+|——Node:; Text: ;
+|—Node:function_definition Text: void setup()
+{
+  Serial.begin(115200); // Initialize Serial communications with computer to use serial monitor
+
+  //Set CAN speed. Note: Speed is now 500kbit/s so adjust your CAN monitor
+
+  CAN.begin(bitrate);
+
+  delay(4000); // Delay added just so we can have time to open up Serial Monitor and CAN bus monitor. It can be removed later...
+
+  // Output will be formatted as a CSV file, for capture and analysis
+  Serial.println(F("millis(),standard_counter,extended_counter"));
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: setup()
+|———Node:identifier Text: setup
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  Serial.begin(115200); // Initialize Serial communications with computer to use serial monitor
+
+  //Set CAN speed. Note: Speed is now 500kbit/s so adjust your CAN monitor
+
+  CAN.begin(bitrate);
+
+  delay(4000); // Delay added just so we can have time to open up Serial Monitor and CAN bus monitor. It can be removed later...
+
+  // Output will be formatted as a CSV file, for capture and analysis
+  Serial.println(F("millis(),standard_counter,extended_counter"));
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: Serial.begin(115200);
+|————Node:call_expression Text: Serial.begin(115200)
+|—————Node:field_expression Text: Serial.begin
+|——————Node:identifier Text: Serial
+|——————Node:. Text: .
+|——————Node:field_identifier Text: begin
+|—————Node:argument_list Text: (115200)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 115200
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: CAN.begin(bitrate);
+|————Node:call_expression Text: CAN.begin(bitrate)
+|—————Node:field_expression Text: CAN.begin
+|——————Node:identifier Text: CAN
+|——————Node:. Text: .
+|——————Node:field_identifier Text: begin
+|—————Node:argument_list Text: (bitrate)
+|——————Node:( Text: (
+|——————Node:identifier Text: bitrate
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: delay(4000);
+|————Node:call_expression Text: delay(4000)
+|—————Node:identifier Text: delay
+|—————Node:argument_list Text: (4000)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 4000
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:expression_statement Text: Serial.println(F("millis(),standard_counter,extended_counter"));
+|————Node:call_expression Text: Serial.println(F("millis(),standard_counter,extended_counter"))
+|—————Node:field_expression Text: Serial.println
+|——————Node:identifier Text: Serial
+|——————Node:. Text: .
+|——————Node:field_identifier Text: println
+|—————Node:argument_list Text: (F("millis(),standard_counter,extended_counter"))
+|——————Node:( Text: (
+|——————Node:call_expression Text: F("millis(),standard_counter,extended_counter")
+|———————Node:identifier Text: F
+|———————Node:argument_list Text: ("millis(),standard_counter,extended_counter")
+|————————Node:( Text: (
+|————————Node:string_literal Text: "millis(),standard_counter,extended_counter"
+|—————————Node:" Text: "
+|—————————Node:string_content Text: millis(),standard_counter,extended_counter
+|—————————Node:" Text: "
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: void standardMessage()
+{
+  CAN_Frame standard_message; // Create message object to use CAN message structure
+
+  standard_message.id = 0x555; // Random Standard Message ID
+  standard_message.valid = true;
+  standard_message.rtr = 0;
+  standard_message.extended = CAN_STANDARD_FRAME;
+  standard_message.length = 8; // Data length
+
+  // counter in the first 4 bytes, timing in the last 4 bytes
+  uint32_t timehack = millis();
+
+  // Load the data directly into CAN_Frame
+  standard_message.data[0] = (standard_counter >> 24);
+  standard_message.data[1] = (standard_counter >> 16);
+  standard_message.data[2] = (standard_counter >> 8);
+  standard_message.data[3] = (standard_counter & 0xF);
+  standard_message.data[4] = (timehack >> 24);
+  standard_message.data[5] = (timehack >> 16);
+  standard_message.data[6] = (timehack >> 8);
+  standard_message.data[7] = (timehack & 0xF);
+
+  CAN.write(standard_message); // Load message and send
+  standard_counter++; // increase count
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: standardMessage()
+|———Node:identifier Text: standardMessage
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  CAN_Frame standard_message; // Create message object to use CAN message structure
+
+  standard_message.id = 0x555; // Random Standard Message ID
+  standard_message.valid = true;
+  standard_message.rtr = 0;
+  standard_message.extended = CAN_STANDARD_FRAME;
+  standard_message.length = 8; // Data length
+
+  // counter in the first 4 bytes, timing in the last 4 bytes
+  uint32_t timehack = millis();
+
+  // Load the data directly into CAN_Frame
+  standard_message.data[0] = (standard_counter >> 24);
+  standard_message.data[1] = (standard_counter >> 16);
+  standard_message.data[2] = (standard_counter >> 8);
+  standard_message.data[3] = (standard_counter & 0xF);
+  standard_message.data[4] = (timehack >> 24);
+  standard_message.data[5] = (timehack >> 16);
+  standard_message.data[6] = (timehack >> 8);
+  standard_message.data[7] = (timehack & 0xF);
+
+  CAN.write(standard_message); // Load message and send
+  standard_counter++; // increase count
+}
+|———Node:{ Text: {
+|———Node:declaration Text: CAN_Frame standard_message;
+|————Node:type_identifier Text: CAN_Frame
+|————Node:identifier Text: standard_message
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: standard_message.id = 0x555;
+|————Node:assignment_expression Text: standard_message.id = 0x555
+|—————Node:field_expression Text: standard_message.id
+|——————Node:identifier Text: standard_message
+|——————Node:. Text: .
+|——————Node:field_identifier Text: id
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0x555
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: standard_message.valid = true;
+|————Node:assignment_expression Text: standard_message.valid = true
+|—————Node:field_expression Text: standard_message.valid
+|——————Node:identifier Text: standard_message
+|——————Node:. Text: .
+|——————Node:field_identifier Text: valid
+|—————Node:= Text: =
+|—————Node:true Text: true
+|————Node:; Text: ;
+|———Node:expression_statement Text: standard_message.rtr = 0;
+|————Node:assignment_expression Text: standard_message.rtr = 0
+|—————Node:field_expression Text: standard_message.rtr
+|——————Node:identifier Text: standard_message
+|——————Node:. Text: .
+|——————Node:field_identifier Text: rtr
+|—————Node:= Text: =
+|—————Node:number_literal Text: 0
+|————Node:; Text: ;
+|———Node:expression_statement Text: standard_message.extended = CAN_STANDARD_FRAME;
+|————Node:assignment_expression Text: standard_message.extended = CAN_STANDARD_FRAME
+|—————Node:field_expression Text: standard_message.extended
+|——————Node:identifier Text: standard_message
+|——————Node:. Text: .
+|——————Node:field_identifier Text: extended
+|—————Node:= Text: =
+|—————Node:identifier Text: CAN_STANDARD_FRAME
+|————Node:; Text: ;
+|———Node:expression_statement Text: standard_message.length = 8;
+|————Node:assignment_expression Text: standard_message.length = 8
+|—————Node:field_expression Text: standard_message.length
+|——————Node:identifier Text: standard_message
+|——————Node:. Text: .
+|——————Node:field_identifier Text: length
+|—————Node:= Text: =
+|—————Node:number_literal Text: 8
+|————Node:; Text: ;
+|———Node:comment
+|———Node:comment
+|———Node:declaration Text: uint32_t timehack = millis();
+|————Node:primitive_type Text: uint32_t
+|————Node:init_declarator Text: timehack = millis()
+|—————Node:identifier Text: timehack
+|—————Node:= Text: =
+|—————Node:call_expression Text: millis()
+|——————Node:identifier Text: millis
+|——————Node:argument_list Text: ()
+|———————Node:( Text: (
+|———————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: standard_message.data[0] = (standard_counter >> 24);
+|————Node:assignment_expression Text: standard_message.data[0] = (standard_counter >> 24)
+|—————Node:subscript_expression Text: standard_message.data[0]
+|——————Node:field_expression Text: standard_message.data
+|———————Node:identifier Text: standard_message
+|———————Node:. Text: .
+|———————Node:field_identifier Text: data
+|——————Node:subscript_argument_list Text: [0]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 0
+|———————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:parenthesized_expression Text: (standard_counter >> 24)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: standard_counter >> 24
+|———————Node:identifier Text: standard_counter
+|———————Node:>> Text: >>
+|———————Node:number_literal Text: 24
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: standard_message.data[1] = (standard_counter >> 16);
+|————Node:assignment_expression Text: standard_message.data[1] = (standard_counter >> 16)
+|—————Node:subscript_expression Text: standard_message.data[1]
+|——————Node:field_expression Text: standard_message.data
+|———————Node:identifier Text: standard_message
+|———————Node:. Text: .
+|———————Node:field_identifier Text: data
+|——————Node:subscript_argument_list Text: [1]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 1
+|———————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:parenthesized_expression Text: (standard_counter >> 16)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: standard_counter >> 16
+|———————Node:identifier Text: standard_counter
+|———————Node:>> Text: >>
+|———————Node:number_literal Text: 16
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: standard_message.data[2] = (standard_counter >> 8);
+|————Node:assignment_expression Text: standard_message.data[2] = (standard_counter >> 8)
+|—————Node:subscript_expression Text: standard_message.data[2]
+|——————Node:field_expression Text: standard_message.data
+|———————Node:identifier Text: standard_message
+|———————Node:. Text: .
+|———————Node:field_identifier Text: data
+|——————Node:subscript_argument_list Text: [2]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 2
+|———————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:parenthesized_expression Text: (standard_counter >> 8)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: standard_counter >> 8
+|———————Node:identifier Text: standard_counter
+|———————Node:>> Text: >>
+|———————Node:number_literal Text: 8
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: standard_message.data[3] = (standard_counter & 0xF);
+|————Node:assignment_expression Text: standard_message.data[3] = (standard_counter & 0xF)
+|—————Node:subscript_expression Text: standard_message.data[3]
+|——————Node:field_expression Text: standard_message.data
+|———————Node:identifier Text: standard_message
+|———————Node:. Text: .
+|———————Node:field_identifier Text: data
+|——————Node:subscript_argument_list Text: [3]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 3
+|———————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:parenthesized_expression Text: (standard_counter & 0xF)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: standard_counter & 0xF
+|———————Node:identifier Text: standard_counter
+|———————Node:& Text: &
+|———————Node:number_literal Text: 0xF
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: standard_message.data[4] = (timehack >> 24);
+|————Node:assignment_expression Text: standard_message.data[4] = (timehack >> 24)
+|—————Node:subscript_expression Text: standard_message.data[4]
+|——————Node:field_expression Text: standard_message.data
+|———————Node:identifier Text: standard_message
+|———————Node:. Text: .
+|———————Node:field_identifier Text: data
+|——————Node:subscript_argument_list Text: [4]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 4
+|———————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:parenthesized_expression Text: (timehack >> 24)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: timehack >> 24
+|———————Node:identifier Text: timehack
+|———————Node:>> Text: >>
+|———————Node:number_literal Text: 24
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: standard_message.data[5] = (timehack >> 16);
+|————Node:assignment_expression Text: standard_message.data[5] = (timehack >> 16)
+|—————Node:subscript_expression Text: standard_message.data[5]
+|——————Node:field_expression Text: standard_message.data
+|———————Node:identifier Text: standard_message
+|———————Node:. Text: .
+|———————Node:field_identifier Text: data
+|——————Node:subscript_argument_list Text: [5]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 5
+|———————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:parenthesized_expression Text: (timehack >> 16)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: timehack >> 16
+|———————Node:identifier Text: timehack
+|———————Node:>> Text: >>
+|———————Node:number_literal Text: 16
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: standard_message.data[6] = (timehack >> 8);
+|————Node:assignment_expression Text: standard_message.data[6] = (timehack >> 8)
+|—————Node:subscript_expression Text: standard_message.data[6]
+|——————Node:field_expression Text: standard_message.data
+|———————Node:identifier Text: standard_message
+|———————Node:. Text: .
+|———————Node:field_identifier Text: data
+|——————Node:subscript_argument_list Text: [6]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 6
+|———————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:parenthesized_expression Text: (timehack >> 8)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: timehack >> 8
+|———————Node:identifier Text: timehack
+|———————Node:>> Text: >>
+|———————Node:number_literal Text: 8
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: standard_message.data[7] = (timehack & 0xF);
+|————Node:assignment_expression Text: standard_message.data[7] = (timehack & 0xF)
+|—————Node:subscript_expression Text: standard_message.data[7]
+|——————Node:field_expression Text: standard_message.data
+|———————Node:identifier Text: standard_message
+|———————Node:. Text: .
+|———————Node:field_identifier Text: data
+|——————Node:subscript_argument_list Text: [7]
+|———————Node:[ Text: [
+|———————Node:number_literal Text: 7
+|———————Node:] Text: ]
+|—————Node:= Text: =
+|—————Node:parenthesized_expression Text: (timehack & 0xF)
+|——————Node:( Text: (
+|——————Node:binary_expression Text: timehack & 0xF
+|———————Node:identifier Text: timehack
+|———————Node:& Text: &
+|———————Node:number_literal Text: 0xF
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: CAN.write(standard_message);
+|————Node:call_expression Text: CAN.write(standard_message)
+|—————Node:field_expression Text: CAN.write
+|——————Node:identifier Text: CAN
+|——————Node:. Text: .
+|——————Node:field_identifier Text: write
+|—————Node:argument_list Text: (standard_message)
+|——————Node:( Text: (
+|——————Node:identifier Text: standard_message
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:comment
+|———Node:expression_statement Text: standard_counter++;
+|————Node:update_expression Text: standard_counter++
+|—————Node:identifier Text: standard_counter
+|—————Node:++ Text: ++
+|————Node:; Text: ;
+|———Node:comment
+|———Node:} Text: }
+|—Node:comment
+|—Node:function_definition Text: void loop()
+{
+  standardMessage();
+  delay(250);
+  Serial.print(millis());
+  Serial.print(',');
+  Serial.print(standard_counter);
+}
+|——Node:primitive_type Text: void
+|——Node:function_declarator Text: loop()
+|———Node:identifier Text: loop
+|———Node:parameter_list Text: ()
+|————Node:( Text: (
+|————Node:) Text: )
+|——Node:compound_statement Text: {
+  standardMessage();
+  delay(250);
+  Serial.print(millis());
+  Serial.print(',');
+  Serial.print(standard_counter);
+}
+|———Node:{ Text: {
+|———Node:expression_statement Text: standardMessage();
+|————Node:call_expression Text: standardMessage()
+|—————Node:identifier Text: standardMessage
+|—————Node:argument_list Text: ()
+|——————Node:( Text: (
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: delay(250);
+|————Node:call_expression Text: delay(250)
+|—————Node:identifier Text: delay
+|—————Node:argument_list Text: (250)
+|——————Node:( Text: (
+|——————Node:number_literal Text: 250
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: Serial.print(millis());
+|————Node:call_expression Text: Serial.print(millis())
+|—————Node:field_expression Text: Serial.print
+|——————Node:identifier Text: Serial
+|——————Node:. Text: .
+|——————Node:field_identifier Text: print
+|—————Node:argument_list Text: (millis())
+|——————Node:( Text: (
+|——————Node:call_expression Text: millis()
+|———————Node:identifier Text: millis
+|———————Node:argument_list Text: ()
+|————————Node:( Text: (
+|————————Node:) Text: )
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: Serial.print(',');
+|————Node:call_expression Text: Serial.print(',')
+|—————Node:field_expression Text: Serial.print
+|——————Node:identifier Text: Serial
+|——————Node:. Text: .
+|——————Node:field_identifier Text: print
+|—————Node:argument_list Text: (',')
+|——————Node:( Text: (
+|——————Node:char_literal Text: ','
+|———————Node:' Text: '
+|———————Node:character Text: ,
+|———————Node:' Text: '
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:expression_statement Text: Serial.print(standard_counter);
+|————Node:call_expression Text: Serial.print(standard_counter)
+|—————Node:field_expression Text: Serial.print
+|——————Node:identifier Text: Serial
+|——————Node:. Text: .
+|——————Node:field_identifier Text: print
+|—————Node:argument_list Text: (standard_counter)
+|——————Node:( Text: (
+|——————Node:identifier Text: standard_counter
+|——————Node:) Text: )
+|————Node:; Text: ;
+|———Node:} Text: }
