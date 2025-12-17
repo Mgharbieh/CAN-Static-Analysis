@@ -8,11 +8,13 @@ import Modules.MaskFilter.MaskFilterAnalyzer as mask_filt
 import Modules.RTRBit.RTRBit as RTR_Check
 import Modules.IDBitLength.IDAnalyzer as id_analyzer
 import Modules.DataBytePacking.DataByte_Analyzer as data_byte_packing
+import Modules.DataLength.dlc_analyzer as dlc_analyzer
 
 mask_filt_analyzer = mask_filt.MaskAndFilter()
 rtr_check_analyzer = RTR_Check.RTRBitChecker()
 id_bit_length_analyzer = id_analyzer.IDBitLength()
 data_byte_packing_analyzer = data_byte_packing.DataBytePackingAnalyzer() 
+data_length_analyzer = dlc_analyzer.DLCAnalyzer()
 
 INPUT_FILE = argv[1]
 
@@ -48,5 +50,7 @@ print("-"*100)
 print("\nDATA BYTE PACKING CHECK: \n")
 data_byte_packing_analyzer.checkDataPack(RootCursor)
 print("-"*100)
-
+print("-"*100)
+print("\nDLC CHECK: \n")
+data_length_analyzer.checkDLC(RootCursor)
 ##################################################################################################
