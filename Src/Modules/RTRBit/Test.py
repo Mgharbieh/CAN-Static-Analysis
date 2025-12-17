@@ -25,8 +25,8 @@ CPP_LANGUAGE = TreeSitter.Language(_CPP.language())
 
 #################################################################################
 
-MODE = "testALl"
-PATH = "/Users/abrahamabdulkarim/Documents/code/CAN_bus_research/Src/Modules/RTRBit/Test_Cases/"
+MODE = argv[1]
+PATH = argv[2]
 analyzer = RTRBit.RTRBitChecker()
 
 def testAll():

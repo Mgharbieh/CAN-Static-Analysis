@@ -26,6 +26,7 @@ with(open(INPUT_FILE, 'r', encoding='utf-8') as inFile):
     sourceCode = inFile.read()
 
 print("Analyzing file...\n", flush=True)
+
 parser = TreeSitter.Parser(CPP_LANGUAGE)
 tree = parser.parse(bytes(sourceCode, "utf8"))
 RootCursor = tree.root_node
@@ -44,8 +45,8 @@ print("-"*100)
 print("\nID BIT LENGTH CHECK: \n")
 id_bit_length_analyzer.checkIDBitLength(RootCursor)
 print("-"*100)
-print("\nDATA BYTE PACKING CHECK: \n")
+#print("\nDATA BYTE PACKING CHECK: \n")
 #data_byte_packing_analyzer.checkDataPack(RootCursor)
-print("-"*100)
+#print("-"*100)
 
 ##################################################################################################
