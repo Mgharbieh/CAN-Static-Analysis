@@ -99,6 +99,7 @@ class MaskAndFilter():
                             (call_expression
                                 function: (field_expression) @target_func
                                     (#not-match? @target_func "check[rR]eceive")
+                                    (#not-match? @target_func "mcp2515.sendMessage")
                             )
                         )
                     )
@@ -159,7 +160,7 @@ class MaskAndFilter():
                         else:
                             #if('0x' in hexVal[:2] and (len(hexVal) > 2 and len(hexVal) < 6)): #Only works for standard IDs now, will figure out extended later
                             if('0x' in hexVal[:2] ):
-                                if((hexVal != '0x40000000') or (hexVal != '0x80000000')):
+                                if((hexVal == '0x40000000') or (hexVal == '0x80000000')):
                                     hexVal = ''
                                     continue
                                 elif(hexVal not in self.loopFilterList):

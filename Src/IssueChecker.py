@@ -26,6 +26,7 @@ with(open(INPUT_FILE, 'r', encoding='utf-8') as inFile):
     sourceCode = inFile.read()
 
 print("Analyzing file...\n", flush=True)
+
 parser = TreeSitter.Parser(CPP_LANGUAGE)
 tree = parser.parse(bytes(sourceCode, "utf8"))
 RootCursor = tree.root_node

@@ -1,332 +1,294 @@
-import os
-from tree_sitter import Parser
-from tree_sitter_languages import get_language
-
-CPP = get_language("cpp")
-
+import tree_sitter as TreeSitter
+import tree_sitter_cpp as _CPP
+CPP_LANGUAGE = TreeSitter.Language(_CPP.language())
 
 class DataBytePackingAnalyzer:
     def __init__(self):
-        self._parser = Parser()
-        self._parser.set_language(CPP)
-        self._src = b""
+        self.buf_sizes = {} #declared byte buffers like: byte stmp[8];
+        self.dlc_values = {} #DLC values assigned to variables or frame fields ex. canMsg.can_dlc = 8 
+        self.frame_bytes = {} #track max bytes written into frame.data[] ex.canMsg.data[8] is 9 bytes
 
+    def _reset(self):
+        self.buf_sizes = {}
+        self.dlc_values = {}
+        self.frame_bytes = {}
 
-    def _txt(self, node) -> str:
-        return self._src[node.start_byte:node.end_byte].decode("utf-8")
+    #helpers
+    def _cap(self, root, q: str):
+        query = TreeSitter.Query(CPP_LANGUAGE, q)
+        cursor = TreeSitter.QueryCursor(query)
+        return cursor.captures(root)
 
-    def _to_int_text(self, s: str):
+    def _txt(self, node):
+        return node.text.decode("utf-8", "ignore").strip()
+
+    def _int(self, node):
+        # convert number_literal node to int
         try:
-            return int(s.strip(), 0)
+            return int(self._txt(node), 0)
         except Exception:
             return None
 
-    def _to_int_node(self, node):
-        if node is None:
-            return None
-        return self._to_int_text(self._txt(node))
-
-    def _run_query(self, root, src: str):
-        q = CPP.query(src)
-        caps = q.captures(root)
-        out = {}
-        for n, name in caps:
-            out.setdefault(name, []).append(n)
-        return out
-
-    #Queries
-    #extracts buffer name with array declaration and its size ex. data [8]
-    BUF_DECL = r"""
-    (
-      (declaration
-        declarator: (init_declarator
-          declarator: (array_declarator
-            declarator: (identifier) @buf
-            size: (number_literal) @n
+    #queries
+    # Find declared data buffers (BYTES side), ex. byte stmp[8]; or uint8_t data[7];
+    def _buf_decl_search(self, root):
+        q = r"""
+        (
+          (declaration
+            declarator: (init_declarator
+              declarator: (array_declarator
+                declarator: (identifier) @buf
+                size: (number_literal) @n
+              )
+            )
           )
         )
-      )
-    )
-    """
-
-    DLC_ASSIGN = r"""
-    ;checks for simple dlc assingments ex. dlc = 8
-    (
-      (assignment_expression
-        left: (identifier) @name
-        right: (number_literal) @val
-      )
-    )
-
-    ;checks for DLC declared and initialized statements ex.  int dlc = 8
-    (
-      (declaration
-        declarator: (init_declarator
-          declarator: (identifier) @name2
-          value: (number_literal) @val2
-        )
-      )
-    )
-
-    ;checks for DLC value is assigned to a field inside a struct or object ex. obj.can_dlc = 8  / obj.length = 8 / obj.dlc = 8
-    (
-      (assignment_expression
-        left: (field_expression
-          argument: (identifier) @obj
-          field: (field_identifier) @field
-        )
-        right: (number_literal) @val3
-      )
-      (#match? @field "^(can_dlc|length|dlc)$")
-    )
-    """
-
-    #captures CAN send/write function calls
-    CAN_CALLS = r"""
-    (
-      (call_expression
-        function: (field_expression
-          argument: (_) @obj
-          field: (field_identifier) @method
-        )
-        arguments: (argument_list) @args
-      ) @call
-      (#match? @method "(?i)^(sendMsgBuf|sendMessage|write)$")
-    )
-    """
-
-    #finds assignments like frame.data[0] = 0xAA; and counts bytes written to frame data
-    FRAME_DATA_WRITE = r"""
-    (
-      (assignment_expression
-        left: (subscript_expression
-          argument: (field_expression
-            argument: (identifier) @frame
-            field: (field_identifier) @field
-          )
-          (subscript_argument_list
-            (number_literal) @idx
-          )
-        )
-        right: (_)
-      )
-      (#match? @field "^(data)$")
-    )
-    """
-    #catches memcpy calls to frame.data ex. memcpy(frame.data, buf, 8);
-    MEMCPY_TO_FRAME_DATA = r"""
-    (
-      (call_expression
-        function: (identifier) @fn
-        arguments: (argument_list) @args
-      ) @call
-      (#match? @fn "^memcpy$")
-    )
-    """
-
-    #collects the declared sizes of buffers in the source file and stores them in a dict (maps each buffer name to its declared length for later DLC comparison)
-    def _collect_buf_sizes(self, root):
-        caps = self._run_query(root, self.BUF_DECL)
-        sizes = {}
+        """
+        caps = self._cap(root, q)
         for b, n in zip(caps.get("buf", []), caps.get("n", [])):
-            name = self._txt(b).strip()
-            val = self._to_int_node(n)
-            if name and val is not None:
-                sizes[name] = val
-        return sizes
-    #grabs DLC values assigned in the source file and stores them in a dict (maps each DLC variable/field name to a list of (name, value)
-    def _collect_dlc_values(self, root):
-        caps = self._run_query(root, self.DLC_ASSIGN)
-        m = {}
+            name = self._txt(b)
+            size = self._int(n)
+            if name and size is not None:
+                self.buf_sizes[name] = size
+    #find DLC assignments (DLC side), ex. dlc = 8; or canMsg.can_dlc = 8;
+    def _dlc_assign_search(self, root):
+        q = r"""
+        ;dlc can be assigned in 3 diff ways
+        (
+          (assignment_expression              ;simple assignment
+            left: (identifier) @name
+            right: (number_literal) @val
+          )
+        )
 
-        for name, val in zip(caps.get("name", []), caps.get("val", [])): #simple assignments
-            n = self._txt(name).strip()
-            v = self._to_int_node(val)
-            if n and v is not None:
-                m.setdefault(n, []).append((name.start_byte, v))
+        (
+          (declaration
+            declarator: (init_declarator        ;declaration with initialization
+              declarator: (identifier) @name2
+              value: (number_literal) @val2
+            )
+          )
+        )
 
-        for name, val in zip(caps.get("name2", []), caps.get("val2", [])): #declaration with initialization
-            n = self._txt(name).strip()
-            v = self._to_int_node(val)
-            if n and v is not None:
-                m.setdefault(n, []).append((name.start_byte, v))
+        (
+          (assignment_expression
+            left: (field_expression            ;field assignment
+              argument: (identifier) @obj
+              field: (field_identifier) @field
+            )
+            right: (number_literal) @val3
+          )
+          (#match? @field "^(can_dlc|length|dlc)$")
+        )
+        """
+        caps = self._cap(root, q)
 
-        for obj, field, val in zip(caps.get("obj", []), caps.get("field", []), caps.get("val3", [])): #field assignments
-            o = self._txt(obj).strip()
-            f = self._txt(field).strip()
-            v = self._to_int_node(val)
-            if o and f and v is not None:
-                key = f"{o}.{f}"
-                m.setdefault(key, []).append((obj.start_byte, v))
+        #dlcVar = 8;
+        for n, v in zip(caps.get("name", []), caps.get("val", [])):
+            key = self._txt(n)
+            val = self._int(v)
+            if key and val is not None:
+                self.dlc_values.setdefault(key, []).append((n.start_byte, val))
 
-        for k in m:
-            m[k].sort(key=lambda x: x[0])
-        return m
+        #int dlcVar = 8;
+        for n, v in zip(caps.get("name2", []), caps.get("val2", [])):
+            key = self._txt(n)
+            val = self._int(v)
+            if key and val is not None:
+                self.dlc_values.setdefault(key, []).append((n.start_byte, val))
 
-    #takes the most recent value assigned to 'name' before a given source location (in the case of a duplicate assignment, the last one before the call is used)
-    def _resolve_before(self, name: str, before_pos: int, value_map: dict):
-        if not name or name not in value_map:
-            return None
-        best = None
-        for pos, val in value_map[name]:
-            if pos <= before_pos:
-                best = val
-            else:
-                break
-        return best
+        #canMsg.can_dlc = 8;  (and other dlc field names)
+        for o, f, v in zip(caps.get("obj", []), caps.get("field", []), caps.get("val3", [])):
+            obj = self._txt(o)
+            field = self._txt(f)
+            val = self._int(v)
+            if obj and field and val is not None:
+                self.dlc_values.setdefault(f"{obj}.{field}", []).append((o.start_byte, val))
 
-    #extracts argument nodes from an argument_list node, ignoring punctuation
-    def _arg_nodes(self, arg_list_node):
-        out = []
-        for ch in arg_list_node.children:
-            if ch.type in ("(", ")", ","):
-                continue
-            out.append(ch)
-        return out
+        #keeps in order so "latest before call" works
+        for k in self.dlc_values:
+            self.dlc_values[k].sort(key=lambda x: x[0])
 
-    #counts and stores literal index writes to each CAN frame’s data array to determine how many payload bytes are populated
-    def _collect_frame_bytes_sent(self, root, buf_sizes):
-        frame_bytes = {}
+    #finds max bytes written into frame.data[] (BYTES side)
+    def _frame_bytes_search(self, root):
+        #frame.data[idx]
+        q1 = r"""
+        (
+          (assignment_expression
+            left: (subscript_expression
+              argument: (field_expression
+                argument: (identifier) @frame
+                field: (field_identifier) @field
+              )
+              (subscript_argument_list (number_literal) @idx)
+            )
+            right: (_)
+          ) @hit
+          (#match? @field "^data$")
+        )
+        """
+        caps1 = self._cap(root, q1)
+        
+        hits = caps1.get("hit", [])
+        frames = caps1.get("frame", [])
+        idxs = caps1.get("idx", [])
 
-        #direct assignments to frame.data[i]
-        caps = self._run_query(root, self.FRAME_DATA_WRITE)
-        for fr, idx in zip(caps.get("frame", []), caps.get("idx", [])):
-            frame = self._txt(fr).strip()
-            i = self._to_int_node(idx)
+        #max index written to frame.data[] and adds 1 for byte count
+        for k in range(min(len(hits), len(frames), len(idxs))):
+            frame = self._txt(frames[k])
+            i = self._int(idxs[k])
             if frame and i is not None:
-                frame_bytes[frame] = max(frame_bytes.get(frame, 0), i + 1)
+                self.frame_bytes[frame] = max(self.frame_bytes.get(frame, 0), i + 1)
 
-        #memcpy to frame.data
-        caps2 = self._run_query(root, self.MEMCPY_TO_FRAME_DATA)
-        calls = caps2.get("call", [])
-        args_nodes = caps2.get("args", [])
-
-        for call_node, args_node in zip(calls, args_nodes):
-            args = self._arg_nodes(args_node)
+        #memcpy(frame.data, src, size) 
+        q2 = r"""
+        (
+          (call_expression
+            function: (identifier) @fn
+            arguments: (argument_list) @args
+          ) @call
+          (#match? @fn "^memcpy$")
+        )
+        """
+        caps2 = self._cap(root, q2)
+        for args_node in caps2.get("args", []):
+            args = [c for c in args_node.children if c.type not in ("(", ")", ",")] #filter out non-argument nodes
             if len(args) < 3:
                 continue
 
-            dest = args[0]
-            src = args[1]
-            size = args[2]
-            dest_txt = self._txt(dest).strip()
-            if not dest_txt.endswith(".data"):
+            dest = self._txt(args[0])
+            src = self._txt(args[1])
+
+            #counts memcpy writes into ".data"
+            if not dest.endswith(".data"):
                 continue
 
-            frame_name = dest_txt.split(".")[0].strip()
-            if not frame_name:
-                continue
+            frame = dest.split(".")[0].strip()
 
-            sz = self._to_int_node(size)
-            if sz is None:
-                src_name = self._txt(src).strip()
-                if src_name in buf_sizes:
-                    sz = buf_sizes[src_name]
+            # Size may be literal or based on a known buffer variable
+            size = self._int(args[2])
+            if size is None and src in self.buf_sizes:
+                size = self.buf_sizes[src]
 
-            if sz is not None:
-                frame_bytes[frame_name] = max(frame_bytes.get(frame_name, 0), sz)
-        return frame_bytes
+            if frame and size is not None:
+                self.frame_bytes[frame] = max(self.frame_bytes.get(frame, 0), size)
+    #find CAN send calls and their arguments (to get DLC and BYTES)
+    def _can_calls(self, root):
+        q = r"""
+        (
+          (call_expression
+            function: (field_expression
+              argument: (_) @obj
+              field: (field_identifier) @method
+            )
+            arguments: (argument_list) @args
+          ) @call
+          (#match? @method "(?i)^(sendMsgBuf|sendMessage|write)$")
+        )
+        """
+        caps = self._cap(root, q)
+        return list(zip(caps.get("call", []), caps.get("args", [])))
 
-    #analyzes each CAN send/write call to compare DLC and bytes sent, returning the analysis result
-    def _analyze_call(self, call_node, args_node, buf_sizes, dlc_values, frame_bytes):
-        call_txt = self._txt(call_node).strip()
-        line = call_node.start_point[0] + 1
-        col = call_node.start_point[1]
+    # resolve most recent DLC assignment before call position (should work in setup() and loop())
+    def _resolve_dlc_before(self, key, call_pos):
+        if key not in self.dlc_values:
+            return None
+        dlc = None
+        for pos, val in self.dlc_values[key]:
+            if pos <= call_pos:
+                dlc = val
+            else:
+                break
+        return dlc
 
-        args = self._arg_nodes(args_node)
-
-        fn_node = call_node.child_by_field_name("function")
-        fn_text = (self._txt(fn_node) if fn_node else call_txt).lower()
-
-        #unwraps address-of operator from argument if present ex. &canMsg -> canMsg
-        def _unwrap_addr(arg_node):
-            txt = self._txt(arg_node).strip()
-            if txt.startswith("&"):
-                return txt[1:].strip()
-            return txt
-
-        #grabs the frame name from the first argument of the call
-        #ex. CAN.sendMessage(frame)
-        if "sendmessage" in fn_text and len(args) >= 1:
-            frame_name = _unwrap_addr(args[0])
-            dlc = ( self._resolve_before(f"{frame_name}.can_dlc", call_node.start_byte, dlc_values) or self._resolve_before(f"{frame_name}.length", call_node.start_byte, dlc_values) or self._resolve_before(f"{frame_name}.dlc", call_node.start_byte, dlc_values))
-            assumed = False
-            #if DLC not found, assume 8
-            if dlc is None:
-                assumed = True
-                dlc = 8
-
-            bytes_sent = frame_bytes.get(frame_name)
-
-            
-            if dlc == bytes_sent:
-                return ("OK", f"{call_txt}  DLC={dlc} matches BYTES={bytes_sent}. No issues found." + (" (Assumed DLC=8)" if assumed else ""))
-            if dlc < bytes_sent:
-                return ("OVERFLOW",f"{call_txt}  DLC={dlc} < BYTES={bytes_sent}. (Overflow)"+ (" (Assumed DLC=8)" if assumed else ""))
-            return ("UNDERFLOW",f"{call_txt} DLC={dlc} > BYTES={bytes_sent}. (Underflow)"+ (" (Assumed DLC=8)" if assumed else ""))
-
-        #write(frame) OR write(frameType, frame)
-        if "write" in fn_text and len(args) == 1:
-            frame_name = self._txt(args[0]).strip()
-            dlc = (self._resolve_before(f"{frame_name}.length", call_node.start_byte, dlc_values) or self._resolve_before(f"{frame_name}.can_dlc", call_node.start_byte, dlc_values) or self._resolve_before(f"{frame_name}.dlc", call_node.start_byte, dlc_values) )
-
-            assumed = False
-            if dlc is None:
-                assumed = True
-                dlc = 8
-
-            bytes_sent = frame_bytes.get(frame_name)
-
-            if dlc == bytes_sent:
-                return ("OK",f"{call_txt}  DLC={dlc} matches BYTES={bytes_sent}. No issues found."+ (" (Assumed DLC=8)" if assumed else ""))
-            if dlc < bytes_sent:
-                return ("OVERFLOW",f"{call_txt} DLC={dlc} < BYTES={bytes_sent}. (Overflow)"+ (" (Assumed DLC=8)" if assumed else ""))
-            return ("UNDERFLOW",f"{call_txt} DLC={dlc} > BYTES={bytes_sent}. (Underflow)"+ (" (Assumed DLC=8)" if assumed else ""))
-
-        #write(id, frameType, dlc, buf) OR sendMsgBuf(..., dlc, buf)
-        if "write" in fn_text:
-            dlc_node = args[2]
-            buf_node = args[3]
-        else:
-            dlc_node = args[-2]
-            buf_node = args[-1]
-
-        buf_name = self._txt(buf_node).strip()
-        bytes_sent = buf_sizes.get(buf_name)
-
-        dlc = self._to_int_node(dlc_node)
-        assumed = False
-
-        if dlc is None:
-            dlc_name = self._txt(dlc_node).strip()
-            dlc = self._resolve_before(dlc_name, before_pos=call_node.start_byte, value_map=dlc_values)
-
-        if dlc is None:
-            assumed = True
-            dlc = 8
+    #compare DLC and BYTES and format output
+    def _compare(self, call_txt, dlc, bytes_sent, assumed):
+        suffix = " (Assumed DLC=8)" if assumed else ""
+        if bytes_sent is None:
+            return f"{call_txt} DLC={dlc} BYTES=unknown.{suffix}"
 
         if dlc == bytes_sent:
-            return ("OK",f"{call_txt} DLC={dlc} matches BYTES={bytes_sent}. No issues found."+ (" (Assumed DLC=8)" if assumed else "") )
+            return f"{call_txt} DLC={dlc} matches BYTES={bytes_sent}. No issues found.{suffix}"
         if dlc < bytes_sent:
-            return ("OVERFLOW",f"{call_txt}  DLC={dlc} < BYTES={bytes_sent}. (Overflow)"+ (" (Assumed DLC=8)" if assumed else ""))
-        return ("UNDERFLOW",f"{call_txt}  DLC={dlc} > BYTES={bytes_sent}. (Underflow)"+ (" (Assumed DLC=8)" if assumed else ""))
+            return f"{call_txt}  DLC={dlc} < BYTES={bytes_sent}. (Overflow){suffix}"
+        return f"{call_txt}  DLC={dlc} > BYTES={bytes_sent}. (Underflow){suffix}"
 
-    #public method to check DLC issues in a given source file
-    def checkDataPack(self, root):
-       #root = self._parse_file(file_input)
+    #analyzes a single CAN send call and calls compare
+    def _analyze_call(self, call_node, args_node):
+        call_txt = self._txt(call_node)
 
-        buf_sizes = self._collect_buf_sizes(root)
-        dlc_values = self._collect_dlc_values(root)
-        frame_bytes = self._collect_frame_bytes_sent(root, buf_sizes)
+        fn_node = call_node.child_by_field_name("function")
+        fn_txt = self._txt(fn_node).lower() if fn_node is not None else call_txt.lower()
 
-        caps = self._run_query(root, self.CAN_CALLS)
-        calls = list(zip(caps.get("call", []), caps.get("args", [])))
+        args = [c for c in args_node.children if c.type not in ("(", ")", ",")]
 
-        for call_node, args_node in calls:
-            sev, msg = self._analyze_call(call_node, args_node, buf_sizes, dlc_values, frame_bytes)
-            print(msg)
+        #mcp2515.sendMessage(frame)
+        if "sendmessage" in fn_txt and len(args) >= 1:
+            frame = self._txt(args[0])
+            if frame.startswith("&"):
+                frame = frame[1:].strip()
+
+            #DLC comes from fields like canMsg.can_dlc / canMsg.length / canMsg.dlc
+            dlc = (self._resolve_dlc_before(f"{frame}.can_dlc", call_node.start_byte)or self._resolve_dlc_before(f"{frame}.length", call_node.start_byte)or self._resolve_dlc_before(f"{frame}.dlc", call_node.start_byte))
+            assumed = False
+            if dlc is None:
+                dlc = 8
+                assumed = True
+
+            #BYTES comes from max writes to frame.data[]
+            return self._compare(call_txt, dlc, self.frame_bytes.get(frame), assumed)
+
+        #CAN.write(frame)
+        #CAN.write(extended_message) where bytes come from frame.data writes
+        if "write" in fn_txt and len(args) == 1:
+            frame = self._txt(args[0])
+
+            dlc = (self._resolve_dlc_before(f"{frame}.length", call_node.start_byte)or self._resolve_dlc_before(f"{frame}.can_dlc", call_node.start_byte)or self._resolve_dlc_before(f"{frame}.dlc", call_node.start_byte))
+            assumed = False
+            if dlc is None:
+                dlc = 8
+                assumed = True
+
+            return self._compare(call_txt, dlc, self.frame_bytes.get(frame), assumed)
+
+        #sendMsgBuf(...) or write(id,type,dlc,buf) ---
+        if len(args) >= 2:
+            if "write" in fn_txt and len(args) >= 4:
+                dlc_node, buf_node = args[2], args[3]
+            else:
+                dlc_node, buf_node = args[-2], args[-1]
+
+            buf = self._txt(buf_node)
+            bytes_sent = self.buf_sizes.get(buf)
+
+            dlc = self._int(dlc_node)
+            if dlc is None:
+                dlc = self._resolve_dlc_before(self._txt(dlc_node), call_node.start_byte)
+
+            assumed = False
+            if dlc is None:
+                dlc = 8
+                assumed = True
+
+            return self._compare(call_txt, dlc, bytes_sent, assumed)
+
+        return None
+
+    def _dataPackCheck(self, root):
+        self._buf_decl_search(root)
+        self._dlc_assign_search(root)
+        self._frame_bytes_search(root)
+
+        print("#"*100,'\n')
+
+        for call_node, args_node in self._can_calls(root):
+            msg = self._analyze_call(call_node, args_node)
+            if msg:
+                print(msg)
+
         print()
+        print("#"*100)
 
-
-
-
+    def checkDataPack(self, root):
+        self._dataPackCheck(root)
+        self._reset()

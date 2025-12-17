@@ -35,7 +35,7 @@ class RTRBitChecker:
                             (identifier) @fd_id
                             (field_identifier) @func_name
                         ) @fd_ex
-                        (number_literal) @ids
+                        ;(number_literal) @ids
                     ) @a_ex
                 )]
             ) @func_body 
