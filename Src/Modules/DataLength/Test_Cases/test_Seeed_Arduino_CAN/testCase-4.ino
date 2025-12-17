@@ -47,7 +47,7 @@ void setup() {
     SERIAL_PORT_MONITOR.println("CAN init ok!");
 }
 
-unsigned char stmp[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+//unsigned char stmp[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 void loop() {
     // send data:  id = 0x00, standrad frame, data len = 8, stmp: data buf
     stmp[7] = stmp[7] + 1;

@@ -1,29 +1,23 @@
 import os
-import dlc_analyzer as DlcAnalyzer
+from sys import argv
+import dlc_analyzer
 
-TEST_PATH = "/Users/moeab/Desktop/CAN_bus_research-main/Src/Modules/DataLength/Test_Cases2/"
-analyzer = DlcAnalyzer.DataLengthAnalyzer()
 
-for item in sorted(os.listdir(TEST_PATH)):
-    if not item.startswith("test"):
-        continue
+FOLDER = "//Users/moeab/CAN_bus_research/Src/Modules/DataLength/Test_Cases/"
+#/Users/moeab/CAN_bus_research/Src/Modules/DataLength/Test_Cases/
+analyzer = dlc_analyzer.DLCAnalyzer()
 
-    path1 = os.path.join(TEST_PATH, item)
-    if not os.path.isdir(path1):
-        continue
-
-    print("_" * 100)
-    print(f"Testing {item}\n")
-
-    found = False
-    for dirpath, _, filenames in os.walk(path1):
-        for file in sorted(filenames):
-            if file.endswith((".ino", ".cpp")):
-                found = True
-                path2 = os.path.join(dirpath, file)
-                print(f"Test: {os.path.relpath(path2, path1)}")
-                analyzer.checkDlc(path2)
+for item in os.listdir(FOLDER):
+    if(item[:5] == "test_"):
+        path1 = FOLDER + item
+        print('_' * 100)
+        print(f'Testing {item[5:]}\n')
+       
+        for file in sorted(os.listdir(path1)):
+            if(file[-4:] == '.ino' or file[-4:] == '.cpp'):
+                print(f'Test: {file}')
+                path2 = path1 + '/' + file
+                analyzer.checkDLC(path2)
                 print()
 
-    if not found:
-        print(f"[WARN] No .ino/.cpp files found anywhere under: {path1}\n")
+        

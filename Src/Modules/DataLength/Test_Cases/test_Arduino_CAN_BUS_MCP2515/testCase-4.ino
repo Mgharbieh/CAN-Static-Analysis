@@ -64,7 +64,7 @@ void setup()
     Serial.println("CAN BUS OK!");
 }
 
-unsigned char stmp[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+//unsigned char stmp[8] = {0, 1, 2, 3, 4, 5, 6, 7};
 void loop()
 {
     CAN.sendMsgBuf(0x00, 0, 0, stmp);
