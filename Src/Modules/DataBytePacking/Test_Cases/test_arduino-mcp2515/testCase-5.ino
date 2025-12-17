@@ -19,6 +19,7 @@ void setup() {
   canMsg1.data[6] = 0xBE;
   canMsg1.data[7] = 0x86;
 
+
   canMsg2.can_id  = 0x036;
   canMsg2.can_dlc = 8;
   canMsg2.data[0] = 0x0E;
@@ -41,10 +42,11 @@ void setup() {
 }
 
 void loop() {
-  mcp2515.sendMessage(&canMsg1);
-  mcp2515.sendMessage(&canMsg2);
   canMsg1.data[8] = 0x86;
   canMsg2.data[8] = 0xA0;
+  mcp2515.sendMessage(&canMsg1);
+  mcp2515.sendMessage(&canMsg2);
+
 
   Serial.println("Messages sent");
   
