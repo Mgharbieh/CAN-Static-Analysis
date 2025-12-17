@@ -187,12 +187,12 @@ class DLCAnalyzer:
 
                     if dlc_val is not None:
                         if dlc_val > 8:
-                            issueStr = f"Overflow Error: {callText} uses DLC={dlc_val} at line {lineNum} (>8)."
+                            issueStr = f"Expected less than actual: {callText} uses DLC={dlc_val} at line {lineNum} (>8)."
                             if issueStr not in self.resultList:
                                 self.resultList.append(issueStr)
 
                         elif expected is not None and dlc_val < expected:
-                          issueStr = f"Underflow Error: {callText} uses DLC={dlc_val} but {buf_raw}[{expected}] at line {lineNum}."
+                          issueStr = f"Expected more than actual: {callText} uses DLC={dlc_val} but {buf_raw}[{expected}] at line {lineNum}."
                           if issueStr not in self.resultList:
                               self.resultList.append(issueStr)
 
