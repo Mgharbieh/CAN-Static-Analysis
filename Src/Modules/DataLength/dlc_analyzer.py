@@ -12,7 +12,8 @@ class DLCAnalyzer:
         self.msgList = []
         self.resultList = []
 
-    def _checkDLC(self, root):
+    def checkDLC(self, root):
+        self._reset()
 
         dlcQuery0 = r'''
         (function_definition
@@ -215,15 +216,3 @@ class DLCAnalyzer:
             print(issue)
         print()
         print('#' * 100)
-
-    def checkDLC(self, filepath):
-        self._reset()
-
-        with(open(filepath, 'r', encoding='utf-8') as inFile):
-            sourceCode = inFile.read()
-
-        parser = TreeSitter.Parser(CPP_LANGUAGE)
-        tree = parser.parse(bytes(sourceCode, "utf8"))
-        root = tree.root_node
-
-        self._checkDLC(root)
