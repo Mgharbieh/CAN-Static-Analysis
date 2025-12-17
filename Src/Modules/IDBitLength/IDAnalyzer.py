@@ -111,7 +111,7 @@ class IDBitLength():
                                 pair.append("standard")
                                 pair.append("standard")
                             self.frameIDList.append(pair)
-                            print(self.frameIDList)
+                            #print(self.frameIDList)
                             pair = []
 
         #Create Booleans for std and ext and set true when it sees them
@@ -172,7 +172,7 @@ class IDBitLength():
                             elif(node.text.decode() == "CAN_EXTENDED_FRAME"):
                                 pair.append("extended")
                             self.frameIDList.append(pair)
-                            print(self.frameIDList)
+                            #print(self.frameIDList)
                             pair = []
                             
                                 
@@ -304,7 +304,7 @@ class IDBitLength():
                                 pair.append("extended")
 
                             self.frameIDList.append(pair)
-                            print(self.frameIDList)
+                            #print(self.frameIDList)
                             pair = []
 
 

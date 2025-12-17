@@ -279,10 +279,15 @@ class DataBytePackingAnalyzer:
         self._dlc_assign_search(root)
         self._frame_bytes_search(root)
 
+        print("#"*100,'\n')
+
         for call_node, args_node in self._can_calls(root):
             msg = self._analyze_call(call_node, args_node)
             if msg:
                 print(msg)
+
+        print()
+        print("#"*100)
 
     def checkDataPack(self, root):
         self._dataPackCheck(root)
