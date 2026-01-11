@@ -5,7 +5,7 @@ struct can_frame canMsg;
 MCP2515 mcp2515(10);
 
 void setup() {
-   // SET MESSAGE TO SEND //
+  // SET MESSAGE TO SEND //
   canMsg1.can_id = 0x0F6 | CAN_RTR_FLAG;
   canMsg1.can_dlc = 8;
   canMsg1.data[0] = 0x8E;
