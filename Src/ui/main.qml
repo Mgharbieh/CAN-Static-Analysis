@@ -242,16 +242,7 @@ ApplicationWindow {
                         Button {
                             id: accessElement
                             anchors.fill: parent
-                            //enabled: isFocused
                             flat: true
-
-                            /*
-                            background: Rectangle {
-                                //implicitWidth: parent.width
-                                //implicitHeight: parent.height
-                                color: "transparent"
-                            }
-                            */
 
                             HoverHandler { cursorShape: Qt.PointingHandCursor }
 
@@ -310,231 +301,6 @@ ApplicationWindow {
         visible: savedList.atYEnd === true ? false : true
     }
 
-    /*
-    RectangularShadow {
-        anchors.fill: topShadowRect
-        offset.x: 5 
-        offset.y: 0 
-        radius:topShadowRect.radius
-        blur: 20 // Shadow softness
-        spread: 0 // Shadow size relative to source
-        color: '#805B5B5B' // Shadow color with alpha (black, 50% opacity)
-        antialiasing: true // Smooth the edges
-        z:1
-        visible: savedList.atYBeginning === true ? false : true
-    }
-
-    Rectangle {
-        id: topShadowRect
-        anchors {
-            bottom: rectangle2.top
-            left: rectangle2.left
-            right: parent.right
-            top:parent.top
-        }
-        z:2
-        color: backgroundcolor
-    }
-
-    RectangularShadow {
-        anchors.fill: bottomShadowRect
-        offset.x: 5 
-        offset.y: 0 
-        radius:topShadowRect.radius
-        blur: 30 // Shadow softness
-        spread: 0 // Shadow size relative to source
-        color: '#805b5b5b' // Shadow color with alpha (black, 50% opacity)
-        antialiasing: true // Smooth the edges
-        z:1
-        visible: savedList.atYEnd === true ? false : true
-    }
-
-    Rectangle {
-        id: bottomShadowRect
-        anchors {
-            bottom: parent.bottom
-            left: rectangle2.left
-            right: parent.right
-            top: rectangle2.bottom
-        }
-        z:2
-        color: backgroundcolor
-    }
-    */
-
-
-    RectangularShadow {
-        anchors.fill: help_rect
-        offset.x: 5 
-        offset.y: 5 
-        radius: upload_file_rect.radius
-        blur: 20 // Shadow softness
-        spread: 0 // Shadow size relative to source
-        color: "#80000000" // Shadow color with alpha (black, 50% opacity)
-        antialiasing: true // Smooth the edges
-    }
-
-    Rectangle {
-        id: help_rect
-        width: 90
-        height: 90
-        color: "#18458b"
-        radius: 45
-
-        anchors {
-            left: parent.left
-            bottom: settings_rect.top
-            leftMargin: 25
-            bottomMargin: 25
-        }
-        z: 1
-
-        Text {
-            anchors {
-                top: parent.top
-                bottom: parent.bottom
-                right:parent.right
-                left: parent.left
-                
-                topMargin: 8
-                bottomMargin: 12
-                leftMargin: 10
-                rightMargin: 10
-            }
-
-            text: "?"
-            font.pixelSize: 70
-            font.bold: true
-            color: "#FFFFFF"
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-        }
-
-        RoundButton {
-            id: button_help
-            anchors.fill: parent
-            radius: 45
-            flat: true
-
-            HoverHandler { 
-                id: buttonHoverHelp
-                cursorShape: Qt.PointingHandCursor 
-            }
-
-            ToolTip {
-                id: helpToolTip
-                visible: buttonHoverHelp.hovered
-                text: "Help"
-                delay: 500
-
-                contentItem: Text {
-                    text: helpToolTip.text
-                    color: textColor
-                }
-
-                background: Rectangle {
-                    color: backgroundcolor
-                    border.color: accent1color
-                    radius: 5
-                }
-            }
-        }
-    }
-
-    RectangularShadow {
-        anchors.fill: settings_rect
-        offset.x: 5 
-        offset.y: 5 
-        radius: upload_file_rect.radius
-        blur: 20 // Shadow softness
-        spread: 0 // Shadow size relative to source
-        color: "#80000000" // Shadow color with alpha (black, 50% opacity)
-        antialiasing: true // Smooth the edges
-    }
-
-    Rectangle {
-        id: settings_rect
-        width: 90
-        height: 90
-        color: "#18458b"
-        radius: 45
-
-        anchors {
-            left: parent.left
-            bottom: upload_file_rect.top
-            leftMargin: 25
-            bottomMargin: 25
-        }
-        z: 1
-
-        Image {
-            id: settings_img
-            anchors.centerIn: parent
-            source: "./assets/settings_edit.png"
-        }
-
-        /*
-        Text {
-            anchors {
-                top: parent.top
-                bottom: parent.bottom
-                right:parent.right
-                left: parent.left
-                
-                topMargin: 8
-                bottomMargin: 12
-                leftMargin: 10
-                rightMargin: 10
-            }
-
-            text: "⛭"
-            font.pixelSize: 70
-            font.bold: true
-            color: "#FFFFFF"
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-        }
-       
-        Rectangle {
-            anchors.centerIn: parent
-            width: 20
-            height: 20
-            radius: 10
-            color: "#FFFFFF"
-        }
-        */
-        
-        RoundButton {
-            id: button_settings
-            anchors.fill: parent
-            radius: 45
-            flat: true
-
-            HoverHandler { 
-                id: buttonHoverSettings
-                cursorShape: Qt.PointingHandCursor 
-            }
-
-            ToolTip {
-                id: settingsToolTip
-                visible: buttonHoverSettings.hovered
-                text: "Settings"
-                delay: 500
-
-                contentItem: Text {
-                    text: settingsToolTip.text
-                    color: textColor
-                }
-
-                background: Rectangle {
-                    color: backgroundcolor
-                    border.color: accent1color
-                    radius: 5
-                }
-            }
-        }
-    }
-
     RectangularShadow {
         anchors.fill: upload_file_rect
         offset.x: 5 
@@ -548,23 +314,24 @@ ApplicationWindow {
 
     Rectangle {
         id: upload_file_rect
-        width: 90
-        height: 90
         color: "#18458b"
-        radius: 45
+        radius: 20
 
         anchors {
             left: parent.left
-            bottom: parent.bottom
+            top: can_Rect.bottom
+            right: separatorBar.left
+            topMargin: 25
+            rightMargin: 25
             leftMargin: 25
             bottomMargin: 25
         }
         z: 1
-
-        RoundButton {
+        height: 90
+        Button {
             id: button
             anchors.fill: parent
-            radius: 45
+            //radius: 45
             flat: true
 
             HoverHandler { 
@@ -610,6 +377,175 @@ ApplicationWindow {
             anchors.horizontalCenter: parent.horizontalCenter
         }
     }
+
+    RectangularShadow {
+        anchors.fill: settings_rect
+        offset.x: 5 
+        offset.y: 5 
+        radius: upload_file_rect.radius
+        blur: 20 // Shadow softness
+        spread: 0 // Shadow size relative to source
+        color: "#80000000" // Shadow color with alpha (black, 50% opacity)
+        antialiasing: true // Smooth the edges
+    }
+
+    Rectangle {
+        id: settings_rect
+        height: 90
+        color: "#18458b"
+        radius: 20
+
+        anchors {
+            left: parent.left
+            top: upload_file_rect.bottom
+            right: separatorBar.left
+            leftMargin: 25
+            rightMargin: 25
+            topMargin: 25
+        }
+        z: 1
+
+        Image {
+            id: settings_img
+            anchors.centerIn: parent
+            source: "./assets/settings_edit.png"
+        }
+        
+        Button {
+            id: button_settings
+            anchors.fill: parent
+            flat: true
+
+            HoverHandler { 
+                id: buttonHoverSettings
+                cursorShape: Qt.PointingHandCursor 
+            }
+
+            ToolTip {
+                id: settingsToolTip
+                visible: buttonHoverSettings.hovered
+                text: "Settings"
+                delay: 500
+
+                contentItem: Text {
+                    text: settingsToolTip.text
+                    color: textColor
+                }
+
+                background: Rectangle {
+                    color: backgroundcolor
+                    border.color: accent1color
+                    radius: 5
+                }
+            }
+        }
+    }
+
+    RectangularShadow {
+        anchors.fill: help_rect
+        offset.x: 5 
+        offset.y: 5 
+        radius: upload_file_rect.radius
+        blur: 20 // Shadow softness
+        spread: 0 // Shadow size relative to source
+        color: "#80000000" // Shadow color with alpha (black, 50% opacity)
+        antialiasing: true // Smooth the edges
+    }
+
+    Rectangle {
+        id: help_rect
+        height: 90
+        color: "#18458b"
+        radius: 20
+
+        anchors {
+            left: parent.left
+            right: separatorBar.left
+            top: settings_rect.bottom
+            leftMargin: 25
+            rightMargin: 25
+            topMargin: 25
+        }
+        z: 1
+
+        Text {
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                right:parent.right
+                left: parent.left
+                
+                topMargin: 8
+                bottomMargin: 12
+                leftMargin: 10
+                rightMargin: 10
+            }
+
+            text: "?"
+            font.pixelSize: 70
+            font.bold: true
+            color: "#FFFFFF"
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+        }
+
+        Button {
+            id: button_help
+            anchors.fill: parent
+            flat: true
+
+            HoverHandler { 
+                id: buttonHoverHelp
+                cursorShape: Qt.PointingHandCursor 
+            }
+
+            ToolTip {
+                id: helpToolTip
+                visible: buttonHoverHelp.hovered
+                text: "Help"
+                delay: 500
+
+                contentItem: Text {
+                    text: helpToolTip.text
+                    color: textColor
+                }
+
+                background: Rectangle {
+                    color: backgroundcolor
+                    border.color: accent1color
+                    radius: 5
+                }
+            }
+        }
+    }
+
+    
+    Rectangle {
+        id: umDearbornCECS
+        anchors {
+            top: help_rect.bottom
+            bottom: parent.bottom
+            right: separatorBar.left
+            left: parent.left
+
+            margins: 25
+        }
+        z:1
+        radius: 20
+
+        Image {
+            anchors.centerIn:parent
+            source: "./assets/CECS_2.png"
+
+            width: parent.width - 5
+            height: parent.height -5
+            fillMode: Image.PreserveAspectFit
+            //smooth: true
+            mipmap: true
+        }
+    }
+    
+    
 
     // NOT CONNECTED TO ANYTHING YET //
     function switchColorMode() {
