@@ -2,7 +2,7 @@ import QtQuick 6.10
 import QtQuick.Controls 6.10
 import QtQuick.Effects 6.10
 
-ApplicationWindow {
+ApplicationWindow { 
     property string accent1color: "#144F85"
     property string backgroundcolor: "#141414"
     property string backgroundcolor2: "#242424"
@@ -206,12 +206,27 @@ ApplicationWindow {
                             color: textColor
                         }
 
-                        Text {
+                        Image {
+                            id: symbol_img
                             anchors {
                                 left: parent.left
                                 bottom: parent.bottom
                                 leftMargin: 10
-                                bottomMargin: 10
+                                bottomMargin: 8
+                            }
+
+                            source: {
+                                if(issues === 0) {"./assets/checkmark_icon.png"}
+                                else {"./assets/x_icon.png"}
+                            }
+                        }
+
+                        Text {
+                            anchors {
+                                left: symbol_img.right
+                                bottom: parent.bottom
+                                leftMargin: 8
+                                bottomMargin: 12
                             }
 
                             text: {
@@ -221,7 +236,7 @@ ApplicationWindow {
                             }
                             
                             font.pixelSize: 26
-                            color: issues === 0 ? '#00ff77' : "#FF0000"
+                            color:  "#969696" //issues === 0 ? '#00ff77' : "#FF0000"
                         }
 
                         Button {
@@ -230,11 +245,13 @@ ApplicationWindow {
                             //enabled: isFocused
                             flat: true
 
+                            /*
                             background: Rectangle {
                                 //implicitWidth: parent.width
                                 //implicitHeight: parent.height
                                 color: "transparent"
                             }
+                            */
 
                             HoverHandler { cursorShape: Qt.PointingHandCursor }
 
@@ -257,6 +274,94 @@ ApplicationWindow {
             }
         }
     }
+
+    Rectangle {
+        id: topShadowRect
+         anchors {
+            top: rectangle2.top
+            left: rectangle2.left
+            right: rectangle2.right
+        }
+        height: parent.height - rectangle2.height - 8
+        radius: 5
+        z:3
+        gradient: Gradient {
+            GradientStop { position: 0.0; color:  '#80000000' } 
+            GradientStop { position: 1.0; color:  '#00000000' }
+        }
+        visible: savedList.atYBeginning === true ? false : true
+    }
+
+    Rectangle {
+        id: bottomShadowRect
+        anchors {
+            bottom: rectangle2.bottom
+            left: rectangle2.left
+            right: rectangle2.right
+        }
+
+        height: parent.height - rectangle2.height - 8
+        radius: 5
+        z:3
+        gradient: Gradient {
+            GradientStop { position: 0.0; color:  '#00000000' } // Start color at the top (0.0)
+            GradientStop { position: 1.0; color:  '#80000000' }
+        }
+        visible: savedList.atYEnd === true ? false : true
+    }
+
+    /*
+    RectangularShadow {
+        anchors.fill: topShadowRect
+        offset.x: 5 
+        offset.y: 0 
+        radius:topShadowRect.radius
+        blur: 20 // Shadow softness
+        spread: 0 // Shadow size relative to source
+        color: '#805B5B5B' // Shadow color with alpha (black, 50% opacity)
+        antialiasing: true // Smooth the edges
+        z:1
+        visible: savedList.atYBeginning === true ? false : true
+    }
+
+    Rectangle {
+        id: topShadowRect
+        anchors {
+            bottom: rectangle2.top
+            left: rectangle2.left
+            right: parent.right
+            top:parent.top
+        }
+        z:2
+        color: backgroundcolor
+    }
+
+    RectangularShadow {
+        anchors.fill: bottomShadowRect
+        offset.x: 5 
+        offset.y: 0 
+        radius:topShadowRect.radius
+        blur: 30 // Shadow softness
+        spread: 0 // Shadow size relative to source
+        color: '#805b5b5b' // Shadow color with alpha (black, 50% opacity)
+        antialiasing: true // Smooth the edges
+        z:1
+        visible: savedList.atYEnd === true ? false : true
+    }
+
+    Rectangle {
+        id: bottomShadowRect
+        anchors {
+            bottom: parent.bottom
+            left: rectangle2.left
+            right: parent.right
+            top: rectangle2.bottom
+        }
+        z:2
+        color: backgroundcolor
+    }
+    */
+
 
     RectangularShadow {
         anchors.fill: help_rect
@@ -362,6 +467,13 @@ ApplicationWindow {
         }
         z: 1
 
+        Image {
+            id: settings_img
+            anchors.centerIn: parent
+            source: "./assets/settings_edit.png"
+        }
+
+        /*
         Text {
             anchors {
                 top: parent.top
@@ -390,7 +502,8 @@ ApplicationWindow {
             radius: 10
             color: "#FFFFFF"
         }
-
+        */
+        
         RoundButton {
             id: button_settings
             anchors.fill: parent
