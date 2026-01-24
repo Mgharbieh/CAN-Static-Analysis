@@ -16,6 +16,7 @@ Item {
     Canvas {
         id: canvas
         anchors.fill: parent
+        renderStrategy: Canvas.Threaded 
 
         onPaint: {
             var ctx = getContext("2d")

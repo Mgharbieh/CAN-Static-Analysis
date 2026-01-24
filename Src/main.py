@@ -1,9 +1,27 @@
 import sys
 import IssueChecker 
 
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot, QRunnable, QThreadPool
 from PyQt6.QtQml import QQmlApplicationEngine
 from PyQt6.QtGui import QGuiApplication
+
+class WorkerSignals(QObject):
+    result = pyqtSignal(int, str, str)
+
+class AnalysisWorker(QRunnable):
+    def __init__(self, checker, path):
+        super().__init__()
+        self.checker = checker
+        self.path = path
+        self.signals = WorkerSignals()
+
+    @pyqtSlot()
+    def run(self):
+        try:
+            issueCount, data, code = self.checker.analyzeFile(self.path)
+            self.signals.result.emit(issueCount, data, code)
+        except Exception as e:
+            print(f"Error in worker: {e}")
 
 class AnalysisInterface(QObject):
 
@@ -12,10 +30,12 @@ class AnalysisInterface(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.checker = IssueChecker.IssueChecker()
+        self.threadPool = QThreadPool()
 
     def analyzeFile(self, path):
-        issueCount, data, code = self.checker.analyzeFile(path)
-        self.fileProcessed.emit(issueCount, data, code)
+        worker = AnalysisWorker(self.checker, path)
+        worker.signals.result.connect(self.fileProcessed.emit)
+        self.threadPool.start(worker)
 
 app = QGuiApplication(sys.argv)
 interface = AnalysisInterface()

@@ -6,9 +6,23 @@ Rectangle {
     id: titleBar
     height: 30
     width: parent.width
-    color: backgroundcolor // Custom color
+    color: backgroundcolor 
     radius: 15
     clip: true
+
+    Text {
+        id: titleText
+        text: ""
+        font.pixelSize: 20
+        color: textColor
+
+        anchors {
+            top: parent.top
+            left:parent.left
+            topMargin: 5
+            leftMargin: 10
+        }
+    }
 
     Rectangle {
         id: closeButtonRect
@@ -16,6 +30,7 @@ Rectangle {
             right: parent.right
             bottom: parent.bottom
             top: parent.top
+            rightMargin: 2
         }
 
         width: 30
@@ -57,7 +72,7 @@ Rectangle {
             text: "✕"
             font.pixelSize: 20
             anchors.centerIn: parent
-            color: "#FFFFFF"
+            color: textColor
         }
 
         MouseArea {
@@ -67,15 +82,48 @@ Rectangle {
         
             onEntered: closeButtonRect.color = "#FF0000"
             onExited: closeButtonRect.color = backgroundcolor 
-            onClicked: root.close()
+            onClicked: {
+                windowRoot.close()
+                windowRoot.destroy()
+            } 
         }
     
     }
 
     Rectangle {
-        id: minimizeButtonRect
+        id: maximizeButtonRect
         anchors {
             right: closeButtonRect.left
+            bottom: parent.bottom
+            top: parent.top
+        }
+
+        width: 30
+        color: backgroundcolor
+
+        Text {
+            id: maximizeButtonText
+            text: windowRoot.visibility === Window.FullScreen ? "🗗" : "🗖"
+            font.pixelSize: 15
+            anchors.centerIn: parent
+            color: textColor
+        }
+
+        MouseArea {
+            id: mouseArea2
+            anchors.fill: parent
+            hoverEnabled: true
+
+            onEntered: maximizeButtonRect.color = backgroundcolor2
+            onExited: maximizeButtonRect.color = backgroundcolor
+            onClicked: windowRoot.visibility === Window.FullScreen ? windowRoot.visibility = Window.Windowed : windowRoot.visibility = Window.FullScreen
+        }
+    }
+
+    Rectangle {
+        id: minimizeButtonRect
+        anchors {
+            right: maximizeButtonRect.left
             bottom: parent.bottom
             top: parent.top
         }
@@ -88,23 +136,26 @@ Rectangle {
             text: "—"
             font.pixelSize: 15
             anchors.centerIn: parent
-            color: "#FFFFFF"
+            color: textColor
         }
 
         MouseArea {
-            id: mouseArea2
+            id: mouseArea3
             anchors.fill: parent
             hoverEnabled: true
 
             onEntered: minimizeButtonRect.color = backgroundcolor2
             onExited: minimizeButtonRect.color = backgroundcolor
-            onClicked: root.showMinimized()
+            onClicked: windowRoot.showMinimized()
         }
-}
+    }
 
     DragHandler {
-        onActiveChanged: if (active) root.startSystemMove()
+        onActiveChanged: if (active) windowRoot.startSystemMove()
         target: null // The entire Rectangle acts as the drag area
     }   
 
+    function setTitleText(title) {
+        titleText.text = title
+    }
 }

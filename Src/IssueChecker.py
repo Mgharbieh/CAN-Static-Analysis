@@ -11,7 +11,7 @@ import Modules.IDBitLength.IDAnalyzer as id_analyzer
 import Modules.DataBytePacking.DataByte_Analyzer as data_byte_packing
 import Modules.DataLength.dlc_analyzer as dlc_analyzer
 
-class IssueChecker:
+class IssueChecker():
 
     def __init__(self):
         self.mask_filt_analyzer = mask_filt.MaskAndFilter()
@@ -24,6 +24,7 @@ class IssueChecker:
         dataStream = {}
         issuesFound = 0
         
+        dataStream["file_name"] = inputFile.split('/')[-1]
         if(platform.system() == 'Windows'):
             with(open(inputFile[1:], 'r', encoding='utf-8') as inFile):
                 sourceCode = inFile.read()
