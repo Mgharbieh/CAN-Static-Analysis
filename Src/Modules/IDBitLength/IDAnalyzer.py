@@ -424,13 +424,21 @@ class IDBitLength():
 
         print("#"*100,'\n')
 
+        issues = 0
+        resultList = []
         if(self.frameIDList == []):
             print("No ID Bit Length usage found")
+            return 0, ["No ID Bit Length usage found."]
         for frame in self.frameIDList:
             if(frame[1]==frame[2]):
                 print(frame[0] + " has no errors, " + frame[2] + " ID bit length is properly set and sent")
+                resultList.append(frame[0] + " has no errors, " + frame[2] + " ID bit length is properly set and sent")
             elif(frame[1]!=frame[2]):
                 print("A(n) " + frame[1] + " ID Bit Length is set during frame initialization for " + frame[0] + " but uses a(n) " + frame[2] + " flag when sending message.")
+                resultList.append("A(n) " + frame[1] + " ID Bit Length is set during frame initialization for " + frame[0] + " but uses a(n) " + frame[2] + " flag when sending message.")
+                issues += 1
+
+        return issues, resultList
 
         print()
         print("#"*100)
@@ -487,5 +495,6 @@ class IDBitLength():
         # parser = TreeSitter.Parser(CPP_LANGUAGE)
         # tree = parser.parse(bytes(sourceCode, "utf8"))
         # RootCursor = tree.root_node
-        self._idBitLengthCheck(root)
         self._reset()
+        issueCount, results = self._idBitLengthCheck(root)
+        return issueCount, results

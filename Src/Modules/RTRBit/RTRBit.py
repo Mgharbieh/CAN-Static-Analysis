@@ -457,22 +457,20 @@ class RTRBitChecker:
             print("No remote transmission requests found.")
             print()
             print('#'*100)
-            return
+            return 0, ["No remote transmission requests found."]
         if(len(self.resultList) == 0):
             print("No issues detected!")
             print()
             print('#'*100)
-            return
+            return 0, ["No issues detected!"]
         else:
             for issue in self.resultList:
                 print(issue)
             print()
             print('#'*100)
-            return
-
-
-
+            return len(self.resultList), self.resultList
 
     def checkRTRmode(self, root):
         self._reset()
-        self._checkRTRMode(root)
+        issues, messages = self._checkRTRMode(root)
+        return issues, messages

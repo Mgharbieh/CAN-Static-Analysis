@@ -182,23 +182,29 @@ class MaskAndFilter():
         excludedWarn = False
         excludeList = []
 
+        returnList = []
+
         if(len(self.maskList) == 0 and len(self.setupFilterList) == 0 and len(self.loopFilterList) == 0):
             print("#"*100,'\n')
             print("No Mask/Filter usage found\n")
+            returnList.append("No Mask/Filter usage found")
             print("#"*100,'\n')
-            return
+            return 0, returnList
         elif(len(self.maskList) == 0 and len(self.setupFilterList) > 0):
             maskSetupWarn = True
         elif(len(self.maskList) == 0 and len(self.setupFilterList) == 0 and len(self.loopFilterList) > 0):
             print("#"*100,'\n')
             print("No filters were set during initialization, but address checking is being done.  Consider adding filters during initialization to optimize this code.\n")
+            returnList.append("No filters were set during initialization, but address checking is being done.  Consider adding filters during initialization to optimize this code.")
             print("#"*100,'\n')
-            return
-            
+            return 0, returnList
+
         for filter in self.setupFilterList:
             for mask in self.maskList:
                 if((int(mask, 16) & int(filter, 16)) != int(filter, 16)):
                     maskWarn = True 
+
+
             
             if(filter not in self.loopFilterList):
                 usageWarn = True
@@ -209,27 +215,38 @@ class MaskAndFilter():
                 excludedWarn = True
                 excludeList.append(filt)
 
+        issues = 0
         print("#"*100,'\n')
         if(maskSetupWarn):
+            issues += 1
             print(f'Filters {self.setupFilterList} were set up during initialization but no masks were set!') if len(self.setupFilterList) > 1 else print(f'Filter {self.setupFilterList} was set up during initialization but no masks were set!')
+            returnList.append(f'Filters {self.setupFilterList} were set up during initialization but no masks were set!') if len(self.setupFilterList) > 1 else returnList.append(f'Filter {self.setupFilterList} was set up during initialization but no masks were set!')
         if(maskWarn):   
+            issues += 1
             print("Mask(s) set aren't applied across the full filter value. Is that intentional?")
+            returnList.append("Mask(s) set aren't applied across the full filter value. Is that intentional?")
         if(usageWarn and (len(self.setupFilterList) > 1)):
+            issues += 1
             print(unusedList, "were setup in the filter but never explicitly used.") if len(unusedList) > 1 else print(unusedList, "was setup in the filter but never explicitly used.")
+            returnList.append(str(unusedList) + " were setup in the filter but never explicitly used.") if len(unusedList) > 1 else returnList.append(str(unusedList) + " was setup in the filter but never explicitly used.")
         else:
             usageWarn = False 
         if(excludedWarn):
+            issues += 1
             print(excludeList, "were being checked but are excluded from the filter.") if len(excludeList) > 1 else print(excludeList, "was being checked but is excluded from the filter.")
+            returnList.append(f"{excludeList} were being checked but are excluded from the filter.") if len(excludeList) > 1 else returnList.append(f"{excludeList} was being checked but is excluded from the filter.")
 
         if((not maskSetupWarn) and (not maskWarn) and (not usageWarn) and (not excludedWarn)):
             print("No Mask/Filter issues detected!")
+            returnList.append("No Mask/Filter issues detected!")
         print()
         print("#"*100)
+        return issues, returnList
     #############################################################################
     def checkMaskFilter(self, root):
-
-        self._maskFilterCheck(root)
         self._reset()
+        totalIssues, messages = self._maskFilterCheck(root)
+        return totalIssues, messages
 
 
 

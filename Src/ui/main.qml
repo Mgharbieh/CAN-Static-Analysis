@@ -1,21 +1,50 @@
 import QtQuick 6.10
 import QtQuick.Controls 6.10
 import QtQuick.Effects 6.10
+import QtQuick.Dialogs 6.10
 
 ApplicationWindow { 
     property string accent1color: "#144F85"
     property string backgroundcolor: "#141414"
     property string backgroundcolor2: "#242424"
     property string textColor: "#FFFFFF"
+
+    property bool scanInProgress: false
+    property int itemBeingScanned: -1
+    property string path_to_file: ""
+
+    property var details
+
+    //temp, find better solution later
+    property string sourceCode 
+
+    signal scanFile(string path)
     
     title: "StatiCAN"
+    flags: Qt.Window | Qt.FramelessWindowHint
 
     id: root
     width: 800
-    height: 600
+    height: 640
 
     visible: true
     color: backgroundcolor
+
+    Connections {
+        target: ISSUE_CHECKER
+
+        function onFileProcessed(issueCount, data, code) {
+            savedModel.setProperty(itemBeingScanned, "issues", issueCount)
+            details = JSON.parse(data)
+            sourceCode = code
+            scanInProgress = false
+        }
+    }
+
+    TitleBar {
+        id: title
+        anchors.top: parent.top
+    }
 
     Rectangle {
         id: stati_Rect
@@ -95,7 +124,7 @@ ApplicationWindow {
         radius: 10
 
         anchors {
-            top: parent.top
+            top: title.bottom
             bottom: parent.bottom
             right: parent.right
             left: separatorBar.right
@@ -135,6 +164,8 @@ ApplicationWindow {
 
             ListModel {
                 id: savedModel
+
+                /*
                 // example dummy objects, delete later
                 ListElement {
                     file_name: "car_scanner.ino"
@@ -160,6 +191,7 @@ ApplicationWindow {
                     file_name: "can_read_write.ino"
                     issues: 1
                 }
+                */
             }
 
             ListView {
@@ -206,31 +238,49 @@ ApplicationWindow {
                             color: textColor
                         }
 
-                        Image {
-                            id: symbol_img
+                        Rectangle {
+                            id: file_status_rect
                             anchors {
                                 left: parent.left
                                 bottom: parent.bottom
                                 leftMargin: 10
                                 bottomMargin: 8
+                            }  
+                            width: 40
+                            height: 40
+                            color: "transparent"
+
+                            Image {
+                                id: symbol_img
+                                anchors.fill: parent
+
+                                source: {
+                                    if(issues === 0) {"./assets/checkmark_icon.png"}
+                                    else {"./assets/x_icon.png"}
+                                }
+
+                                visible: issues === -1 ? false : true
                             }
 
-                            source: {
-                                if(issues === 0) {"./assets/checkmark_icon.png"}
-                                else {"./assets/x_icon.png"}
+                            LoadingIndicator {
+                                id: loadingFileIndicator
+                                anchors.fill: parent
+                                isRunning: scanInProgress
+                                visible: issues === -1 ? true : false
                             }
                         }
 
                         Text {
                             anchors {
-                                left: symbol_img.right
+                                left: file_status_rect.right
                                 bottom: parent.bottom
                                 leftMargin: 8
                                 bottomMargin: 12
                             }
 
                             text: {
-                                if(issues === 0) {"No issues found"}
+                                if(issues === -1) {"Processing file..."}
+                                else if(issues === 0) {"No issues found"}
                                 else if(issues === 1 ) {"1 issue found"}
                                 else (issues + " issues found")
                             }
@@ -247,7 +297,9 @@ ApplicationWindow {
                             HoverHandler { cursorShape: Qt.PointingHandCursor }
 
                             onClicked: { 
-                               //add functionality here
+                                //add functionality here
+                                console.log("clicked")
+                                fileInfoLoader.active = true
                             }
                         }
                     }
@@ -263,6 +315,17 @@ ApplicationWindow {
                 color: textColor
                 visible: savedList.count === 0 ? true : false
             }
+        }
+    }
+
+    Loader {
+        id: fileInfoLoader
+        active: false // Don't load it immediately
+        source: "FileInfo.qml"
+        onLoaded: {
+            // This triggers as soon as the component is ready
+            item.setFileInfo(sourceCode, details);
+            item.show();
         }
     }
 
@@ -333,16 +396,23 @@ ApplicationWindow {
             anchors.fill: parent
             //radius: 45
             flat: true
+            
+
+            onClicked: if(!scanInProgress) {uploadFileDialog.open()}
 
             HoverHandler { 
                 id: buttonHoverUpload
-                cursorShape: Qt.PointingHandCursor 
+                cursorShape: scanInProgress === true ? Qt.ForbiddenCursor : Qt.PointingHandCursor 
             }
 
             ToolTip {
                 id: uploadToolTip
                 visible: buttonHoverUpload.hovered
-                text: "Upload File"
+                text: {
+                    if(scanInProgress) {"Please wait until file is scanned"}
+                    else {"Upload File"}
+                } 
+
                 delay: 500
 
                 contentItem: Text {
@@ -518,8 +588,7 @@ ApplicationWindow {
             }
         }
     }
-
-    
+ 
     Rectangle {
         id: umDearbornCECS
         anchors {
@@ -545,7 +614,35 @@ ApplicationWindow {
         }
     }
     
-    
+    FileDialog {
+        id: uploadFileDialog
+        //currentFolder: StandardPaths.standardLocations(StandardPaths.HomeLocation)[0]
+        nameFilters: ["INO Files (*.ino)"]
+        onAccepted: processFile(selectedFile)
+    }
+
+    Timer {
+        id: uiDelay
+        interval: 1000
+        repeat: false
+        onTriggered: {
+            console.log("timer done")
+            scanFile(path_to_file)
+        }
+    }
+
+    function processFile(filePath) {
+        path_to_file = new URL(filePath).pathname
+        var name = path_to_file.split("/")
+        var newElem = {
+            "file_name": name[name.length - 1],
+            "issues": -1
+        }
+        scanInProgress = true
+        savedModel.append(newElem)
+        itemBeingScanned = savedList.count - 1
+        uiDelay.start()
+    }
 
     // NOT CONNECTED TO ANYTHING YET //
     function switchColorMode() {

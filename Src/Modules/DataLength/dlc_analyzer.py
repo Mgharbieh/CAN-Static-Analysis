@@ -200,19 +200,23 @@ class DLCAnalyzer:
         print('#' * 100)
         print()
 
+        issues = 0
         if len(self.msgList) == 0:
             print("No DLC usage found.")
             print()
             print('#' * 100)
-            return
+            return 0, ["No DLC usage found."]
 
         if len(self.resultList) == 0:
             print("No issues detected!")
             print()
             print('#' * 100)
-            return
+            return 0, ["No issues detected!"]
 
         for issue in self.resultList:
             print(issue)
+            issues += 1
+            
         print()
         print('#' * 100)
+        return issues, self.resultList
