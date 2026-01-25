@@ -1,6 +1,7 @@
 import QtQuick 6.10
 import QtQuick.Controls 6.10
 import QtQuick.Effects 6.10
+import QtQuick.Layouts 6.10
 
 ApplicationWindow {
     id: windowRoot
@@ -177,6 +178,7 @@ ApplicationWindow {
                 }
 
                 ScrollBar.horizontal: ScrollBar {
+                    id: hBar
                     parent: viewIssues
                     x: viewIssues.leftPadding
                     y: viewIssues.height - height
@@ -189,11 +191,6 @@ ApplicationWindow {
                         implicitHeight: 6
                         radius: height / 2
                         color: '#2e2e2e'
-                        opacity: 1
-
-                        MouseArea {
-                            onClicked: { }
-                        }
                     } 
                     background: Rectangle {
                         implicitHeight: 10
@@ -206,6 +203,52 @@ ApplicationWindow {
                 background: Rectangle {
                     color: backgroundcolor2
                     radius: issuesRect.radius
+                }
+
+                ColumnLayout {
+                    id: contentColumn
+                    width: Math.max(viewIssues.availableWidth, implicitWidth)
+                    spacing: 8 
+                
+                    IssuePane {
+                        id: maskFiltPane
+                        Layout.fillWidth: true
+                        scrollRef: viewIssues
+                    }
+
+                    IssuePane {
+                        id: rtrPane
+                        Layout.fillWidth: true
+                        scrollRef: viewIssues
+                    }
+
+                    IssuePane {
+                        id: idLenPane
+                        Layout.fillWidth: true
+                        scrollRef: viewIssues
+                    }
+
+                    IssuePane {
+                        id: dlcPane
+                        Layout.fillWidth: true
+                        scrollRef: viewIssues
+                    }
+
+                    IssuePane {
+                        id: bytePackingPane
+                        Layout.fillWidth: true
+                        scrollRef: viewIssues
+                    }
+                }
+                /*
+                Column {
+                    spacing: 2
+
+                    IssuePane {id: maskFiltPane}
+                    IssuePane {id: rtrPane}
+                    IssuePane {id: idLenPane}
+                    IssuePane {id: dlcPane}
+                    IssuePane {id: bytePackingPane}
                 }
 
                 TextArea {
@@ -221,17 +264,47 @@ ApplicationWindow {
                         radius: 15
                     }
                 }
+                */
             }
         }
     }
 
     function setFileInfo(code, infoStream) {
         console.log("setFileInfo called...")
+        var temp = ""
 
         windowRoot.title = infoStream.file_name
         infoTitleBar.setTitleText(infoStream.file_name)
         sourceCodeText.text = code
         
+        infoStream.mask_filt.mf_messages.forEach(function(item) {
+            temp += ("• " + item) + "\n"
+        })   
+        maskFiltPane.populateModule("Mask and Filter (" + infoStream.mask_filt.mf_issues + ")", temp)
+
+        temp = ""
+        infoStream.rtr.rtr_messages.forEach(function(item) {
+            temp += ("• " + item) + "\n"
+        })
+        rtrPane.populateModule("Remote Transmission Request (" + infoStream.rtr.rtr_issues + ")", temp)
+
+        temp = ""
+        infoStream.idLen.idLen_messages.forEach(function(item) {
+            temp += ("• " + item) + "\n"
+        })
+        idLenPane.populateModule("ID Length (" + infoStream.idLen.idLen_issues + ")", temp)
+
+        temp = ""
+        infoStream.dlc.dlc_messages.forEach(function(item) {
+            temp += ("• " + item) + "\n"
+        })
+        dlcPane.populateModule("Data Length Code (" + infoStream.dlc.dlc_issues + ")", temp)
+
+        temp = "pls fix serene"
+        // datalength code here when fixed //
+        bytePackingPane.populateModule("Byte Packing Violations", temp)
+
+        /*
         issueText.text = "Mask and Filter (" + infoStream.mask_filt.mf_issues + ")\n"
         infoStream.mask_filt.mf_messages.forEach(function(item) {
             issueText.text += ("  " + item) + "\n"
@@ -248,6 +321,7 @@ ApplicationWindow {
         infoStream.dlc.dlc_messages.forEach(function(item) {
             issueText.text += ("  " + item) + "\n"
         })
+        */
         windowRoot.visible = true
     }
 }
