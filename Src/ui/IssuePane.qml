@@ -11,13 +11,6 @@ Item {
     Rectangle {
         id: issueTitleBar
         color: accent1color
-        /*
-        anchors {
-            left: parent.left
-            right: parent.right
-            //leftMargin: 5
-        }
-        */
         x: scrollRef ? scrollRef.contentItem.contentX : 0
         width: scrollRef ? scrollRef.availableWidth : parent.width
         height: 40
@@ -36,7 +29,6 @@ Item {
             color: "#FFFFFF" //change to titleTextColor variable later
             font.pixelSize: 30
             font.bold: true
-            //verticalAlignment: Text.AlignVCenter
         }
     }
 

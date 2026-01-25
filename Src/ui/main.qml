@@ -265,7 +265,7 @@ ApplicationWindow {
                                 }
                                 
                                 font.pixelSize: 26
-                                color:  "#969696" //issues === 0 ? '#00ff77' : "#FF0000"
+                                color:  "#969696" 
                             }
 
                             Button {
@@ -276,10 +276,8 @@ ApplicationWindow {
                                 HoverHandler { cursorShape: Qt.PointingHandCursor }
 
                                 onClicked: { 
-                                    //add functionality here
                                     console.log("clicked")
                                     openFileInfo()
-                                    //fileInfoLoader.active = true
                                 }
                             }
                         }
@@ -586,7 +584,6 @@ ApplicationWindow {
     
     FileDialog {
         id: uploadFileDialog
-        //currentFolder: StandardPaths.standardLocations(StandardPaths.HomeLocation)[0]
         nameFilters: ["INO Files (*.ino)"]
         onAccepted: processFile(selectedFile)
     }
@@ -616,32 +613,18 @@ ApplicationWindow {
 
     function openFileInfo() {
         if (fileInfoWindow === null) {
-            var component = Qt.createComponent("FileInfo.qml");
-            
+            var component = Qt.createComponent("FileInfo.qml");        
             if (component.status === Component.Ready) {
-                // THE KEY FIX: The first argument 'null' removes the parent/owner relationship
-                /*
-                fileInfoWindow = component.createObject(null, {
-                    "sourceCode": sourceCode, // Pass your properties here
-                    "details": details
-                });
-                */
                 fileInfoWindow = component.createObject(null)
                 fileInfoWindow.setFileInfo(sourceCode, details)
                 fileInfoWindow.show()
-
-                // 3. Cleanup: Ensure we reset the property when the window closes
                 fileInfoWindow.closing.connect(function() {
-                    fileInfoWindow = null; 
-                    // Note: fileInfoWindow automatically destroys itself on close 
-                    // if you have distinct close logic, or you can force it here:
-                    // fileInfoWindow.destroy(); 
+                    fileInfoWindow = null;  
                 });
             } else {
                 console.error("Error loading component:", component.errorString());
             }
         } else {
-            // If already open, just bring it to front
             fileInfoWindow.raise();
             fileInfoWindow.requestActivate();
         }

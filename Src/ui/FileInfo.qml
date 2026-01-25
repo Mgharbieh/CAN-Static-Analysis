@@ -6,8 +6,8 @@ import QtQuick.Layouts 6.10
 ApplicationWindow {
     id: windowRoot
 
-    width: screen.width * 0.8  //100//500
-    height: screen. height * 0.8 //100//500
+    width: screen.width * 0.8  
+    height: screen. height * 0.8 
     visible: false
 
     title: ""
@@ -194,7 +194,6 @@ ApplicationWindow {
                     } 
                     background: Rectangle {
                         implicitHeight: 10
-                        //radius: width / 2
                         color: backgroundcolor2
                         opacity: 1
                     }
@@ -240,31 +239,6 @@ ApplicationWindow {
                         scrollRef: viewIssues
                     }
                 }
-                /*
-                Column {
-                    spacing: 2
-
-                    IssuePane {id: maskFiltPane}
-                    IssuePane {id: rtrPane}
-                    IssuePane {id: idLenPane}
-                    IssuePane {id: dlcPane}
-                    IssuePane {id: bytePackingPane}
-                }
-
-                TextArea {
-                    id: issueText
-                    text: ""
-                    color: "#FFFFFF"
-                    font.pixelSize: 24
-                    readOnly: true
-                    wrapMode: TextEdit.NoWrap
-                    width: parent.width // Bind width to the ScrollView's available width
-                    background: Rectangle {
-                        color: backgroundcolor2
-                        radius: 15
-                    }
-                }
-                */
             }
         }
     }
@@ -304,24 +278,6 @@ ApplicationWindow {
         // datalength code here when fixed //
         bytePackingPane.populateModule("Byte Packing Violations", temp)
 
-        /*
-        issueText.text = "Mask and Filter (" + infoStream.mask_filt.mf_issues + ")\n"
-        infoStream.mask_filt.mf_messages.forEach(function(item) {
-            issueText.text += ("  " + item) + "\n"
-        })
-        issueText.text += "\nRemote Transmission Request (" + infoStream.rtr.rtr_issues + ")\n"
-        infoStream.rtr.rtr_messages.forEach(function(item) {
-            issueText.text += ("  " + item) + "\n"
-        })
-        issueText.text += "\nID Length (" + infoStream.idLen.idLen_issues + ")\n"
-        infoStream.idLen.idLen_messages.forEach(function(item) {
-            issueText.text += ("  " + item) + "\n"
-        })
-        issueText.text += "\nData Length Code (" + infoStream.dlc.dlc_issues + ")\n"
-        infoStream.dlc.dlc_messages.forEach(function(item) {
-            issueText.text += ("  " + item) + "\n"
-        })
-        */
         windowRoot.visible = true
     }
 }
