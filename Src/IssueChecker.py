@@ -50,7 +50,6 @@ print("-"*100)
 print("\nDATA BYTE PACKING CHECK: \n")
 data_byte_packing_analyzer.checkDataPack(RootCursor)
 print("-"*100)
-print("-"*100)
 print("\nDLC CHECK: \n")
 data_length_analyzer.checkDLC(RootCursor)
 ##################################################################################################

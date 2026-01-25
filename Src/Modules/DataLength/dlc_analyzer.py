@@ -182,7 +182,7 @@ class DLCAnalyzer:
 
                     self.msgList.append([callText, dlc_raw, dlc_val, lineNum])
 
-                    #lassic CAN ONLY expects DLC == 8
+                    #classic CAN ONLY expects DLC == 8
                     buf_raw = arg_node.children[7].text.decode().strip()
                     expected = self.buffer_sizes.get(buf_raw)
 
